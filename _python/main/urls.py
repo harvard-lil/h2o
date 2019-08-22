@@ -27,6 +27,8 @@ class IdSlugConverter:
         }
 
     def to_url(self, value):
+        if isinstance(value, int):
+            return str(value)
         slug = value.get('slug')
         if slug:
             return '{}-{}'.format(value['id'], value.get('slug'))
