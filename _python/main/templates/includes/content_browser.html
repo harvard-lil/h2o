@@ -1,6 +1,7 @@
 {% load call_method %}
 <div class="content-browser">
-  {% for casebook in content %}
+  {% for node in content %}
+    {% call_method node "to_proxy" as casebook %}
     {% call_method casebook "editable_by" request.user as user_can_edit %}
     {% call_method casebook "drafts" as draft %}
     <a class="wrapper" href="{{ casebook.get_absolute_url }}{% if not casebook.public %}/layout{% endif %}">

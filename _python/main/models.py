@@ -134,6 +134,8 @@ class ContentNode(RailsModel):
     draft_mode_of_published_casebook = models.BooleanField(blank=True, null=True)
     cloneable = models.BooleanField()
 
+    # Can we make this relationship return casebook objects, not nodes?
+    # I don't think so. Workaround: see "to_proxy"
     collaborators = models.ManyToManyField('User', through='ContentCollaborator', related_name='casebooks')
 
     class Meta:
@@ -148,6 +150,18 @@ class ContentNode(RailsModel):
             return 'section'
         else:
             return 'resource'
+
+    def to_proxy(self):
+        """
+        A utility class for getting a Casebook, Section, or Resource object,
+        if you have a ContentNode. Helpful for accessing methods specific
+        to the proxy class, in a context where it is difficult to obtain
+        the proxy objects directly.
+
+        For instance, user.casebooks returns ContentNode objects, not Casebook objects
+        """
+        self.__class__ = globals()[self.type.capitalize()]
+        return self
 
     @property
     def resource(self):
