@@ -79,6 +79,7 @@ urlpatterns = format_suffix_patterns(drf_urlpatterns) + [
     path('casebooks/<idslug:casebook_param>/resources/<ordslug:ordinals_param>/', views.resource, name='resource'),
     path('casebooks/<idslug:casebook_param>/sections/<ordslug:ordinals_param>/', views.section, name='section'),
     path('casebooks/<idslug:casebook_param>/', views.casebook, name='casebook'),
+    path('cases/<int:case_id>/', views.case, name='case'),
     # canonical paths for static pages
     path('about/', DirectTemplateView.as_view(template_name='pages/about.html'), name='about'),
     path('privacy-policy/', DirectTemplateView.as_view(template_name='pages/privacy-policy.html'), name='privacy-policy'),

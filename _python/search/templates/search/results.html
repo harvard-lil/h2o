@@ -21,7 +21,7 @@
           </div>
         </a>
       {% elif category == 'case' %}
-        <a href="" class="wrapper" data-result-id="{{ result.result_id }}">
+        <a href="{% url 'case' result.result_id %}" class="wrapper" data-result-id="{{ result.result_id }}">
           <div class="results-entry">
             <div class="title">
               {{ result.metadata.display_name }}

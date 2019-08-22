@@ -8,7 +8,7 @@ from rest_framework.response import Response
 import json
 
 from .serializers import ContentAnnotationSerializer, CaseSerializer, TextBlockSerializer
-from .models import Casebook, Resource, Section, User
+from .models import Casebook, Resource, Section, Case, User
 
 
 class DirectTemplateView(TemplateView):
@@ -121,3 +121,14 @@ def resource(request, casebook_param, ordinals_param):
         'include_vuejs': resource.resource_type in ['Case', 'TextBlock']
     })
 
+
+def case(request, case_id):
+    case = get_object_or_404(Case, id=case_id)
+    if not case.public:
+        return HttpResponseForbidden()
+
+    case.json = json.dumps(CaseSerializer(case).data)
+    return render(request, 'case.html', {
+        'case': case,
+        'include_vuejs': True
+    })
