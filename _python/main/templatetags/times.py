@@ -5,7 +5,7 @@ register = template.Library()
 @register.filter
 def times(i):
     """
-    For iterating i items.
+    For iterating an integer "i" number of times.
     Usage: {% for i in 5|times %}{{i}}{% endfor %}
     >> 01234
     """
