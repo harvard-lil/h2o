@@ -1,5 +1,7 @@
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.views import redirect_to_login
+from django.db.models import Subquery, OuterRef
+from django.db.models.functions import ExtractYear
 from django.http import HttpResponseForbidden, HttpResponseRedirect
 from django.shortcuts import render, get_object_or_404
 from django.views.generic import TemplateView
@@ -73,9 +75,17 @@ def casebook(request, casebook_param):
     if request.path != canonical:
         return HttpResponseRedirect(canonical)
 
+    # try annotating for speediness: let's profile!
+    related_cases = Case.objects.filter(id=OuterRef('resource_id'))
+    contents = casebook.contents.annotate(
+        citations=Subquery(related_cases.values_list('citations', flat=True))
+    ).annotate(
+        date_year=ExtractYear(Subquery(related_cases.values_list('decision_date', flat=True)))
+    ).all().order_by('ordinals')
+
     return render(request, 'casebook.html', {
         'casebook': casebook,
-        'contents': casebook.contents.all().order_by('ordinals')
+        'contents': contents
     })
 
 
