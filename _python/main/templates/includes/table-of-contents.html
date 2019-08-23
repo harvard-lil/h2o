@@ -1,61 +1,88 @@
+{% load include_previous_object times subtract %}
 <section class="table-of-contents">
   {% if section %}<h5>Section Contents</h5>{% endif %}
-  {% for content in contents %}
-    {% if content.type == 'resource'  %}
-      <div class="listing-wrapper" data-ordinals="{{ content.ordinal_string }}">
-        <a class="listing resource" href="{{ content.get_absolute_url }}">
-          <div class="section-number">{{ content.ordinal_string }}</div>
-            {% if content.resource_type == 'Case' %}
-              <div class="resource-container">
-                <div class="section-title case-section-title">
-                  {{ content.get_title }}
-                </div>
-                <div class="case-metadata-container">
-                  <div class="resource-case">{{ content.resource.citations.0.cite }}</div>
-                  <div class="resource-date">{{ content.resource.date_year }}</div>
-                </div>
+  {% with contents.first.ordinals|length as initial_level %}
+    {% for previous_content, content in contents|include_previous_object %}
+      {% with content.ordinals|length as current_level %}
+        {% with previous_content.ordinals|length|default:current_level as previous_level %}
+
+          {# Adjust level of nesting as appropriate: first loop if nesting deeper, second loop if unnesting #}
+          {% for _ in current_level|subtract:previous_level|times %}
+            <div class="section-wrapper">
+              <div class="section-contents">
+          {% endfor %}
+          {% for _ in previous_level|subtract:current_level|times %}
               </div>
-              <div class="resource-type-container">
-                <div class="resource-type">
-                  Case
-                </div>
-              </div>
-            {% elif content.resource_type == 'TextBlock' %}
-              <div class="resource-container">
-                <div class="section-title">
-                  {{ content.get_title }}
-                </div>
-              </div>
-              <div class="resource-type-container">
-                <div class="resource-type">
-                  Text
-                </div>
-              </div>
-            {% elif content.resource_type == 'Default' %}
-              <div class="resource-container">
-                <div class="section-title">
-                  {{ content.get_title }}
-                </div>
-              </div>
-              <div class="resource-type-container">
-                <div class="resource-type">
-                  Link
-                </div>
-              </div>
+            </div>
+          {% endfor %}
+
+          {# TOC entry #}
+          {% if content.type == 'resource'  %}
+            <div class="listing-wrapper" data-ordinals="{{ content.ordinal_string }}">
+              <a class="listing resource" href="{{ content.get_absolute_url }}">
+                <div class="section-number">{{ content.ordinal_string }}</div>
+                  {% if content.resource_type == 'Case' %}
+                    <div class="resource-container">
+                      <div class="section-title case-section-title">
+                        {{ content.get_title }}
+                      </div>
+                      <div class="case-metadata-container">
+                        <div class="resource-case">{{ content.resource.citations.0.cite }}</div>
+                        <div class="resource-date">{{ content.resource.date_year }}</div>
+                      </div>
+                    </div>
+                    <div class="resource-type-container">
+                      <div class="resource-type">
+                        Case
+                      </div>
+                    </div>
+                  {% elif content.resource_type == 'TextBlock' %}
+                    <div class="resource-container">
+                      <div class="section-title">
+                        {{ content.get_title }}
+                      </div>
+                    </div>
+                    <div class="resource-type-container">
+                      <div class="resource-type">
+                        Text
+                      </div>
+                    </div>
+                  {% elif content.resource_type == 'Default' %}
+                    <div class="resource-container">
+                      <div class="section-title">
+                        {{ content.get_title }}
+                      </div>
+                    </div>
+                    <div class="resource-type-container">
+                      <div class="resource-type">
+                        Link
+                      </div>
+                    </div>
+                {% endif %}
+              </a>
+            </div>
+          {% elif content.type == 'section' %}
+            <div class="listing-wrapper" data-ordinals="{{ content.ordinal_string }}">
+              <a class="listing section" href="{{ content.get_absolute_url }}">
+                <div class="section-number">{{ content.ordinal_string }}</div>
+                <div class="section-title">{{ content.get_title }}</div>
+              </a>
+            </div>
           {% endif %}
-        </a>
+
+          {# Close any remaining open levels of nesting #}
+          {% if forloop.last %}
+            {% for _ in current_level|subtract:initial_level|times %}
+                </div>
+              </div>
+            {% endfor %}
+          {% endif %}
+        {% endwith %}
+      {% endwith %}
+    {% empty %}
+      <div class="listing empty">
+        This {% if section %}section{% else %}casebook{% endif %} has no content yet.
       </div>
-    {% elif content.type == 'section' %}
-      <div class="listing-wrapper" data-ordinals="{{ content.ordinal_string }}">
-        <a class="listing section" href="{{ content.get_absolute_url }}">
-          <div class="section-number">{{ content.ordinal_string }}</div>
-          <div class="section-title">{{ content.get_title }}</div>
-        </a>
-      </div>
-    {% endif %}
-  {% empty %}
-    <div class="listing empty">
-      This {% if section %}section{% else %}casebook{% endif %} has no content yet.
-    </div>
-  {% endfor %}
+    {% endfor %}
+  {% endwith %}
 </section>
