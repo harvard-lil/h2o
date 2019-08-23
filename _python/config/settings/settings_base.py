@@ -65,6 +65,7 @@ TEMPLATES = [
                 'django.template.context_processors.request',
                 'django.contrib.auth.context_processors.auth',
                 'django.contrib.messages.context_processors.messages',
+                'config.context_processors.settings'
             ],
         },
     },
@@ -128,3 +129,12 @@ STATIC_URL = '/static/'
 RAILS_SECRET_KEY_BASE = None
 
 LOGIN_URL = '/user_sessions/new'
+
+CONTACT_EMAIL = 'info@opencasebook.org'
+
+
+# Make these settings available for use in Django's templates.
+# e.g. <a href="mailto:{{ CONTACT_EMAIL }}">Contact Us</a>
+TEMPLATE_VISIBLE_SETTINGS = (
+    'CONTACT_EMAIL',
+)
