@@ -7,7 +7,7 @@
     <div class="content">
       <div class="casebook-inner">
           <div class="tabs">
-            <a class="tab active disabled" href="#">Casebook</a>
+            <span class="tab active disabled">Casebook</a>
           </div>
       </div>
     </div>
@@ -24,7 +24,7 @@
               {% include 'includes/collaborators.html' with content=casebook%}
             </div>
             <div class="root-attribution">
-              {% if casebook.root_owner %}Original author: <a href="#">{{ casebook.root_owner.display_name }}</a>{% endif %}
+              {% if casebook.root_owner %}Original author: <a href="{% url 'dashboard' casebook.root_owner.id %}">{{ casebook.root_owner.display_name }}</a>{% endif %}
             </div>
           </div>
       </header>

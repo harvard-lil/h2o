@@ -1,14 +1,12 @@
-
 {% extends 'base.html' %}
 {% load static %}
 
 {% block mainContent %}
-
 <section class="hero">
   <div class="content">
       <h1><em>Build a better casebook.</em></h1>
       <h2>H2O helps law faculty create high quality, open-licensed digital textbooks for free.</h2>
-      <a class="call-to-action" href="#">View a book</a>
+      <a class="call-to-action" href="{% url 'casebook' 25965 %}">View a book</a>
   </div>
 </section>
 <section class="preview">
@@ -28,7 +26,7 @@
             <p>H2O is made by the Harvard Law School Library and designed carefully to serve faculty and student needs.</p>
           </section>
             <section>
-              <div class="link"><a class="call-to-action" href="#">Help Guide</a></div>
+              <div class="link"><a class="call-to-action" href="{{ GUIDE_URL }}">Help Guide</a></div>
             </section>
       </div>
       <div class="screenshot">
@@ -46,38 +44,38 @@
           <div class="photo"><img src="{% static "assets/endorsers/zittrain.png" %}"/></div>
           <div class="name">Professor Jonathan Zittrain</div>
           <div class="institution">Harvard Law School</div>
-          <div class="link"><a href="#">Torts</a>
+          <div class="link"><a href="{% url 'casebook' 30206 %}">Torts</a>
           </div>
         </div>
         <div class="endorser">
           <div class="photo"><img src="{% static "assets/endorsers/suk-gersen.png" %}"/></div>
           <div class="name">Professor Jeannie Suk Gersen</div>
           <div class="institution">Harvard Law School</div>
-          <div class="link"><a href="#">Criminal Law</a></div>
+          <div class="link"><a href="{% url 'casebook' 28024 %}">Criminal Law</a></div>
         </div>
         <div class="endorser">
           <div class="photo"><img src="{% static "assets/endorsers/quinn.png" %}"/></div>
           <div class="name">Professor Brian Quinn</div>
           <div class="institution">Boston College Law School</div>
-          <div class="link"><a href="#">An Introduction to the Law of Corporations</a></div>
+          <div class="link"><a href="{% url 'casebook' 28884 %}">An Introduction to the Law of Corporations</a></div>
         </div>
         <div class="endorser">
           <div class="photo"><img src="{% static "assets/endorsers/fried2.png" %}"/></div>
           <div class="name">Professor Charles Fried</div>
           <div class="institution">Harvard Law School</div>
-          <div class="link"><a href="#">Contracts Law</a></div>
+          <div class="link"><a href="{% url 'casebook' 75344 %}">Contracts Law</a></div>
         </div>
         <div class="endorser">
           <div class="photo"><img src="{% static "assets/endorsers/cohen.png" %}"/></div>
           <div class="name">Professor I. Glenn Cohen</div>
           <div class="institution">Harvard Law School</div>
-          <div class="link"><a href="#">Civil Procedure</a></div>
+          <div class="link"><a href="{% url 'casebook' 29269 %}">Civil Procedure</a></div>
         </div>
         <div class="endorser">
           <div class="photo"><img src="{% static "assets/endorsers/modirzadeh.png" %}"/></div>
           <div class="name">Professor Naz Modirzadeh</div>
           <div class="institution">Harvard Law School</div>
-          <div class="link"><a href="#">International Humanitarian Law / Laws of War</a></div>
+          <div class="link"><a href="{% url 'casebook' 45698 %}">International Humanitarian Law / Laws of War</a></div>
         </div>
     </div>
     <div class="testimonial">
@@ -89,6 +87,6 @@
 <section class="stinger">
     <img src="{% static "assets/logo.png" %}" title="H2O"/>
     <h1>"Build coursebooks better, faster and smarter — today."</h1>
-    <a class="call-to-action" href="#">Get started</a>
+    <a class="call-to-action" href="{{ SIGNUP_URL }}">Get started</a>
 </section>
 {% endblock %}
