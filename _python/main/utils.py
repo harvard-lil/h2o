@@ -6,7 +6,7 @@ def sanitize(html):
     """
     TODO: read up on this sanitization library
     """
-    return bleach.clean(html, tags=['p', *bleach.sanitizer.ALLOWED_TAGS])
+    return bleach.clean(html, tags=['p', 'br', *bleach.sanitizer.ALLOWED_TAGS])
 
 
 class Paginator(django.core.paginator.Paginator):
