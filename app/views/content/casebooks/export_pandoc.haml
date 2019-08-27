@@ -1,6 +1,6 @@
 %div.CasebookTitle{data: {'custom-style': 'Casebook Title'}}= @casebook.title
 %div.CasebookSubtitle{data: {'custom-style': 'Casebook Subtitle'}}= @casebook.subtitle
-%div.CasebookHeadnote{data: {'custom-style': 'Casebook Headnote'}}= @casebook.formatted_headnote
+%div.CasebookHeadnote{data: {'custom-style': 'Casebook Headnote'}}= @casebook.headnote
 
 %div.table-of-contents
   - @casebook.contents.each_with_index do |content, idx|
