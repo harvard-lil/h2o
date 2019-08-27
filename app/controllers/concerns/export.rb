@@ -41,8 +41,12 @@ module Export
           '--to docx',
           '--reference-doc "lib/pandoc/reference.docx"',
           '--docx-preserve-style',
-          "--output #{file_path}"
+          "--output #{file_path}",
+          '--quiet'
       ]
+      if content_node.is_a?(Content::Casebook)
+        flags << '--lua-filter "lib/pandoc/table_of_contents.lua"'
+      end
       cmd = "pandoc #{flags.join(' ')}"
       stdout, stderr, status = Open3.capture3(cmd, stdin_data: html.to_s)
       if !status.success?
