@@ -6,6 +6,8 @@ class Content::ResourcesController < Content::NodeController
   skip_before_action :set_page_title, only: [:export]
   skip_before_action :check_public, only: [:export]
 
+  include Export
+
   def show
     @include_vuejs = true
     @decorated_content = @content.decorate(context: {action_name: action_name, casebook: @casebook, section: @section, context_resource: @resource, type: 'resource'})
@@ -41,29 +43,7 @@ class Content::ResourcesController < Content::NodeController
   end
 
   def export
-    @resource = Content::Resource.find params[:resource_id]
-    @decorated_content = @resource.decorate(context: {action_name: action_name, casebook: @casebook, section: @section, context_resource: @resource, type: 'resource'})
-    @include_annotations = (params["annotations"] == "true")
-
-    html = render_to_string(layout: 'export', include_annotations: @include_annotations)
-    file_path = Rails.root.join("tmp/export-#{Time.now.utc.iso8601}-#{SecureRandom.uuid}.docx")
-
-    # remove image tags
-    nodes = Nokogiri::HTML.fragment(html)
-    nodes.css('img').each do | img |
-        img.remove
-    end
-    html = nodes.to_s
-
-    #Htmltoword doesn't let you switch xslt. So we need to manually do it.
-    if @include_annotations
-      Htmltoword.config.default_xslt_path = Rails.root.join 'lib/htmltoword/xslt/with-annotations'
-    else
-      Htmltoword.config.default_xslt_path = Rails.root.join 'lib/htmltoword/xslt/no-annotations'
-    end
-
-    Htmltoword::Document.create_and_save(html, file_path)
-    send_file file_path, type: 'application/vnd.openxmlformats-officedocument.wordprocessingml.document', filename: export_filename('docx', @include_annotations), disposition: :inline
+    export_content(Content::Resource.find params[:resource_id])
   end
 
   def update
@@ -94,11 +74,6 @@ class Content::ResourcesController < Content::NodeController
 
   def resource_params
     params.require(:content_resource).permit(:title, :subtitle, :headnote, :resource_attributes => [:url, :content])
-  end
-
-  def export_filename format, annotations=false
-    suffix = annotations ? '_annotated' : ''
-    helpers.truncate(@resource.title, length: 45, omission: '-', separator: ' ') + suffix + '.' + format
   end
 
   def page_title

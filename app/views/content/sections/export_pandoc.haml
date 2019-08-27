@@ -1,0 +1,6 @@
+%div.SectionNumber{data: {'custom-style': 'Section Number'}}= @content_node.ordinal_string
+%div.SectionTitle{data: {'custom-style': 'Section Title'}}= @content_node.title
+%div.SectionSubtitle{data: {'custom-style': 'Section Subtitle'}}= @content_node.subtitle
+%div.SectionHeadnote{data: {'custom-style': 'Section Headnote'}}= @content_node.formatted_headnote
+- @content_node.contents.each_with_index do |node, idx|
+  = render :partial => "content/export_node", :locals => {:content_node => node, :idx => idx}

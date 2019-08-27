@@ -1,4 +1,4 @@
-## This class applies an annotation to it's corresponding paragraph nodes (created by nokogiri). An annotation can span multiple paragraphs. 
+## This class applies an annotation to it's corresponding paragraph nodes (created by nokogiri). An annotation can span multiple paragraphs.
 class ApplyAnnotationToParagraphs
   attr_accessor :annotation, :paragraph_node, :paragraph_index, :export_footnote_index, :start_paragraph, :end_paragraph, :start_offset, :end_offset, :kind, :id, :content
 
@@ -69,15 +69,29 @@ class ApplyAnnotationToParagraphs
 
     cssClasses << 'head' if is_head
     cssClasses << 'tail' if is_tail
-    suffix = is_tail && ['link', 'note'].include?(kind) ? "<span msword-style='FootnoteReference' data-exclude-from-offset-calcs='true'>#{'*' * export_footnote_index}</span>" : ''
+
+    footnote_style_attribute = H2o::Application.config.pandoc_export ? 'custom-style="Footnote Reference"' : 'msword-style="FootnoteReference"'
+    replacement_style_attribute = H2o::Application.config.pandoc_export ? 'custom-style="Replacement Text"' : 'msword-style="ReplacementText"'
+    highlight_style_attribute = H2o::Application.config.pandoc_export ? 'custom-style="Highlighted Text"' : ''
+    marker = is_tail && ['link', 'note'].include?(kind) ? "<span #{footnote_style_attribute} data-exclude-from-offset-calcs='true'>#{'*' * export_footnote_index}</span>" : ''
 
     case kind
     when 'link' then
-      "<a href='#{escaped_content}' class='#{cssClasses.join(' ')}'>#{selected_text}</a>#{suffix}"
+      "<a href='#{escaped_content}' class='#{cssClasses.join(' ')}'>#{selected_text}</a>#{marker}"
+    when 'note' then
+      "<span class='#{cssClasses.join(' ')}'>#{selected_text}</span>#{marker}"
     when 'replace' then
-      "<span class='annotate replaced'>#{selected_text}</span>" + (is_head ? "<span msword-style='ReplacementText' data-exclude-from-offset-calcs='true'>#{escaped_content}</span>" : '')
+      (!H2o::Application.config.pandoc_export ? "<span class='annotate replaced'>#{selected_text}</span>" : '') + (is_head ? "<span #{replacement_style_attribute} data-exclude-from-offset-calcs='true'>#{escaped_content}</span>" : '')
+    when 'elide' then
+      if H2o::Application.config.pandoc_export
+        is_head ? '<span custom-style="Elision">[ … ]</span>' : ''
+      else
+        "<span class='#{cssClasses.join(' ')}'>#{selected_text}</span>"
+      end
+    when 'highlight' then
+      "<span class='#{cssClasses.join(' ')}' #{highlight_style_attribute}>#{selected_text}</span>"
     else
-      "<span class='#{cssClasses.join(' ')}'>#{selected_text}</span>#{suffix}"
+      raise Exception.new("Unhandled annotation type: #{kind}")
     end
   end
 
@@ -93,7 +107,7 @@ class ApplyAnnotationToParagraphs
     node.replace annotate_html(node.text, paragraph_offset)
   end
 
-  # This is the last paragraph, apply the annotation to the remaining characters.  
+  # This is the last paragraph, apply the annotation to the remaining characters.
   def wrap_last_paragraph(node, paragraph_offset)
     selected_text = annotate_html(node.text[0...end_offset - paragraph_offset], paragraph_offset)
     node.replace "#{node.text[0...0]}#{selected_text}#{node.text[end_offset - paragraph_offset..-1]}"

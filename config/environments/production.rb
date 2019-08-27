@@ -144,4 +144,7 @@ H2o::Application.configure do
 
   config.admin_emails = (ENV["ADMIN_EMAIL"] || '').split(' ')
   config.professor_verifier_email = ENV["PROFESSOR_VERIFIER_EMAIL"]
+
+  config.pandoc_export = ENV["RAILS_PANDOC_EXPORT"] == 'true'
+
 end
