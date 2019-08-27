@@ -12,7 +12,7 @@
     %div.ResourceSubtitle{data: {'custom-style': 'Resource Subtitle'}}= content_node.subtitle
   - if content_node.headnote
     %div.ResourceHeadnote{data: {'custom-style': 'Resource Headnote'}}= content_node.headnote
-  - if content.resource.class < ContentAnnotatable
+  - if content_node.resource.class < ContentAnnotatable
     %div.ResourceBody
       - content_node.send(@include_annotations ? :annotated_paragraphs : :paragraph_nodes).each do |node|
         = node.to_html.html_safe
