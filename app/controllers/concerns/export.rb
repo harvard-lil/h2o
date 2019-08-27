@@ -34,9 +34,7 @@ module Export
           heading.set_attribute('custom-style', 'Case Header')
       end
 
-      # legacy escaping of backslashes
       html = nodes.to_s
-      html.gsub! /\\/, '\\\\\\'
 
       flags = [
           '--from html',
