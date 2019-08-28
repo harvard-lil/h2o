@@ -6,5 +6,4 @@
   - @casebook.contents.each_with_index do |content, idx|
     %div.toc-entry{data: {depth: content.ordinals.length, idx: idx + 1, title: "#{content.ordinal_string} #{content.title}"}}
 
-- @casebook.contents.each_with_index do |content, idx|
-  = render :partial => "content/export_node", :locals => {:content_node => content, :idx => idx}
+= render :partial => "content/export_node", collection: @casebook.contents
