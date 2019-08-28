@@ -4,6 +4,10 @@ module Export
 
     @content_node = content_node
     @include_annotations = (params["annotations"] == "true")
+    # In python-land, we'll be able to further optimize using
+    # https://github.com/harvard-lil/capstone/blob/1f918ba2156f3019ac68fec9a4097fd886bc3a5f/capstone/capdb/models.py#L43
+    # to pre-fetch related contents and annotations
+
     file_path = Rails.root.join("tmp/export-#{Time.now.utc.iso8601}-#{SecureRandom.uuid}.docx")
 
     if H2o::Application.config.pandoc_export
