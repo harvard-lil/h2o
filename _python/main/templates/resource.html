@@ -29,7 +29,7 @@
       {% include 'includes/headnote.html' with content=resource %}
       <section class="resource">
         {% if resource.resource_type == 'Case' or resource.resource_type == 'TextBlock'  %}
-          <the-resource-body :editable="false" :resource="{{ resource.json }}"></the-resource-body>
+          <the-resource :editable="false" :resource="{{ resource.json }}"></the-resource>
         {% elif resource.resource_type == 'Default' %}
           <section class="resource link-resource">
             Click here to view this linked resource off-site:

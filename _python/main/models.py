@@ -71,7 +71,7 @@ class Case(RailsModel):
     opinions = JSONField(blank=True, null=True)
     citations = JSONField(blank=True, null=True)
     docket_number = models.CharField(max_length=20000, blank=True, null=True)
-    #annotations_count = models.IntegerField()  # in Greg PR
+    annotations_count = models.IntegerField()
 
     class Meta:
         managed = False
@@ -91,8 +91,8 @@ class ContentAnnotation(RailsModel):
     content = models.TextField(blank=True, null=True)
     created_at = models.DateTimeField()
     updated_at = models.DateTimeField()
-    # global_start_offset = models.IntegerField(blank=True, null=True)  # in Greg PR
-    # global_end_offset = models.IntegerField(blank=True, null=True)  # in Greg PR
+    global_start_offset = models.IntegerField(blank=True, null=True)
+    global_end_offset = models.IntegerField(blank=True, null=True)
 
     class Meta:
         managed = False
@@ -118,7 +118,7 @@ class ContentNode(RailsModel):
     slug = models.CharField(max_length=10000, blank=True, null=True)
     subtitle = models.CharField(max_length=10000, blank=True, null=True)
     headnote = models.TextField(blank=True, null=True)
-    # raw_headnote = models.TextField(blank=True, null=True)  # in Greg PR
+    raw_headnote = models.TextField(blank=True, null=True)
     public = models.BooleanField()
     casebook = models.ForeignKey('Casebook', models.DO_NOTHING, blank=True, null=True, related_name='contents')
     ordinals = ArrayField(models.IntegerField())
@@ -434,19 +434,18 @@ class Permission(RailsModel):
         db_table = 'permissions'
 
 
-# in Greg PR
-# class RawContent(RailsModel):
-#     id = models.BigAutoField(primary_key=True)
-#     content = models.TextField(blank=True, null=True)
-#     source_type = models.CharField(max_length=-1, blank=True, null=True)
-#     source_id = models.BigIntegerField(blank=True, null=True)
-#     created_at = models.DateTimeField()
-#     updated_at = models.DateTimeField()
-#
-#     class Meta:
-#         managed = False
-#         db_table = 'raw_contents'
-#         unique_together = (('source_type', 'source_id'),)
+class RawContent(RailsModel):
+    id = models.BigAutoField(primary_key=True)
+    content = models.TextField(blank=True, null=True)
+    source_type = models.CharField(max_length=50, blank=True, null=True)
+    source_id = models.BigIntegerField(blank=True, null=True)
+    created_at = models.DateTimeField()
+    updated_at = models.DateTimeField()
+
+    class Meta:
+        managed = False
+        db_table = 'raw_contents'
+        unique_together = (('source_type', 'source_id'),)
 
 
 class Role(RailsModel):
@@ -509,7 +508,7 @@ class TextBlock(RailsModel):
     enable_feedback = models.BooleanField()
     enable_discussions = models.BooleanField()
     enable_responses = models.BooleanField()
-    # annotations_count = models.IntegerField()  # in Greg PR
+    annotations_count = models.IntegerField()
 
     class Meta:
         managed = False
