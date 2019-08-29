@@ -392,24 +392,6 @@ class Default(RailsModel):
         db_table = 'defaults'
 
 
-class Page(RailsModel):
-    page_title = models.CharField(max_length=255)
-    slug = models.CharField(max_length=255)
-    content = models.TextField(blank=True, null=True)
-    created_at = models.DateTimeField(blank=True, null=True)
-    updated_at = models.DateTimeField(blank=True, null=True)
-    footer_link = models.BooleanField()
-    footer_link_text = models.CharField(max_length=255, blank=True, null=True)
-    footer_sort = models.IntegerField()
-    is_user_guide = models.BooleanField()
-    user_guide_sort = models.IntegerField()
-    user_guide_link_text = models.CharField(max_length=255, blank=True, null=True)
-
-    class Meta:
-        managed = False
-        db_table = 'pages'
-
-
 class PermissionAssignment(RailsModel):
     user_collection_id = models.IntegerField(blank=True, null=True)
     user_id = models.IntegerField(blank=True, null=True)
