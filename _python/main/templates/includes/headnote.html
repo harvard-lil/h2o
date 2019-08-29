@@ -1,8 +1,8 @@
-{% if content.formatted_headnote or content.subtitle %}
+{% if content.headnote or content.subtitle %}
   <section class="headnote">
     {% if content.subtitle %}<h3>{{ content.subtitle }}</h3>{% endif %}
     <p>
-      {{ content.formatted_headnote | safe }}
+      {{ content.headnote | safe }}
     </p>
   </section>
 {% else %}
