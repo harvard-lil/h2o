@@ -10,7 +10,7 @@ class CreateCollageCaches < ActiveRecord::Migration
     end
 
     Collage.all.each do |c|
-      doc = Nokogiri::HTML.parse(c.content)
+      doc = HTMLUtils.parse(c.content)
       word_count = 0
       indexable_content = []
       doc.xpath('//tt').each do |n|

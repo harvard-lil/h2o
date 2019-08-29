@@ -1,132 +1,117 @@
-<template>
-<section class="resource"
-         v-selectionchange="selectionchangeHandler">
-  <TheAnnotator v-if="editable"
-                ref="annotator"/>
-  <TheGlobalElisionExpansionButton v-if="collapsible.length"/>
-  <div class="case-text">
-    <template v-for="(el, index) in sections">
-      <ResourceSection :el="el"
-                       :index="parseInt(index)"/>
-    </template>
-  </div>
-</section>
-</template>
-
 <script>
-import { unwrapUndesiredTags,
-         emptyULToP,
-         wrapBareInlineTags,
-         removeEmptyNodes } from "../libs/html_helpers.js";
+import { nodeToTuple,
+         tupleToVNode } from "../libs/resource_node_parsing"
 
-import { createNamespacedHelpers } from "vuex";
-const { mapActions } = createNamespacedHelpers("annotations");
-const { mapGetters } = createNamespacedHelpers("annotations_ui");
-
-import ResourceSection from "./ResourceSection";
-import TheAnnotator from "./TheAnnotator";
-import TheGlobalElisionExpansionButton from "./TheGlobalElisionExpansionButton";
+import SpacePreserver from "./SpacePreserver";
+import ElisionAnnotation from "./ElisionAnnotation";
+import ReplacementAnnotation from "./ReplacementAnnotation";
+import HighlightAnnotation from "./HighlightAnnotation";
+import LinkAnnotation from "./LinkAnnotation";
+import NoteAnnotation from "./NoteAnnotation";
+import FootnoteLink from "./FootnoteLink";
 
 export default {
   components: {
-    ResourceSection,
-    TheAnnotator,
-    TheGlobalElisionExpansionButton
+    SpacePreserver,
+    ElisionAnnotation,
+    ReplacementAnnotation,
+    HighlightAnnotation,
+    LinkAnnotation,
+    NoteAnnotation,
+    FootnoteLink
   },
   props: {
-    resource: {type: Object},
-    editable: {type: Boolean}
+    resource: {type: Object}
   },
-  data: () => ({
-    ranges: null
-  }),
   computed: {
-    ...mapGetters(["collapsible"]),
-
-    sections() {
-      const parser = new DOMParser();
-      let doc = parser.parseFromString(this.resource.content, "text/html");
-
-      // Some resources are pure text without a wrapping HTML doc.
-      // In this case, body.children will return an empty array.
-      // Wrap that text in a div so that ResourceSection can expect HTMLElements
-      if(doc.body.children.length == 0) {
-        let div = document.createElement("div");
-        div.appendChild(document.createTextNode(this.resource.content));
-        return [div];
-      } else {
-        unwrapUndesiredTags(doc);
-        emptyULToP(doc);
-        wrapBareInlineTags(doc);
-        removeEmptyNodes(doc);
-        return doc.body.children;
-      }
-    },
-
-    resourceId() {
-      const header = document.querySelector("header.casebook");
-      return header ? header.dataset.resourceId : null;
+    body() {
+      let node = new DOMParser().parseFromString(this.resource.content, "text/html").body;
+      node.setAttribute("is", "DIV");
+      node.setAttribute("class", "case-text");
+      return node;
     }
   },
-  methods: {
-    ...mapActions(["list"]),
-
-    // The selectionchange directive must be bound to the broader
-    // <section.resource> (rather than TheAnnotator) so that it has
-    // context about which text with which to be concerned.
-    // The TheAnnotator handler is then proxied through rather than
-    // set directly on the directive because $refs doesn't exist at
-    // the point it's added
-    selectionchangeHandler(e, sel) {
-      this.$refs.annotator && this.$refs.annotator.selectionchange(e, sel);
-    }
-  },
-  created() {
-    this.$store.commit("resources_ui/setEditability", this.editable);
-    if(this.resourceId) this.list({resource_id: this.resourceId});
+  render(h) {
+    return tupleToVNode(h, this.$store.state.annotations.all)(nodeToTuple(this.body));
   }
-}
+};
 </script>
 
 <style lang="scss" scoped>
 @import '../styles/vars-and-mixins';
 
-.resource {
-  position: relative;
-  margin-bottom: 24px;
-  padding: 40px;
-  background-color: $white;
-  h5 {
-    font-size: 14px;
-    margin: 30px 0px 15px 0px;
-  }
-  h3 {
-    @include serif-text($medium, 24px, 27px);
-    margin: 10px 0;
-    color: $orange;
-  }
-  @media (max-width: $screen-xs) {
-    h2 {
-      @include serif-text($bold, 19px, 34px);
-    }
-  }
-  p {
-    @include serif-text($regular, 19px, 34px);
-  }
-  strong {
-    @include sans-serif($bold, 18px, 40px);
-  }
-  .resource-center {
-    text-align: center;
-  }
-}
 .case-text {
+  position: relative;
+  counter-reset: index;
   @include serif-text($regular, 18px, 31px);
   /* hacks for misbehaving blockquotes */
   blockquote {
     span p {
-      display: inline; // yes, p in span is illegal, but we have them
+      display: inline; /* yes, p in span is illegal, but we have them */
     }
+  }
+  /* section numbers */
+  > * {
+    position: relative;
+    &::before {
+      counter-increment: index;
+      content: counter(index);
+      user-select: none;
+      @include sans-serif($regular, 12px, 12px);
+
+      /* these two styles, coupled with position: relative on the parent,
+       enable page numbers to be hidden when the full paragraph is elided */
+      overflow: hidden;
+      height: 100%;
+
+      position: absolute;
+      width: 100px;
+      left: -145px;
+      text-align: right;
+
+      line-height: 30px;
+      color: $light-blue;
+    }
+  }
+}
+.page-number {
+  font-size: small;
+  color: darkgrey;
+  vertical-align: super;
+  margin: 4px;
+}
+.footnote {
+  a {
+    float: left;
+    margin-top: -8px;
+	font-size: 16px;
+  }
+
+  p, blockquote {
+    margin-left: 13px;
+  }
+}
+.footnotemark {
+  font-size: 16px;
+  vertical-align: super;
+}
+/*
+ * These use /deep/ to influence HighlightAnnotation.
+ * They must live here so that they can change in relation to
+ * their parent element.
+ */
+p /deep/ {
+  .highlight .selected-text,
+  .replacement .selected-text,
+  .replacement .replacement-text {
+    padding: 0.35em 0;
+  }
+}
+h2 /deep/ {
+  .highlight .selected-text,
+  .replacement .selected-text,
+  .replacement .replacement-text {
+    padding: 0.05em 0;
   }
 }
 </style>

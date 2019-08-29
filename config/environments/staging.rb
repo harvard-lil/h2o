@@ -10,4 +10,7 @@ H2o::Application.configure do
   # cap api settings
   config.admin_email = ['cgruppioni@law.harvard.edu']
   config.professor_verifier_email = "cgruppioni@law.harvard.edu"
+
+  config.pandoc_export = ENV["RAILS_PANDOC_EXPORT"] == 'true'
+
 end

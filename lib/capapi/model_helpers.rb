@@ -31,7 +31,7 @@ module Capapi
                        docket_number: capapi_obj.docket_number,
                        citations: capapi_obj.citations.map(&method(:to_attributes)) }
         if capapi_obj.casebody_loaded?
-          html = Nokogiri::HTML(capapi_obj.casebody["data"])
+          html = HTMLUtils.parse(capapi_obj.casebody["data"])
           attributes = attributes.merge({ content: capapi_obj.casebody["data"],
                                           attorneys: html.css('.attorneys').collect(&:text),
                                           parties: html.css('.parties').collect(&:text),

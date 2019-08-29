@@ -1,4 +1,5 @@
 class TextBlock < ApplicationRecord
+  include ContentAnnotatable
 
   # NOTE: This absolutely must be called before all the includes below. If you
   #   put it below them, you will get an ActiveRecord::RecordNotDestroyed
@@ -10,7 +11,6 @@ class TextBlock < ApplicationRecord
   acts_as_taggable_on :tags
 
   belongs_to :user, optional: true
-
   has_many :casebooks, inverse_of: :contents, class_name: 'Content::Casebook', foreign_key: :resource_id
 
   validates_presence_of :name
@@ -74,12 +74,6 @@ class TextBlock < ApplicationRecord
 
   def clean_content
     self.content.gsub!(/\p{Cc}/, "")
-  end
-
-  def sanitized_to_json
-    # wrap built-in method, to include a sanitation step
-    self.content = ActionController::Base.helpers.sanitize(self.content)
-    self.to_json
   end
 
   def associated_resources

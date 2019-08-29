@@ -124,6 +124,41 @@ module RailsAdmin
           'icon-lock'
         end
       end
+
+      class ManageAnnotations < RailsAdmin::Config::Actions::Base
+        RailsAdmin::Config::Actions.register(self)
+
+        register_instance_option :visible? do
+          authorized?
+        end
+
+        register_instance_option :member do
+          true
+        end
+
+        register_instance_option :http_methods do
+          [:get, :post]
+        end
+
+        register_instance_option :controller do
+          Proc.new do
+            if request.get?
+              @annotations = @object.annotations.order(:global_start_offset) 
+            elsif request.post?
+               global_start_offset = params["global start offset"]
+               global_end_offset = params["global end offset:"]
+               annotation_id = params["button"]
+
+               Content::Annotation.find(annotation_id).update(global_start_offset: global_start_offset, global_end_offset: global_end_offset)
+               @annotations = @object.annotations.order(:global_start_offset)
+            end
+          end
+        end
+
+        register_instance_option :link_icon do
+          'icon-lock'
+        end
+      end
     end
   end
 end
@@ -149,10 +184,11 @@ RailsAdmin.config do |config|
 
     delete
     manage_collaborators
+    manage_annotations
     show_in_app
   end
 
-  config.included_models = ['Content::Casebook', 'Case', 'User', 'TextBlock', 'Default', 'Page', 'CaseCourt']
+  config.included_models = ['Content::Casebook', 'Case', 'User', 'TextBlock', 'Default', 'Page', 'CaseCourt', 'Content::Resource']
 
   config.model 'Page' do
     list do
@@ -270,6 +306,35 @@ RailsAdmin.config do |config|
       field :ancestry do
         read_only true
       end
+    end
+  end
+
+  config.model 'Content::Resource' do
+
+    list do
+      filters [:casebook_id]
+      field :id
+      field :casebook_id do
+        filterable true
+      end
+      field :ordinals do
+        sortable true
+        filterable true
+      end
+      field :resource_type do
+        sortable true
+        filterable true
+      end
+      field :resource_id do
+        label "Resource id"
+      end
+      field :title
+    end
+
+    edit do
+      field :title
+      field :subtitle
+      field :headnote, :ck_editor
     end
   end
 

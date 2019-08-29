@@ -1,4 +1,6 @@
 class Case < ApplicationRecord
+  include ContentAnnotatable
+
   include Capapi::ModelHelpers
   CAPAPI_CLASS = Capapi::Case
 
@@ -14,16 +16,6 @@ class Case < ApplicationRecord
   accepts_nested_attributes_for :case_court,
     allow_destroy: true,
     reject_if: proc { |att| att['name'].blank? || att['name_abbreviation'].blank? }
-
-  def self.annotated
-    where('id IN (SELECT DISTINCT content_nodes.resource_id FROM content_nodes INNER JOIN content_annotations ON content_nodes.id = content_annotations.resource_id WHERE content_nodes.resource_type = ?)', self.name)
-  end
-
-  def annotations
-    Content::Annotation
-      .joins(:resource)
-      .where(content_nodes: {resource_type: self.class.name, resource_id: id})
-  end
 
   def display_name
     (name_abbreviation.blank?) ? name : name_abbreviation

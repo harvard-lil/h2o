@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2019_05_14_211934) do
+ActiveRecord::Schema.define(version: 2019_08_09_141327) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "btree_gin"
@@ -64,6 +64,7 @@ ActiveRecord::Schema.define(version: 2019_05_14_211934) do
     t.jsonb "opinions"
     t.jsonb "citations"
     t.string "docket_number", limit: 20000
+    t.integer "annotations_count", default: 0
     t.index ["case_court_id"], name: "index_cases_on_case_court_id"
     t.index ["citations"], name: "index_cases_on_citations", using: :gin
     t.index ["created_at"], name: "index_cases_on_created_at"
@@ -128,6 +129,8 @@ ActiveRecord::Schema.define(version: 2019_05_14_211934) do
     t.text "content"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.integer "global_start_offset"
+    t.integer "global_end_offset"
     t.index ["resource_id", "start_paragraph"], name: "index_content_annotations_on_resource_id_and_start_paragraph"
     t.index ["resource_id"], name: "index_content_annotations_on_resource_id"
   end
@@ -159,7 +162,7 @@ ActiveRecord::Schema.define(version: 2019_05_14_211934) do
     t.string "title"
     t.string "slug"
     t.string "subtitle"
-    t.text "headnote"
+    t.text "raw_headnote"
     t.boolean "public", default: true, null: false
     t.bigint "casebook_id"
     t.integer "ordinals", default: [], null: false, array: true
@@ -174,6 +177,7 @@ ActiveRecord::Schema.define(version: 2019_05_14_211934) do
     t.bigint "root_user_id"
     t.boolean "draft_mode_of_published_casebook"
     t.boolean "cloneable", default: true, null: false
+    t.text "headnote"
     t.index ["ancestry"], name: "index_content_nodes_on_ancestry"
     t.index ["casebook_id", "ordinals"], name: "index_content_nodes_on_casebook_id_and_ordinals", using: :gin
     t.index ["casebook_id"], name: "index_content_nodes_on_casebook_id"
@@ -327,6 +331,15 @@ ActiveRecord::Schema.define(version: 2019_05_14_211934) do
     t.integer "user_collection_id"
   end
 
+  create_table "raw_contents", force: :cascade do |t|
+    t.text "content"
+    t.string "source_type"
+    t.bigint "source_id"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["source_type", "source_id"], name: "index_raw_contents_on_source_type_and_source_id", unique: true
+  end
+
   create_table "roles", id: :serial, force: :cascade do |t|
     t.string "name", limit: 40
     t.string "authorizable_type", limit: 40
@@ -395,6 +408,7 @@ ActiveRecord::Schema.define(version: 2019_05_14_211934) do
     t.boolean "enable_feedback", default: true, null: false
     t.boolean "enable_discussions", default: false, null: false
     t.boolean "enable_responses", default: false, null: false
+    t.integer "annotations_count", default: 0
     t.index ["created_at"], name: "index_text_blocks_on_created_at"
     t.index ["name"], name: "index_text_blocks_on_name"
     t.index ["updated_at"], name: "index_text_blocks_on_updated_at"

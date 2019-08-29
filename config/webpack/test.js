@@ -25,4 +25,8 @@ config.module.rules = config.module.rules
       "sass-loader" // compiles Sass to CSS, using Node Sass by default
     ]}]);
 
+// use the minified version to avoid productionTip
+// https://github.com/vuejs/vue/issues/5063
+config.resolve.alias.vue = "vue/dist/vue.min";
+
 module.exports = {...config, ...testOverrides};

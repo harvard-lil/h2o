@@ -1,21 +1,21 @@
 -# %header.CasebookTitle= @casebook.title
 -# %header.CasebookSubtitle= @casebook.subtitle
-- content = @resource
+- content = @content_node
 - if content.is_a? Content::Section
   %header.SectionNumber= content.ordinal_string
   %header.SectionTitle= content.title
-  - if content.subtitle.present?
+  - if content.subtitle?
     %header.SectionSubtitle= content.subtitle
-  - if content.headnote.present?
-    %p.SectionHeadnote= content.formatted_headnote
+  - if content.headnote?
+    %p.SectionHeadnote= content.headnote
 - elsif content.is_a? Content::Resource
   %header.ResourceNumber= content.ordinal_string
   %header.ResourceTitle= content.title
-  - if content.subtitle.present?
+  - if content.subtitle?
     %header.ResourceSubtitle= content.subtitle
-  - if content.headnote.present?
-    %p.ResourceHeadnote= content.formatted_headnote
-  - if content.resource.class.in? [Case, TextBlock]
+  - if content.headnote?
+    %p.ResourceHeadnote= content.headnote
+  - if content.resource.class < ContentAnnotatable
     %resource-body
       - content.send(@include_annotations ? :annotated_paragraphs : :paragraph_nodes).each do |node|
         = node.to_html.html_safe

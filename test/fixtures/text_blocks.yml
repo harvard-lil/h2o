@@ -1,10 +1,10 @@
 public_text_to_annotate:
   name: Public Annotatable Text
   content: >
-    highlighted: content to highlight;
+    <p>highlighted: content to highlight;
     elided: content to elide;
     replaced: content to replace;
-    commented: content to comment;
+    commented: content to comment;</p>
   public: true
   user: verified_professor
 

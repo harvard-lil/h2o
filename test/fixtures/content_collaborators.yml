@@ -66,3 +66,7 @@ draft_merge_casebook_editor:
   user: verified_student
   role: editor
 
+owner_casebook_with_full_case:
+  content: casebook_with_full_case
+  user: user_with_full_case
+  role: owner

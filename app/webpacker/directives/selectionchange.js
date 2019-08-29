@@ -1,4 +1,4 @@
-import Vue from 'vue/dist/vue.esm';
+import Vue from 'vue';
 
 const handlers = new WeakMap();
 const prev_in_el = new WeakMap();

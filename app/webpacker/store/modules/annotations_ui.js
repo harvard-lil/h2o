@@ -1,4 +1,4 @@
-import Vue from 'vue/dist/vue.esm';
+import Vue from 'vue';
 
 const COLLAPSIBLE_KINDS = ["elide", "replace"];
 export const Y_FIDELITY = 5;
@@ -39,7 +39,7 @@ const actions = {
     // in order to trigger a recalculation of their headY value and potential
     // rerender of where their edit handle should be placed
     let annotation = rootGetters["annotations/getById"](payload.id);
-    rootGetters["annotations/getInSectionStartingAtOrAfter"](annotation.start_paragraph, annotation.start_offset)
+    rootGetters["annotations/getStartingAtOrAfter"](annotation.start_offset)
       .forEach(a => commit("update", {obj: getters.getById(a.id),
                                      vals: {headY: null}}));
   },

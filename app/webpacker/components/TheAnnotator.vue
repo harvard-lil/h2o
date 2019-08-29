@@ -2,7 +2,7 @@
 <div id="the-annotator"
      data-exclude-from-offset-calcs="true">
   <SideMenu v-if="offsets"
-            :style="{top: offset}">
+            :style="{top: topDistance}">
     <li>
       <a id="create-highlight"
          @click="input($event, 'highlight')">Highlight</a>
@@ -37,11 +37,11 @@
 </template>
 
 <script>
-import { isText } from "../libs/html_helpers.js";
+import { getClosestElement,
+         getOffsetWithinParent } from "../libs/html_helpers.js";
 
 import { createNamespacedHelpers } from "vuex";
 const { mapActions } = createNamespacedHelpers("annotations");
-import { offsetsForRanges } from "../libs/placement";
 
 import SideMenu from "./SideMenu";
 import Modal from "./Modal";
@@ -66,7 +66,7 @@ export default {
     }
   },
   computed: {
-    offset() {
+    topDistance() {
       const wrapperRect = this.$parent.$el.getBoundingClientRect();
       const viewportTop = window.scrollY - (wrapperRect.top + window.scrollY);
       const targetRect = this.ranges[1].getBoundingClientRect();
@@ -77,8 +77,19 @@ export default {
     resourceId() {
       return document.querySelector("header.casebook").dataset.resourceId
     },
+    hasValidRanges() {
+      return this.ranges &&
+        !this.ranges[0].collapsed &&
+        // Ensure that the selection is within the case-text wrapper
+        getClosestElement(this.ranges[0].commonAncestorContainer).closest(".case-text")
+    },
     offsets() {
-      return offsetsForRanges(this.ranges);
+      if(!this.hasValidRanges) return;
+
+      const el = document.querySelector(".case-text");
+      return ["start", "end"].map((s, i) =>
+        this.ranges[i][`${s}Offset`] + getOffsetWithinParent(el, this.ranges[i][`${s}Container`], this.contributesToOffsets)
+      );
     },
   },
   methods: {
@@ -88,11 +99,14 @@ export default {
       return Math.floor(Math.random() * Math.floor(10000000)) * -1;
     },
 
+    // returns false if the text or element node is the child of an
+    // element with a special attribute
+    contributesToOffsets(node) {
+      return !getClosestElement(node).closest("[data-exclude-from-offset-calcs='true']")
+    },
+
     selectionchange(e, sel) {
-      if(sel &&
-         (isText(sel.anchorNode)
-          ? sel.anchorNode.parentNode
-          : sel.anchorNode).closest("[data-exclude-from-offset-calcs='true']")) return;
+      if(sel && !this.contributesToOffsets(sel.anchorNode)) return;
 
       this.ranges =
         (!sel || sel.type != "Range")
@@ -114,7 +128,8 @@ export default {
         content: this.content,
         kind: kind,
         resource_id: this.resourceId,
-        ...this.offsets
+        start_offset: this.offsets[0],
+        end_offset: this.offsets[1]
       }]);
 
       this.close();

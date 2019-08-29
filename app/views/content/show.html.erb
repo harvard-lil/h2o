@@ -57,7 +57,7 @@
     <%= render 'content/actions' %>
   </aside>
 <% end %>
-<% if @content.formatted_headnote.present? || @content.subtitle.present? %>
+<% if @content.headnote? || @content.subtitle? %>
   <section class="headnote">
     <% if @section.present? %>
       <h3>
@@ -65,7 +65,7 @@
       </h3>
     <% end %>
     <p>
-      <%= sanitize @content.formatted_headnote %>
+      <%= @content.headnote %>
     </p>
   </section>
 <% else %>

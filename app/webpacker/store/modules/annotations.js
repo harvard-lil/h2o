@@ -17,44 +17,23 @@ const getters = {
       obj => obj.id === id
     ),
 
-  getBySectionIndex: state => index =>
-    state.all.filter(
-      obj => (obj.start_paragraph == index ||
-             obj.end_paragraph == index ||
-             (obj.start_paragraph < index && obj.end_paragraph > index))
-    ),
-
-  getInSectionStartingAtOrAfter: state => (index, offset) =>
-    state.all.filter(obj => obj.start_paragraph == index &&
-                           obj.start_offset >= offset),
+  getStartingAtOrAfter: state => (offset) =>
+	state.all.filter(
+	  obj => obj.start_offset >= offset
+	),
 
   // Annotations that entirely span (or exceed) the provided offsets.
-  // Used when inserting annotations at breakpoints, as well as
-  // determining if an annotation that spans an entire
-  // section / paragraph has been collapsed, thereby requiring that
-  // we hide that section's number in the lefthand column
-  getSpanningOffsets: state => (index, start, end) =>
+  getSpanningOffsets: state => (start, end) =>
     state.all.filter(
-      obj =>
-        (obj.start_paragraph < index ||
-         (obj.start_paragraph == index && obj.start_offset <= start)) &&
-        (obj.end_paragraph > index ||
-         (obj.end_paragraph == index && obj.end_offset >= end))
+      obj => obj.start_offset <= start && obj.end_offset >= end
     ),
 
   // Annotations whose start or end points fall WITHIN
   // (i.e. not on the edges) the start and end bounds.
-  // Used for finding where to split Text nodes.
-  getWithinIndexAndOffsets: state => (index, start, end) =>
+  getWithinOffsets: state => (start, end) =>
     state.all.filter(
-      obj =>
-        (obj.start_paragraph == index &&
-         obj.start_offset > start &&
-         obj.start_offset < end) ||
-        (obj.end_paragraph == index &&
-         obj.end_offset > start &&
-         obj.end_offset < end)
-    )
+      obj => obj.start_offset > start || obj.end_offset < end
+    ),
 };
 
 const actions = {

@@ -11,8 +11,14 @@ class Content::Node < ApplicationRecord
   scope :unmodified, -> {where 'content_nodes.created_at = content_nodes.updated_at'}
   nilify_blanks
 
+  before_save :cleanse_headnote, if: [:headnote?, :headnote_changed?]
+
   def slug
     super || self.title.parameterize
+  end
+
+  def headnote
+    super.try(:html_safe)
   end
 
   def create_revisions(content_params)
@@ -25,16 +31,9 @@ class Content::Node < ApplicationRecord
         if previous_revisions.present?
           previous_revisions.destroy_all
         end
-        
+
         unpublished_revisions.create(field: field, value: value, node_id: self.id, casebook_id: casebook_id_for_revision, node_parent_id: self.copy_of_id)
       end
-    end
-  end
-
-  def formatted_headnote
-    unless self.headnote.blank?
-      headnote_html = Nokogiri::HTML self.headnote {|config| config.strict.noblanks}
-      headnote_html.to_html.html_safe
     end
   end
 
@@ -43,6 +42,11 @@ class Content::Node < ApplicationRecord
   end
 
   private
+
+  def cleanse_headnote
+    self.headnote = HTMLUtils.cleanse(headnote)
+    true
+  end
 
   def casebook_id_for_revision
     #if it's a resource return the casebook_id

@@ -6,6 +6,8 @@ class Content::CasebooksController < Content::NodeController
   before_action :set_editable, only: [:show, :index]
   before_action :require_user, only: [:clone]
 
+  include Export
+
   def new
     @casebook = Content::Casebook.create(public: false, collaborators: [Content::Collaborator.new(user: current_user, role: 'owner', has_attribution: true)])
     logger.debug @casebook.errors.inspect
@@ -59,42 +61,13 @@ class Content::CasebooksController < Content::NodeController
   end
 
   def export
-    # does this need to be decorated?
-    @decorated_content = @casebook.decorate(context: {action_name: action_name, casebook: @casebook, type: 'casebook'})
-    @include_annotations = (params["annotations"] == "true")
-
-    html = render_to_string(layout: 'export', include_annotations: @include_annotations)
-
-    # remove image tags
-    nodes = Nokogiri::HTML.fragment(html)
-    nodes.css('img').each do | img |
-        img.remove
-    end
-    html = nodes.to_s
-
-    html.gsub! /\\/, '\\\\\\'
-    file_path = Rails.root.join("tmp/export-#{Time.now.utc.iso8601}-#{SecureRandom.uuid}.docx")
-
-    #Htmltoword doesn't let you switch xslt. So we need to manually do it.
-    if @include_annotations
-      Htmltoword.config.default_xslt_path = Rails.root.join 'lib/htmltoword/xslt/with-annotations'
-    else
-      Htmltoword.config.default_xslt_path = Rails.root.join 'lib/htmltoword/xslt/no-annotations'
-    end
-
-    Htmltoword::Document.create_and_save(html, file_path)
-    send_file file_path, type: 'application/vnd.openxmlformats-officedocument.wordprocessingml.document', filename: export_filename('docx', @include_annotations), disposition: :inline
+    export_content(@casebook)
   end
 
   private
 
   def publishing_casebook?
     params[:content_casebook][:public]
-  end
-
-  def export_filename format, annotations=false
-    suffix = annotations ? '_annotated' : ''
-    helpers.truncate(@casebook.title, length: 45, omission: '-', separator: ' ') + suffix + '.' + format
   end
 
   def set_editable

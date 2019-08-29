@@ -1,4 +1,4 @@
-import Vue from "vue/dist/vue.esm";
+import Vue from "vue";
 import VueRouter from 'vue-router';
 Vue.use(VueRouter);
 Vue.config.productionTip = process.env.NODE_ENV == "development";
@@ -10,11 +10,11 @@ import "../directives/selectionchange";
 import contenteditableDirective from "vue-contenteditable-directive";
 Vue.use(contenteditableDirective);
 
-import TheResourceBody from "../components/TheResourceBody";
+import TheResource from "../components/TheResource";
 
 document.addEventListener("DOMContentLoaded", () => {
   const routes = [
-    { path: '/casebooks/:id/resources/:resource_id/', component: TheResourceBody}
+    { path: '/casebooks/:id/resources/:resource_id/', component: TheResource }
   ];
 
   const router = new VueRouter({
@@ -26,7 +26,7 @@ document.addEventListener("DOMContentLoaded", () => {
     store,
     router,
     components: {
-      TheResourceBody
+      TheResource
     }
   });
 

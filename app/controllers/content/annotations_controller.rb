@@ -13,12 +13,17 @@ class Content::AnnotationsController < ApplicationController
   end
 
   def create
+    nodes = HTMLUtils.parse(@resource.resource.content).at('body').children
     params = annotation_params
+               .except(:start_offset, :end_offset)
+               .merge(resource: @resource)
+               .merge(global_start_offset: annotation_params[:start_offset],
+                      global_end_offset: annotation_params[:end_offset])
 
-    annotation = Content::Annotation.create! params.merge(resource: @resource)
+    annotation = Content::Annotation.create! params
     respond_to do |format|
       format.json { render json: annotation.to_api_response }
-      format.html {redirect_to annotate_resource_path(@resource.casebook, @resource)}
+      format.html { redirect_to annotate_resource_path(@resource.casebook, @resource) }
     end
   end
 

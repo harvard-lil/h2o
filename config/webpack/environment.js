@@ -4,9 +4,17 @@ const { resolve } = require("path");
 const vue = require('./loaders/vue');
 const VueLoaderPlugin = require('vue-loader/lib/plugin');
 
+environment.config.merge({
+  resolve: {
+    alias: {
+      // alias vue for convenience and so .min.js file can be aliased in where needed
+      vue: "vue/dist/vue.esm",
 
-// alias assets dir to ~assets for SASS url() styles
-environment.config.merge({resolve: {alias: {assets: resolve("app", "assets")}}});
+      // alias assets dir to ~assets for SASS url() styles
+      assets: resolve("app", "assets")
+    }
+  }
+});
 
 // add the stylesheets directory to the sass loader so that @import's resolve
 environment.loaders

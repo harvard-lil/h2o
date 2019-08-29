@@ -21,18 +21,6 @@ GIT
       activerecord (>= 4.0)
 
 GIT
-  remote: https://github.com/pludoni/wrong.git
-  revision: be1ddcc214dd151b9530466f7c8ef7f52c8ec8f2
-  ref: be1ddcc
-  specs:
-    wrong (0.7.1)
-      diff-lcs (~> 1.2.5)
-      predicated (~> 0.2.6)
-      ruby2ruby (>= 2.0.1)
-      ruby_parser (>= 3.0.1)
-      sexp_processor (>= 4.0)
-
-GIT
   remote: https://github.com/smit1625/guard-sunspot.git
   revision: d7b24d843c9f8d12f71f93274bd5d5a3072faef2
   ref: d7b24d8
@@ -112,7 +100,7 @@ GEM
     bootsnap (1.3.2)
       msgpack (~> 1.0)
     builder (3.2.3)
-    byebug (10.0.2)
+    byebug (11.0.1)
     cancancan (2.2.0)
     capybara (3.12.0)
       addressable
@@ -157,7 +145,7 @@ GEM
     delayed_job_active_record (4.1.3)
       activerecord (>= 3.0, < 5.3)
       delayed_job (>= 3.0, < 5)
-    diff-lcs (1.2.5)
+    diff_match_patch (0.1.0)
     docile (1.3.0)
     domain_name (0.5.20180417)
       unf (>= 0.0.5, < 1.0.0)
@@ -320,8 +308,10 @@ GEM
       activerecord (>= 3.0.0)
       activesupport (>= 3.0.0)
     nio4r (2.3.1)
-    nokogiri (1.10.3)
+    nokogiri (1.10.4)
       mini_portile2 (~> 2.4.0)
+    nokogumbo (2.0.1)
+      nokogiri (~> 1.8, >= 1.8.4)
     notiffany (0.1.1)
       nenv (~> 0.1)
       shellany (~> 0.0)
@@ -339,7 +329,6 @@ GEM
       cliver (~> 0.3.1)
       websocket-driver (>= 0.2.0)
     pr_geohash (1.0.0)
-    predicated (0.2.6)
     pretty-diffs (1.0.2)
     progress_bar (1.2.0)
       highline (~> 1.6)
@@ -347,8 +336,8 @@ GEM
     pry (0.11.3)
       coderay (~> 1.1.0)
       method_source (~> 0.9.0)
-    pry-byebug (3.6.0)
-      byebug (~> 10.0)
+    pry-byebug (3.7.0)
+      byebug (~> 11.0)
       pry (~> 0.10)
     public_suffix (3.0.3)
     puma (3.12.0)
@@ -408,6 +397,7 @@ GEM
     rb-fsevent (0.10.3)
     rb-inotify (0.9.10)
       ffi (>= 0.5.0, < 2)
+    rb-readline (0.5.5)
     rchardet (1.7.0)
     regexp_parser (1.3.0)
     remotipart (1.4.2)
@@ -424,14 +414,13 @@ GEM
       builder (>= 2.1.2)
       faraday (>= 0.9.0)
     ruby-progressbar (1.9.0)
-    ruby2ruby (2.4.1)
-      ruby_parser (~> 3.1)
-      sexp_processor (~> 4.6)
     ruby_dep (1.5.0)
-    ruby_parser (3.11.0)
-      sexp_processor (~> 4.9)
     rubyzip (1.2.2)
     safe_yaml (1.0.4)
+    sanitize (5.0.0)
+      crass (~> 1.0.2)
+      nokogiri (>= 1.8.0)
+      nokogumbo (~> 2.0)
     sass (3.5.6)
       sass-listen (~> 4.0.0)
     sass-listen (4.0.0)
@@ -450,7 +439,6 @@ GEM
     selenium-webdriver (3.141.0)
       childprocess (~> 0.5)
       rubyzip (~> 1.2, >= 1.2.2)
-    sexp_processor (4.11.0)
     shellany (0.0.1)
     simple_form (4.0.0)
       actionpack (> 4)
@@ -536,6 +524,7 @@ DEPENDENCIES
   deep_cloneable
   delayed_job
   delayed_job_active_record
+  diff_match_patch
   dotenv-rails
   draper
   erubi
@@ -573,7 +562,8 @@ DEPENDENCIES
   minitest-reporters
   minitest-spec-rails
   nilify_blanks
-  nokogiri (~> 1.6)
+  nokogiri
+  nokogumbo
   paperclip (~> 5.2.0)
   pg (~> 0.21)
   poltergeist
@@ -586,8 +576,10 @@ DEPENDENCIES
   rails-observers
   rails_admin (~> 1.3.0)
   rails_admin_import
+  rb-readline
   rest-client (~> 1.8.0)
   rubyzip (>= 1.2.2)
+  sanitize
   scrypt
   select2-rails
   selenium-webdriver
@@ -602,7 +594,6 @@ DEPENDENCIES
   webpacker (>= 4.0.x)
   will_paginate!
   wkhtmltopdf-binary
-  wrong!
 
 BUNDLED WITH
    1.17.3
