@@ -192,9 +192,6 @@ class ContentNode(RailsModel):
             })
         return return_value
 
-    def formatted_headnote(self):
-        return sanitize(self.headnote)
-
     def users_with_role(self, role):
         return self.collaborators.filter(contentcollaborator__role=role)
 
