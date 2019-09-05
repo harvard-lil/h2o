@@ -2,8 +2,12 @@
 %div.CasebookSubtitle{data: {'custom-style': 'Casebook Subtitle'}}= @casebook.subtitle
 %div.CasebookHeadnote{data: {'custom-style': 'Casebook Headnote'}}= @casebook.headnote
 
+/ Note: the contents of this TOC div is manually converted to XML during the export
+/ process by a Lua filter; it is not passed through Pandoc's standard DOCX/XML writer.
+/ Be careful to escape XML special chars.
+/ (TODO: figure out if we can escape in Lua instead of here.)
 %div.table-of-contents
   - @casebook.contents.each_with_index do |content, idx|
-    %div.toc-entry{data: {depth: content.ordinals.length, idx: idx + 1, title: "#{content.ordinal_string} #{content.title}"}}
+    %div.toc-entry{data: {depth: content.ordinals.length, idx: idx + 1, title: "#{content.ordinal_string} #{content.title.encode(:xml => :text)}"}}
 
 = render :partial => "content/export_node", collection: @casebook.contents
