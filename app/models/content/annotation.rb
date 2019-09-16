@@ -4,7 +4,7 @@ class Content::Annotation < ApplicationRecord
 
   belongs_to :resource, class_name: 'Content::Resource', required: true
   accepts_nested_attributes_for :resource
-  
+
   has_one :unpublished_revision
 
   validates_inclusion_of :kind, in: KINDS, message: "must be one of: #{KINDS.join ', '}"
@@ -15,7 +15,9 @@ class Content::Annotation < ApplicationRecord
   after_destroy :update_resource_counter_cache, unless: :destroyed_by_association
 
   def copy_of
-    resource.copy_of.annotations.find_by(start_paragraph: self.start_paragraph, end_paragraph: self.end_paragraph, start_offset: self.start_offset, end_offset: self.end_offset, kind: self.kind)
+    # resource.copy_of is nil when a new resource is added to the draft version of a published textbook.
+    # in that case, return nil, as when find_by retrieves no results.
+    resource.copy_of ? resource.copy_of.annotations.find_by(start_paragraph: self.start_paragraph, end_paragraph: self.end_paragraph, start_offset: self.start_offset, end_offset: self.end_offset, kind: self.kind) : nil
   end
 
   def exists_in_published_casebook?
