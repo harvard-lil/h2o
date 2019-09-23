@@ -29,7 +29,16 @@
       </header>
       <main>
         {% block custom_skip_target %}<p id="main" tabindex="-1" class="sr-only">Main Content</p>{% endblock %}
-        <!--figure out error messages -->
+        <!-- figure out other "Flash" messages: form errors, anything else? -->
+        {% if request.user.is_superadmin %}
+          <section id="flash">
+            <div class="content">
+              <div class="flash-error flash-message">
+                Admin Mode
+              </div>
+            </div>
+          </section>
+        {% endif %}
         {% if nested_layout %}
           {% block nestedLayout %}{% endblock %}
         {% else %}
