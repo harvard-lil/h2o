@@ -1,0 +1,22 @@
+{% extends 'base.html' %}
+
+{% block page_title %}{{ case.get_name }} | Cases{% endblock %}
+
+{% block mainContent %}
+  <section class="casebook-public casebook">
+    <div class="content">
+      <div class="casebook-inner">
+        <div class="top-strip"></div>
+        <header class="casebook-header">
+          <div class="casebook-title">
+            {% for c in case.citations %}{{ c.cite }}{% if not forloop.last %}. {% endif %}{% endfor %}
+          </div>
+          <h1 class="title">{{ case.get_name }}</h1>
+        </header>
+        <section class="resource">
+          <the-resource :editable="false" :resource="{{ case.json }}"></the-resource>
+        </section>
+      </div>
+    </div>
+  </section>
+{% endblock %}

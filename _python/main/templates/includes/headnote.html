@@ -1,0 +1,10 @@
+{% if content.headnote or content.subtitle %}
+  <section class="headnote">
+    {% if content.subtitle %}<h3>{{ content.subtitle }}</h3>{% endif %}
+    <p>
+      {{ content.headnote | safe }}
+    </p>
+  </section>
+{% else %}
+  <section class="no-headnote"></section>
+{% endif %}

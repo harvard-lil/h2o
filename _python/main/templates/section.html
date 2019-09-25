@@ -1,0 +1,34 @@
+{% extends 'base.html' %}
+
+{% block page_title %}Section {{ section.ordinal_string }} | {{ section.casebook.get_title }}{% endblock %}
+
+{% block mainContent %}
+  <header class="casebook-public casebook">
+    <div class="content">
+      <div class="casebook-inner">
+        <div class="tabs">
+          <a class="tab" href="{{ section.casebook.get_absolute_url }}">Casebook</a>
+          <span class="tab disabled active">Read</span>
+        </div>
+      </div>
+    </div>
+  </header>
+  <section class="casebook-public casebook">
+    <div class="content">
+      <div class="casebook-inner">
+        <div class="top-strip"></div>
+        <header class="casebook-header">
+          <div class="casebook-title">
+            {{ section.casebook.get_title }}
+          </div>
+        </header>
+        <header class="content">
+          {% include 'includes/breadcrumbs.html' with content=section %}
+          <h1 class="title">{{ section.get_title }}</h1>
+        </header>
+        {% include 'includes/headnote.html' with content=section %}
+        {% include 'includes/table-of-contents.html' with section=True contents=section.contents  %}
+      </div>
+    </div>
+  </section>
+{% endblock %}

@@ -1,0 +1,69 @@
+{% if not results.object_list %}
+  <div class="no-results">No results found</div>
+{% else %}
+  <div class="results-list">
+    {% for result in results %}
+      {% if category == 'casebook' %}
+        <a href="{% url 'casebook' result.result_id %}" class="wrapper" data-result-id="{{ result.result_id }}">
+          <div class="results-entry">
+            <div class="title">
+              {{ result.metadata.title }}
+            </div>
+            <div class="owner">
+              {% if result.metadata.attribution %}
+                <div class="user verified"></div>
+                {{ result.metadata.attribution }}
+              {% endif %}
+            </div>
+            <div class="date">
+              {{ result.metadata.created_at|slice:"0:4" }}
+            </div>
+          </div>
+        </a>
+      {% elif category == 'case' %}
+        <a href="{% url 'case' result.result_id %}" class="wrapper" data-result-id="{{ result.result_id }}">
+          <div class="results-entry">
+            <div class="title">
+              {{ result.metadata.display_name }}
+            </div>
+            <div class="citation">
+              {{ result.metadata.citations }}
+            </div>
+            <div class="date">
+              {{ result.metadata.decision_date_formatted|default:'' }}
+            </div>
+          </div>
+        </a>
+{#        TODO: handle CAP case search #}
+{#    <% elsif result.is_a?(Capapi::Case) }}#}
+{#    <a href="#" class="wrapper" data-result-id="{% result.result_id %}" data-result-type="{{ result.class.name.underscore }}">#}
+{#      <div class="results-entry">#}
+{#        <div class="title">#}
+{#          {{ result.name_abbreviation }}#}
+{#        </div>#}
+{#        <div class="citation">#}
+{#          {{ result.citations[0]&.cite }}#}
+{#        </div>#}
+{#        <div class="date">#}
+{#          {{ Capapi::DataHelpers.parse_date result.decision_date }}#}
+{#        </div>#}
+{#      </div>#}
+{#    </a>#}
+      {% elif category == 'user' %}
+        <a href="{% url 'dashboard' result.result_id %}" class="wrapper" data-result-id="{{ result.result_id }}">
+          <div class="results-entry">
+            {# skipping the profile image here, which does not seem to be in use #}
+            {# <div class="profile-image"></div> #}
+            <div class="title">
+              {{ result.metadata.attribution }}
+            </div>
+            <div class="casebook-count">
+              {{ result.metadata.casebook_count }} casebook{{ result.metadata.casebook_count|pluralize }}
+            </div>
+          </div>
+        </a>
+      {% endif %}
+    {% endfor %}
+  </div>
+  {% include 'search/pagination.html' %}
+{% endif %}

@@ -42,5 +42,3 @@ package-lock.json
 *.dump
 .byebug_history
 .tmp
-
-_python

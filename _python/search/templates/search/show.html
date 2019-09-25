@@ -1,0 +1,58 @@
+{% extends 'base.html' %}
+{% load current_query_string %}
+
+{% block mainContent %}
+  <header class="advanced-search view-searches-show">
+    <form novalidate="novalidate" class="simple_form search" accept-charset="UTF-8">
+      {# Hidden field to preserve active tab's category during form submission #}
+      {# Note that 'category' is singular, but 'type' is plural #}
+      <div class="form-group hidden search_type">
+        <input class="form-control hidden" name="type" value="{{ category }}s" type="hidden" id="search_type">
+      </div>
+      <div class="narrow-inner">
+        <div class="input-group">
+          <input type="search" name="q" id="q" class="form-control" placeholder="Find casebooks, cases, and authors." aria-label="Find casebooks, cases, and authors." value="{{ request.GET.q }}">
+          <span class="input-group-btn">
+            <button class="form-control btn" type="submit" aria-label="Search" style="border: 1px solid black; background-color: #f5f4ec;"><i aria-hidden="true" class="fa fa-search"></i></button>
+          </span>
+        </div>
+      </div>
+      {% include 'search/filters.html' %}
+    </form>
+  </header>
+  <section class="search-results">
+    <div class="content">
+      {% if counts %}
+        <div class="results-container">
+          <div class="type-tabs">
+
+            <div class="type-tab {% if category == 'casebook' %}active{% endif %}" {% if category == 'casebook' %}aria-current="location"{% endif %}>
+              <a href="?{% current_query_string type="casebooks" page=1 %}" class="wrapper">
+                Casebooks ({{ counts.casebook|default:"0" }})
+              </a>
+            </div>
+
+            <div class="type-tab {% if category == 'case' %}active{% endif %}" {% if category == 'case' %}aria-current="location"{% endif %}>
+              <a href="?{% current_query_string type="cases" page=1 %}" class="wrapper">
+                Cases ({{ counts.case|default:"0" }})
+              </a>
+            </div>
+
+            <div class="type-tab {% if category == 'user' %}active{% endif %}" {% if category == 'user' %}aria-current="location"{% endif %}>
+              <a href="?{% current_query_string type="users" page=1 %}" class="wrapper">
+                Authors ({{ counts.user|default:"0" }})
+              </a>
+            </div>
+          </div>
+        </div>
+      {% endif %}
+      {% if results %}
+        {% include 'search/results.html' %}
+      {% else %}
+        <div class="no-results">
+          <h3>No results found</h3>
+        </div>
+      {% endif %}
+    </div>
+  </section>
+{% endblock %}

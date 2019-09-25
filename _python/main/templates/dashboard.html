@@ -1,0 +1,25 @@
+{% extends 'base.html' %}
+
+{% block custom_skip_target %}{% endblock %}
+
+{% block mainContent %}
+{# This appears to be solely for spacing <header class="dashboard"></header> #}
+<section class="dashboard" style="margin-top: 15px;">
+  <p id="main" tabindex="-1" class="sr-only">Main Content</p>
+  <div class="content">
+    {% if user == request.user %}
+      <h2 class="casebooks">My Casebooks</h2>
+      <hr class="owned"/>
+      {% include "includes/content_browser.html" with content=user.non_draft_casebooks %}
+    {% else %}
+      <h2 class="casebooks">{{ user.display_name }}'s Casebooks</h2>
+      <hr class="owned"/>
+      {% if request.user.is_superadmin %}
+        {% include "includes/content_browser.html" with content=user.non_draft_casebooks %}
+      {% else %}
+        {% include "includes/content_browser.html" with content=user.published_casebooks %}
+      {% endif %}
+    {% endif %}
+  </div>
+</section>
+{% endblock %}

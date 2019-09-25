@@ -1,0 +1,57 @@
+{% load static %}<!DOCTYPE html>
+<html lang="en">
+  <head>
+    {% block prepend_to_head %}{% endblock %}
+    <meta content="width=device-width, initial-scale=1" name="viewport"/>
+    <meta charset="utf-8"/>
+    <title>{% block page_title %}{{ page_title|default:"Open Casebooks" }}{% endblock %} | H2O</title>
+    <link rel="icon" href="#" type="image/png"/>
+    {% include 'includes/favicon.html' %}
+    <link rel="stylesheet" type="text/css" href="{% static "packs/css/main-ebd2321f.css" %}"/>
+    <link rel="stylesheet" type="text/css" href="//fonts.googleapis.com/css?family=Lora|Sorts+Mill+Goudy"/>
+    <link rel="stylesheet" type="text/css" href="https://use.fontawesome.com/releases/v5.0.13/css/all.css"/>
+    {% if include_vuejs %}
+      <script src="{% static 'packs/js/vue_app-3ed270917b4373c2fcc7.js' %}"></script>
+      <link rel="stylesheet" media="all" href="{% static 'packs/css/vue_app-48b4e940.css' %}">
+    {% endif %}
+  </head>
+  <body class=""> <!--need parameter here for class based on view? -->
+    {% if include_vuejs %}<div id="app">{% endif %}
+    <div id="non-modal">
+      <a href="#main" class="skip-link">Skip to main content</a>
+      <a href="#footer" class="skip-link">Skip to footer</a>
+      <div class="overlay"></div>
+      {% if banner %}
+        {{ banner }}
+      {% endif %}
+      <header id="main-header">
+        {% include 'includes/header.html' %}
+      </header>
+      <main>
+        {% block custom_skip_target %}<p id="main" tabindex="-1" class="sr-only">Main Content</p>{% endblock %}
+        <!-- figure out other "Flash" messages: form errors, anything else? -->
+        {% if request.user.is_superadmin %}
+          <section id="flash">
+            <div class="content">
+              <div class="flash-error flash-message">
+                Admin Mode
+              </div>
+            </div>
+          </section>
+        {% endif %}
+        {% if nested_layout %}
+          {% block nestedLayout %}{% endblock %}
+        {% else %}
+          {% block mainContent %}{% endblock %}
+        {% endif %}
+      </main>
+      <footer id="main-footer">
+        <p id="footer" tabindex="-1" class="sr-only">Footer</p>
+        {% include 'includes/footer.html' %}
+      </footer>
+    </div>
+    {% if include_vuejs %}</div>{% endif %}
+    <script src="{% static "packs/js/application-9a84a3f0732a1d7044d5.js"%} "></script>
+    {% include 'includes/analytics.html' %}
+  </body>
+</html>

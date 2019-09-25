@@ -1,0 +1,18 @@
+<div class="content">
+  <div class="brand">H2O</div>
+  <div class="layout">
+      <div class="link-group">
+        <div class="link"><a href="{% url 'index' %}">Home</a></div>
+        <div class="link"><a href="{% url 'about' %}">About</a></div>
+        <div class="link"><a href="{{ BLOG_URL }}">Blog</a></div>
+        <div class="link"><a href="{% url 'terms-of-service' %}">Terms of Service</a></div>
+        <div class="link"><a href="{% url 'privacy-policy' %}">Privacy Policy</a></div>
+        <div class="link"><a href="{{ GUIDE_URL }}">Help Guide</a></div>
+        <div class="link"><a href="{% url 'faq' %}">FAQ</a></div>
+      </div>
+      <div class="info">
+        <div class="link"><a href="mailto:{{ CONTACT_EMAIL }}">Contact</a></div>
+        <div class="copyright">H2O was built at Harvard Law School by the Library Innovation Lab.</div>
+      </div>
+  </div>
+</div>

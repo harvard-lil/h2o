@@ -4,6 +4,8 @@ services:
     image: postgres:9.5.15
     volumes:
       - db_data:/var/lib/postgresql/data:delegated
+    ports:
+      - "54320:5432"
   web:
     build:
       context: .
@@ -28,6 +30,32 @@ services:
       - "8000:8000"
     depends_on:
       - db
+
+  python:
+    build:
+      context: .
+      dockerfile: ./_python/Dockerfile
+    image: h2o-python:0.1
+    tty: true
+    command: bash
+    environment:
+    - DOCKERIZED=true
+    volumes:
+      - .:/app
+    ports:
+      - "8001:8000"
+    depends_on:
+      - db
+
+  nginx:
+    image: nginx:1.17.2
+    volumes:
+      - ./docker/h2o.conf:/etc/nginx/conf.d/default.conf
+    ports:
+      - 8002:80
+    depends_on:
+      - web
+      - python
 
 volumes:
   db_data:
