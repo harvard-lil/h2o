@@ -564,6 +564,7 @@ class User(RailsModel):
 
     @property
     def email_domain(self):
+        # TODO! In the meantime, return the full address
         # m = email_address.match /@(.+)$/
         # m.try(:[], 1) || '?.edu'
         return self.email_address
