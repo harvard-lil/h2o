@@ -6,8 +6,8 @@ GIT
     will_paginate (3.1.5)
 
 GIT
-  remote: https://github.com/leppert/capapi-ruby.git
-  revision: 8acf041b1d3358b43ca5bebf4007ae1137ca08d8
+  remote: https://github.com/harvard-lil/capapi-ruby.git
+  revision: d0af5b8297f5035880c74e1ddf89b2ae4dedc434
   specs:
     capapi (1.0.0)
       faraday (~> 0.10)

@@ -16,7 +16,7 @@ gem 'bcrypt'
 # Reduces boot times through caching; required in config/boot.rb
 gem 'bootsnap', '>= 1.1.0', require: false
 gem 'cancancan'
-gem 'capapi', git: 'https://github.com/leppert/capapi-ruby.git'
+gem 'capapi', git: 'https://github.com/harvard-lil/capapi-ruby.git'
 gem 'ckeditor'
 gem 'coveralls', require: false
 gem 'daemons', '1.0.10'
