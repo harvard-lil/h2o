@@ -5,6 +5,7 @@
 #   * Make sure each ForeignKey has `on_delete` set to the desired behavior.
 #   * Remove `managed = False` lines if you wish to allow Django to create, modify, and delete the table
 # Feel free to rename the models, but don't rename db_table values or field names.
+from django.conf import settings
 from django.contrib.auth.models import AnonymousUser
 from django.contrib.postgres.fields import JSONField, ArrayField
 from django.db import models
@@ -58,12 +59,12 @@ class Case(RailsModel):
     name_abbreviation = models.CharField(max_length=150)
     name = models.CharField(max_length=10000, blank=True, null=True)
     decision_date = models.DateField(blank=True, null=True)
-    case_court_id = models.IntegerField(blank=True, null=True)
+    case_court = models.ForeignKey('CaseCourt', models.DO_NOTHING, related_name='cases')
     header_html = models.CharField(max_length=15360, blank=True, null=True)
     content = models.CharField(max_length=5242880)
-    created_at = models.DateTimeField(blank=True, null=True)
-    updated_at = models.DateTimeField(blank=True, null=True)
-    public = models.BooleanField(blank=True, null=True)
+    created_at = models.DateTimeField()
+    updated_at = models.DateTimeField()
+    public = models.BooleanField()
     created_via_import = models.BooleanField()
     capapi_id = models.IntegerField(blank=True, null=True)
     attorneys = JSONField(blank=True, null=True)
@@ -79,6 +80,12 @@ class Case(RailsModel):
 
     def get_name(self):
         return self.name_abbreviation if self.name_abbreviation else self.name
+
+    def __str__(self):
+        return self.get_name()
+
+    def related_resources(self):
+        return Resource.objects.filter(resource_id=self.id, resource_type='Case')
 
 
 class ContentAnnotation(RailsModel):
@@ -102,7 +109,10 @@ class ContentAnnotation(RailsModel):
 class ContentCollaborator(RailsModel):
     user = models.ForeignKey('User', models.DO_NOTHING, blank=True, null=True)
     content = models.ForeignKey('ContentNode', models.DO_NOTHING, blank=True, null=True)
-    role = models.CharField(max_length=255, blank=True, null=True)
+    role = models.CharField(
+        max_length=255,
+        choices = (('owner', 'owner'), ('editor', 'editor'))
+    )
     created_at = models.DateTimeField()
     updated_at = models.DateTimeField()
     has_attribution = models.BooleanField()
@@ -123,15 +133,16 @@ class ContentNode(RailsModel):
     casebook = models.ForeignKey('Casebook', models.DO_NOTHING, blank=True, null=True, related_name='contents')
     ordinals = ArrayField(models.IntegerField())
     copy_of = models.ForeignKey('self', models.DO_NOTHING, blank=True, null=True, related_name='clones')
-    is_alias = models.BooleanField(blank=True, null=True)
-    resource_type = models.CharField(max_length=255, blank=True, null=True)
-    resource_id = models.BigIntegerField(blank=True, null=True)
+    # In all instances, is_alias is null
+    # is_alias = models.BooleanField(blank=True, null=True)
+    resource_type = models.CharField(max_length=255)
+    resource_id = models.BigIntegerField()
     created_at = models.DateTimeField()
     updated_at = models.DateTimeField()
     ancestry = models.CharField(max_length=255, blank=True, null=True, help_text="List of parent IDs in tree, separated by slashes.")
     playlist_id = models.BigIntegerField(blank=True, null=True)
     root_user = models.ForeignKey('User', blank=True, null=True, on_delete=models.SET_NULL, related_name='casebooks_and_clones')
-    draft_mode_of_published_casebook = models.BooleanField(blank=True, null=True)
+    draft_mode_of_published_casebook = models.BooleanField(blank=True, null=True, help_text='Unknown (None) or True; never False')
     cloneable = models.BooleanField()
 
     # Can we make this relationship return casebook objects, not nodes?
@@ -237,6 +248,9 @@ class ContentNode(RailsModel):
         else:
             raise NotImplementedError
 
+    def __str__(self):
+        return "{} ({})".format(self.get_title(), self.id)
+
     ###
     # compatibility for the rails Ancestry gem
     # see https://github.com/stefankroes/ancestry/blob/master/lib/ancestry/materialized_path.rb
@@ -287,7 +301,9 @@ class Casebook(ContentNode):
         return reverse('casebook', args=[{"id": self.id, "slug": slugify(self.get_title())}])
 
     def get_title(self):
-        return self.title or "Untitled casebook #%s" % self.pk
+        return self.title or "Untitled casebook"
+        # Proposed: I dislike the ID number here
+        # return self.title or "Untitled casebook #%s" % self.pk
 
     def drafts(self):
         """
@@ -299,7 +315,7 @@ class Casebook(ContentNode):
 
 class SectionManager(models.Manager):
     def get_queryset(self):
-        return super().get_queryset().filter(resource_id__isnull=True)
+        return super().get_queryset().filter(casebook__isnull=False, resource_id__isnull=True)
 
 
 class Section(ContentNode):
@@ -376,17 +392,20 @@ class Default(RailsModel):
     name = models.CharField(max_length=1024, blank=True, null=True)
     url = models.CharField(max_length=1024)
     description = models.CharField(max_length=5242880, blank=True, null=True)
-    public = models.BooleanField(blank=True, null=True)
-    created_at = models.DateTimeField(blank=True, null=True)
-    updated_at = models.DateTimeField(blank=True, null=True)
+    public = models.BooleanField()
+    created_at = models.DateTimeField()
+    updated_at = models.DateTimeField()
     content_type = models.CharField(max_length=255, blank=True, null=True)
-    user_id = models.IntegerField(blank=True, null=True)
+    user = models.ForeignKey('User', on_delete=models.DO_NOTHING, related_name='defaults')
     ancestry = models.CharField(max_length=255, blank=True, null=True)
     created_via_import = models.BooleanField()
 
     class Meta:
         managed = False
         db_table = 'defaults'
+
+    def related_resources(self):
+        return Resource.objects.filter(resource_id=self.id, resource_type='Default')
 
 
 class PermissionAssignment(RailsModel):
@@ -480,7 +499,7 @@ class TextBlock(RailsModel):
     public = models.BooleanField(blank=True, null=True)
     created_at = models.DateTimeField(blank=True, null=True)
     updated_at = models.DateTimeField(blank=True, null=True)
-    user_id = models.IntegerField(blank=True, null=True)
+    user = models.ForeignKey('User', blank=True, null=True, on_delete=models.DO_NOTHING)
     created_via_import = models.BooleanField()
     description = models.CharField(max_length=5242880, blank=True, null=True)
     version = models.IntegerField()
@@ -492,6 +511,9 @@ class TextBlock(RailsModel):
     class Meta:
         managed = False
         db_table = 'text_blocks'
+
+    def related_resources(self):
+        return Resource.objects.filter(resource_id=self.id, resource_type='TextBlock')
 
 
 class UnpublishedRevision(RailsModel):
@@ -552,8 +574,8 @@ class User(RailsModel):
     image_content_type = models.CharField(max_length=255, blank=True, null=True)
     image_file_size = models.IntegerField(blank=True, null=True)
     image_updated_at = models.DateTimeField(blank=True, null=True)
-    verified_professor = models.BooleanField(blank=True, null=True)
-    professor_verification_requested = models.BooleanField(blank=True, null=True)
+    verified_professor = models.BooleanField()
+    professor_verification_requested = models.BooleanField()
     verified_email = models.BooleanField()
 
     roles = models.ManyToManyField(Role, through=RolesUser)

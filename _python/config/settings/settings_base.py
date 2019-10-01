@@ -132,6 +132,8 @@ LOGIN_URL = '/user_sessions/new'
 SIGNUP_URL = '/users/new'
 GUIDE_URL = 'https://about.opencasebook.org/'
 BLOG_URL = 'https://about.opencasebook.org/blog/'
+CAPAPI_CASE_URL_FSTRING = 'https://api.case.law/v1/cases/{}/'
+CAPAPI_COURT_URL_FSTRING = 'https://api.case.law/v1/courts/?id={}'
 
 CONTACT_EMAIL = 'info@opencasebook.org'
 
