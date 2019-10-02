@@ -397,26 +397,6 @@ class Default(TimestampedModel):
         return Resource.objects.filter(resource_id=self.id, resource_type='Default')
 
 
-class PermissionAssignment(TimestampedModel):
-    user_collection_id = models.IntegerField(blank=True, null=True)
-    user_id = models.IntegerField(blank=True, null=True)
-    permission_id = models.IntegerField(blank=True, null=True)
-
-    class Meta:
-        managed = False
-        db_table = 'permission_assignments'
-
-
-class Permission(TimestampedModel):
-    key = models.CharField(max_length=255, blank=True, null=True)
-    label = models.CharField(max_length=255, blank=True, null=True)
-    permission_type = models.CharField(max_length=255, blank=True, null=True)
-
-    class Meta:
-        managed = False
-        db_table = 'permissions'
-
-
 class RawContent(TimestampedModel):
     id = models.BigAutoField(primary_key=True)
     content = models.TextField(blank=True, null=True)
