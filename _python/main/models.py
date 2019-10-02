@@ -50,9 +50,6 @@ class Case(TimestampedModel):
     name_abbreviation = models.CharField(max_length=150)
     name = models.CharField(max_length=10000, blank=True, null=True)
     decision_date = models.DateField(blank=True, null=True)
-    case_court = models.ForeignKey('CaseCourt', models.DO_NOTHING, related_name='cases')
-    header_html = models.CharField(max_length=15360, blank=True, null=True)
-    content = models.CharField(max_length=5242880)
     public = models.BooleanField()
     created_via_import = models.BooleanField()
     capapi_id = models.IntegerField(blank=True, null=True)
@@ -61,7 +58,11 @@ class Case(TimestampedModel):
     opinions = JSONField(blank=True, null=True)
     citations = JSONField(blank=True, null=True)
     docket_number = models.CharField(max_length=20000, blank=True, null=True)
+    header_html = models.CharField(max_length=15360, blank=True, null=True)
+    content = models.CharField(max_length=5242880)
     annotations_count = models.IntegerField()
+
+    case_court = models.ForeignKey('CaseCourt', models.PROTECT, related_name='cases')
 
     class Meta:
         managed = False
@@ -78,7 +79,6 @@ class Case(TimestampedModel):
 
 
 class ContentAnnotation(TimestampedModel):
-    resource = models.ForeignKey('ContentNode', models.DO_NOTHING, related_name='annotations')
     start_paragraph = models.IntegerField()
     end_paragraph = models.IntegerField(blank=True, null=True)
     start_offset = models.IntegerField()
@@ -88,19 +88,22 @@ class ContentAnnotation(TimestampedModel):
     global_start_offset = models.IntegerField(blank=True, null=True)
     global_end_offset = models.IntegerField(blank=True, null=True)
 
+    resource = models.ForeignKey('ContentNode', models.PROTECT, related_name='annotations')
+
     class Meta:
         managed = False
         db_table = 'content_annotations'
 
 
 class ContentCollaborator(TimestampedModel):
-    user = models.ForeignKey('User', models.DO_NOTHING, blank=True, null=True)
-    content = models.ForeignKey('ContentNode', models.DO_NOTHING, blank=True, null=True)
     role = models.CharField(
         max_length=255,
         choices = (('owner', 'owner'), ('editor', 'editor'))
     )
     has_attribution = models.BooleanField()
+
+    user = models.ForeignKey('User', models.CASCADE)
+    content = models.ForeignKey('ContentNode', models.CASCADE)
 
     class Meta:
         managed = False
@@ -112,25 +115,28 @@ class ContentNode(TimestampedModel):
     title = models.CharField(max_length=10000, blank=True, null=True)
     slug = models.CharField(max_length=10000, blank=True, null=True)
     subtitle = models.CharField(max_length=10000, blank=True, null=True)
+    public = models.BooleanField()
+    cloneable = models.BooleanField()
+    draft_mode_of_published_casebook = models.BooleanField(blank=True, null=True, help_text='Unknown (None) or True; never False')
+    ancestry = models.CharField(max_length=255, blank=True, null=True, help_text="List of parent IDs in tree, separated by slashes.")
+    ordinals = ArrayField(models.IntegerField())
     headnote = models.TextField(blank=True, null=True)
     raw_headnote = models.TextField(blank=True, null=True)
-    public = models.BooleanField()
-    casebook = models.ForeignKey('Casebook', models.DO_NOTHING, blank=True, null=True, related_name='contents')
-    ordinals = ArrayField(models.IntegerField())
-    copy_of = models.ForeignKey('self', models.DO_NOTHING, blank=True, null=True, related_name='clones')
-    # In all instances, is_alias is null
-    # is_alias = models.BooleanField(blank=True, null=True)
+
+    casebook = models.ForeignKey('Casebook', models.CASCADE, blank=True, null=True, related_name='contents')
+    copy_of = models.ForeignKey('self', models.PROTECT, blank=True, null=True, related_name='clones')
+    root_user = models.ForeignKey('User', blank=True, null=True, on_delete=models.PROTECT, related_name='casebooks_and_clones')
+    # These fields define a relationship with a Case, Default, or Textblock
+    # not yet described/available via the Django ORM
     resource_type = models.CharField(max_length=255)
     resource_id = models.BigIntegerField()
-    ancestry = models.CharField(max_length=255, blank=True, null=True, help_text="List of parent IDs in tree, separated by slashes.")
-    playlist_id = models.BigIntegerField(blank=True, null=True)
-    root_user = models.ForeignKey('User', blank=True, null=True, on_delete=models.SET_NULL, related_name='casebooks_and_clones')
-    draft_mode_of_published_casebook = models.BooleanField(blank=True, null=True, help_text='Unknown (None) or True; never False')
-    cloneable = models.BooleanField()
-
     # Can we make this relationship return casebook objects, not nodes?
     # I don't think so. Workaround: see "to_proxy"
     collaborators = models.ManyToManyField('User', through='ContentCollaborator', related_name='casebooks')
+
+    # legacy fields, I believe
+    is_alias = models.BooleanField(blank=True, null=True)
+    playlist_id = models.BigIntegerField(blank=True, null=True)
 
     class Meta:
         managed = False
@@ -373,13 +379,15 @@ class Default(TimestampedModel):
     These are actually Link Resource
     """
     name = models.CharField(max_length=1024, blank=True, null=True)
-    url = models.CharField(max_length=1024)
     description = models.CharField(max_length=5242880, blank=True, null=True)
+    url = models.CharField(max_length=1024)
     public = models.BooleanField()
     content_type = models.CharField(max_length=255, blank=True, null=True)
-    user = models.ForeignKey('User', on_delete=models.DO_NOTHING, related_name='defaults')
     ancestry = models.CharField(max_length=255, blank=True, null=True)
     created_via_import = models.BooleanField()
+
+    # the person who created the TextBlock. what's the correct on_delete here?
+    user = models.ForeignKey('User', on_delete=models.PROTECT, related_name='defaults')
 
     class Meta:
         managed = False
@@ -469,16 +477,21 @@ class Session(TimestampedModel):
 
 class TextBlock(TimestampedModel):
     name = models.CharField(max_length=255)
-    content = models.CharField(max_length=5242880)
-    public = models.BooleanField(blank=True, null=True)
-    user = models.ForeignKey('User', blank=True, null=True, on_delete=models.DO_NOTHING)
-    created_via_import = models.BooleanField()
     description = models.CharField(max_length=5242880, blank=True, null=True)
+    content = models.CharField(max_length=5242880)
     version = models.IntegerField()
+    public = models.BooleanField(blank=True, null=True)
+    created_via_import = models.BooleanField()
+    annotations_count = models.IntegerField()
+
+    # the person who created the TextBlock. what's the correct on_delete here?
+    # don't know what it means currently when blank/null
+    user = models.ForeignKey('User', blank=True, null=True, on_delete=models.PROTECT)
+
+    # legacy fields, I believe
     enable_feedback = models.BooleanField()
     enable_discussions = models.BooleanField()
     enable_responses = models.BooleanField()
-    annotations_count = models.IntegerField()
 
     class Meta:
         managed = False
@@ -503,28 +516,40 @@ class UnpublishedRevision(TimestampedModel):
 
 class User(TimestampedModel):
     login = models.CharField(max_length=255, blank=True, null=True, unique=True)
-    crypted_password = models.CharField(max_length=255, blank=True, null=True)
-    password_salt = models.CharField(max_length=255, blank=True, null=True)
-    persistence_token = models.CharField(max_length=255)
+    email_address = models.CharField(max_length=255, blank=True, null=True)
+    title = models.CharField(max_length=255, blank=True, null=True)
+    attribution = models.CharField(max_length=255)
+    affiliation = models.CharField(max_length=255, blank=True, null=True)
+    verified_email = models.BooleanField()
+    verified_professor = models.BooleanField()
+    professor_verification_requested = models.BooleanField()
+
+    # used to assign super_admin or case_admin status
+    roles = models.ManyToManyField(Role, through=RolesUser)
+
+    # calculated
     login_count = models.IntegerField()
     last_request_at = models.DateTimeField(blank=True, null=True)
     last_login_at = models.DateTimeField(blank=True, null=True)
     current_login_at = models.DateTimeField(blank=True, null=True)
     last_login_ip = models.CharField(max_length=255, blank=True, null=True)
     current_login_ip = models.CharField(max_length=255, blank=True, null=True)
+
+    # auth/crypto innards
+    crypted_password = models.CharField(max_length=255, blank=True, null=True)
+    password_salt = models.CharField(max_length=255, blank=True, null=True)
+    persistence_token = models.CharField(max_length=255)
     oauth_token = models.CharField(max_length=255, blank=True, null=True)
     oauth_secret = models.CharField(max_length=255, blank=True, null=True)
-    email_address = models.CharField(max_length=255, blank=True, null=True)
-    tz_name = models.CharField(max_length=255, blank=True, null=True)
-    attribution = models.CharField(max_length=255)
     perishable_token = models.CharField(max_length=255, blank=True, null=True)
-    default_font_size = models.CharField(max_length=255, blank=True, null=True)
-    title = models.CharField(max_length=255, blank=True, null=True)
-    affiliation = models.CharField(max_length=255, blank=True, null=True)
+
+    # all legacy fields, I believe
+    tz_name = models.CharField(max_length=255, blank=True, null=True)
     url = models.CharField(max_length=255, blank=True, null=True)
     description = models.TextField(blank=True, null=True)
     canvas_id = models.CharField(max_length=255, blank=True, null=True)
     default_font = models.CharField(max_length=255, blank=True, null=True)
+    default_font_size = models.CharField(max_length=255, blank=True, null=True)
     print_titles = models.BooleanField()
     print_dates_details = models.BooleanField()
     print_paragraph_numbers = models.BooleanField()
@@ -542,11 +567,6 @@ class User(TimestampedModel):
     image_content_type = models.CharField(max_length=255, blank=True, null=True)
     image_file_size = models.IntegerField(blank=True, null=True)
     image_updated_at = models.DateTimeField(blank=True, null=True)
-    verified_professor = models.BooleanField()
-    professor_verification_requested = models.BooleanField()
-    verified_email = models.BooleanField()
-
-    roles = models.ManyToManyField(Role, through=RolesUser)
 
     class Meta:
         managed = False
