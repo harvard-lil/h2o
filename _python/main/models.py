@@ -460,6 +460,11 @@ class Role(RailsModel):
         managed = False
         db_table = 'roles'
 
+    def __str__(self):
+        if self.name == 'asker':
+            return "{} ({} {})".format(self.name, self.authorizable_type, self.authorizable_id)
+        return self.name
+
 
 class RolesUser(RailsModel):
     """
