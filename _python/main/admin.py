@@ -285,7 +285,6 @@ class UnpublishedRevision(NonLoggingAdmin):
     list_select_related = ['casebook', 'node', 'node_parent', 'annotation']
     list_display = ['id', 'the_draft', 'node', 'parent','field', 'value_preview', 'annotation', 'created_at', 'updated_at']
     list_filter = [CasebookIdFilter, 'field']
-    # raw_id_fields = ['casebook', 'node', 'node_parent', 'annotation']
 
     def the_draft(self, obj):
         return format_html(
@@ -426,6 +425,7 @@ class UserAdmin(NonLoggingAdmin):
 
     def get_roles(self, obj):
         return ','.join(str(o) for o in obj.roles.distinct('name')) or None
+    get_roles.short_description = 'Roles'
 
 
 @admin.register(RolesUser)
