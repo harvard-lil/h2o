@@ -27,6 +27,8 @@ class TimestampedModel(models.Model):
         abstract = True
 
 
+# Internal
+
 class ArInternalMetadata(TimestampedModel):
     key = models.CharField(primary_key=True, max_length=255)
     value = models.CharField(max_length=255, blank=True, null=True)
@@ -35,6 +37,23 @@ class ArInternalMetadata(TimestampedModel):
         managed = False
         db_table = 'ar_internal_metadata'
 
+class SchemaMigration(models.Model):
+    version = models.CharField(primary_key=True, max_length=255)
+
+    class Meta:
+        managed = False
+        db_table = 'schema_migrations'
+
+
+class Session(TimestampedModel):
+    data = models.TextField(blank=True, null=True)
+
+    class Meta:
+        managed = False
+        db_table = 'sessions'
+
+
+# Application
 
 class CaseCourt(TimestampedModel):
     name_abbreviation = models.CharField(max_length=150, blank=True, null=True)
@@ -437,22 +456,6 @@ class RolesUser(TimestampedModel):
     class Meta:
         managed = False
         db_table = 'roles_users'
-
-
-class SchemaMigration(models.Model):
-    version = models.CharField(primary_key=True, max_length=255)
-
-    class Meta:
-        managed = False
-        db_table = 'schema_migrations'
-
-
-class Session(TimestampedModel):
-    data = models.TextField(blank=True, null=True)
-
-    class Meta:
-        managed = False
-        db_table = 'sessions'
 
 
 class TextBlock(TimestampedModel):
