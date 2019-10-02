@@ -19,35 +19,26 @@ from urllib.parse import urlparse
 from main.utils import sanitize
 
 
-class RailsModel(models.Model):
-    """
-        Tweaks to Django models to match behavior of Rails.
-    """
-    def save(self, *args, **kwargs):
-        # set updated_at for each save
-        self.updated_at = timezone.now()
-        super().save(*args, **kwargs)
+class TimestampedModel(models.Model):
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
 
     class Meta:
         abstract = True
 
 
-class ArInternalMetadata(RailsModel):
+class ArInternalMetadata(TimestampedModel):
     key = models.CharField(primary_key=True, max_length=255)
     value = models.CharField(max_length=255, blank=True, null=True)
-    created_at = models.DateTimeField()
-    updated_at = models.DateTimeField()
 
     class Meta:
         managed = False
         db_table = 'ar_internal_metadata'
 
 
-class CaseCourt(RailsModel):
+class CaseCourt(TimestampedModel):
     name_abbreviation = models.CharField(max_length=150, blank=True, null=True)
     name = models.CharField(max_length=500, blank=True, null=True)
-    created_at = models.DateTimeField(blank=True, null=True)
-    updated_at = models.DateTimeField(blank=True, null=True)
     capapi_id = models.IntegerField(blank=True, null=True)
 
     class Meta:
@@ -55,15 +46,13 @@ class CaseCourt(RailsModel):
         db_table = 'case_courts'
 
 
-class Case(RailsModel):
+class Case(TimestampedModel):
     name_abbreviation = models.CharField(max_length=150)
     name = models.CharField(max_length=10000, blank=True, null=True)
     decision_date = models.DateField(blank=True, null=True)
     case_court = models.ForeignKey('CaseCourt', models.DO_NOTHING, related_name='cases')
     header_html = models.CharField(max_length=15360, blank=True, null=True)
     content = models.CharField(max_length=5242880)
-    created_at = models.DateTimeField()
-    updated_at = models.DateTimeField()
     public = models.BooleanField()
     created_via_import = models.BooleanField()
     capapi_id = models.IntegerField(blank=True, null=True)
@@ -88,7 +77,7 @@ class Case(RailsModel):
         return Resource.objects.filter(resource_id=self.id, resource_type='Case')
 
 
-class ContentAnnotation(RailsModel):
+class ContentAnnotation(TimestampedModel):
     resource = models.ForeignKey('ContentNode', models.DO_NOTHING, related_name='annotations')
     start_paragraph = models.IntegerField()
     end_paragraph = models.IntegerField(blank=True, null=True)
@@ -96,8 +85,6 @@ class ContentAnnotation(RailsModel):
     end_offset = models.IntegerField()
     kind = models.CharField(max_length=2255)
     content = models.TextField(blank=True, null=True)
-    created_at = models.DateTimeField()
-    updated_at = models.DateTimeField()
     global_start_offset = models.IntegerField(blank=True, null=True)
     global_end_offset = models.IntegerField(blank=True, null=True)
 
@@ -106,15 +93,13 @@ class ContentAnnotation(RailsModel):
         db_table = 'content_annotations'
 
 
-class ContentCollaborator(RailsModel):
+class ContentCollaborator(TimestampedModel):
     user = models.ForeignKey('User', models.DO_NOTHING, blank=True, null=True)
     content = models.ForeignKey('ContentNode', models.DO_NOTHING, blank=True, null=True)
     role = models.CharField(
         max_length=255,
         choices = (('owner', 'owner'), ('editor', 'editor'))
     )
-    created_at = models.DateTimeField()
-    updated_at = models.DateTimeField()
     has_attribution = models.BooleanField()
 
     class Meta:
@@ -123,7 +108,7 @@ class ContentCollaborator(RailsModel):
         unique_together = (('user', 'content'),)
 
 
-class ContentNode(RailsModel):
+class ContentNode(TimestampedModel):
     title = models.CharField(max_length=10000, blank=True, null=True)
     slug = models.CharField(max_length=10000, blank=True, null=True)
     subtitle = models.CharField(max_length=10000, blank=True, null=True)
@@ -137,8 +122,6 @@ class ContentNode(RailsModel):
     # is_alias = models.BooleanField(blank=True, null=True)
     resource_type = models.CharField(max_length=255)
     resource_id = models.BigIntegerField()
-    created_at = models.DateTimeField()
-    updated_at = models.DateTimeField()
     ancestry = models.CharField(max_length=255, blank=True, null=True, help_text="List of parent IDs in tree, separated by slashes.")
     playlist_id = models.BigIntegerField(blank=True, null=True)
     root_user = models.ForeignKey('User', blank=True, null=True, on_delete=models.SET_NULL, related_name='casebooks_and_clones')
@@ -385,7 +368,7 @@ class Resource(ContentNode):
 # End ContentNode Proxies
 #
 
-class Default(RailsModel):
+class Default(TimestampedModel):
     """
     These are actually Link Resource
     """
@@ -393,8 +376,6 @@ class Default(RailsModel):
     url = models.CharField(max_length=1024)
     description = models.CharField(max_length=5242880, blank=True, null=True)
     public = models.BooleanField()
-    created_at = models.DateTimeField()
-    updated_at = models.DateTimeField()
     content_type = models.CharField(max_length=255, blank=True, null=True)
     user = models.ForeignKey('User', on_delete=models.DO_NOTHING, related_name='defaults')
     ancestry = models.CharField(max_length=255, blank=True, null=True)
@@ -408,23 +389,19 @@ class Default(RailsModel):
         return Resource.objects.filter(resource_id=self.id, resource_type='Default')
 
 
-class PermissionAssignment(RailsModel):
+class PermissionAssignment(TimestampedModel):
     user_collection_id = models.IntegerField(blank=True, null=True)
     user_id = models.IntegerField(blank=True, null=True)
     permission_id = models.IntegerField(blank=True, null=True)
-    created_at = models.DateTimeField(blank=True, null=True)
-    updated_at = models.DateTimeField(blank=True, null=True)
 
     class Meta:
         managed = False
         db_table = 'permission_assignments'
 
 
-class Permission(RailsModel):
+class Permission(TimestampedModel):
     key = models.CharField(max_length=255, blank=True, null=True)
     label = models.CharField(max_length=255, blank=True, null=True)
-    created_at = models.DateTimeField(blank=True, null=True)
-    updated_at = models.DateTimeField(blank=True, null=True)
     permission_type = models.CharField(max_length=255, blank=True, null=True)
 
     class Meta:
@@ -432,13 +409,11 @@ class Permission(RailsModel):
         db_table = 'permissions'
 
 
-class RawContent(RailsModel):
+class RawContent(TimestampedModel):
     id = models.BigAutoField(primary_key=True)
     content = models.TextField(blank=True, null=True)
     source_type = models.CharField(max_length=50, blank=True, null=True)
     source_id = models.BigIntegerField(blank=True, null=True)
-    created_at = models.DateTimeField()
-    updated_at = models.DateTimeField()
 
     class Meta:
         managed = False
@@ -446,15 +421,13 @@ class RawContent(RailsModel):
         unique_together = (('source_type', 'source_id'),)
 
 
-class Role(RailsModel):
+class Role(TimestampedModel):
     """
         User roles.
     """
     name = models.CharField(max_length=40, blank=True, null=True)
     authorizable_type = models.CharField(max_length=40, blank=True, null=True)
     authorizable_id = models.IntegerField(blank=True, null=True)
-    created_at = models.DateTimeField(blank=True, null=True)
-    updated_at = models.DateTimeField(blank=True, null=True)
 
     class Meta:
         managed = False
@@ -466,21 +439,19 @@ class Role(RailsModel):
         return self.name
 
 
-class RolesUser(RailsModel):
+class RolesUser(TimestampedModel):
     """
         Join table for User and Role.
     """
     user = models.ForeignKey('User', blank=True, null=True, on_delete=models.CASCADE)
     role = models.ForeignKey(Role, blank=True, null=True, on_delete=models.CASCADE)
-    created_at = models.DateTimeField(blank=True, null=True)
-    updated_at = models.DateTimeField(blank=True, null=True)
 
     class Meta:
         managed = False
         db_table = 'roles_users'
 
 
-class SchemaMigration(RailsModel):
+class SchemaMigration(models.Model):
     version = models.CharField(primary_key=True, max_length=255)
 
     class Meta:
@@ -488,22 +459,18 @@ class SchemaMigration(RailsModel):
         db_table = 'schema_migrations'
 
 
-class Session(RailsModel):
+class Session(TimestampedModel):
     data = models.TextField(blank=True, null=True)
-    created_at = models.DateTimeField(blank=True, null=True)
-    updated_at = models.DateTimeField(blank=True, null=True)
 
     class Meta:
         managed = False
         db_table = 'sessions'
 
 
-class TextBlock(RailsModel):
+class TextBlock(TimestampedModel):
     name = models.CharField(max_length=255)
     content = models.CharField(max_length=5242880)
     public = models.BooleanField(blank=True, null=True)
-    created_at = models.DateTimeField(blank=True, null=True)
-    updated_at = models.DateTimeField(blank=True, null=True)
     user = models.ForeignKey('User', blank=True, null=True, on_delete=models.DO_NOTHING)
     created_via_import = models.BooleanField()
     description = models.CharField(max_length=5242880, blank=True, null=True)
@@ -521,12 +488,10 @@ class TextBlock(RailsModel):
         return Resource.objects.filter(resource_id=self.id, resource_type='TextBlock')
 
 
-class UnpublishedRevision(RailsModel):
+class UnpublishedRevision(TimestampedModel):
     node_id = models.IntegerField(blank=True, null=True)
     field = models.CharField(max_length=255)
     value = models.CharField(max_length=50000, blank=True, null=True)
-    created_at = models.DateTimeField()
-    updated_at = models.DateTimeField()
     casebook_id = models.IntegerField(blank=True, null=True)
     node_parent_id = models.IntegerField(blank=True, null=True)
     annotation_id = models.IntegerField(blank=True, null=True)
@@ -536,9 +501,7 @@ class UnpublishedRevision(RailsModel):
         db_table = 'unpublished_revisions'
 
 
-class User(RailsModel):
-    created_at = models.DateTimeField(blank=True, null=True)
-    updated_at = models.DateTimeField(blank=True, null=True)
+class User(TimestampedModel):
     login = models.CharField(max_length=255, blank=True, null=True)
     crypted_password = models.CharField(max_length=255, blank=True, null=True)
     password_salt = models.CharField(max_length=255, blank=True, null=True)
