@@ -120,6 +120,12 @@ USE_L10N = True
 
 USE_TZ = True
 
+# Temmporary:
+# From the warning messages we are getting, I think the timestamps
+# in the DB from the Rails application do not have timezone info.
+# Let's plan to migrate, once we are fully python.
+USE_TZ = False
+
 
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/2.2/howto/static-files/

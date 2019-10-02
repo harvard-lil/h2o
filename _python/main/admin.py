@@ -7,7 +7,9 @@ from django.db.models import Q, Count
 from django.urls import reverse
 from django.utils.html import format_html
 
-from .models import Case, CaseCourt, Default, User, Casebook, Section, Resource, ContentCollaborator, ContentAnnotation, TextBlock
+from .models import Case, CaseCourt, Default, User, Casebook, Section, \
+    Resource, ContentCollaborator, ContentAnnotation, TextBlock, \
+    Role, RolesUser
 
 
 # remove builtin models
@@ -92,14 +94,15 @@ class ResourceIdFilter(InputFilter):
         if value is not None:
             return queryset.filter(resource_id=value)
 
-class AnnotatedFilter(admin.SimpleListFilter):
-    parameter_name = 'annotated'
-    title = 'Annotated'
+
+class RoleNameFilter(InputFilter):
+    parameter_name = 'role'
+    title = 'Role'
 
     def queryset(self, request, queryset):
         value = self.value()
         if value is not None:
-            return queryset.filter(resource_id=value)
+            return queryset.filter(roles__name__icontains=value)
 
 
 #
@@ -128,9 +131,31 @@ class AnnotationInline(admin.TabularInline):
         return formfield
 
 
+class RolesUserInline(admin.TabularInline):
+    model = RolesUser
+    list_select_related = ['user', 'role']
+    fields = ['user', 'role']
+    raw_id_fields = ['user', 'role']
+    extra = 0
+
+
 #
 # Admins
 #
+
+
+class NonLoggingAdmin(admin.ModelAdmin):
+    """
+    The LogEntry class tracks additions, changes, and deletions of objects
+    done through the admin interface. It requires the Django app to be
+    fully integrated with the AUTH_USER_MODEL... which we aren't yet. So,
+    for now, disable logging.
+    """
+    def log_addition(self, request, object, message):
+        pass
+
+    def log_change(self, request, object, message):
+        pass
 
 
 ## Casebooks
@@ -359,19 +384,45 @@ class TextBlockAdmin(admin.ModelAdmin):
 ## Users
 
 @admin.register(User)
-class UserAdmin(admin.ModelAdmin):
+class UserAdmin(NonLoggingAdmin):
     readonly_fields = ['created_at', 'updated_at', 'display_name']
-    list_display = ['id', 'display_name', 'email_address', 'verified_email', 'professor_verification_requested', 'verified_professor', 'last_request_at', 'last_login_at', 'login_count', 'created_at']
-    list_filter = ['verified_email', 'verified_professor', 'professor_verification_requested']
+    list_display = ['id', 'display_name', 'email_address', 'verified_email', 'professor_verification_requested', 'verified_professor', 'get_roles', 'last_request_at', 'last_login_at', 'login_count', 'created_at', 'updated_at']
+    list_filter = ['verified_email', 'verified_professor', 'professor_verification_requested', RoleNameFilter]
     search_fields = ['attribution', 'title', 'email_address']
     fields = ['title', 'attribution', 'email_address', 'verified_email', 'professor_verification_requested', 'verified_professor', 'affiliation', 'last_request_at', 'last_login_at', 'login_count', 'created_at', 'updated_at']
+    inlines = [RolesUserInline]
+
+    def get_roles(self, obj):
+        return ','.join(str(o) for o in obj.roles.distinct('name')) or None
 
 
-# @admin.register(ContentCollaborator)
-# class CollaboratorsAdmin(admin.ModelAdmin):
-#     list_select_related = ['user',]
-#     list_display = ['user', 'role']
-#     list_filter = ['role']
+@admin.register(RolesUser)
+class RoleUserAdmin(NonLoggingAdmin):
+    readonly_fields = ['created_at', 'updated_at']
+    list_select_related = ['user', 'role']
+    list_display = ['id', 'user', 'role']
+    list_filter = ['role__name']
+    raw_id_fields = ['user', 'role']
+
+
+
+@admin.register(Role)
+class RoleAdmin(NonLoggingAdmin):
+    readonly_fields = ['created_at', 'updated_at']
+    list_display = ['id', 'name', 'authorizable_type', 'authorizable_id', 'created_at', 'updated_at']
+    list_filter = ['name', 'authorizable_type']
+    ordering = ['-name']
+
+
+@admin.register(ContentCollaborator)
+class CollaboratorsAdmin(NonLoggingAdmin):
+    readonly_fields = ['created_at', 'updated_at', 'user', 'content']
+    list_select_related = ['user', 'content']
+    list_display = ['user', 'role']
+    list_filter = ['role']
+    ordering = ['role']
+    raw_id_fields = ['user', 'content']
+
 
 ## Courts
 
