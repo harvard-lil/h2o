@@ -502,7 +502,7 @@ class UnpublishedRevision(TimestampedModel):
 
 
 class User(TimestampedModel):
-    login = models.CharField(max_length=255, blank=True, null=True)
+    login = models.CharField(max_length=255, blank=True, null=True, unique=True)
     crypted_password = models.CharField(max_length=255, blank=True, null=True)
     password_salt = models.CharField(max_length=255, blank=True, null=True)
     persistence_token = models.CharField(max_length=255)
