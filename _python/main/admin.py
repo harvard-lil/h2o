@@ -388,7 +388,7 @@ class TextBlockAdmin(NonLoggingAdmin):
 
 @admin.register(User)
 class UserAdmin(NonLoggingAdmin):
-    readonly_fields = ['created_at', 'updated_at', 'display_name']
+    readonly_fields = ['created_at', 'updated_at', 'display_name', 'last_request_at', 'last_login_at', 'login_count']
     list_display = ['id', 'display_name', 'email_address', 'verified_email', 'professor_verification_requested', 'verified_professor', 'get_roles', 'last_request_at', 'last_login_at', 'login_count', 'created_at', 'updated_at']
     list_filter = ['verified_email', 'verified_professor', 'professor_verification_requested', RoleNameFilter]
     search_fields = ['attribution', 'title', 'email_address']
@@ -401,9 +401,9 @@ class UserAdmin(NonLoggingAdmin):
 
 @admin.register(RolesUser)
 class RoleUserAdmin(NonLoggingAdmin):
-    readonly_fields = ['created_at', 'updated_at']
+    readonly_fields = ['created_at', 'updated_at', 'role', 'user']
     list_select_related = ['user', 'role']
-    list_display = ['id', 'user', 'role']
+    list_display = ['id', 'user', 'role', 'created_at', 'updated_at']
     list_filter = ['role__name']
     raw_id_fields = ['user', 'role']
 
@@ -411,7 +411,7 @@ class RoleUserAdmin(NonLoggingAdmin):
 
 @admin.register(Role)
 class RoleAdmin(NonLoggingAdmin):
-    readonly_fields = ['created_at', 'updated_at']
+    readonly_fields = ['created_at', 'updated_at', 'authorizable_type', 'authorizable_id']
     list_display = ['id', 'name', 'authorizable_type', 'authorizable_id', 'created_at', 'updated_at']
     list_filter = ['name', 'authorizable_type']
     ordering = ['-name']
