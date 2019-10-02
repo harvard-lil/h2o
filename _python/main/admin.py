@@ -22,10 +22,10 @@ admin.site.unregister(BuiltInUser)
 #
 
 class InputFilter(admin.SimpleListFilter):
-    '''
+    """
     Text input filter, from:
     https://hakibenita.com/how-to-add-a-text-filter-to-django-admin
-    '''
+    """
     template = 'admin/input_filter.html'
 
     def lookups(self, request, model_admin):
@@ -119,7 +119,7 @@ class CollaboratorInline(admin.TabularInline):
 class AnnotationInline(admin.TabularInline):
     model = ContentAnnotation
     readonly_fields = ['created_at', 'updated_at', 'start_paragraph', 'end_paragraph', 'start_offset', 'end_offset', 'kind']
-    fields = ["resource", ("global_start_offset", "global_end_offset"), ("start_paragraph", "end_paragraph"), ("start_offset", "end_offset"), "kind", "content", "created_at", "updated_at"]
+    fields = ['resource', ('global_start_offset', 'global_end_offset'), ('start_paragraph', 'end_paragraph'), ('start_offset', 'end_offset'), 'kind', 'content', 'created_at', 'updated_at']
     raw_id_fields = ['resource']
     extra = 0
     ordering = ['global_start_offset',  'global_end_offset']
@@ -161,7 +161,7 @@ class NonLoggingAdmin(admin.ModelAdmin):
 ## Casebooks
 
 @admin.register(Casebook)
-class CasebookAdmin(admin.ModelAdmin):
+class CasebookAdmin(NonLoggingAdmin):
     readonly_fields = ['created_at', 'updated_at', 'owner_link', 'clone_of', 'copy_of', 'ancestry', 'root_user', 'playlist_id']
     list_select_related = ['root_user', 'copy_of']
     list_display = ['id', 'get_title', 'owner_link', 'public', 'draft_mode_of_published_casebook', 'clone_of', 'root_user', 'created_at', 'updated_at']
@@ -175,7 +175,7 @@ class CasebookAdmin(admin.ModelAdmin):
         if obj.owner:
             return format_html(
                 '<a href="{}">{} ({})</a>',
-                reverse("admin:main_user_change", args=(obj.owner.id,)),
+                reverse('admin:main_user_change', args=(obj.owner.id,)),
                 obj.owner.display_name,
                 obj.owner.id
             )
@@ -185,14 +185,14 @@ class CasebookAdmin(admin.ModelAdmin):
         if obj.copy_of:
             return format_html(
                 '<a href="{}">{}</a>',
-                reverse("admin:main_casebook_change", args=(obj.copy_of.id,)),
+                reverse('admin:main_casebook_change', args=(obj.copy_of.id,)),
                 str(obj.copy_of)
             )
     clone_of.short_description = 'copy of'
 
 
 @admin.register(Section)
-class SectionAdmin(admin.ModelAdmin):
+class SectionAdmin(NonLoggingAdmin):
     readonly_fields = ['created_at', 'updated_at', 'owner_link', 'casebook_link', 'copy_of']
     list_select_related = ['casebook', 'copy_of']
     list_display = ['id', 'casebook_link', 'owner_link', 'get_title', 'ordinals', 'created_at', 'updated_at']
@@ -205,7 +205,7 @@ class SectionAdmin(admin.ModelAdmin):
         if obj.casebook.owner:
             return format_html(
                 '<a href="{}">{} ({})</a>',
-                reverse("admin:main_user_change", args=(obj.casebook.owner.id,)),
+                reverse('admin:main_user_change', args=(obj.casebook.owner.id,)),
                 obj.casebook.owner.display_name,
                 obj.casebook.owner.id
             )
@@ -214,14 +214,14 @@ class SectionAdmin(admin.ModelAdmin):
     def casebook_link(self, obj):
         return format_html(
             '<a href="{}">{}</a>',
-            reverse("admin:main_casebook_change", args=(obj.casebook.id,)),
+            reverse('admin:main_casebook_change', args=(obj.casebook.id,)),
             str(obj.casebook)
         )
     casebook_link.short_description = 'casebook'
 
 
 @admin.register(Resource)
-class ResourceAdmin(admin.ModelAdmin):
+class ResourceAdmin(NonLoggingAdmin):
     readonly_fields = ['created_at', 'updated_at', 'owner_link', 'casebook_link', 'copy_of', 'resource_id', 'resource_type']
     list_select_related = ['casebook', 'copy_of']
     list_display = ['id', 'casebook_link', 'owner_link', 'get_title', 'ordinals', 'resource_type', 'resource_id', 'annotation_count', 'created_at', 'updated_at']
@@ -235,7 +235,7 @@ class ResourceAdmin(admin.ModelAdmin):
         if obj.casebook.owner:
             return format_html(
                 '<a href="{}">{} ({})</a>',
-                reverse("admin:main_user_change", args=(obj.casebook.owner.id,)),
+                reverse('admin:main_user_change', args=(obj.casebook.owner.id,)),
                 obj.casebook.owner.display_name,
                 obj.casebook.owner.id
             )
@@ -244,7 +244,7 @@ class ResourceAdmin(admin.ModelAdmin):
     def casebook_link(self, obj):
         return format_html(
             '<a href="{}">{} ({})</a>',
-            reverse("admin:main_casebook_change", args=(obj.casebook.id,)),
+            reverse('admin:main_casebook_change', args=(obj.casebook.id,)),
             obj.casebook.get_title(),
             obj.casebook.id
         )
@@ -259,11 +259,11 @@ class ResourceAdmin(admin.ModelAdmin):
 
 
 @admin.register(ContentAnnotation)
-class AnnotationsAdmin(admin.ModelAdmin):
+class AnnotationsAdmin(NonLoggingAdmin):
     readonly_fields = ['created_at', 'updated_at', 'start_paragraph', 'end_paragraph', 'start_offset', 'end_offset', 'kind']
-    fields = ["resource", ("global_start_offset", "global_end_offset"), ("start_paragraph", "end_paragraph"), ("start_offset", "end_offset"), "kind", "content", "created_at", "updated_at"]
+    fields = ['resource', ('global_start_offset', 'global_end_offset'), ('start_paragraph', 'end_paragraph'), ('start_offset', 'end_offset'), 'kind', 'content', 'created_at', 'updated_at']
     list_select_related = ['resource']
-    list_display = ["id", "resource_type", 'resource_id', "kind", "created_at", "updated_at"]
+    list_display = ['id', 'resource_type', 'resource_id', 'kind', 'created_at', 'updated_at']
     list_filter = ['resource__resource_type']
     raw_id_fields = ['resource']
 
@@ -279,7 +279,7 @@ class AnnotationsAdmin(admin.ModelAdmin):
 ## Resources
 
 @admin.register(Case)
-class CaseAdmin(admin.ModelAdmin):
+class CaseAdmin(NonLoggingAdmin):
     readonly_fields = ['created_at', 'updated_at', 'annotations_count']
     list_select_related = ['case_court']
     list_display = ['id', 'name_abbreviation', 'public', 'capapi_link', 'created_via_import', 'related_resources', 'annotations_count', 'court_link', 'created_at', 'updated_at']
@@ -306,7 +306,7 @@ class CaseAdmin(admin.ModelAdmin):
     def court_link(self, obj):
         return format_html(
             '<a href="{}">{}</a>',
-            reverse("admin:main_casecourt_change", args=(obj.case_court.id,)),
+            reverse('admin:main_casecourt_change', args=(obj.case_court.id,)),
             obj.case_court.id
         )
     court_link.short_description = 'court'
@@ -315,14 +315,14 @@ class CaseAdmin(admin.ModelAdmin):
     def related_resources(self, obj):
         return format_html(
             '<a href="{}?resource_type=Case&resource-id={}">{}</a>',
-            reverse("admin:main_resource_changelist"),
+            reverse('admin:main_resource_changelist'),
             obj.id,
             obj.related_resources().count()
         )
 
 
 @admin.register(Default)
-class DefaultAdmin(admin.ModelAdmin):
+class DefaultAdmin(NonLoggingAdmin):
     # reminder that a "Default" is a Link Resource
     readonly_fields = ['created_at', 'updated_at', 'user_link', 'user', 'ancestry']
     list_select_related = ['user']
@@ -334,7 +334,7 @@ class DefaultAdmin(admin.ModelAdmin):
     def user_link(self, obj):
         return format_html(
             '<a href="{}">{} ({})</a>',
-            reverse("admin:main_user_change", args=(obj.user.id,)),
+            reverse('admin:main_user_change', args=(obj.user.id,)),
             obj.user.display_name,
             obj.user.id
         )
@@ -343,14 +343,14 @@ class DefaultAdmin(admin.ModelAdmin):
     def related_resources(self, obj):
         return format_html(
             '<a href="{}?resource_type=Default&resource-id={}">{}</a>',
-            reverse("admin:main_resource_changelist"),
+            reverse('admin:main_resource_changelist'),
             obj.id,
             obj.related_resources().count()
         )
 
 
 @admin.register(TextBlock)
-class TextBlockAdmin(admin.ModelAdmin):
+class TextBlockAdmin(NonLoggingAdmin):
     readonly_fields = ['created_at', 'updated_at', 'user', 'version', 'annotations_count']
     list_select_related = ['user']
     list_display = ['id', 'name', 'user_link', 'public', 'created_via_import', 'version', 'related_resources', 'annotations_count', 'created_at', 'updated_at']
@@ -367,7 +367,7 @@ class TextBlockAdmin(admin.ModelAdmin):
         if obj.user:
             return format_html(
                 '<a href="{}">{} ({})</a>',
-                reverse("admin:main_user_change", args=(obj.user.id,)),
+                reverse('admin:main_user_change', args=(obj.user.id,)),
                 obj.user.display_name,
                 obj.user.id
             )
@@ -376,7 +376,7 @@ class TextBlockAdmin(admin.ModelAdmin):
     def related_resources(self, obj):
         return format_html(
             '<a href="{}?resource_type=TextBlock&resource-id={}">{}</a>',
-            reverse("admin:main_resource_changelist"),
+            reverse('admin:main_resource_changelist'),
             obj.id,
             obj.related_resources().count()
         )
@@ -427,7 +427,7 @@ class CollaboratorsAdmin(NonLoggingAdmin):
 ## Courts
 
 @admin.register(CaseCourt)
-class CaseCourtAdmin(admin.ModelAdmin):
+class CaseCourtAdmin(NonLoggingAdmin):
     readonly_fields = ['created_at', 'updated_at', 'capapi_link']
     list_display = ['id', 'name', 'name_abbreviation', 'created_at', 'case_count_link', 'updated_at', 'capapi_link']
     search_fields = ['name_abbreviation', 'name']
@@ -442,7 +442,7 @@ class CaseCourtAdmin(admin.ModelAdmin):
     def case_count_link(self, obj):
         return format_html(
             '<a href="{}?court-id={}">{}</a>',
-            reverse("admin:main_case_changelist"),
+            reverse('admin:main_case_changelist'),
             obj.id,
             obj.case_count
         )
