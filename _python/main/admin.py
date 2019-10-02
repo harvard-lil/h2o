@@ -9,7 +9,7 @@ from django.utils.html import format_html
 
 from .models import Case, CaseCourt, Default, User, Casebook, Section, \
     Resource, ContentCollaborator, ContentAnnotation, TextBlock, \
-    Role, RolesUser
+    Role, RolesUser, UnpublishedRevision
 
 
 # remove builtin models
@@ -278,6 +278,35 @@ class AnnotationsAdmin(NonLoggingAdmin):
         return obj.resource.resource_id
     resource_id.admin_order_field = 'resource__resource_id'
 
+
+@admin.register(UnpublishedRevision)
+class UnpublishedRevision(NonLoggingAdmin):
+    readonly_fields = ['created_at', 'updated_at', 'casebook', 'node', 'node_parent', 'annotation', 'field', 'value']
+    list_select_related = ['casebook', 'node', 'node_parent', 'annotation']
+    list_display = ['id', 'the_draft', 'node', 'parent','field', 'value_preview', 'annotation', 'created_at', 'updated_at']
+    list_filter = [CasebookIdFilter, 'field']
+    # raw_id_fields = ['casebook', 'node', 'node_parent', 'annotation']
+
+    def the_draft(self, obj):
+        return format_html(
+            '<a href="{}">{} ({})</a>',
+            reverse('admin:main_casebook_change', args=(obj.casebook.id,)),
+            obj.casebook.get_title(),
+            obj.casebook.id
+        )
+    the_draft.admin_order_field = 'casebook'
+
+    def parent(self, obj):
+        return obj.node_parent
+    parent.admin_order_field = 'node_parent'
+    parent.short_description = 'original (published) node'
+
+    def value_preview(self, obj):
+        if len(obj.value) > 50:
+            return obj.value[0:49] + '...'
+        return obj.value
+    value_preview.admin_order_field = 'value'
+    value_preview.short_description = 'value'
 
 ## Resources
 

@@ -482,12 +482,15 @@ class TextBlock(TimestampedModel):
 
 
 class UnpublishedRevision(TimestampedModel):
-    node_id = models.IntegerField(blank=True, null=True)
     field = models.CharField(max_length=255)
     value = models.CharField(max_length=50000, blank=True, null=True)
-    casebook_id = models.IntegerField(blank=True, null=True)
-    node_parent_id = models.IntegerField(blank=True, null=True)
-    annotation_id = models.IntegerField(blank=True, null=True)
+
+    node = models.ForeignKey('ContentNode', on_delete=models.CASCADE, related_name='revisions', help_text='Node in the draft.')
+    node_parent = models.ForeignKey('ContentNode', on_delete=models.CASCADE, related_name='draft_revisions', help_text='Corresponding node in the original, published casebook.')
+    # I'm not sure why this is stored separately; redundant with node?
+    casebook = models.ForeignKey('Casebook', on_delete=models.CASCADE, related_name='casebook_revisions', help_text='The draft casebook.')
+    # I'm not sure that this field is in use, presently.
+    annotation = models.ForeignKey('ContentAnnotation', blank=True, null=True, on_delete=models.CASCADE)
 
     class Meta:
         managed = False
