@@ -19,7 +19,7 @@ jobs:
           name: "Flake8"
           command: |
             export PYENV_VERSION=3.5.2  # use the version of python3 installed on circleci
-            pip install `egrep -o 'flake8==\S+' requirements.txt`  # install our version of flake8
+            pip install `egrep -o 'flake8==\S+' _python/requirements.txt`  # install our version of flake8
             flake8 _python/
 
       # Docker image building and caching
