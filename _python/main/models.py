@@ -34,14 +34,14 @@ class ArInternalMetadata(TimestampedModel):
     value = models.CharField(max_length=255, blank=True, null=True)
 
     class Meta:
-        managed = False
+        # managed = False
         db_table = 'ar_internal_metadata'
 
 class SchemaMigration(models.Model):
     version = models.CharField(primary_key=True, max_length=255)
 
     class Meta:
-        managed = False
+        # managed = False
         db_table = 'schema_migrations'
 
 
@@ -49,7 +49,7 @@ class Session(TimestampedModel):
     data = models.TextField(blank=True, null=True)
 
     class Meta:
-        managed = False
+        # managed = False
         db_table = 'sessions'
 
 
@@ -61,7 +61,7 @@ class CaseCourt(TimestampedModel):
     capapi_id = models.IntegerField(blank=True, null=True)
 
     class Meta:
-        managed = False
+        # managed = False
         db_table = 'case_courts'
 
 
@@ -84,7 +84,7 @@ class Case(TimestampedModel):
     case_court = models.ForeignKey('CaseCourt', models.PROTECT, related_name='cases')
 
     class Meta:
-        managed = False
+        # managed = False
         db_table = 'cases'
 
     def get_name(self):
@@ -110,7 +110,7 @@ class ContentAnnotation(TimestampedModel):
     resource = models.ForeignKey('ContentNode', models.PROTECT, related_name='annotations')
 
     class Meta:
-        managed = False
+        # managed = False
         db_table = 'content_annotations'
 
 
@@ -125,7 +125,7 @@ class ContentCollaborator(TimestampedModel):
     content = models.ForeignKey('ContentNode', models.CASCADE)
 
     class Meta:
-        managed = False
+        # managed = False
         db_table = 'content_collaborators'
         unique_together = (('user', 'content'),)
 
@@ -158,7 +158,7 @@ class ContentNode(TimestampedModel):
     playlist_id = models.BigIntegerField(blank=True, null=True)
 
     class Meta:
-        managed = False
+        # managed = False
         db_table = 'content_nodes'
 
     @property
@@ -264,16 +264,29 @@ class ContentNode(TimestampedModel):
     # see https://github.com/stefankroes/ancestry/blob/master/lib/ancestry/materialized_path.rb
     ###
 
-    def child_ancestry(self):
-        """ Return ancestry value for children of this node. """
-        return "%s/%s" % (self.ancestry, self.pk) if self.ancestry else str(self.pk)
-
     def descendants(self):
-        """ Return all descendants of this node. """
-        return type(self).objects.filter(Q(ancestry=self.child_ancestry()) | Q(ancestry__startswith=self.child_ancestry()+"/"))
+        """
+            Return all descendants of this node.
+
+            >>> getfixture('db')  # allow db access
+            >>> root, c_1, c_2, c_1_1, c_1_2 = getfixture('content_node_tree')
+            >>> assert set(root.descendants()) == {c_1, c_2, c_1_1, c_1_2}
+            >>> assert set(c_1.descendants()) == {c_1_1, c_1_2}
+            >>> assert set(c_2.descendants()) == set()
+        """
+        child_ancestry = "%s/%s" % (self.ancestry, self.pk) if self.ancestry else str(self.pk)
+        return type(self).objects.filter(Q(ancestry=child_ancestry) | Q(ancestry__startswith=child_ancestry+"/"))
 
     def root(self):
-        """ Return root node for this node, or None if no ancestors. """
+        """
+            Return root node for this node, or None if no ancestors.
+
+            >>> getfixture('db')  # allow db access
+            >>> root, c_1, c_2, c_1_1, c_1_2 = getfixture('content_node_tree')
+            >>> assert root.root() is None
+            >>> assert c_1.root() == root
+            >>> assert c_1_1.root() == root
+        """
         if not self.ancestry:
             return None
         return type(self).objects.get(pk=self.ancestry.split("/")[0])
@@ -409,7 +422,7 @@ class Default(TimestampedModel):
     user = models.ForeignKey('User', on_delete=models.PROTECT, related_name='defaults')
 
     class Meta:
-        managed = False
+        # managed = False
         db_table = 'defaults'
 
     def related_resources(self):
@@ -423,7 +436,7 @@ class RawContent(TimestampedModel):
     source_id = models.BigIntegerField(blank=True, null=True)
 
     class Meta:
-        managed = False
+        # managed = False
         db_table = 'raw_contents'
         unique_together = (('source_type', 'source_id'),)
 
@@ -437,7 +450,7 @@ class Role(TimestampedModel):
     authorizable_id = models.IntegerField(blank=True, null=True)
 
     class Meta:
-        managed = False
+        # managed = False
         db_table = 'roles'
 
     def __str__(self):
@@ -454,7 +467,7 @@ class RolesUser(TimestampedModel):
     role = models.ForeignKey(Role, blank=True, null=True, on_delete=models.CASCADE)
 
     class Meta:
-        managed = False
+        # managed = False
         db_table = 'roles_users'
 
 
@@ -477,7 +490,7 @@ class TextBlock(TimestampedModel):
     enable_responses = models.BooleanField()
 
     class Meta:
-        managed = False
+        # managed = False
         db_table = 'text_blocks'
 
     def related_resources(self):
@@ -496,7 +509,7 @@ class UnpublishedRevision(TimestampedModel):
     annotation = models.ForeignKey('ContentAnnotation', blank=True, null=True, on_delete=models.CASCADE)
 
     class Meta:
-        managed = False
+        # managed = False
         db_table = 'unpublished_revisions'
 
 
@@ -555,7 +568,7 @@ class User(TimestampedModel):
     image_updated_at = models.DateTimeField(blank=True, null=True)
 
     class Meta:
-        managed = False
+        # managed = False
         db_table = 'users'
 
     @property

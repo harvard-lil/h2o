@@ -13,4 +13,5 @@ cryptography        # read ruby session cookies
 pytest
 pytest-django
 pytest-cov
+factory-boy        # create django model fixtures on demand
 
