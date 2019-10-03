@@ -1,0 +1,58 @@
+version: 2.1
+jobs:
+  build:
+    machine: true
+    working_directory: ~/project/h2o
+    steps:
+
+      # Initial setup
+      - checkout:
+          path: ~/project
+      - run:
+          name: "Info"
+          command: |
+            docker-compose --version
+            docker version
+
+      # Quick tests to fail fast on common errors
+      - run:
+          name: "Flake8"
+          command: |
+            export PYENV_VERSION=3.5.2  # use the version of python3 installed on circleci
+            pip install `egrep -o 'flake8==\S+' requirements.txt`  # install our version of flake8
+            flake8 _python/
+
+      # Docker image building and caching
+      # This block shaves a minute or two off of the test runtime by using cached docker images.
+      # Otherwise we could omit this step entirely and let `docker-compose run` build what it needs to.
+      - restore_cache:
+          key: docker-images-{{ checksum "docker-compose.yml" }}
+      - run:
+          name: "Build docker images"
+          command: |
+            if test -f ~/docker-cache.tar; then
+              echo "Loading cached docker images"
+              docker load -i ~/docker-cache.tar
+            else
+              echo "Building new docker images"
+              docker-compose build
+              docker save -o ~/docker-cache.tar capstone capstone-postgres
+            fi
+      - save_cache:
+          key: docker-images-{{ checksum "docker-compose.yml" }}
+          paths:
+            - "~/docker-cache.tar"
+
+      # Actual tests
+      - run:
+          name: "Test Django"
+          command: |
+            docker-compose run python ./manage.py collectstatic --noinput   # collect static files
+            mkdir -p junit/pytest                            # storage for circleci test info
+            docker-compose run python pytest \
+              --junitxml=junit/pytest/test-results.xml       `# write test results so they can be displayed by circleci` \
+              --fail-on-template-vars
+
+      # Upload test details to circleci
+      - store_test_results:
+          path: junit
