@@ -6,15 +6,38 @@ from django.contrib.auth.models import User as BuiltInUser
 from django.db.models import Q, Count
 from django.urls import reverse
 from django.utils.html import format_html
+from django.shortcuts import redirect
 
 from .models import Case, CaseCourt, Default, User, Casebook, Section, \
     Resource, ContentCollaborator, ContentAnnotation, TextBlock, \
     Role, RolesUser, UnpublishedRevision
 
 
-# remove builtin models
-admin.site.unregister(Group)
-admin.site.unregister(BuiltInUser)
+# Until we are integrated with Django's authentication system,
+# point login etc. to the Rails app.
+# https://docs.djangoproject.com/en/2.2/ref/contrib/admin/#django.contrib.admin.AdminSite
+# https://docs.djangoproject.com/en/2.2/ref/contrib/admin/#adding-views-to-admin-sites
+class CustomAdminSite(admin.AdminSite):
+    site_header = 'H2O Admin'
+
+    def login(self, *args, **kwargs):
+        return redirect(settings.LOGIN_URL)
+
+    def logout(self, *args, **kwargs):
+        raise NotImplementedError()
+
+    def password_change(self, *args, **kwargs):
+        raise NotImplementedError()
+
+    def password_change_done(self, *args, **kwargs):
+        raise NotImplementedError()
+
+admin_site = CustomAdminSite(name='h2oadmin')
+
+# If using the default Django admin.SiteAdmin, rather than our custom class,
+# we want to remove builtin models
+# admin.site.unregister(Group)
+# admin.site.unregister(BuiltInUser)
 
 
 #
@@ -163,7 +186,6 @@ class NonLoggingAdmin(admin.ModelAdmin):
 
 ## Casebooks
 
-@admin.register(Casebook)
 class CasebookAdmin(NonLoggingAdmin):
     readonly_fields = ['created_at', 'updated_at', 'owner_link', 'clone_of', 'copy_of', 'ancestry', 'root_user', 'playlist_id']
     list_select_related = ['root_user', 'copy_of']
@@ -194,7 +216,6 @@ class CasebookAdmin(NonLoggingAdmin):
     clone_of.short_description = 'copy of'
 
 
-@admin.register(Section)
 class SectionAdmin(NonLoggingAdmin):
     readonly_fields = ['created_at', 'updated_at', 'owner_link', 'casebook_link', 'copy_of']
     list_select_related = ['casebook', 'copy_of']
@@ -223,7 +244,6 @@ class SectionAdmin(NonLoggingAdmin):
     casebook_link.short_description = 'casebook'
 
 
-@admin.register(Resource)
 class ResourceAdmin(NonLoggingAdmin):
     readonly_fields = ['created_at', 'updated_at', 'owner_link', 'casebook_link', 'copy_of', 'resource_id', 'resource_type']
     list_select_related = ['casebook', 'copy_of']
@@ -261,7 +281,6 @@ class ResourceAdmin(NonLoggingAdmin):
         return obj.annotations.count()
 
 
-@admin.register(ContentAnnotation)
 class AnnotationsAdmin(NonLoggingAdmin):
     readonly_fields = ['created_at', 'updated_at', 'start_paragraph', 'end_paragraph', 'start_offset', 'end_offset', 'kind']
     fields = ['resource', ('global_start_offset', 'global_end_offset'), ('start_paragraph', 'end_paragraph'), ('start_offset', 'end_offset'), 'kind', 'content', 'created_at', 'updated_at']
@@ -279,8 +298,7 @@ class AnnotationsAdmin(NonLoggingAdmin):
     resource_id.admin_order_field = 'resource__resource_id'
 
 
-@admin.register(UnpublishedRevision)
-class UnpublishedRevision(NonLoggingAdmin):
+class UnpublishedRevisionAdmin(NonLoggingAdmin):
     readonly_fields = ['created_at', 'updated_at', 'casebook', 'node', 'node_parent', 'annotation', 'field', 'value']
     list_select_related = ['casebook', 'node', 'node_parent', 'annotation']
     list_display = ['id', 'the_draft', 'node', 'parent','field', 'value_preview', 'annotation', 'created_at', 'updated_at']
@@ -309,7 +327,6 @@ class UnpublishedRevision(NonLoggingAdmin):
 
 ## Resources
 
-@admin.register(Case)
 class CaseAdmin(NonLoggingAdmin):
     readonly_fields = ['created_at', 'updated_at', 'annotations_count']
     list_select_related = ['case_court']
@@ -352,7 +369,6 @@ class CaseAdmin(NonLoggingAdmin):
         )
 
 
-@admin.register(Default)
 class DefaultAdmin(NonLoggingAdmin):
     # reminder that a "Default" is a Link Resource
     readonly_fields = ['created_at', 'updated_at', 'user_link', 'user', 'ancestry']
@@ -380,7 +396,6 @@ class DefaultAdmin(NonLoggingAdmin):
         )
 
 
-@admin.register(TextBlock)
 class TextBlockAdmin(NonLoggingAdmin):
     readonly_fields = ['created_at', 'updated_at', 'user', 'version', 'annotations_count']
     list_select_related = ['user']
@@ -414,7 +429,6 @@ class TextBlockAdmin(NonLoggingAdmin):
 
 ## Users
 
-@admin.register(User)
 class UserAdmin(NonLoggingAdmin):
     readonly_fields = ['created_at', 'updated_at', 'display_name', 'last_request_at', 'last_login_at', 'login_count']
     list_display = ['id', 'display_name', 'email_address', 'verified_email', 'professor_verification_requested', 'verified_professor', 'get_roles', 'last_request_at', 'last_login_at', 'login_count', 'created_at', 'updated_at']
@@ -428,8 +442,7 @@ class UserAdmin(NonLoggingAdmin):
     get_roles.short_description = 'Roles'
 
 
-@admin.register(RolesUser)
-class RoleUserAdmin(NonLoggingAdmin):
+class RolesUserAdmin(NonLoggingAdmin):
     readonly_fields = ['created_at', 'updated_at', 'role', 'user']
     list_select_related = ['user', 'role']
     list_display = ['id', 'user', 'role', 'created_at', 'updated_at']
@@ -437,8 +450,6 @@ class RoleUserAdmin(NonLoggingAdmin):
     raw_id_fields = ['user', 'role']
 
 
-
-@admin.register(Role)
 class RoleAdmin(NonLoggingAdmin):
     readonly_fields = ['created_at', 'updated_at', 'authorizable_type', 'authorizable_id']
     list_display = ['id', 'name', 'authorizable_type', 'authorizable_id', 'created_at', 'updated_at']
@@ -446,7 +457,6 @@ class RoleAdmin(NonLoggingAdmin):
     ordering = ['-name']
 
 
-@admin.register(ContentCollaborator)
 class CollaboratorsAdmin(NonLoggingAdmin):
     readonly_fields = ['created_at', 'updated_at', 'user', 'content']
     list_select_related = ['user', 'content']
@@ -458,7 +468,6 @@ class CollaboratorsAdmin(NonLoggingAdmin):
 
 ## Courts
 
-@admin.register(CaseCourt)
 class CaseCourtAdmin(NonLoggingAdmin):
     readonly_fields = ['created_at', 'updated_at', 'capapi_link']
     list_display = ['id', 'name', 'name_abbreviation', 'created_at', 'case_count_link', 'updated_at', 'capapi_link']
@@ -489,3 +498,19 @@ class CaseCourtAdmin(NonLoggingAdmin):
                 obj.capapi_id
             )
     capapi_link.short_description = 'capapi id'
+
+
+# Register models on our CustomAdmin instance.
+admin_site.register(Casebook, CasebookAdmin)
+admin_site.register(Section, SectionAdmin)
+admin_site.register(Resource, ResourceAdmin)
+admin_site.register(ContentAnnotation, AnnotationsAdmin)
+admin_site.register(UnpublishedRevision, UnpublishedRevisionAdmin)
+admin_site.register(Case, CaseAdmin)
+admin_site.register(Default, DefaultAdmin)
+admin_site.register(TextBlock, TextBlockAdmin)
+admin_site.register(User, UserAdmin)
+admin_site.register(RolesUser, RolesUserAdmin)
+admin_site.register(Role, RoleAdmin)
+admin_site.register(ContentCollaborator, CollaboratorsAdmin)
+admin_site.register(CaseCourt, CaseCourtAdmin)
