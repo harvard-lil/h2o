@@ -36,7 +36,7 @@ jobs:
             else
               echo "Building new docker images"
               docker-compose build
-              docker save -o ~/docker-cache.tar db web python nginx
+              docker save -o ~/docker-cache.tar web python
             fi
       - save_cache:
           key: docker-images-{{ checksum "docker-compose.yml" }}
