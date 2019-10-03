@@ -42,3 +42,6 @@ package-lock.json
 *.dump
 .byebug_history
 .tmp
+
+# IntelliJ IDEA
+*.iml

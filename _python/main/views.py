@@ -1,12 +1,13 @@
-from django.contrib.auth.decorators import login_required
 from django.contrib.auth.views import redirect_to_login
 from django.http import HttpResponseForbidden, HttpResponseRedirect
 from django.shortcuts import render, get_object_or_404
+from django.urls import reverse
 from django.views.generic import TemplateView
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
 import json
 
+from conftest import check_response
 from .serializers import ContentAnnotationSerializer, CaseSerializer, TextBlockSerializer
 from .models import Casebook, Resource, Section, Case, User
 
@@ -57,6 +58,34 @@ def index(request):
 
 
 def dashboard(request, user_id):
+    """
+        Show given user's casebooks.
+
+        Given:
+
+        >>> db, casebook, client = [getfixture(f) for f in ['db', 'casebook', 'client']]
+        >>> user = casebook.collaborators.first()
+
+        All users can see public casebooks:
+
+        >>> response = client.get(reverse('dashboard', args=[user.id]))
+        >>> check_response(response, content_includes=casebook.title)
+
+        Other users cannot see non-public casebooks:
+
+        >>> casebook.public = False
+        >>> casebook.save()
+        >>> response = client.get(reverse('dashboard', args=[user.id]))
+        >>> check_response(response, content_excludes=casebook.title)
+
+        Users can see their own non-public casebooks:
+
+        # TODO: test auth
+
+        Admins can see a user's non-public casebooks:
+
+        # TODO: test auth
+    """
     user = get_object_or_404(User, pk=user_id)
     return render(request, 'dashboard.html', {'user': user})
 
