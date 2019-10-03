@@ -53,6 +53,7 @@ services:
       - ./docker/h2o.conf:/etc/nginx/conf.d/default.conf
     ports:
       - 8002:80
+      - 8003:81
     depends_on:
       - web
       - python
