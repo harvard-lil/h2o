@@ -2,7 +2,7 @@ version: 2.1
 jobs:
   build:
     machine: true
-    working_directory: ~/project/h2o
+    working_directory: ~/project
     steps:
 
       # Initial setup
