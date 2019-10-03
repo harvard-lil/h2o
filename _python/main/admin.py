@@ -1,8 +1,6 @@
 from django import forms
 from django.conf import settings
 from django.contrib import admin
-from django.contrib.auth.models import Group
-from django.contrib.auth.models import User as BuiltInUser
 from django.db.models import Q, Count
 from django.urls import reverse
 from django.utils.html import format_html

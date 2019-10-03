@@ -5,18 +5,14 @@
 #   * Make sure each ForeignKey has `on_delete` set to the desired behavior.
 #   * Remove `managed = False` lines if you wish to allow Django to create, modify, and delete the table
 # Feel free to rename the models, but don't rename db_table values or field names.
-from django.conf import settings
 from django.contrib.auth.models import AnonymousUser
 from django.contrib.postgres.fields import JSONField, ArrayField
 from django.db import models
 from django.db.models import Q
 from django.urls import reverse
-from django.utils import timezone
 from django.utils.text import slugify
 
 from urllib.parse import urlparse
-
-from main.utils import sanitize
 
 
 class TimestampedModel(models.Model):
@@ -267,7 +263,7 @@ class ContentNode(TimestampedModel):
             raise NotImplementedError
 
     def ordinal_string(self):
-       return '.'.join(str(o) for o in self.ordinals)
+        return '.'.join(str(o) for o in self.ordinals)
 
     def ordinals_with_urls(self):
         return_value = []

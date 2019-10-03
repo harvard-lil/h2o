@@ -9,7 +9,6 @@ import rubymarshal.reader
 
 from django.conf import settings
 from django.contrib.auth.models import AnonymousUser
-from django.utils import timezone
 from django.utils.crypto import constant_time_compare
 from django.utils.encoding import force_bytes
 from django.utils.functional import SimpleLazyObject
@@ -64,7 +63,7 @@ def get_rails_user(request):
         return request.environ['as_user']
 
     # fetch user, if exists, from request.rails_session['user_credentials_id']
-    if not 'user_credentials_id' in request.rails_session:
+    if 'user_credentials_id' not in request.rails_session:
         return AnonymousUser()
     user = User.objects.filter(id=request.rails_session['user_credentials_id']).first()
     if not user:
