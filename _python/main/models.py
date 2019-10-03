@@ -590,6 +590,24 @@ class User(TimestampedModel):
     def is_superadmin(self):
         return self.has_role('superadmin')
 
+    @property
+    def is_staff(self):
+        return self.is_superadmin
+
+    # methods replicating Django's PermissionsMixin,
+    # necessary for the Django admin to work
+    # https://docs.djangoproject.com/en/2.2/topics/auth/customizing/#custom-users-and-permissions
+
+    @property
+    def is_superuser(self):
+        return self.is_superadmin
+
+    def has_perm(self, perm, obj=None):
+        return self.is_superuser
+
+    def has_module_perms(self, app_label):
+        return self.is_superuser
+
     # differentiate between real User model and AnonymousUser model:
     is_authenticated = True
     is_anonymous = False
