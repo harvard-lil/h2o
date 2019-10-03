@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2019_08_09_141327) do
+ActiveRecord::Schema.define(version: 2019_10_01_162858) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "btree_gin"
@@ -351,7 +351,7 @@ ActiveRecord::Schema.define(version: 2019_08_09_141327) do
     t.index ["name"], name: "index_roles_on_name"
   end
 
-  create_table "roles_users", id: false, force: :cascade do |t|
+  create_table "roles_users", force: :cascade do |t|
     t.integer "user_id"
     t.integer "role_id"
     t.datetime "created_at"
