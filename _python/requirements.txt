@@ -113,6 +113,10 @@ django==2.2.4 \
 djangorestframework==3.10.2 \
     --hash=sha256:42979bd5441bb4d8fd69d0f385024a114c3cae7df0f110600b718751250f6929 \
     --hash=sha256:aedb48010ebfab9651aaab1df5fd3b4848eb4182afc909852a2110c24f89a359
+entrypoints==0.3 \
+    --hash=sha256:589f874b313739ad35be6e0cd7efde2a4e9b6fea91edcc34e58ecbb8dbe56d19 \
+    --hash=sha256:c70dd71abe5a8c85e55e12c19bd91ccfeec11a6e99044204511f9ed547d48451 \
+    # via flake8
 factory-boy==2.12.0 \
     --hash=sha256:728df59b372c9588b83153facf26d3d28947fc750e8e3c95cefa9bed0e6394ee \
     --hash=sha256:faf48d608a1735f0d0a3c9cbf536d64f9132b547dae7ba452c4d99a79e84a370
@@ -120,10 +124,17 @@ faker==2.0.2 \
     --hash=sha256:45cc9cca3de8beba5a2da3bd82a6e5544f53da1a702645c8485f682366c15026 \
     --hash=sha256:a6459ff518d1fc6ee2238a7209e6c899517872c7e1115510279033ffe6fe8ef3 \
     # via factory-boy
+flake8==3.7.8 \
+    --hash=sha256:19241c1cbc971b9962473e4438a2ca19749a7dd002dd1a946eaba171b4114548 \
+    --hash=sha256:8e9dfa3cecb2400b3738a42c54c3043e821682b9c840b0448c0503f781130696
 importlib-metadata==0.19 \
     --hash=sha256:23d3d873e008a513952355379d93cbcab874c58f4f034ff657c7a87422fa64e8 \
     --hash=sha256:80d2de76188eabfbfcf27e6a37342c2827801e59c4cc14b0371c56fed43820e3 \
     # via pluggy, pytest
+mccabe==0.6.1 \
+    --hash=sha256:ab8a6258860da4b6677da4bd2fe5dc2c659cff31b3ee4f7f5d64e79735b80d42 \
+    --hash=sha256:dd8d182285a0fe56bace7f45b5e7d1a6ebcbf524e8f3bd87eb0f125271b8831f \
+    # via flake8
 more-itertools==7.2.0 \
     --hash=sha256:409cd48d4db7052af495b09dec721011634af3753ae1ef92d2b32f73a745f832 \
     --hash=sha256:92b8c4b06dac4f0611c0729b2f2ede52b2e1bac1ab48f089c7ddc12e26bb60c4 \
@@ -159,9 +170,17 @@ py==1.8.0 \
     --hash=sha256:64f65755aee5b381cea27766a3a147c3f15b9b6b9ac88676de66ba2ae36793fa \
     --hash=sha256:dc639b046a6e2cff5bbe40194ad65936d6ba360b52b3c3fe1d08a82dd50b5e53 \
     # via pytest
+pycodestyle==2.5.0 \
+    --hash=sha256:95a2219d12372f05704562a14ec30bc76b05a5b297b21a5dfe3f6fac3491ae56 \
+    --hash=sha256:e40a936c9a450ad81df37f549d676d127b1b66000a6c500caa2b085bc0ca976c \
+    # via flake8
 pycparser==2.19 \
     --hash=sha256:a988718abfad80b6b157acce7bf130a30876d27603738ac39f140993246b25b3 \
     # via cffi
+pyflakes==2.1.1 \
+    --hash=sha256:17dbeb2e3f4d772725c777fabc446d5634d1038f234e77343108ce445ea69ce0 \
+    --hash=sha256:d976835886f8c5b31d47970ed689944a0262b5f3afa00a5a7b4dc81e5449f8a2 \
+    # via flake8
 pyparsing==2.4.2 \
     --hash=sha256:6f98a7b9397e206d78cc01df10131398f1c8b8510a2f4d97d9abd82e1aacdd80 \
     --hash=sha256:d9338df12903bbf5d65a0e4e87c2161968b10d2e489652bb47001d82a9b028b4 \
