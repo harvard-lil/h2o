@@ -58,6 +58,11 @@ def get_rails_user(request):
     """
         Implement what we need from https://github.com/binarylogic/authlogic
     """
+    # special case -- tests can inject a User object into the environ under 'as_user'
+    # this is necessary only because our rails hack doesn't allow us to use `client.force_login(user)` in tests
+    if 'as_user' in request.environ and type(request.environ['as_user']) == User:
+        return request.environ['as_user']
+
     # fetch user, if exists, from request.rails_session['user_credentials_id']
     if not 'user_credentials_id' in request.rails_session:
         return AnonymousUser()
