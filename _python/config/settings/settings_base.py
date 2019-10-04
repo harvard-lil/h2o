@@ -153,3 +153,28 @@ TEMPLATE_VISIBLE_SETTINGS = (
     'GUIDE_URL',
     'BLOG_URL'
 )
+
+
+LOGGING = {
+    'version': 1,
+    'disable_existing_loggers': False,
+    'handlers': {
+        'console': {
+            'level': 'DEBUG',
+            'class': 'logging.StreamHandler',
+            'formatter': 'verbose'
+        },
+    },
+    'loggers': {
+        'django': {
+            'handlers': ['console'],
+            'propagate': True,
+        },
+    },
+    'formatters': {
+        'verbose': {
+            'format': '%(asctime)s %(levelname)s module=%(module)s, '
+                      'process_id=%(process)d, %(message)s'
+        }
+    },
+}

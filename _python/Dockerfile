@@ -9,7 +9,7 @@ ENV LANG=C.UTF-8 \
 RUN mkdir /app
 WORKDIR /app
 
-RUN apt-get update && apt-get install -y nano
+RUN apt-get update && apt-get install -y nano postgresql-client
 
 # nodejs
 # write a .yarnrc that will only be found inside the docker guest, and will cause
