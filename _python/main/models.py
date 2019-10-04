@@ -130,6 +130,74 @@ class ContentCollaborator(TimestampedModel):
         unique_together = (('user', 'content'),)
 
 
+class ContentNodeQueryset(models.QuerySet):
+    """
+        This queryset allows us to do ContentNode.objects.prefetch_resources() so that fetched content nodes will
+        efficiently have their content_node.resource attribute pre-populated, using a total of three queries instead
+        of one query per instance. This is based on the implementation of prefetch_related().
+
+        Given:
+        >>> full_casebook, django_assert_num_queries = [getfixture(f) for f in ['full_casebook', 'django_assert_num_queries']]
+        >>> section = Section.objects.filter(casebook=full_casebook).first()
+
+        Fetching all resources normally will take a linear number of queries -- each c.resource hits the DB:
+        >>> with django_assert_num_queries(2+6):
+        ...     resources = [c.resource for c in section.contents.all()]
+
+        We can reduce to a constant number of queries -- 1 each to fetch Case, TextBlock, and Default items:
+        >>> with django_assert_num_queries(1+3):
+        ...     resources = [c.resource for c in section.contents.prefetch_resources()]
+
+        Custom querysets for the Case, TextBlock, and Default items can be provided to further reduce queries:
+        >>> with django_assert_num_queries(1+3+1):
+        ...     resources = [c.resource for c in section.contents.prefetch_resources(case_query=Case.objects.select_related('case_court'))]
+        ...     courts = [c.case_court for c in resources if type(c) == Case]
+    """
+
+    # keep track of input values from prefetch_resources()
+    _prefetch_resources_done = False
+    _prefetch_resources = None
+
+    def prefetch_resources(self, case_query=None, textblock_query=None, link_query=None):
+        """
+            Return cloned queryset with attributes to trigger prefetching in _fetch_all.
+        """
+        clone = self._chain()
+        clone._prefetch_resources = [case_query, textblock_query, link_query]
+        return clone
+
+    def _clone(self):
+        """
+            Ensure that prefetch_resources() attributes survive cloning.
+        """
+        c = super()._clone()
+        c._prefetch_resources = self._prefetch_resources
+        return c
+
+    def _fetch_all(self):
+        """
+            Do the actual work: get IDs for all items in _result_cache, prefetch related Case/TextBlock/Default objects,
+            and store them in each item's _resource attribute.
+        """
+        super()._fetch_all()
+        if self._prefetch_resources and not self._prefetch_resources_done:
+            self._prefetch_resources_done = True
+            if not self._result_cache:
+                return
+            case_query, textblock_query, link_query = self._prefetch_resources
+            case_query = case_query or Case.objects.all()
+            textblock_query = textblock_query or TextBlock.objects.all()
+            link_query = link_query or Default.objects.all()
+            resources = {}
+            for resource_type, query in (('Case', case_query), ('TextBlock', textblock_query), ('Default', link_query)):
+                for obj in query.filter(id__in=[obj.resource_id for obj in self._result_cache if obj.resource_type == resource_type]):
+                    resources[(resource_type, obj.id)] = obj
+            for content_node in self._result_cache:
+                if content_node.resource_id:
+                    content_node._resource = resources.get((content_node.resource_type, content_node.resource_id))
+                    content_node._resource_prefetched = True
+
+
 class ContentNode(TimestampedModel):
     title = models.CharField(max_length=10000, blank=True, null=True)
     slug = models.CharField(max_length=10000, blank=True, null=True)
@@ -147,8 +215,8 @@ class ContentNode(TimestampedModel):
     root_user = models.ForeignKey('User', blank=True, null=True, on_delete=models.PROTECT, related_name='casebooks_and_clones')
     # These fields define a relationship with a Case, Default, or Textblock
     # not yet described/available via the Django ORM
-    resource_type = models.CharField(max_length=255)
-    resource_id = models.BigIntegerField()
+    resource_type = models.CharField(max_length=255, blank=True, null=True)
+    resource_id = models.BigIntegerField(blank=True, null=True)
     # Can we make this relationship return casebook objects, not nodes?
     # I don't think so. Workaround: see "to_proxy"
     collaborators = models.ManyToManyField('User', through='ContentCollaborator', related_name='casebooks')
@@ -156,6 +224,8 @@ class ContentNode(TimestampedModel):
     # legacy fields, I believe
     is_alias = models.BooleanField(blank=True, null=True)
     playlist_id = models.BigIntegerField(blank=True, null=True)
+
+    objects = ContentNodeQueryset.as_manager()
 
     class Meta:
         # managed = False
@@ -182,11 +252,14 @@ class ContentNode(TimestampedModel):
         self.__class__ = globals()[self.type.capitalize()]
         return self
 
+    _resource_prefetched = False
+    _resource = None
     @property
     def resource(self):
+        if self._resource_prefetched:
+            return self._resource
         if not self.resource_id:
-            # or maybe return None?
-            raise Exception("This node has no associated resource")
+            return None
         if self.resource_type in ['Case', 'TextBlock', 'Default']:
             # so fancy...
             return globals()[self.resource_type].objects.get(id=self.resource_id)
@@ -268,7 +341,6 @@ class ContentNode(TimestampedModel):
         """
             Return all descendants of this node.
 
-            >>> getfixture('db')  # allow db access
             >>> root, c_1, c_2, c_1_1, c_1_2 = getfixture('content_node_tree')
             >>> assert set(root.descendants()) == {c_1, c_2, c_1_1, c_1_2}
             >>> assert set(c_1.descendants()) == {c_1_1, c_1_2}
@@ -281,7 +353,6 @@ class ContentNode(TimestampedModel):
         """
             Return root node for this node, or None if no ancestors.
 
-            >>> getfixture('db')  # allow db access
             >>> root, c_1, c_2, c_1_1, c_1_2 = getfixture('content_node_tree')
             >>> assert root.root() is None
             >>> assert c_1.root() == root

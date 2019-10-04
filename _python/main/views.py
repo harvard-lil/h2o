@@ -1,4 +1,6 @@
 from django.contrib.auth.views import redirect_to_login
+from django.db.models import Subquery, OuterRef
+from django.db.models.functions import ExtractYear
 from django.http import HttpResponseForbidden, HttpResponseRedirect
 from django.shortcuts import render, get_object_or_404
 from django.urls import reverse
@@ -62,29 +64,22 @@ def dashboard(request, user_id):
         Show given user's casebooks.
 
         Given:
-
-        >>> db, casebook, client = [getfixture(f) for f in ['db', 'casebook', 'client']]
+        >>> casebook, casebook_factory, client, admin_user = [getfixture(f) for f in ['casebook', 'casebook_factory', 'client', 'admin_user']]
         >>> user = casebook.collaborators.first()
+        >>> private_casebook = casebook_factory(contentcollaborator_set__user=user, public=False)
+        >>> url = reverse('dashboard', args=[user.id])
 
         All users can see public casebooks:
-
-        >>> response = client.get(reverse('dashboard', args=[user.id]))
-        >>> check_response(response, content_includes=casebook.title)
+        >>> check_response(client.get(url), content_includes=casebook.title)
 
         Other users cannot see non-public casebooks:
-
-        >>> casebook.public = False
-        >>> casebook.save()
-        >>> response = client.get(reverse('dashboard', args=[user.id]))
-        >>> check_response(response, content_excludes=casebook.title)
+        >>> check_response(client.get(url), content_excludes=private_casebook.title)
 
         Users can see their own non-public casebooks:
-
-        # TODO: test auth
+        >>> check_response(client.get(url, as_user=user), content_includes=private_casebook.title)
 
         Admins can see a user's non-public casebooks:
-
-        # TODO: test auth
+        >>> check_response(client.get(url, as_user=admin_user), content_includes=private_casebook.title)
     """
     user = get_object_or_404(User, pk=user_id)
     return render(request, 'dashboard.html', {'user': user})
@@ -102,9 +97,11 @@ def casebook(request, casebook_param):
     if request.path != canonical:
         return HttpResponseRedirect(canonical)
 
+    contents = casebook.contents.prefetch_resources().order_by('ordinals')
+
     return render(request, 'casebook.html', {
         'casebook': casebook,
-        'contents': casebook.contents.all().order_by('ordinals')
+        'contents': contents
     })
 
 
