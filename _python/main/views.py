@@ -1,6 +1,4 @@
 from django.contrib.auth.views import redirect_to_login
-from django.db.models import Subquery, OuterRef
-from django.db.models.functions import ExtractYear
 from django.http import HttpResponseForbidden, HttpResponseRedirect
 from django.shortcuts import render, get_object_or_404
 from django.views.generic import TemplateView
