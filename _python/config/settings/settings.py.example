@@ -1,0 +1,14 @@
+# This file is necessary only if you want to modify default settings from settings_dev.py.
+# To use, copy to settings.py:
+
+from .settings_dev import *
+
+
+STATIC_URL = '/static/'
+
+# log all SQL statements:
+# LOGGING['loggers']['django.db.backends'] = {
+#     'level': 'DEBUG',
+#     'handlers': ['console'],
+#     'propagate': False,
+# }
