@@ -155,6 +155,9 @@ TEMPLATE_VISIBLE_SETTINGS = (
 )
 
 
+AUTH_USER_MODEL = 'main.User'
+
+
 LOGGING = {
     'version': 1,
     'disable_existing_loggers': False,

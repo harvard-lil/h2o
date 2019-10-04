@@ -638,6 +638,10 @@ class User(TimestampedModel):
     image_file_size = models.IntegerField(blank=True, null=True)
     image_updated_at = models.DateTimeField(blank=True, null=True)
 
+    EMAIL_FIELD = 'email_address'
+    USERNAME_FIELD = 'login'
+    REQUIRED_FIELDS = []  # used by createsuperuser
+
     class Meta:
         # managed = False
         db_table = 'users'
