@@ -13,7 +13,7 @@ from .views import DirectTemplateView
 class IdSlugConverter:
     # matches:
     # 2, 2-, 22-slug, etc.
-    regex = '[0-9]+(\-.*)?'
+    regex = '[0-9]+(\-.*)?'  # noqa
 
     def to_python(self, value):
         id_slug = value.split('-', 1)
@@ -38,7 +38,7 @@ class IdSlugConverter:
 class OrdinalSlugConverter:
     # matches:
     # 2, 2.2, 22.2.22, 2-, 2-slug, 2.22.2-, 2.2.22-slug, etc.
-    regex = '([0-9]+\.)*[0-9]+(\-.*)?'
+    regex = '([0-9]+\.)*[0-9]+(\-.*)?'  # noqa
 
     def to_python(self, value):
         ord_slug = value.split('-', 1)

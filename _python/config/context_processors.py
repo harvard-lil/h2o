@@ -14,5 +14,5 @@ def settings(request):
             new_settings[attr] = getattr(django_settings, attr)
         except AttributeError:
             m = "TEMPLATE_VISIBLE_SETTINGS: '{0}' does not exist".format(attr)
-            raise ImproperlyConfigured(m);
+            raise ImproperlyConfigured(m)
     return new_settings

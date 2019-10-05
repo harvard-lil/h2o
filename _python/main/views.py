@@ -1,15 +1,11 @@
 from django.contrib.auth.views import redirect_to_login
-from django.db.models import Subquery, OuterRef
-from django.db.models.functions import ExtractYear
 from django.http import HttpResponseForbidden, HttpResponseRedirect
 from django.shortcuts import render, get_object_or_404
-from django.urls import reverse
 from django.views.generic import TemplateView
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
 import json
 
-from conftest import check_response
 from .serializers import ContentAnnotationSerializer, CaseSerializer, TextBlockSerializer
 from .models import Casebook, Resource, Section, Case, User
 
