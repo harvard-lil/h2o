@@ -12,13 +12,15 @@ https://docs.djangoproject.com/en/2.2/ref/settings/
 
 import os
 
-BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+BASE_DIR = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 ALLOWED_HOSTS = []
 
 
 # Application definition
 
 INSTALLED_APPS = [
+    'whitenoise.runserver_nostatic',
+
     # built-in
     'main.apps.CustomAdminConfig',
     'django.contrib.auth',
@@ -37,6 +39,7 @@ INSTALLED_APPS = [
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
+    'whitenoise.middleware.WhiteNoiseMiddleware',
 
     'django.contrib.sessions.middleware.SessionMiddleware',  # sets request.session
     'main.middleware.rails_session_middleware',  # sets request.rails_session
@@ -129,9 +132,8 @@ USE_TZ = False
 
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/2.2/howto/static-files/
-PROJECT_ROOT = os.path.dirname(os.path.abspath(__file__))
 STATIC_URL = '/static/'
-STATIC_ROOT = os.path.join(PROJECT_ROOT, 'static')
+STATIC_ROOT = os.path.join(BASE_DIR, 'static')
 
 RAILS_SECRET_KEY_BASE = None
 
@@ -182,3 +184,10 @@ LOGGING = {
         }
     },
 }
+
+
+# serve Rails public/ folder at the root, so urls like /robots.txt and /packs/css/main.css will work:
+WHITENOISE_ROOT = os.path.join(os.path.dirname(BASE_DIR), 'public')
+
+# avoid the need for collectstatic in production (see http://whitenoise.evans.io/en/stable/django.html#WHITENOISE_USE_FINDERS )
+WHITENOISE_USE_FINDERS = True
