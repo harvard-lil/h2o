@@ -225,7 +225,7 @@ def full_casebook(casebook_factory):
     """
     user = UserFactory()
     casebook = casebook_factory(contentcollaborator_set__user=user)
-    section = SectionFactory(casebook=casebook)  # noqa
+    SectionFactory(casebook=casebook)
     ResourceFactory(casebook=casebook, ordinals=[1, 1], resource_type='TextBlock', resource_id=TextBlockFactory(user=user).id)
     ResourceFactory(casebook=casebook, ordinals=[1, 2], resource_type='Case', resource_id=CaseFactory().id)
     ResourceFactory(casebook=casebook, ordinals=[1, 3], resource_type='Default', resource_id=DefaultFactory(user=user).id)

@@ -1,7 +1,7 @@
 # This file is necessary only if you want to modify default settings from settings_dev.py.
 # To use, copy to settings.py:
 
-from .settings_dev import *
+from .settings_dev import *  # noqa
 
 
 STATIC_URL = '/static/'
