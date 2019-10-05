@@ -3,6 +3,9 @@ pip-tools
 django
 django-extensions
 djangorestframework
+whitenoise          # static file serving
+
+# database
 psycopg2            # postgres connector
 
 bleach              # html sanitization
@@ -14,5 +17,4 @@ pytest
 pytest-django
 pytest-cov
 factory-boy        # create django model fixtures on demand
-
 flake8

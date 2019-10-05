@@ -1,5 +1,6 @@
 {% extends 'base.html' %}
 {% load static %}
+{% load rails_static %}
 
 {% block mainContent %}
 <section class="hero">
@@ -30,7 +31,7 @@
             </section>
       </div>
       <div class="screenshot">
-        <div class="image-wrapper"><img src="{% static "assets/landing-demo.png" %}" alt="a screenshot of an example case" />
+        <div class="image-wrapper"><img src="{% rails_static "assets/landing-demo.png" %}" alt="a screenshot of an example case" />
         </div>
       </div>
     </div>
@@ -41,38 +42,38 @@
     <h1>Featured Faculty Authors</h1>
     <div class="layout">
         <div class="endorser">
-          <div class="photo"><img src="{% static "assets/endorsers/zittrain.png" %}"/></div>
+          <div class="photo"><img src="{% rails_static "assets/endorsers/zittrain.png" %}"/></div>
           <div class="name">Professor Jonathan Zittrain</div>
           <div class="institution">Harvard Law School</div>
           <div class="link"><a href="{% url 'casebook' 30206 %}">Torts</a>
           </div>
         </div>
         <div class="endorser">
-          <div class="photo"><img src="{% static "assets/endorsers/suk-gersen.png" %}"/></div>
+          <div class="photo"><img src="{% rails_static "assets/endorsers/suk-gersen.png" %}"/></div>
           <div class="name">Professor Jeannie Suk Gersen</div>
           <div class="institution">Harvard Law School</div>
           <div class="link"><a href="{% url 'casebook' 28024 %}">Criminal Law</a></div>
         </div>
         <div class="endorser">
-          <div class="photo"><img src="{% static "assets/endorsers/quinn.png" %}"/></div>
+          <div class="photo"><img src="{% rails_static "assets/endorsers/quinn.png" %}"/></div>
           <div class="name">Professor Brian Quinn</div>
           <div class="institution">Boston College Law School</div>
           <div class="link"><a href="{% url 'casebook' 28884 %}">An Introduction to the Law of Corporations</a></div>
         </div>
         <div class="endorser">
-          <div class="photo"><img src="{% static "assets/endorsers/fried2.png" %}"/></div>
+          <div class="photo"><img src="{% rails_static "assets/endorsers/fried2.png" %}"/></div>
           <div class="name">Professor Charles Fried</div>
           <div class="institution">Harvard Law School</div>
           <div class="link"><a href="{% url 'casebook' 75344 %}">Contracts Law</a></div>
         </div>
         <div class="endorser">
-          <div class="photo"><img src="{% static "assets/endorsers/cohen.png" %}"/></div>
+          <div class="photo"><img src="{% rails_static "assets/endorsers/cohen.png" %}"/></div>
           <div class="name">Professor I. Glenn Cohen</div>
           <div class="institution">Harvard Law School</div>
           <div class="link"><a href="{% url 'casebook' 29269 %}">Civil Procedure</a></div>
         </div>
         <div class="endorser">
-          <div class="photo"><img src="{% static "assets/endorsers/modirzadeh.png" %}"/></div>
+          <div class="photo"><img src="{% rails_static "assets/endorsers/modirzadeh.png" %}"/></div>
           <div class="name">Professor Naz Modirzadeh</div>
           <div class="institution">Harvard Law School</div>
           <div class="link"><a href="{% url 'casebook' 45698 %}">International Humanitarian Law / Laws of War</a></div>
@@ -85,7 +86,7 @@
   </div>
 </section>
 <section class="stinger">
-    <img src="{% static "assets/logo.png" %}" title="H2O"/>
+    <img src="{% rails_static "assets/logo.png" %}" title="H2O"/>
     <h1>"Build coursebooks better, faster and smarter — today."</h1>
     <a class="call-to-action" href="{{ SIGNUP_URL }}">Get started</a>
 </section>
