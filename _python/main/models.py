@@ -749,8 +749,8 @@ class UnpublishedRevision(TimestampedModel, BigPkModel):
 
 
 class User(NullableTimestampedModel):
-    login = models.CharField(max_length=255, blank=True, null=True, unique=True)
-    email_address = models.CharField(max_length=255, blank=True, null=True)
+    login = models.CharField(max_length=255, blank=True, null=True)
+    email_address = models.CharField(max_length=255, blank=True, null=True, unique=True)
     title = models.CharField(max_length=255, blank=True, null=True)
     attribution = models.CharField(max_length=255, default='Anonymous')
     affiliation = models.CharField(max_length=255, blank=True, null=True)
@@ -806,7 +806,7 @@ class User(NullableTimestampedModel):
     image_updated_at = models.DateTimeField(blank=True, null=True)
 
     EMAIL_FIELD = 'email_address'
-    USERNAME_FIELD = 'login'
+    USERNAME_FIELD = 'email_address'
     REQUIRED_FIELDS = []  # used by createsuperuser
 
     class Meta:
