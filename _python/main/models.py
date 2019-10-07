@@ -300,7 +300,6 @@ class ContentNode(TimestampedModel, BigPkModel):
     # I don't think so. Workaround: see "to_proxy"
     collaborators = models.ManyToManyField('User',
         through='ContentCollaborator',
-        through_fields=('content', 'user_id'),
         related_name='casebooks'
     )
 
@@ -760,8 +759,7 @@ class User(NullableTimestampedModel):
 
     # used to assign super_admin or case_admin status
     roles = models.ManyToManyField(Role,
-        through=RolesUser,
-        through_fields=('user_id', 'role_id')
+        through=RolesUser
     )
 
     # calculated
