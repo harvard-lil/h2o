@@ -947,7 +947,7 @@ class Annotation(models.Model):
     user_id = models.IntegerField(blank=True, null=True)
 
     class Meta:
-       db_table = 'annotations'
+        db_table = 'annotations'
 
 
 class Collage(models.Model):
