@@ -20,3 +20,16 @@ namespace :webpacker do
     puts "Skipping webpacker:yarn_install"
   end
 end
+
+# Alphabetize columns when producing schema.rb, to make diffs/comparisons easier
+# Technique from https://www.pgrs.net/2008/03/12/alphabetize-schema-rb-columns/
+task :'db:schema:dump' => :'db:alphabetize_columns'
+task :'db:alphabetize_columns' do
+  class << ActiveRecord::Base.connection
+    alias_method :old_columns, :columns unless self.instance_methods.include?("old_columns")
+
+    def columns(*args)
+      old_columns(*args).sort_by(&:name)
+    end
+  end
+end
