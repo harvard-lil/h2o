@@ -2,7 +2,6 @@ from django.contrib.auth.views import redirect_to_login
 from django.http import HttpResponseForbidden, HttpResponseRedirect
 from django.shortcuts import render, get_object_or_404
 from django.urls import reverse
-from django.views.generic import TemplateView
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
 import json
@@ -10,21 +9,6 @@ import json
 from conftest import check_response
 from .serializers import ContentAnnotationSerializer, CaseSerializer, TextBlockSerializer
 from .models import Casebook, Resource, Section, Case, User
-
-
-class DirectTemplateView(TemplateView):
-    extra_context = None
-
-    def get_context_data(self, **kwargs):
-        """ Override Django's TemplateView to allow passing in extra_context. """
-        context = super(self.__class__, self).get_context_data(**kwargs)
-        if self.extra_context is not None:
-            for key, value in self.extra_context.items():
-                if callable(value):
-                    context[key] = value()
-                else:
-                    context[key] = value
-        return context
 
 
 def login_required_response(request):
