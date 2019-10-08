@@ -53,9 +53,11 @@ def dashboard(request, user_id):
         Show given user's casebooks.
 
         Given:
-        >>> casebook, casebook_factory, client, admin_user = [getfixture(f) for f in ['casebook', 'casebook_factory', 'client', 'admin_user']]
+        >>> casebook, casebook_factory, client, admin_user, user_factory = [getfixture(f) for f in ['casebook', 'casebook_factory', 'client', 'admin_user', 'user_factory']]
         >>> user = casebook.collaborators.first()
+        >>> non_collaborating_user = user_factory()
         >>> private_casebook = casebook_factory(contentcollaborator_set__user=user, public=False)
+        >>> draft_casebook = casebook_factory(contentcollaborator_set__user=user, public=False, draft_mode_of_published_casebook=True, copy_of=casebook)
         >>> url = reverse('dashboard', args=[user.id])
 
         All users can see public casebooks:
@@ -63,12 +65,26 @@ def dashboard(request, user_id):
 
         Other users cannot see non-public casebooks:
         >>> check_response(client.get(url), content_excludes=private_casebook.title)
+        >>> check_response(client.get(url, as_user=non_collaborating_user), content_excludes=private_casebook.title)
 
         Users can see their own non-public casebooks:
         >>> check_response(client.get(url, as_user=user), content_includes=private_casebook.title)
 
         Admins can see a user's non-public casebooks:
         >>> check_response(client.get(url, as_user=admin_user), content_includes=private_casebook.title)
+
+        Drafts of published books aren't listed:
+        >>> check_response(client.get(url), content_excludes=draft_casebook.title)
+        >>> check_response(client.get(url, as_user=user), content_excludes=draft_casebook.title)
+        >>> check_response(client.get(url, as_user=admin_user), content_excludes=draft_casebook.title)
+
+        Drafts of published books are described as "unpublished changes" to collaborator and admins:
+        >>> check_response(client.get(url, as_user=user), content_includes="This casebook has unpublished changes.")
+        >>> check_response(client.get(url, as_user=admin_user), content_includes="This casebook has unpublished changes.")
+
+        Drafts of published books are not apparent to other users:
+        >>> check_response(client.get(url), content_excludes="This casebook has unpublished changes.")
+        >>> check_response(client.get(url, as_user=non_collaborating_user), content_excludes="This casebook has unpublished changes.")
     """
     user = get_object_or_404(User, pk=user_id)
     return render(request, 'dashboard.html', {'user': user})
