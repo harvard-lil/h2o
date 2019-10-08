@@ -38,6 +38,8 @@ INSTALLED_APPS = [
 ]
 
 MIDDLEWARE = [
+    'main.middleware.generated_by_header_middleware',
+
     'django.middleware.security.SecurityMiddleware',
     'whitenoise.middleware.WhiteNoiseMiddleware',
 
