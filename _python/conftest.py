@@ -109,8 +109,6 @@ class ContentCollaboratorFactory(factory.DjangoModelFactory):
     user = factory.SubFactory(UserFactory)
     content = factory.SubFactory(CasebookFactory)
     role = 'owner'
-    created_at = timezone.now()
-    updated_at = timezone.now()
     has_attribution = True
 
 
