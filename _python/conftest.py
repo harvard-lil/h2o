@@ -290,14 +290,14 @@ def capapi_mock(requests_mock):
             },
             {
                 "id": 2,
-                "name_abbreviation": "1-800 Contacts, Inc. v. Lens.Com, Inc.",
+                "name_abbreviation": "1-800 Contacts, Incorporated v. Lens.Com, Incorporated",
                 "citations": [
                     {
-                        "cite": "722 F.3d 1229",
+                        "cite": "755 F. Supp. 2d 1151",
                         "type": "official"
                     }
                 ],
-                "decision_date": "2013-07-16",
+                "decision_date": "2010-12-14",
             },
         ]})
     # mock case detail results
