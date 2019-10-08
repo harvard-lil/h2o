@@ -1012,6 +1012,8 @@ class User(NullableTimestampedModel):
             Casebooks, published or not, but excluding draft copies.
             Drafts of published casebooks should not show up on their own, but inline with the published casebook.
             Equivalent of Rails "owned_casebook_compacted"
+
+            Includes all casebooks the user is a collaborator on, regardless of role.
         """
         return self.casebooks.filter(draft_mode_of_published_casebook=None)
 
@@ -1019,7 +1021,12 @@ class User(NullableTimestampedModel):
         """
             Public casebooks owned by this user.
             Equivalent of Rails "user.owned.published"
+
+            Currently only includes casebooks the user owns.
         """
+        # TBD: This probably wants to be:
+        # return self.casebooks.filter(contentcollaborator__has_attribution=True, public=True)
+        # TBD: We probably need some guarantee that drafts aren't public.
         return self.casebooks.filter(contentcollaborator__role='owner', public=True)
 
 

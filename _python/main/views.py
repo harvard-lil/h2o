@@ -52,6 +52,8 @@ def dashboard(request, user_id):
     """
         Show given user's casebooks.
 
+        TODO: test with editors, not only owners.
+
         Given:
         >>> casebook, casebook_factory, client, admin_user, user_factory = [getfixture(f) for f in ['casebook', 'casebook_factory', 'client', 'admin_user', 'user_factory']]
         >>> user = casebook.collaborators.first()
@@ -78,7 +80,7 @@ def dashboard(request, user_id):
         >>> check_response(client.get(url, as_user=user), content_excludes=draft_casebook.title)
         >>> check_response(client.get(url, as_user=admin_user), content_excludes=draft_casebook.title)
 
-        Drafts of published books are described as "unpublished changes" to collaborator and admins:
+        Drafts of published books are described as "unpublished changes" to owners and admins:
         >>> check_response(client.get(url, as_user=user), content_includes="This casebook has unpublished changes.")
         >>> check_response(client.get(url, as_user=admin_user), content_includes="This casebook has unpublished changes.")
 
