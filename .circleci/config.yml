@@ -51,7 +51,17 @@ jobs:
             mkdir -p junit/pytest                            # storage for circleci test info
             docker-compose run python pytest \
               --junitxml=junit/pytest/test-results.xml       `# write test results so they can be displayed by circleci` \
+              --cov --cov-config=setup.cfg --cov-report xml  `# write coverage data to .coverage for upload by codecov`
 
       # Upload test details to circleci
       - store_test_results:
           path: junit
+
+      # Upload coverage to Codecov
+      # Recommended approach is to use an orb: https://circleci.com/blog/making-code-coverage-easy-to-see-with-the-codecov-orb/
+      # Currently using python package instead of orb, because of https://github.com/codecov/codecov-circleci-orb/issues/12
+      - run:
+          name: "Upload coverage"
+          command: |
+            sudo pip install codecov
+            codecov
