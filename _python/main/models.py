@@ -972,8 +972,11 @@ class User(NullableTimestampedModel):
             return self.title
         return self.anonymous_name
 
-    # TODO: are all users active?
-    is_active = True
+    # TODO: are all users with verified email addresses active,
+    # or is there another category of non-active users?
+    @property
+    def is_active(self):
+        return self.verified_email
 
     def has_role(self, role):
         return self.roles.filter(name=role).exists()
