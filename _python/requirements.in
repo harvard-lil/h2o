@@ -18,3 +18,8 @@ pytest-django
 pytest-cov
 factory-boy        # create django model fixtures on demand
 flake8
+requests-mock       # mock the requests library
+
+# CAP API requests
+requests
+pyquery

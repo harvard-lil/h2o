@@ -97,11 +97,11 @@ class Case(NullableTimestampedModel):
     created_via_import = models.BooleanField(default=False)
     capapi_id = models.IntegerField(blank=True, null=True)
     attorneys = JSONField(blank=True, null=True)
-    parties = JSONField(blank=True, null=True)
+    parties = JSONField(blank=True, null=True)  # TODO: this should be deleted. It's just the `name` field with uncorrected typos.
     opinions = JSONField(blank=True, null=True)
     citations = JSONField(blank=True, null=True)
     docket_number = models.CharField(max_length=20000, blank=True, null=True)
-    header_html = models.CharField(max_length=15360, blank=True, null=True)
+    header_html = models.CharField(max_length=15360, blank=True, null=True)  # TODO: no longer used? delete?
     content = models.CharField(max_length=5242880)
     annotations_count = models.IntegerField(default=0, blank=True, null=True)
 

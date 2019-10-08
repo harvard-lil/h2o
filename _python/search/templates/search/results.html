@@ -21,34 +21,35 @@
           </div>
         </a>
       {% elif category == 'case' %}
-        <a href="{% url 'case' result.result_id %}" class="wrapper" data-result-id="{{ result.result_id }}">
-          <div class="results-entry">
-            <div class="title">
-              {{ result.metadata.display_name }}
+        {% if results.from_capapi %}
+          <a href="#" class="wrapper" data-result-id="{{ result.id }}" data-result-type="capapi/case">
+            <div class="results-entry">
+              <div class="title">
+                {{ result.name_abbreviation }}
+              </div>
+              <div class="citation">
+                {{ result.citations.0.cite }}
+              </div>
+              <div class="date">
+                {{ result.decision_date }}
+              </div>
             </div>
-            <div class="citation">
-              {{ result.metadata.citations }}
+          </a>
+        {% else %}
+          <a href="{% url 'case' result.result_id %}" class="wrapper" data-result-id="{{ result.result_id }}">
+            <div class="results-entry">
+              <div class="title">
+                {{ result.metadata.display_name }}
+              </div>
+              <div class="citation">
+                {{ result.metadata.citations }}
+              </div>
+              <div class="date">
+                {{ result.metadata.decision_date_formatted|default:'' }}
+              </div>
             </div>
-            <div class="date">
-              {{ result.metadata.decision_date_formatted|default:'' }}
-            </div>
-          </div>
-        </a>
-{#        TODO: handle CAP case search #}
-{#    <% elsif result.is_a?(Capapi::Case) }}#}
-{#    <a href="#" class="wrapper" data-result-id="{% result.result_id %}" data-result-type="{{ result.class.name.underscore }}">#}
-{#      <div class="results-entry">#}
-{#        <div class="title">#}
-{#          {{ result.name_abbreviation }}#}
-{#        </div>#}
-{#        <div class="citation">#}
-{#          {{ result.citations[0]&.cite }}#}
-{#        </div>#}
-{#        <div class="date">#}
-{#          {{ Capapi::DataHelpers.parse_date result.decision_date }}#}
-{#        </div>#}
-{#      </div>#}
-{#    </a>#}
+          </a>
+        {% endif %}
       {% elif category == 'user' %}
         <a href="{% url 'dashboard' result.result_id %}" class="wrapper" data-result-id="{{ result.result_id }}">
           <div class="results-entry">
