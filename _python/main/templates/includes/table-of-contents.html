@@ -27,8 +27,8 @@
                         {{ content.get_title }}
                       </div>
                       <div class="case-metadata-container">
-                        <div class="resource-case">{{ content.citations.0.cite }}</div>
-                        <div class="resource-date">{{ content.decision_date | date:"Y" }}</div>
+                        <div class="resource-case">{{ content.resource.citations.0.cite }}</div>
+                        <div class="resource-date">{{ content.resource.decision_date | date:"Y" }}</div>
                       </div>
                     </div>
                     <div class="resource-type-container">
