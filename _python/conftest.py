@@ -60,26 +60,6 @@ class UserFactory(factory.DjangoModelFactory):
     class Meta:
         model = User
 
-    persistence_token = ''
-    login_count = 0
-    attribution = "some name"
-    print_titles = True
-    print_dates_details = True
-    print_paragraph_numbers = True
-    print_annotations = True
-    print_highlights = ''
-    print_font_face = ''
-    print_font_size = ''
-    default_show_comments = True
-    default_show_paragraph_numbers = True
-    hidden_text_display = True
-    print_links = True
-    toc_levels = ''
-    print_export_format = ''
-    verified_email = True
-    verified_professor = False
-    professor_verification_requested = False
-
 
 @register_factory
 class ContentNodeFactory(factory.DjangoModelFactory):
