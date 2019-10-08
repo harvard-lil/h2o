@@ -12,7 +12,7 @@ from . import views
 class IdSlugConverter:
     # matches:
     # 2, 2-, 22-slug, etc.
-    regex = r'[0-9]+(\-.*)?'
+    regex = r'[0-9]+(\-[^/]*)?'
 
     def to_python(self, value):
         id_slug = value.split('-', 1)
@@ -37,7 +37,7 @@ class IdSlugConverter:
 class OrdinalSlugConverter:
     # matches:
     # 2, 2.2, 22.2.22, 2-, 2-slug, 2.22.2-, 2.2.22-slug, etc.
-    regex = r'([0-9]+\.)*[0-9]+(\-.*)?'
+    regex = r'([0-9]+\.)*[0-9]+(\-[^/]*)?'
 
     def to_python(self, value):
         ord_slug = value.split('-', 1)
@@ -78,6 +78,7 @@ urlpatterns = format_suffix_patterns(drf_urlpatterns) + [
     path('casebooks/<idslug:casebook_param>/resources/<ordslug:ordinals_param>/', views.resource, name='resource'),
     path('casebooks/<idslug:casebook_param>/sections/<ordslug:ordinals_param>/', views.section, name='section'),
     path('casebooks/<idslug:casebook_param>/', views.casebook, name='casebook'),
+    path('cases/from_capapi', views.from_capapi, name='from_capapi'),
     path('cases/<int:case_id>/', views.case, name='case'),
     # canonical paths for static pages
     path('about/', TemplateView.as_view(template_name='pages/about.html'), name='about'),

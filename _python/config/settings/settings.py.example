@@ -10,3 +10,6 @@ from .settings_dev import *  # noqa
 #     'handlers': ['console'],
 #     'propagate': False,
 # }
+
+# If you want to load case text from CAP:
+CAPAPI_API_KEY = ''

@@ -235,6 +235,75 @@ def full_casebook(casebook_factory):
     return casebook
 
 
+@pytest.fixture
+def capapi_mock(requests_mock):
+    """
+        Mock responses for queries run by CAP import functions.
+    """
+    # mock citation search results
+    requests_mock.get('/v1/cases/', json={
+        "count": 2,
+        "results": [
+            {
+                "id": 1,
+                "name_abbreviation": "1-800 Contacts, Inc. v. Lens.Com, Inc.",
+                "citations": [
+                    {
+                        "cite": "722 F.3d 1229",
+                        "type": "official"
+                    }
+                ],
+                "decision_date": "2013-07-16",
+            },
+            {
+                "id": 2,
+                "name_abbreviation": "1-800 Contacts, Inc. v. Lens.Com, Inc.",
+                "citations": [
+                    {
+                        "cite": "722 F.3d 1229",
+                        "type": "official"
+                    }
+                ],
+                "decision_date": "2013-07-16",
+            },
+        ]})
+    # mock case detail results
+    requests_mock.get('/v1/cases/12345/', json={
+        "id": 12345,
+        "name": "1-800 CONTACTS, INC., Plaintiff-Appellant/Cross-Appellee, v. LENS.COM, INC.",
+        "name_abbreviation": "1-800 Contacts, Inc. v. Lens.Com, Inc.",
+        "decision_date": "2013-07-16",
+        "docket_number": "Nos. 11-4114, 11-4204, 12-4022",
+        "citations": [
+            {
+                "cite": "722 F.3d 1229",
+                "type": "official"
+            }
+        ],
+        "court": {
+            "name_abbreviation": "10th Cir.",
+            "name": "United States Court of Appeals for the Tenth Circuit",
+            "id": 8771
+        },
+        "casebody": {
+            "data": """
+                <section class="casebody" data-case-id="32044132252420_0111" data-firstpage="1229" data-lastpage="1257">
+                    <section class="head-matter">
+                        <h4 class="parties" id="b1241-8">1-800 CONTACTS, INC., Plaintiff-Appellant/Cross-Appellee, v. LENS.COM, INC.</h4>
+                        <p class="attorneys" id="b1245-28"><a class="page-label">*1233</a>Mark A. Miller, Holland &amp; Hart LLP</p>
+                        <p class="attorneys" id="b1246-4">Scott R. Ryther, Phillips Ryther <em>&amp; </em>Winchester</p>
+                    </section>
+                    <article class="opinion" data-type="majority">
+                        <p class="author" id="b1246-6">HARTZ, Circuit Judge.</p>
+                        <p id="b1246-7">The Lanham Act, 15 U.S.C. §§ 1051-1127 ...</p>
+                    </article>
+                </section>
+            """,
+            "status": "ok"
+        }
+    })
+
+
 ### global functions ###
 
 # these are injected into the namespace for all doctests by inject_helpers
@@ -252,10 +321,17 @@ def check_response(response, status_code=200, content_type=None, content_include
                 content_type = "text/html"
         assert response['content-type'].split(';')[0] == content_type
 
+    content = response.content.decode()
     if content_includes:
-        assert content_includes in response.content.decode()
+        if isinstance(content_includes, str):
+            content_includes = [content_includes]
+        for content_include in content_includes:
+            assert content_include in content
     if content_excludes:
-        assert content_excludes not in response.content.decode()
+        if isinstance(content_excludes, str):
+            content_excludes = [content_excludes]
+        for content_exclude in content_excludes:
+            assert content_exclude not in content
 
 
 @pytest.fixture(autouse=True)

@@ -193,3 +193,6 @@ WHITENOISE_ROOT = os.path.join(os.path.dirname(BASE_DIR), 'public')
 
 # avoid the need for collectstatic in production (see http://whitenoise.evans.io/en/stable/django.html#WHITENOISE_USE_FINDERS )
 WHITENOISE_USE_FINDERS = True
+
+CAPAPI_BASE_URL = 'https://api.case.law/v1/'
+CAPAPI_API_KEY = ''
