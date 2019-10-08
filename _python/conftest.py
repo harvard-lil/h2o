@@ -244,11 +244,12 @@ def full_casebook(casebook_factory):
                         - annotation
                         - annotation
                     - resource -> link
-                    - resource -> textblock
-                    - resource -> case
-                        - annotation
-                        - annotation
-                    - resource -> link
+                    - section
+                         - resource -> textblock
+                         - resource -> case
+                             - annotation
+                             - annotation
+                         - resource -> link
     """
     user = UserFactory()
     casebook = casebook_factory(contentcollaborator_set__user=user)
@@ -258,11 +259,12 @@ def full_casebook(casebook_factory):
     ContentAnnotationFactory(resource=case_resource)
     ContentAnnotationFactory(resource=case_resource, kind='elide')
     ResourceFactory(casebook=casebook, ordinals=[1, 3], resource_type='Default', resource_id=DefaultFactory(user=user).id)
-    ResourceFactory(casebook=casebook, ordinals=[1, 4], resource_type='TextBlock', resource_id=TextBlockFactory(user=user).id)
-    case_resource = ResourceFactory(casebook=casebook, ordinals=[1, 5], resource_type='Case', resource_id=CaseFactory().id)
+    SectionFactory(casebook=casebook,  ordinals=[1, 4])
+    ResourceFactory(casebook=casebook, ordinals=[1, 4, 1], resource_type='TextBlock', resource_id=TextBlockFactory(user=user).id)
+    case_resource = ResourceFactory(casebook=casebook, ordinals=[1, 4, 2], resource_type='Case', resource_id=CaseFactory().id)
     ContentAnnotationFactory(resource=case_resource, kind='note')
     ContentAnnotationFactory(resource=case_resource, kind='replace')
-    ResourceFactory(casebook=casebook, ordinals=[1, 6], resource_type='Default', resource_id=DefaultFactory(user=user).id)
+    ResourceFactory(casebook=casebook, ordinals=[1, 4, 3], resource_type='Default', resource_id=DefaultFactory(user=user).id)
     return casebook
 
 

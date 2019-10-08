@@ -31,7 +31,7 @@ def dump_casebook_outline(casebook):
     """
         Helper function to serialize the full tree for a casebook, for testing casebook clone/merge functions.
 
-        >>> full_casebook = getfixture('full_casebook')
+        >>> reset_sequences, full_casebook = [getfixture(i) for i in ['reset_sequences', 'full_casebook']]
         >>> assert dump_casebook_outline(full_casebook) == [
         ...     'Casebook<1>: Some Title 0',
         ...     ' Section<2>: Some Section 1',
@@ -40,11 +40,12 @@ def dump_casebook_outline(casebook):
         ...     '   ContentAnnotation<1>: highlight 0-10',
         ...     '   ContentAnnotation<2>: elide 0-10',
         ...     '  ContentNode<5> -> Default<1>: Some Link Name 0',
-        ...     '  ContentNode<6> -> TextBlock<2>: Some TextBlock Name 1',
-        ...     '  ContentNode<7> -> Case<2>: Foo Foo1 vs. Bar Bar1',
-        ...     '   ContentAnnotation<3>: note 0-10',
-        ...     '   ContentAnnotation<4>: replace 0-10',
-        ...     '  ContentNode<8> -> Default<2>: Some Link Name 1'
+        ...     '  Section<6>: Some Section 5',
+        ...     '   ContentNode<7> -> TextBlock<2>: Some TextBlock Name 1',
+        ...     '   ContentNode<8> -> Case<2>: Foo Foo1 vs. Bar Bar1',
+        ...     '    ContentAnnotation<3>: note 0-10',
+        ...     '    ContentAnnotation<4>: replace 0-10',
+        ...     '   ContentNode<9> -> Default<2>: Some Link Name 1'
         ... ]
     """
     out = []

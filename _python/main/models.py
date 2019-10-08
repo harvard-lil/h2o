@@ -525,11 +525,12 @@ class Casebook(ContentNode):
             ...     '   ContentAnnotation<1>: highlight 0-10',
             ...     '   ContentAnnotation<2>: elide 0-10',
             ...     '  ContentNode<5> -> Default<1>: Some Link Name 0',
-            ...     '  ContentNode<6> -> TextBlock<2>: Some TextBlock Name 1',
-            ...     '  ContentNode<7> -> Case<2>: Foo Foo1 vs. Bar Bar1',
-            ...     '   ContentAnnotation<3>: note 0-10',
-            ...     '   ContentAnnotation<4>: replace 0-10',
-            ...     '  ContentNode<8> -> Default<2>: Some Link Name 1'
+            ...     '  Section<6>: Some Section 5',
+            ...     '   ContentNode<7> -> TextBlock<2>: Some TextBlock Name 1',
+            ...     '   ContentNode<8> -> Case<2>: Foo Foo1 vs. Bar Bar1',
+            ...     '    ContentAnnotation<3>: note 0-10',
+            ...     '    ContentAnnotation<4>: replace 0-10',
+            ...     '   ContentNode<9> -> Default<2>: Some Link Name 1'
             ... ]
             >>> assert dump_casebook_outline(full_casebook) == expected
             >>> assert full_casebook.owner != user
@@ -538,18 +539,19 @@ class Casebook(ContentNode):
             >>> with assert_num_queries(select=5, insert=6):
             ...     clone = full_casebook.clone(owner=user)
             >>> expected = [
-            ...     'Casebook<9>: Some Title 0',
-            ...     ' Section<10>: Some Section 1',
-            ...     '  ContentNode<11> -> TextBlock<3>: Some TextBlock Name 0',
-            ...     '  ContentNode<12> -> Case<1>: Foo Foo0 vs. Bar Bar0',
+            ...     'Casebook<10>: Some Title 0',
+            ...     ' Section<11>: Some Section 1',
+            ...     '  ContentNode<12> -> TextBlock<3>: Some TextBlock Name 0',
+            ...     '  ContentNode<13> -> Case<1>: Foo Foo0 vs. Bar Bar0',
             ...     '   ContentAnnotation<5>: highlight 0-10',
             ...     '   ContentAnnotation<6>: elide 0-10',
-            ...     '  ContentNode<13> -> Default<3>: Some Link Name 0',
-            ...     '  ContentNode<14> -> TextBlock<4>: Some TextBlock Name 1',
-            ...     '  ContentNode<15> -> Case<2>: Foo Foo1 vs. Bar Bar1',
-            ...     '   ContentAnnotation<7>: note 0-10',
-            ...     '   ContentAnnotation<8>: replace 0-10',
-            ...     '  ContentNode<16> -> Default<4>: Some Link Name 1'
+            ...     '  ContentNode<14> -> Default<3>: Some Link Name 0',
+            ...     '  Section<15>: Some Section 5',
+            ...     '   ContentNode<16> -> TextBlock<4>: Some TextBlock Name 1',
+            ...     '   ContentNode<17> -> Case<2>: Foo Foo1 vs. Bar Bar1',
+            ...     '    ContentAnnotation<7>: note 0-10',
+            ...     '    ContentAnnotation<8>: replace 0-10',
+            ...     '   ContentNode<18> -> Default<4>: Some Link Name 1'
             ... ]
             >>> assert dump_casebook_outline(clone) == expected
             >>> assert clone.owner == user
