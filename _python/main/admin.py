@@ -350,13 +350,14 @@ class CaseAdmin(NonLoggingAdmin):
     capapi_link.short_description = 'capapi id'
 
     def court_link(self, obj):
-        return format_html(
-            '<a href="{}">{}</a>',
-            reverse('admin:main_casecourt_change', args=(obj.case_court.id,)),
-            obj.case_court.id
-        )
+        if obj.case_court:
+            return format_html(
+                '<a href="{}">{}</a>',
+                reverse('admin:main_casecourt_change', args=(obj.case_court.id,)),
+                obj.case_court.id
+            )
     court_link.short_description = 'court'
-    court_link.admin_order_field = 'court'
+    court_link.admin_order_field = 'case_court'
 
     def related_resources(self, obj):
         return format_html(
@@ -377,12 +378,13 @@ class DefaultAdmin(NonLoggingAdmin):
     fields = ['name', 'url', 'description', 'public', 'created_at', 'updated_at', 'content_type', 'user', 'ancestry', 'created_via_import']
 
     def user_link(self, obj):
-        return format_html(
-            '<a href="{}">{} ({})</a>',
-            reverse('admin:main_user_change', args=(obj.user.id,)),
-            obj.user.display_name,
-            obj.user.id
-        )
+        if obj.user:
+            return format_html(
+                '<a href="{}">{} ({})</a>',
+                reverse('admin:main_user_change', args=(obj.user.id,)),
+                obj.user.display_name,
+                obj.user.id
+            )
     user_link.short_description = 'user'
 
     def related_resources(self, obj):
