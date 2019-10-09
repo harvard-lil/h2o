@@ -1,4 +1,5 @@
 import requests
+from django.views.decorators.http import require_POST
 from pyquery import PyQuery
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
@@ -7,11 +8,11 @@ import json
 from django.conf import settings
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.views import redirect_to_login
-from django.http import HttpResponseForbidden, HttpResponseRedirect, HttpResponseBadRequest, JsonResponse
+from django.http import HttpResponseForbidden, HttpResponseRedirect, HttpResponseBadRequest, JsonResponse, Http404
 from django.shortcuts import render, get_object_or_404
 from django.urls import reverse
 
-from conftest import check_response
+from test_helpers import check_response
 from .utils import parse_cap_decision_date
 from .serializers import ContentAnnotationSerializer, CaseSerializer, TextBlockSerializer
 from .models import Casebook, Resource, Section, Case, User, CaseCourt
@@ -91,6 +92,42 @@ def casebook(request, casebook_param):
         'casebook': casebook,
         'contents': contents
     })
+
+
+@login_required
+@require_POST
+def clone_casebook(request, casebook_param):
+    """
+        Clone a casebook and redirect to edit page for clone.
+
+        Given:
+        >>> casebook, client, user = [getfixture(f) for f in ['casebook', 'client', 'user']]
+
+        Redirect to new clone:
+        >>> check_response(client.post(reverse('clone', args=[casebook.pk]), as_user=user), status_code=302)
+    """
+    casebook = get_object_or_404(Casebook, id=casebook_param['id'])
+    clone = casebook.clone(request.user)
+    return HttpResponseRedirect(reverse('layout', args=[clone.pk]))
+
+
+@login_required
+@require_POST
+def create_draft(request, casebook_param):
+    """
+        Clone a casebook and redirect to edit page for clone.
+
+        Given:
+        >>> casebook, client, user = [getfixture(f) for f in ['casebook', 'client', 'user']]
+
+        Redirect to new draft:
+        >>> check_response(client.post(reverse('create_draft', args=[casebook.pk]), as_user=user), status_code=302)
+    """
+    # TODO: I think this should be checking that user is a collaborator on the casebook, and that no draft exists.
+    # I don't immediately see that logic in Rails, though.
+    casebook = get_object_or_404(Casebook, id=casebook_param['id'])
+    clone = casebook.make_draft()
+    return HttpResponseRedirect(reverse('layout', args=[clone.pk]))
 
 
 def section(request, casebook_param, ordinals_param):
@@ -224,3 +261,8 @@ def from_capapi(request):
         case.save()
 
     return JsonResponse({'id': case.id})
+
+
+def not_implemented_yet(request):
+    """ Used for routes we want to be able to reverse(), but that aren't implemented yet. """
+    raise Http404

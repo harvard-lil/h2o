@@ -1,24 +1,20 @@
-# This is an auto-generated Django model module.
-# You'll have to do the following manually to clean this up:
-#   * Rearrange models' order
-#   * Make sure each model has one field with primary_key=True
-#   * Make sure each ForeignKey has `on_delete` set to the desired behavior.
-#   * Remove `managed = False` lines if you wish to allow Django to create, modify, and delete the table
-# Feel free to rename the models, but don't rename db_table values or field names.
+from urllib.parse import urlparse
+
 from django.contrib.auth.models import AnonymousUser
 from django.contrib.postgres.fields import JSONField, ArrayField
 from django.contrib.postgres.indexes import GinIndex
-from django.db import models
+from django.db import models, transaction
 from django.db.models import Q
 from django.urls import reverse
 from django.utils.text import slugify
 
-from urllib.parse import urlparse
-
+from test_helpers import dump_casebook_outline
+from .utils import clone_model_instance
 
 # see https://stackoverflow.com/questions/54598531/what-determines-if-rails-includes-id-serial-in-a-table-definition
 # https://djangosnippets.org/snippets/1244/
 # https://apidock.com/rails/v2.3.8/ActiveRecord/ConnectionAdapters/SchemaStatements/rename_index
+
 
 class BigPkModel(models.Model):
     id = models.BigAutoField(primary_key=True)
@@ -196,19 +192,19 @@ class ContentNodeQueryset(models.QuerySet):
         of one query per instance. This is based on the implementation of prefetch_related().
 
         Given:
-        >>> full_casebook, django_assert_num_queries = [getfixture(f) for f in ['full_casebook', 'django_assert_num_queries']]
+        >>> full_casebook, assert_num_queries = [getfixture(f) for f in ['full_casebook', 'assert_num_queries']]
         >>> section = Section.objects.filter(casebook=full_casebook).first()
 
         Fetching all resources normally will take a linear number of queries -- each c.resource hits the DB:
-        >>> with django_assert_num_queries(2+6):
+        >>> with assert_num_queries(select=7):
         ...     resources = [c.resource for c in section.contents.all()]
 
         We can reduce to a constant number of queries -- 1 each to fetch Case, TextBlock, and Default items:
-        >>> with django_assert_num_queries(1+3):
+        >>> with assert_num_queries(select=4):
         ...     resources = [c.resource for c in section.contents.prefetch_resources()]
 
         Custom querysets for the Case, TextBlock, and Default items can be provided to further reduce queries:
-        >>> with django_assert_num_queries(1+3+1):
+        >>> with assert_num_queries(select=4):
         ...     resources = [c.resource for c in section.contents.prefetch_resources(case_query=Case.objects.select_related('case_court'))]
         ...     courts = [c.case_court for c in resources if type(c) == Case]
     """
@@ -244,9 +240,12 @@ class ContentNodeQueryset(models.QuerySet):
             if not self._result_cache:
                 return
             case_query, textblock_query, link_query = self._prefetch_resources
-            case_query = case_query or Case.objects.all()
-            textblock_query = textblock_query or TextBlock.objects.all()
-            link_query = link_query or Default.objects.all()
+            if case_query is None:
+                case_query = Case.objects.all()
+            if textblock_query is None:
+                textblock_query = TextBlock.objects.all()
+            if link_query is None:
+                link_query = Default.objects.all()
             resources = {}
             for resource_type, query in (('Case', case_query), ('TextBlock', textblock_query), ('Default', link_query)):
                 for obj in query.filter(id__in=[obj.resource_id for obj in self._result_cache if obj.resource_type == resource_type]):
@@ -394,6 +393,9 @@ class ContentNode(TimestampedModel, BigPkModel):
     def has_collaborator(self, user):
         return self.collaborators.filter(pk=user.pk).exists()
 
+    def add_collaborator(self, user, **collaborator_kwargs):
+        ContentCollaborator.objects.create(user=user, content=self, **collaborator_kwargs)
+
     def get_absolute_url(self):
         t = self.type
         if t == 'casebook':
@@ -468,7 +470,7 @@ class Casebook(ContentNode):
         if self.root_user_id:
             return self.root_user
         elif self.ancestry:
-            return self.root().collaborators.filter(contentcollaborator__role='owner').first()
+            return self.root().owner
 
     def viewable_by(self, user):
         return self.public or self.editable_by(user)
@@ -490,6 +492,130 @@ class Casebook(ContentNode):
             TODO: Should this be named "draft"? It only returns one, and logic should ensure that only one ever exists.
         """
         return self.clones.filter(draft_mode_of_published_casebook=True).first()
+
+    def make_draft(self):
+        """
+            Clone casebook in draft mode, copying existing collaborators.
+
+            Given:
+            >>> full_casebook, user = [getfixture(i) for i in ['full_casebook', 'user']]
+            >>> full_casebook.add_collaborator(user, role='editor')
+            >>> draft = full_casebook.make_draft()
+
+            `draft` will be in draft mode and will have the same collaborators as the original:
+            >>> assert draft.draft_mode_of_published_casebook is True
+            >>> assert (set((c.user, c.role) for c in full_casebook.contentcollaborator_set.all()) ==
+            ...         set((c.user, c.role) for c in draft.contentcollaborator_set.all()))
+        """
+        return self.clone(draft_mode=True)
+
+    @transaction.atomic
+    def clone(self, owner=None, draft_mode=False):
+        """
+            Clone casebook with all of its assets. If User object `owner` is provided, that user will replace the
+            existing users. If draft_mode=True, clone will be marked as a draft.
+
+            Given an initial casebook like this:
+            >>> reset_sequences, full_casebook, user, assert_num_queries = [getfixture(i) for i in ['reset_sequences', 'full_casebook', 'user', 'assert_num_queries']]
+            >>> expected = [
+            ...     'Casebook<1>: Some Title 0',
+            ...     ' Section<2>: Some Section 1',
+            ...     '  ContentNode<3> -> TextBlock<1>: Some TextBlock Name 0',
+            ...     '  ContentNode<4> -> Case<1>: Foo Foo0 vs. Bar Bar0',
+            ...     '   ContentAnnotation<1>: highlight 0-10',
+            ...     '   ContentAnnotation<2>: elide 0-10',
+            ...     '  ContentNode<5> -> Default<1>: Some Link Name 0',
+            ...     '  ContentNode<6> -> TextBlock<2>: Some TextBlock Name 1',
+            ...     '  ContentNode<7> -> Case<2>: Foo Foo1 vs. Bar Bar1',
+            ...     '   ContentAnnotation<3>: note 0-10',
+            ...     '   ContentAnnotation<4>: replace 0-10',
+            ...     '  ContentNode<8> -> Default<2>: Some Link Name 1'
+            ... ]
+            >>> assert dump_casebook_outline(full_casebook) == expected
+            >>> assert full_casebook.owner != user
+
+            Return a cloned casebook like this:
+            >>> with assert_num_queries(select=5, insert=6):
+            ...     clone = full_casebook.clone(owner=user)
+            >>> expected = [
+            ...     'Casebook<9>: Some Title 0',
+            ...     ' Section<10>: Some Section 1',
+            ...     '  ContentNode<11> -> TextBlock<3>: Some TextBlock Name 0',
+            ...     '  ContentNode<12> -> Case<1>: Foo Foo0 vs. Bar Bar0',
+            ...     '   ContentAnnotation<5>: highlight 0-10',
+            ...     '   ContentAnnotation<6>: elide 0-10',
+            ...     '  ContentNode<13> -> Default<3>: Some Link Name 0',
+            ...     '  ContentNode<14> -> TextBlock<4>: Some TextBlock Name 1',
+            ...     '  ContentNode<15> -> Case<2>: Foo Foo1 vs. Bar Bar1',
+            ...     '   ContentAnnotation<7>: note 0-10',
+            ...     '   ContentAnnotation<8>: replace 0-10',
+            ...     '  ContentNode<16> -> Default<4>: Some Link Name 1'
+            ... ]
+            >>> assert dump_casebook_outline(clone) == expected
+            >>> assert clone.owner == user
+
+        """
+        # clone casebook
+        old_casebook = self
+        cloned_casebook = clone_model_instance(old_casebook)
+        cloned_casebook.copy_of = old_casebook
+        cloned_casebook.parent = old_casebook
+        cloned_casebook.public = False
+        cloned_casebook.draft_mode_of_published_casebook = draft_mode
+        cloned_casebook.save()
+
+        # clone or replace collaborators
+        if owner:
+            cloned_casebook.add_collaborator(user=owner, role='owner', has_attribution=True)
+        else:
+            roles = [clone_model_instance(c) for c in self.contentcollaborator_set.all()]
+            for role in roles:
+                role.content = cloned_casebook
+            ContentCollaborator.objects.bulk_create(roles)
+            owner = next(role.user for role in roles if role.role == 'owner')
+
+        # clone contents
+        cloned_resources = {TextBlock: [], Default: []}  # collect new TextBlocks and Defaults for bulk_create
+        cloned_content_nodes = []  # collect new ContentNodes for bulk_create
+        cloned_annotations = []  # collect new ContentAnnotations for bulk_create
+        for old_content_node in old_casebook.contents.prefetch_resources().prefetch_related('annotations'):
+            # clone content_node
+            cloned_content_node = clone_model_instance(old_content_node)
+            cloned_content_node.copy_of = old_content_node
+            cloned_content_node.casebook = cloned_casebook
+            # TODO: on rails is_alias is set to True by CloneCasebook.clone_resources (in raw sql), and then set to False
+            # TODO: again by CloneCasebook.clone_annotations. I think the upshot should be just setting it to False, but I'm
+            # TODO: not sure. Prod data has about equal parts True, False, and null in this column.
+            cloned_content_node.is_alias = False
+            cloned_content_nodes.append(cloned_content_node)
+
+            # clone annotations
+            for old_annotation in old_content_node.annotations.all():
+                cloned_annotation = clone_model_instance(old_annotation)
+                cloned_annotations.append((cloned_annotation, cloned_content_node))
+
+            # clone resources
+            if old_content_node.resource_id and old_content_node.resource_type != 'Case':
+                cloned_resource = clone_model_instance(old_content_node.resource)
+                cloned_resource.user = owner
+                cloned_resources[type(cloned_resource)].append((cloned_resource, cloned_content_node))
+
+        # save TextBlocks and Defaults
+        for resource_class, resources in cloned_resources.items():
+            resource_class.objects.bulk_create(r[0] for r in resources)
+            # after saving, update the associated cloned_content_nodes to point to the new resource_ids
+            for cloned_resource, cloned_content_node in resources:
+                cloned_content_node.resource_id = cloned_resource.id
+
+        # save ContentNodes
+        ContentNode.objects.bulk_create(cloned_content_nodes)
+
+        # save ContentAnnotations (first update cloned_annotations to point to the new content_node IDs)
+        for cloned_annotation, cloned_content_node in cloned_annotations:
+            cloned_annotation.resource = cloned_content_node
+        ContentAnnotation.objects.bulk_create(r[0] for r in cloned_annotations)
+
+        return cloned_casebook
 
 
 class SectionManager(models.Manager):
@@ -515,7 +641,7 @@ class Section(ContentNode):
         # but not [2, 1, 1], [1,1], etc.
         first_ordinals = "ordinals__0_{}".format(len(self.ordinals))
         return ContentNode.objects.filter(**{
-            "casebook": self.casebook,
+            "casebook_id": self.casebook_id,
             first_ordinals: self.ordinals,
             "ordinals__len__gte": len(self.ordinals) + 1
         }).order_by('ordinals')
