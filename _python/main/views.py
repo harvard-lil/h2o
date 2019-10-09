@@ -93,6 +93,53 @@ def dashboard(request, user_id):
 
 
 def casebook(request, casebook_param):
+    """
+        Show a casebook's front page.
+
+        TODO: test with editors, not only owners.
+        TODO: build, then test, action buttons :-)
+
+        Given:
+        >>> casebook, casebook_factory, client, admin_user, user_factory = [getfixture(f) for f in ['casebook', 'casebook_factory', 'client', 'admin_user', 'user_factory']]
+        >>> user = casebook.collaborators.first()
+        >>> non_collaborating_user = user_factory()
+        >>> private_casebook = casebook_factory(contentcollaborator_set__user=user, public=False)
+        >>> draft_casebook = casebook_factory(contentcollaborator_set__user=user, public=False, draft_mode_of_published_casebook=True, copy_of=casebook)
+
+        All users can see public casebooks:
+        >>> check_response(client.get(casebook.get_absolute_url(), content_includes=casebook.title))
+
+        Other users cannot see non-public casebooks:
+        >>> check_response(client.get(private_casebook.get_absolute_url()), status_code=302)
+        >>> check_response(client.get(private_casebook.get_absolute_url(), as_user=non_collaborating_user), status_code=403)
+
+        Users can see their own non-public casebooks in preview mode:
+        >>> check_response(
+        ...     client.get(private_casebook.get_absolute_url(), as_user=user),
+        ...     content_includes=[
+        ...         private_casebook.title,
+        ...         "You are viewing a preview"
+        ...     ]
+        ... )
+
+        Admins can see a user's non-public casebooks in preview mode:
+        >>> check_response(
+        ...     client.get(private_casebook.get_absolute_url(), as_user=user),
+        ...     content_includes=[
+        ...         private_casebook.title,
+        ...         "You are viewing a preview"
+        ...     ]
+        ... )
+
+        Owners and admins see the "preview mode" of draft casebooks:
+        >>> check_response(client.get(draft_casebook.get_absolute_url(), as_user=user), content_includes="You are viewing a preview")
+        >>> check_response(client.get(draft_casebook.get_absolute_url(), as_user=admin_user), content_includes="You are viewing a preview")
+
+        Other users cannot see draft casebooks:
+        >>> check_response(client.get(draft_casebook.get_absolute_url()), status_code=302)
+        >>> check_response(client.get(draft_casebook.get_absolute_url(), as_user=non_collaborating_user), status_code=403)
+    """
+
     casebook = get_object_or_404(Casebook, id=casebook_param['id'])
 
     # check permissions
