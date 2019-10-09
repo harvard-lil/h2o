@@ -1,4 +1,5 @@
 import re
+from copy import deepcopy
 from datetime import datetime, date
 import bleach
 
@@ -64,3 +65,9 @@ def looks_like_citation(s):
         True
     """
     return bool(re.match(r'\d+(\s+|-).*(\s+|-)\d+$', s))
+
+
+def clone_model_instance(instance):
+    clone = deepcopy(instance)
+    clone.id = clone.pk = clone.created_at = None
+    return clone

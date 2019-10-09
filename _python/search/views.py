@@ -5,7 +5,7 @@ from django.core.paginator import Paginator
 from django.shortcuts import render
 from django.urls import reverse
 
-from conftest import check_response
+from test_helpers import check_response
 from main.utils import looks_like_citation
 from .models import SearchIndex
 
