@@ -6,6 +6,7 @@ ALLOWED_HOSTS = ['localhost', '127.0.0.1', '[::1]', '.local', 'backend', 'django
 SECRET_KEY = 'k2#@_q=1$(__n7#(zax6#46fu)x=3&^lz&bwb8ol-_097k_rj5'
 
 DEBUG = True
+NOT_ON_PRODUCTION = True
 
 # don't check password quality locally, since it's annoying
 AUTH_PASSWORD_VALIDATORS = []
