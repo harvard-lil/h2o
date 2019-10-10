@@ -270,6 +270,9 @@ class ContentNode(TimestampedModel, BigPkModel):
     # casebooks only
     draft_mode_of_published_casebook = models.BooleanField(blank=True, null=True, help_text='Unknown (None) or True; never False')
     ancestry = models.CharField(max_length=255, blank=True, null=True, help_text="List of parent IDs in tree, separated by slashes.")
+    # Root user is sometimes used to calculate the "original author" of a book
+    # However, it appears that in the modern application, it is not populated when creating new clones.
+    # Can we migrate this data so that ancestry + collaborator lookups can always be used instead?
     root_user = models.ForeignKey(
         'User',
         blank=True,
