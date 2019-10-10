@@ -273,6 +273,7 @@ class ContentNode(TimestampedModel, BigPkModel):
     # Root user is sometimes used to calculate the "original author" of a book
     # However, it appears that in the modern application, it is not populated when creating new clones.
     # Can we migrate this data so that ancestry + collaborator lookups can always be used instead?
+    # Or, shall we always populate this, for the ease in looking up?
     root_user = models.ForeignKey(
         'User',
         blank=True,
