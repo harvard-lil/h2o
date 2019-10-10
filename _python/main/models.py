@@ -258,7 +258,6 @@ class ContentNodeQueryset(models.QuerySet):
 
 class ContentNode(TimestampedModel, BigPkModel):
     title = models.CharField(max_length=10000, blank=True, null=True)
-    slug = models.CharField(max_length=10000, blank=True, null=True)
     subtitle = models.CharField(max_length=10000, blank=True, null=True)
     public = models.BooleanField(default=False)
     cloneable = models.BooleanField(default=True)
@@ -305,6 +304,7 @@ class ContentNode(TimestampedModel, BigPkModel):
     # legacy fields, I believe
     is_alias = models.BooleanField(blank=True, null=True)
     playlist_id = models.BigIntegerField(blank=True, null=True)
+    slug = models.CharField(max_length=10000, blank=True, null=True)
 
     objects = ContentNodeQueryset.as_manager()
 
