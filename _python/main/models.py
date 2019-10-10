@@ -256,20 +256,9 @@ class ContentNode(TimestampedModel, BigPkModel):
     title = models.CharField(max_length=10000, blank=True, null=True)
     subtitle = models.CharField(max_length=10000, blank=True, null=True)
     public = models.BooleanField(default=False)
-    cloneable = models.BooleanField(default=True)
-    draft_mode_of_published_casebook = models.BooleanField(blank=True, null=True, help_text='Unknown (None) or True; never False')
-    ancestry = models.CharField(max_length=255, blank=True, null=True, help_text="List of parent IDs in tree, separated by slashes.")
-    ordinals = ArrayField(models.IntegerField(), default=list)
     headnote = models.TextField(blank=True, null=True)
     raw_headnote = models.TextField(blank=True, null=True)
-
-    casebook = models.ForeignKey(
-        'Casebook',
-        on_delete=models.CASCADE,
-        blank=True,
-        null=True,
-        related_name='contents'
-    )
+    cloneable = models.BooleanField(default=True)
     copy_of = models.ForeignKey(
         'self',
         on_delete=models.SET_NULL,
@@ -277,6 +266,10 @@ class ContentNode(TimestampedModel, BigPkModel):
         null=True,
         related_name='clones',
     )
+
+    # casebooks only
+    draft_mode_of_published_casebook = models.BooleanField(blank=True, null=True, help_text='Unknown (None) or True; never False')
+    ancestry = models.CharField(max_length=255, blank=True, null=True, help_text="List of parent IDs in tree, separated by slashes.")
     root_user = models.ForeignKey(
         'User',
         blank=True,
@@ -286,16 +279,28 @@ class ContentNode(TimestampedModel, BigPkModel):
         db_index=False,
         db_constraint=False
     )
-    # These fields define a relationship with a Case, Default, or Textblock
-    # not yet described/available via the Django ORM
-    resource_type = models.CharField(max_length=255, blank=True, null=True)
-    resource_id = models.BigIntegerField(blank=True, null=True)
     # Can we make this relationship return casebook objects, not nodes?
     # I don't think so. Workaround: see "to_proxy"
     collaborators = models.ManyToManyField('User',
         through='ContentCollaborator',
         related_name='casebooks'
     )
+
+    # sections and resources only
+    ordinals = ArrayField(models.IntegerField(), default=list)
+    casebook = models.ForeignKey(
+        'Casebook',
+        on_delete=models.CASCADE,
+        blank=True,
+        null=True,
+        related_name='contents'
+    )
+
+    # resources only
+    # These fields define a relationship with a Case, Default, or Textblock
+    # not yet described/available via the Django ORM
+    resource_type = models.CharField(max_length=255, blank=True, null=True)
+    resource_id = models.BigIntegerField(blank=True, null=True)
 
     # legacy fields, I believe
     is_alias = models.BooleanField(blank=True, null=True)
