@@ -11,10 +11,6 @@ from django.utils.text import slugify
 from test_helpers import dump_casebook_outline
 from .utils import clone_model_instance
 
-# see https://stackoverflow.com/questions/54598531/what-determines-if-rails-includes-id-serial-in-a-table-definition
-# https://djangosnippets.org/snippets/1244/
-# https://apidock.com/rails/v2.3.8/ActiveRecord/ConnectionAdapters/SchemaStatements/rename_index
-
 
 class BigPkModel(models.Model):
     id = models.BigAutoField(primary_key=True)
@@ -258,23 +254,11 @@ class ContentNodeQueryset(models.QuerySet):
 
 class ContentNode(TimestampedModel, BigPkModel):
     title = models.CharField(max_length=10000, blank=True, null=True)
-    slug = models.CharField(max_length=10000, blank=True, null=True)
     subtitle = models.CharField(max_length=10000, blank=True, null=True)
     public = models.BooleanField(default=False)
-    cloneable = models.BooleanField(default=True)
-    draft_mode_of_published_casebook = models.BooleanField(blank=True, null=True, help_text='Unknown (None) or True; never False')
-    ancestry = models.CharField(max_length=255, blank=True, null=True, help_text="List of parent IDs in tree, separated by slashes.")
-    ordinals = ArrayField(models.IntegerField(), default=list)
     headnote = models.TextField(blank=True, null=True)
     raw_headnote = models.TextField(blank=True, null=True)
-
-    casebook = models.ForeignKey(
-        'Casebook',
-        on_delete=models.CASCADE,
-        blank=True,
-        null=True,
-        related_name='contents'
-    )
+    cloneable = models.BooleanField(default=True)
     copy_of = models.ForeignKey(
         'self',
         on_delete=models.SET_NULL,
@@ -282,6 +266,14 @@ class ContentNode(TimestampedModel, BigPkModel):
         null=True,
         related_name='clones',
     )
+
+    # casebooks only
+    draft_mode_of_published_casebook = models.BooleanField(blank=True, null=True, help_text='Unknown (None) or True; never False')
+    ancestry = models.CharField(max_length=255, blank=True, null=True, help_text="List of parent IDs in tree, separated by slashes.")
+    # Root user is sometimes used to calculate the "original author" of a book
+    # However, it appears that in the modern application, it is not populated when creating new clones.
+    # Can we migrate this data so that ancestry + collaborator lookups can always be used instead?
+    # Or, shall we always populate this, for the ease in looking up?
     root_user = models.ForeignKey(
         'User',
         blank=True,
@@ -291,10 +283,6 @@ class ContentNode(TimestampedModel, BigPkModel):
         db_index=False,
         db_constraint=False
     )
-    # These fields define a relationship with a Case, Default, or Textblock
-    # not yet described/available via the Django ORM
-    resource_type = models.CharField(max_length=255, blank=True, null=True)
-    resource_id = models.BigIntegerField(blank=True, null=True)
     # Can we make this relationship return casebook objects, not nodes?
     # I don't think so. Workaround: see "to_proxy"
     collaborators = models.ManyToManyField('User',
@@ -302,9 +290,26 @@ class ContentNode(TimestampedModel, BigPkModel):
         related_name='casebooks'
     )
 
+    # sections and resources only
+    ordinals = ArrayField(models.IntegerField(), default=list)
+    casebook = models.ForeignKey(
+        'Casebook',
+        on_delete=models.CASCADE,
+        blank=True,
+        null=True,
+        related_name='contents'
+    )
+
+    # resources only
+    # These fields define a relationship with a Case, Default, or Textblock
+    # not yet described/available via the Django ORM
+    resource_type = models.CharField(max_length=255, blank=True, null=True)
+    resource_id = models.BigIntegerField(blank=True, null=True)
+
     # legacy fields, I believe
     is_alias = models.BooleanField(blank=True, null=True)
     playlist_id = models.BigIntegerField(blank=True, null=True)
+    slug = models.CharField(max_length=10000, blank=True, null=True)
 
     objects = ContentNodeQueryset.as_manager()
 
@@ -454,6 +459,20 @@ class ContentNode(TimestampedModel, BigPkModel):
             return None
         return type(self).objects.get(pk=self.ancestry.split("/")[0])
 
+    def parent(self):
+        """
+            Return parent node for this node, or None if no ancestors.
+
+            >>> root, c_1, c_2, c_1_1, c_1_2 = getfixture('content_node_tree')
+            >>> assert root.parent() is None
+            >>> assert c_1.parent() == root
+            >>> assert c_1_1.parent() == c_1
+            >>> assert c_2.parent() == root
+        """
+        if not self.ancestry:
+            return None
+        return type(self).objects.get(pk=self.ancestry.split("/")[-1])
+
 #
 # Start ContentNode Proxies
 #
@@ -558,15 +577,22 @@ class Casebook(ContentNode):
             ... ]
             >>> assert dump_casebook_outline(clone) == expected
             >>> assert clone.owner == user
-
+            >>> assert clone.ancestry == str(full_casebook.id)
+            >>> clone_of_clone = clone.clone(owner=user)
+            >>> assert clone_of_clone.ancestry == "{}/{}".format(full_casebook.id, clone.id)
+            >>> clone3 = clone_of_clone.clone(owner=user)
+            >>> assert clone3.ancestry == "{}/{}/{}".format(full_casebook.id, clone.id, clone_of_clone.id)
         """
         # clone casebook
         old_casebook = self
         cloned_casebook = clone_model_instance(old_casebook)
         cloned_casebook.copy_of = old_casebook
-        cloned_casebook.parent = old_casebook
         cloned_casebook.public = False
         cloned_casebook.draft_mode_of_published_casebook = draft_mode
+        if old_casebook.ancestry:
+            cloned_casebook.ancestry = "{}/{}".format(old_casebook.ancestry, old_casebook.id)
+        else:
+            cloned_casebook.ancestry = str(old_casebook.id)
         cloned_casebook.save()
 
         # clone or replace collaborators
@@ -588,9 +614,17 @@ class Casebook(ContentNode):
             cloned_content_node = clone_model_instance(old_content_node)
             cloned_content_node.copy_of = old_content_node
             cloned_content_node.casebook = cloned_casebook
-            # TODO: on rails is_alias is set to True by CloneCasebook.clone_resources (in raw sql), and then set to False
-            # TODO: again by CloneCasebook.clone_annotations. I think the upshot should be just setting it to False, but I'm
-            # TODO: not sure. Prod data has about equal parts True, False, and null in this column.
+            # TODO: On rails is_alias is set to True by CloneCasebook.clone_resources (in raw sql), and then set to False
+            # TODO: again by CloneCasebook.clone_annotations. I think the field is unused in any application logic.
+            # TODO: Prod data has about equal parts True, False, and null in this column.
+            # TODO: There doesn't seem to be any rhyme or reason about how it's set.
+            # TODO: No casebooks are True. I think we can delete the column, but in the meantime, let's set to False.
+            # >>> set(node.type for node in ContentNode.objects.filter(is_alias=True))
+            # {'resource', 'section'}
+            # >>> set(node.type for node in ContentNode.objects.filter(is_alias=False))
+            # {'resource'}
+            # >>> set(node.type for node in ContentNode.objects.filter(is_alias=None))
+            # {'resource', 'casebook', 'section'}
             cloned_content_node.is_alias = False
             cloned_content_nodes.append(cloned_content_node)
 
