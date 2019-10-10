@@ -551,7 +551,11 @@ class Casebook(ContentNode):
             ... ]
             >>> assert dump_casebook_outline(clone) == expected
             >>> assert clone.owner == user
-
+            >>> assert clone.ancestry == str(full_casebook.id)
+            >>> clone_of_clone = clone.clone(owner=user)
+            >>> assert clone_of_clone.ancestry == "{}/{}".format(full_casebook.id, clone.id)
+            >>> clone3 = clone_of_clone.clone(owner=user)
+            >>> assert clone3.ancestry == "{}/{}/{}".format(full_casebook.id, clone.id, clone_of_clone.id)
         """
         # clone casebook
         old_casebook = self
@@ -560,6 +564,10 @@ class Casebook(ContentNode):
         cloned_casebook.parent = old_casebook
         cloned_casebook.public = False
         cloned_casebook.draft_mode_of_published_casebook = draft_mode
+        if old_casebook.ancestry:
+            cloned_casebook.ancestry = "{}/{}".format(old_casebook.ancestry, old_casebook.id)
+        else:
+            cloned_casebook.ancestry = str(old_casebook.id)
         cloned_casebook.save()
 
         # clone or replace collaborators
