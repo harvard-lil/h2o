@@ -317,6 +317,9 @@ class ContentNode(TimestampedModel, BigPkModel):
             models.Index(fields=['resource_type', 'resource_id'])
         ]
 
+    def get_slug(self):
+        return slugify(self.get_title())
+
     @property
     def type(self):
         if not self.casebook:
@@ -479,7 +482,7 @@ class Casebook(ContentNode):
         return user.is_authenticated and (self.has_collaborator(user) or user.is_superadmin)
 
     def get_absolute_url(self):
-        return reverse('casebook', args=[{"id": self.id, "slug": slugify(self.get_title())}])
+        return reverse('casebook', args=[self])
 
     def get_title(self):
         return self.title or "Untitled casebook"
@@ -649,10 +652,7 @@ class Section(ContentNode):
         }).order_by('ordinals')
 
     def get_absolute_url(self):
-        return reverse('section', args=[
-            {"id": self.casebook.id, "slug": slugify(self.casebook.get_title())},
-            {"ordinals": self.ordinals, "slug": slugify(self.get_title())}
-        ])
+        return reverse('section', args=[self.casebook, self])
 
     def get_title(self):
         return self.title if self.title else "Untitled section"
@@ -662,6 +662,7 @@ class ResourceManager(models.Manager):
     def get_queryset(self):
         return super().get_queryset().filter(casebook__isnull=False, resource_id__isnull=False)
 
+
 class Resource(ContentNode):
     class Meta:
         proxy = True
@@ -669,10 +670,7 @@ class Resource(ContentNode):
     objects = ResourceManager()
 
     def get_absolute_url(self):
-        return reverse('resource', args=[
-            {"id": self.casebook.id, "slug": slugify(self.casebook.get_title())},
-            {"ordinals": self.ordinals, "slug": slugify(self.get_title())}
-        ])
+        return reverse('resource', args=[self.casebook, self])
 
     def get_title(self):
         if self.resource_type == 'Default':

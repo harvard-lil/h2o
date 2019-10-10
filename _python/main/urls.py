@@ -2,6 +2,7 @@ from django.urls import path, re_path, register_converter
 from django.views.generic import RedirectView, TemplateView
 from rest_framework.urlpatterns import format_suffix_patterns
 
+from .models import Casebook, Section
 from . import views
 
 
@@ -25,13 +26,26 @@ class IdSlugConverter:
             'slug': slug
         }
 
-    def to_url(self, value):
-        if isinstance(value, int):
-            return str(value)
-        slug = value.get('slug')
-        if slug:
-            return '{}-{}'.format(value['id'], value.get('slug'))
-        return str(value['id'])
+    @staticmethod
+    def to_url(value):
+        """
+            >>> assert IdSlugConverter.to_url(1) == "1"
+            >>> assert IdSlugConverter.to_url({"id": 1}) == "1"
+            >>> assert IdSlugConverter.to_url({"id": 1, "slug": "foo"}) == "1-foo"
+            >>> assert IdSlugConverter.to_url(Casebook(id=1, title="foo")) == "1-foo"
+        """
+        if hasattr(value, 'id'):
+            id = value.id
+            slug = value.get_slug()
+        elif isinstance(value, int):
+            id = value
+            slug = None
+        elif isinstance(value, dict):
+            id = value['id']
+            slug = value.get('slug')
+        else:
+            raise ValueError("Cannot create IdSlug from argument type %s" % type(value))
+        return str(id) + (("-%s" % slug) if slug else "")
 
 
 class OrdinalSlugConverter:
@@ -50,12 +64,22 @@ class OrdinalSlugConverter:
             'slug': slug
         }
 
-    def to_url(self, value):
-        ordinal_string = '.'.join(str(i) for i in value['ordinals'])
-        slug = value.get('slug')
-        if slug:
-            return '{}-{}'.format(ordinal_string, slug)
-        return ordinal_string
+    @staticmethod
+    def to_url(value):
+        """
+            >>> assert OrdinalSlugConverter.to_url({"ordinals": [1, 2]}) == "1.2"
+            >>> assert OrdinalSlugConverter.to_url({"ordinals": [1, 2], "slug": "foo"}) == "1.2-foo"
+            >>> assert OrdinalSlugConverter.to_url(Section(ordinals=[1, 2], title="foo")) == "1.2-foo"
+        """
+        if hasattr(value, 'ordinals'):
+            ordinals = value.ordinals
+            slug = value.get_slug()
+        elif isinstance(value, dict):
+            ordinals = value['ordinals']
+            slug = value.get('slug')
+        else:
+            raise ValueError("Cannot create OrdinalSlug from argument type %s" % type(value))
+        return '.'.join(str(i) for i in ordinals) + (("-%s" % slug) if slug else "")
 
 
 register_converter(IdSlugConverter, 'idslug')
