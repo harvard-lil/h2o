@@ -569,7 +569,6 @@ class Casebook(ContentNode):
         old_casebook = self
         cloned_casebook = clone_model_instance(old_casebook)
         cloned_casebook.copy_of = old_casebook
-        cloned_casebook.parent = old_casebook
         cloned_casebook.public = False
         cloned_casebook.draft_mode_of_published_casebook = draft_mode
         if old_casebook.ancestry:
