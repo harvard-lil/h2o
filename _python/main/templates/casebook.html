@@ -2,6 +2,16 @@
 
 {% block page_title %}{{ casebook.get_title }}{% endblock %}
 
+{% block banner %}
+{% if casebook.draft_mode_of_published_casebook or not casebook.public %}
+  <div class="casebook-preview banner">
+    <div class="banner-inner">
+      You are viewing a preview of a private casebook.
+    </div>
+  </div>
+{% endif %}
+{% endblock %}
+
 {% block mainContent %}
   <header class="casebook-public casebook">
     <div class="content">

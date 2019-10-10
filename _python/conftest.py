@@ -60,26 +60,6 @@ class UserFactory(factory.DjangoModelFactory):
     class Meta:
         model = User
 
-    persistence_token = ''
-    login_count = 0
-    attribution = "some name"
-    print_titles = True
-    print_dates_details = True
-    print_paragraph_numbers = True
-    print_annotations = True
-    print_highlights = ''
-    print_font_face = ''
-    print_font_size = ''
-    default_show_comments = True
-    default_show_paragraph_numbers = True
-    hidden_text_display = True
-    print_links = True
-    toc_levels = ''
-    print_export_format = ''
-    verified_email = True
-    verified_professor = False
-    professor_verification_requested = False
-
 
 @register_factory
 class ContentNodeFactory(factory.DjangoModelFactory):
@@ -129,8 +109,6 @@ class ContentCollaboratorFactory(factory.DjangoModelFactory):
     user = factory.SubFactory(UserFactory)
     content = factory.SubFactory(CasebookFactory)
     role = 'owner'
-    created_at = timezone.now()
-    updated_at = timezone.now()
     has_attribution = True
 
 
@@ -244,11 +222,12 @@ def full_casebook(casebook_factory):
                         - annotation
                         - annotation
                     - resource -> link
-                    - resource -> textblock
-                    - resource -> case
-                        - annotation
-                        - annotation
-                    - resource -> link
+                    - section
+                         - resource -> textblock
+                         - resource -> case
+                             - annotation
+                             - annotation
+                         - resource -> link
     """
     user = UserFactory()
     casebook = casebook_factory(contentcollaborator_set__user=user)
@@ -258,11 +237,12 @@ def full_casebook(casebook_factory):
     ContentAnnotationFactory(resource=case_resource)
     ContentAnnotationFactory(resource=case_resource, kind='elide')
     ResourceFactory(casebook=casebook, ordinals=[1, 3], resource_type='Default', resource_id=DefaultFactory(user=user).id)
-    ResourceFactory(casebook=casebook, ordinals=[1, 4], resource_type='TextBlock', resource_id=TextBlockFactory(user=user).id)
-    case_resource = ResourceFactory(casebook=casebook, ordinals=[1, 5], resource_type='Case', resource_id=CaseFactory().id)
+    SectionFactory(casebook=casebook,  ordinals=[1, 4])
+    ResourceFactory(casebook=casebook, ordinals=[1, 4, 1], resource_type='TextBlock', resource_id=TextBlockFactory(user=user).id)
+    case_resource = ResourceFactory(casebook=casebook, ordinals=[1, 4, 2], resource_type='Case', resource_id=CaseFactory().id)
     ContentAnnotationFactory(resource=case_resource, kind='note')
     ContentAnnotationFactory(resource=case_resource, kind='replace')
-    ResourceFactory(casebook=casebook, ordinals=[1, 6], resource_type='Default', resource_id=DefaultFactory(user=user).id)
+    ResourceFactory(casebook=casebook, ordinals=[1, 4, 3], resource_type='Default', resource_id=DefaultFactory(user=user).id)
     return casebook
 
 
@@ -288,14 +268,14 @@ def capapi_mock(requests_mock):
             },
             {
                 "id": 2,
-                "name_abbreviation": "1-800 Contacts, Inc. v. Lens.Com, Inc.",
+                "name_abbreviation": "1-800 Contacts, Incorporated v. Lens.Com, Incorporated",
                 "citations": [
                     {
-                        "cite": "722 F.3d 1229",
+                        "cite": "755 F. Supp. 2d 1151",
                         "type": "official"
                     }
                 ],
-                "decision_date": "2013-07-16",
+                "decision_date": "2010-12-14",
             },
         ]})
     # mock case detail results

@@ -21,9 +21,7 @@
       <a href="#main" class="skip-link">Skip to main content</a>
       <a href="#footer" class="skip-link">Skip to footer</a>
       <div class="overlay"></div>
-      {% if banner %}
-        {{ banner }}
-      {% endif %}
+      {% block banner %}{% endblock banner %}
       <header id="main-header">
         {% include 'includes/header.html' %}
       </header>
