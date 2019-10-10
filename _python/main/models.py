@@ -11,10 +11,6 @@ from django.utils.text import slugify
 from test_helpers import dump_casebook_outline
 from .utils import clone_model_instance
 
-# see https://stackoverflow.com/questions/54598531/what-determines-if-rails-includes-id-serial-in-a-table-definition
-# https://djangosnippets.org/snippets/1244/
-# https://apidock.com/rails/v2.3.8/ActiveRecord/ConnectionAdapters/SchemaStatements/rename_index
-
 
 class BigPkModel(models.Model):
     id = models.BigAutoField(primary_key=True)
