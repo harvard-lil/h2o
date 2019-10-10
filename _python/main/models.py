@@ -581,9 +581,17 @@ class Casebook(ContentNode):
             cloned_content_node = clone_model_instance(old_content_node)
             cloned_content_node.copy_of = old_content_node
             cloned_content_node.casebook = cloned_casebook
-            # TODO: on rails is_alias is set to True by CloneCasebook.clone_resources (in raw sql), and then set to False
-            # TODO: again by CloneCasebook.clone_annotations. I think the upshot should be just setting it to False, but I'm
-            # TODO: not sure. Prod data has about equal parts True, False, and null in this column.
+            # TODO: On rails is_alias is set to True by CloneCasebook.clone_resources (in raw sql), and then set to False
+            # TODO: again by CloneCasebook.clone_annotations. I think the field is unused in any application logic.
+            # TODO: Prod data has about equal parts True, False, and null in this column.
+            # TODO: There doesn't seem to be any rhyme or reason about how it's set.
+            # TODO: No casebooks are True. I think we can delete the column, but in the meantime, let's set to False.
+            # >>> set(node.type for node in ContentNode.objects.filter(is_alias=True))
+            # {'resource', 'section'}
+            # >>> set(node.type for node in ContentNode.objects.filter(is_alias=False))
+            # {'resource'}
+            # >>> set(node.type for node in ContentNode.objects.filter(is_alias=None))
+            # {'resource', 'casebook', 'section'}
             cloned_content_node.is_alias = False
             cloned_content_nodes.append(cloned_content_node)
 
