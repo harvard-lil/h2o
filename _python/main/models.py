@@ -455,6 +455,20 @@ class ContentNode(TimestampedModel, BigPkModel):
             return None
         return type(self).objects.get(pk=self.ancestry.split("/")[0])
 
+    def parent(self):
+        """
+            Return parent node for this node, or None if no ancestors.
+
+            >>> root, c_1, c_2, c_1_1, c_1_2 = getfixture('content_node_tree')
+            >>> assert root.parent() is None
+            >>> assert c_1.parent() == root
+            >>> assert c_1_1.parent() == c_1
+            >>> assert c_2.parent() == root
+        """
+        if not self.ancestry:
+            return None
+        return type(self).objects.get(pk=self.ancestry.split("/")[-1])
+
 #
 # Start ContentNode Proxies
 #
