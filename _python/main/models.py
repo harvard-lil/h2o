@@ -532,6 +532,74 @@ class Casebook(ContentNode):
         return self.clone(draft_mode=True)
 
     @transaction.atomic
+    def merge_draft(self):
+        """
+            Merge draft casebook back into parent, and delete draft.
+
+            Given:
+            >>> reset_sequences, full_casebook, assert_num_queries = [getfixture(i) for i in ['reset_sequences', 'full_casebook', 'assert_num_queries']]
+            >>> draft = full_casebook.make_draft()
+
+            Merge draft back into original:
+            >>> draft.title = "New Title"
+            >>> draft.save()
+            >>> with assert_num_queries(delete=16, select=12, update=3):
+            ...     new_casebook = draft.merge_draft()
+            >>> assert new_casebook == full_casebook
+            >>> expected = [
+            ...     'Casebook<1>: New Title',
+            ...     ' Section<11>: Some Section 1',
+            ...     '  ContentNode<12> -> TextBlock<3>: Some TextBlock Name 0',
+            ...     '  ContentNode<13> -> Case<1>: Foo Foo0 vs. Bar Bar0',
+            ...     '   ContentAnnotation<5>: highlight 0-10',
+            ...     '   ContentAnnotation<6>: elide 0-10',
+            ...     '  ContentNode<14> -> Default<3>: Some Link Name 0',
+            ...     '  Section<15>: Some Section 5',
+            ...     '   ContentNode<16> -> TextBlock<4>: Some TextBlock Name 1',
+            ...     '   ContentNode<17> -> Case<2>: Foo Foo1 vs. Bar Bar1',
+            ...     '    ContentAnnotation<7>: note 0-10',
+            ...     '    ContentAnnotation<8>: replace 0-10',
+            ...     '   ContentNode<18> -> Default<4>: Some Link Name 1'
+            ... ]
+            >>> assert dump_casebook_outline(full_casebook) == expected
+
+            Assets associated with old published version are gone:
+            >>> assert set(ContentNode.objects.values_list('id', flat=True)) == {1, 11, 12, 13, 14, 15, 16, 17, 18}
+            >>> assert set(ContentAnnotation.objects.values_list('id', flat=True)) == {8, 5, 6, 7}
+            >>> assert set(TextBlock.objects.values_list('id', flat=True)) == {3, 4}
+            >>> assert set(Default.objects.values_list('id', flat=True)) == {3, 4}
+        """
+        # set up variables
+        draft = self
+        parent = self.copy_of.to_proxy()
+        if not self.draft_mode_of_published_casebook:
+            raise ValueError("Only draft casebooks may be merged")
+
+        # update casebook attributes
+        for attr in ('headnote', 'title', 'subtitle'):
+            setattr(parent, attr, getattr(draft, attr))
+        parent.save()
+
+        # delete old links and textblocks
+        for resource in parent.contents.prefetch_resources():
+            if resource.resource_id and resource.resource_type in ('Default', 'TextBlock'):
+                resource.resource.delete()
+
+        # delete old annotations
+        ContentAnnotation.objects.filter(resource__casebook=parent).delete()
+
+        # delete old content nodes
+        parent.contents.all().delete()
+
+        # move new content nodes
+        draft.contents.update(casebook=parent)
+
+        # delete draft
+        draft.delete()
+
+        return parent
+
+    @transaction.atomic
     def clone(self, owner=None, draft_mode=False):
         """
             Clone casebook with all of its assets. If User object `owner` is provided, that user will replace the
