@@ -539,11 +539,12 @@ class Casebook(ContentNode):
             Given:
             >>> reset_sequences, full_casebook, assert_num_queries = [getfixture(i) for i in ['reset_sequences', 'full_casebook', 'assert_num_queries']]
             >>> draft = full_casebook.make_draft()
+            >>> _ = ContentNode.objects.filter(id=2).update(copy_of_id=1)  # mark node 2 as copy_of node 1
 
             Merge draft back into original:
             >>> draft.title = "New Title"
             >>> draft.save()
-            >>> with assert_num_queries(delete=16, select=12, update=3):
+            >>> with assert_num_queries(delete=14, select=13, update=3):
             ...     new_casebook = draft.merge_draft()
             >>> assert new_casebook == full_casebook
             >>> expected = [
@@ -568,6 +569,9 @@ class Casebook(ContentNode):
             >>> assert set(ContentAnnotation.objects.values_list('id', flat=True)) == {8, 5, 6, 7}
             >>> assert set(TextBlock.objects.values_list('id', flat=True)) == {3, 4}
             >>> assert set(Default.objects.values_list('id', flat=True)) == {3, 4}
+
+            The original copy_of attributes from the published version are preserved:
+            >>> assert ContentNode.objects.get(id=11).copy_of_id == 1
         """
         # set up variables
         draft = self
@@ -581,12 +585,21 @@ class Casebook(ContentNode):
         parent.save()
 
         # delete old links and textblocks
+        to_delete = {Default: [], TextBlock: []}
         for resource in parent.contents.prefetch_resources():
             if resource.resource_id and resource.resource_type in ('Default', 'TextBlock'):
-                resource.resource.delete()
+                to_delete[type(resource.resource)].append(resource.resource_id)
+        for cls, ids in to_delete.items():
+            cls.objects.filter(id__in=ids).delete()
 
         # delete old annotations
         ContentAnnotation.objects.filter(resource__casebook=parent).delete()
+
+        # copy copy_of attribute from old content nodes to new ones
+        nodes_to_update = list(draft.contents.select_related('copy_of'))
+        for node in nodes_to_update:
+            node.copy_of_id = node.copy_of.copy_of_id
+        ContentNode.objects.bulk_update(nodes_to_update, ['copy_of_id'])
 
         # delete old content nodes
         parent.contents.all().delete()
