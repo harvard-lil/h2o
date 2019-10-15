@@ -1,9 +1,8 @@
-import requests
-from django.views.decorators.http import require_POST
+import json
 from pyquery import PyQuery
+import requests
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
-import json
 
 from django.conf import settings
 from django.contrib.auth.decorators import login_required
@@ -11,6 +10,8 @@ from django.contrib.auth.views import redirect_to_login
 from django.http import HttpResponseForbidden, HttpResponseRedirect, HttpResponseBadRequest, JsonResponse, Http404
 from django.shortcuts import render, get_object_or_404
 from django.urls import reverse
+from django.views.decorators.http import require_POST
+
 
 from test_helpers import check_response
 from .utils import parse_cap_decision_date
