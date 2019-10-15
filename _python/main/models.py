@@ -737,6 +737,10 @@ class Casebook(ContentNode):
 
         return cloned_casebook
 
+    def is_annotated(self):
+        # equivalent of Rails resources_have_annotations?
+        return any(node.annotations for node in self.contents.prefetch_related('annotations'))
+
 
 class SectionManager(models.Manager):
     def get_queryset(self):
@@ -766,6 +770,10 @@ class Section(ContentNode):
             "ordinals__len__gte": len(self.ordinals) + 1
         }).order_by('ordinals')
 
+    def is_annotated(self):
+        # equivalent of Rails resources_have_annotations?
+        return any(node.annotations for node in self.contents.prefetch_related('annotations'))
+
     def get_absolute_url(self):
         return reverse('section', args=[self.casebook, self])
 
@@ -783,6 +791,10 @@ class Resource(ContentNode):
         proxy = True
 
     objects = ResourceManager()
+
+    def is_annotated(self):
+        # equivalent of Rails resources_have_annotations? (for casebooks and sections)
+        return bool(self.annotations)
 
     def get_absolute_url(self):
         return reverse('resource', args=[self.casebook, self])

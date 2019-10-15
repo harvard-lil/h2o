@@ -2,6 +2,12 @@
   {% comment %}
     EXPORT (always)
     - the "export" button appears on all casebook, section, and resource pages, including "edit"/"layout"/"annotate" pages
+  {% endcomment %}
+
+  {# see action_button_builder.rb #}
+  <a class="action one-line export export-{{ content.is_annotated|yesno:"has,no" }}-annotations" role="button" rel="nofollow" href="#">Export</a>
+
+  {% comment %}
 
     CLONE (by user, casebook draft field, particular routes)
     - if you are logged in and can see a casebook, you can clone it, unless that casebook is a draft of a previously published casebook, in which case no one may clone it. If you can clone a casebook, you should see the "clone" button from all casebook pages. If the casebook is public, you should also see the "clone" button from sections' and resources' public pages. (You should not see "clone" from sections' and resources' "edit"/"layout"/"annotate" pages.)

@@ -13,7 +13,7 @@
 {% endblock %}
 
 {% block mainContent %}
-  <header class="casebook-public casebook">
+  <header class="casebook-public casebook" data-casebook-id="{{ casebook.id }}">
     <div class="content">
       <div class="casebook-inner">
           <div class="tabs">
@@ -38,6 +38,7 @@
             </div>
           </div>
       </header>
+      {% include 'includes/action_buttons.html' with content=casebook %}
       {% include 'includes/headnote.html' with content=casebook %}
       {% include 'includes/table-of-contents.html' with contents=contents %}
       </div>

@@ -3,7 +3,7 @@
 {% block page_title %}Section {{ section.ordinal_string }} | {{ section.casebook.get_title }}{% endblock %}
 
 {% block mainContent %}
-  <header class="casebook-public casebook">
+  <header class="casebook-public casebook" data-section-id="{{ section.id }}">
     <div class="content">
       <div class="casebook-inner">
         <div class="tabs">
@@ -26,6 +26,7 @@
           {% include 'includes/breadcrumbs.html' with content=section %}
           <h1 class="title">{{ section.get_title }}</h1>
         </header>
+        {% include 'includes/action_buttons.html' with content=section %}
         {% include 'includes/headnote.html' with content=section %}
         {% include 'includes/table-of-contents.html' with section=True contents=section.contents  %}
       </div>
