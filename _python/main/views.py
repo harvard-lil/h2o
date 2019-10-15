@@ -20,6 +20,13 @@ from .models import Casebook, Resource, Section, Case, User, CaseCourt
 
 def login_required_response(request):
     if request.user.is_authenticated:
+        # In the Rails application, this usually (always?) forwards
+        # a user to their own dashboard and flashes a message about
+        # insufficient permissions instead. Per discussion, we've
+        # decided not to implement that for now: the experience
+        # should be rare, and it's not obvious that the redirection
+        # provides a superior user experience. We can readdress if
+        # this turns out to matter to users.
         return HttpResponseForbidden()
     else:
         return redirect_to_login(request.build_absolute_uri())
