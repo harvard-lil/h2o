@@ -438,7 +438,7 @@ class ContentNode(TimestampedModel, BigPkModel):
     def get_edit_or_absolute_url(self, editing=False):
         # In the Rails app, when editing a casebook/section/resource,
         # breadcrumbs and TOC entries generally point to the "edit" view...
-        # except when pointing to a resource, where they point to the annotate view.
+        # except when pointing to a resource, where they point to the "annotate" view.
         # Recreate that here.
         if editing:
             if self.annotatable:
