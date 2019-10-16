@@ -245,7 +245,8 @@ def edit_section(request, casebook_param, ordinals_param):
     contents = section.contents.prefetch_resources().order_by('ordinals')
     return render(request, 'section_edit.html', {
         'section': section,
-        'contents': contents
+        'contents': contents,
+        'editing': True
     })
 
 
@@ -268,7 +269,7 @@ def resource(request, casebook_param, ordinals_param):
 
     return render(request, 'resource.html', {
         'resource': resource,
-        'include_vuejs': resource.resource_type in ['Case', 'TextBlock']
+        'include_vuejs': resource.annotatable
     })
 
 
@@ -280,6 +281,7 @@ def edit_resource(request, casebook_param, ordinals_param):
     resource = get_object_or_404(Resource.objects.select_related('casebook'), casebook=casebook_param['id'], ordinals=ordinals_param['ordinals'])
     return render(request, 'resource_edit.html', {
         'resource': resource,
+        'editing': True
     })
 
 
@@ -301,7 +303,8 @@ def annotate_resource(request, casebook_param, ordinals_param):
 
     return render(request, 'resource_annotate.html', {
         'resource': resource,
-        'include_vuejs': resource.resource_type in ['Case', 'TextBlock']
+        'include_vuejs': resource.resource_type in ['Case', 'TextBlock'],
+        'editing': True
     })
 
 

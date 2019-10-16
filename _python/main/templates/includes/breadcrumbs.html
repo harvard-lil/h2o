@@ -1,8 +1,9 @@
+{% load call_method %}
 {% if content.ordinals %}
   <div class="breadcrumbs">
     {{ content.type | title }}
-    {# TODO: handle breadcrumb urls for edit/layout/annotate pages #}
-    {% for ordinal in content.ordinals_with_urls %}
+    {% call_method content 'ordinals_with_urls' editing=editing as ordinals %}
+    {% for ordinal in ordinals %}
       {% if forloop.last %}
         <span class="breadcrumb active">{{ ordinal.ordinal }}</span>
       {% else %}
