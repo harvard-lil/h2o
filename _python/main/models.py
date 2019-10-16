@@ -444,7 +444,7 @@ class ContentNode(TimestampedModel, BigPkModel):
             if self.annotatable:
                 return self.get_annotate_url()
             return self.get_edit_url()
-        return self.get_absolute_url
+        return self.get_absolute_url()
 
     def get_title(self):
         t = self.type
