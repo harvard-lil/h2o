@@ -212,7 +212,8 @@ def edit_casebook(request, casebook_param):
     contents = casebook.contents.prefetch_resources().order_by('ordinals')
     return render(request, 'casebook_edit.html', {
         'casebook': casebook,
-        'contents': contents
+        'contents': contents,
+        'editing': True
     })
 
 

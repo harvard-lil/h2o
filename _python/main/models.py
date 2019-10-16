@@ -372,18 +372,13 @@ class ContentNode(TimestampedModel, BigPkModel):
         ordinals = []
         for o in self.ordinals:
             ordinals.append(o)
-            node = globals()['ContentNode'].objects.get(
-                casebook_id=self.casebook_id,
-                ordinals=ordinals
-            )
-            if editing:
-                url = node.get_default_edit_url()
-            else:
-                url = node.get_absolute_url()
             return_value.append({
                 'ordinal': o,
                 'ordinals': [*ordinals],
-                'url': url
+                'url': globals()['ContentNode'].objects.get(
+                    casebook_id=self.casebook_id,
+                    ordinals=ordinals
+                ).get_edit_or_absolute_url(editing)
             })
         return return_value
 
@@ -440,14 +435,16 @@ class ContentNode(TimestampedModel, BigPkModel):
             return reverse('annotate_resource', args=[self.casebook, self])
         raise ValueError('Only Resources (Case and TextBlock) can be annotated.')
 
-    def get_default_edit_url(self):
+    def get_edit_or_absolute_url(self, editing=False):
         # In the Rails app, when editing a casebook/section/resource,
         # breadcrumbs and TOC entries generally point to the "edit" view...
         # except when pointing to a resource, where they point to the annotate view.
         # Recreate that here.
-        if self.annotatable:
-            return self.get_annotate_url()
-        return self.get_edit_url()
+        if editing:
+            if self.annotatable:
+                return self.get_annotate_url()
+            return self.get_edit_url()
+        return self.get_absolute_url
 
     def get_title(self):
         t = self.type

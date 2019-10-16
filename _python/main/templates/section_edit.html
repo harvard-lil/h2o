@@ -36,8 +36,7 @@
         </header>
         {% include 'includes/action_buttons.html' with content=section %}
         {% include 'includes/headnote.html' with content=section %}
-        <p>This TOC is a placeholder. It is not yet interactive, it points to the "public" urls rather than the editable views, and, accordingly, lacks the 'editable' class that makes its indentation indicators yellow.</p>
-        {% include 'includes/table-of-contents.html' with section=True contents=section.contents  %}
+        {% include 'includes/table-of-contents.html' with contents=section.contents  %}
       </div>
     </div>
   </section>
