@@ -1,35 +1,8 @@
 <aside class="casebook-actions">
-  {% comment %}
-    EXPORT (always)
-    - the "export" button appears on all casebook, section, and resource pages, including "edit"/"layout"/"annotate" pages
-  {% endcomment %}
-
-  {# see action_button_builder.rb #}
-  <a class="action one-line export export-{{ content.is_annotated|yesno:"has,no" }}-annotations" role="button" rel="nofollow" href="#">Export</a>
-
-  {% comment %}
-
-    CLONE (by user, casebook draft field, particular routes)
-    - if you are logged in and can see a casebook, you can clone it, unless that casebook is a draft of a previously published casebook, in which case no one may clone it. If you can clone a casebook, you should see the "clone" button from all casebook pages. If the casebook is public, you should also see the "clone" button from sections' and resources' public pages. (You should not see "clone" from sections' and resources' "edit"/"layout"/"annotate" pages.)
-
-    REVISE or RETURN TO DRAFT (by user, two casebook fields, particular routes)
-    - if you are a collaborator on a casebook and are viewing a public casebook or any of its resources or sections, you should always see either a "revise" or "return to draft" button. If the casebook has a draft associated with it, the button should be "return to draft"; otherwise, it should be "revise".
-
-        Related assertions:
-        - all casebooks that are drafts of previously published casebooks must be private.
-        - public casebooks, sections, and resources do not have "edit"/"layout"/"annotate" pages
-
-    PREVIEW (by user, casebook field, particular routes)
-    - if you can see a private casebook, section, or resource, you should see a "preview" button on all "edit"/"layout"/"annotate" pages. (You should not see a "preview" button on preview pages.)
-
-    PUBLISH (by casebook field, particular routes)
-    - if you are on a casebook's "edit"/"layout" page, or if you are previewing any private casebook, you should see a "publish" button. (You never see a publish button on any resource or section pages.)
-
-    SAVE/CANCEL (by particular routes)
-    - every page with a traditional webform should have a "Save" and a "Cancel" button. Therefore, if you are on a casebook's "edit"/"layout" page, a section's "edit"/"layout" page, or resource's "resource details"/"edit" page, you should see a "Save" and a "Cancel" button. (You should not see "Save" or "Cancel" anywhere else, including on a resource's "annotate" page.)
-
-    ADD SECTION and ADD RESOURCE (by particular routes)
-    - these buttons should both appear on casebooks "edit"/"layout" pages; they should appear nowhere else
-
-  {% endcomment %}
+  {% if previewable %}
+    <a class="action one-line preview" href="{{ content.get_absolute_url }}">Preview</a>
+  {% endif %}
+  {% if exportable %}
+    <a class="action one-line export export-{{ content.is_annotated|yesno:"has,no" }}-annotations" role="button" rel="nofollow" href="#">Export</a>
+  {% endif %}
 </aside>

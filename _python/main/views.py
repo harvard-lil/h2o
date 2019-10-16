@@ -33,6 +33,68 @@ def login_required_response(request):
         return redirect_to_login(request.build_absolute_uri())
 
 
+def action_buttons(request, context):
+    """
+        EXPORT (always)
+        - the "export" button appears on all casebook, section, and resource
+          pages, including "edit"/"layout"/"annotate" pages
+
+        CLONE (by user, casebook draft field, particular routes) - if you are
+        logged in and can see a casebook, you can clone it, unless that
+        casebook is a draft of a previously published casebook, in which case
+        no one may clone it. If you can clone a casebook, you should see the
+        "clone" button from all casebook pages. If the casebook is public, you
+        should also see the "clone" button from sections' and resources'
+        public pages. (You should not see "clone" from sections' and
+        resources' "edit"/"layout"/"annotate" pages.)
+
+        REVISE or RETURN TO DRAFT (by user, two casebook fields, particular
+        routes) - if you are a collaborator on a casebook and are viewing a
+        public casebook or any of its resources or sections, you should always
+        see either a "revise" or "return to draft" button. If the casebook has
+        a draft associated with it, the button should be "return to draft";
+        otherwise, it should be "revise".
+
+            Related assertions: - all casebooks that are drafts of previously
+            published casebooks must be private. - public casebooks, sections,
+            and resources do not have "edit"/"layout"/"annotate" pages
+
+        PREVIEW (by user, casebook field, particular routes) - if you can see
+        a private casebook, section, or resource, you should see a "preview"
+        button on all "edit"/"layout"/"annotate" pages. (You should not see a
+        "preview" button on preview pages.)
+
+        PUBLISH (by casebook field, particular routes) - if you are on a
+        casebook's "edit"/"layout" page, or if you are previewing any private
+        casebook, you should see a "publish" button. (You never see a publish
+        button on any resource or section pages.)
+
+        SAVE/CANCEL (by particular routes) - every page with a traditional
+        webform should have a "Save" and a "Cancel" button. Therefore, if you
+        are on a casebook's "edit"/"layout" page, a section's "edit"/"layout"
+        page, or resource's "resource details"/"edit" page, you should see a
+        "Save" and a "Cancel" button. (You should not see "Save" or "Cancel"
+        anywhere else, including on a resource's "annotate" page.)
+
+        ADD SECTION and ADD RESOURCE (by particular routes) - these buttons
+        should both appear on casebooks "edit"/"layout" pages; they should
+        appear nowhere else
+    """
+    return {
+        'previewable': context.get('editing', False),
+        'exportable': True
+    }
+
+def render_with_actions(request, template_name, context=None, content_type=None, status=None, using=None):
+    if 'context' is None:
+        context = {}
+
+    return render(request, template_name, {
+        **context,
+        **action_buttons(request, context)
+    }, content_type, status, using)
+
+
 @api_view(['GET'])
 def annotations(request, resource_id, format=None):
     """
@@ -160,8 +222,7 @@ def casebook(request, casebook_param):
         return HttpResponseRedirect(canonical)
 
     contents = casebook.contents.prefetch_resources().order_by('ordinals')
-
-    return render(request, 'casebook.html', {
+    return render_with_actions(request, 'casebook.html', {
         'casebook': casebook,
         'contents': contents
     })
@@ -210,7 +271,7 @@ def edit_casebook(request, casebook_param):
     # Duplicating that here.
     casebook = get_object_or_404(Casebook, id=casebook_param['id'])
     contents = casebook.contents.prefetch_resources().order_by('ordinals')
-    return render(request, 'casebook_edit.html', {
+    return render_with_actions(request, 'casebook_edit.html', {
         'casebook': casebook,
         'contents': contents,
         'editing': True
@@ -230,8 +291,7 @@ def section(request, casebook_param, ordinals_param):
         return HttpResponseRedirect(canonical)
 
     contents = section.contents.prefetch_resources().order_by('ordinals')
-
-    return render(request, 'section.html', {
+    return render_with_actions(request, 'section.html', {
         'section': section,
         'contents': contents
     })
@@ -244,7 +304,7 @@ def edit_section(request, casebook_param, ordinals_param):
     # Duplicating that here.
     section = get_object_or_404(Section.objects.select_related('casebook'), casebook=casebook_param['id'], ordinals=ordinals_param['ordinals'])
     contents = section.contents.prefetch_resources().order_by('ordinals')
-    return render(request, 'section_edit.html', {
+    return render_with_actions(request, 'section_edit.html', {
         'section': section,
         'contents': contents,
         'editing': True
@@ -268,7 +328,7 @@ def resource(request, casebook_param, ordinals_param):
     elif resource.resource_type == 'TextBlock':
         resource.json = json.dumps(TextBlockSerializer(resource.resource).data)
 
-    return render(request, 'resource.html', {
+    return render_with_actions(request, 'resource.html', {
         'resource': resource,
         'include_vuejs': resource.annotatable
     })
@@ -280,7 +340,7 @@ def edit_resource(request, casebook_param, ordinals_param):
     # NB: The Rails app does NOT redirect here to a canonical URL; it silently accepts any slug.
     # Duplicating that here.
     resource = get_object_or_404(Resource.objects.select_related('casebook'), casebook=casebook_param['id'], ordinals=ordinals_param['ordinals'])
-    return render(request, 'resource_edit.html', {
+    return render_with_actions(request, 'resource_edit.html', {
         'resource': resource,
         'editing': True
     })
@@ -302,7 +362,7 @@ def annotate_resource(request, casebook_param, ordinals_param):
         # let's redirect instead.
         return HttpResponseRedirect(reverse('edit_resource', args=[resource.casebook, resource]))
 
-    return render(request, 'resource_annotate.html', {
+    return render_with_actions(request, 'resource_annotate.html', {
         'resource': resource,
         'include_vuejs': resource.resource_type in ['Case', 'TextBlock'],
         'editing': True
