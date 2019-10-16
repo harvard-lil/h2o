@@ -3,27 +3,25 @@
 {% block page_title %}Section {{ section.ordinal_string }} | {{ section.casebook.get_title }}{% endblock %}
 
 {% block banner %}
-{% if section.casebook.draft_mode_of_published_casebook or not section.casebook.public %}
-  <div class="casebook-preview banner">
-    <div class="banner-inner">
-      You are viewing a preview of a private casebook.
-    </div>
+<div class="casebook-draft banner">
+  <div class="banner-inner">
+    This casebook is a draft and is visible only to collaborators.
   </div>
-{% endif %}
+</div>
 {% endblock %}
 
 {% block mainContent %}
-  <header class="casebook-public casebook" data-section-id="{{ section.id }}">
+  <header class="casebook-draft casebook" data-section-id="{{ section.id }}">
     <div class="content">
       <div class="casebook-inner">
         <div class="tabs">
-          <a class="tab" href="{{ section.casebook.get_absolute_url }}">Casebook</a>
-          <span class="tab disabled active">Read</span>
+          <a class="tab" href="{% url 'layout' section.casebook %}">Casebook</a>
+          <span class="tab disabled active">Edit</span>
         </div>
       </div>
     </div>
   </header>
-  <section class="casebook-public casebook">
+  <section class="casebook-draft casebook">
     <div class="content">
       <div class="casebook-inner">
         <div class="top-strip"></div>
@@ -33,12 +31,14 @@
           </div>
         </header>
         <header class="content">
+          <p>These breadcrumbs don't yet point to editable views.</p>
           {% include 'includes/breadcrumbs.html' with content=section %}
           <h1 class="title">{{ section.get_title }}</h1>
         </header>
         {% include 'includes/action_buttons.html' with content=section %}
         {% include 'includes/headnote.html' with content=section %}
-        {% include 'includes/table-of-contents.html' with section=True contents=contents  %}
+        <p>This TOC is a placeholder. It is not yet interactive, it points to the "public" urls rather than the editable views, and, accordingly, lacks the 'editable' class that makes its indentation indicators yellow.</p>
+        {% include 'includes/table-of-contents.html' with section=True contents=section.contents  %}
       </div>
     </div>
   </section>

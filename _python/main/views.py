@@ -203,6 +203,19 @@ def create_draft(request, casebook_param):
     return HttpResponseRedirect(reverse('layout', args=[clone.pk]))
 
 
+@login_required
+def edit_casebook(request, casebook_param):
+    # TODO: This should check that the user is a collaborator on the casebook.
+    # NB: The Rails app does NOT redirect here to a canonical URL; it silently accepts any slug.
+    # Duplicating that here.
+    casebook = get_object_or_404(Casebook, id=casebook_param['id'])
+    contents = casebook.contents.prefetch_resources().order_by('ordinals')
+    return render(request, 'casebook_edit.html', {
+        'casebook': casebook,
+        'contents': contents
+    })
+
+
 def section(request, casebook_param, ordinals_param):
     section = get_object_or_404(Section.objects.select_related('casebook'), casebook=casebook_param['id'], ordinals=ordinals_param['ordinals'])
 
@@ -215,8 +228,24 @@ def section(request, casebook_param, ordinals_param):
     if request.path != canonical:
         return HttpResponseRedirect(canonical)
 
+    contents = section.contents.prefetch_resources().order_by('ordinals')
+
     return render(request, 'section.html', {
-        'section': section
+        'section': section,
+        'contents': contents
+    })
+
+
+@login_required
+def edit_section(request, casebook_param, ordinals_param):
+    # TODO: This should check that the user is a collaborator on the casebook.
+    # NB: The Rails app does NOT redirect here to a canonical URL; it silently accepts any slug.
+    # Duplicating that here.
+    section = get_object_or_404(Section.objects.select_related('casebook'), casebook=casebook_param['id'], ordinals=ordinals_param['ordinals'])
+    contents = section.contents.prefetch_resources().order_by('ordinals')
+    return render(request, 'section_edit.html', {
+        'section': section,
+        'contents': contents
     })
 
 
@@ -238,6 +267,39 @@ def resource(request, casebook_param, ordinals_param):
         resource.json = json.dumps(TextBlockSerializer(resource.resource).data)
 
     return render(request, 'resource.html', {
+        'resource': resource,
+        'include_vuejs': resource.resource_type in ['Case', 'TextBlock']
+    })
+
+
+@login_required
+def edit_resource(request, casebook_param, ordinals_param):
+    # TODO: This should check that the user is a collaborator on the casebook.
+    # NB: The Rails app does NOT redirect here to a canonical URL; it silently accepts any slug.
+    # Duplicating that here.
+    resource = get_object_or_404(Resource.objects.select_related('casebook'), casebook=casebook_param['id'], ordinals=ordinals_param['ordinals'])
+    return render(request, 'resource_edit.html', {
+        'resource': resource,
+    })
+
+
+@login_required
+def annotate_resource(request, casebook_param, ordinals_param):
+    # TODO: This should check that the user is a collaborator on the casebook.
+    # NB: The Rails app does NOT redirect here to a canonical URL; it silently accepts any slug.
+    # Duplicating that here.
+    resource = get_object_or_404(Resource.objects.select_related('casebook'), casebook=casebook_param['id'], ordinals=ordinals_param['ordinals'])
+    if resource.resource_type == 'Case':
+        resource.json = json.dumps(CaseSerializer(resource.resource).data)
+    elif resource.resource_type == 'TextBlock':
+        resource.json = json.dumps(TextBlockSerializer(resource.resource).data)
+    else:
+        # Only Cases and TextBlocks can be annotated.
+        # Rails serves the "edit" page contents at both "edit" and "annotate" when resources can't be annotated;
+        # let's redirect instead.
+        return HttpResponseRedirect(reverse('edit_resource', args=[resource.casebook, resource]))
+
+    return render(request, 'resource_annotate.html', {
         'resource': resource,
         'include_vuejs': resource.resource_type in ['Case', 'TextBlock']
     })

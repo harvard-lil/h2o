@@ -1,7 +1,7 @@
 {% if content.ordinals %}
   <div class="breadcrumbs">
     {{ content.type | title }}
-    {# Do we need a suffix for the urls like {% if not casebook.public %}/layout{% endif %} here? #}
+    {# TODO: handle breadcrumb urls for edit/layout/annotate pages #}
     {% for ordinal in content.ordinals_with_urls %}
       {% if forloop.last %}
         <span class="breadcrumb active">{{ ordinal.ordinal }}</span>
