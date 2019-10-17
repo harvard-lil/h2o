@@ -2,6 +2,15 @@
   {% if previewable %}
     <a class="action one-line preview" href="{{ content.get_absolute_url }}">Preview</a>
   {% endif %}
+  {% if can_add_nodes %}
+    {# This is a form on the Rails side... but its submit inputs just trigger modals via JS, so okay to be a simple button. #}
+    {# TODO: actual "add resource" functionality #}
+    <button class="action one-line add-resource">Add Resource</button>
+    <form class="button_to" method="post" action="/casebooks/73057-zittrain-torts-playlist-rename/sections?parent=156464">
+      <input class="action add-section" data-disable-with="Add Section" type="submit" value="Add Section">
+      {# TODO: csrf, accurate action url, see if disable functionality works #}
+    </form>
+  {% endif %}
   {% if exportable %}
     <a class="action one-line export export-{{ content.is_annotated|yesno:"has,no" }}-annotations" role="button" rel="nofollow" href="#">Export</a>
   {% endif %}

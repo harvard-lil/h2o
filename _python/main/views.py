@@ -59,10 +59,9 @@ def action_buttons(request, context):
             published casebooks must be private. - public casebooks, sections,
             and resources do not have "edit"/"layout"/"annotate" pages
 
-        PREVIEW (by user, casebook field, particular routes) - if you can see
-        a private casebook, section, or resource, you should see a "preview"
-        button on all "edit"/"layout"/"annotate" pages. (You should not see a
-        "preview" button on preview pages.)
+        PREVIEW (by user, casebook field, particular routes) - you should see a
+        "preview" button on all "edit"/"layout"/"annotate" pages. (You should
+        not see a "preview" button on preview pages.)
 
         PUBLISH (by casebook field, particular routes) - if you are on a
         casebook's "edit"/"layout" page, or if you are previewing any private
@@ -77,12 +76,14 @@ def action_buttons(request, context):
         anywhere else, including on a resource's "annotate" page.)
 
         ADD SECTION and ADD RESOURCE (by particular routes) - these buttons
-        should both appear on casebooks "edit"/"layout" pages; they should
+        should both appear on casebooks and sections "edit"/"layout" pages; they should
         appear nowhere else
     """
+    view = request.resolver_match.view_name
     return {
         'previewable': context.get('editing', False),
-        'exportable': True
+        'exportable': True,
+        'can_add_nodes': view in ['layout', 'edit_section']
     }
 
 def render_with_actions(request, template_name, context=None, content_type=None, status=None, using=None):
