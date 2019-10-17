@@ -83,7 +83,7 @@ def action_buttons(request, context):
     return {
         'previewable': context.get('editing', False),
         'exportable': True,
-        'can_add_nodes': view in ['layout', 'edit_section']
+        'can_add_nodes': view in ['edit_casebook', 'edit_section']
     }
 
 def render_with_actions(request, template_name, context=None, content_type=None, status=None, using=None):
@@ -243,7 +243,7 @@ def clone_casebook(request, casebook_param):
     """
     casebook = get_object_or_404(Casebook, id=casebook_param['id'])
     clone = casebook.clone(request.user)
-    return HttpResponseRedirect(reverse('layout', args=[clone.pk]))
+    return HttpResponseRedirect(reverse('edit_casebook', args=[clone.pk]))
 
 
 @login_required

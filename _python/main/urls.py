@@ -109,8 +109,8 @@ urlpatterns = format_suffix_patterns(drf_urlpatterns) + [
     path('casebooks/<idslug:casebook_param>/sections/<ordslug:ordinals_param>/edit/', RedirectView.as_view(pattern_name='edit_section', permanent=True)),
     path('casebooks/<idslug:casebook_param>/sections/<ordslug:ordinals_param>/', views.section, name='section'),
     # casebooks
-    path('casebooks/<idslug:casebook_param>/layout/', views.edit_casebook, name='layout'),
-    path('casebooks/<idslug:casebook_param>/edit/', RedirectView.as_view(pattern_name='layout', permanent=True)),
+    path('casebooks/<idslug:casebook_param>/layout/', views.edit_casebook, name='edit_casebook'),
+    path('casebooks/<idslug:casebook_param>/edit/', RedirectView.as_view(pattern_name='edit_casebook', permanent=True)),
     path('casebooks/<idslug:casebook_param>/clone/', views.clone_casebook, name='clone'),
     path('casebooks/<idslug:casebook_param>/create_draft/', views.create_draft, name='create_draft'),
     path('casebooks/<idslug:casebook_param>/', views.casebook, name='casebook'),
