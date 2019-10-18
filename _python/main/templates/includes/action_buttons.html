@@ -3,12 +3,25 @@
     <a class="action one-line preview" href="{{ content.get_absolute_url }}">Preview</a>
   {% endif %}
   {% if can_add_nodes %}
-    {# This is a form on the Rails side... but its submit inputs just trigger modals via JS, so okay to be a simple button. #}
     {# TODO: actual "add resource" functionality #}
     <button class="action one-line add-resource">Add Resource</button>
     <form class="button_to" method="post" action="/casebooks/73057-zittrain-torts-playlist-rename/sections?parent=156464">
       <input class="action add-section" data-disable-with="Add Section" type="submit" value="Add Section">
-      {# TODO: csrf, accurate action url, see if disable functionality works #}
+      {% csrf_token %}
+      {# TODO: actual "add section" functionality, accurate action url, see if disable functionality works #}
+    </form>
+  {% endif %}
+  {% if can_save_nodes %}
+      {# TODO: actual save functionality, see if disable functionality works #}
+      {# TODO: consider using buttons w/ "form" attribute instead of save_details.js #}
+      <button class="action one-line save submit-{{ content.type }}-details" data-disable-with="Save">Save</a>
+      <button class="action one-line cancel cancel-{{ content.type }}-details" data-disable-with="Cancel">Cancel</a>
+  {% endif %}
+  {% if cloneable %}
+    <form class="clone_casebook" method="post" action="{% if casebook %}{% url 'clone' casebook %}{% else %}{% url 'clone' content.casebook %}{% endif %}">
+      <button class="action clone-casebook" data-disable-with="Clone" type="submit">Clone</button>
+      {% csrf_token %}
+      {# TODO: see if disable functionality works #}
     </form>
   {% endif %}
   {% if exportable %}

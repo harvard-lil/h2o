@@ -258,7 +258,6 @@ class ContentNode(TimestampedModel, BigPkModel):
     public = models.BooleanField(default=False)
     headnote = models.TextField(blank=True, null=True)
     raw_headnote = models.TextField(blank=True, null=True)
-    cloneable = models.BooleanField(default=True)
     copy_of = models.ForeignKey(
         'self',
         on_delete=models.SET_NULL,
@@ -268,6 +267,7 @@ class ContentNode(TimestampedModel, BigPkModel):
     )
 
     # casebooks only
+    cloneable = models.BooleanField(default=True)
     draft_mode_of_published_casebook = models.BooleanField(blank=True, null=True, help_text='Unknown (None) or True; never False')
     ancestry = models.CharField(max_length=255, blank=True, null=True, help_text="List of parent IDs in tree, separated by slashes.")
     # Root user is sometimes used to calculate the "original author" of a book
@@ -345,6 +345,18 @@ class ContentNode(TimestampedModel, BigPkModel):
         """
         self.__class__ = globals()[self.type.capitalize()]
         return self
+
+    @property
+    def permits_cloning(self):
+        """
+        Presently, the `cloneable` database field is not in use on the
+        Rails side (always True), but according to business logic, not
+        all nodes are cloneable. This method is a stop gap, as we decide
+        how we'd like to move forward with the database field.
+        """
+        if self.type == 'casebook':
+            return not self.draft_mode_of_published_casebook
+        return not self.casebook.draft_mode_of_published_casebook
 
     @property
     def annotatable(self):

@@ -78,10 +78,25 @@ def action_buttons(request, context):
         nowhere else
     """
     view = request.resolver_match.view_name
+
+    # cloning
+    cloneable = False
+    if request.user.is_authenticated:
+        if view in ['section', 'resource']:
+            node = context.get('section') or context.get('resource')
+            if node.casebook.editable_by(request.user):
+                cloneable = node.permits_cloning
+            else:
+                cloneable = node.casebook.public and node.permits_cloning
+        elif view in ['casebook', 'edit_casebook']:
+            cloneable = context['casebook'].permits_cloning
+
     return {
-        'previewable': context.get('editing', False),
         'exportable': True,
-        'can_add_nodes': view in ['edit_casebook', 'edit_section']
+        'cloneable': cloneable,
+        'previewable': context.get('editing', False),
+        'can_save_nodes': view in ['edit_casebook', 'edit_section', 'edit_resource'],
+        'can_add_nodes': view in ['edit_casebook', 'edit_section'],
     }
 
 def render_with_actions(request, template_name, context=None, content_type=None, status=None, using=None):
@@ -240,8 +255,10 @@ def clone_casebook(request, casebook_param):
         >>> check_response(client.post(reverse('clone', args=[casebook.pk]), as_user=user), status_code=302)
     """
     casebook = get_object_or_404(Casebook, id=casebook_param['id'])
-    clone = casebook.clone(request.user)
-    return HttpResponseRedirect(reverse('edit_casebook', args=[clone.pk]))
+    if casebook.permits_cloning:
+        clone = casebook.clone(request.user)
+        return HttpResponseRedirect(reverse('edit_casebook', args=[clone.pk]))
+    return HttpResponseForbidden
 
 
 @login_required
