@@ -35,18 +35,16 @@ def login_required_response(request):
 
 def action_buttons(request, context):
     """
-        EXPORT (always)
-        - the "export" button appears on all casebook, section, and resource
-          pages, including "edit"/"layout"/"annotate" pages
+        See node_decorate.rb, action_button_builder.rb, and _actions.html.erb
 
-        CLONE (by user, casebook draft field, particular routes) - if you are
-        logged in and can see a casebook, you can clone it, unless that
-        casebook is a draft of a previously published casebook, in which case
-        no one may clone it. If you can clone a casebook, you should see the
-        "clone" button from all casebook pages. If the casebook is public, you
-        should also see the "clone" button from sections' and resources'
-        public pages. (You should not see "clone" from sections' and
-        resources' "edit"/"layout"/"annotate" pages.)
+        EXPORT - the "export" button appears on all casebook, section, and
+        resource pages, including "edit"/"layout"/"annotate" pages
+
+        CLONE - If you are logged in and if a casebook permits cloning, you
+        should see the "clone" button from all casebook pages. If, in addition,
+        the casebook is public, or if you are a collaborator, you should see
+        the "clone" button from sections' and resources' public pages (but not
+        their "edit", "layout", or "annotate" pages.);
 
         REVISE or RETURN TO DRAFT (by user, two casebook fields, particular
         routes) - if you are a collaborator on a casebook and are viewing a
@@ -68,16 +66,16 @@ def action_buttons(request, context):
         casebook, you should see a "publish" button. (You never see a publish
         button on any resource or section pages.)
 
-        SAVE/CANCEL (by particular routes) - every page with a traditional
-        webform should have a "Save" and a "Cancel" button. Therefore, if you
-        are on a casebook's "edit"/"layout" page, a section's "edit"/"layout"
-        page, or resource's "resource details"/"edit" page, you should see a
-        "Save" and a "Cancel" button. (You should not see "Save" or "Cancel"
-        anywhere else, including on a resource's "annotate" page.)
+        SAVE/CANCEL - every page with a traditional webform should have a
+        "Save" and a "Cancel" button. Therefore, if you are on a casebook's
+        "edit"/"layout" page, a section's "edit"/"layout" page, or resource's
+        "resource details"/"edit" page, you should see a "Save" and a "Cancel"
+        button. (You should not see "Save" or "Cancel" anywhere else, including
+        on a resource's "annotate" page.)
 
-        ADD SECTION and ADD RESOURCE (by particular routes) - these buttons
-        should both appear on casebooks and sections "edit"/"layout" pages; they should
-        appear nowhere else
+        ADD SECTION and ADD RESOURCE - these buttons should both appear on
+        casebooks and sections "edit"/"layout" pages; they should appear
+        nowhere else
     """
     view = request.resolver_match.view_name
     return {
