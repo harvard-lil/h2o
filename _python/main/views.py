@@ -268,6 +268,7 @@ def create_draft(request, casebook_param):
 @login_required
 def edit_casebook(request, casebook_param):
     # TODO: This should check that the user is a collaborator on the casebook.
+    # TODO: This should 403 or redirect if the casebook is already published.
     # NB: The Rails app does NOT redirect here to a canonical URL; it silently accepts any slug.
     # Duplicating that here.
     casebook = get_object_or_404(Casebook, id=casebook_param['id'])
@@ -301,6 +302,7 @@ def section(request, casebook_param, ordinals_param):
 @login_required
 def edit_section(request, casebook_param, ordinals_param):
     # TODO: This should check that the user is a collaborator on the casebook.
+    # TODO: This should 403 or redirect if the casebook is already published.
     # NB: The Rails app does NOT redirect here to a canonical URL; it silently accepts any slug.
     # Duplicating that here.
     section = get_object_or_404(Section.objects.select_related('casebook'), casebook=casebook_param['id'], ordinals=ordinals_param['ordinals'])
@@ -338,6 +340,7 @@ def resource(request, casebook_param, ordinals_param):
 @login_required
 def edit_resource(request, casebook_param, ordinals_param):
     # TODO: This should check that the user is a collaborator on the casebook.
+    # TODO: This should 403 or redirect if the casebook is already published.
     # NB: The Rails app does NOT redirect here to a canonical URL; it silently accepts any slug.
     # Duplicating that here.
     resource = get_object_or_404(Resource.objects.select_related('casebook'), casebook=casebook_param['id'], ordinals=ordinals_param['ordinals'])
@@ -350,6 +353,7 @@ def edit_resource(request, casebook_param, ordinals_param):
 @login_required
 def annotate_resource(request, casebook_param, ordinals_param):
     # TODO: This should check that the user is a collaborator on the casebook.
+    # TODO: This should 403 or redirect if the casebook is already published.
     # NB: The Rails app does NOT redirect here to a canonical URL; it silently accepts any slug.
     # Duplicating that here.
     resource = get_object_or_404(Resource.objects.select_related('casebook'), casebook=casebook_param['id'], ordinals=ordinals_param['ordinals'])
