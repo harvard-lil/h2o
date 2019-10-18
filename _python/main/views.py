@@ -41,21 +41,19 @@ def action_buttons(request, context):
         resource pages, including "edit"/"layout"/"annotate" pages
 
         CLONE - If you are logged in and if a casebook permits cloning, you
-        should see the "clone" button from all casebook pages. If, in addition,
-        the casebook is public, or if you are a collaborator, you should see
-        the "clone" button from sections' and resources' public pages (but not
-        their "edit", "layout", or "annotate" pages.);
+        should see the "clone" button from the casebook, section, and resource
+        views, and, from the edit_casebook page. (Evidently, you should not
+        be able to clone from the edit_section or edit_resource pages, though.)
 
-        REVISE or RETURN TO DRAFT (by user, two casebook fields, particular
-        routes) - if you are a collaborator on a casebook and are viewing a
-        public casebook or any of its resources or sections, you should always
-        see either a "revise" or "return to draft" button. If the casebook has
-        a draft associated with it, the button should be "return to draft";
-        otherwise, it should be "revise".
+        REVISE or RETURN TO DRAFT - if you are a collaborator on a casebook and
+        are viewing a public casebook or any of its resources or sections, you
+        should always see either a "revise" or "return to draft" button. If the
+        casebook has a draft associated with it, the button should be "return
+        to draft"; otherwise, it should be "revise". In this case, the "revise"
+        button should create a draft.
 
-            Related assertions: - all casebooks that are drafts of previously
-            published casebooks must be private. - public casebooks, sections,
-            and resources do not have "edit"/"layout"/"annotate" pages
+        If you are viewing a private book..... it should say "revise" on all
+        preview pages. In this case, "revise" should be a link to the edit view.
 
         PREVIEW - you should see a "preview" button on all
         "edit"/"layout"/"annotate" pages. (You should not see a "preview"
@@ -77,26 +75,22 @@ def action_buttons(request, context):
         nowhere else
     """
     view = request.resolver_match.view_name
+    node = context.get('casebook') or context.get('section') or context.get('resource')
 
-    # cloning
-    cloneable = False
-    if request.user.is_authenticated:
-        if view in ['section', 'resource']:
-            node = context.get('section') or context.get('resource')
-            if node.casebook.editable_by(request.user):
-                cloneable = node.permits_cloning
-            else:
-                cloneable = node.casebook.public and node.permits_cloning
-        elif view in ['casebook', 'edit_casebook']:
-            cloneable = context['casebook'].permits_cloning
+    cloneable = request.user.is_authenticated and \
+                view in ['casebook', 'section', 'resource', 'edit_casebook'] and \
+                node.permits_cloning
 
     return {
         'exportable': True,
         'cloneable': cloneable,
         'previewable': context.get('editing', False),
-        'publishable': view == 'edit_casebook' or (view == 'casebook' and not context.get('casebook').public),
+        'publishable': view == 'edit_casebook' or (view == 'casebook' and node.is_private),
         'can_save_nodes': view in ['edit_casebook', 'edit_section', 'edit_resource'],
         'can_add_nodes': view in ['edit_casebook', 'edit_section'],
+        'can_be_directly_edited': view in ['casebook', 'resource', 'section'] and node.directly_editable_by(request.user),
+        'can_create_draft': view in ['casebook', 'resource', 'section'] and node.allows_draft_creation_by(request.user),
+        'can_view_existing_draft': view in ['casebook', 'resource', 'section'] and node.has_draft and node.editable_by(request.user)
     }
 
 def render_with_actions(request, template_name, context=None, content_type=None, status=None, using=None):
@@ -261,6 +255,7 @@ def clone_casebook(request, casebook_param):
         Redirect to new clone:
         >>> check_response(client.post(reverse('clone', args=[casebook.pk]), as_user=user), status_code=302)
     """
+    # TODO: test perms
     casebook = get_object_or_404(Casebook, id=casebook_param['id'])
     if casebook.permits_cloning:
         clone = casebook.clone(request.user)
@@ -280,12 +275,12 @@ def create_draft(request, casebook_param):
         Redirect to new draft:
         >>> check_response(client.post(reverse('create_draft', args=[casebook.pk]), as_user=user), status_code=302)
     """
-    # TODO: I think this should be checking that user is a collaborator on the casebook, and that no draft exists.
-    # I don't immediately see that logic in Rails, though.
+    # TODO: test perms
     casebook = get_object_or_404(Casebook, id=casebook_param['id'])
-    clone = casebook.make_draft()
-    return HttpResponseRedirect(reverse('layout', args=[clone.pk]))
-
+    if casebook.allows_draft_creation_by(request.user):
+        clone = casebook.make_draft()
+        return HttpResponseRedirect(reverse('layout', args=[clone.pk]))
+    return HttpResponseForbidden
 
 @login_required
 def edit_casebook(request, casebook_param):

@@ -255,7 +255,6 @@ class ContentNodeQueryset(models.QuerySet):
 class ContentNode(TimestampedModel, BigPkModel):
     title = models.CharField(max_length=10000, blank=True, null=True)
     subtitle = models.CharField(max_length=10000, blank=True, null=True)
-    public = models.BooleanField(default=False)
     headnote = models.TextField(blank=True, null=True)
     raw_headnote = models.TextField(blank=True, null=True)
     copy_of = models.ForeignKey(
@@ -267,6 +266,7 @@ class ContentNode(TimestampedModel, BigPkModel):
     )
 
     # casebooks only
+    public = models.BooleanField(default=False)
     cloneable = models.BooleanField(default=True)
     draft_mode_of_published_casebook = models.BooleanField(blank=True, null=True, help_text='Unknown (None) or True; never False')
     ancestry = models.CharField(max_length=255, blank=True, null=True, help_text="List of parent IDs in tree, separated by slashes.")
@@ -347,6 +347,22 @@ class ContentNode(TimestampedModel, BigPkModel):
         return self
 
     @property
+    def is_public(self):
+        """
+        Presently, the `public` field is only accurate on Casebooks:
+        the field is `True` for all Sections and Resources.
+        This method is a stop gap, as we decide how we'd like to move
+        forward with the database field.
+        """
+        if self.type == 'casebook':
+            return self.public
+        return self.casebook.public
+
+    @property
+    def is_private(self):
+        return not self.is_public
+
+    @property
     def permits_cloning(self):
         """
         Presently, the `cloneable` database field is not in use on the
@@ -357,6 +373,32 @@ class ContentNode(TimestampedModel, BigPkModel):
         if self.type == 'casebook':
             return not self.draft_mode_of_published_casebook
         return not self.casebook.draft_mode_of_published_casebook
+
+    def editable_by(self, user):
+        if self.type == 'casebook':
+            return self.editable_by(user)
+        return self.casebook.editable_by(user)
+
+    def directly_editable_by(self, user):
+        """
+        Allow a user to make changes via edit view, rather than requiring them
+        to make changes via the draft mechanism.
+        """
+        return self.is_private and self.editable_by(user)
+
+    @property
+    def has_draft(self):
+        if self.type == 'casebook':
+            return self.has_draft
+        return self.casebook.has_draft
+
+    def allows_draft_creation_by(self, user):
+        """
+        Allow a user to make a draft-mode clone of this section's casebook.
+        """
+        if self.type == 'casebook':
+            return self.allows_draft_creation_by(self, user)
+        return self.casebook.allows_draft_creation_by(self, user)
 
     @property
     def annotatable(self):
@@ -551,12 +593,22 @@ class Casebook(ContentNode):
         # Proposed: I dislike the ID number here
         # return self.title or "Untitled casebook #%s" % self.pk
 
+    @property
+    def has_draft(self):
+        return self.clones.filter(draft_mode_of_published_casebook=True).exists()
+
     def drafts(self):
         """
             Return first existing draft.
             TODO: Should this be named "draft"? It only returns one, and logic should ensure that only one ever exists.
         """
         return self.clones.filter(draft_mode_of_published_casebook=True).first()
+
+    def allows_draft_creation_by(self, user):
+        """
+        Allow a user to make a draft-mode clone of a casebook.
+        """
+        return self.is_public and not self.has_draft and self.editable_by(user)
 
     def make_draft(self):
         """

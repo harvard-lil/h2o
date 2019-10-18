@@ -6,6 +6,15 @@
   {% if previewable %}
     <a class="action one-line preview" href="{{ content.get_absolute_url }}">Preview</a>
   {% endif %}
+  {% if can_be_directly_edited %}
+      edit me
+  {% endif %}
+  {% if can_view_existing_draft %}
+      see my draft
+  {% endif %}
+  {% if can_create_draft %}
+      make a draft
+  {% endif %}
   {% if can_add_nodes %}
     {# TODO: actual "add resource" functionality #}
     <button class="action one-line add-resource">Add Resource</button>
