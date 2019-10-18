@@ -1,4 +1,8 @@
 <aside class="casebook-actions">
+  {% if publishable %}
+    <button type="button" class="action publish one-line">Publish</button>
+    {# TODO: this opens a modal that POSTs to the casebook route. Implement that! #}
+  {% endif %}
   {% if previewable %}
     <a class="action one-line preview" href="{{ content.get_absolute_url }}">Preview</a>
   {% endif %}

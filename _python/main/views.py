@@ -57,14 +57,13 @@ def action_buttons(request, context):
             published casebooks must be private. - public casebooks, sections,
             and resources do not have "edit"/"layout"/"annotate" pages
 
-        PREVIEW (by user, casebook field, particular routes) - you should see a
-        "preview" button on all "edit"/"layout"/"annotate" pages. (You should
-        not see a "preview" button on preview pages.)
+        PREVIEW - you should see a "preview" button on all
+        "edit"/"layout"/"annotate" pages. (You should not see a "preview"
+        button on preview pages.)
 
-        PUBLISH (by casebook field, particular routes) - if you are on a
-        casebook's "edit"/"layout" page, or if you are previewing any private
-        casebook, you should see a "publish" button. (You never see a publish
-        button on any resource or section pages.)
+        PUBLISH - if you are on a casebook's "edit"/"layout" page, or if you
+        are previewing any private casebook, you should see a "publish" button.
+        (You never see a publish button on any resource or section pages.)
 
         SAVE/CANCEL - every page with a traditional webform should have a
         "Save" and a "Cancel" button. Therefore, if you are on a casebook's
@@ -95,6 +94,7 @@ def action_buttons(request, context):
         'exportable': True,
         'cloneable': cloneable,
         'previewable': context.get('editing', False),
+        'publishable': view == 'edit_casebook' or (view == 'casebook' and not context.get('casebook').public),
         'can_save_nodes': view in ['edit_casebook', 'edit_section', 'edit_resource'],
         'can_add_nodes': view in ['edit_casebook', 'edit_section'],
     }
@@ -182,6 +182,13 @@ def casebook(request, casebook_param):
 
         TODO: test with editors, not only owners.
         TODO: build, then test, action buttons :-)
+        TODO: slashes.
+        > RuntimeError: You called this URL via POST, but the URL
+        > doesn't end in a slash and you have APPEND_SLASH set. Django
+        > can't redirect to the slash URL while maintaining POST data.
+        > Change your form to point to localhost:8001/casebooks/157662/
+        > (note the trailing slash), or set APPEND_SLASH=False in your
+        > Django settings.
 
         Given:
         >>> casebook, casebook_factory, client, admin_user, user_factory = [getfixture(f) for f in ['casebook', 'casebook_factory', 'client', 'admin_user', 'user_factory']]
