@@ -2,6 +2,16 @@
 
 {% block page_title %}Resource {{ resource.ordinal_string }} | {{ resource.casebook.get_title }}{% endblock %}
 
+{% block banner %}
+{% if resource.casebook.draft_mode_of_published_casebook or not resource.casebook.public %}
+  <div class="casebook-preview banner">
+    <div class="banner-inner">
+      You are viewing a preview of a private casebook.
+    </div>
+  </div>
+{% endif %}
+{% endblock %}
+
 {% block mainContent %}
   <header class="casebook-public casebook" data-editable="" data-casebook-id="{{ resource.casebook.id }}" data-resource-id="{{ resource.id }}">
     <div class="content">
