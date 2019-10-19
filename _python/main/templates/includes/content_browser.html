@@ -12,7 +12,7 @@
           <div class="subtitle">{{ casebook.subtitle|default:"" }}</div>
         </div>
         {% if draft and user_can_edit %}
-          <a class="wrapper" href="{% url "edit_casebook" casebook.drafts %}">
+          <a class="wrapper" href="{% url "edit_casebook" draft %}">
             <div class="unpublished-changes">
              <span class="exclamation">!</span>
               <span class="description">This casebook has unpublished changes.</span>
