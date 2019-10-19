@@ -397,8 +397,8 @@ class ContentNode(TimestampedModel, BigPkModel):
         Allow a user to make a draft-mode clone of this section's casebook.
         """
         if self.type == 'casebook':
-            return self.allows_draft_creation_by(self, user)
-        return self.casebook.allows_draft_creation_by(self, user)
+            return self.allows_draft_creation_by(user)
+        return self.casebook.allows_draft_creation_by(user)
 
     @property
     def annotatable(self):
