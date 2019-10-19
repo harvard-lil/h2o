@@ -421,7 +421,7 @@ class ContentNode(TimestampedModel, BigPkModel):
     def ordinal_string(self):
         return '.'.join(str(o) for o in self.ordinals)
 
-    def ordinals_with_urls(self):
+    def ordinals_with_urls(self, editing=False):
         return_value = []
         ordinals = []
         for o in self.ordinals:
