@@ -442,7 +442,8 @@ class ContentNode(TimestampedModel, BigPkModel):
 
     def editable_by(self, user):
         """
-        Allow a user to
+        Allow a user to alter a casebook.
+
         This method should be implemented by all children.
         """
         raise NotImplementedError()
