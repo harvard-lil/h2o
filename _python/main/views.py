@@ -7,7 +7,8 @@ from rest_framework.response import Response
 from django.conf import settings
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.views import redirect_to_login
-from django.http import HttpResponseForbidden, HttpResponseRedirect, HttpResponseBadRequest, JsonResponse, Http404
+from django.core.exceptions import PermissionDenied
+from django.http import HttpResponseRedirect, HttpResponseBadRequest, JsonResponse, Http404
 from django.shortcuts import render, get_object_or_404
 from django.urls import reverse
 from django.views.decorators.http import require_POST
@@ -28,7 +29,7 @@ def login_required_response(request):
         # should be rare, and it's not obvious that the redirection
         # provides a superior user experience. We can readdress if
         # this turns out to matter to users.
-        return HttpResponseForbidden()
+        raise PermissionDenied
     else:
         return redirect_to_login(request.build_absolute_uri())
 
@@ -250,51 +251,68 @@ def clone_casebook(request, casebook_param):
         Clone a casebook and redirect to edit page for clone.
 
         Given:
-        >>> casebook, client, user = [getfixture(f) for f in ['casebook', 'client', 'user']]
+        >>> client, user, owner_of_cloneable_casebook, owner_of_uncloneable_casebook = [getfixture(f) for f in [
+        ...     'client', 'user', 'user_with_cloneable_casebook', 'user_with_uncloneable_casebook']
+        ... ]
 
-        Redirect to new clone:
+        If the casebook can be cloned, do so, then redirect to new clone:
+        >>> casebook = owner_of_cloneable_casebook.casebooks.first()
         >>> check_response(client.post(reverse('clone', args=[casebook.pk]), as_user=user), status_code=302)
+        >>> check_response(client.post(reverse('clone', args=[casebook.pk]), as_user=owner_of_cloneable_casebook), status_code=302)
+
+        Otherwise, return Permission Denied:
+        >>> casebook = owner_of_uncloneable_casebook.casebooks.first()
+        >>> check_response(client.post(reverse('clone', args=[casebook.pk]), as_user=user), status_code=403)
+        >>> check_response(client.post(reverse('clone', args=[casebook.pk]), as_user=owner_of_uncloneable_casebook), status_code=403)
     """
-    # TODO: test perms
     casebook = get_object_or_404(Casebook, id=casebook_param['id'])
     if casebook.permits_cloning:
         clone = casebook.clone(request.user)
         return HttpResponseRedirect(reverse('edit_casebook', args=[clone.pk]))
-    return HttpResponseForbidden
+    raise PermissionDenied
 
 
 @login_required
 @require_POST
 def create_draft(request, casebook_param):
     """
-        Clone a casebook and redirect to edit page for clone.
+        Create a draft of a casebook and redirect to its edit page.
 
         Given:
-        >>> casebook, client, user = [getfixture(f) for f in ['casebook', 'client', 'user']]
+        >>> client, user, owner_of_undraftable_casebooks, owner_of_draftable_casebook = [
+        ...     getfixture(f) for f in ['client', 'user', 'user_with_undraftable_casebooks', 'user_with_draftable_casebook']
+        ... ]
 
-        Redirect to new draft:
-        >>> check_response(client.post(reverse('create_draft', args=[casebook.pk]), as_user=user), status_code=302)
+        Only some casebooks can be edited via this draft mechanism.
+        >>> for casebook in owner_of_undraftable_casebooks.casebooks.all():
+        ...     check_response(client.post(reverse('create_draft', args=[casebook.pk]), as_user=owner_of_undraftable_casebooks), status_code=403)
+
+        And, drafts can only be created by authorized users.
+        >>> casebook = owner_of_draftable_casebook.casebooks.first()
+        >>> check_response(client.post(reverse('create_draft', args=[casebook.pk]), as_user=user), status_code=403)
+
+        When draft creation is permitted, create one, and redirect to it:
+        >>> check_response(client.post(reverse('create_draft', args=[casebook.pk]), as_user=owner_of_draftable_casebook), status_code=302)
     """
-    # TODO: test perms
     casebook = get_object_or_404(Casebook, id=casebook_param['id'])
     if casebook.allows_draft_creation_by(request.user):
         clone = casebook.make_draft()
-        return HttpResponseRedirect(reverse('layout', args=[clone.pk]))
-    return HttpResponseForbidden
+        return HttpResponseRedirect(reverse('edit_casebook', args=[clone.pk]))
+    raise PermissionDenied
 
 @login_required
 def edit_casebook(request, casebook_param):
-    # TODO: This should check that the user is a collaborator on the casebook.
-    # TODO: This should 403 or redirect if the casebook is already published.
     # NB: The Rails app does NOT redirect here to a canonical URL; it silently accepts any slug.
     # Duplicating that here.
     casebook = get_object_or_404(Casebook, id=casebook_param['id'])
-    contents = casebook.contents.prefetch_resources().order_by('ordinals')
-    return render_with_actions(request, 'casebook_edit.html', {
-        'casebook': casebook,
-        'contents': contents,
-        'editing': True
-    })
+    if casebook.directly_editable_by(request.user):
+        contents = casebook.contents.prefetch_resources().order_by('ordinals')
+        return render_with_actions(request, 'casebook_edit.html', {
+            'casebook': casebook,
+            'contents': contents,
+            'editing': True
+        })
+    raise PermissionDenied
 
 
 def section(request, casebook_param, ordinals_param):
@@ -318,17 +336,17 @@ def section(request, casebook_param, ordinals_param):
 
 @login_required
 def edit_section(request, casebook_param, ordinals_param):
-    # TODO: This should check that the user is a collaborator on the casebook.
-    # TODO: This should 403 or redirect if the casebook is already published.
     # NB: The Rails app does NOT redirect here to a canonical URL; it silently accepts any slug.
     # Duplicating that here.
     section = get_object_or_404(Section.objects.select_related('casebook'), casebook=casebook_param['id'], ordinals=ordinals_param['ordinals'])
-    contents = section.contents.prefetch_resources().order_by('ordinals')
-    return render_with_actions(request, 'section_edit.html', {
-        'section': section,
-        'contents': contents,
-        'editing': True
-    })
+    if section.directly_editable_by(request.user):
+        contents = section.contents.prefetch_resources().order_by('ordinals')
+        return render_with_actions(request, 'section_edit.html', {
+            'section': section,
+            'contents': contents,
+            'editing': True
+        })
+    raise PermissionDenied
 
 
 def resource(request, casebook_param, ordinals_param):
@@ -356,45 +374,44 @@ def resource(request, casebook_param, ordinals_param):
 
 @login_required
 def edit_resource(request, casebook_param, ordinals_param):
-    # TODO: This should check that the user is a collaborator on the casebook.
-    # TODO: This should 403 or redirect if the casebook is already published.
     # NB: The Rails app does NOT redirect here to a canonical URL; it silently accepts any slug.
     # Duplicating that here.
     resource = get_object_or_404(Resource.objects.select_related('casebook'), casebook=casebook_param['id'], ordinals=ordinals_param['ordinals'])
-    return render_with_actions(request, 'resource_edit.html', {
-        'resource': resource,
-        'editing': True
-    })
-
+    if resource.directly_editable_by(request.user):
+        return render_with_actions(request, 'resource_edit.html', {
+            'resource': resource,
+            'editing': True
+        })
+    raise PermissionDenied
 
 @login_required
 def annotate_resource(request, casebook_param, ordinals_param):
-    # TODO: This should check that the user is a collaborator on the casebook.
-    # TODO: This should 403 or redirect if the casebook is already published.
     # NB: The Rails app does NOT redirect here to a canonical URL; it silently accepts any slug.
     # Duplicating that here.
     resource = get_object_or_404(Resource.objects.select_related('casebook'), casebook=casebook_param['id'], ordinals=ordinals_param['ordinals'])
-    if resource.resource_type == 'Case':
-        resource.json = json.dumps(CaseSerializer(resource.resource).data)
-    elif resource.resource_type == 'TextBlock':
-        resource.json = json.dumps(TextBlockSerializer(resource.resource).data)
-    else:
-        # Only Cases and TextBlocks can be annotated.
-        # Rails serves the "edit" page contents at both "edit" and "annotate" when resources can't be annotated;
-        # let's redirect instead.
-        return HttpResponseRedirect(reverse('edit_resource', args=[resource.casebook, resource]))
+    if resource.directly_editable_by(request.user):
+        if resource.resource_type == 'Case':
+            resource.json = json.dumps(CaseSerializer(resource.resource).data)
+        elif resource.resource_type == 'TextBlock':
+            resource.json = json.dumps(TextBlockSerializer(resource.resource).data)
+        else:
+            # Only Cases and TextBlocks can be annotated.
+            # Rails serves the "edit" page contents at both "edit" and "annotate" when resources can't be annotated;
+            # let's redirect instead.
+            return HttpResponseRedirect(reverse('edit_resource', args=[resource.casebook, resource]))
 
-    return render_with_actions(request, 'resource_annotate.html', {
-        'resource': resource,
-        'include_vuejs': resource.resource_type in ['Case', 'TextBlock'],
-        'editing': True
-    })
+        return render_with_actions(request, 'resource_annotate.html', {
+            'resource': resource,
+            'include_vuejs': resource.resource_type in ['Case', 'TextBlock'],
+            'editing': True
+        })
+    raise PermissionDenied
 
 
 def case(request, case_id):
     case = get_object_or_404(Case, id=case_id)
     if not case.public:
-        return HttpResponseForbidden()
+        raise PermissionDenied
 
     case.json = json.dumps(CaseSerializer(case).data)
     return render(request, 'case.html', {
