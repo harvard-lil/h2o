@@ -359,7 +359,7 @@ class ContentNode(TimestampedModel, BigPkModel):
 
     def viewable_by(self, user):
         """See ContentNode.editable_by"""
-        return self.public or self.editable_by(user)
+        return self.is_public or self.editable_by(user)
 
     def directly_editable_by(self, user):
         """
