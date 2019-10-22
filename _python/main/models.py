@@ -389,7 +389,7 @@ class ContentNode(TimestampedModel, BigPkModel):
     @property
     def has_draft(self):
         if self.type == 'casebook':
-            return self.has_draft
+            return self.to_proxy().has_draft
         return self.casebook.has_draft
 
     def allows_draft_creation_by(self, user):
@@ -397,7 +397,7 @@ class ContentNode(TimestampedModel, BigPkModel):
         Allow a user to make a draft-mode clone of this section's casebook.
         """
         if self.type == 'casebook':
-            return self.allows_draft_creation_by(user)
+            return self.to_proxy().allows_draft_creation_by(user)
         return self.casebook.allows_draft_creation_by(user)
 
     @property
