@@ -6,7 +6,7 @@
 {% if resource.casebook.draft_mode_of_published_casebook or not resource.casebook.public %}
   <div class="casebook-preview banner">
     <div class="banner-inner">
-      You are viewing a preview of a private casebook.
+      You are viewing a preview of {{ resource.casebook.draft_mode_of_published_casebook|yesno:"a draft,a private casebook"}}.
     </div>
   </div>
 {% endif %}

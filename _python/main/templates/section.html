@@ -5,8 +5,9 @@
 {% block banner %}
 {% if section.casebook.draft_mode_of_published_casebook or not section.casebook.public %}
   <div class="casebook-preview banner">
+     {# TBD: Draft wording is proposed. #}
     <div class="banner-inner">
-      You are viewing a preview of a private casebook.
+      You are viewing a preview of {{ section.casebook.draft_mode_of_published_casebook|yesno:"a draft,a private casebook"}}.
     </div>
   </div>
 {% endif %}
