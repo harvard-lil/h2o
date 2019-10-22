@@ -7,13 +7,19 @@
     <a class="action one-line preview" href="{{ content.get_absolute_url }}">Preview</a>
   {% endif %}
   {% if can_be_directly_edited %}
-      edit me
+      {# TBD: in Rails, this always points to the casebook's top-level edit page; linking straight to the section/resource to me. #}
+      <a class="action edit one-line" data-disable-with="Revise" href="{{ content.get_edit_url }}">Revise</a>
   {% endif %}
   {% if can_view_existing_draft %}
-      see my draft
+      {# NB: in Rails "return to draft" also refers to a link from a draft's previews to its edit pages. For clarity, the Django app is only using "return to draft" as a link from the original to the draft. #}
+      <a class="action edit one-line" data-disable-with="Return to Draft" href="{{ content.get_draft_url }}">Return to Draft</a>
   {% endif %}
   {% if can_create_draft %}
-      make a draft
+    <form class="button_to" method="post" action="{% if casebook %}{% url 'create_draft' casebook %}{% else %}{% url 'create_draft' content.casebook %}{% endif %}">
+      <input class="action edit one-line create-draft" data-disable-with="Revise" type="submit" value="Revise">
+      {% csrf_token %}
+    </form>
+    {# TODO: see if disable functionality works #}
   {% endif %}
   {% if can_add_nodes %}
     {# TODO: actual "add resource" functionality #}

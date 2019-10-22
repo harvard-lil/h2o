@@ -588,6 +588,12 @@ class Casebook(ContentNode):
     def get_absolute_url(self):
         return reverse('casebook', args=[self])
 
+    def get_draft_url(self):
+        draft = self.drafts()
+        if draft:
+            return reverse('edit_casebook', args=[draft])
+        raise ValueError("This casebook doesn't have a draft.")
+
     def get_title(self):
         return self.title or "Untitled casebook"
         # Proposed: I dislike the ID number here
@@ -872,6 +878,12 @@ class Section(ContentNode):
     def get_absolute_url(self):
         return reverse('section', args=[self.casebook, self])
 
+    def get_draft_url(self):
+        draft = self.casebook.drafts()
+        if draft:
+            return reverse('edit_casebook', args=[draft])
+        raise ValueError("This casebook doesn't have a draft.")
+
     def get_title(self):
         return self.title if self.title else "Untitled section"
 
@@ -893,6 +905,12 @@ class Resource(ContentNode):
 
     def get_absolute_url(self):
         return reverse('resource', args=[self.casebook, self])
+
+    def get_draft_url(self):
+        draft = self.casebook.drafts()
+        if draft:
+            return reverse('edit_casebook', args=[draft])
+        raise ValueError("This casebook doesn't have a draft.")
 
     def get_title(self):
         if self.resource_type == 'Default':
