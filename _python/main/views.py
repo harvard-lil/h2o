@@ -294,6 +294,11 @@ def create_draft(request, casebook_param):
         When draft creation is permitted, create one, and redirect to it:
         >>> check_response(client.post(reverse('create_draft', args=[casebook.pk]), as_user=owner_of_draftable_casebook), status_code=302)
     """
+    # NB: in the Rails app, drafts are created via GET rather than POST
+    # Started GET "/casebooks/128853-constitutional-law/resources/1.2.1-marbury-v-madison/create_draft" for 172.18.0.1 at 2019-10-22 18:00:49 +0000
+    # Processing by Content::ResourcesController#create_draft as HTML
+    # Let's not recreate that.
+    # TODO: figure out if this complicates our roll out strategy.
     casebook = get_object_or_404(Casebook, id=casebook_param['id'])
     if casebook.allows_draft_creation_by(request.user):
         clone = casebook.make_draft()
