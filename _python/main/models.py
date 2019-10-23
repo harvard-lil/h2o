@@ -324,7 +324,7 @@ class ContentNode(TimestampedModel, BigPkModel):
     def from_db(cls, db, field_names, values):
         """
             Return Casebooks, Sections, and Resources instead of ContentNodes,
-            for more intuitive resolutino of relationships and for tidiness.
+            for more intuitive resolution of relationships and for tidiness.
             Directly contradicts the docs:
             https://docs.djangoproject.com/en/2.2/topics/db/models/#querysets-still-return-the-model-that-was-requested
 
@@ -358,13 +358,13 @@ class ContentNode(TimestampedModel, BigPkModel):
         return not self.is_public
 
     def viewable_by(self, user):
-        """See ContentNode.editable_by"""
         return self.is_public or self.editable_by(user)
 
     def directly_editable_by(self, user):
         """
-        Allow a user to make changes via edit view, rather than requiring them
-        to make changes via the draft mechanism.
+        Allow a user to make real-time changes (e.g., via edit view),
+        rather than requiring them to make changes via the draft mechanism.
+        (See allows_draft_creation_by for more discussion of editing and drafts.)
         """
         return self.is_private and self.editable_by(user)
 
@@ -428,6 +428,18 @@ class ContentNode(TimestampedModel, BigPkModel):
     # Methods specialized by children
     ##
 
+    def get_title(self):
+        """
+        Presently, the logic for "What do we call this ContentNode?"
+        is pretty complex. We should be able to simplify going forward:
+        surely, we can have a single, mandatory DB field, with default
+        values supplied via the models. This method is a stop gap, until
+        we are free to run migrations on the database.
+
+        This method should be implemented by all children.
+        """
+        raise NotImplementedError
+
     @property
     def is_public(self):
         """
@@ -435,14 +447,6 @@ class ContentNode(TimestampedModel, BigPkModel):
         the field is `True` for all Sections and Resources.
         This method is a stop gap, as we decide how we'd like to move
         forward with the database field.
-
-        This method should be implemented by all children.
-        """
-        raise NotImplementedError()
-
-    def editable_by(self, user):
-        """
-        Allow a user to alter a casebook.
 
         This method should be implemented by all children.
         """
@@ -460,14 +464,61 @@ class ContentNode(TimestampedModel, BigPkModel):
         """
         raise NotImplementedError()
 
+    def editable_by(self, user):
+        """
+        Allow a user to alter this node, either directly or via the
+        draft mechanism. (See allows_draft_creation_by for more
+        discussion of editing and drafts.)
+
+        This method should be implemented by all children.
+        """
+        raise NotImplementedError()
+
     @property
     def has_draft(self):
-        """This method should be implemented by all children."""
+        """
+        This node is, or belongs to, a Casebook with a draft. (See
+        allows_draft_creation_by for more discussion of drafts.)
+
+        This method should be implemented by all children.
+        """
         raise NotImplementedError()
 
     def allows_draft_creation_by(self, user):
         """
-        Allow a user to make a draft-mode clone of this section's casebook.
+        Sometimes authors wish to alter a Casebook "in real time", so that
+        changes are immediately evident to readers.
+
+        Other times, they prefer to work on a set of edits over time,
+        releasing those changes all at once, once they are ready.
+
+        To make this possible, H2O has a mechanism for creating a "draft"
+        of a published casebook. In the UI, "private", never-published
+        casebooks are often referred to as "drafts"; this is something
+        different: a clone of an already-published casebook, private to
+        the author, which can be edited at the author's leisure. When the
+        author chooses to "publish change", the draft replaces the original.
+
+        You can only have a single draft of a casebook at a time, and you
+        can't make drafts of private, never-published casebooks. There's
+        no need: you can edit them in real time without affecting readers.)
+
+        This method enforces that logic.
+
+        While drafts are created for entire Casebooks at once, not piecemeal
+        for particular Sections or Resources, it proves convenient to have
+        access to this method from all ContentNodes.
+
+        This method should be implemented by all children.
+        """
+        raise NotImplementedError
+
+    def is_annotated(self):
+        """
+        While only Resources can be annotated, it is useful to know if a
+        Casebook or Section contains Resources that have been annotated,
+        and it is useful to have a single interface for finding Casebooks,
+        Sections, and Resources associated with annotations.
 
         This method should be implemented by all children.
         """
@@ -475,16 +526,45 @@ class ContentNode(TimestampedModel, BigPkModel):
 
     # URLs
 
-    def get_edit_url(self):
-        """This method should be implemented by all children."""
+    def get_absolute_url(self):
+        """
+        Since Casebooks, Sections, and Resources can all be accessed
+        from URLs that include slugs AND from urls that omit slugs,
+        instruct Django how to calculate the canonical URL for each object.
+        https://docs.djangoproject.com/en/2.2/ref/models/instances/#get-absolute-url
+
+        This method should be implemented by all children.
+        """
         raise NotImplementedError
 
-    def is_annotated(self):
-        """This method should be implemented by all children."""
+    def get_edit_url(self):
+        """
+        A convenience method, for retrieving the edit URL of a Casebook,
+        Section, or Resource without having to specify the view name,
+        which is useful in shared templates.
+
+        This method should be implemented by all children.
+        """
+        raise NotImplementedError
+
+    def get_draft_url(self):
+        """
+        If this node is or belongs to a Casebook that has a draft, return
+        the URL of the draft's "edit" page. Otherwise, return a ValueError.
+
+        This method should be implemented by all children.
+        """
         raise NotImplementedError
 
     def get_edit_or_absolute_url(self, editing=False):
-        """This method should be implemented by all children."""
+        """
+        This is a convenience method, currently used only when building
+        the Table of Contents. It probably will no longer be helpful,
+        when the editable Table of Contents is rendered via Vue. But
+        for now...
+
+        This method should be implemented by all children.
+        """
         raise NotImplementedError
 
 
@@ -492,22 +572,115 @@ class ContentNode(TimestampedModel, BigPkModel):
 # Start ContentNode Proxies
 #
 
+class CasebookAndSectionMixin(models.Model):
+    """
+    Methods shared by Casebooks and Sections
+    """
+    class Meta:
+        abstract = True
+
+    def is_annotated(self):
+        """See ContentNode.is_annotated"""
+        return any(node.annotations for node in self.contents.prefetch_related('annotations'))
+
+    def get_edit_or_absolute_url(self, editing=False):
+        """See ContentNode.get_edit_or_absolute_url"""
+        if editing:
+            return self.get_edit_url()
+        return self.get_absolute_url()
+
+class SectionAndResourceMixin(models.Model):
+    """
+    Methods shared by Sections and Resources
+    """
+    class Meta:
+        abstract = True
+
+    @property
+    def is_public(self):
+        """See ContentNode.is_public"""
+        return self.casebook.public
+
+    def editable_by(self, user):
+        """See ContentNode.editable_by"""
+        return self.casebook.editable_by(user)
+
+    @property
+    def permits_cloning(self):
+        """See ContentNode.permits_cloning"""
+        return not self.casebook.draft_mode_of_published_casebook
+
+    @property
+    def has_draft(self):
+        """See ContentNode.has_draft"""
+        return self.casebook.has_draft
+
+    def allows_draft_creation_by(self, user):
+        """See ContentNode.allows_draft_creation_by"""
+        return self.casebook.allows_draft_creation_by(user)
+
+    def get_draft_url(self):
+        """See ContentNode.get_draft_url"""
+        return self.casebook.get_draft_url()
+
+    def ordinal_string(self):
+        """
+        A human-friendly rendering of the "ordinals" field.
+        Might be more appropriate as a templatetag.
+        """
+        return '.'.join(str(o) for o in self.ordinals)
+
+    def ordinals_with_urls(self, editing=False):
+        """
+        A helper method for assembling Sections' and Resources' breadcrumb links.
+        Might be more appropriate as a templatetag.
+        """
+        return_value = []
+        ordinals = []
+        for o in self.ordinals:
+            ordinals.append(o)
+            return_value.append({
+                'ordinal': o,
+                'ordinals': [*ordinals],
+                'url': globals()['ContentNode'].objects.get(
+                    casebook_id=self.casebook_id,
+                    ordinals=ordinals
+                ).get_edit_or_absolute_url(editing)
+            })
+        return return_value
+
+
 class CasebookManager(models.Manager):
     def get_queryset(self):
         return super().get_queryset().filter(casebook__isnull=True)
 
 
-class Casebook(ContentNode):
+class Casebook(CasebookAndSectionMixin, ContentNode):
     class Meta:
         proxy = True
 
     objects = CasebookManager()
 
-    def root_owner(self):
-        if self.root_user_id:
-            return self.root_user
-        elif self.ancestry:
-            return self.root().owner
+    def get_absolute_url(self):
+        """See ContentNode.get_absolute_url"""
+        return reverse('casebook', args=[self])
+
+    def get_draft_url(self):
+        """See ContentNode.get_draft_url"""
+        draft = self.drafts()
+        if draft:
+            return reverse('edit_casebook', args=[draft])
+        raise ValueError("This casebook doesn't have a draft.")
+
+    def get_edit_url(self):
+        """See ContentNode.get_edit_url"""
+        return reverse('edit_casebook', args=[self])
+
+    def get_title(self):
+        """See ContentNode.get_title"""
+        return self.title or "Untitled casebook"
+        # Proposed: I dislike the ID number here
+        # return self.title or "Untitled casebook #%s" % self.pk
 
     @property
     def is_public(self):
@@ -525,6 +698,7 @@ class Casebook(ContentNode):
 
     @property
     def has_draft(self):
+        """See ContentNode.has_draft"""
         return self.clones.filter(draft_mode_of_published_casebook=True).exists()
 
     def allows_draft_creation_by(self, user):
@@ -762,16 +936,35 @@ class Casebook(ContentNode):
 
     # Collaborators
 
+    def root_owner(self):
+        """
+        Returns the "original author" of a Casebook, when that Casebook
+        is a clone, or a clone of a clone, etc.
+
+        TODO: when we can run migrations, we should be able to simplify
+        this, so that there is only one technique for all casebooks.
+        """
+        if self.root_user_id:
+            return self.root_user
+        elif self.ancestry:
+            return self.root().owner
+
     def users_with_role(self, role):
         return self.collaborators.filter(contentcollaborator__role=role)
 
     @property
     def attributors(self):
-        """ Users whose authorship should be attributed (as opposed to all having edit permission). """
+        """
+        Users whose authorship should be attributed (to permit the decoupling of attribution and permission levels).
+
+        TODO: should all owners have attribution?
+        TODO: should any editors have attribution?
+        """
         return self.collaborators.filter(contentcollaborator__has_attribution=True).order_by('-contentcollaborator__role')
 
     @property
     def editors(self):
+        # TODO: how are editors and owners different?
         return self.users_with_role('editor')
 
     @property
@@ -788,100 +981,29 @@ class Casebook(ContentNode):
     def add_collaborator(self, user, **collaborator_kwargs):
         ContentCollaborator.objects.create(user=user, content=self, **collaborator_kwargs)
 
-    # URLs
-
-    def get_absolute_url(self):
-        return reverse('casebook', args=[self])
-
-    def get_draft_url(self):
-        draft = self.drafts()
-        if draft:
-            return reverse('edit_casebook', args=[draft])
-        raise ValueError("This casebook doesn't have a draft.")
-
-    def get_edit_url(self):
-        """See ContentNode.get_edit_url"""
-        return reverse('edit_casebook', args=[self])
-
-    def get_edit_or_absolute_url(self, editing=False):
-        """See ContentNode.get_edit_or_absolute_url"""
-        if editing:
-            return self.get_edit_url()
-        return self.get_absolute_url()
-
-    # Representations
-
-    def get_title(self):
-        return self.title or "Untitled casebook"
-        # Proposed: I dislike the ID number here
-        # return self.title or "Untitled casebook #%s" % self.pk
-
-    # Annotations
-
-    def is_annotated(self):
-        # equivalent of Rails resources_have_annotations?
-        return any(node.annotations for node in self.contents.prefetch_related('annotations'))
-
-
-class SectionAndResourceMixin(models.Model):
-    """
-        Methods shared by Sections and Resources
-    """
-    class Meta:
-        abstract = True
-
-    @property
-    def is_public(self):
-        """See ContentNode.is_public"""
-        return self.casebook.public
-
-    def editable_by(self, user):
-        """See ContentNode.editable_by"""
-        return self.casebook.editable_by(user)
-
-    @property
-    def permits_cloning(self):
-        """See ContentNode.permits_cloning"""
-        return not self.casebook.draft_mode_of_published_casebook
-
-    @property
-    def has_draft(self):
-        """See ContentNode.has_draft"""
-        return self.casebook.has_draft
-
-    def allows_draft_creation_by(self, user):
-        """See ContentNode.allows_draft_creation_by"""
-        return self.casebook.allows_draft_creation_by(user)
-
-    def ordinal_string(self):
-        return '.'.join(str(o) for o in self.ordinals)
-
-    def ordinals_with_urls(self, editing=False):
-        return_value = []
-        ordinals = []
-        for o in self.ordinals:
-            ordinals.append(o)
-            return_value.append({
-                'ordinal': o,
-                'ordinals': [*ordinals],
-                'url': globals()['ContentNode'].objects.get(
-                    casebook_id=self.casebook_id,
-                    ordinals=ordinals
-                ).get_edit_or_absolute_url(editing)
-            })
-        return return_value
-
 
 class SectionManager(models.Manager):
     def get_queryset(self):
         return super().get_queryset().filter(casebook__isnull=False, resource_id__isnull=True)
 
 
-class Section(SectionAndResourceMixin, ContentNode):
+class Section(CasebookAndSectionMixin, SectionAndResourceMixin, ContentNode):
     class Meta:
         proxy = True
 
     objects = SectionManager()
+
+    def get_absolute_url(self):
+        """See ContentNode.get_absolute_url"""
+        return reverse('section', args=[self.casebook, self])
+
+    def get_edit_url(self):
+        """See ContentNode.get_edit_url"""
+        return reverse('edit_section', args=[self.casebook, self])
+
+    def get_title(self):
+        """See ContentNode.get_title"""
+        return self.title if self.title else "Untitled section"
 
     @property
     def contents(self):
@@ -900,36 +1022,6 @@ class Section(SectionAndResourceMixin, ContentNode):
             "ordinals__len__gte": len(self.ordinals) + 1
         }).order_by('ordinals')
 
-    def is_annotated(self):
-        # equivalent of Rails resources_have_annotations?
-        return any(node.annotations for node in self.contents.prefetch_related('annotations'))
-
-    # URLs
-
-    def get_absolute_url(self):
-        return reverse('section', args=[self.casebook, self])
-
-    def get_edit_url(self):
-        """See ContentNode.get_edit_url"""
-        return reverse('edit_section', args=[self.casebook, self])
-
-    def get_draft_url(self):
-        draft = self.casebook.drafts()
-        if draft:
-            return reverse('edit_casebook', args=[draft])
-        raise ValueError("This casebook doesn't have a draft.")
-
-    def get_edit_or_absolute_url(self, editing=False):
-        """See ContentNode.get_edit_or_absolute_url"""
-        if editing:
-            return self.get_edit_url()
-        return self.get_absolute_url()
-
-    # Representations
-
-    def get_title(self):
-        return self.title if self.title else "Untitled section"
-
 
 class ResourceManager(models.Manager):
     def get_queryset(self):
@@ -942,20 +1034,13 @@ class Resource(SectionAndResourceMixin, ContentNode):
 
     objects = ResourceManager()
 
-    # URLs
-
     def get_absolute_url(self):
+        """See ContentNode.get_absolute_url"""
         return reverse('resource', args=[self.casebook, self])
 
     def get_edit_url(self):
         """See ContentNode.get_edit_url"""
         return reverse('edit_resource', args=[self.casebook, self])
-
-    def get_draft_url(self):
-        draft = self.casebook.drafts()
-        if draft:
-            return reverse('edit_casebook', args=[draft])
-        raise ValueError("This casebook doesn't have a draft.")
 
     def get_edit_or_absolute_url(self, editing=False):
         """
@@ -970,9 +1055,8 @@ class Resource(SectionAndResourceMixin, ContentNode):
             return self.get_edit_url()
         return self.get_absolute_url()
 
-    # Representations
-
     def get_title(self):
+        """See ContentNode.get_title"""
         if self.resource_type == 'Default':
             if self.resource.name:
                 return self.resource.name
@@ -985,12 +1069,26 @@ class Resource(SectionAndResourceMixin, ContentNode):
         else:
             raise NotImplementedError
 
-    # Related Links, TextBlocks, and Cases
+    def is_annotated(self):
+        """See ContentNode.is_annotated"""
+        return bool(self.annotations)
 
     _resource_prefetched = False
     _resource = None
     @property
     def resource(self):
+        """
+        Resource nodes are each related to one Case, TextBlock, or Link object,
+        which has historically been referred to as the node's "resource."
+
+        (Resource objects might more accurately be called "ResourceWrapper"
+        objects, or similar.)
+
+        This method retrieves the node's related resource, in the manner one
+        would expect to be able to do if this relationship were achieved via
+        foreign keys (not possible on the Django side, without altering the
+        database so as to support generic foreign keys or polymorphic models).
+        """
         if self._resource_prefetched:
             return self._resource
         if not self.resource_id:
@@ -1001,17 +1099,18 @@ class Resource(SectionAndResourceMixin, ContentNode):
         else:
             raise NotImplementedError
 
-    # Annotations
-
-    def is_annotated(self):
-        # equivalent of Rails resources_have_annotations? (for casebooks and sections)
-        return bool(self.annotations)
-
     @property
     def annotatable(self):
+        """
+        Only particular kinds of resources can be annotated.
+        """
         return self.type == 'resource' and self.resource_type in ['Case', 'TextBlock']
 
     def get_annotate_url(self):
+        """
+        If a resource can be annotated, returns the URL for the page an author
+        uses to make annotations. Otherwise, returns a ValueError.
+        """
         if self.annotatable:
             return reverse('annotate_resource', args=[self.casebook, self])
         raise ValueError('Only Resources (Case and TextBlock) can be annotated.')
