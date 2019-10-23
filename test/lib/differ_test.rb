@@ -28,6 +28,16 @@ class DifferTest < ActiveSupport::TestCase
   end
 
   describe Differ, :get_delta_at_offset do
+    it "should return 0 when the provided offset exceeds the length of both the 'before' and 'after' strings" do
+      diffs = Differ.get_diffs "foo", "foo"
+      assert_equal 0, Differ.get_delta_at_offset(diffs, 5)
+    end
+
+    it "should return 0 when the provided offset exceeds the length of the 'before' string" do
+      diffs = Differ.get_diffs "foo", "foo bar"
+      assert_equal 0, Differ.get_delta_at_offset(diffs, 5)
+    end
+
     it "should return the difference between the original number of characters preceeding this offset and the new number of characters preceeding it" do
       diffs = Differ.get_diffs("foo ipsum", "foo bar lorum ipsum")
       assert_equal 10, Differ.get_delta_at_offset(diffs, 5)
