@@ -3,10 +3,11 @@
 {% block page_title %}Resource {{ resource.ordinal_string }} | {{ resource.casebook.get_title }}{% endblock %}
 
 {% block banner %}
-{% if resource.casebook.draft_mode_of_published_casebook or not resource.casebook.public %}
+{% if resource.is_or_belongs_to_draft or resource.is_private %}
   <div class="casebook-preview banner">
+    {# TBD: Draft wording is proposed. #}
     <div class="banner-inner">
-      You are viewing a preview of {{ resource.casebook.draft_mode_of_published_casebook|yesno:"a draft,a private casebook"}}.
+      You are viewing a preview of {{ resource.is_or_belongs_to_draft|yesno:"your changes,a private casebook"}}.
     </div>
   </div>
 {% endif %}

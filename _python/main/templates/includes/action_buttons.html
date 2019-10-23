@@ -1,17 +1,17 @@
 <aside class="casebook-actions">
   {% if publishable %}
-    <button type="button" class="action publish one-line">Publish</button>
+    <button type="button" class="action publish one-line">Publish{% if content.is_or_belongs_to_draft %} Changes{% endif %}</button>
     {# TODO: this opens a modal that POSTs (PATCHs?) to the casebook route. Implement that! #}
   {% endif %}
   {% if previewable %}
     <a class="action one-line preview" href="{{ content.get_absolute_url }}">Preview</a>
   {% endif %}
   {% if can_be_directly_edited %}
-      {# TBD: in Rails, this always points to the casebook's top-level edit page; linking straight to the section/resource to me. #}
-      <a class="action edit one-line" data-disable-with="Revise" href="{{ content.get_edit_url }}">Revise</a>
+      {# TBD: in Rails, this always points to the casebook's top-level edit page; linking straight to the section/resource makes more sense to me. #}
+      <a class="action edit one-line" data-disable-with="Revise" href="{{ content.get_edit_url }}">{% if content.is_or_belongs_to_draft %}Continue Revising{% else %}Revise{% endif %}</a>
   {% endif %}
   {% if can_view_existing_draft %}
-      {# NB: in Rails "return to draft" also refers to a link from a draft's previews to its edit pages. For clarity, the Django app is only using "return to draft" as a link from the original to the draft. #}
+      {# NB: in Rails "return to draft" also refers to a link from a draft's previews to its edit pages. For clarity, the Django app is only using "return to draft" as a link from the original to the draft, and uses "revise" or "continue revising" for links to edit pages. #}
       <a class="action edit one-line" data-disable-with="Return to Draft" href="{{ content.get_draft_url }}">Return to Draft</a>
   {% endif %}
   {% if can_create_draft %}

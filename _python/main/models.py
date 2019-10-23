@@ -484,6 +484,17 @@ class ContentNode(TimestampedModel, BigPkModel):
         """
         raise NotImplementedError()
 
+    @property
+    def is_or_belongs_to_draft(self):
+        """
+        This node is, or belongs to, a Casebook that is a draft
+        of an already-published Casebook. (See allows_draft_creation_by
+        for more discussion of drafts.)
+
+        This method should be implemented by all children.
+        """
+        raise NotImplementedError()
+
     def allows_draft_creation_by(self, user):
         """
         Sometimes authors wish to alter a Casebook "in real time", so that
@@ -615,6 +626,11 @@ class SectionAndResourceMixin(models.Model):
         """See ContentNode.has_draft"""
         return self.casebook.has_draft
 
+    @property
+    def is_or_belongs_to_draft(self):
+        """See ContentNode.is_or_belongs_to_draft"""
+        return self.casebook.is_or_belongs_to_draft
+
     def allows_draft_creation_by(self, user):
         """See ContentNode.allows_draft_creation_by"""
         return self.casebook.allows_draft_creation_by(user)
@@ -700,6 +716,11 @@ class Casebook(CasebookAndSectionMixin, ContentNode):
     def has_draft(self):
         """See ContentNode.has_draft"""
         return self.clones.filter(draft_mode_of_published_casebook=True).exists()
+
+    @property
+    def is_or_belongs_to_draft(self):
+        """See ContentNode.is_or_belongs_to_draft"""
+        return self.draft_mode_of_published_casebook
 
     def allows_draft_creation_by(self, user):
         """See ContentNode.allows_draft_creation_by"""

@@ -38,42 +38,55 @@ def action_buttons(request, context):
     """
         See node_decorate.rb, action_button_builder.rb, and _actions.html.erb
 
-        EXPORT - the "export" button appears on all casebook, section, and
-        resource pages, including "edit"/"layout"/"annotate" pages
+        Casebooks
+        # Published casebook, anonymous
+        # - exportable
+        # Published casebook without draft, collaborator
+        # - exportable, cloneable, can_create_draft
+        # Published casebook with draft, collaborator
+        # - exportable, cloneable,  can_view_existing_draft
+        # Never-published casebook
+        # - exportable, cloneable, can_be_directly_edited, publishable
+        # Never-published casebook, edit page
+        # - exportable, cloneable, previewable, publishable
+        # Draft casebook
+        # - exportable, publishable
+        # Draft casebook, edit page
+        # - exportable, previewable, publishable
 
-        CLONE - If you are logged in and if a casebook permits cloning, you
-        should see the "clone" button from the casebook, section, and resource
-        views, and, from the edit_casebook page. (Evidently, you should not
-        be able to clone from the edit_section or edit_resource pages, though.)
+        Sections
+        # In published casebook, anonymous
+        # - exportable
+        # In published casebook without draft, collaborator
+        # - exportable, cloneable , can_create_draft
+        # In published casebook with draft, collaborator
+        # - exportable, cloneable, can_view_existing_draft
+        # In never-published casebook
+        # - exportable, cloneable, can_be_directly_edited
+        # In never-published casebook, edit page
+        # - exportable, previewable
+        # In draft casebook
+        # - exportable, publishable
+        # In draft casebook, edit page
+        # - exportable, previewable, publishable
 
-        REVISE or RETURN TO DRAFT - if you are a collaborator on a casebook and
-        are viewing a public casebook or any of its resources or sections, you
-        should always see either a "revise" or "return to draft" button. If the
-        casebook has a draft associated with it, the button should be "return
-        to draft"; otherwise, it should be "revise". In this case, the "revise"
-        button should create a draft.
-
-        If you are viewing a private book..... it should say "revise" on all
-        preview pages. In this case, "revise" should be a link to the edit view.
-
-        PREVIEW - you should see a "preview" button on all
-        "edit"/"layout"/"annotate" pages. (You should not see a "preview"
-        button on preview pages.)
-
-        PUBLISH - if you are on a casebook's "edit"/"layout" page, or if you
-        are previewing any private casebook, you should see a "publish" button.
-        (You never see a publish button on any resource or section pages.)
-
-        SAVE/CANCEL - every page with a traditional webform should have a
-        "Save" and a "Cancel" button. Therefore, if you are on a casebook's
-        "edit"/"layout" page, a section's "edit"/"layout" page, or resource's
-        "resource details"/"edit" page, you should see a "Save" and a "Cancel"
-        button. (You should not see "Save" or "Cancel" anywhere else, including
-        on a resource's "annotate" page.)
-
-        ADD SECTION and ADD RESOURCE - these buttons should both appear on
-        casebooks and sections "edit"/"layout" pages; they should appear
-        nowhere else
+        Resources
+        # In published casebook, anonymous
+        # - exportable
+        # In published casebook without draft, collaborator
+        # - exportable, cloneable, can_create_draft
+        # In published casebook with draft, collaborator
+        # - exportable, cloneable, can_view_existing_draft
+        # In never-published casebook
+        # - exportable, cloneable, can_be_directly_edited
+        # In never-published casebook, edit page
+        # - exportable, previewable
+        # In draft casebook
+        # - exportable, publishable
+        # In draft casebook, edit page
+        # - exportable, previewable, publishable
+        # In draft casebook, annotate page
+        # - exportable, previewable, publishable
     """
     view = request.resolver_match.view_name
     node = context.get('casebook') or context.get('section') or context.get('resource')
@@ -86,7 +99,7 @@ def action_buttons(request, context):
         'exportable': True,
         'cloneable': cloneable,
         'previewable': context.get('editing', False),
-        'publishable': view == 'edit_casebook' or (view == 'casebook' and node.is_private),
+        'publishable': view == 'edit_casebook' or node.is_private and view in ['casebook', 'section', 'resource'],
         'can_save_nodes': view in ['edit_casebook', 'edit_section', 'edit_resource'],
         'can_add_nodes': view in ['edit_casebook', 'edit_section'],
         'can_be_directly_edited': view in ['casebook', 'resource', 'section'] and node.directly_editable_by(request.user),
