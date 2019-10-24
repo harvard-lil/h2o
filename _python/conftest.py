@@ -284,7 +284,7 @@ def user_with_cloneable_casebook(casebook_factory, user_factory):
         >>> assert casebook.permits_cloning
     """
     user = user_factory()
-    casebook = casebook_factory(contentcollaborator_set__user=user)
+    casebook_factory(contentcollaborator_set__user=user)
     return user
 
 
@@ -299,7 +299,7 @@ def user_with_uncloneable_casebook(casebook_factory, user_factory):
         >>> assert not casebook.permits_cloning
     """
     user = user_factory()
-    casebook = casebook_factory(
+    casebook_factory(
         contentcollaborator_set__user=user,
         draft_mode_of_published_casebook=True
     )
@@ -316,7 +316,7 @@ def user_with_draftable_casebook(casebook_factory, user_factory):
         >>> assert casebook.allows_draft_creation_by(user)
     """
     user = user_factory()
-    casebook = casebook_factory(
+    casebook_factory(
         contentcollaborator_set__user=user,
         public=True
     )
@@ -338,7 +338,7 @@ def user_with_undraftable_casebooks(casebook_factory, user_factory):
         >>> assert not casebook.allows_draft_creation_by(user)
     """
     user = user_factory()
-    private_casebook = casebook_factory(
+    casebook_factory(
         contentcollaborator_set__user=user,
         public=False
     )
