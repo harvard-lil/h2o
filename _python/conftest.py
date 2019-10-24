@@ -248,9 +248,11 @@ def full_casebook(casebook_factory):
 @pytest.fixture
 def full_private_casebook(full_casebook):
     """
-    >>> private, published = [getfixture(f) for f in ['full_private_casebook', 'full_casebook']]
-    >>> assert private.is_private and not published.is_private
-    >>> assert all(node.is_private for node in private.contents.all())
+        The same as full_casebook, except private
+
+        >>> private, published = [getfixture(f) for f in ['full_private_casebook', 'full_casebook']]
+        >>> assert private.is_private and not published.is_private
+        >>> assert all(node.is_private for node in private.contents.all())
     """
     casebook = full_casebook.clone()
     return casebook
@@ -258,11 +260,13 @@ def full_private_casebook(full_casebook):
 @pytest.fixture
 def full_casebook_with_draft(full_casebook):
     """
-    >>> has_draft, draftless = [getfixture(f) for f in ['full_casebook_with_draft', 'full_casebook']]
-    >>> assert has_draft.has_draft and not draftless.has_draft
-    >>> assert all(node.has_draft for node in has_draft.contents.all())
-    >>> assert has_draft.is_public
-    >>> assert has_draft.drafts().is_private
+        The same as full_casebook, except has an in-progress draft
+
+        >>> has_draft, draftless = [getfixture(f) for f in ['full_casebook_with_draft', 'full_casebook']]
+        >>> assert has_draft.has_draft and not draftless.has_draft
+        >>> assert all(node.has_draft for node in has_draft.contents.all())
+        >>> assert has_draft.is_public
+        >>> assert has_draft.drafts().is_private
     """
     casebook = full_casebook.clone()
     casebook.public = True
