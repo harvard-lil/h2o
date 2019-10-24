@@ -20,7 +20,7 @@
     <div id="non-modal">
       <a href="#main" class="skip-link">Skip to main content</a>
       <a href="#footer" class="skip-link">Skip to footer</a>
-      <div class="overlay"></div>
+      <div class="modal-overlay"></div> <!--bizarrely, something is swapping out the class overlay -> modal-overlay in the Rails app... to be investigated -->
       {% block banner %}{% endblock banner %}
       <header id="main-header">
         {% include 'includes/header.html' %}

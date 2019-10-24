@@ -9,7 +9,7 @@ class ContentAnnotationSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = models.ContentAnnotation
-        fields = ('id', 'resource', 'start_offset', 'end_offset', 'kind', 'content', 'created_at', 'updated_at')
+        fields = ('id', 'resource_id', 'start_offset', 'end_offset', 'kind', 'content', 'created_at', 'updated_at')
 
 
 class CaseSerializer(serializers.ModelSerializer):

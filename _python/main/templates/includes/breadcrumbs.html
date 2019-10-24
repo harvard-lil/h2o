@@ -1,8 +1,9 @@
+{% load call_method %}
 {% if content.ordinals %}
   <div class="breadcrumbs">
     {{ content.type | title }}
-    {# Do we need a suffix for the urls like {% if not casebook.public %}/layout{% endif %} here? #}
-    {% for ordinal in content.ordinals_with_urls %}
+    {% call_method content 'ordinals_with_urls' editing=editing as ordinals %}
+    {% for ordinal in ordinals %}
       {% if forloop.last %}
         <span class="breadcrumb active">{{ ordinal.ordinal }}</span>
       {% else %}

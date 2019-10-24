@@ -99,12 +99,22 @@ drf_urlpatterns = [
 urlpatterns = format_suffix_patterns(drf_urlpatterns) + [
     path('', views.index, name='index'),
     path('users/<int:user_id>/', views.dashboard, name='dashboard'),
+    # resources
+    path('casebooks/<idslug:casebook_param>/resources/<ordslug:ordinals_param>/layout/', RedirectView.as_view(pattern_name='resource', permanent=True)),
+    path('casebooks/<idslug:casebook_param>/resources/<ordslug:ordinals_param>/edit/', views.edit_resource, name='edit_resource'),
+    path('casebooks/<idslug:casebook_param>/resources/<ordslug:ordinals_param>/annotate/', views.annotate_resource, name='annotate_resource'),
     path('casebooks/<idslug:casebook_param>/resources/<ordslug:ordinals_param>/', views.resource, name='resource'),
+    # sections
+    path('casebooks/<idslug:casebook_param>/sections/<ordslug:ordinals_param>/layout/', views.edit_section, name='edit_section'),
+    path('casebooks/<idslug:casebook_param>/sections/<ordslug:ordinals_param>/edit/', RedirectView.as_view(pattern_name='edit_section', permanent=True)),
     path('casebooks/<idslug:casebook_param>/sections/<ordslug:ordinals_param>/', views.section, name='section'),
-    path('casebooks/<idslug:casebook_param>/layout/', views.not_implemented_yet, name='layout'),
+    # casebooks
+    path('casebooks/<idslug:casebook_param>/layout/', views.edit_casebook, name='edit_casebook'),
+    path('casebooks/<idslug:casebook_param>/edit/', RedirectView.as_view(pattern_name='edit_casebook', permanent=True)),
     path('casebooks/<idslug:casebook_param>/clone/', views.clone_casebook, name='clone'),
     path('casebooks/<idslug:casebook_param>/create_draft/', views.create_draft, name='create_draft'),
     path('casebooks/<idslug:casebook_param>/', views.casebook, name='casebook'),
+    # cases
     path('cases/from_capapi', views.from_capapi, name='from_capapi'),
     path('cases/<int:case_id>/', views.case, name='case'),
     # canonical paths for static pages

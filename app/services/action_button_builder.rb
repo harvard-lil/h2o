@@ -72,7 +72,7 @@ class ActionButtonBuilder
   end
 
   def cancel_section
-    { link_to: true, text: I18n.t("content.actions.cancel"), path: "#", class: "action one-line cancel cancel-section-defailts" }
+    { link_to: true, text: I18n.t("content.actions.cancel"), path: "#", class: "action one-line cancel cancel-section-details" }
   end
 
   ############

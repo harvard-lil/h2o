@@ -1,0 +1,47 @@
+{% extends 'base.html' %}
+
+{% block page_title %}Resource {{ resource.ordinal_string }} | {{ resource.casebook.get_title }}{% endblock %}
+
+{% block banner %}
+<div class="casebook-draft banner">
+  <div class="banner-inner">
+    This casebook is a draft and is visible only to collaborators.
+  </div>
+</div>
+{% endblock %}
+
+{% block mainContent %}
+  <header class="casebook-draft casebook" data-editable="true" data-casebook-id="{{ resource.casebook.id }}" data-resource-id="{{ resource.id }}">
+    <div class="content">
+      <div class="casebook-inner">
+        <div class="tabs">
+          <a class="tab" href="{% url 'edit_casebook' resource.casebook %}">Casebook</a>
+          <span class="tab disabled active">Annotate</span>
+          <a class="tab" href="{% url 'edit_resource' resource.casebook resource %}">Resource Details</a>
+        </div>
+      </div>
+    </div>
+  </header>
+  <section class="casebook-draft casebook">
+    <div class="content">
+      <div class="casebook-inner">
+        <div class="top-strip"></div>
+        <header class="casebook-header">
+          <div class="casebook-title">
+            {{ resource.casebook.get_title }}
+          </div>
+        </header>
+        <header class="content">
+          {% include 'includes/breadcrumbs.html' with content=resource %}
+          <h1 class="title">{{ resource.get_title }}</h1>
+        </header>
+        {% include 'includes/action_buttons.html' with content=resource %}
+        {% include 'includes/headnote.html' with content=resource %}
+        <section class="resource">
+          <p>This isn't actually editable yet, even though it looks like it!</p>
+          <the-resource :editable="true" :resource="{{ resource.json }}"></the-resource>
+        </section>
+      </div>
+    </div>
+  </section>
+{% endblock %}

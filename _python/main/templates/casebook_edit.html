@@ -1,20 +1,17 @@
 {% extends 'base.html' %}
 
-{% block page_title %}{{ casebook.get_title }}{% endblock %}
+{% block page_title %}Edit | {{ casebook.get_title }}{% endblock %}
 
 {% block banner %}
-{% if casebook.is_or_belongs_to_draft or casebook.is_private %}
-  <div class="casebook-preview banner">
-    {# TBD: Draft wording is proposed. #}
-    <div class="banner-inner">
-      You are viewing a preview of {{ casebook.is_or_belongs_to_draft|yesno:"your changes,a private casebook"}}.
-    </div>
+<div class="casebook-draft banner">
+  <div class="banner-inner">
+    This casebook is a draft and is visible only to collaborators.
   </div>
-{% endif %}
+</div>
 {% endblock %}
 
 {% block mainContent %}
-  <header class="casebook-public casebook" data-casebook-id="{{ casebook.id }}">
+  <header class="casebook-draft casebook" data-casebook-id="{{ casebook.id }}">
     <div class="content">
       <div class="casebook-inner">
           <div class="tabs">
@@ -23,7 +20,7 @@
       </div>
     </div>
   </header>
-  <section class="casebook-public casebook">
+  <section class="casebook-draft casebook">
     <div class="content">
       <div class="casebook-inner">
         <div class="top-strip"></div>

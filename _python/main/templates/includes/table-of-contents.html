@@ -1,4 +1,5 @@
-{% load include_previous_object times subtract %}
+{% load include_previous_object times subtract call_method %}
+{% if editing %}<p>This Table of Contents is not yet editable.</p>{% endif %}
 <section class="table-of-contents">
   {% if section %}<h5>Section Contents</h5>{% endif %}
   {% with contents.first.ordinals|length as initial_level %}
@@ -9,7 +10,7 @@
           {# Adjust level of nesting as appropriate: first loop if nesting deeper, second loop if unnesting #}
           {% for _ in current_level|subtract:previous_level|times %}
             <div class="section-wrapper">
-              <div class="section-contents">
+              <div class="section-contents{% if editing %} editable{% endif %}">
           {% endfor %}
           {% for _ in previous_level|subtract:current_level|times %}
               </div>
@@ -17,9 +18,10 @@
           {% endfor %}
 
           {# TOC entry #}
-          {% if content.type == 'resource'  %}
+          {% call_method content 'get_edit_or_absolute_url' editing=editing as url %}
+          {% if content.type == 'resource' %}
             <div class="listing-wrapper" data-ordinals="{{ content.ordinal_string }}">
-              <a class="listing resource" href="{{ content.get_absolute_url }}">
+              <a class="listing resource" href="{{ url }}">
                 <div class="section-number">{{ content.ordinal_string }}</div>
                   {% if content.resource_type == 'Case' %}
                     <div class="resource-container">
@@ -63,7 +65,7 @@
             </div>
           {% elif content.type == 'section' %}
             <div class="listing-wrapper" data-ordinals="{{ content.ordinal_string }}">
-              <a class="listing section" href="{{ content.get_absolute_url }}">
+              <a class="listing section" href="{{ url }}">
                 <div class="section-number">{{ content.ordinal_string }}</div>
                 <div class="section-title">{{ content.get_title }}</div>
               </a>
