@@ -1,4 +1,4 @@
-<aside class="casebook-actions">
+<aside class="casebook-actions" data-actions="{{ action_list }}">
   {% if publishable %}
     <button type="button" class="action publish one-line">Publish{% if content.is_or_belongs_to_draft %} Changes{% endif %}</button>
     {# TODO: this opens a modal that POSTs (PATCHs?) to the casebook route. Implement that! #}

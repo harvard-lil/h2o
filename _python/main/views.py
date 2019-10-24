@@ -1,3 +1,4 @@
+from collections import OrderedDict
 import json
 from pyquery import PyQuery
 import requests
@@ -34,59 +35,126 @@ def login_required_response(request):
         return redirect_to_login(request.build_absolute_uri())
 
 
-def action_buttons(request, context):
+def actions(request, context):
     """
+        This describes what can be done to a given node, or to its containing
+        casebook, by a user, on a particular page.
+
         See node_decorate.rb, action_button_builder.rb, and _actions.html.erb
 
-        Casebooks
-        # Published casebook, anonymous
-        # - exportable
-        # Published casebook without draft, collaborator
-        # - exportable, cloneable, can_create_draft
-        # Published casebook with draft, collaborator
-        # - exportable, cloneable,  can_view_existing_draft
-        # Never-published casebook
-        # - exportable, cloneable, can_be_directly_edited, publishable
-        # Never-published casebook, edit page
-        # - exportable, cloneable, previewable, publishable
-        # Draft casebook
-        # - exportable, publishable
-        # Draft casebook, edit page
-        # - exportable, previewable, publishable
+        Given:
+        >>> published, private, with_draft, client = [getfixture(f) for f in ['full_casebook', 'full_private_casebook', 'full_casebook_with_draft', 'client']]
+        >>> published_section = published.contents.all()[0]
+        >>> published_resource = published.contents.all()[1]
+        >>> private_section = private.contents.all()[0]
+        >>> private_resource = private.contents.all()[1]
+        >>> with_draft_section = with_draft.contents.all()[0]
+        >>> with_draft_resource = with_draft.contents.all()[1]
+        >>> draft = with_draft.drafts()
+        >>> draft_section = draft.contents.all()[0]
+        >>> draft_resource = draft.contents.all()[1]
 
-        Sections
-        # In published casebook, anonymous
-        # - exportable
-        # In published casebook without draft, collaborator
-        # - exportable, cloneable , can_create_draft
-        # In published casebook with draft, collaborator
-        # - exportable, cloneable, can_view_existing_draft
-        # In never-published casebook
-        # - exportable, cloneable, can_be_directly_edited
-        # In never-published casebook, edit page
-        # - exportable, previewable
-        # In draft casebook
-        # - exportable, publishable
-        # In draft casebook, edit page
-        # - exportable, previewable, publishable
+        ##
+        # These pages allow the same actions regardless of node types
+        ##
 
-        Resources
-        # In published casebook, anonymous
-        # - exportable
-        # In published casebook without draft, collaborator
-        # - exportable, cloneable, can_create_draft
-        # In published casebook with draft, collaborator
-        # - exportable, cloneable, can_view_existing_draft
-        # In never-published casebook
-        # - exportable, cloneable, can_be_directly_edited
-        # In never-published casebook, edit page
-        # - exportable, previewable
-        # In draft casebook
-        # - exportable, publishable
-        # In draft casebook, edit page
-        # - exportable, previewable, publishable
-        # In draft casebook, annotate page
-        # - exportable, previewable, publishable
+        When a logged out user visits casebooks, sections, and resources:
+        >>> for o in [published, published_section, published_resource]:
+        ...     check_response(
+        ...         client.get(o.get_absolute_url()),
+        ...         content_includes='actions="exportable"'
+        ...     )
+
+        When a collaborator views a published casebook WITHOUT a draft, or
+        any of that casebook's sections or resources:
+        >>> for o in [published, published_section, published_resource]:
+        ...     check_response(
+        ...         client.get(o.get_absolute_url(), as_user=published.owner),
+        ...         content_includes='actions="exportable,cloneable,can_create_draft"'
+        ...     )
+
+        When a collaborator views a published casebook WITH a draft, or
+        any of that casebook's sections or resources:
+        >>> for o in [with_draft, with_draft_section, with_draft_resource]:
+        ...     check_response(
+        ...         client.get(o.get_absolute_url(), as_user=with_draft.owner),
+        ...         content_includes='actions="exportable,cloneable,can_view_existing_draft"'
+        ...     )
+
+        When a collaborator views the "preview" page of a private, never published casebook, or
+        the preview pages of any of that casebook's sections or resources:
+        >>> for o in [private, private_section, private_resource]:
+        ...     check_response(
+        ...         client.get(o.get_absolute_url(), as_user=private.owner),
+        ...         content_includes='actions="exportable,cloneable,publishable,can_be_directly_edited"'
+        ...     )
+
+        When a collaborator views the "preview" page of a draft of an already-published casebook, or
+        the preview pages of any of that casebook's sections or resources:
+        >>> for o in [draft, draft_section, draft_resource]:
+        ...     check_response(
+        ...         client.get(o.get_absolute_url(), as_user=draft.owner),
+        ...         content_includes='actions="exportable,publishable,can_be_directly_edited"'
+        ...     )
+
+        ##
+        # These pages allow different actions, depending on the node type
+        ##
+
+        # Casebook
+
+        When a collaborator views the "edit" page of a private, never-published casebook
+        >>> check_response(
+        ...    client.get(private.get_edit_url(), as_user=private.owner),
+        ...    content_includes='actions="exportable,cloneable,previewable,publishable,can_save_nodes,can_add_nodes"'
+        ... )
+
+        When a collaborator views the "edit" page of a draft of an already-published casebook
+        >>> check_response(
+        ...    client.get(draft.get_edit_url(), as_user=draft.owner),
+        ...    content_includes='actions="exportable,previewable,publishable,can_save_nodes,can_add_nodes"'
+        ... )
+
+        # Section
+
+        When a collaborator views the "edit" page of a section in a private, never-published casebook
+        >>> check_response(
+        ...     client.get(private_section.get_edit_url(), as_user=private.owner),
+        ...     content_includes='actions="exportable,previewable,can_save_nodes,can_add_nodes"'
+        ... )
+
+        When a collaborator views the "edit" page of a section in draft of an already-published casebook
+        >>> check_response(
+        ...     client.get(draft_section.get_edit_url(), as_user=draft.owner),
+        ...     content_includes='actions="exportable,previewable,publishable,can_save_nodes,can_add_nodes"'
+        ... )
+
+        # Resource
+
+        When a collaborator views the "edit" page of a resource in a private, never-published casebook
+        >>> check_response(
+        ...     client.get(private_resource.get_edit_url(), as_user=private.owner),
+        ...     content_includes='actions="exportable,previewable,can_save_nodes"'
+        ... )
+
+        When a collaborator views the "edit" page of a resource in draft of an already-published casebook
+        >>> check_response(
+        ...     client.get(draft_resource.get_edit_url(), as_user=draft.owner),
+        ...     content_includes='actions="exportable,previewable,publishable,can_save_nodes"'
+        ... )
+
+        When a collaborator views the "annotate" page of a resource in a private, never-published casebook
+        >>> check_response(
+        ...     client.get(private_resource.get_annotate_url(), as_user=private.owner),
+        ...     content_includes='actions="exportable,previewable"'
+        ... )
+
+        When a collaborator views the "annotate" page of a resource in draft of an already-published casebook
+        >>> check_response(
+        ...     client.get(draft_resource.get_annotate_url(), as_user=draft.owner),
+        ...     content_includes='actions="exportable,previewable,publishable"'
+        ... )
+
     """
     view = request.resolver_match.view_name
     node = context.get('casebook') or context.get('section') or context.get('resource')
@@ -95,17 +163,24 @@ def action_buttons(request, context):
                 view in ['casebook', 'section', 'resource', 'edit_casebook'] and \
                 node.permits_cloning
 
-    return {
-        'exportable': True,
-        'cloneable': cloneable,
-        'previewable': context.get('editing', False),
-        'publishable': view == 'edit_casebook' or node.is_private and view in ['casebook', 'section', 'resource'],
-        'can_save_nodes': view in ['edit_casebook', 'edit_section', 'edit_resource'],
-        'can_add_nodes': view in ['edit_casebook', 'edit_section'],
-        'can_be_directly_edited': view in ['casebook', 'resource', 'section'] and node.directly_editable_by(request.user),
-        'can_create_draft': view in ['casebook', 'resource', 'section'] and node.allows_draft_creation_by(request.user),
-        'can_view_existing_draft': view in ['casebook', 'resource', 'section'] and node.has_draft and node.editable_by(request.user)
-    }
+    publishable = view == 'edit_casebook' or \
+                 (node.is_private and view in ['casebook', 'section', 'resource']) or \
+                 node.is_or_belongs_to_draft
+
+    actions = OrderedDict([
+        ('exportable', True),
+        ('cloneable', cloneable),
+        ('previewable', context.get('editing', False)),
+        ('publishable', publishable),
+        ('can_save_nodes', view in ['edit_casebook', 'edit_section', 'edit_resource']),
+        ('can_add_nodes', view in ['edit_casebook', 'edit_section']),
+        ('can_be_directly_edited', view in ['casebook', 'resource', 'section'] and node.directly_editable_by(request.user)),
+        ('can_create_draft', view in ['casebook', 'resource', 'section'] and node.allows_draft_creation_by(request.user)),
+        ('can_view_existing_draft', view in ['casebook', 'resource', 'section'] and node.has_draft and node.editable_by(request.user))
+    ])
+    # for ease of testing, include a list of truthy actions
+    actions['action_list'] = ','.join([a for a in actions if actions[a]])
+    return actions
 
 def render_with_actions(request, template_name, context=None, content_type=None, status=None, using=None):
     if 'context' is None:
@@ -113,7 +188,7 @@ def render_with_actions(request, template_name, context=None, content_type=None,
 
     return render(request, template_name, {
         **context,
-        **action_buttons(request, context)
+        **actions(request, context)
     }, content_type, status, using)
 
 

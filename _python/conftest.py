@@ -245,6 +245,33 @@ def full_casebook(casebook_factory):
     ResourceFactory(casebook=casebook, ordinals=[1, 4, 3], resource_type='Default', resource_id=DefaultFactory(user=user).id)
     return casebook
 
+@pytest.fixture
+def full_private_casebook(full_casebook):
+    """
+    >>> private, published = [getfixture(f) for f in ['full_private_casebook', 'full_casebook']]
+    >>> assert published != private
+    >>> assert private.is_private
+    >>> assert all(node.is_private for node in private.contents.all())
+    """
+    casebook = full_casebook.clone()
+    return casebook
+
+@pytest.fixture
+def full_casebook_with_draft(full_casebook):
+    """
+    >>> with_draft, without_draft = [getfixture(f) for f in ['full_casebook_with_draft', 'full_casebook']]
+    >>> assert with_draft != without_draft
+    >>> assert not without_draft.has_draft
+    >>> assert with_draft.has_draft
+    >>> assert with_draft.is_public
+    >>> assert with_draft.drafts().is_private
+    >>> assert all(node.has_draft for node in with_draft.contents.all())
+    """
+    casebook = full_casebook.clone()
+    casebook.public = True
+    casebook.save()
+    casebook.make_draft()
+    return casebook
 
 @pytest.fixture
 def user_with_cloneable_casebook(casebook_factory, user_factory):
