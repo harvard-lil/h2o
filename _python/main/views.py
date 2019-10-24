@@ -183,7 +183,7 @@ def actions(request, context):
     return actions
 
 def render_with_actions(request, template_name, context=None, content_type=None, status=None, using=None):
-    if 'context' is None:
+    if context is None:
         context = {}
 
     return render(request, template_name, {
