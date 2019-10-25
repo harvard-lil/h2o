@@ -38,6 +38,11 @@ class DifferTest < ActiveSupport::TestCase
       assert_equal 0, Differ.get_delta_at_offset(diffs, 5)
     end
 
+    it "should return 0 when the provided offset is less than 0" do
+      diffs = Differ.get_diffs "foo", "foo bar"
+      assert_equal 0, Differ.get_delta_at_offset(diffs, -1)
+    end
+
     it "should return the difference between the original number of characters preceeding this offset and the new number of characters preceeding it" do
       diffs = Differ.get_diffs("foo ipsum", "foo bar lorum ipsum")
       assert_equal 10, Differ.get_delta_at_offset(diffs, 5)

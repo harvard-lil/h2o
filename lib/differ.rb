@@ -58,9 +58,18 @@ module Differ
       }
     end
 
+    # test whether the offset is negative or greater than the text from which the diffs were generated
+    def offset_out_of_bounds? diffs, offset
+      offset < 0 || diffs.last[2].max < offset
+    end
+
     def get_delta_at_offset diffs, offset
+      return 0 if offset_out_of_bounds?(diffs, offset)
+
       # Reverse the list so we find the last diff that includes the offset and for which the offset isn't at the start of the diff (i.e. before the changes in that diff would have any effect)
-      diff = diffs.reverse.find { |diff| diff[2].min < offset }
+      diff = diffs.reverse.find { |diff|
+        diff[2].max >= offset && diff[2].min < offset
+      }
 
       # if the last diff is a deletion, shift the offset backward to the beginning of the deletion,
       # otherwise get the difference between the before and after ranges
