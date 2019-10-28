@@ -3,6 +3,7 @@ pip-tools
 django
 django-extensions
 djangorestframework
+django-crispy-forms # tidier custom model forms
 whitenoise          # static file serving
 
 # database
@@ -16,7 +17,7 @@ cryptography        # read ruby session cookies
 pytest
 pytest-django
 pytest-cov
-factory-boy        # create django model fixtures on demand
+factory-boy         # create django model fixtures on demand
 flake8
 requests-mock       # mock the requests library
 
