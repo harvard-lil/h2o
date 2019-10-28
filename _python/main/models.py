@@ -9,7 +9,7 @@ from django.urls import reverse
 from django.utils.text import slugify
 
 from test_helpers import dump_casebook_outline
-from .utils import clone_model_instance
+from .utils import clone_model_instance, sanitize
 
 
 class BigPkModel(models.Model):
@@ -32,6 +32,25 @@ class NullableTimestampedModel(models.Model):
 
     class Meta:
         abstract = True
+
+
+class SanitizingTextField(models.TextField):
+    """
+    Removes dangerous HTML from a TextField before it is saved to the database.
+    See https://docs.djangoproject.com/en/2.2/howto/custom-model-fields/#preprocessing-values-before-saving
+    and https://docs.djangoproject.com/en/2.2/ref/models/fields/#django.db.models.Field.pre_save
+    """
+
+    def pre_save(self, model_instance, add):
+        # TODO:
+        # Rails checks to see if the value has changed first;
+        # I don't know of a clean and reliable way to do this in Django.
+        # Do we need to avoid sanitizing redundantly?
+        value = getattr(model_instance, self.attname)
+        if value:
+            value = sanitize(value)
+            setattr(model_instance, self.attname, value)
+        return value
 
 
 # Internal
@@ -255,7 +274,7 @@ class ContentNodeQueryset(models.QuerySet):
 class ContentNode(TimestampedModel, BigPkModel):
     title = models.CharField(max_length=10000, blank=True, null=True)
     subtitle = models.CharField(max_length=10000, blank=True, null=True)
-    headnote = models.TextField(blank=True, null=True)
+    headnote = SanitizingTextField(blank=True, null=True)
     raw_headnote = models.TextField(blank=True, null=True)
     copy_of = models.ForeignKey(
         'self',
