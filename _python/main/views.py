@@ -18,7 +18,7 @@ from test_helpers import check_response
 from .utils import parse_cap_decision_date
 from .serializers import ContentAnnotationSerializer, CaseSerializer, TextBlockSerializer
 from .models import Casebook, Resource, Section, Case, User, CaseCourt
-from .forms import CasebookForm
+from .forms import CasebookForm, SectionForm, ResourceForm
 
 def login_required_response(request):
     if request.user.is_authenticated:
@@ -438,11 +438,15 @@ def edit_section(request, casebook_param, ordinals_param):
     # Duplicating that here.
     section = get_object_or_404(Section.objects.select_related('casebook'), casebook=casebook_param['id'], ordinals=ordinals_param['ordinals'])
     if section.directly_editable_by(request.user):
+        form = SectionForm(request.POST or None, instance=section)
+        if request.method == 'POST' and form.is_valid():
+            form.save()
         contents = section.contents.prefetch_resources().order_by('ordinals')
         return render_with_actions(request, 'section_edit.html', {
             'section': section,
             'contents': contents,
-            'editing': True
+            'editing': True,
+            'form': form
         })
     raise PermissionDenied
 

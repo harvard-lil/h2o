@@ -2,19 +2,19 @@ from django.forms import Form, ModelForm
 from crispy_forms.helper import FormHelper
 from crispy_forms.layout import Layout, Field, Div, HTML
 
-from main.models import Casebook
+from main.models import ContentNode, Casebook, Section, Resource
 
 
-class CasebookForm(ModelForm):
+class ContentNodeForm(ModelForm):
 
     class Meta:
-        model = Casebook
+        model = ContentNode
         fields = ['title', 'subtitle', 'headnote']
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.helper = FormHelper()
-        self.helper.form_class = 'simple_form edit_content_casebook'
+        self.helper.render_unmentioned_fields = True
         self.helper.layout = Layout(
             Field('title', placeholder='Enter a concise title.'),
             Field('subtitle', placeholder='Subtitle (optional)'),
@@ -30,3 +30,19 @@ class CasebookForm(ModelForm):
         # Remove the explicit label on the "headnote" field, since it is
         # labeled using aria-labelledby
         self.fields['headnote'].label = False
+
+
+class CasebookForm(ContentNodeForm):
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.helper.form_class = 'edit_content_casebook'
+
+
+class SectionForm(ContentNodeForm):
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.helper.form_class = 'edit_content_section'
+
+

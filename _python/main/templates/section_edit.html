@@ -1,5 +1,7 @@
 {% extends 'base.html' %}
 
+{% load crispy_forms_tags %}
+
 {% block page_title %}Section {{ section.ordinal_string }} | {{ section.casebook.get_title }}{% endblock %}
 
 {% block banner %}
@@ -25,6 +27,7 @@
     <div class="content">
       <div class="casebook-inner">
         <div class="top-strip"></div>
+        {# NB: The casebook header is not included in the Rails app, edit page, only the preview page, but I think it should always be present. #}
         <header class="casebook-header">
           <div class="casebook-title">
             {{ section.casebook.get_title }}
@@ -32,10 +35,9 @@
         </header>
         <header class="content">
           {% include 'includes/breadcrumbs.html' with content=section %}
-          <h1 class="title">{{ section.get_title }}</h1>
+          {% crispy form %}
         </header>
         {% include 'includes/action_buttons.html' with content=section %}
-        {% include 'includes/headnote.html' with content=section %}
         {% include 'includes/table-of-contents.html' with contents=section.contents  %}
       </div>
     </div>
