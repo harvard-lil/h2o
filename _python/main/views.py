@@ -12,14 +12,13 @@ from django.core.exceptions import PermissionDenied
 from django.http import HttpResponseRedirect, HttpResponseBadRequest, JsonResponse, Http404
 from django.shortcuts import render, get_object_or_404
 from django.urls import reverse
-from django.views.decorators.http import require_POST
-
+from django.views.decorators.http import require_POST, require_http_methods
 
 from test_helpers import check_response
 from .utils import parse_cap_decision_date
 from .serializers import ContentAnnotationSerializer, CaseSerializer, TextBlockSerializer
 from .models import Casebook, Resource, Section, Case, User, CaseCourt
-
+from .forms import CasebookForm
 
 def login_required_response(request):
     if request.user.is_authenticated:
@@ -393,17 +392,23 @@ def create_draft(request, casebook_param):
         return HttpResponseRedirect(reverse('edit_casebook', args=[clone.pk]))
     raise PermissionDenied
 
+
 @login_required
+@require_http_methods(["GET", "POST"])
 def edit_casebook(request, casebook_param):
     # NB: The Rails app does NOT redirect here to a canonical URL; it silently accepts any slug.
     # Duplicating that here.
     casebook = get_object_or_404(Casebook, id=casebook_param['id'])
     if casebook.directly_editable_by(request.user):
+        form = CasebookForm(request.POST or None, instance=casebook)
+        if request.method == 'POST' and form.is_valid():
+            form.save()
         contents = casebook.contents.prefetch_resources().order_by('ordinals')
         return render_with_actions(request, 'casebook_edit.html', {
             'casebook': casebook,
             'contents': contents,
-            'editing': True
+            'editing': True,
+            'form': form
         })
     raise PermissionDenied
 
