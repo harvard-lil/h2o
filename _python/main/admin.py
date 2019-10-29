@@ -326,7 +326,8 @@ class UnpublishedRevisionAdmin(NonLoggingAdmin):
 ## Resources
 
 class CaseAdmin(NonLoggingAdmin):
-    readonly_fields = ['created_at', 'updated_at', 'annotations_count']
+    # Content is readonly until we implement the annotation-shifting logic on the python side
+    readonly_fields = ['created_at', 'updated_at', 'annotations_count', 'content']
     list_select_related = ['case_court']
     list_display = ['id', 'name_abbreviation', 'public', 'capapi_link', 'created_via_import', 'related_resources', 'annotations_count', 'court_link', 'created_at', 'updated_at']
     list_filter = ['public', 'created_via_import', CourtIdFilter]
@@ -397,7 +398,8 @@ class DefaultAdmin(NonLoggingAdmin):
 
 
 class TextBlockAdmin(NonLoggingAdmin):
-    readonly_fields = ['created_at', 'updated_at', 'user', 'version', 'annotations_count']
+    # Content is readonly until we implement the annotation-shifting logic on the python side
+    readonly_fields = ['created_at', 'updated_at', 'user', 'version', 'annotations_count', 'content']
     list_select_related = ['user']
     list_display = ['id', 'name', 'user_link', 'public', 'created_via_import', 'version', 'related_resources', 'annotations_count', 'created_at', 'updated_at']
     list_filter = ['version', 'created_via_import']

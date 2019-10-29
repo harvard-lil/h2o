@@ -117,10 +117,12 @@ class TextBlockForm(ModelForm):
         self.helper = FormHelper()
         self.helper.layout = Layout(
             Div(
-                HTML('<h5 id="content-label">Content</h5>'),
+                HTML('<h5 id="content-label">Content (disabled)</h5>'),
                 Field('content',
                     css_class='ckeditor',
-                    aria_labelledby='content-label'
+                    aria_labelledby='content-label',
+                    # Disabled until it's safe to update TextBlocks
+                    disabled=True
                 ),
             )
         )
