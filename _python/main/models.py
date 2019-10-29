@@ -691,6 +691,13 @@ class SectionAndResourceMixin(models.Model):
             })
         return return_value
 
+    @property
+    def owner(self):
+        """
+        This is a convenience method for tests
+        """
+        return self.casebook.owner
+
 
 class CasebookManager(models.Manager):
     def get_queryset(self):

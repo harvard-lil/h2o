@@ -263,7 +263,6 @@ def casebook(request, casebook_param):
         Show a casebook's front page.
 
         TODO: test with editors, not only owners.
-        TODO: build, then test, action buttons :-)
         TODO: slashes.
         > RuntimeError: You called this URL via POST, but the URL
         > doesn't end in a slash and you have APPEND_SLASH set. Django
@@ -297,7 +296,7 @@ def casebook(request, casebook_param):
 
         Admins can see a user's non-public casebooks in preview mode:
         >>> check_response(
-        ...     client.get(private_casebook.get_absolute_url(), as_user=user),
+        ...     client.get(private_casebook.get_absolute_url(), as_user=admin_user),
         ...     content_includes=[
         ...         private_casebook.title,
         ...         "You are viewing a preview"
@@ -414,6 +413,52 @@ def edit_casebook(request, casebook_param):
 
 
 def section(request, casebook_param, ordinals_param):
+    """
+        Show a section within a casebook.
+
+        TODO: test with editors, not only owners.
+
+        Given:
+        >>> published, private, with_draft, client, admin_user, user_factory = [getfixture(f) for f in ['full_casebook', 'full_private_casebook', 'full_casebook_with_draft', 'client', 'admin_user', 'user_factory']]
+        >>> published_section = published.contents.all()[0]
+        >>> private_section = private.contents.all()[0]
+        >>> draft_section = with_draft.drafts().contents.all()[0]
+        >>> non_collaborating_user = user_factory()
+
+
+        All users can see sections in public casebooks:
+        >>> check_response(client.get(published_section.get_absolute_url(), content_includes=published_section.title))
+
+        Other users cannot see sections in non-public casebooks:
+        >>> check_response(client.get(private_section.get_absolute_url()), status_code=302)
+        >>> check_response(client.get(private_section.get_absolute_url(), as_user=non_collaborating_user), status_code=403)
+
+        Users can see sections in their own non-public casebooks in preview mode:
+        >>> check_response(
+        ...     client.get(private_section.get_absolute_url(), as_user=private_section.owner),
+        ...     content_includes=[
+        ...         private_section.title,
+        ...         "You are viewing a preview"
+        ...     ]
+        ... )
+
+        Admins can see sections in a user's non-public casebooks in preview mode:
+        >>> check_response(
+        ...     client.get(private_section.get_absolute_url(), as_user=admin_user),
+        ...     content_includes=[
+        ...         private_section.title,
+        ...         "You are viewing a preview"
+        ...     ]
+        ... )
+
+        Owners and admins see the "preview mode" of sections in draft casebooks:
+        >>> check_response(client.get(draft_section.get_absolute_url(), as_user=private_section.owner), content_includes="You are viewing a preview")
+        >>> check_response(client.get(draft_section.get_absolute_url(), as_user=admin_user), content_includes="You are viewing a preview")
+
+        Other users cannot see sections in draft casebooks:
+        >>> check_response(client.get(draft_section.get_absolute_url()), status_code=302)
+        >>> check_response(client.get(draft_section.get_absolute_url(), as_user=non_collaborating_user), status_code=403)
+    """
     section = get_object_or_404(Section.objects.select_related('casebook'), casebook=casebook_param['id'], ordinals=ordinals_param['ordinals'])
 
     # check permissions
@@ -452,6 +497,52 @@ def edit_section(request, casebook_param, ordinals_param):
 
 
 def resource(request, casebook_param, ordinals_param):
+    """
+        Show a resource within a casebook.
+
+        TODO: test with editors, not only owners.
+
+        Given:
+        >>> published, private, with_draft, client, admin_user, user_factory = [getfixture(f) for f in ['full_casebook', 'full_private_casebook', 'full_casebook_with_draft', 'client', 'admin_user', 'user_factory']]
+        >>> published_resource = published.contents.all()[1]
+        >>> private_resource = private.contents.all()[1]
+        >>> draft_resource = with_draft.drafts().contents.all()[1]
+        >>> non_collaborating_user = user_factory()
+
+
+        All users can see resources in public casebooks:
+        >>> check_response(client.get(published_resource.get_absolute_url(), content_includes=published_resource.title))
+
+        Other users cannot see resources in non-public casebooks:
+        >>> check_response(client.get(private_resource.get_absolute_url()), status_code=302)
+        >>> check_response(client.get(private_resource.get_absolute_url(), as_user=non_collaborating_user), status_code=403)
+
+        Users can see resources in their own non-public casebooks in preview mode:
+        >>> check_response(
+        ...     client.get(private_resource.get_absolute_url(), as_user=private_resource.owner),
+        ...     content_includes=[
+        ...         private_resource.get_title(),
+        ...         "You are viewing a preview"
+        ...     ]
+        ... )
+
+        Admins can see resources in a user's non-public casebooks in preview mode:
+        >>> check_response(
+        ...     client.get(private_resource.get_absolute_url(), as_user=admin_user),
+        ...     content_includes=[
+        ...         private_resource.get_title(),
+        ...         "You are viewing a preview"
+        ...     ]
+        ... )
+
+        Owners and admins see the "preview mode" of resources in draft casebooks:
+        >>> check_response(client.get(draft_resource.get_absolute_url(), as_user=private_resource.owner), content_includes="You are viewing a preview")
+        >>> check_response(client.get(draft_resource.get_absolute_url(), as_user=admin_user), content_includes="You are viewing a preview")
+
+        Other users cannot see resources in draft casebooks:
+        >>> check_response(client.get(draft_resource.get_absolute_url()), status_code=302)
+        >>> check_response(client.get(draft_resource.get_absolute_url(), as_user=non_collaborating_user), status_code=403)
+    """
     resource = get_object_or_404(Resource.objects.select_related('casebook'), casebook=casebook_param['id'], ordinals=ordinals_param['ordinals'])
 
     # check permissions
