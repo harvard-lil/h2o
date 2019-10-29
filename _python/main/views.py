@@ -478,7 +478,58 @@ def section(request, casebook_param, ordinals_param):
 
 
 @login_required
+@require_http_methods(["GET", "POST"])
 def edit_section(request, casebook_param, ordinals_param):
+    """
+        Let authorized users update Section metadata.
+
+        TODO: test with editors, not only owners.
+
+        Given:
+        >>> published, private, with_draft, client, admin_user, user_factory = [getfixture(f) for f in ['full_casebook', 'full_private_casebook', 'full_casebook_with_draft', 'client', 'admin_user', 'user_factory']]
+        >>> published_section = published.contents.all()[0]
+        >>> private_section = private.contents.all()[0]
+        >>> draft_section = with_draft.drafts().contents.all()[0]
+        >>> non_collaborating_user = user_factory()
+
+
+        You have to be logged in to get to the edit page:
+        >>> check_response(client.get(published_section.get_edit_url()), status_code=302)
+
+        No one can edit published casebooks:
+        >>> check_response(client.get(published_section.get_edit_url(), as_user=non_collaborating_user), status_code=403)
+        >>> check_response(client.get(published_section.get_edit_url(), as_user=published_section.owner), status_code=403)
+        >>> check_response(client.get(published_section.get_edit_url(), as_user=admin_user), status_code=403)
+        >>> check_response(client.post(published_section.get_edit_url(), as_user=non_collaborating_user), status_code=403)
+        >>> check_response(client.post(published_section.get_edit_url(), as_user=published_section.owner), status_code=403)
+        >>> check_response(client.post(published_section.get_edit_url(), as_user=admin_user), status_code=403)
+
+        Users can edit sections in their unpublished and draft casebooks:
+        >>> for section in [private_section, draft_section]:
+        ...     new_title = 'owner-edited title'
+        ...     check_response(
+        ...         client.get(section.get_edit_url(), as_user=section.owner),
+        ...             content_includes=[
+        ...             section.title,
+        ...             "This casebook is a draft"
+        ...         ]
+        ...     )
+        ...     check_response(
+        ...         client.post(section.get_edit_url(), {'title': new_title}, as_user=section.owner),
+        ...         content_includes=new_title,
+        ...         content_excludes=section.title
+        ...     )
+
+        Admins can edit sections in a user's unpublished and draft casebooks:
+        >>> for section in [private_section, draft_section]:
+        ...     new_title = 'admin-edited title'
+        ...     check_response(
+        ...         client.post(section.get_edit_url(), {'title': new_title}, as_user=section.owner),
+        ...         content_includes=new_title,
+        ...         content_excludes=section.title
+        ...     )
+    """
+
     # NB: The Rails app does NOT redirect here to a canonical URL; it silently accepts any slug.
     # Duplicating that here.
     section = get_object_or_404(Section.objects.select_related('casebook'), casebook=casebook_param['id'], ordinals=ordinals_param['ordinals'])
@@ -566,7 +617,60 @@ def resource(request, casebook_param, ordinals_param):
 
 
 @login_required
+@require_http_methods(["GET", "POST"])
 def edit_resource(request, casebook_param, ordinals_param):
+    """
+        Let authorized users update Resource metadata.
+
+        TODO: test with editors, not only owners.
+        TODO: test with Link, TextBlock, and Default
+
+        Given:
+        >>> published, private, with_draft, client, admin_user, user_factory = [getfixture(f) for f in ['full_casebook', 'full_private_casebook', 'full_casebook_with_draft', 'client', 'admin_user', 'user_factory']]
+        >>> published_resource = published.contents.all()[1]
+        >>> private_resource = private.contents.all()[1]
+        >>> draft_resource = with_draft.drafts().contents.all()[1]
+        >>> non_collaborating_user = user_factory()
+
+
+        You have to be logged in to get to the edit page:
+        >>> check_response(client.get(published_resource.get_edit_url()), status_code=302)
+
+        No one can edit published casebooks:
+        >>> check_response(client.get(published_resource.get_edit_url(), as_user=non_collaborating_user), status_code=403)
+        >>> check_response(client.get(published_resource.get_edit_url(), as_user=published_resource.owner), status_code=403)
+        >>> check_response(client.get(published_resource.get_edit_url(), as_user=admin_user), status_code=403)
+        >>> check_response(client.post(published_resource.get_edit_url(), as_user=non_collaborating_user), status_code=403)
+        >>> check_response(client.post(published_resource.get_edit_url(), as_user=published_resource.owner), status_code=403)
+        >>> check_response(client.post(published_resource.get_edit_url(), as_user=admin_user), status_code=403)
+
+        Users can edit resources in their unpublished and draft casebooks:
+        >>> for resource in [private_resource, draft_resource]:
+        ...     original_title = resource.get_title()
+        ...     new_title = 'owner-edited title'
+        ...     check_response(
+        ...         client.get(resource.get_edit_url(), as_user=resource.owner),
+        ...             content_includes=[
+        ...             resource.get_title(),
+        ...             "This casebook is a draft"
+        ...         ]
+        ...     )
+        ...     check_response(
+        ...         client.post(resource.get_edit_url(), {'title': new_title}, as_user=resource.owner),
+        ...         content_includes=new_title,
+        ...         content_excludes=original_title
+        ...     )
+
+        Admins can edit resources in a user's unpublished and draft casebooks:
+        >>> for resource in [private_resource, draft_resource]:
+        ...     new_title = 'admin-edited title'
+        ...     check_response(
+        ...         client.post(resource.get_edit_url(), {'title': new_title}, as_user=resource.owner),
+        ...         content_includes=new_title,
+        ...         content_excludes=original_title
+        ...     )
+    """
+
     # NB: The Rails app does NOT redirect here to a canonical URL; it silently accepts any slug.
     # Duplicating that here.
 
