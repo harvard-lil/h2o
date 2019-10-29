@@ -18,7 +18,7 @@ from test_helpers import check_response
 from .utils import parse_cap_decision_date
 from .serializers import ContentAnnotationSerializer, CaseSerializer, TextBlockSerializer
 from .models import Casebook, Resource, Section, Case, User, CaseCourt
-from .forms import CasebookForm, SectionForm, ResourceForm
+from .forms import CasebookForm, SectionForm, ResourceForm, LinkForm, TextBlockForm
 
 def login_required_response(request):
     if request.user.is_authenticated:
@@ -478,13 +478,48 @@ def resource(request, casebook_param, ordinals_param):
 def edit_resource(request, casebook_param, ordinals_param):
     # NB: The Rails app does NOT redirect here to a canonical URL; it silently accepts any slug.
     # Duplicating that here.
+
+    # TBD: The appearance, validation, and "flash" behavior of this route is not identical
+    # to the Rails app, but the functionality is equivalent; I'm hoping we're content with it.
     resource = get_object_or_404(Resource.objects.select_related('casebook'), casebook=casebook_param['id'], ordinals=ordinals_param['ordinals'])
     if resource.directly_editable_by(request.user):
+        # Name calculation for Resources is particularly complex right now.
+        # We need the "title" field of the form to display the return value of
+        # resource.get_title(). If a user submits the edit form, this will cause
+        # resource.title to be populated with the value of resource.get_title()
+        # While this does not, I believe, reproduce the behavior of the Rails
+        # application, I think it is a step in the right direction, a world where
+        # the names of ContentNodes are reliably represented in a DB field, not
+        # calculated on the fly.
+        if not resource.title:
+            resource.title = resource.get_title()
+        form = ResourceForm(request.POST or None, instance=resource)
+
+        # Let users edit Link and TextBlock resources directly from this page
+        embedded_resource_form = None
+        if resource.resource_type == 'Default':
+            embedded_resource_form = LinkForm(request.POST or None, instance=resource.resource)
+        elif resource.resource_type == 'TextBlock':
+            embedded_resource_form = TextBlockForm(request.POST or None, instance=resource.resource)
+
+        # Save changes, if appropriate
+        if request.method == 'POST':
+            if embedded_resource_form:
+              if form.is_valid() and embedded_resource_form.is_valid():
+                form.save()
+                embedded_resource_form.save()
+            else:
+             if form.is_valid():
+                form.save()
+
         return render_with_actions(request, 'resource_edit.html', {
             'resource': resource,
-            'editing': True
+            'editing': True,
+            'form': form,
+            'embedded_resource_form': embedded_resource_form
         })
     raise PermissionDenied
+
 
 @login_required
 def annotate_resource(request, casebook_param, ordinals_param):

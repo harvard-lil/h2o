@@ -34,7 +34,7 @@ class NullableTimestampedModel(models.Model):
         abstract = True
 
 
-class SanitizingTextField(models.TextField):
+class SanitizingMixin(object):
     """
     Removes dangerous HTML from a TextField before it is saved to the database.
     See https://docs.djangoproject.com/en/2.2/howto/custom-model-fields/#preprocessing-values-before-saving
@@ -51,6 +51,13 @@ class SanitizingTextField(models.TextField):
             value = sanitize(value)
             setattr(model_instance, self.attname, value)
         return value
+
+
+class SanitizingCharField(SanitizingMixin, models.TextField):
+    pass
+
+class SanitizingTextField(SanitizingMixin, models.TextField):
+    pass
 
 
 # Internal
@@ -1097,7 +1104,9 @@ class Resource(SectionAndResourceMixin, ContentNode):
 
     def get_title(self):
         """See ContentNode.get_title"""
-        if self.resource_type == 'Default':
+        if self.title:
+            return self.title
+        elif self.resource_type == 'Default':
             if self.resource.name:
                 return self.resource.name
             else:
@@ -1167,7 +1176,7 @@ class Default(NullableTimestampedModel):
     """
     name = models.CharField(max_length=1024, blank=True, null=True)
     description = models.CharField(max_length=5242880, blank=True, null=True)
-    url = models.CharField(max_length=1024)
+    url = models.URLField(max_length=1024)
     public = models.BooleanField(null=True, default=True)
     content_type = models.CharField(max_length=255, blank=True, null=True)
     ancestry = models.CharField(max_length=255, blank=True, null=True)
@@ -1253,7 +1262,7 @@ class RolesUser(NullableTimestampedModel, BigPkModel):
 class TextBlock(NullableTimestampedModel):
     name = models.CharField(max_length=255)
     description = models.CharField(max_length=5242880, blank=True, null=True)
-    content = models.CharField(max_length=5242880)
+    content = SanitizingCharField(max_length=5242880)
     version = models.IntegerField(default=1)
     public = models.BooleanField(default=True, blank=True, null=True)
     created_via_import = models.BooleanField(default=False)

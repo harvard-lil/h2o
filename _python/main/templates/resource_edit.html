@@ -1,5 +1,7 @@
 {% extends 'base.html' %}
 
+{% load crispy_forms_tags %}
+
 {% block page_title %}Resource {{ resource.ordinal_string }} | {{ resource.casebook.get_title }}{% endblock %}
 
 {% block banner %}
@@ -26,6 +28,7 @@
     <div class="content">
       <div class="casebook-inner">
         <div class="top-strip"></div>
+        {# NB: The casebook header is not included in the Rails app, edit page, only the preview page, but I think it should always be present. #}
         <header class="casebook-header">
           <div class="casebook-title">
             {{ resource.casebook.get_title }}
@@ -33,11 +36,12 @@
         </header>
         <header class="content">
           {% include 'includes/breadcrumbs.html' with content=resource %}
-          <h1 class="title">{{ resource.get_title }}</h1>
+          <form class="{{ form.helper.form_class }}" method="{{ form.helper.form_method }}">
+            {% crispy form %}
+            {% if embedded_resource_form %}{% crispy embedded_resource_form %}{% endif %}
+          </form>
         </header>
         {% include 'includes/action_buttons.html' with content=resource %}
-        {% include 'includes/headnote.html' with content=resource %}
-        {% if resource.resource_type == 'Default' %}This should be a spot to update the URL of the Default/Link {% endif %}
       </div>
     </div>
   </section>
