@@ -505,12 +505,12 @@ def edit_resource(request, casebook_param, ordinals_param):
         # Save changes, if appropriate
         if request.method == 'POST':
             if embedded_resource_form:
-              if form.is_valid() and embedded_resource_form.is_valid():
-                form.save()
-                embedded_resource_form.save()
+                if form.is_valid() and embedded_resource_form.is_valid():
+                    form.save()
+                    embedded_resource_form.save()
             else:
-             if form.is_valid():
-                form.save()
+                if form.is_valid():
+                    form.save()
 
         return render_with_actions(request, 'resource_edit.html', {
             'resource': resource,
