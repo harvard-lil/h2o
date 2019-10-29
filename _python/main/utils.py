@@ -10,7 +10,7 @@ def sanitize(html):
     """
     TODO: read up on this sanitization library
     """
-    return bleach.clean(html, tags=['p', 'br', *bleach.sanitizer.ALLOWED_TAGS])
+    return bleach.clean(html, tags=['p', 'br', 'span', *bleach.sanitizer.ALLOWED_TAGS])
 
 
 def show_debug_toolbar(request):
