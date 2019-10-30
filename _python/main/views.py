@@ -484,16 +484,14 @@ def edit_section(request, casebook_param, ordinals_param):
         >>> draft_section = with_draft.drafts().contents.all()[0]
         >>> non_collaborating_user = user_factory()
 
-        You have to be logged in to get to the edit page:
+        Anonymous users cannot access the edit page:
         >>> check_response(client.get(published_section.get_edit_url()), status_code=302)
+        >>> check_response(client.post(published_section.get_edit_url()), status_code=302)
 
         No one can edit published casebooks:
-        >>> check_response(client.get(published_section.get_edit_url(), as_user=non_collaborating_user), status_code=403)
-        >>> check_response(client.get(published_section.get_edit_url(), as_user=published_section.owner), status_code=403)
-        >>> check_response(client.get(published_section.get_edit_url(), as_user=admin_user), status_code=403)
-        >>> check_response(client.post(published_section.get_edit_url(), as_user=non_collaborating_user), status_code=403)
-        >>> check_response(client.post(published_section.get_edit_url(), as_user=published_section.owner), status_code=403)
-        >>> check_response(client.post(published_section.get_edit_url(), as_user=admin_user), status_code=403)
+        >>> for u in [non_collaborating_user, published.owner, admin_user]:
+        >>>     check_response(client.get(published_section.get_edit_url(), as_user=u), status_code=403)
+        >>>     check_response(client.post(published_section.get_edit_url(), as_user=u), status_code=403)
 
         Users can edit sections in their unpublished and draft casebooks:
         >>> for section in [private_section, draft_section]:
