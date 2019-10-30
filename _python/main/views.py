@@ -218,8 +218,6 @@ def dashboard(request, user_id):
     """
         Show given user's casebooks.
 
-        TODO: test with editors, not only owners.
-
         Given:
         >>> casebook, casebook_factory, client, admin_user, user_factory = [getfixture(f) for f in ['casebook', 'casebook_factory', 'client', 'admin_user', 'user_factory']]
         >>> user = casebook.collaborators.first()
@@ -262,7 +260,6 @@ def casebook(request, casebook_param):
     """
         Show a casebook's front page.
 
-        TODO: test with editors, not only owners.
         TODO: slashes.
         > RuntimeError: You called this URL via POST, but the URL
         > doesn't end in a slash and you have APPEND_SLASH set. Django
@@ -416,15 +413,12 @@ def section(request, casebook_param, ordinals_param):
     """
         Show a section within a casebook.
 
-        TODO: test with editors, not only owners.
-
         Given:
         >>> published, private, with_draft, client, admin_user, user_factory = [getfixture(f) for f in ['full_casebook', 'full_private_casebook', 'full_casebook_with_draft', 'client', 'admin_user', 'user_factory']]
         >>> published_section = published.contents.all()[0]
         >>> private_section = private.contents.all()[0]
         >>> draft_section = with_draft.drafts().contents.all()[0]
         >>> non_collaborating_user = user_factory()
-
 
         All users can see sections in public casebooks:
         >>> check_response(client.get(published_section.get_absolute_url(), content_includes=published_section.title))
@@ -483,15 +477,12 @@ def edit_section(request, casebook_param, ordinals_param):
     """
         Let authorized users update Section metadata.
 
-        TODO: test with editors, not only owners.
-
         Given:
         >>> published, private, with_draft, client, admin_user, user_factory = [getfixture(f) for f in ['full_casebook', 'full_private_casebook', 'full_casebook_with_draft', 'client', 'admin_user', 'user_factory']]
         >>> published_section = published.contents.all()[0]
         >>> private_section = private.contents.all()[0]
         >>> draft_section = with_draft.drafts().contents.all()[0]
         >>> non_collaborating_user = user_factory()
-
 
         You have to be logged in to get to the edit page:
         >>> check_response(client.get(published_section.get_edit_url()), status_code=302)
@@ -509,7 +500,7 @@ def edit_section(request, casebook_param, ordinals_param):
         ...     new_title = 'owner-edited title'
         ...     check_response(
         ...         client.get(section.get_edit_url(), as_user=section.owner),
-        ...             content_includes=[
+        ...         content_includes=[
         ...             section.title,
         ...             "This casebook is a draft"
         ...         ]
@@ -551,15 +542,12 @@ def resource(request, casebook_param, ordinals_param):
     """
         Show a resource within a casebook.
 
-        TODO: test with editors, not only owners.
-
         Given:
         >>> published, private, with_draft, client, admin_user, user_factory = [getfixture(f) for f in ['full_casebook', 'full_private_casebook', 'full_casebook_with_draft', 'client', 'admin_user', 'user_factory']]
         >>> published_resource = published.contents.all()[1]
         >>> private_resource = private.contents.all()[1]
         >>> draft_resource = with_draft.drafts().contents.all()[1]
         >>> non_collaborating_user = user_factory()
-
 
         All users can see resources in public casebooks:
         >>> check_response(client.get(published_resource.get_absolute_url(), content_includes=published_resource.title))
@@ -622,35 +610,32 @@ def edit_resource(request, casebook_param, ordinals_param):
     """
         Let authorized users update Resource metadata.
 
-        TODO: test with editors, not only owners.
-        TODO: test with Link, TextBlock, and Default
-
         Given:
         >>> published, private, with_draft, client, admin_user, user_factory = [getfixture(f) for f in ['full_casebook', 'full_private_casebook', 'full_casebook_with_draft', 'client', 'admin_user', 'user_factory']]
-        >>> published_resource = published.contents.all()[1]
-        >>> private_resource = private.contents.all()[1]
-        >>> draft_resource = with_draft.drafts().contents.all()[1]
+        >>> draft = with_draft.drafts()
+        >>> published_resources = {'TextBlock': published.contents.all()[1], 'Case': published.contents.all()[2], 'Default': published.contents.all()[3]}
+        >>> private_resources = {'TextBlock': private.contents.all()[1], 'Case': private.contents.all()[2], 'Default': private.contents.all()[3]}
+        >>> draft_resources = {'TextBlock': draft.contents.all()[1], 'Case': draft.contents.all()[2], 'Default': draft.contents.all()[3]}
         >>> non_collaborating_user = user_factory()
 
-
-        You have to be logged in to get to the edit page:
-        >>> check_response(client.get(published_resource.get_edit_url()), status_code=302)
+        Anonymous users cannot access the edit page:
+        >>> for resource in published_resources.values():
+        ...     check_response(client.get(resource.get_edit_url()), status_code=302)
+        ...     check_response(client.post(resource.get_edit_url()), status_code=302)
 
         No one can edit published casebooks:
-        >>> check_response(client.get(published_resource.get_edit_url(), as_user=non_collaborating_user), status_code=403)
-        >>> check_response(client.get(published_resource.get_edit_url(), as_user=published_resource.owner), status_code=403)
-        >>> check_response(client.get(published_resource.get_edit_url(), as_user=admin_user), status_code=403)
-        >>> check_response(client.post(published_resource.get_edit_url(), as_user=non_collaborating_user), status_code=403)
-        >>> check_response(client.post(published_resource.get_edit_url(), as_user=published_resource.owner), status_code=403)
-        >>> check_response(client.post(published_resource.get_edit_url(), as_user=admin_user), status_code=403)
+        >>> for u in [non_collaborating_user, published.owner, admin_user]:
+        ...     for resource in published_resources.values():
+        ...         check_response(client.get(resource.get_edit_url(), as_user=u), status_code=403)
+        ...         check_response(client.post(resource.get_edit_url(), as_user=u), status_code=403)
 
         Users can edit resources in their unpublished and draft casebooks:
-        >>> for resource in [private_resource, draft_resource]:
+        >>> for resource in [*private_resources.values(), *draft_resources.values()]:
         ...     original_title = resource.get_title()
         ...     new_title = 'owner-edited title'
         ...     check_response(
         ...         client.get(resource.get_edit_url(), as_user=resource.owner),
-        ...             content_includes=[
+        ...         content_includes=[
         ...             resource.get_title(),
         ...             "This casebook is a draft"
         ...         ]
@@ -662,12 +647,34 @@ def edit_resource(request, casebook_param, ordinals_param):
         ...     )
 
         Admins can edit resources in a user's unpublished and draft casebooks:
-        >>> for resource in [private_resource, draft_resource]:
+        >>> for resource in [*private_resources.values(), *draft_resources.values()]:
+        ...     original_title = resource.get_title()
         ...     new_title = 'admin-edited title'
         ...     check_response(
         ...         client.post(resource.get_edit_url(), {'title': new_title}, as_user=resource.owner),
         ...         content_includes=new_title,
         ...         content_excludes=original_title
+        ...     )
+
+        You can edit the URL associated with a 'Default/Link' resource, from its edit page:
+        >>> for resource in [private_resources['Default'], draft_resources['Default']]:
+        ...     original_url = resource.resource.url
+        ...     new_url = "http://new-test-url.com"
+        ...     check_response(
+        ...         client.post(resource.get_edit_url(), {'url': new_url}, as_user=resource.owner),
+        ...         content_includes=new_url,
+        ...         content_excludes=original_url
+        ...     )
+
+        You CANNOT presently edit the text associated with a 'TextBlock' resource, from its edit page,
+        but you can see it (editing is not safe yet):
+        >>> for resource in [private_resources['TextBlock'], draft_resources['TextBlock']]:
+        ...     original_text = resource.resource.content
+        ...     new_text = "<p>I'm new text</p>"
+        ...     check_response(
+        ...         client.post(resource.get_edit_url(), {'content': new_text}, as_user=resource.owner),
+        ...         content_includes=original_text,
+        ...         content_excludes=new_text
         ...     )
     """
 
