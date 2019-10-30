@@ -392,6 +392,47 @@ def create_draft(request, casebook_param):
 @login_required
 @require_http_methods(["GET", "POST"])
 def edit_casebook(request, casebook_param):
+    """
+        Given:
+        >>> published, private, with_draft, client, admin_user, user_factory = [getfixture(f) for f in ['full_casebook', 'full_private_casebook', 'full_casebook_with_draft', 'client', 'admin_user', 'user_factory']]
+        >>> draft = with_draft.drafts()
+        >>> non_collaborating_user = user_factory()
+
+        Anonymous users cannot access the edit page:
+        >>> check_response(client.get(published.get_edit_url()), status_code=302)
+        >>> check_response(client.post(published.get_edit_url()), status_code=302)
+
+        No one can edit published casebooks:
+        >>> for u in [non_collaborating_user, published.owner, admin_user]:
+        ...     check_response(client.get(published.get_edit_url(), as_user=u), status_code=403)
+        ...     check_response(client.post(published.get_edit_url(), as_user=u), status_code=403)
+
+        Users can edit their unpublished and draft casebooks:
+        >>> for book in [private, draft]:
+        ...     new_title = 'owner-edited title'
+        ...     check_response(
+        ...         client.get(book.get_edit_url(), as_user=book.owner),
+        ...         content_includes=[
+        ...             book.title,
+        ...             "This casebook is a draft"
+        ...         ]
+        ...     )
+        ...     check_response(
+        ...         client.post(book.get_edit_url(), {'title': new_title}, as_user=book.owner),
+        ...         content_includes=new_title,
+        ...         content_excludes=book.title
+        ...     )
+
+        Admins can edit a user's unpublished and draft casebooks:
+        >>> for book in [private, draft]:
+        ...     new_title = 'admin-edited title'
+        ...     check_response(
+        ...         client.post(book.get_edit_url(), {'title': new_title}, as_user=book.owner),
+        ...         content_includes=new_title,
+        ...         content_excludes=book.title
+        ...     )
+    """
+
     # NB: The Rails app does NOT redirect here to a canonical URL; it silently accepts any slug.
     # Duplicating that here.
     casebook = get_object_or_404(Casebook, id=casebook_param['id'])
