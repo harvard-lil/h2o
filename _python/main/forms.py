@@ -120,12 +120,12 @@ class TextBlockForm(ModelForm):
                 HTML('<h5 id="content-label">Content (disabled)</h5>'),
                 Field('content',
                     css_class='ckeditor',
-                    aria_labelledby='content-label',
-                    # Disabled until it's safe to update TextBlocks
-                    disabled=True
+                    aria_labelledby='content-label'
                 ),
             )
         )
+        # Disabled until it's safe to update TextBlocks
+        self.fields['content'].disabled = True
         # Remove the explicit label on the "url" field, since it is
         # labeled using aria-labelledby
         self.fields['content'].label = False
