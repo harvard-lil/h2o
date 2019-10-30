@@ -45,7 +45,8 @@ class SanitizingMixin(object):
         # TODO:
         # Rails checks to see if the value has changed first;
         # I don't know of a clean and reliable way to do this in Django.
-        # Do we need to avoid sanitizing redundantly?
+        # Do we need to avoid sanitizing redundantly? In Django, I believe
+        # this is handled at the Form level; do we need Model level checks too?
         value = getattr(model_instance, self.attname)
         if value:
             value = sanitize(value)

@@ -49,14 +49,15 @@ class SectionForm(ContentNodeForm):
 class ResourceForm(ContentNodeForm):
     """
     The forms for editing a "Resource" ContentNode should, in some cases,
-    include fields for editing fields belonging to their related resource:
-    Resource objects associated with Links/Defaults should have an editable
-    "url" field, and Resource objects associated with TextBlocks should have
+    include inputs for editing attributes of their related resource:
+    Resource ContentNodes associated with Links/Defaults should have an editable
+    "url" field, and Resource ContentNodes associated with TextBlocks should have
     an editable "content" field.
 
-    To faciliate this, do NOT automatically render a `<form>` tag with this
-    Django-Crispy-Form; create the form yourself in the the template, and then
-    render this form, and if appropriate, a form for the related resource, inside.
+    To facilitate this, we do NOT automatically render a `<form>` tag with this
+    Django-Crispy-Form: `self.helper.form_tag = False`; instead, we explicitly
+    include a form tag in the template, and then render ResourceForm form, and
+    when appropriate, a LinkForm or TextBlockForm, inside it.
     See https://django-crispy-forms.readthedocs.io/en/latest/crispy_tag_forms.html#rendering-several-forms-with-helpers
     """
 
