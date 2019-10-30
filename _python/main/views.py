@@ -490,8 +490,8 @@ def edit_section(request, casebook_param, ordinals_param):
 
         No one can edit published casebooks:
         >>> for u in [non_collaborating_user, published.owner, admin_user]:
-        >>>     check_response(client.get(published_section.get_edit_url(), as_user=u), status_code=403)
-        >>>     check_response(client.post(published_section.get_edit_url(), as_user=u), status_code=403)
+        ...     check_response(client.get(published_section.get_edit_url(), as_user=u), status_code=403)
+        ...     check_response(client.post(published_section.get_edit_url(), as_user=u), status_code=403)
 
         Users can edit sections in their unpublished and draft casebooks:
         >>> for section in [private_section, draft_section]:
