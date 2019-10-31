@@ -346,6 +346,7 @@ class ContentNode(TimestampedModel, BigPkModel):
             models.Index(fields=['casebook', 'ordinals']),
             models.Index(fields=['resource_type', 'resource_id'])
         ]
+        ordering = ['ordinals']
 
     @classmethod
     def from_db(cls, db, field_names, values):
@@ -1075,7 +1076,7 @@ class Section(CasebookAndSectionMixin, SectionAndResourceMixin, ContentNode):
             "casebook_id": self.casebook_id,
             first_ordinals: self.ordinals,
             "ordinals__len__gte": len(self.ordinals) + 1
-        }).order_by('ordinals')
+        })
 
 
 class ResourceManager(models.Manager):

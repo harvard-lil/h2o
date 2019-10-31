@@ -320,7 +320,7 @@ def casebook(request, casebook_param):
     if request.path != canonical:
         return HttpResponseRedirect(canonical)
 
-    contents = casebook.contents.prefetch_resources().order_by('ordinals')
+    contents = casebook.contents.prefetch_resources()
     return render_with_actions(request, 'casebook.html', {
         'casebook': casebook,
         'contents': contents
@@ -440,7 +440,7 @@ def edit_casebook(request, casebook_param):
         form = CasebookForm(request.POST or None, instance=casebook)
         if request.method == 'POST' and form.is_valid():
             form.save()
-        contents = casebook.contents.prefetch_resources().order_by('ordinals')
+        contents = casebook.contents.prefetch_resources()
         return render_with_actions(request, 'casebook_edit.html', {
             'casebook': casebook,
             'contents': contents,
@@ -505,7 +505,7 @@ def section(request, casebook_param, ordinals_param):
     if request.path != canonical:
         return HttpResponseRedirect(canonical)
 
-    contents = section.contents.prefetch_resources().order_by('ordinals')
+    contents = section.contents.prefetch_resources()
     return render_with_actions(request, 'section.html', {
         'section': section,
         'contents': contents
@@ -567,7 +567,7 @@ def edit_section(request, casebook_param, ordinals_param):
         form = SectionForm(request.POST or None, instance=section)
         if request.method == 'POST' and form.is_valid():
             form.save()
-        contents = section.contents.prefetch_resources().order_by('ordinals')
+        contents = section.contents.prefetch_resources()
         return render_with_actions(request, 'section_edit.html', {
             'section': section,
             'contents': contents,
