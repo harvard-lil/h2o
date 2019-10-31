@@ -35,6 +35,7 @@ INSTALLED_APPS = [
 
     # third party
     'django_extensions',
+    'crispy_forms',
 ]
 
 MIDDLEWARE = [
@@ -201,3 +202,6 @@ CAPAPI_API_KEY = ''
 # Set this to true to affirmatively assert that it is OK to execute code that includes fix_before_deploy() lines.
 # This can safely be set to True everywhere except on production.
 NOT_ON_PRODUCTION = False
+
+CRISPY_TEMPLATE_PACK = 'bootstrap3'
+CRISPY_FAIL_SILENTLY = False

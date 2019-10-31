@@ -9,7 +9,7 @@ from django.urls import reverse
 from django.utils.text import slugify
 
 from test_helpers import dump_casebook_outline
-from .utils import clone_model_instance
+from .utils import clone_model_instance, sanitize
 
 
 class BigPkModel(models.Model):
@@ -32,6 +32,33 @@ class NullableTimestampedModel(models.Model):
 
     class Meta:
         abstract = True
+
+
+class SanitizingMixin(object):
+    """
+    Removes dangerous HTML from a TextField before it is saved to the database.
+    See https://docs.djangoproject.com/en/2.2/howto/custom-model-fields/#preprocessing-values-before-saving
+    and https://docs.djangoproject.com/en/2.2/ref/models/fields/#django.db.models.Field.pre_save
+    """
+
+    def pre_save(self, model_instance, add):
+        # TODO:
+        # Rails checks to see if the value has changed first;
+        # I don't know of a clean and reliable way to do this in Django.
+        # Do we need to avoid sanitizing redundantly? In Django, I believe
+        # this is handled at the Form level; do we need Model level checks too?
+        value = getattr(model_instance, self.attname)
+        if value:
+            value = sanitize(value)
+            setattr(model_instance, self.attname, value)
+        return value
+
+
+class SanitizingCharField(SanitizingMixin, models.TextField):
+    pass
+
+class SanitizingTextField(SanitizingMixin, models.TextField):
+    pass
 
 
 # Internal
@@ -255,7 +282,7 @@ class ContentNodeQueryset(models.QuerySet):
 class ContentNode(TimestampedModel, BigPkModel):
     title = models.CharField(max_length=10000, blank=True, null=True)
     subtitle = models.CharField(max_length=10000, blank=True, null=True)
-    headnote = models.TextField(blank=True, null=True)
+    headnote = SanitizingTextField(blank=True, null=True)
     raw_headnote = models.TextField(blank=True, null=True)
     copy_of = models.ForeignKey(
         'self',
@@ -319,6 +346,7 @@ class ContentNode(TimestampedModel, BigPkModel):
             models.Index(fields=['casebook', 'ordinals']),
             models.Index(fields=['resource_type', 'resource_id'])
         ]
+        ordering = ['ordinals']
 
     @classmethod
     def from_db(cls, db, field_names, values):
@@ -664,6 +692,13 @@ class SectionAndResourceMixin(models.Model):
                 ).get_edit_or_absolute_url(editing)
             })
         return return_value
+
+    @property
+    def owner(self):
+        """
+        This is a convenience method for tests
+        """
+        return self.casebook.owner
 
 
 class CasebookManager(models.Manager):
@@ -1041,7 +1076,7 @@ class Section(CasebookAndSectionMixin, SectionAndResourceMixin, ContentNode):
             "casebook_id": self.casebook_id,
             first_ordinals: self.ordinals,
             "ordinals__len__gte": len(self.ordinals) + 1
-        }).order_by('ordinals')
+        })
 
 
 class ResourceManager(models.Manager):
@@ -1078,7 +1113,9 @@ class Resource(SectionAndResourceMixin, ContentNode):
 
     def get_title(self):
         """See ContentNode.get_title"""
-        if self.resource_type == 'Default':
+        if self.title:
+            return self.title
+        elif self.resource_type == 'Default':
             if self.resource.name:
                 return self.resource.name
             else:
@@ -1148,7 +1185,7 @@ class Default(NullableTimestampedModel):
     """
     name = models.CharField(max_length=1024, blank=True, null=True)
     description = models.CharField(max_length=5242880, blank=True, null=True)
-    url = models.CharField(max_length=1024)
+    url = models.URLField(max_length=1024)
     public = models.BooleanField(null=True, default=True)
     content_type = models.CharField(max_length=255, blank=True, null=True)
     ancestry = models.CharField(max_length=255, blank=True, null=True)
@@ -1234,7 +1271,7 @@ class RolesUser(NullableTimestampedModel, BigPkModel):
 class TextBlock(NullableTimestampedModel):
     name = models.CharField(max_length=255)
     description = models.CharField(max_length=5242880, blank=True, null=True)
-    content = models.CharField(max_length=5242880)
+    content = SanitizingCharField(max_length=5242880)
     version = models.IntegerField(default=1)
     public = models.BooleanField(default=True, blank=True, null=True)
     created_via_import = models.BooleanField(default=False)

@@ -50,7 +50,7 @@ def dump_casebook_outline(casebook):
     """
     out = []
     out.append("Casebook<%s>: %s" % (casebook.id, casebook.title))
-    for node in casebook.contents.prefetch_resources().prefetch_related('annotations').order_by('ordinals'):
+    for node in casebook.contents.prefetch_resources().prefetch_related('annotations'):
         node_type = node.type
         indent = " " * len(node.ordinals)
         if node_type == 'section':

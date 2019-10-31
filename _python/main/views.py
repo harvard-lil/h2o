@@ -12,14 +12,13 @@ from django.core.exceptions import PermissionDenied
 from django.http import HttpResponseRedirect, HttpResponseBadRequest, JsonResponse, Http404
 from django.shortcuts import render, get_object_or_404
 from django.urls import reverse
-from django.views.decorators.http import require_POST
-
+from django.views.decorators.http import require_POST, require_http_methods
 
 from test_helpers import check_response
 from .utils import parse_cap_decision_date
 from .serializers import ContentAnnotationSerializer, CaseSerializer, TextBlockSerializer
 from .models import Casebook, Resource, Section, Case, User, CaseCourt
-
+from .forms import CasebookForm, SectionForm, ResourceForm, LinkForm, TextBlockForm
 
 def login_required_response(request):
     if request.user.is_authenticated:
@@ -219,8 +218,6 @@ def dashboard(request, user_id):
     """
         Show given user's casebooks.
 
-        TODO: test with editors, not only owners.
-
         Given:
         >>> casebook, casebook_factory, client, admin_user, user_factory = [getfixture(f) for f in ['casebook', 'casebook_factory', 'client', 'admin_user', 'user_factory']]
         >>> user = casebook.collaborators.first()
@@ -263,8 +260,6 @@ def casebook(request, casebook_param):
     """
         Show a casebook's front page.
 
-        TODO: test with editors, not only owners.
-        TODO: build, then test, action buttons :-)
         TODO: slashes.
         > RuntimeError: You called this URL via POST, but the URL
         > doesn't end in a slash and you have APPEND_SLASH set. Django
@@ -298,7 +293,7 @@ def casebook(request, casebook_param):
 
         Admins can see a user's non-public casebooks in preview mode:
         >>> check_response(
-        ...     client.get(private_casebook.get_absolute_url(), as_user=user),
+        ...     client.get(private_casebook.get_absolute_url(), as_user=admin_user),
         ...     content_includes=[
         ...         private_casebook.title,
         ...         "You are viewing a preview"
@@ -325,7 +320,7 @@ def casebook(request, casebook_param):
     if request.path != canonical:
         return HttpResponseRedirect(canonical)
 
-    contents = casebook.contents.prefetch_resources().order_by('ordinals')
+    contents = casebook.contents.prefetch_resources()
     return render_with_actions(request, 'casebook.html', {
         'casebook': casebook,
         'contents': contents
@@ -393,22 +388,112 @@ def create_draft(request, casebook_param):
         return HttpResponseRedirect(reverse('edit_casebook', args=[clone.pk]))
     raise PermissionDenied
 
+
 @login_required
+@require_http_methods(["GET", "POST"])
 def edit_casebook(request, casebook_param):
+    """
+        Given:
+        >>> published, private, with_draft, client, admin_user, user_factory = [getfixture(f) for f in ['full_casebook', 'full_private_casebook', 'full_casebook_with_draft', 'client', 'admin_user', 'user_factory']]
+        >>> draft = with_draft.drafts()
+        >>> non_collaborating_user = user_factory()
+
+        Anonymous users cannot access the edit page:
+        >>> check_response(client.get(published.get_edit_url()), status_code=302)
+        >>> check_response(client.post(published.get_edit_url()), status_code=302)
+
+        No one can edit published casebooks:
+        >>> for u in [non_collaborating_user, published.owner, admin_user]:
+        ...     check_response(client.get(published.get_edit_url(), as_user=u), status_code=403)
+        ...     check_response(client.post(published.get_edit_url(), as_user=u), status_code=403)
+
+        Users can edit their unpublished and draft casebooks:
+        >>> for book in [private, draft]:
+        ...     new_title = 'owner-edited title'
+        ...     check_response(
+        ...         client.get(book.get_edit_url(), as_user=book.owner),
+        ...         content_includes=[
+        ...             book.title,
+        ...             "This casebook is a draft"
+        ...         ]
+        ...     )
+        ...     check_response(
+        ...         client.post(book.get_edit_url(), {'title': new_title}, as_user=book.owner),
+        ...         content_includes=new_title,
+        ...         content_excludes=book.title
+        ...     )
+
+        Admins can edit a user's unpublished and draft casebooks:
+        >>> for book in [private, draft]:
+        ...     new_title = 'admin-edited title'
+        ...     check_response(
+        ...         client.post(book.get_edit_url(), {'title': new_title}, as_user=book.owner),
+        ...         content_includes=new_title,
+        ...         content_excludes=book.title
+        ...     )
+    """
+
     # NB: The Rails app does NOT redirect here to a canonical URL; it silently accepts any slug.
     # Duplicating that here.
     casebook = get_object_or_404(Casebook, id=casebook_param['id'])
     if casebook.directly_editable_by(request.user):
-        contents = casebook.contents.prefetch_resources().order_by('ordinals')
+        form = CasebookForm(request.POST or None, instance=casebook)
+        if request.method == 'POST' and form.is_valid():
+            form.save()
+        contents = casebook.contents.prefetch_resources()
         return render_with_actions(request, 'casebook_edit.html', {
             'casebook': casebook,
             'contents': contents,
-            'editing': True
+            'editing': True,
+            'form': form
         })
     raise PermissionDenied
 
 
 def section(request, casebook_param, ordinals_param):
+    """
+        Show a section within a casebook.
+
+        Given:
+        >>> published, private, with_draft, client, admin_user, user_factory = [getfixture(f) for f in ['full_casebook', 'full_private_casebook', 'full_casebook_with_draft', 'client', 'admin_user', 'user_factory']]
+        >>> published_section = published.contents.all()[0]
+        >>> private_section = private.contents.all()[0]
+        >>> draft_section = with_draft.drafts().contents.all()[0]
+        >>> non_collaborating_user = user_factory()
+
+        All users can see sections in public casebooks:
+        >>> check_response(client.get(published_section.get_absolute_url(), content_includes=published_section.title))
+
+        Other users cannot see sections in non-public casebooks:
+        >>> check_response(client.get(private_section.get_absolute_url()), status_code=302)
+        >>> check_response(client.get(private_section.get_absolute_url(), as_user=non_collaborating_user), status_code=403)
+
+        Users can see sections in their own non-public casebooks in preview mode:
+        >>> check_response(
+        ...     client.get(private_section.get_absolute_url(), as_user=private_section.owner),
+        ...     content_includes=[
+        ...         private_section.title,
+        ...         "You are viewing a preview"
+        ...     ]
+        ... )
+
+        Admins can see sections in a user's non-public casebooks in preview mode:
+        >>> check_response(
+        ...     client.get(private_section.get_absolute_url(), as_user=admin_user),
+        ...     content_includes=[
+        ...         private_section.title,
+        ...         "You are viewing a preview"
+        ...     ]
+        ... )
+
+        Owners and admins see the "preview mode" of sections in draft casebooks:
+        >>> check_response(client.get(draft_section.get_absolute_url(), as_user=private_section.owner), content_includes="You are viewing a preview")
+        >>> check_response(client.get(draft_section.get_absolute_url(), as_user=admin_user), content_includes="You are viewing a preview")
+
+        Other users cannot see sections in draft casebooks:
+        >>> check_response(client.get(draft_section.get_absolute_url()), status_code=302)
+        >>> check_response(client.get(draft_section.get_absolute_url(), as_user=non_collaborating_user), status_code=403)
+    """
     section = get_object_or_404(Section.objects.select_related('casebook'), casebook=casebook_param['id'], ordinals=ordinals_param['ordinals'])
 
     # check permissions
@@ -420,7 +505,7 @@ def section(request, casebook_param, ordinals_param):
     if request.path != canonical:
         return HttpResponseRedirect(canonical)
 
-    contents = section.contents.prefetch_resources().order_by('ordinals')
+    contents = section.contents.prefetch_resources()
     return render_with_actions(request, 'section.html', {
         'section': section,
         'contents': contents
@@ -428,21 +513,114 @@ def section(request, casebook_param, ordinals_param):
 
 
 @login_required
+@require_http_methods(["GET", "POST"])
 def edit_section(request, casebook_param, ordinals_param):
+    """
+        Let authorized users update Section metadata.
+
+        Given:
+        >>> published, private, with_draft, client, admin_user, user_factory = [getfixture(f) for f in ['full_casebook', 'full_private_casebook', 'full_casebook_with_draft', 'client', 'admin_user', 'user_factory']]
+        >>> published_section = published.contents.all()[0]
+        >>> private_section = private.contents.all()[0]
+        >>> draft_section = with_draft.drafts().contents.all()[0]
+        >>> non_collaborating_user = user_factory()
+
+        Anonymous users cannot access the edit page:
+        >>> check_response(client.get(published_section.get_edit_url()), status_code=302)
+        >>> check_response(client.post(published_section.get_edit_url()), status_code=302)
+
+        No one can edit published casebooks:
+        >>> for u in [non_collaborating_user, published.owner, admin_user]:
+        ...     check_response(client.get(published_section.get_edit_url(), as_user=u), status_code=403)
+        ...     check_response(client.post(published_section.get_edit_url(), as_user=u), status_code=403)
+
+        Users can edit sections in their unpublished and draft casebooks:
+        >>> for section in [private_section, draft_section]:
+        ...     new_title = 'owner-edited title'
+        ...     check_response(
+        ...         client.get(section.get_edit_url(), as_user=section.owner),
+        ...         content_includes=[
+        ...             section.title,
+        ...             "This casebook is a draft"
+        ...         ]
+        ...     )
+        ...     check_response(
+        ...         client.post(section.get_edit_url(), {'title': new_title}, as_user=section.owner),
+        ...         content_includes=new_title,
+        ...         content_excludes=section.title
+        ...     )
+
+        Admins can edit sections in a user's unpublished and draft casebooks:
+        >>> for section in [private_section, draft_section]:
+        ...     new_title = 'admin-edited title'
+        ...     check_response(
+        ...         client.post(section.get_edit_url(), {'title': new_title}, as_user=section.owner),
+        ...         content_includes=new_title,
+        ...         content_excludes=section.title
+        ...     )
+    """
+
     # NB: The Rails app does NOT redirect here to a canonical URL; it silently accepts any slug.
     # Duplicating that here.
     section = get_object_or_404(Section.objects.select_related('casebook'), casebook=casebook_param['id'], ordinals=ordinals_param['ordinals'])
     if section.directly_editable_by(request.user):
-        contents = section.contents.prefetch_resources().order_by('ordinals')
+        form = SectionForm(request.POST or None, instance=section)
+        if request.method == 'POST' and form.is_valid():
+            form.save()
+        contents = section.contents.prefetch_resources()
         return render_with_actions(request, 'section_edit.html', {
             'section': section,
             'contents': contents,
-            'editing': True
+            'editing': True,
+            'form': form
         })
     raise PermissionDenied
 
 
 def resource(request, casebook_param, ordinals_param):
+    """
+        Show a resource within a casebook.
+
+        Given:
+        >>> published, private, with_draft, client, admin_user, user_factory = [getfixture(f) for f in ['full_casebook', 'full_private_casebook', 'full_casebook_with_draft', 'client', 'admin_user', 'user_factory']]
+        >>> published_resource = published.contents.all()[1]
+        >>> private_resource = private.contents.all()[1]
+        >>> draft_resource = with_draft.drafts().contents.all()[1]
+        >>> non_collaborating_user = user_factory()
+
+        All users can see resources in public casebooks:
+        >>> check_response(client.get(published_resource.get_absolute_url(), content_includes=published_resource.title))
+
+        Other users cannot see resources in non-public casebooks:
+        >>> check_response(client.get(private_resource.get_absolute_url()), status_code=302)
+        >>> check_response(client.get(private_resource.get_absolute_url(), as_user=non_collaborating_user), status_code=403)
+
+        Users can see resources in their own non-public casebooks in preview mode:
+        >>> check_response(
+        ...     client.get(private_resource.get_absolute_url(), as_user=private_resource.owner),
+        ...     content_includes=[
+        ...         private_resource.get_title(),
+        ...         "You are viewing a preview"
+        ...     ]
+        ... )
+
+        Admins can see resources in a user's non-public casebooks in preview mode:
+        >>> check_response(
+        ...     client.get(private_resource.get_absolute_url(), as_user=admin_user),
+        ...     content_includes=[
+        ...         private_resource.get_title(),
+        ...         "You are viewing a preview"
+        ...     ]
+        ... )
+
+        Owners and admins see the "preview mode" of resources in draft casebooks:
+        >>> check_response(client.get(draft_resource.get_absolute_url(), as_user=private_resource.owner), content_includes="You are viewing a preview")
+        >>> check_response(client.get(draft_resource.get_absolute_url(), as_user=admin_user), content_includes="You are viewing a preview")
+
+        Other users cannot see resources in draft casebooks:
+        >>> check_response(client.get(draft_resource.get_absolute_url()), status_code=302)
+        >>> check_response(client.get(draft_resource.get_absolute_url(), as_user=non_collaborating_user), status_code=403)
+    """
     resource = get_object_or_404(Resource.objects.select_related('casebook'), casebook=casebook_param['id'], ordinals=ordinals_param['ordinals'])
 
     # check permissions
@@ -466,16 +644,123 @@ def resource(request, casebook_param, ordinals_param):
 
 
 @login_required
+@require_http_methods(["GET", "POST"])
 def edit_resource(request, casebook_param, ordinals_param):
+    """
+        Let authorized users update Resource metadata.
+
+        Given:
+        >>> published, private, with_draft, client, admin_user, user_factory = [getfixture(f) for f in ['full_casebook', 'full_private_casebook', 'full_casebook_with_draft', 'client', 'admin_user', 'user_factory']]
+        >>> draft = with_draft.drafts()
+        >>> published_resources = {'TextBlock': published.contents.all()[1], 'Case': published.contents.all()[2], 'Default': published.contents.all()[3]}
+        >>> private_resources = {'TextBlock': private.contents.all()[1], 'Case': private.contents.all()[2], 'Default': private.contents.all()[3]}
+        >>> draft_resources = {'TextBlock': draft.contents.all()[1], 'Case': draft.contents.all()[2], 'Default': draft.contents.all()[3]}
+        >>> non_collaborating_user = user_factory()
+
+        Anonymous users cannot access the edit page:
+        >>> for resource in published_resources.values():
+        ...     check_response(client.get(resource.get_edit_url()), status_code=302)
+        ...     check_response(client.post(resource.get_edit_url()), status_code=302)
+
+        No one can edit published casebooks:
+        >>> for u in [non_collaborating_user, published.owner, admin_user]:
+        ...     for resource in published_resources.values():
+        ...         check_response(client.get(resource.get_edit_url(), as_user=u), status_code=403)
+        ...         check_response(client.post(resource.get_edit_url(), as_user=u), status_code=403)
+
+        Users can edit resources in their unpublished and draft casebooks:
+        >>> for resource in [*private_resources.values(), *draft_resources.values()]:
+        ...     original_title = resource.get_title()
+        ...     new_title = 'owner-edited title'
+        ...     check_response(
+        ...         client.get(resource.get_edit_url(), as_user=resource.owner),
+        ...         content_includes=[
+        ...             resource.get_title(),
+        ...             "This casebook is a draft"
+        ...         ]
+        ...     )
+        ...     check_response(
+        ...         client.post(resource.get_edit_url(), {'title': new_title}, as_user=resource.owner),
+        ...         content_includes=new_title,
+        ...         content_excludes=original_title
+        ...     )
+
+        Admins can edit resources in a user's unpublished and draft casebooks:
+        >>> for resource in [*private_resources.values(), *draft_resources.values()]:
+        ...     original_title = resource.get_title()
+        ...     new_title = 'admin-edited title'
+        ...     check_response(
+        ...         client.post(resource.get_edit_url(), {'title': new_title}, as_user=resource.owner),
+        ...         content_includes=new_title,
+        ...         content_excludes=original_title
+        ...     )
+
+        You can edit the URL associated with a 'Default/Link' resource, from its edit page:
+        >>> for resource in [private_resources['Default'], draft_resources['Default']]:
+        ...     original_url = resource.resource.url
+        ...     new_url = "http://new-test-url.com"
+        ...     check_response(
+        ...         client.post(resource.get_edit_url(), {'url': new_url}, as_user=resource.owner),
+        ...         content_includes=new_url,
+        ...         content_excludes=original_url
+        ...     )
+
+        You CANNOT presently edit the text associated with a 'TextBlock' resource, from its edit page,
+        but you can see it (editing is not safe yet):
+        >>> for resource in [private_resources['TextBlock'], draft_resources['TextBlock']]:
+        ...     original_text = resource.resource.content
+        ...     new_text = "<p>I'm new text</p>"
+        ...     check_response(
+        ...         client.post(resource.get_edit_url(), {'content': new_text}, as_user=resource.owner),
+        ...         content_includes=original_text,
+        ...         content_excludes=new_text
+        ...     )
+    """
+
     # NB: The Rails app does NOT redirect here to a canonical URL; it silently accepts any slug.
     # Duplicating that here.
+
+    # TBD: The appearance, validation, and "flash" behavior of this route is not identical
+    # to the Rails app, but the functionality is equivalent; I'm hoping we're content with it.
     resource = get_object_or_404(Resource.objects.select_related('casebook'), casebook=casebook_param['id'], ordinals=ordinals_param['ordinals'])
     if resource.directly_editable_by(request.user):
+        # Name calculation for Resources is particularly complex right now.
+        # We need the "title" field of the form to display the return value of
+        # resource.get_title(). If a user submits the edit form, this will cause
+        # resource.title to be populated with the value of resource.get_title()
+        # While this does not, I believe, reproduce the behavior of the Rails
+        # application, I think it is a step in the right direction, a world where
+        # the names of ContentNodes are reliably represented in a DB field, not
+        # calculated on the fly.
+        if not resource.title:
+            resource.title = resource.get_title()
+        form = ResourceForm(request.POST or None, instance=resource)
+
+        # Let users edit Link and TextBlock resources directly from this page
+        embedded_resource_form = None
+        if resource.resource_type == 'Default':
+            embedded_resource_form = LinkForm(request.POST or None, instance=resource.resource)
+        elif resource.resource_type == 'TextBlock':
+            embedded_resource_form = TextBlockForm(request.POST or None, instance=resource.resource)
+
+        # Save changes, if appropriate
+        if request.method == 'POST':
+            if embedded_resource_form:
+                if form.is_valid() and embedded_resource_form.is_valid():
+                    form.save()
+                    embedded_resource_form.save()
+            else:
+                if form.is_valid():
+                    form.save()
+
         return render_with_actions(request, 'resource_edit.html', {
             'resource': resource,
-            'editing': True
+            'editing': True,
+            'form': form,
+            'embedded_resource_form': embedded_resource_form
         })
     raise PermissionDenied
+
 
 @login_required
 def annotate_resource(request, casebook_param, ordinals_param):

@@ -1,5 +1,7 @@
 {% extends 'base.html' %}
 
+{% load crispy_forms_tags %}
+
 {% block page_title %}Edit | {{ casebook.get_title }}{% endblock %}
 
 {% block banner %}
@@ -25,8 +27,7 @@
       <div class="casebook-inner">
         <div class="top-strip"></div>
         <header class="content">
-          <h1 class="title">{{ casebook.get_title }}</h1>
-          {% if casebook.subtitle %}<h2 class="subtitle">{{ casebook.subtitle }}</h2>{% endif %}
+          {% crispy form %}
           <div class="authorship">
             <div class="collaborators">
               {% include 'includes/collaborators.html' with content=casebook%}
@@ -35,10 +36,9 @@
               {% if casebook.root_owner %}Original author: <a href="{% url 'dashboard' casebook.root_owner.id %}">{{ casebook.root_owner.display_name }}</a>{% endif %}
             </div>
           </div>
-      </header>
-      {% include 'includes/action_buttons.html' with content=casebook %}
-      {% include 'includes/headnote.html' with content=casebook %}
-      {% include 'includes/table-of-contents.html' with contents=contents %}
+        </header>
+        {% include 'includes/action_buttons.html' with content=casebook %}
+        {% include 'includes/table-of-contents.html' with contents=contents %}
       </div>
     </div>
   </section>
