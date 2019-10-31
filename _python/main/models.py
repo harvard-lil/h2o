@@ -1,3 +1,4 @@
+from os.path import commonprefix
 from urllib.parse import urlparse
 
 from django.contrib.auth.models import AnonymousUser
@@ -7,9 +8,10 @@ from django.db import models, transaction
 from django.db.models import Q
 from django.urls import reverse
 from django.utils.text import slugify
+from pytest import raises
 
-from test_helpers import dump_casebook_outline
-from .utils import clone_model_instance, sanitize
+from test_helpers import dump_casebook_outline, dump_content_tree
+from .utils import clone_model_instance, fix_after_rails, sanitize
 
 
 class BigPkModel(models.Model):
@@ -404,49 +406,289 @@ class ContentNode(TimestampedModel, BigPkModel):
         # TODO: In use in templates and tests; shouldn't be necessary. Consider refactoring.
         return type(self).__name__.lower()
 
-    # compatibility for the rails Ancestry gem
-    # see https://github.com/stefankroes/ancestry/blob/master/lib/ancestry/materialized_path.rb
+    ##
+    # About ContentNode Trees:
+    # ContentNodes are part of two separate trees: the "content tree", indicating where the node is in the table of
+    # contents, and the "version tree", indicating the node's lineage in other casebooks (clones and drafts).
+    #
+    # The content tree is stored in the `ordinals` field as a postgres array of 1-indexed integers. The root is `[]`,
+    # the first child is `[1]`, the first sub-child is `[1,1]` and so on.
+    #
+    # The version tree is stored in the `ancestry` field as a slash-separated string of IDs. The root is "", the first
+    # child is "<parent.id>", the first sub-child is "<parent.id>/<sub_parent.id>", and so on.
+    # This is a partial port of https://github.com/stefankroes/ancestry/blob/master/lib/ancestry/materialized_path.rb
+    #
+    # Because it is confusing to have two database trees with different formats as well as a hierarchy of proxy models,
+    # we make two stylistic choices:
+    #  (1) All tree methods should be prefixed with "content_tree__" or "version_tree__"
+    #  (2) All tree methods should be in a single block in ContentNode instead of on Casebook/Session/Resource subclasses.
+    ##
 
-    def descendants(self):
+    fix_after_rails("The hand-rolled database trees should be replaced with a Django tree library")
+
+    ##
+    # Content tree methods
+    ##
+
+    ## content tree: public methods
+    # (these can be called without calling content_tree_load first, and are intended for manipulating the tree from outside)
+
+    def content_tree__move_to(self, new_ordinals):
+        """
+            Move this node to a new place in the content tree. This is the main entrypoint for content tree work; the
+            other functions mostly just enable this one.
+
+            Given:
+            >>> assert_num_queries = getfixture('assert_num_queries')
+            >>> casebook, s_1, r_1_1, r_1_2, r_1_3, s_1_4, r_1_4_1, r_1_4_2, r_1_4_3, s_2 = getfixture('full_casebook_parts')
+
+            Move a node from one place to another:
+            >>> with assert_num_queries(select=2, update=1):
+            ...     r_1_4_1.content_tree__move_to([2, 1])
+            >>> assert dump_content_tree(casebook) == [
+            ...         [s_1, casebook, [
+            ...             [r_1_1, s_1, []],
+            ...             [r_1_2, s_1, []],
+            ...             [r_1_3, s_1, []],
+            ...             [s_1_4, s_1, [
+            ...                 [r_1_4_2, s_1_4, []],
+            ...                 [r_1_4_3, s_1_4, []],
+            ...             ]],
+            ...         ]],
+            ...         [s_2, casebook, [
+            ...             [r_1_4_1, s_2, []],
+            ...         ]],
+            ...     ]
+
+            Reorder nodes:
+            >>> r_1_4_2.refresh_from_db()
+            >>> r_1_4_2.content_tree__move_to([1, 4, 2])
+            >>> assert dump_content_tree(s_1_4) == [
+            ...     [r_1_4_3, s_1_4, []],
+            ...     [r_1_4_2, s_1_4, []],
+            ... ]
+
+            Enforce some rules:
+            >>> with raises(ValueError, match='Cannot move casebook node'):
+            ...     casebook.content_tree__move_to([2])
+            >>> with raises(ValueError, match='Cannot move node to root'):
+            ...     s_1.content_tree__move_to([])
+            >>> with raises(ValueError, match='Cannot add descendent of Resource'):
+            ...     r_1_4_2.content_tree__move_to([1, 1, 1])
+            >>> with raises(ValueError, match='Cannot move a node inside itself'):
+            ...     s_1.content_tree__move_to([1, 1, 1])
+        """
+        # check rules
+        if new_ordinals == self.ordinals:
+            return
+        if len(new_ordinals) < 1:
+            raise ValueError("Cannot move node to root")
+        if type(self) is Casebook:
+            raise ValueError("Cannot move casebook node")
+        if new_ordinals[:len(self.ordinals)] == self.ordinals:
+            raise ValueError("Cannot move a node inside itself")
+
+        # find common grandparent node for old and new location
+        old_ordinals = self.ordinals
+        common_prefix = commonprefix((old_ordinals, new_ordinals))
+        common_parent_node = self.content_tree__get_same_tree_node_from_ordinals(common_prefix)
+        common_parent_node.content_tree__load()
+
+        # remove node from existing location
+        # (look up the location, instead of using self, so we have the copy where content_tree is populated)
+        moved_node = common_parent_node.content_tree__get_descendent(old_ordinals)
+        if moved_node != self:
+            raise ValueError("Unexpected element found at ordinal %s" % old_ordinals)
+        moved_node.content_tree__parent.content_tree__children.remove(moved_node)
+
+        # add node to new location
+        try:
+            new_parent = common_parent_node.content_tree__get_descendent(new_ordinals[:-1])
+        except IndexError:
+            raise ValueError("Invalid new ordinals; parent does not exist: %s" % new_ordinals)
+        if type(new_parent) == Resource:
+            raise ValueError('Cannot add descendent of Resource')
+        new_parent.content_tree__children.insert(new_ordinals[-1], moved_node)
+
+        # save results
+        common_parent_node.content_tree__store()
+        self.ordinals = moved_node.ordinals
+
+    ## content tree: pre-fetching
+    # For query efficiency, content trees must be prefetched by content_tree__load() before most methods will work.
+    # Prefetched data is stored in the following variables. The @properties test that content_tree__load() has been called.
+
+    CONTENT_TREE_NOT_LOADED = object()
+    _content_tree__parent = CONTENT_TREE_NOT_LOADED
+    _content_tree__children = CONTENT_TREE_NOT_LOADED
+
+    @property
+    def content_tree__parent(self):
+        if self._content_tree__parent is self.CONTENT_TREE_NOT_LOADED:
+            raise ValueError("Cannot use content_tree.parent before calling content_tree.load on parent node.")
+        return self._content_tree__parent
+
+    @property
+    def content_tree__children(self):
+        if self._content_tree__children is self.CONTENT_TREE_NOT_LOADED:
+            raise ValueError("Cannot use content_tree.children before calling content_tree.load.")
+        return self._content_tree__children
+
+    def content_tree__load(self):
+        """
+            Fetch all descendents of this node and populate their content_tree__parent and content_tree__children
+            values. The one value that will *not* work after this call is self.content_tree__parent; only the sub-tree is fetched.
+
+            Given:
+            >>> assert_num_queries = getfixture('assert_num_queries')
+            >>> casebook, s_1, r_1_1, r_1_2, r_1_3, s_1_4, r_1_4_1, r_1_4_2, r_1_4_3, s_2 = getfixture('full_casebook_parts')
+
+            Can prefetch a single section:
+            >>> with assert_num_queries(select=1):
+            ...     assert dump_content_tree(s_1_4) == [
+            ...         [r_1_4_1, s_1_4, []],
+            ...         [r_1_4_2, s_1_4, []],
+            ...         [r_1_4_3, s_1_4, []],
+            ...     ]
+
+            Can prefetch an entire casebook:
+            >>> with assert_num_queries(select=1):
+            ...     assert dump_content_tree(casebook) == [
+            ...         [s_1, casebook, [
+            ...             [r_1_1, s_1, []],
+            ...             [r_1_2, s_1, []],
+            ...             [r_1_3, s_1, []],
+            ...             [s_1_4, s_1, [
+            ...                 [r_1_4_1, s_1_4, []],
+            ...                 [r_1_4_2, s_1_4, []],
+            ...                 [r_1_4_3, s_1_4, []],
+            ...             ]],
+            ...         ]],
+            ...         [s_2, casebook, []],
+            ...     ]
+        """
+        parents = []
+        parent = last_child = None
+        for node in [self] + list(self.contents.all()):
+            if last_child and node.content_tree__is_descendent_of(last_child):
+                parent = last_child
+                parents.append(parent)
+            elif parent:
+                while not node.content_tree__is_descendent_of(parent):
+                    parent = parents.pop()
+            node._content_tree__parent = parent
+            node._content_tree__children = []
+            if parent:
+                parent._content_tree__children.append(node)
+            last_child = node
+
+    ## content tree: storing updates
+
+    def content_tree__store(self):
+        """
+            Update ordinals in the database for any that need to change, based on nodes that have been moved within
+            content_tree__children. It is not valid to add nodes from outside, as their tree values will not be populated.
+
+            [self] is included because we don't know whether self.ordinals has changed or not.
+        """
+        ContentNode.objects.bulk_update([self] + list(self.content_tree__update_ordinals()), ['ordinals'])
+
+    def content_tree__update_ordinals(self):
+        """
+            Recursively fix ordinals for all descendents that have been moved in the content tree, based on their
+            current position in content_tree__children. Return an iterator of all descendents that have been updated.
+
+            Given:
+            >>> casebook, s_1, r_1_1, r_1_2, r_1_3, s_1_4, r_1_4_1, r_1_4_2, r_1_4_3, s_2 = getfixture('full_casebook_parts')
+            >>> casebook.content_tree__load()
+            >>> s_1 = casebook.content_tree__get_descendent([1])
+            >>> s_2 = casebook.content_tree__get_descendent([2])
+
+            When we move a node, return only nodes with changed ordinals:
+            >>> s_2.content_tree__children.insert(0, s_1.content_tree__children.pop(2))  # move r_1_3 from s_1 to beginning of s_2
+            >>> assert set(casebook.content_tree__update_ordinals()) == {r_1_3, s_1_4, r_1_4_2, r_1_4_3, r_1_4_1}
+        """
+        for i, node in enumerate(self.content_tree__children):
+            correct_ordinals = self.ordinals + [i+1]
+            if node.ordinals != correct_ordinals:
+                node.ordinals = correct_ordinals
+                yield node
+            if node.content_tree__children:
+                yield from node.content_tree__update_ordinals()
+
+    ## content tree: helper functions
+
+    def content_tree__is_descendent_of(self, parent):
+        """
+            True if ordinals make self a content_tree descendent of parent.
+            (This assumes we already know that the nodes are part of the same tree.)
+            >>> assert Section(ordinals=[1,1]).content_tree__is_descendent_of(Section(ordinals=[1]))
+            >>> assert Resource(ordinals=[1,2,3]).content_tree__is_descendent_of(Section(ordinals=[1]))
+            >>> assert not Casebook().content_tree__is_descendent_of(Section(ordinals=[1]))
+        """
+        return False if type(self) is Casebook else self.ordinals[:len(parent.ordinals)] == parent.ordinals
+
+    def content_tree__get_same_tree_node_from_ordinals(self, ordinals):
+        """ Fetch a node from the database, with the given ordinals, that is part of the same tree as self. """
+        casebook_id = self.id if type(self) == Casebook else self.casebook_id
+        return ContentNode.objects.get(ordinals=ordinals, casebook_id=casebook_id) if ordinals else Casebook.objects.get(id=casebook_id)
+
+    def content_tree__get_descendent(self, ordinals):
+        """
+            Fetch a node from content_tree__children with the given ordinals.
+        """
+        if ordinals[:len(self.ordinals)] != self.ordinals:
+            raise ValueError("Ordinal value is not a descendent of self")
+        node = self
+        ordinals = ordinals[len(self.ordinals):]
+        while ordinals:
+            node = node.content_tree__children[ordinals.pop(0) - 1]
+        return node
+
+    ##
+    # Version tree methods
+    ##
+
+    def version_tree__descendants(self):
         """
             Return all descendants of this node.
             (Used to track the ancestry of casebooks; not used to describe the
             contents of a given casebook.)
 
-            >>> root, c_1, c_2, c_1_1, c_1_2 = getfixture('content_node_tree')
-            >>> assert set(root.descendants()) == {c_1, c_2, c_1_1, c_1_2}
-            >>> assert set(c_1.descendants()) == {c_1_1, c_1_2}
-            >>> assert set(c_2.descendants()) == set()
+            >>> root, c_1, c_2, c_1_1, c_1_2 = getfixture('casebook_tree')
+            >>> assert set(root.version_tree__descendants()) == {c_1, c_2, c_1_1, c_1_2}
+            >>> assert set(c_1.version_tree__descendants()) == {c_1_1, c_1_2}
+            >>> assert set(c_2.version_tree__descendants()) == set()
         """
         child_ancestry = "%s/%s" % (self.ancestry, self.pk) if self.ancestry else str(self.pk)
         return type(self).objects.filter(Q(ancestry=child_ancestry) | Q(ancestry__startswith=child_ancestry+"/"))
 
-    def root(self):
+    def version_tree__root(self):
         """
             Return root node for this node, or None if no ancestors.
             (Used to track the ancestry of casebooks; not used to describe the
             contents of a given casebook.)
 
-            >>> root, c_1, c_2, c_1_1, c_1_2 = getfixture('content_node_tree')
-            >>> assert root.root() is None
-            >>> assert c_1.root() == root
-            >>> assert c_1_1.root() == root
+            >>> root, c_1, c_2, c_1_1, c_1_2 = getfixture('casebook_tree')
+            >>> assert root.version_tree__root() is None
+            >>> assert c_1.version_tree__root() == root
+            >>> assert c_1_1.version_tree__root() == root
         """
         if not self.ancestry:
             return None
         return type(self).objects.get(pk=self.ancestry.split("/")[0])
 
-    def parent(self):
+    def version_tree__parent(self):
         """
             Return parent node for this node, or None if no ancestors.
             (Used to track the ancestry of casebooks; not used to describe the
             contents of a given casebook.)
 
-            >>> root, c_1, c_2, c_1_1, c_1_2 = getfixture('content_node_tree')
-            >>> assert root.parent() is None
-            >>> assert c_1.parent() == root
-            >>> assert c_1_1.parent() == c_1
-            >>> assert c_2.parent() == root
+            >>> root, c_1, c_2, c_1_1, c_1_2 = getfixture('casebook_tree')
+            >>> assert root.version_tree__parent() is None
+            >>> assert c_1.version_tree__parent() == root
+            >>> assert c_1_1.version_tree__parent() == c_1
+            >>> assert c_2.version_tree__parent() == root
         """
         if not self.ancestry:
             return None
@@ -628,6 +870,7 @@ class CasebookAndSectionMixin(models.Model):
             return self.get_edit_url()
         return self.get_absolute_url()
 
+
 class SectionAndResourceMixin(models.Model):
     """
     Methods shared by Sections and Resources
@@ -686,7 +929,7 @@ class SectionAndResourceMixin(models.Model):
             return_value.append({
                 'ordinal': o,
                 'ordinals': [*ordinals],
-                'url': globals()['ContentNode'].objects.get(
+                'url': ContentNode.objects.get(
                     casebook_id=self.casebook_id,
                     ordinals=ordinals
                 ).get_edit_or_absolute_url(editing)
@@ -802,29 +1045,30 @@ class Casebook(CasebookAndSectionMixin, ContentNode):
             >>> assert new_casebook == full_casebook
             >>> expected = [
             ...     'Casebook<1>: New Title',
-            ...     ' Section<11>: Some Section 1',
-            ...     '  ContentNode<12> -> TextBlock<3>: Some TextBlock Name 0',
-            ...     '  ContentNode<13> -> Case<1>: Foo Foo0 vs. Bar Bar0',
+            ...     ' Section<12>: Some Section 1',
+            ...     '  ContentNode<13> -> TextBlock<3>: Some TextBlock Name 0',
+            ...     '  ContentNode<14> -> Case<1>: Foo Foo0 vs. Bar Bar0',
             ...     '   ContentAnnotation<5>: highlight 0-10',
             ...     '   ContentAnnotation<6>: elide 0-10',
-            ...     '  ContentNode<14> -> Default<3>: Some Link Name 0',
-            ...     '  Section<15>: Some Section 5',
-            ...     '   ContentNode<16> -> TextBlock<4>: Some TextBlock Name 1',
-            ...     '   ContentNode<17> -> Case<2>: Foo Foo1 vs. Bar Bar1',
+            ...     '  ContentNode<15> -> Default<3>: Some Link Name 0',
+            ...     '  Section<16>: Some Section 5',
+            ...     '   ContentNode<17> -> TextBlock<4>: Some TextBlock Name 1',
+            ...     '   ContentNode<18> -> Case<2>: Foo Foo1 vs. Bar Bar1',
             ...     '    ContentAnnotation<7>: note 0-10',
             ...     '    ContentAnnotation<8>: replace 0-10',
-            ...     '   ContentNode<18> -> Default<4>: Some Link Name 1'
+            ...     '   ContentNode<19> -> Default<4>: Some Link Name 1',
+            ...     ' Section<20>: Some Section 9',
             ... ]
             >>> assert dump_casebook_outline(full_casebook) == expected
 
             Assets associated with old published version are gone:
-            >>> assert set(ContentNode.objects.values_list('id', flat=True)) == {1, 11, 12, 13, 14, 15, 16, 17, 18}
-            >>> assert set(ContentAnnotation.objects.values_list('id', flat=True)) == {8, 5, 6, 7}
+            >>> assert set(ContentNode.objects.values_list('id', flat=True)) == {1, 12, 13, 14, 15, 16, 17, 18, 19, 20}
+            >>> assert set(ContentAnnotation.objects.values_list('id', flat=True)) == {5, 6, 7, 8}
             >>> assert set(TextBlock.objects.values_list('id', flat=True)) == {3, 4}
             >>> assert set(Default.objects.values_list('id', flat=True)) == {3, 4}
 
             The original copy_of attributes from the published version are preserved:
-            >>> assert ContentNode.objects.get(id=11).copy_of_id == 1
+            >>> assert ContentNode.objects.get(id=12).copy_of_id == 1
         """
         # set up variables
         draft = self
@@ -886,7 +1130,8 @@ class Casebook(CasebookAndSectionMixin, ContentNode):
             ...     '   ContentNode<8> -> Case<2>: Foo Foo1 vs. Bar Bar1',
             ...     '    ContentAnnotation<3>: note 0-10',
             ...     '    ContentAnnotation<4>: replace 0-10',
-            ...     '   ContentNode<9> -> Default<2>: Some Link Name 1'
+            ...     '   ContentNode<9> -> Default<2>: Some Link Name 1',
+            ...     ' Section<10>: Some Section 9',
             ... ]
             >>> assert dump_casebook_outline(full_casebook) == expected
             >>> assert full_casebook.owner != user
@@ -895,19 +1140,20 @@ class Casebook(CasebookAndSectionMixin, ContentNode):
             >>> with assert_num_queries(select=5, insert=6):
             ...     clone = full_casebook.clone(owner=user)
             >>> expected = [
-            ...     'Casebook<10>: Some Title 0',
-            ...     ' Section<11>: Some Section 1',
-            ...     '  ContentNode<12> -> TextBlock<3>: Some TextBlock Name 0',
-            ...     '  ContentNode<13> -> Case<1>: Foo Foo0 vs. Bar Bar0',
+            ...     'Casebook<11>: Some Title 0',
+            ...     ' Section<12>: Some Section 1',
+            ...     '  ContentNode<13> -> TextBlock<3>: Some TextBlock Name 0',
+            ...     '  ContentNode<14> -> Case<1>: Foo Foo0 vs. Bar Bar0',
             ...     '   ContentAnnotation<5>: highlight 0-10',
             ...     '   ContentAnnotation<6>: elide 0-10',
-            ...     '  ContentNode<14> -> Default<3>: Some Link Name 0',
-            ...     '  Section<15>: Some Section 5',
-            ...     '   ContentNode<16> -> TextBlock<4>: Some TextBlock Name 1',
-            ...     '   ContentNode<17> -> Case<2>: Foo Foo1 vs. Bar Bar1',
+            ...     '  ContentNode<15> -> Default<3>: Some Link Name 0',
+            ...     '  Section<16>: Some Section 5',
+            ...     '   ContentNode<17> -> TextBlock<4>: Some TextBlock Name 1',
+            ...     '   ContentNode<18> -> Case<2>: Foo Foo1 vs. Bar Bar1',
             ...     '    ContentAnnotation<7>: note 0-10',
             ...     '    ContentAnnotation<8>: replace 0-10',
-            ...     '   ContentNode<18> -> Default<4>: Some Link Name 1'
+            ...     '   ContentNode<19> -> Default<4>: Some Link Name 1',
+            ...     ' Section<20>: Some Section 9',
             ... ]
             >>> assert dump_casebook_outline(clone) == expected
             >>> assert clone.owner == user
@@ -1003,7 +1249,7 @@ class Casebook(CasebookAndSectionMixin, ContentNode):
         if self.root_user_id:
             return self.root_user
         elif self.ancestry:
-            return self.root().owner
+            return self.version_tree__root().owner
 
     def users_with_role(self, role):
         return self.collaborators.filter(contentcollaborator__role=role)
