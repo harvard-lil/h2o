@@ -113,7 +113,9 @@ urlpatterns = format_suffix_patterns(drf_urlpatterns) + [
     path('casebooks/<idslug:casebook_param>/edit/', RedirectView.as_view(pattern_name='edit_casebook', permanent=True)),
     path('casebooks/<idslug:casebook_param>/clone/', views.clone_casebook, name='clone'),
     path('casebooks/<idslug:casebook_param>/create_draft/', views.create_draft, name='create_draft'),
+    # TODO: we temporarily need to list with and without trailing slash, to handle POSTs without slashes
     path('casebooks/<idslug:casebook_param>/', views.casebook, name='casebook'),
+    path('casebooks/<idslug:casebook_param>', views.casebook, name='casebook'),
     # cases
     path('cases/from_capapi', views.from_capapi, name='from_capapi'),
     path('cases/<int:case_id>/', views.case, name='case'),
