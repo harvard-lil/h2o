@@ -185,20 +185,20 @@ class ContentAnnotationFactory(factory.DjangoModelFactory):
 # these can be injected on demand with getfixture() in doctests, or as function arguments in test files
 
 @pytest.fixture
-def content_node_tree(content_node_factory):
+def casebook_tree(casebook_factory):
     """
-        Return a list of ContentNodes representing a tree like:
+        Return a list of Casebooks representing a version tree like:
             - root
                 - c_1
                     - c_1_1
                     - c_1_2
                 - c_2
     """
-    root = content_node_factory()
-    c_1 = content_node_factory(ancestry=str(root.id))
-    c_2 = content_node_factory(ancestry=str(root.id))
-    c_1_1 = content_node_factory(ancestry="%s/%s" % (c_1.ancestry, c_1.id))
-    c_1_2 = content_node_factory(ancestry="%s/%s" % (c_1.ancestry, c_1.id))
+    root = casebook_factory()
+    c_1 = casebook_factory(ancestry=str(root.id))
+    c_2 = casebook_factory(ancestry=str(root.id))
+    c_1_1 = casebook_factory(ancestry="%s/%s" % (c_1.ancestry, c_1.id))
+    c_1_2 = casebook_factory(ancestry="%s/%s" % (c_1.ancestry, c_1.id))
     return [root, c_1, c_2, c_1_1, c_1_2]
 
 
@@ -211,7 +211,7 @@ def admin_user(user_factory):
 
 
 @pytest.fixture
-def full_casebook(casebook_factory):
+def full_casebook_parts(casebook_factory):
     """
         Create:
             - owner
@@ -228,22 +228,30 @@ def full_casebook(casebook_factory):
                              - annotation
                              - annotation
                          - resource -> link
+                - section
     """
     user = UserFactory()
     casebook = casebook_factory(contentcollaborator_set__user=user)
-    SectionFactory(casebook=casebook)
-    ResourceFactory(casebook=casebook, ordinals=[1, 1], resource_type='TextBlock', resource_id=TextBlockFactory(user=user).id)
-    case_resource = ResourceFactory(casebook=casebook, ordinals=[1, 2], resource_type='Case', resource_id=CaseFactory().id)
+    s_1 = SectionFactory(casebook=casebook, ordinals=[1])
+    r_1_1 = ResourceFactory(casebook=casebook, ordinals=[1, 1], resource_type='TextBlock', resource_id=TextBlockFactory(user=user).id)
+    r_1_2 = case_resource = ResourceFactory(casebook=casebook, ordinals=[1, 2], resource_type='Case', resource_id=CaseFactory().id)
     ContentAnnotationFactory(resource=case_resource)
     ContentAnnotationFactory(resource=case_resource, kind='elide')
-    ResourceFactory(casebook=casebook, ordinals=[1, 3], resource_type='Default', resource_id=DefaultFactory(user=user).id)
-    SectionFactory(casebook=casebook,  ordinals=[1, 4])
-    ResourceFactory(casebook=casebook, ordinals=[1, 4, 1], resource_type='TextBlock', resource_id=TextBlockFactory(user=user).id)
-    case_resource = ResourceFactory(casebook=casebook, ordinals=[1, 4, 2], resource_type='Case', resource_id=CaseFactory().id)
+    r_1_3 = ResourceFactory(casebook=casebook, ordinals=[1, 3], resource_type='Default', resource_id=DefaultFactory(user=user).id)
+    s_1_4 = SectionFactory(casebook=casebook,  ordinals=[1, 4])
+    r_1_4_1 = ResourceFactory(casebook=casebook, ordinals=[1, 4, 1], resource_type='TextBlock', resource_id=TextBlockFactory(user=user).id)
+    r_1_4_2 = case_resource = ResourceFactory(casebook=casebook, ordinals=[1, 4, 2], resource_type='Case', resource_id=CaseFactory().id)
     ContentAnnotationFactory(resource=case_resource, kind='note')
     ContentAnnotationFactory(resource=case_resource, kind='replace')
-    ResourceFactory(casebook=casebook, ordinals=[1, 4, 3], resource_type='Default', resource_id=DefaultFactory(user=user).id)
-    return casebook
+    r_1_4_3 = ResourceFactory(casebook=casebook, ordinals=[1, 4, 3], resource_type='Default', resource_id=DefaultFactory(user=user).id)
+    s_2 = SectionFactory(casebook=casebook, ordinals=[2])
+    return [casebook, s_1, r_1_1, r_1_2, r_1_3, s_1_4, r_1_4_1, r_1_4_2, r_1_4_3, s_2]
+
+
+@pytest.fixture
+def full_casebook(full_casebook_parts):
+    return full_casebook_parts[0]
+
 
 @pytest.fixture
 def full_private_casebook(full_casebook):
@@ -497,17 +505,13 @@ def assert_num_queries(pytestconfig, monkeypatch):
                 if pytestconfig.getoption('verbose') > 0:
                     msg += '\n\nQueries:\n========\n\n'
                     for q in context.captured_queries:
-                        if q['userland_stack_frame']:
-                            msg += "%s:%s:\n%s\n" % (
-                                q['userland_stack_frame'].filename,
-                                q['userland_stack_frame'].lineno,
-                                q['userland_stack_frame'].code_context[0].rstrip())
-                        else:
-                            msg += "Not via userland:\n"
+                        stack_frames = q['stack'] if pytestconfig.getoption("verbose") > 1 else [q['userland_stack_frame']] if q['userland_stack_frame'] else []
+                        for stack_frame in stack_frames:
+                            msg += "%s:%s:\n%s\n" % (stack_frame.filename, stack_frame.lineno, stack_frame.code_context[0].rstrip())
                         short_sql = re.sub(r'\'.*?\'', "'<str>'", q['sql'], flags=re.DOTALL)
                         msg += "%s\n\n" % short_sql
                 else:
-                    msg += " (add -v option to show queries)"
+                    msg += " (add -v option to show queries, or -v -v to show queries with full stack trace)"
                 pytest.fail(msg)
 
     return _assert_num_queries

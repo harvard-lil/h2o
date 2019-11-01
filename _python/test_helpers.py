@@ -45,7 +45,8 @@ def dump_casebook_outline(casebook):
         ...     '   ContentNode<8> -> Case<2>: Foo Foo1 vs. Bar Bar1',
         ...     '    ContentAnnotation<3>: note 0-10',
         ...     '    ContentAnnotation<4>: replace 0-10',
-        ...     '   ContentNode<9> -> Default<2>: Some Link Name 1'
+        ...     '   ContentNode<9> -> Default<2>: Some Link Name 1',
+        ...     ' Section<10>: Some Section 9',
         ... ]
     """
     out = []
@@ -61,3 +62,16 @@ def dump_casebook_outline(casebook):
             for annotation in node.annotations.all():
                 out.append("%s ContentAnnotation<%s>: %s %s-%s" % (indent, annotation.id, annotation.kind, annotation.global_start_offset, annotation.global_end_offset))
     return out
+
+
+def dump_content_tree(node):
+    """
+        Return a nested list of the content_tree__children for this node, where each child is represented as
+        [<child>, <child.content_tree__parent>, dump_content_tree(child)]
+    """
+    node.content_tree__load()
+    return _dump_content_tree(node)
+
+
+def _dump_content_tree(node):
+    return [[child, child.content_tree__parent, _dump_content_tree(child)] for child in node.content_tree__children]
