@@ -340,18 +340,18 @@ def clone_casebook(request, casebook_param):
 
         If the casebook can be cloned, do so, then redirect to new clone:
         >>> casebook = owner_of_cloneable_casebook.casebooks.first()
-        >>> check_response(client.post(reverse('clone', args=[casebook.pk]), as_user=user), status_code=302)
-        >>> check_response(client.post(reverse('clone', args=[casebook.pk]), as_user=owner_of_cloneable_casebook), status_code=302)
+        >>> check_response(client.post(reverse('clone', args=[casebook]), as_user=user), status_code=302)
+        >>> check_response(client.post(reverse('clone', args=[casebook]), as_user=owner_of_cloneable_casebook), status_code=302)
 
         Otherwise, return Permission Denied:
         >>> casebook = owner_of_uncloneable_casebook.casebooks.first()
-        >>> check_response(client.post(reverse('clone', args=[casebook.pk]), as_user=user), status_code=403)
-        >>> check_response(client.post(reverse('clone', args=[casebook.pk]), as_user=owner_of_uncloneable_casebook), status_code=403)
+        >>> check_response(client.post(reverse('clone', args=[casebook]), as_user=user), status_code=403)
+        >>> check_response(client.post(reverse('clone', args=[casebook]), as_user=owner_of_uncloneable_casebook), status_code=403)
     """
     casebook = get_object_or_404(Casebook, id=casebook_param['id'])
     if casebook.permits_cloning:
         clone = casebook.clone(request.user)
-        return HttpResponseRedirect(reverse('edit_casebook', args=[clone.pk]))
+        return HttpResponseRedirect(reverse('edit_casebook', args=[clone]))
     raise PermissionDenied
 
 
@@ -368,14 +368,14 @@ def create_draft(request, casebook_param):
 
         Only some casebooks can be edited via this draft mechanism.
         >>> for casebook in owner_of_undraftable_casebooks.casebooks.all():
-        ...     check_response(client.post(reverse('create_draft', args=[casebook.pk]), as_user=owner_of_undraftable_casebooks), status_code=403)
+        ...     check_response(client.post(reverse('create_draft', args=[casebook]), as_user=owner_of_undraftable_casebooks), status_code=403)
 
         And, drafts can only be created by authorized users.
         >>> casebook = owner_of_draftable_casebook.casebooks.first()
-        >>> check_response(client.post(reverse('create_draft', args=[casebook.pk]), as_user=user), status_code=403)
+        >>> check_response(client.post(reverse('create_draft', args=[casebook]), as_user=user), status_code=403)
 
         When draft creation is permitted, create one, and redirect to it:
-        >>> check_response(client.post(reverse('create_draft', args=[casebook.pk]), as_user=owner_of_draftable_casebook), status_code=302)
+        >>> check_response(client.post(reverse('create_draft', args=[casebook]), as_user=owner_of_draftable_casebook), status_code=302)
     """
     # NB: in the Rails app, drafts are created via GET rather than POST
     # Started GET "/casebooks/128853-constitutional-law/resources/1.2.1-marbury-v-madison/create_draft" for 172.18.0.1 at 2019-10-22 18:00:49 +0000
@@ -385,7 +385,7 @@ def create_draft(request, casebook_param):
     casebook = get_object_or_404(Casebook, id=casebook_param['id'])
     if casebook.allows_draft_creation_by(request.user):
         clone = casebook.make_draft()
-        return HttpResponseRedirect(reverse('edit_casebook', args=[clone.pk]))
+        return HttpResponseRedirect(reverse('edit_casebook', args=[clone]))
     raise PermissionDenied
 
 
