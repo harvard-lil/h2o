@@ -256,17 +256,10 @@ def dashboard(request, user_id):
     return render(request, 'dashboard.html', {'user': user})
 
 
+@require_http_methods(["GET", "PATCH"])
 def casebook(request, casebook_param):
     """
         Show a casebook's front page.
-
-        TODO: slashes.
-        > RuntimeError: You called this URL via POST, but the URL
-        > doesn't end in a slash and you have APPEND_SLASH set. Django
-        > can't redirect to the slash URL while maintaining POST data.
-        > Change your form to point to localhost:8001/casebooks/157662/
-        > (note the trailing slash), or set APPEND_SLASH=False in your
-        > Django settings.
 
         Given:
         >>> casebook, casebook_factory, client, admin_user, user_factory = [getfixture(f) for f in ['casebook', 'casebook_factory', 'client', 'admin_user', 'user_factory']]
@@ -308,17 +301,28 @@ def casebook(request, casebook_param):
         >>> check_response(client.get(draft_casebook.get_absolute_url()), status_code=302)
         >>> check_response(client.get(draft_casebook.get_absolute_url(), as_user=non_collaborating_user), status_code=403)
     """
-
     casebook = get_object_or_404(Casebook, id=casebook_param['id'])
 
     # check permissions
     if not casebook.viewable_by(request.user):
         return login_required_response(request)
 
-    # canonical redirect
-    canonical = casebook.get_absolute_url()
-    if request.path != canonical:
-        return HttpResponseRedirect(canonical)
+    if request.method == 'GET':
+        # canonical redirect
+        canonical = casebook.get_absolute_url()
+        if request.path != canonical:
+            return HttpResponseRedirect(canonical)
+    elif request.method == 'PATCH':
+        # TODO: let's move this functionality to a /publish route, as with /export.
+        # I don't think it's helpful for this logic to live in this view.
+        if casebook.draft_mode_of_published_casebook:
+            casebook = casebook.merge_draft()
+        else:
+            casebook.public = True
+            casebook.save()
+        # The javascript that makes these PATCH requests expects a redirect
+        # to the published casebook.
+        return HttpResponseRedirect(reverse('casebook', args=[casebook]))
 
     contents = casebook.contents.prefetch_resources()
     return render_with_actions(request, 'casebook.html', {
