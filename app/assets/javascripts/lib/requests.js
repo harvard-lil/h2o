@@ -1,8 +1,17 @@
 import Axios from 'axios';
 
 export function request (url, method, data = {}, options = {scroll: true}) {
-  const csrf_el = document.querySelector('meta[name=csrf-token]');
-  let headers = csrf_el ? {'X-CSRF-Token': csrf_el.getAttribute('content')} : {};
+
+  // For now, separate handling of csrf in the Rails and Django apps.
+  const rails_csrf_el = document.querySelector('meta[name=csrf-token]');
+  const django_csrf_el = document.querySelector('[name=csrfmiddlewaretoken]');
+  let csrf_token = undefined;
+  if (rails_csrf_el){
+    csrf_token = rails_csrf_el.getAttribute('content');
+  } else if (django_csrf_el){
+    csrf_token = django_csrf_el.value;
+  }
+  let headers = csrf_token ? {'X-CSRF-Token': csrf_token} : {};
   headers['X-HTTP-Method-Override'] = method;
 
   let promise = Axios.post(url, data, {headers: headers});

@@ -205,3 +205,6 @@ NOT_ON_PRODUCTION = False
 
 CRISPY_TEMPLATE_PACK = 'bootstrap3'
 CRISPY_FAIL_SILENTLY = False
+
+# Temporary: this is the name of the CSRF header used by the Rails app's AJAX requests
+CSRF_HEADER_NAME = 'HTTP_X_CSRF_TOKEN'
