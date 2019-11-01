@@ -12,7 +12,9 @@ from django.core.exceptions import PermissionDenied
 from django.http import HttpResponseRedirect, HttpResponseBadRequest, JsonResponse, Http404
 from django.shortcuts import render, get_object_or_404
 from django.urls import reverse
+from django.utils.decorators import method_decorator
 from django.views.decorators.http import require_POST, require_http_methods
+from django.views import View
 
 from test_helpers import check_response
 from .utils import parse_cap_decision_date
@@ -256,79 +258,89 @@ def dashboard(request, user_id):
     return render(request, 'dashboard.html', {'user': user})
 
 
-@require_http_methods(["GET", "PATCH"])
-def casebook(request, casebook_param):
-    """
-        Show a casebook's front page.
+class CasebookView(View):
 
-        Given:
-        >>> casebook, casebook_factory, client, admin_user, user_factory = [getfixture(f) for f in ['casebook', 'casebook_factory', 'client', 'admin_user', 'user_factory']]
-        >>> user = casebook.collaborators.first()
-        >>> non_collaborating_user = user_factory()
-        >>> private_casebook = casebook_factory(contentcollaborator_set__user=user, public=False)
-        >>> draft_casebook = casebook_factory(contentcollaborator_set__user=user, public=False, draft_mode_of_published_casebook=True, copy_of=casebook)
+    def get(self, request, casebook_param):
+        """
+            Show a casebook's front page.
 
-        All users can see public casebooks:
-        >>> check_response(client.get(casebook.get_absolute_url(), content_includes=casebook.title))
+            Given:
+            >>> casebook, casebook_factory, client, admin_user, user_factory = [getfixture(f) for f in ['casebook', 'casebook_factory', 'client', 'admin_user', 'user_factory']]
+            >>> user = casebook.collaborators.first()
+            >>> non_collaborating_user = user_factory()
+            >>> private_casebook = casebook_factory(contentcollaborator_set__user=user, public=False)
+            >>> draft_casebook = casebook_factory(contentcollaborator_set__user=user, public=False, draft_mode_of_published_casebook=True, copy_of=casebook)
 
-        Other users cannot see non-public casebooks:
-        >>> check_response(client.get(private_casebook.get_absolute_url()), status_code=302)
-        >>> check_response(client.get(private_casebook.get_absolute_url(), as_user=non_collaborating_user), status_code=403)
+            All users can see public casebooks:
+            >>> check_response(client.get(casebook.get_absolute_url(), content_includes=casebook.title))
 
-        Users can see their own non-public casebooks in preview mode:
-        >>> check_response(
-        ...     client.get(private_casebook.get_absolute_url(), as_user=user),
-        ...     content_includes=[
-        ...         private_casebook.title,
-        ...         "You are viewing a preview"
-        ...     ]
-        ... )
+            Other users cannot see non-public casebooks:
+            >>> check_response(client.get(private_casebook.get_absolute_url()), status_code=302)
+            >>> check_response(client.get(private_casebook.get_absolute_url(), as_user=non_collaborating_user), status_code=403)
 
-        Admins can see a user's non-public casebooks in preview mode:
-        >>> check_response(
-        ...     client.get(private_casebook.get_absolute_url(), as_user=admin_user),
-        ...     content_includes=[
-        ...         private_casebook.title,
-        ...         "You are viewing a preview"
-        ...     ]
-        ... )
+            Users can see their own non-public casebooks in preview mode:
+            >>> check_response(
+            ...     client.get(private_casebook.get_absolute_url(), as_user=user),
+            ...     content_includes=[
+            ...         private_casebook.title,
+            ...         "You are viewing a preview"
+            ...     ]
+            ... )
 
-        Owners and admins see the "preview mode" of draft casebooks:
-        >>> check_response(client.get(draft_casebook.get_absolute_url(), as_user=user), content_includes="You are viewing a preview")
-        >>> check_response(client.get(draft_casebook.get_absolute_url(), as_user=admin_user), content_includes="You are viewing a preview")
+            Admins can see a user's non-public casebooks in preview mode:
+            >>> check_response(
+            ...     client.get(private_casebook.get_absolute_url(), as_user=admin_user),
+            ...     content_includes=[
+            ...         private_casebook.title,
+            ...         "You are viewing a preview"
+            ...     ]
+            ... )
 
-        Other users cannot see draft casebooks:
-        >>> check_response(client.get(draft_casebook.get_absolute_url()), status_code=302)
-        >>> check_response(client.get(draft_casebook.get_absolute_url(), as_user=non_collaborating_user), status_code=403)
-    """
-    casebook = get_object_or_404(Casebook, id=casebook_param['id'])
+            Owners and admins see the "preview mode" of draft casebooks:
+            >>> check_response(client.get(draft_casebook.get_absolute_url(), as_user=user), content_includes="You are viewing a preview")
+            >>> check_response(client.get(draft_casebook.get_absolute_url(), as_user=admin_user), content_includes="You are viewing a preview")
 
-    # check permissions
-    if not casebook.viewable_by(request.user):
-        return login_required_response(request)
+            Other users cannot see draft casebooks:
+            >>> check_response(client.get(draft_casebook.get_absolute_url()), status_code=302)
+            >>> check_response(client.get(draft_casebook.get_absolute_url(), as_user=non_collaborating_user), status_code=403)
+        """
+        casebook = get_object_or_404(Casebook, id=casebook_param['id'])
 
-    if request.method == 'GET':
+        # check permissions
+        if not casebook.viewable_by(request.user):
+            return login_required_response(request)
+
         # canonical redirect
         canonical = casebook.get_absolute_url()
         if request.path != canonical:
             return HttpResponseRedirect(canonical)
-    elif request.method == 'PATCH':
-        # TODO: let's move this functionality to a /publish route, as with /export.
-        # I don't think it's helpful for this logic to live in this view.
+
+        contents = casebook.contents.prefetch_resources()
+        return render_with_actions(request, 'casebook.html', {
+            'casebook': casebook,
+            'contents': contents
+        })
+
+    @method_decorator(login_required)
+    def patch(self, request, casebook_param):
+        # TODO: let's consider moving this functionality to a /publish route, as with /export.
+        # I don't think it's particularly helpful for this logic to live in this view.
+        # Since other kinds of Casebook edits aren't handled here, it isn't particularly RESTful.
+        casebook = get_object_or_404(Casebook, id=casebook_param['id'])
+
+        # check permissions
+        if not casebook.viewable_by(request.user):
+            raise PermissionDenied
+
         if casebook.draft_mode_of_published_casebook:
             casebook = casebook.merge_draft()
         else:
             casebook.public = True
             casebook.save()
+
         # The javascript that makes these PATCH requests expects a redirect
         # to the published casebook.
         return HttpResponseRedirect(reverse('casebook', args=[casebook]))
-
-    contents = casebook.contents.prefetch_resources()
-    return render_with_actions(request, 'casebook.html', {
-        'casebook': casebook,
-        'contents': contents
-    })
 
 
 @login_required
