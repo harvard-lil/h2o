@@ -31,6 +31,6 @@ WORKDIR /app/_python
 
 # pip
 COPY _python/requirements.txt /app/_python
-RUN pip install -U pip \
+RUN pip install pip==19.3.1 \
     && pip install -r requirements.txt \
     && rm requirements.txt
