@@ -82,3 +82,21 @@ def fix_before_deploy(message):
 def fix_after_rails(message):
     """ Use this to document actions that should be taken after the migration to Python is complete. """
     pass
+
+
+def re_split_offsets(pattern, s):
+    """
+        Split a string by regular expression, and return the substrings, the offsets for each separator, and the text
+        of each separator. This is useful for setting up annotation test templates. Example:
+
+        >>> assert re_split_offsets(r'[A-Z]', "AaaBbbCccDdd") == (
+        ...     ["", "aa", "bb", "cc", "dd"],
+        ...     [0, 2, 4, 6],
+        ...     ["A", "B", "C", "D"],
+        ... )
+    """
+    parts = re.split(r'(%s)' % pattern, s)
+    strs = [parts[i] for i in range(0, len(parts), 2)]
+    split_strs = [parts[i] for i in range(1, len(parts), 2)]
+    split_offsets = [sum(len(s) for s in strs[:i+1]) for i in range(len(strs)-1)]
+    return strs, split_offsets, split_strs

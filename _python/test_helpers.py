@@ -1,5 +1,7 @@
 from rest_framework.response import Response
 
+from main.utils import re_split_offsets
+
 
 def check_response(response, status_code=200, content_type=None, content_includes=None, content_excludes=None):
     assert response.status_code == status_code
@@ -59,7 +61,7 @@ def dump_casebook_outline(casebook):
         elif node_type == 'resource':
             resource = node.resource
             out.append("%sContentNode<%s> -> %s<%s>: %s" % (indent, node.id, type(resource).__name__, resource.id, resource.name))
-            for annotation in node.annotations.all():
+            for annotation in node.annotations.order_by('global_start_offset', 'id'):
                 out.append("%s ContentAnnotation<%s>: %s %s-%s" % (indent, annotation.id, annotation.kind, annotation.global_start_offset, annotation.global_end_offset))
     return out
 
@@ -75,3 +77,25 @@ def dump_content_tree(node):
 
 def _dump_content_tree(node):
     return [[child, child.content_tree__parent, _dump_content_tree(child)] for child in node.content_tree__children]
+
+
+def dump_annotated_text(case_or_textblock):
+    """
+        Return an annotated Case or TextBlock as html with annotation [brackets]. Example:
+
+        >>> annotations_factory, *_ = [getfixture(f) for f in ['annotations_factory']]
+        >>> html = '<p>[replace]This[/replace] [highlight]is[/highlight] [elide]a[/elide] [note]case[/note].</p>'
+        >>> casebook, case = annotations_factory('Case', html)
+        >>> assert dump_annotated_text(case) == html
+    """
+    text_strs, offsets, tags = re_split_offsets(r'<[^>]+?>', case_or_textblock.content)
+    to_insert = list(zip(offsets, tags))
+    for annotation in case_or_textblock.related_annotations():
+        to_insert.extend([
+            (annotation.global_start_offset, '[%s]' % annotation.kind),
+            (annotation.global_end_offset, '[/%s]' % annotation.kind),
+        ])
+    content = "".join(text_strs)
+    for offset, text in sorted(to_insert, reverse=True):
+        content = content[:offset] + text + content[offset:]
+    return content

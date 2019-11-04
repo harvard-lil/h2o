@@ -14,15 +14,18 @@ from django.db.backends import utils as django_db_utils
 
 from main.models import ContentNode, User, Casebook, Section, Resource, ContentCollaborator, Role, Default, TextBlock, \
     Case, CaseCourt, ContentAnnotation
+from main.utils import re_split_offsets
+
+from test_helpers import dump_casebook_outline
 
 
 # This file defines test fixtures available to all tests.
 # To see available fixtures run pytest --fixtures
 
-
 ### internal helpers ###
 
 # functions used within this file to set up fixtures
+
 
 def register_factory(cls):
     """
@@ -208,6 +211,39 @@ def admin_user(user_factory):
     role, created = Role.objects.get_or_create(name='superadmin')
     user.roles.add(role)
     return user
+
+
+@pytest.fixture
+def annotations_factory(db):
+    """
+        Return a factory function that makes annotated casebooks from brackets in HTML. Example:
+
+        >>> _, annotations_factory = [getfixture(f) for f in ['reset_sequences', 'annotations_factory']]
+        >>> casebook, case = annotations_factory('Case', '<p>[replace]This[/replace] [highlight]is[/highlight] [elide]a[/elide] [note]case[/note].</p>')
+        >>> assert dump_casebook_outline(casebook) == [
+        ...     'Casebook<1>: Some Title 0',
+        ...     ' ContentNode<2> -> Case<1>: Foo Foo0 vs. Bar Bar0',
+        ...     '  ContentAnnotation<1>: replace 0-4',
+        ...     '  ContentAnnotation<2>: highlight 5-7',
+        ...     '  ContentAnnotation<3>: elide 8-9',
+        ...     '  ContentAnnotation<4>: note 10-14',
+        ... ]
+    """
+    def factory(resource_type, html):
+        # break apart provided html and get annotation brackets and offsets
+        content = re.sub(r'\[.*?\]', '', html)  # strip brackets
+        html = re.sub(r'<[^>]+?>', '', html)  # strip html tags
+        html_strs, annotation_offsets, annotation_strs = re_split_offsets(r'\[/?(?:highlight|elide|note|replace)\]', html)
+
+        # create casebook, resource, resource_target, and annotations
+        casebook = CasebookFactory()
+        resource_target = {'Case': CaseFactory, 'TextBlock': TextBlockFactory}[resource_type](content=content)
+        resource = ResourceFactory(casebook=casebook, ordinals=[1], resource_type=resource_type, resource_id=resource_target.id)
+        for i in range(0, len(annotation_strs), 2):
+            ContentAnnotationFactory(resource=resource, kind=annotation_strs[i][1:-1], global_start_offset=annotation_offsets[i], global_end_offset=annotation_offsets[i+1])
+
+        return casebook, resource_target
+    return factory
 
 
 @pytest.fixture

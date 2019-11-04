@@ -1,3 +1,4 @@
+import re
 from os.path import commonprefix
 from urllib.parse import urlparse
 
@@ -8,10 +9,12 @@ from django.db import models, transaction
 from django.db.models import Q
 from django.urls import reverse
 from django.utils.text import slugify
+from lxml.html import fragment_fromstring
 from pytest import raises
 
-from test_helpers import dump_casebook_outline, dump_content_tree
-from .utils import clone_model_instance, fix_after_rails, sanitize
+from .differ import AnnotationUpdater
+from test_helpers import dump_casebook_outline, dump_content_tree, dump_annotated_text
+from .utils import clone_model_instance, fix_after_rails, sanitize, fix_before_deploy
 
 
 class BigPkModel(models.Model):
@@ -28,12 +31,93 @@ class TimestampedModel(models.Model):
     class Meta:
         abstract = True
 
+
 class NullableTimestampedModel(models.Model):
     created_at = models.DateTimeField(auto_now_add=True, blank=True, null=True)
     updated_at = models.DateTimeField(auto_now=True, blank=True, null=True)
 
     class Meta:
         abstract = True
+
+
+class EditTrackedModel(models.Model):
+    """
+        Provide subclasses with a has_changed() function that checks whether a field name listed in tracked_fields
+        has been changed since the last time the model instance was loaded or saved.
+
+        This is the same functionality provided by django-model-utils and django-dirtyfields, but
+        those packages can be error-prone in hard-to-diagnose ways, or impose a significant performance cost:
+
+            https://www.alextomkins.com/2016/12/the-cost-of-dirtyfields/
+            https://github.com/jazzband/django-model-utils/issues/331
+            https://github.com/jazzband/django-model-utils/pull/313
+
+        This class attempts to do the same thing in a minimally magical way, by requiring child classes to list the
+        fields they want to track explicitly. It depends on no Django internals, except for these assumptions:
+
+            (a) deferred fields are populated via refresh_from_db(), and
+            (b) populated field values will be added to instance.__dict__
+    """
+    class Meta:
+        abstract = True
+
+    tracked_fields = []
+    original_state = {}
+
+    # built-in methods that need to call reset_original_state() after running:
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.reset_original_state()
+    def save(self, *args, **kwargs):
+        super().save(*args, **kwargs)
+        self.reset_original_state()
+    def refresh_from_db(self, *args, **kwargs):
+        super().refresh_from_db(*args, **kwargs)
+        self.reset_original_state()
+
+    def reset_original_state(self):
+        """
+            Update original_state with the current value of each field name in tracked_fields.
+            Checking k in self.__dict__ means that deferred fields will be omitted entirely,
+            rather than fetched.
+        """
+        self.original_state = {k: getattr(self, k) for k in self.tracked_fields if k in self.__dict__}
+
+    def has_changed(self, field_name):
+        """
+            Return True if the field with the given name has changed locally. Will return True for all fields of a new
+            unsaved instance, and True for deferred fields whether or not they happen to match the database value.
+
+            >>> db, assert_num_queries = [getfixture(f) for f in ['db', 'assert_num_queries']]
+            >>> t = TextBlock(content="foo")
+            >>> assert t.has_changed('content')             # new model: has_changed == True
+            >>> t.save()
+            >>> assert not t.has_changed('content')         # saved: has_changed == False
+            >>> t.content = "bar"
+            >>> assert t.has_changed('content')             # changing the saved value: has_changed == True
+            >>> t.refresh_from_db()
+            >>> assert not t.has_changed('content')         # refresh from db: has_changed == False
+            >>> t2 = TextBlock.objects.get(pk=t.pk)
+            >>> assert not t2.has_changed('content')        # load new copy from db: has_changed == False
+            >>> t2 = TextBlock.objects.defer('content').get(pk=t.pk)
+            >>> with assert_num_queries():
+            ...     assert not t2.has_changed('content')    # load new copy with deferred field: has_changed == False
+            >>> t2.content = "bar"
+            >>> assert t2.has_changed('content')            # assign to deferred field: has_changed == True (may not be correct!)
+        """
+        if field_name not in self.tracked_fields:
+            raise ValueError("%s is not in tracked_fields" % field_name)
+        if not self.pk:
+            # if model hasn't been saved yet, report all fields as changed
+            return True
+        if field_name not in self.__dict__:
+            # if the field was deferred and hasn't been assigned to locally, report as not changed
+            return False
+        if field_name not in self.original_state:
+            # if the field was deferred and has been assigned to locally, report as changed
+            # (which won't be correct if it happens to be assigned the same value as in the db)
+            return True
+        return self.original_state[field_name] != getattr(self, field_name)
 
 
 class SanitizingMixin(object):
@@ -110,7 +194,40 @@ class CaseCourt(NullableTimestampedModel):
         ]
 
 
-class Case(NullableTimestampedModel):
+class AnnotatedModel(EditTrackedModel):
+    r"""
+        Abstract base class for Case and TextBlock resource types, which can be annotated. Ensures that annotation
+        offsets will be updated when the text contents of this resource are modified.
+
+        Given:
+        >>> annotations_factory, *_ = [getfixture(f) for f in ['annotations_factory']]
+        >>> html_with_annotations =     '<p>\n  <em>[note]Keep foo[/note] [highlight]delete bar[/highlight] [elide]keep baz[/elide] buzz</em>\n</p>'
+        >>> new_html =                  '<p>\n  <em>Keep foo keep baz buzz add boo</em>\n</p>'
+        >>> new_html_with_annotations = '<p>\n  <em>[note]Keep foo[/note] [elide]keep baz[/elide] buzz add boo</em>\n</p>'
+
+        Case and TextBlock annotations are updated on save:
+        >>> for resource_type in ('Case', 'TextBlock'):
+        ...     casebook, case_or_textblock = annotations_factory(resource_type, html_with_annotations)
+        ...     case_or_textblock.content = new_html
+        ...     case_or_textblock.save()
+        ...     assert dump_annotated_text(case_or_textblock) == new_html_with_annotations
+    """
+    class Meta:
+        abstract = True
+
+    tracked_fields = ['content']
+
+    def related_annotations(self):
+        fix_before_deploy("Should this be filtering out annotations with -1 offsets?")
+        return ContentAnnotation.objects.filter(resource__resource_id=self.id, resource__resource_type=self.__class__.__name__, global_start_offset__gte=0)
+
+    def save(self, *args, **kwargs):
+        if self.pk and self.has_changed('content'):
+            ContentAnnotation.update_annotations(self.related_annotations(), self.original_state['content'], self.content)
+        super().save(*args, **kwargs)
+
+
+class Case(NullableTimestampedModel, AnnotatedModel):
     name_abbreviation = models.CharField(max_length=150)
     name = models.CharField(max_length=10000, blank=True, null=True)
     decision_date = models.DateField(blank=True, null=True)
@@ -181,6 +298,69 @@ class ContentAnnotation(TimestampedModel, BigPkModel):
         indexes = [
             models.Index(fields=['resource', 'start_paragraph'])
         ]
+
+    @staticmethod
+    def text_from_html(html):
+        r"""
+            Return all text, including spaces, from the html, using the LXML library.
+            >>> html = ' \n <p> \r\n <em> foo </em> \n </p> \n <p> \n <em> foo </em> \n </p> \n '
+            >>> assert ContentAnnotation.text_from_html(html) == ' \n  \r\n  foo  \n  \n  \n  foo  \n  \n '
+            >>> assert ContentAnnotation.text_from_html(' foo ') == ' foo '
+            >>> assert ContentAnnotation.text_from_html(' foo <p> bar </p> baz ') == ' foo  bar  baz '
+        """
+        # lxml's fragment_fromstring() throws away whitespace that comes at the start of the string if followed by
+        # a tag. avoid this edgecase by stripping leading whitespace and re-appending to our output:
+        initial_spaces = re.match(r'\s+', html)
+        if initial_spaces:
+            initial_spaces = initial_spaces.group(0)
+            html = html[len(initial_spaces):]
+        else:
+            initial_spaces = ''
+
+        return initial_spaces + fragment_fromstring(html, create_parent=True).text_content()
+
+    @classmethod
+    def update_annotations(cls, queryset, before_html, after_html):
+        r"""
+            Update annotation global_start_offset and global_end_offset for all annotations in the given queryset,
+            based on the changes from before_html to after_html. NOTE: This assumes that the html has a single root
+            element, and that annotation offsets are relative to the text within that element.
+
+            See AnnotatedModel for tests.
+        """
+        before = cls.text_from_html(before_html)
+        after = cls.text_from_html(after_html)
+        if before == after:
+            # text may be the same even if html is different
+            return
+        updater = AnnotationUpdater(before, after)
+        to_update = []
+
+        # process all annotations after first edited text
+        annotation_query = queryset.filter(global_end_offset__gte=updater.get_first_delta_offset())
+        for annotation in annotation_query:
+
+            # get new annotation location
+            new_start = updater.adjust_offset(annotation.global_start_offset)
+            new_end = updater.adjust_offset(annotation.global_end_offset)
+
+            # skip unchanged annotations
+            if new_start == annotation.global_start_offset and new_end == annotation.global_end_offset:
+                continue
+
+            # handle deleted annotations
+            fix_before_deploy("Do different annotation types need different handling?")
+            if new_start == new_end:
+                new_start = new_end = -1
+
+            # apply changes
+            annotation.global_start_offset = new_start
+            annotation.global_end_offset = new_end
+            to_update.append(annotation)
+
+        # save all changes
+        if to_update:
+            ContentAnnotation.objects.bulk_update(to_update, ['global_start_offset', 'global_end_offset'])
 
 
 class ContentCollaborator(TimestampedModel, BigPkModel):
@@ -1514,7 +1694,7 @@ class RolesUser(NullableTimestampedModel, BigPkModel):
         db_table = 'roles_users'
 
 
-class TextBlock(NullableTimestampedModel):
+class TextBlock(NullableTimestampedModel, AnnotatedModel):
     name = models.CharField(max_length=255)
     description = models.CharField(max_length=5242880, blank=True, null=True)
     content = SanitizingCharField(max_length=5242880)
