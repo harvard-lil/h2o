@@ -329,8 +329,10 @@ class CasebookView(View):
         casebook = get_object_or_404(Casebook, id=casebook_param['id'])
 
         # check permissions
-        if not casebook.viewable_by(request.user):
+        if not casebook.editable_by(request.user):
             raise PermissionDenied
+        if casebook.is_public:
+            raise PermissionDenied("Only private casebooks may be published.")
 
         if casebook.draft_mode_of_published_casebook:
             casebook = casebook.merge_draft()
