@@ -1,7 +1,27 @@
+from django.test.testcases import SimpleTestCase
 from rest_framework.response import Response
+from urllib.parse import urljoin, urlsplit
 
 
-def check_response(response, status_code=200, content_type=None, content_includes=None, content_excludes=None):
+def assertURLEqual(response, expected_url):
+    """
+    Based on https://docs.djangoproject.com/en/2.2/_modules/django/test/testcases/#SimpleTestCase.assertRedirects
+    """
+    if hasattr(response, 'redirect_chain'):
+        url, _ = response.redirect_chain[-1]
+    else:
+        url = response.url
+
+    # Prepend the request path to handle relative path redirects.
+    _, _, path, _, _ = urlsplit(url)
+    if not path.startswith('/'):
+        url = urljoin(response.request['PATH_INFO'], url)
+
+    SimpleTestCase().assertURLEqual(url, expected_url)
+
+
+
+def check_response(response, status_code=200, expected_url=None, content_type=None, content_includes=None, content_excludes=None):
     assert response.status_code == status_code
 
     # check content-type if not a redirect
@@ -13,6 +33,11 @@ def check_response(response, status_code=200, content_type=None, content_include
             else:
                 content_type = "text/html"
         assert response['content-type'].split(';')[0] == content_type
+
+    if expected_url:
+        if callable(expected_url):
+            expected_url = expected_url()
+        assertURLEqual(response, expected_url)
 
     content = response.content.decode()
     if content_includes:

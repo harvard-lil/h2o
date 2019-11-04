@@ -17,6 +17,8 @@ from django.views.decorators.http import require_POST, require_http_methods
 from django.views import View
 
 from test_helpers import check_response
+from pytest import raises as assert_raises
+
 from .utils import parse_cap_decision_date
 from .serializers import ContentAnnotationSerializer, CaseSerializer, TextBlockSerializer
 from .models import Casebook, Resource, Section, Case, User, CaseCourt
@@ -323,9 +325,52 @@ class CasebookView(View):
 
     @method_decorator(login_required)
     def patch(self, request, casebook_param):
+        """
+            Publish a casebook.
+
+            Given:
+            >>> casebook, casebook_factory, client, admin_user, user_factory = [getfixture(f) for f in ['casebook', 'casebook_factory', 'client', 'admin_user', 'user_factory']]
+            >>> user = casebook.collaborators.first()
+            >>> non_collaborating_user = user_factory()
+            >>> private_casebook = casebook_factory(contentcollaborator_set__user=user, public=False)
+            >>> draft_casebook = casebook_factory(contentcollaborator_set__user=user, public=False, draft_mode_of_published_casebook=True, copy_of=casebook)
+
+            Only authors (admins, etc.) may publish casebooks.
+            >>> check_response(client.patch(draft_casebook.get_absolute_url()), status_code=302)
+            >>> check_response(client.patch(draft_casebook.get_absolute_url(), as_user=non_collaborating_user), status_code=403)
+
+            Already-published casebooks cannot be re-published.
+            >>> check_response(client.patch(casebook.get_absolute_url(), as_user=user), status_code=403)
+
+            Newly-composed (private, never-published) casebooks, when published, become public.
+            >>> check_response(
+            ...     client.patch(private_casebook.get_absolute_url(), as_user=user, follow=True),
+            ...     expected_url=private_casebook.get_absolute_url(),
+            ...     content_includes=private_casebook.title,
+            ...     content_excludes="You are viewing a preview"
+            ... )
+            >>> private_casebook.refresh_from_db()
+            >>> assert private_casebook.is_public
+
+            Drafts of already-published casebooks, when published, replace their parent.
+            # NB: calculating expected_url this way is a hack, since we don't know it
+            # when check_response is called.... can we think of a better strategy? Do we
+            # want `check_response` to return the response, for optional further testing?
+            >>> check_response(
+            ...     client.patch(draft_casebook.get_absolute_url(), as_user=user, follow=True),
+            ...     expected_url=(lambda:casebook.refresh_from_db() or casebook.get_absolute_url()),
+            ...     content_includes=draft_casebook.title,
+            ...     content_excludes="You are viewing a preview"
+            ... )
+            >>> with assert_raises(Casebook.DoesNotExist):
+            ...     draft_casebook.refresh_from_db();
+            >>> casebook.refresh_from_db()
+            >>> assert casebook.is_public
+        """
         # TODO: let's consider moving this functionality to a /publish route, as with /export.
         # I don't think it's particularly helpful for this logic to live in this view.
         # Since other kinds of Casebook edits aren't handled here, it isn't particularly RESTful.
+
         casebook = get_object_or_404(Casebook, id=casebook_param['id'])
 
         # check permissions
