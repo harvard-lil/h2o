@@ -190,9 +190,9 @@ pathlib2==2.3.4 \
     --hash=sha256:2156525d6576d21c4dcaddfa427fae887ef89a7a9de5cbfe0728b3aafa78427e \
     --hash=sha256:446014523bb9be5c28128c4d2a10ad6bb60769e78bd85658fe44a450674e0ef8 \
     # via pytest
-pip-tools==4.0.0 \
-    --hash=sha256:3b9fb8948340eff5869ac83dc85e3a7c62b837cec33609c45c48c2e5aa740ba5 \
-    --hash=sha256:44469037863c3587b4c565caf258e2c752d4235c508cf8410a69164bb65ffc78
+pip-tools==4.2.0 \
+    --hash=sha256:123174aabf7f4a63dd6e0bfc8aeeb5eaddbecb75a41e9f0dd4c447b1f2de14f7 \
+    --hash=sha256:5427ea4dcc175649723985fbcace9b2d8f46f9adbcc63bc2d7b247d9bcc74917
 pluggy==0.12.0 \
     --hash=sha256:0825a152ac059776623854c1543d65a4ad408eb3d33ee114dff91e57ec6ae6fc \
     --hash=sha256:b9817417e95936bf75d85d3f8767f7df6cdde751fc40aed3bb3074cbcb77757c \
