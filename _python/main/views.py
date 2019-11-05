@@ -342,6 +342,35 @@ def logout(request, id=None):
     return response
 
 
+@login_required
+# @require_POST
+def new_casebook(request):
+    """
+        Create a new casebook for a user and redirect to its edit page.
+
+        Given:
+        >>> client, user = [getfixture(f) for f in ['client', 'user']]
+        >>> assert user.casebooks.count() == 0
+
+        We don't create textbooks for anonymous users:
+        >>> check_response(client.get(reverse('new_casebook')), status_code=302)
+
+        But any logged in user can create as many as they want:
+        >>> response = client.get(reverse('new_casebook'), as_user=user, follow=True)
+        >>> check_response(response)
+        >>> assert user.casebooks.count() == 1
+        >>> assert_url_equal(response, user.casebooks.first().get_edit_url())
+    """
+    # NB: in the Rails app, drafts are created via GET rather than POST
+    # I'm recreating that here for now, to avoid complicating the javascript
+    # that generates the "new casebook" modal (see dashboard.js).
+    # We should switch to POST as soon as we are free to do so.
+    casebook = Casebook()
+    casebook.save()
+    casebook.add_collaborator(user=request.user, role='owner', has_attribution=True)
+    return HttpResponseRedirect(casebook.get_edit_url())
+
+
 class CasebookView(View):
 
     @method_decorator(perms_test(
