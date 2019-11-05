@@ -40,6 +40,7 @@ INSTALLED_APPS = [
 
 MIDDLEWARE = [
     'main.middleware.generated_by_header_middleware',
+    'main.middleware.method_override_middleware',
 
     'django.middleware.security.SecurityMiddleware',
     'whitenoise.middleware.WhiteNoiseMiddleware',
@@ -205,3 +206,6 @@ NOT_ON_PRODUCTION = False
 
 CRISPY_TEMPLATE_PACK = 'bootstrap3'
 CRISPY_FAIL_SILENTLY = False
+
+# Temporary: this is the name of the CSRF header used by the Rails app's AJAX requests
+CSRF_HEADER_NAME = 'HTTP_X_CSRF_TOKEN'

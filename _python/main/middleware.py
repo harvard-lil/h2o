@@ -100,3 +100,22 @@ def generated_by_header_middleware(get_response):
         response['X-Generated-By'] = 'python'
         return response
     return middleware
+
+
+### http-header-based method overriding ###
+
+METHOD_OVERRIDE_HEADER = 'HTTP_X_HTTP_METHOD_OVERRIDE'
+
+def method_override_middleware(get_response):
+    """
+        Temporary middleware during migration to implement Rails-style HTTP method overriding,
+        so that AJAX requests that are REALLY "POST", but include headers like
+        "X-HTTP-Method-Override: PATCH" are treated as PATCH, PUT, DELETE, etc.
+        https://www.django-rest-framework.org/topics/browser-enhancements/#http-header-based-method-overriding
+    """
+    def middleware(request):
+        if request.method == 'POST' and METHOD_OVERRIDE_HEADER in request.META:
+            request.method = request.META[METHOD_OVERRIDE_HEADER].upper()
+        return get_response(request)
+    return middleware
+

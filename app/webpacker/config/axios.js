@@ -3,8 +3,18 @@ import AxiosConfig from "axios";
 
 let headers = {"Content-Type": "application/json",
                "Accept": "application/json"};
-const csrf_el = document.querySelector("meta[name=csrf-token]");
-if(csrf_el) headers["X-CSRF-Token"] = csrf_el.getAttribute("content");
+// For now, separate handling of csrf in the Rails and Django apps.
+// Remark: in Django land, this probably wants to get the token from
+// the user's cookie, rather than from the DOM; punting for now.
+const rails_csrf_el = document.querySelector('meta[name=csrf-token]');
+const django_csrf_el = document.querySelector('[name=csrfmiddlewaretoken]');
+let csrf_token = undefined;
+if (rails_csrf_el){
+  csrf_token = rails_csrf_el.getAttribute('content');
+} else if (django_csrf_el){
+  csrf_token = django_csrf_el.value;
+}
+if(csrf_token) headers["X-CSRF-Token"] = csrf_token;
 
 const Axios = AxiosConfig.create({headers: headers});
 

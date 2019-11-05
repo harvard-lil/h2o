@@ -1,4 +1,6 @@
+from django.test.testcases import SimpleTestCase
 from rest_framework.response import Response
+from urllib.parse import urljoin, urlsplit
 
 
 def check_response(response, status_code=200, content_type=None, content_includes=None, content_excludes=None):
@@ -25,6 +27,23 @@ def check_response(response, status_code=200, content_type=None, content_include
             content_excludes = [content_excludes]
         for content_exclude in content_excludes:
             assert content_exclude not in content
+
+
+def assert_url_equal(response, expected_url):
+    """
+    Based on https://docs.djangoproject.com/en/2.2/_modules/django/test/testcases/#SimpleTestCase.assertRedirects
+    """
+    if hasattr(response, 'redirect_chain'):
+        url, _ = response.redirect_chain[-1]
+    else:
+        url = response.url
+
+    # Prepend the request path to handle relative path redirects.
+    _, _, path, _, _ = urlsplit(url)
+    if not path.startswith('/'):
+        url = urljoin(response.request['PATH_INFO'], url)
+
+    SimpleTestCase().assertURLEqual(url, expected_url)
 
 
 def dump_casebook_outline(casebook):

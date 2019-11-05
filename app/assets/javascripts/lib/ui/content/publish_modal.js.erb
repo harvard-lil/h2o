@@ -13,12 +13,15 @@ function casebook_path(resourceId, format = 'pdf') {
 }
 
 function showPublishModal (e) {
-  new PublishModal('publish-modal', e.target, {
+  let modal = new PublishModal('publish-modal', e.target, {
     'click .confirm': (e) => {
       showSpinner();
       e.currentTarget.dataset.processing = "true" // override the component destroy events
       let casebookId = document.querySelector('main > header').dataset.casebookId;
-      patch(casebook_path(casebookId), {content_casebook: {public: true}});
+      // TODO: I think this wants to be a standard POST form submission.
+      // It doesn't even need to be AJAX, since publishing should never fail,
+      // and we need to re-render the whole page or redirecting to another page after success.
+      patch(casebook_path(casebookId), {content_casebook: {public: true}}, {modal: modal});
     },
   });
 }

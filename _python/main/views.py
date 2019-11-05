@@ -12,9 +12,13 @@ from django.core.exceptions import PermissionDenied
 from django.http import HttpResponseRedirect, HttpResponseBadRequest, JsonResponse, Http404
 from django.shortcuts import render, get_object_or_404
 from django.urls import reverse
+from django.utils.decorators import method_decorator
 from django.views.decorators.http import require_POST, require_http_methods
+from django.views import View
 
-from test_helpers import check_response
+from test_helpers import check_response, assert_url_equal
+from pytest import raises as assert_raises
+
 from .utils import parse_cap_decision_date
 from .serializers import ContentAnnotationSerializer, CaseSerializer, TextBlockSerializer
 from .models import Casebook, Resource, Section, Case, User, CaseCourt
@@ -256,75 +260,133 @@ def dashboard(request, user_id):
     return render(request, 'dashboard.html', {'user': user})
 
 
-def casebook(request, casebook_param):
-    """
-        Show a casebook's front page.
+class CasebookView(View):
 
-        TODO: slashes.
-        > RuntimeError: You called this URL via POST, but the URL
-        > doesn't end in a slash and you have APPEND_SLASH set. Django
-        > can't redirect to the slash URL while maintaining POST data.
-        > Change your form to point to localhost:8001/casebooks/157662/
-        > (note the trailing slash), or set APPEND_SLASH=False in your
-        > Django settings.
+    def get(self, request, casebook_param):
+        """
+            Show a casebook's front page.
 
-        Given:
-        >>> casebook, casebook_factory, client, admin_user, user_factory = [getfixture(f) for f in ['casebook', 'casebook_factory', 'client', 'admin_user', 'user_factory']]
-        >>> user = casebook.collaborators.first()
-        >>> non_collaborating_user = user_factory()
-        >>> private_casebook = casebook_factory(contentcollaborator_set__user=user, public=False)
-        >>> draft_casebook = casebook_factory(contentcollaborator_set__user=user, public=False, draft_mode_of_published_casebook=True, copy_of=casebook)
+            Given:
+            >>> casebook, casebook_factory, client, admin_user, user_factory = [getfixture(f) for f in ['casebook', 'casebook_factory', 'client', 'admin_user', 'user_factory']]
+            >>> user = casebook.collaborators.first()
+            >>> non_collaborating_user = user_factory()
+            >>> private_casebook = casebook_factory(contentcollaborator_set__user=user, public=False)
+            >>> draft_casebook = casebook_factory(contentcollaborator_set__user=user, public=False, draft_mode_of_published_casebook=True, copy_of=casebook)
 
-        All users can see public casebooks:
-        >>> check_response(client.get(casebook.get_absolute_url(), content_includes=casebook.title))
+            All users can see public casebooks:
+            >>> check_response(client.get(casebook.get_absolute_url(), content_includes=casebook.title))
 
-        Other users cannot see non-public casebooks:
-        >>> check_response(client.get(private_casebook.get_absolute_url()), status_code=302)
-        >>> check_response(client.get(private_casebook.get_absolute_url(), as_user=non_collaborating_user), status_code=403)
+            Other users cannot see non-public casebooks:
+            >>> check_response(client.get(private_casebook.get_absolute_url()), status_code=302)
+            >>> check_response(client.get(private_casebook.get_absolute_url(), as_user=non_collaborating_user), status_code=403)
 
-        Users can see their own non-public casebooks in preview mode:
-        >>> check_response(
-        ...     client.get(private_casebook.get_absolute_url(), as_user=user),
-        ...     content_includes=[
-        ...         private_casebook.title,
-        ...         "You are viewing a preview"
-        ...     ]
-        ... )
+            Users can see their own non-public casebooks in preview mode:
+            >>> check_response(
+            ...     client.get(private_casebook.get_absolute_url(), as_user=user),
+            ...     content_includes=[
+            ...         private_casebook.title,
+            ...         "You are viewing a preview"
+            ...     ]
+            ... )
 
-        Admins can see a user's non-public casebooks in preview mode:
-        >>> check_response(
-        ...     client.get(private_casebook.get_absolute_url(), as_user=admin_user),
-        ...     content_includes=[
-        ...         private_casebook.title,
-        ...         "You are viewing a preview"
-        ...     ]
-        ... )
+            Admins can see a user's non-public casebooks in preview mode:
+            >>> check_response(
+            ...     client.get(private_casebook.get_absolute_url(), as_user=admin_user),
+            ...     content_includes=[
+            ...         private_casebook.title,
+            ...         "You are viewing a preview"
+            ...     ]
+            ... )
 
-        Owners and admins see the "preview mode" of draft casebooks:
-        >>> check_response(client.get(draft_casebook.get_absolute_url(), as_user=user), content_includes="You are viewing a preview")
-        >>> check_response(client.get(draft_casebook.get_absolute_url(), as_user=admin_user), content_includes="You are viewing a preview")
+            Owners and admins see the "preview mode" of draft casebooks:
+            >>> check_response(client.get(draft_casebook.get_absolute_url(), as_user=user), content_includes="You are viewing a preview")
+            >>> check_response(client.get(draft_casebook.get_absolute_url(), as_user=admin_user), content_includes="You are viewing a preview")
 
-        Other users cannot see draft casebooks:
-        >>> check_response(client.get(draft_casebook.get_absolute_url()), status_code=302)
-        >>> check_response(client.get(draft_casebook.get_absolute_url(), as_user=non_collaborating_user), status_code=403)
-    """
+            Other users cannot see draft casebooks:
+            >>> check_response(client.get(draft_casebook.get_absolute_url()), status_code=302)
+            >>> check_response(client.get(draft_casebook.get_absolute_url(), as_user=non_collaborating_user), status_code=403)
+        """
+        casebook = get_object_or_404(Casebook, id=casebook_param['id'])
 
-    casebook = get_object_or_404(Casebook, id=casebook_param['id'])
+        # check permissions
+        if not casebook.viewable_by(request.user):
+            return login_required_response(request)
 
-    # check permissions
-    if not casebook.viewable_by(request.user):
-        return login_required_response(request)
+        # canonical redirect
+        canonical = casebook.get_absolute_url()
+        if request.path != canonical:
+            return HttpResponseRedirect(canonical)
 
-    # canonical redirect
-    canonical = casebook.get_absolute_url()
-    if request.path != canonical:
-        return HttpResponseRedirect(canonical)
+        contents = casebook.contents.prefetch_resources()
+        return render_with_actions(request, 'casebook.html', {
+            'casebook': casebook,
+            'contents': contents
+        })
 
-    contents = casebook.contents.prefetch_resources()
-    return render_with_actions(request, 'casebook.html', {
-        'casebook': casebook,
-        'contents': contents
-    })
+    @method_decorator(login_required)
+    def patch(self, request, casebook_param):
+        """
+            Publish a casebook.
+
+            Given:
+            >>> casebook, casebook_factory, client, admin_user, user_factory = [getfixture(f) for f in ['casebook', 'casebook_factory', 'client', 'admin_user', 'user_factory']]
+            >>> user = casebook.collaborators.first()
+            >>> non_collaborating_user = user_factory()
+            >>> private_casebook = casebook_factory(contentcollaborator_set__user=user, public=False)
+            >>> draft_casebook = casebook_factory(contentcollaborator_set__user=user, public=False, draft_mode_of_published_casebook=True, copy_of=casebook)
+
+            Only authors (admins, etc.) may publish casebooks.
+            >>> check_response(client.patch(draft_casebook.get_absolute_url()), status_code=302)
+            >>> check_response(client.patch(draft_casebook.get_absolute_url(), as_user=non_collaborating_user), status_code=403)
+
+            Already-published casebooks cannot be re-published.
+            >>> check_response(client.patch(casebook.get_absolute_url(), as_user=user), status_code=403)
+
+            Newly-composed (private, never-published) casebooks, when published, become public.
+            >>> response = client.patch(private_casebook.get_absolute_url(), as_user=user, follow=True)
+            >>> check_response(
+            ...     response,
+            ...     content_includes=private_casebook.title,
+            ...     content_excludes="You are viewing a preview"
+            ... )
+            >>> private_casebook.refresh_from_db()
+            >>> assert_url_equal(response, private_casebook.get_absolute_url())
+            >>> assert private_casebook.is_public
+
+            Drafts of already-published casebooks, when published, replace their parent.
+            >>> response = client.patch(draft_casebook.get_absolute_url(), as_user=user, follow=True)
+            >>> check_response(
+            ...     response,
+            ...     content_includes=draft_casebook.title,
+            ...     content_excludes="You are viewing a preview"
+            ... )
+            >>> with assert_raises(Casebook.DoesNotExist):
+            ...     draft_casebook.refresh_from_db();
+            >>> casebook.refresh_from_db()
+            >>> assert_url_equal(response, casebook.get_absolute_url())
+            >>> assert casebook.is_public
+        """
+        # TODO: let's consider moving this functionality to a /publish route, as with /export.
+        # I don't think it's particularly helpful for this logic to live in this view.
+        # Since other kinds of Casebook edits aren't handled here, it isn't particularly RESTful.
+
+        casebook = get_object_or_404(Casebook, id=casebook_param['id'])
+
+        # check permissions
+        if not casebook.editable_by(request.user):
+            raise PermissionDenied
+        if casebook.is_public:
+            raise PermissionDenied("Only private casebooks may be published.")
+
+        if casebook.draft_mode_of_published_casebook:
+            casebook = casebook.merge_draft()
+        else:
+            casebook.public = True
+            casebook.save()
+
+        # The javascript that makes these PATCH requests expects a redirect
+        # to the published casebook.
+        return HttpResponseRedirect(reverse('casebook', args=[casebook]))
 
 
 @login_required
@@ -340,18 +402,18 @@ def clone_casebook(request, casebook_param):
 
         If the casebook can be cloned, do so, then redirect to new clone:
         >>> casebook = owner_of_cloneable_casebook.casebooks.first()
-        >>> check_response(client.post(reverse('clone', args=[casebook.pk]), as_user=user), status_code=302)
-        >>> check_response(client.post(reverse('clone', args=[casebook.pk]), as_user=owner_of_cloneable_casebook), status_code=302)
+        >>> check_response(client.post(reverse('clone', args=[casebook]), as_user=user), status_code=302)
+        >>> check_response(client.post(reverse('clone', args=[casebook]), as_user=owner_of_cloneable_casebook), status_code=302)
 
         Otherwise, return Permission Denied:
         >>> casebook = owner_of_uncloneable_casebook.casebooks.first()
-        >>> check_response(client.post(reverse('clone', args=[casebook.pk]), as_user=user), status_code=403)
-        >>> check_response(client.post(reverse('clone', args=[casebook.pk]), as_user=owner_of_uncloneable_casebook), status_code=403)
+        >>> check_response(client.post(reverse('clone', args=[casebook]), as_user=user), status_code=403)
+        >>> check_response(client.post(reverse('clone', args=[casebook]), as_user=owner_of_uncloneable_casebook), status_code=403)
     """
     casebook = get_object_or_404(Casebook, id=casebook_param['id'])
     if casebook.permits_cloning:
         clone = casebook.clone(request.user)
-        return HttpResponseRedirect(reverse('edit_casebook', args=[clone.pk]))
+        return HttpResponseRedirect(reverse('edit_casebook', args=[clone]))
     raise PermissionDenied
 
 
@@ -368,14 +430,14 @@ def create_draft(request, casebook_param):
 
         Only some casebooks can be edited via this draft mechanism.
         >>> for casebook in owner_of_undraftable_casebooks.casebooks.all():
-        ...     check_response(client.post(reverse('create_draft', args=[casebook.pk]), as_user=owner_of_undraftable_casebooks), status_code=403)
+        ...     check_response(client.post(reverse('create_draft', args=[casebook]), as_user=owner_of_undraftable_casebooks), status_code=403)
 
         And, drafts can only be created by authorized users.
         >>> casebook = owner_of_draftable_casebook.casebooks.first()
-        >>> check_response(client.post(reverse('create_draft', args=[casebook.pk]), as_user=user), status_code=403)
+        >>> check_response(client.post(reverse('create_draft', args=[casebook]), as_user=user), status_code=403)
 
         When draft creation is permitted, create one, and redirect to it:
-        >>> check_response(client.post(reverse('create_draft', args=[casebook.pk]), as_user=owner_of_draftable_casebook), status_code=302)
+        >>> check_response(client.post(reverse('create_draft', args=[casebook]), as_user=owner_of_draftable_casebook), status_code=302)
     """
     # NB: in the Rails app, drafts are created via GET rather than POST
     # Started GET "/casebooks/128853-constitutional-law/resources/1.2.1-marbury-v-madison/create_draft" for 172.18.0.1 at 2019-10-22 18:00:49 +0000
@@ -385,7 +447,7 @@ def create_draft(request, casebook_param):
     casebook = get_object_or_404(Casebook, id=casebook_param['id'])
     if casebook.allows_draft_creation_by(request.user):
         clone = casebook.make_draft()
-        return HttpResponseRedirect(reverse('edit_casebook', args=[clone.pk]))
+        return HttpResponseRedirect(reverse('edit_casebook', args=[clone]))
     raise PermissionDenied
 
 
