@@ -16,7 +16,7 @@ from django.utils.decorators import method_decorator
 from django.views.decorators.http import require_POST, require_http_methods
 from django.views import View
 
-from test_helpers import check_response
+from test_helpers import check_response, assert_url_equal
 from pytest import raises as assert_raises
 
 from .utils import parse_cap_decision_date
@@ -343,28 +343,27 @@ class CasebookView(View):
             >>> check_response(client.patch(casebook.get_absolute_url(), as_user=user), status_code=403)
 
             Newly-composed (private, never-published) casebooks, when published, become public.
+            >>> response = client.patch(private_casebook.get_absolute_url(), as_user=user, follow=True)
             >>> check_response(
-            ...     client.patch(private_casebook.get_absolute_url(), as_user=user, follow=True),
-            ...     expected_url=private_casebook.get_absolute_url(),
+            ...     response,
             ...     content_includes=private_casebook.title,
             ...     content_excludes="You are viewing a preview"
             ... )
             >>> private_casebook.refresh_from_db()
+            >>> assert_url_equal(response, private_casebook.get_absolute_url())
             >>> assert private_casebook.is_public
 
             Drafts of already-published casebooks, when published, replace their parent.
-            # NB: calculating expected_url this way is a hack, since we don't know it
-            # when check_response is called.... can we think of a better strategy? Do we
-            # want `check_response` to return the response, for optional further testing?
+            >>> response = client.patch(draft_casebook.get_absolute_url(), as_user=user, follow=True)
             >>> check_response(
-            ...     client.patch(draft_casebook.get_absolute_url(), as_user=user, follow=True),
-            ...     expected_url=(lambda:casebook.refresh_from_db() or casebook.get_absolute_url()),
+            ...     response,
             ...     content_includes=draft_casebook.title,
             ...     content_excludes="You are viewing a preview"
             ... )
             >>> with assert_raises(Casebook.DoesNotExist):
             ...     draft_casebook.refresh_from_db();
             >>> casebook.refresh_from_db()
+            >>> assert_url_equal(response, casebook.get_absolute_url())
             >>> assert casebook.is_public
         """
         # TODO: let's consider moving this functionality to a /publish route, as with /export.
