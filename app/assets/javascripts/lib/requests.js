@@ -10,6 +10,8 @@ function destroy_modal(modal) {
 export function request (url, method, data = {}, options = {scroll: true}) {
 
   // For now, separate handling of csrf in the Rails and Django apps.
+  // Remark: in Django land, this probably wants to get the token from
+  // the user's cookie, rather than from the DOM; punting for now.
   const rails_csrf_el = document.querySelector('meta[name=csrf-token]');
   const django_csrf_el = document.querySelector('[name=csrfmiddlewaretoken]');
   let csrf_token = undefined;
@@ -54,12 +56,12 @@ export function request (url, method, data = {}, options = {scroll: true}) {
       let location = response.request.responseURL;
 
       if ((window.location.href == location) || (method == 'delete')){
-        // saving scroll position 
+        // saving scroll position
         if (navigator.userAgent.match('Firefox') != null){
           window.location.reload(false);
         }
         else {
-          window.location.reload(true); 
+          window.location.reload(true);
         }
       } else {
         window.location.replace(location);
@@ -69,7 +71,7 @@ export function request (url, method, data = {}, options = {scroll: true}) {
       destroy_modal(options["modal"])
 
     })
-    .done(); 
+    .done();
 
     return promise;
 }
