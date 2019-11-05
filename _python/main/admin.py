@@ -299,7 +299,7 @@ class AnnotationsAdmin(NonLoggingAdmin):
 class UnpublishedRevisionAdmin(NonLoggingAdmin):
     readonly_fields = ['created_at', 'updated_at', 'casebook', 'node', 'node_parent', 'annotation', 'field', 'value']
     list_select_related = ['casebook', 'node', 'node_parent', 'annotation']
-    list_display = ['id', 'the_draft', 'node', 'version_tree__parent','field', 'value_preview', 'annotation', 'created_at', 'updated_at']
+    list_display = ['id', 'the_draft', 'node', 'parent','field', 'value_preview', 'annotation', 'created_at', 'updated_at']
     list_filter = [CasebookIdFilter, 'field']
 
     def the_draft(self, obj):
