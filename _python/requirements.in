@@ -1,4 +1,5 @@
 pip-tools
+fabric3
 
 django
 django-extensions
@@ -21,6 +22,7 @@ pytest-cov
 factory-boy         # create django model fixtures on demand
 flake8
 requests-mock       # mock the requests library
+pytest-mock
 
 # CAP API requests
 requests
