@@ -139,5 +139,5 @@ document.addEventListener('drop', e => {
   patch(reorder_path(ordinals.from.join('.')), {
     child: { ordinals: ordinals.to },
     reorder: true
-  }, { scroll: false });
+  }, { scroll: false, replaceSelector: '.table-of-contents' });
 });
