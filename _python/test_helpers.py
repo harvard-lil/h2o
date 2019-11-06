@@ -98,6 +98,11 @@ def _dump_content_tree(node):
     return [[child, child.content_tree__parent, _dump_content_tree(child)] for child in node.content_tree__children]
 
 
+def dump_content_tree_children(node):
+    node.content_tree__load()
+    return node.content_tree__children
+
+
 def dump_annotated_text(case_or_textblock):
     """
         Return an annotated Case or TextBlock as html with annotation [brackets]. Example:

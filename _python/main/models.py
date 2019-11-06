@@ -13,7 +13,7 @@ from lxml.html import fragment_fromstring
 from pytest import raises
 
 from .differ import AnnotationUpdater
-from test_helpers import dump_casebook_outline, dump_content_tree, dump_annotated_text
+from test_helpers import dump_casebook_outline, dump_content_tree, dump_annotated_text, dump_content_tree_children
 from .utils import clone_model_instance, fix_after_rails, sanitize, fix_before_deploy
 
 
@@ -618,6 +618,10 @@ class ContentNode(TimestampedModel, BigPkModel):
             Move this node to a new place in the content tree. This is the main entrypoint for content tree work; the
             other functions mostly just enable this one.
 
+            NOTE: new_ordinals is the path to the new location *before* removing the node from its current location.
+            (See the "Move into a parent whose ordinal will change because of the move" test below, where new_ordinals
+            is [1, 5, 2] instead of [1, 4, 2].)
+
             Given:
             >>> assert_num_queries = getfixture('assert_num_queries')
             >>> casebook, s_1, r_1_1, r_1_2, r_1_3, s_1_4, r_1_4_1, r_1_4_2, r_1_4_3, s_2 = getfixture('full_casebook_parts')
@@ -640,13 +644,34 @@ class ContentNode(TimestampedModel, BigPkModel):
             ...         ]],
             ...     ]
 
-            Reorder nodes:
+            Move node forward within the same level:
             >>> r_1_4_2.refresh_from_db()
             >>> r_1_4_2.content_tree__move_to([1, 4, 2])
-            >>> assert dump_content_tree(s_1_4) == [
-            ...     [r_1_4_3, s_1_4, []],
-            ...     [r_1_4_2, s_1_4, []],
+            >>> assert dump_content_tree_children(s_1_4) == [r_1_4_3, r_1_4_2]
+
+            Move node backward within the same level:
+            >>> r_1_4_2.refresh_from_db()
+            >>> r_1_4_2.content_tree__move_to([1, 4, 1])
+            >>> assert dump_content_tree_children(s_1_4) == [r_1_4_2, r_1_4_3]
+
+            Become a parent of self:
+            >>> r_1_4_2.refresh_from_db()
+            >>> r_1_4_2.content_tree__move_to([1, 4])
+            >>> assert dump_content_tree(s_1) == [
+            ...     [r_1_1, s_1, []],
+            ...     [r_1_2, s_1, []],
+            ...     [r_1_3, s_1, []],
+            ...     [r_1_4_2, s_1, []],
+            ...     [s_1_4, s_1, [
+            ...         [r_1_4_3, s_1_4, []],
+            ...     ]],
             ... ]
+
+            Move into a parent whose ordinal will change because of the move:
+            >>> r_1_4_2.refresh_from_db()
+            >>> r_1_4_2.content_tree__move_to([1, 5, 2])
+            >>> assert dump_content_tree_children(s_1_4) == [r_1_4_3, r_1_4_2]
+            >>> assert r_1_4_2.ordinals == [1, 4, 2]  # note that this is, correctly, different from the value provided, because parent moved
 
             Enforce some rules:
             >>> with raises(ValueError, match='Cannot move casebook node'):
@@ -670,9 +695,18 @@ class ContentNode(TimestampedModel, BigPkModel):
 
         # find common grandparent node for old and new location
         old_ordinals = self.ordinals
-        common_prefix = commonprefix((old_ordinals, new_ordinals))
+        common_prefix = commonprefix((old_ordinals, new_ordinals[:-1]))
         common_parent_node = self.content_tree__get_same_tree_node_from_ordinals(common_prefix)
         common_parent_node.content_tree__load()
+
+        # find new parent
+        # (do this before the move so the ordinal for the parent hasn't changed)
+        try:
+            new_parent = common_parent_node.content_tree__get_descendent(new_ordinals[:-1])
+        except IndexError:
+            raise ValueError("Invalid new ordinals; parent does not exist: %s" % new_ordinals)
+        if type(new_parent) == Resource:
+            raise ValueError('Cannot add descendent of Resource')
 
         # remove node from existing location
         # (look up the location, instead of using self, so we have the copy where content_tree is populated)
@@ -682,13 +716,7 @@ class ContentNode(TimestampedModel, BigPkModel):
         moved_node.content_tree__parent.content_tree__children.remove(moved_node)
 
         # add node to new location
-        try:
-            new_parent = common_parent_node.content_tree__get_descendent(new_ordinals[:-1])
-        except IndexError:
-            raise ValueError("Invalid new ordinals; parent does not exist: %s" % new_ordinals)
-        if type(new_parent) == Resource:
-            raise ValueError('Cannot add descendent of Resource')
-        new_parent.content_tree__children.insert(new_ordinals[-1], moved_node)
+        new_parent.content_tree__children.insert(new_ordinals[-1] - 1, moved_node)
 
         # save results
         common_parent_node.content_tree__store()
