@@ -24,14 +24,12 @@
   {% if can_add_nodes %}
     {# TODO: actual "add resource" functionality #}
     <button class="action one-line add-resource">Add Resource</button>
-    <form class="button_to" method="post" action="/casebooks/73057-zittrain-torts-playlist-rename/sections?parent=156464">
+    <form class="button_to" method="post" action="{% if section %}{% url 'new_section' section.casebook %}?parent={{ section.id }}{% else %}{% url 'new_section' casebook %}{% endif %}">
       <input class="action add-section" data-disable-with="Add Section" type="submit" value="Add Section">
       {% csrf_token %}
-      {# TODO: actual "add section" functionality, accurate action url, see if disable functionality works #}
     </form>
   {% endif %}
   {% if can_save_nodes %}
-      {# TODO: actual save functionality, see if disable functionality works #}
       {# TODO: consider using buttons w/ "form" attribute instead of save_details.js #}
       <button class="action one-line save submit-{{ content.type }}-details" data-disable-with="Save">Save</button>
       <button class="action one-line cancel cancel-{{ content.type }}-details" data-disable-with="Cancel">Cancel</button>

@@ -25,7 +25,7 @@ from pytest import raises as assert_raises
 
 from .utils import parse_cap_decision_date, fix_after_rails
 from .serializers import ContentAnnotationSerializer, CaseSerializer, TextBlockSerializer
-from .models import Casebook, Resource, Case, User, CaseCourt, ContentNode
+from .models import Casebook, Section, Resource, Case, User, CaseCourt, ContentNode
 from .forms import CasebookForm, SectionForm, ResourceForm, LinkForm, TextBlockForm
 
 
@@ -550,6 +550,60 @@ def edit_casebook(request, casebook):
         'editing': True,
         'form': form
     })
+
+
+@require_http_methods(["POST"])
+@hydrate_params
+@user_has_casebook_perm('directly_editable_by')
+def new_section(request, casebook):
+    """
+        Create a new section in a casebook for a user and redirect to its edit page.
+
+        Given:
+        >>> client = getfixture('client')
+        >>> casebook, s_1, r_1_1, r_1_2, r_1_3, s_1_4, r_1_4_1, r_1_4_2, r_1_4_3, s_2 = getfixture('full_casebook_parts')
+        >>> casebook.public = False
+        >>> casebook.save()
+
+        A simple POST adds a new section to the end of the casebook.
+        >>> url = reverse('new_section', args=[casebook])
+        >>> response = client.post(url, as_user=casebook.owner, follow=True)
+        >>> check_response(response)
+        >>> s_3 = casebook.contents.last()
+        >>> assert isinstance(s_3, Section)
+        >>> assert s_3.ordinals == [3]
+        >>> assert dump_content_tree_children(casebook) == [s_1, s_2, s_3]
+        >>> assert_url_equal(response, s_3.get_edit_url())
+
+        Or, include the ID of a section as a GET param to nest the new section inside it.
+        >>> response = client.post(reverse('new_section', args=[casebook]) + "?parent={}".format(s_1.id), as_user=casebook.owner, follow=True)
+        >>> check_response(response)
+        >>> s_1_5 = s_1.contents.last()
+        >>> assert isinstance(s_1_5, Section)
+        >>> assert s_1_5.ordinals == [1,5]
+        >>> assert dump_content_tree_children(casebook) == [s_1, s_2, s_3]
+        >>> assert dump_content_tree_children(s_1) == [r_1_1, r_1_2, r_1_3, s_1_4, s_1_5]
+        >>> assert_url_equal(response, s_1_5.get_edit_url())
+
+    """
+    # TODO: let's not get the "parent" via a GET param containing a node id;
+    # let's consider having separate routes for adding a section at the top-level
+    # of a casebook and for nesting sections using ordinals in the URL, so that this
+    # is more like everything else.
+
+    # TODO: does this want to be a content_tree method?
+    # Manually manipulating ordinals in a view might not be the way to go.
+    if request.GET.get('parent'):
+        parent_section = get_object_or_404(Section, id=request.GET.get('parent'))
+        parent_section.content_tree__load()
+        ordinals_for_new_section = parent_section.ordinals + [len(parent_section.content_tree__children) + 1]
+    else:
+        casebook.content_tree__load()
+        ordinals_for_new_section = [len(casebook.content_tree__children) + 1]
+
+    new_section = Section(casebook=casebook, ordinals=ordinals_for_new_section)
+    new_section.save()
+    return HttpResponseRedirect(new_section.get_edit_url())
 
 
 @perms_test(viewable_section)
