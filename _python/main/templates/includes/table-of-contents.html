@@ -1,5 +1,4 @@
 {% load include_previous_object times subtract call_method %}
-{% if editing %}<p>This Table of Contents is not yet editable.</p>{% endif %}
 <section class="table-of-contents">
   {% if section %}<h5>Section Contents</h5>{% endif %}
   {% with contents.first.ordinals|length as initial_level %}
@@ -21,7 +20,7 @@
           {% call_method content 'get_edit_or_absolute_url' editing=editing as url %}
           {% if content.type == 'resource' %}
             <div class="listing-wrapper" data-ordinals="{{ content.ordinal_string }}">
-              <a class="listing resource" href="{{ url }}">
+              <a class="listing resource" href="{{ url }}" {% if editing %}draggable="true" data-ordinals="{{ content.ordinal_string }}" data-editable=""{% endif %}>
                 <div class="section-number">{{ content.ordinal_string }}</div>
                   {% if content.resource_type == 'Case' %}
                     <div class="resource-container">
@@ -64,8 +63,8 @@
               </a>
             </div>
           {% elif content.type == 'section' %}
-            <div class="listing-wrapper" data-ordinals="{{ content.ordinal_string }}">
-              <a class="listing section" href="{{ url }}">
+            <div class="listing-wrapper" {% if editing %}draggable="true" data-ordinals="{{ content.ordinal_string }}"{% endif %}>
+              <a class="listing section" href="{{ url }}" {% if editing %}draggable="true" data-ordinals="{{ content.ordinal_string }}" data-editable=""{% endif %}>
                 <div class="section-number">{{ content.ordinal_string }}</div>
                 <div class="section-title">{{ content.get_title }}</div>
               </a>

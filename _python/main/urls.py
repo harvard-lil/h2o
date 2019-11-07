@@ -2,6 +2,7 @@ from django.urls import path, re_path, register_converter
 from django.views.generic import RedirectView, TemplateView
 from rest_framework.urlpatterns import format_suffix_patterns
 
+from .utils import fix_after_rails
 from .models import Casebook, Section
 from . import views
 
@@ -100,14 +101,17 @@ urlpatterns = format_suffix_patterns(drf_urlpatterns) + [
     path('', views.index, name='index'),
     path('users/<int:user_id>/', views.dashboard, name='dashboard'),
     # resources
-    path('casebooks/<idslug:casebook_param>/resources/<ordslug:ordinals_param>/layout/', RedirectView.as_view(pattern_name='resource', permanent=True)),
-    path('casebooks/<idslug:casebook_param>/resources/<ordslug:ordinals_param>/edit/', views.edit_resource, name='edit_resource'),
-    path('casebooks/<idslug:casebook_param>/resources/<ordslug:ordinals_param>/annotate/', views.annotate_resource, name='annotate_resource'),
-    path('casebooks/<idslug:casebook_param>/resources/<ordslug:ordinals_param>/', views.resource, name='resource'),
+    path('casebooks/<idslug:casebook_param>/resources/<ordslug:resource_param>/layout/', RedirectView.as_view(pattern_name='resource', permanent=True)),
+    path('casebooks/<idslug:casebook_param>/resources/<ordslug:resource_param>/edit/', views.edit_resource, name='edit_resource'),
+    path('casebooks/<idslug:casebook_param>/resources/<ordslug:resource_param>/annotate/', views.annotate_resource, name='annotate_resource'),
+    path('casebooks/<idslug:casebook_param>/resources/<ordslug:resource_param>/', views.resource, name='resource'),
     # sections
-    path('casebooks/<idslug:casebook_param>/sections/<ordslug:ordinals_param>/layout/', views.edit_section, name='edit_section'),
-    path('casebooks/<idslug:casebook_param>/sections/<ordslug:ordinals_param>/edit/', RedirectView.as_view(pattern_name='edit_section', permanent=True)),
-    path('casebooks/<idslug:casebook_param>/sections/<ordslug:ordinals_param>/', views.section, name='section'),
+    path('casebooks/<idslug:casebook_param>/sections/<ordslug:section_param>/layout/', views.edit_section, name='edit_section'),
+    path('casebooks/<idslug:casebook_param>/sections/<ordslug:section_param>/edit/', RedirectView.as_view(pattern_name='edit_section', permanent=True)),
+    path('casebooks/<idslug:casebook_param>/sections/<ordslug:section_param>/', views.section, name='section'),
+    # reordering nodes
+    path('casebooks/<idslug:casebook_param>/sections/<ordslug:section_param>/reorder/<ordslug:node_param>', views.reorder_node, name='reorder_node'),
+    path('casebooks/<idslug:casebook_param>/reorder/<ordslug:node_param>', views.reorder_node, name='reorder_node'),
     # casebooks
     path('casebooks/<idslug:casebook_param>/layout/', views.edit_casebook, name='edit_casebook'),
     path('casebooks/<idslug:casebook_param>/edit/', RedirectView.as_view(pattern_name='edit_casebook', permanent=True)),
@@ -130,3 +134,4 @@ urlpatterns = format_suffix_patterns(drf_urlpatterns) + [
     path('pages/terms-of-service/', RedirectView.as_view(pattern_name='terms-of-service', permanent=True)),
     path('pages/faq/', RedirectView.as_view(pattern_name='faq', permanent=True)),
 ]
+fix_after_rails("some routes don't have end slashes for rails compatibility")

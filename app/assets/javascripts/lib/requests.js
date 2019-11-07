@@ -56,8 +56,13 @@ export function request (url, method, data = {}, options = {scroll: true}) {
       let location = response.request.responseURL;
 
       if ((window.location.href == location) || (method == 'delete')){
-        // saving scroll position
-        if (navigator.userAgent.match('Firefox') != null){
+        if (options.replaceSelector) {
+          // Temporary reactivity fix, until the views using it switch to Vue. If replaceSelector is provided,
+          // replace the target section of the page instead of redirecting.
+          $(options.replaceSelector).html($($.parseHTML(html)).find(options.replaceSelector).children());
+        }
+        else if (navigator.userAgent.match('Firefox') != null){
+          // saving scroll position
           window.location.reload(false);
         }
         else {
@@ -67,8 +72,7 @@ export function request (url, method, data = {}, options = {scroll: true}) {
         window.location.replace(location);
       }
 
-      // Is this code reachable? I don't see how; keeping it for now.
-      destroy_modal(options["modal"])
+      destroy_modal(options["modal"]);
 
     })
     .done();
