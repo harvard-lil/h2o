@@ -75,6 +75,7 @@ def search(request):
         return render(request, 'search/results.html', {
             'results': results,
             'category': category,
+            'path': reverse('search'),
         })
     else:
         return render(request, 'search/show.html', {
