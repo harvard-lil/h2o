@@ -215,7 +215,7 @@ class CasebookAdmin(NonLoggingAdmin):
 
 
 class SectionAdmin(NonLoggingAdmin):
-    readonly_fields = ['created_at', 'updated_at', 'owner_link', 'casebook_link', 'copy_of']
+    readonly_fields = ['created_at', 'updated_at', 'owner_link', 'casebook_link', 'copy_of', 'ordinals']
     list_select_related = ['casebook', 'copy_of']
     list_display = ['id', 'casebook_link', 'owner_link', 'get_title', 'ordinals', 'created_at', 'updated_at']
     list_filter = [CasebookIdFilter]
@@ -243,7 +243,7 @@ class SectionAdmin(NonLoggingAdmin):
 
 
 class ResourceAdmin(NonLoggingAdmin):
-    readonly_fields = ['created_at', 'updated_at', 'owner_link', 'casebook_link', 'copy_of', 'resource_id', 'resource_type']
+    readonly_fields = ['created_at', 'updated_at', 'owner_link', 'casebook_link', 'copy_of', 'resource_id', 'resource_type', 'ordinals']
     list_select_related = ['casebook', 'copy_of']
     list_display = ['id', 'casebook_link', 'owner_link', 'get_title', 'ordinals', 'resource_type', 'resource_id', 'annotation_count', 'created_at', 'updated_at']
     list_filter = [CasebookIdFilter, 'resource_type', ResourceIdFilter]
