@@ -1163,6 +1163,14 @@ class Casebook(CasebookAndSectionMixin, ContentNode):
 
     objects = CasebookManager()
 
+    @property
+    def sections(self):
+        return Section.objects.filter(casebook=self)
+
+    @property
+    def resources(self):
+        return Resource.objects.filter(casebook=self)
+
     def get_absolute_url(self):
         """See ContentNode.get_absolute_url"""
         return reverse('casebook', args=[self])

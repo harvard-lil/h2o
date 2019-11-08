@@ -106,15 +106,15 @@ def actions(request, context):
 
         Given:
         >>> published, private, with_draft, client = [getfixture(f) for f in ['full_casebook', 'full_private_casebook', 'full_casebook_with_draft', 'client']]
-        >>> published_section = published.contents.all()[0]
-        >>> published_resource = published.contents.all()[1]
-        >>> private_section = private.contents.all()[0]
-        >>> private_resource = private.contents.all()[1]
-        >>> with_draft_section = with_draft.contents.all()[0]
-        >>> with_draft_resource = with_draft.contents.all()[1]
+        >>> published_section = published.sections.first()
+        >>> published_resource = published.resources.first()
+        >>> private_section = private.sections.first()
+        >>> private_resource = private.resources.first()
+        >>> with_draft_section = with_draft.sections.first()
+        >>> with_draft_resource = with_draft.resources.first()
         >>> draft = with_draft.drafts()
-        >>> draft_section = draft.contents.all()[0]
-        >>> draft_resource = draft.contents.all()[1]
+        >>> draft_section = draft.sections.first()
+        >>> draft_resource = draft.resources.first()
 
         ##
         # These pages allow the same actions regardless of node types
@@ -545,9 +545,9 @@ def section(request, casebook, section):
 
         Given:
         >>> published, private, with_draft, client = [getfixture(f) for f in ['full_casebook', 'full_private_casebook', 'full_casebook_with_draft', 'client']]
-        >>> published_section = published.contents.all()[0]
-        >>> private_section = private.contents.all()[0]
-        >>> draft_section = with_draft.drafts().contents.all()[0]
+        >>> published_section = published.sections.first()
+        >>> private_section = private.sections.first()
+        >>> draft_section = with_draft.drafts().sections.first()
 
         All users can see sections in public casebooks:
         >>> check_response(client.get(published_section.get_absolute_url(), content_includes=published_section.title))
@@ -582,8 +582,8 @@ def edit_section(request, casebook, section):
 
         Given:
         >>> private, with_draft, client = [getfixture(f) for f in ['full_private_casebook', 'full_casebook_with_draft', 'client']]
-        >>> private_section = private.contents.all()[0]
-        >>> draft_section = with_draft.drafts().contents.all()[0]
+        >>> private_section = private.sections.first()
+        >>> draft_section = with_draft.drafts().sections.first()
 
         Users can edit sections in their unpublished and draft casebooks:
         >>> for section in [private_section, draft_section]:
@@ -620,9 +620,9 @@ def resource(request, casebook, resource):
 
         Given:
         >>> published, private, with_draft, client = [getfixture(f) for f in ['full_casebook', 'full_private_casebook', 'full_casebook_with_draft', 'client']]
-        >>> published_resource = published.contents.all()[1]
-        >>> private_resource = private.contents.all()[1]
-        >>> draft_resource = with_draft.drafts().contents.all()[1]
+        >>> published_resource = published.resources.first()
+        >>> private_resource = private.resources.first()
+        >>> draft_resource = with_draft.drafts().resources.first()
 
         All users can see resources in public casebooks:
         >>> check_response(client.get(published_resource.get_absolute_url(), content_includes=published_resource.title))
@@ -827,6 +827,7 @@ def case(request, case_id):
     })
 
 
+@require_POST
 @login_required
 def from_capapi(request):
     """
@@ -853,7 +854,7 @@ def from_capapi(request):
         data = json.loads(request.body.decode("utf-8"))
         cap_id = int(data['id'])
     except Exception:
-        raise HttpResponseBadRequest
+        return HttpResponseBadRequest("Request body should match {'id': <int>}")
 
     # try to fetch existing case:
     case = Case.objects.filter(capapi_id=cap_id, public=True).first()
