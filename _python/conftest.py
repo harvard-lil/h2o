@@ -64,8 +64,9 @@ class UserFactory(factory.DjangoModelFactory):
     class Meta:
         model = User
 
-    attribution = factory.Sequence(lambda n: 'Attribution %s' % n)
+    attribution = factory.Sequence(lambda n: 'Some User %s' % n)
     affiliation = factory.Sequence(lambda n: 'Affiliation %s' % n)
+    verified_email = True
 
 
 @register_factory
@@ -86,6 +87,19 @@ class CasebookFactory(ContentNodeFactory):
 
     contentcollaborator_set = factory.RelatedFactory('conftest.ContentCollaboratorFactory', 'content')
     title = factory.Sequence(lambda n: 'Some Title %s' % n)
+    public = True
+
+
+@register_factory
+class PrivateCasebookFactory(CasebookFactory):
+    public = False
+
+
+@register_factory
+class DraftCasebookFactory(CasebookFactory):
+    public = False
+    draft_mode_of_published_casebook=True
+    copy_of = factory.SubFactory(CasebookFactory)
 
 
 @register_factory
@@ -104,8 +118,8 @@ class ResourceFactory(ContentNodeFactory):
         model = Resource
 
     casebook = factory.SubFactory(CasebookFactory)
-    resource_type = None
-    resource_id = None
+    resource_type = 'Case'
+    resource_id = factory.LazyFunction(lambda: CaseFactory().id)
 
 
 @register_factory
@@ -177,6 +191,11 @@ class CaseFactory(factory.DjangoModelFactory):
 
 
 @register_factory
+class PrivateCaseFactory(CaseFactory):
+    public = False
+
+
+@register_factory
 class ContentAnnotationFactory(factory.DjangoModelFactory):
     class Meta:
         model = ContentAnnotation
@@ -213,7 +232,7 @@ def casebook_tree(casebook_factory):
 
 @pytest.fixture
 def admin_user(user_factory):
-    user = user_factory()
+    user = user_factory(attribution='Admin')
     role, created = Role.objects.get_or_create(name='superadmin')
     user.roles.add(role)
     return user

@@ -18,6 +18,8 @@ from django.utils.decorators import method_decorator
 from django.views.decorators.http import require_POST, require_http_methods
 from django.views import View
 
+from .test.test_permissions_helpers import perms_test, viewable_section, directly_editable_section, viewable_resource, \
+    directly_editable_resource, patch_directly_editable_resource, no_perms_test
 from test_helpers import check_response, assert_url_equal, dump_content_tree_children
 from pytest import raises as assert_raises
 
@@ -257,6 +259,11 @@ def render_with_actions(request, template_name, context=None, content_type=None,
 
 ### views ###
 
+@perms_test(
+    {'args': ['resource.id'], 'results': {200: ['resource.casebook.owner', 'other_user', 'admin_user', None]}},
+    # only editor can get annotations for draft resource
+    {'args': ['full_casebook_with_draft.drafts.resources.first.id'], 'results': {200: ['full_casebook_with_draft.drafts.resources.first.casebook.owner', 'admin_user'], 403: ['other_user'], 'login': [None]}},
+)
 @api_view(['GET'])
 def annotations(request, resource_id, format=None):
     """
@@ -273,6 +280,7 @@ def annotations(request, resource_id, format=None):
         return Response(ContentAnnotationSerializer(resource.annotations.all(), many=True).data)
 
 
+@perms_test({'results': {200: ['user', None]}})
 def index(request):
     if request.user.is_authenticated:
         return render(request, 'dashboard.html', {'user': request.user})
@@ -280,6 +288,7 @@ def index(request):
         return render(request, 'index.html')
 
 
+@perms_test({'args': ['user.id'], 'results': {200: ['user', None]}})
 def dashboard(request, user_id):
     """
         Show given user's casebooks.
@@ -322,6 +331,7 @@ def dashboard(request, user_id):
     return render(request, 'dashboard.html', {'user': user})
 
 
+@no_perms_test  # not really testable until we migrate to Django auth, at which point it hopefully won't be a custom view anyway
 @require_POST
 def logout(request, id=None):
     fix_after_rails("id isn't used; just kept for rails compat")
@@ -334,6 +344,11 @@ def logout(request, id=None):
 
 class CasebookView(View):
 
+    @method_decorator(perms_test(
+        {'args': ['casebook'], 'results': {200: [None, 'other_user', 'casebook.owner']}},
+        {'args': ['private_casebook'], 'results': {200: ['private_casebook.owner'], 'login': [None], 403: ['other_user']}},
+        {'args': ['draft_casebook'], 'results': {200: ['draft_casebook.owner'], 'login': [None], 403: ['other_user']}},
+    ))
     @method_decorator(hydrate_params)
     @method_decorator(user_has_casebook_perm('viewable_by'))
     def get(self, request, casebook):
@@ -378,6 +393,11 @@ class CasebookView(View):
             'contents': contents
         })
 
+    @method_decorator(perms_test(
+        {'args': ['private_casebook'], 'results': {302: ['private_casebook.owner'], 'login': [None], 403: ['other_user']}},
+        {'args': ['draft_casebook'], 'results': {302: ['draft_casebook.owner'], 'login': [None], 403: ['other_user']}},
+        {'args': ['casebook'], 'results': {403: ['casebook.owner']}},
+    ))
     @method_decorator(hydrate_params)
     @method_decorator(user_has_casebook_perm('editable_by'))
     def patch(self, request, casebook):
@@ -441,6 +461,10 @@ class CasebookView(View):
         return HttpResponseRedirect(reverse('casebook', args=[casebook]))
 
 
+@perms_test(
+    {'method': 'post', 'args': ['casebook'], 'results': {302: ['casebook.owner', 'other_user'], 'login': [None]}},
+    {'method': 'post', 'args': ['draft_casebook'], 'results': {403: ['casebook.owner', 'other_user'], 'login': [None]}},
+)
 @require_POST
 @login_required
 @hydrate_params
@@ -469,6 +493,12 @@ def clone_casebook(request, casebook):
     raise PermissionDenied
 
 
+@perms_test(
+    {'method': 'post', 'args': ['casebook'], 'results': {302: ['casebook.owner'], 403: ['other_user'], 'login': [None]}},  # casebook owner can make drafts
+    {'method': 'post', 'args': ['private_casebook'], 'results': {403: ['private_casebook.owner', 'other_user'], 'login': [None]}},  # no drafts of private casebooks
+    {'method': 'post', 'args': ['draft_casebook'], 'results': {403: ['draft_casebook.owner', 'other_user'], 'login': [None]}},  # no drafts of draft casebooks
+    {'method': 'post', 'args': ['draft_casebook.copy_of'], 'results': {403: ['draft_casebook.copy_of.owner', 'other_user'], 'login': [None]}},  # no drafts of casebooks with drafts
+)
 @require_POST
 @hydrate_params
 @user_has_casebook_perm('allows_draft_creation_by')
@@ -501,6 +531,11 @@ def create_draft(request, casebook):
     return HttpResponseRedirect(reverse('edit_casebook', args=[clone]))
 
 
+@perms_test(
+    {'method': 'post', 'args': ['casebook'], 'results': {403: ['casebook.owner', 'other_user'], 'login': [None]}},
+    {'method': 'post', 'args': ['draft_casebook'], 'results': {200: ['draft_casebook.owner'], 403: ['other_user'], 'login': [None]}},
+    {'method': 'post', 'args': ['private_casebook'], 'results': {200: ['private_casebook.owner'], 403: ['other_user'], 'login': [None]}},
+)
 @require_http_methods(["GET", "POST"])
 @hydrate_params
 @user_has_casebook_perm('directly_editable_by')
@@ -537,6 +572,7 @@ def edit_casebook(request, casebook):
     })
 
 
+@perms_test(viewable_section)
 @hydrate_params
 @user_has_casebook_perm('viewable_by')
 def section(request, casebook, section):
@@ -573,6 +609,7 @@ def section(request, casebook, section):
     })
 
 
+@perms_test(directly_editable_section)
 @require_http_methods(["GET", "POST"])
 @hydrate_params
 @user_has_casebook_perm('directly_editable_by')
@@ -612,6 +649,7 @@ def edit_section(request, casebook, section):
     })
 
 
+@perms_test(viewable_resource)
 @hydrate_params
 @user_has_casebook_perm('viewable_by')
 def resource(request, casebook, resource):
@@ -652,6 +690,7 @@ def resource(request, casebook, resource):
     })
 
 
+@perms_test(directly_editable_resource)
 @require_http_methods(["GET", "POST"])
 @hydrate_params
 @user_has_casebook_perm('directly_editable_by')
@@ -742,6 +781,7 @@ def edit_resource(request, casebook, resource):
     })
 
 
+@perms_test(directly_editable_resource)
 @hydrate_params
 @user_has_casebook_perm('directly_editable_by')
 def annotate_resource(request, casebook, resource):
@@ -764,6 +804,7 @@ def annotate_resource(request, casebook, resource):
     })
 
 
+@perms_test(patch_directly_editable_resource)
 @require_http_methods(["PATCH"])
 @hydrate_params
 @user_has_casebook_perm('directly_editable_by')
@@ -815,6 +856,10 @@ def reorder_node(request, casebook, section=None, node=None):
         return HttpResponseRedirect(reverse('edit_casebook', args=[casebook]))
 
 
+@perms_test(
+    {'args': ['case.id'], 'results': {200: ['user', None]}},
+    {'args': ['private_case.id'], 'results': {403: ['user', None]}},
+)
 def case(request, case_id):
     case = get_object_or_404(Case, id=case_id)
     if not case.public:
@@ -827,6 +872,7 @@ def case(request, case_id):
     })
 
 
+@perms_test({'method': 'post', 'results': {400: ['user'], 'login': [None]}})
 @require_POST
 @login_required
 def from_capapi(request):
@@ -909,6 +955,7 @@ def from_capapi(request):
     return JsonResponse({'id': case.id})
 
 
+@no_perms_test
 def not_implemented_yet(request):
     """ Used for routes we want to be able to reverse(), but that aren't implemented yet. """
     raise Http404
