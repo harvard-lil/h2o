@@ -365,22 +365,11 @@ class CasebookView(View):
             All users can see public casebooks:
             >>> check_response(client.get(casebook.get_absolute_url(), content_includes=casebook.title))
 
-            Other users cannot see non-public casebooks:
-            >>> check_response(client.get(private_casebook.get_absolute_url()), status_code=302)
-            >>> check_response(client.get(private_casebook.get_absolute_url(), as_user=non_collaborating_user), status_code=403)
-
             Users can see their own non-public casebooks in preview mode:
-            >>> check_response(
-            ...     client.get(private_casebook.get_absolute_url(), as_user=user),
-            ...     content_includes=[private_casebook.title, "You are viewing a preview"],
-            ... )
+            >>> check_response(client.get(private_casebook.get_absolute_url(), as_user=user), content_includes=[private_casebook.title, "You are viewing a preview"])
 
-            Owners and admins see the "preview mode" of draft casebooks:
+            Owners see the "preview mode" of draft casebooks:
             >>> check_response(client.get(draft_casebook.get_absolute_url(), as_user=user), content_includes="You are viewing a preview")
-
-            Other users cannot see draft casebooks:
-            >>> check_response(client.get(draft_casebook.get_absolute_url()), status_code=302)
-            >>> check_response(client.get(draft_casebook.get_absolute_url(), as_user=non_collaborating_user), status_code=403)
         """
         # canonical redirect
         canonical = casebook.get_absolute_url()
@@ -410,13 +399,6 @@ class CasebookView(View):
             >>> non_collaborating_user = user_factory()
             >>> private_casebook = casebook_factory(contentcollaborator_set__user=user, public=False)
             >>> draft_casebook = casebook_factory(contentcollaborator_set__user=user, public=False, draft_mode_of_published_casebook=True, copy_of=casebook)
-
-            Only authors (admins, etc.) may publish casebooks.
-            >>> check_response(client.patch(draft_casebook.get_absolute_url()), status_code=302)
-            >>> check_response(client.patch(draft_casebook.get_absolute_url(), as_user=non_collaborating_user), status_code=403)
-
-            Already-published casebooks cannot be re-published.
-            >>> check_response(client.patch(casebook.get_absolute_url(), as_user=user), status_code=403)
 
             Newly-composed (private, never-published) casebooks, when published, become public.
             >>> response = client.patch(private_casebook.get_absolute_url(), as_user=user, follow=True)
@@ -471,21 +453,6 @@ class CasebookView(View):
 def clone_casebook(request, casebook):
     """
         Clone a casebook and redirect to edit page for clone.
-
-        Given:
-        >>> client, user, owner_of_cloneable_casebook, owner_of_uncloneable_casebook = [getfixture(f) for f in [
-        ...     'client', 'user', 'user_with_cloneable_casebook', 'user_with_uncloneable_casebook']
-        ... ]
-
-        If the casebook can be cloned, do so, then redirect to new clone:
-        >>> casebook = owner_of_cloneable_casebook.casebooks.first()
-        >>> check_response(client.post(reverse('clone', args=[casebook]), as_user=user), status_code=302)
-        >>> check_response(client.post(reverse('clone', args=[casebook]), as_user=owner_of_cloneable_casebook), status_code=302)
-
-        Otherwise, return Permission Denied:
-        >>> casebook = owner_of_uncloneable_casebook.casebooks.first()
-        >>> check_response(client.post(reverse('clone', args=[casebook]), as_user=user), status_code=403)
-        >>> check_response(client.post(reverse('clone', args=[casebook]), as_user=owner_of_uncloneable_casebook), status_code=403)
     """
     if casebook.permits_cloning:
         clone = casebook.clone(request.user)
@@ -505,22 +472,6 @@ def clone_casebook(request, casebook):
 def create_draft(request, casebook):
     """
         Create a draft of a casebook and redirect to its edit page.
-
-        Given:
-        >>> client, user, owner_of_undraftable_casebooks, owner_of_draftable_casebook = [
-        ...     getfixture(f) for f in ['client', 'user', 'user_with_undraftable_casebooks', 'user_with_draftable_casebook']
-        ... ]
-
-        Only some casebooks can be edited via this draft mechanism.
-        >>> for casebook in owner_of_undraftable_casebooks.casebooks.all():
-        ...     check_response(client.post(reverse('create_draft', args=[casebook]), as_user=owner_of_undraftable_casebooks), status_code=403)
-
-        And, drafts can only be created by authorized users.
-        >>> casebook = owner_of_draftable_casebook.casebooks.first()
-        >>> check_response(client.post(reverse('create_draft', args=[casebook]), as_user=user), status_code=403)
-
-        When draft creation is permitted, create one, and redirect to it:
-        >>> check_response(client.post(reverse('create_draft', args=[casebook]), as_user=owner_of_draftable_casebook), status_code=302)
     """
     # NB: in the Rails app, drafts are created via GET rather than POST
     # Started GET "/casebooks/128853-constitutional-law/resources/1.2.1-marbury-v-madison/create_draft" for 172.18.0.1 at 2019-10-22 18:00:49 +0000

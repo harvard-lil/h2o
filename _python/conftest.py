@@ -343,80 +343,11 @@ def full_casebook_with_draft(full_casebook):
     casebook.make_draft()
     return casebook
 
-@pytest.fixture
-def user_with_cloneable_casebook(casebook_factory, user_factory):
-    """
-        Standard casebooks can be cloned.
-
-        >>> user = getfixture('user_with_cloneable_casebook')
-        >>> casebook = user.casebooks.first()
-        >>> assert casebook.permits_cloning
-    """
-    user = user_factory()
-    casebook_factory(contentcollaborator_set__user=user)
-    return user
-
 
 @pytest.fixture
-def user_with_uncloneable_casebook(casebook_factory, user_factory):
-    """
-        Casebooks that are drafts of already-published casebooks may not
-        be cloned.
-
-        >>> user = getfixture('user_with_uncloneable_casebook')
-        >>> casebook = user.casebooks.first()
-        >>> assert not casebook.permits_cloning
-    """
-    user = user_factory()
-    casebook_factory(
-        contentcollaborator_set__user=user,
-        draft_mode_of_published_casebook=True
-    )
-    return user
-
-
-@pytest.fixture
-def user_with_draftable_casebook(casebook_factory, user_factory):
-    """
-        Already-published casebooks may be edited via the draft mechanism.
-
-        >>> user = getfixture('user_with_draftable_casebook')
-        >>> casebook = user.casebooks.first()
-        >>> assert casebook.allows_draft_creation_by(user)
-    """
-    user = user_factory()
-    casebook_factory(
-        contentcollaborator_set__user=user,
-        public=True
-    )
-    return user
-
-
-@pytest.fixture
-def user_with_undraftable_casebooks(casebook_factory, user_factory):
-    """
-        Private casebooks may be edited directly; they may not be edited
-        via the draft mechanism.
-
-        >>> user = getfixture('user_with_undraftable_casebooks')
-        >>> casebook = user.casebooks.first()
-        >>> assert not casebook.allows_draft_creation_by(user)
-
-        Casebooks may only have one draft at a time.
-        >>> casebook = user.casebooks.last()
-        >>> assert not casebook.allows_draft_creation_by(user)
-    """
-    user = user_factory()
-    casebook_factory(
-        contentcollaborator_set__user=user,
-        public=False
-    )
-    casebook = casebook_factory(
-        contentcollaborator_set__user=user,
-        public=True
-    )
-    casebook.make_draft()
-    return user
+def other_user(user_factory):
+    """ A user who has no relationship to a given casebook. """
+    return user_factory()
 
 
 @pytest.fixture
