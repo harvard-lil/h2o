@@ -36,6 +36,7 @@ INSTALLED_APPS = [
     # third party
     'django_extensions',
     'crispy_forms',
+    'rest_framework',
 ]
 
 MIDDLEWARE = [
@@ -205,3 +206,9 @@ CRISPY_FAIL_SILENTLY = False
 
 # Temporary: this is the name of the CSRF header used by the Rails app's AJAX requests
 CSRF_HEADER_NAME = 'HTTP_X_CSRF_TOKEN'
+
+REST_FRAMEWORK = {
+    'DEFAULT_AUTHENTICATION_CLASSES': (
+        'rest_framework.authentication.SessionAuthentication',  # authenticate with Django login
+    ),
+}
