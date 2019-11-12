@@ -141,8 +141,6 @@ STATIC_ROOT = os.path.join(BASE_DIR, 'static')
 
 RAILS_SECRET_KEY_BASE = None
 
-LOGIN_URL = '/user_sessions/new'
-SIGNUP_URL = '/users/new'
 GUIDE_URL = 'https://about.opencasebook.org/'
 BLOG_URL = 'https://about.opencasebook.org/blog/'
 CAPAPI_CASE_URL_FSTRING = 'https://api.case.law/v1/cases/{}/'
@@ -154,8 +152,6 @@ CONTACT_EMAIL = 'info@opencasebook.org'
 # Make these settings available for use in Django's templates.
 # e.g. <a href="mailto:{{ CONTACT_EMAIL }}">Contact Us</a>
 TEMPLATE_VISIBLE_SETTINGS = (
-    'LOGIN_URL',
-    'SIGNUP_URL',
     'CONTACT_EMAIL',
     'GUIDE_URL',
     'BLOG_URL'

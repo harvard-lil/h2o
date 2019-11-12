@@ -88,6 +88,6 @@
 <section class="stinger">
     <img src="{% rails_static "assets/logo.png" %}" title="H2O"/>
     <h1>"Build coursebooks better, faster and smarter — today."</h1>
-    <a class="call-to-action" href="{{ SIGNUP_URL }}">Get started</a>
+    <a class="call-to-action" href="{% url "sign_up" %}">Get started</a>
 </section>
 {% endblock %}
