@@ -327,6 +327,8 @@ def logout(request, id=None):
     fix_after_rails("id isn't used; just kept for rails compat")
     response = HttpResponseRedirect(reverse('index'))
     response.delete_cookie('_h2o_session')
+    response.delete_cookie('user_credentials')
+    response.delete_cookie('csrftoken')
     return response
 
 
