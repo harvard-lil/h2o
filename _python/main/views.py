@@ -21,7 +21,7 @@ from django.views import View
 from test_helpers import check_response, assert_url_equal, dump_content_tree_children
 from pytest import raises as assert_raises
 
-from .utils import parse_cap_decision_date
+from .utils import parse_cap_decision_date, fix_after_rails
 from .serializers import ContentAnnotationSerializer, CaseSerializer, TextBlockSerializer
 from .models import Casebook, Resource, Case, User, CaseCourt, ContentNode
 from .forms import CasebookForm, SectionForm, ResourceForm, LinkForm, TextBlockForm
@@ -320,6 +320,14 @@ def dashboard(request, user_id):
     """
     user = get_object_or_404(User, pk=user_id)
     return render(request, 'dashboard.html', {'user': user})
+
+
+@require_POST
+def logout(request, id=None):
+    fix_after_rails("id isn't used; just kept for rails compat")
+    response = HttpResponseRedirect(reverse('index'))
+    response.delete_cookie('_h2o_session')
+    return response
 
 
 class CasebookView(View):

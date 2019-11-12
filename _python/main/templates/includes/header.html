@@ -25,13 +25,18 @@
             <ul class="user-links dropdown-menu dropdown-menu-right" aria-labelledby="dLabel">
               <li><a class="user-link" href="{% url 'dashboard' request.user.id %}">Dashboard</a></li>
               <li><a class="user-link" href="{% url 'dashboard' request.user.id %}/edit">Edit Profile</a></li>
-              <li><button class="user-link">Sign Out</button></li>
+              <li>
+                <form class="button_to" method="post" action="{% url "logout" %}">
+                  {% csrf_token %}
+                  <button type="submit" class="user-link">Sign Out</button>
+                </form>
+              </li>
             </ul>
           </div>
         </div>
       {% else %}
-        <a class="sign-up" href="{{ SIGNUP_URL }}">Sign Up</a>
-        <a class="sign-in" href="{{ LOGIN_URL }}">Sign In</a>
+        <a class="sign-up" href="{% url "sign_up" %}">Sign Up</a>
+        <a class="sign-in" href="{% url "login" %}">Sign In</a>
       {% endif %}
     </div>
   </div>

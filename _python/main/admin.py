@@ -19,7 +19,7 @@ class CustomAdminSite(admin.AdminSite):
     site_header = 'H2O Admin'
 
     def login(self, *args, **kwargs):
-        return redirect(settings.LOGIN_URL)
+        return redirect(reverse('login'))
 
     def logout(self, *args, **kwargs):
         raise NotImplementedError()
