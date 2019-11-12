@@ -2,6 +2,7 @@ import inspect
 import re
 from collections import defaultdict
 from contextlib import contextmanager
+from datetime import datetime
 from distutils.sysconfig import get_python_lib
 import pytest
 import factory
@@ -63,6 +64,9 @@ class UserFactory(factory.DjangoModelFactory):
     class Meta:
         model = User
 
+    attribution = factory.Sequence(lambda n: 'Attribution %s' % n)
+    affiliation = factory.Sequence(lambda n: 'Affiliation %s' % n)
+
 
 @register_factory
 class ContentNodeFactory(factory.DjangoModelFactory):
@@ -109,7 +113,7 @@ class ContentCollaboratorFactory(factory.DjangoModelFactory):
     class Meta:
         model = ContentCollaborator
 
-    user = factory.SubFactory(UserFactory)
+    user = factory.SubFactory(UserFactory, verified_professor=True)
     content = factory.SubFactory(CasebookFactory)
     role = 'owner'
     has_attribution = True
@@ -168,6 +172,8 @@ class CaseFactory(factory.DjangoModelFactory):
     content = factory.Sequence(lambda n: 'Some Case Content %s' % n)
     annotations_count = 0
     case_court = factory.SubFactory(CaseCourtFactory)
+    decision_date = datetime(1900, 1, 1)
+    citations = [{'cite': '1 Mass. 1'}, {'cite': '2 Jones 2'}]
 
 
 @register_factory
