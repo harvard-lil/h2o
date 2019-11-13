@@ -129,14 +129,15 @@ urlpatterns = format_suffix_patterns(drf_urlpatterns) + [
     path('cases/from_capapi', views.from_capapi, name='from_capapi'),
     path('cases/<int:case_id>/', views.case, name='case'),
     # canonical paths for static pages
-    path('about/', TemplateView.as_view(template_name='pages/about.html'), name='about'),
-    path('privacy-policy/', TemplateView.as_view(template_name='pages/privacy-policy.html'), name='privacy-policy'),
-    path('terms-of-service/', TemplateView.as_view(template_name='pages/terms-of-service.html'), name='terms-of-service'),
-    path('faq/', TemplateView.as_view(template_name='pages/faq.html'), name='faq'),
-    # legacy paths for static pages
-    path('pages/about/', RedirectView.as_view(pattern_name='about', permanent=True)),
-    path('pages/privacy-policy/', RedirectView.as_view(pattern_name='privacy-policy', permanent=True)),
-    path('pages/terms-of-service/', RedirectView.as_view(pattern_name='terms-of-service', permanent=True)),
-    path('pages/faq/', RedirectView.as_view(pattern_name='faq', permanent=True)),
+    path('pages/about/', TemplateView.as_view(template_name='pages/about.html'), name='about'),
+    path('pages/privacy-policy/', TemplateView.as_view(template_name='pages/privacy-policy.html'), name='privacy-policy'),
+    path('pages/terms-of-service/', TemplateView.as_view(template_name='pages/terms-of-service.html'), name='terms-of-service'),
+    path('pages/faq/', TemplateView.as_view(template_name='pages/faq.html'), name='faq'),
+    # TODO: remove pages/ from the above URLs and use these redirects
+    # path('pages/about/', RedirectView.as_view(pattern_name='about', permanent=True)),
+    # path('pages/privacy-policy/', RedirectView.as_view(pattern_name='privacy-policy', permanent=True)),
+    # path('pages/terms-of-service/', RedirectView.as_view(pattern_name='terms-of-service', permanent=True)),
+    # path('pages/faq/', RedirectView.as_view(pattern_name='faq', permanent=True)),
 ]
 fix_after_rails("some routes don't have end slashes for rails compatibility")
+fix_after_rails("remove pages/ from static pages URLs")
