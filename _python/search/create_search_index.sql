@@ -77,12 +77,12 @@ UNION ALL
 ;
 
 -- -- get search results
-SELECT category, result_id, metadata
-FROM search_view
-WHERE
-    document @@ to_tsquery('court')
-    AND category = 'case'
-ORDER BY ts_rank(document,to_tsquery('court')) desc, result_id;
+-- SELECT category, result_id, metadata
+-- FROM search_view
+-- WHERE
+--     document @@ to_tsquery('court')
+--     AND category = 'case'
+-- ORDER BY ts_rank(document,to_tsquery('court')) desc, result_id;
 --
 -- -- get search counts
 -- SELECT category, count(*)

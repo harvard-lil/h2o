@@ -17,10 +17,15 @@ def search(request):
         Search page.
 
         Given:
-        >>> capapi_mock, client = [getfixture(i) for i in ['capapi_mock', 'client']]
+        >>> capapi_mock, client, casebook_factory = [getfixture(i) for i in ['capapi_mock', 'client', 'casebook_factory']]
+        >>> casebooks = [casebook_factory(contentcollaborator_set__user__verified_professor=True) for i in range(3)]
         >>> url = reverse('search')
+        >>> SearchIndex().create_search_index()
 
-        TODO: basic search tests
+        Show all casebooks by default:
+        >>> check_response(client.get(url), content_includes=[c.title for c in casebooks])
+
+        See SearchIndex._search tests for more specific tests.
 
         This view is also used for searching by citation for cases to import from CAPAPI. The CAP version kicks in if
         we provide 'type': 'cases', 'partial': 'true', and a query that starts and ends in digits:
