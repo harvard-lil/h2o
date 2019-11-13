@@ -64,8 +64,9 @@ class UserFactory(factory.DjangoModelFactory):
     class Meta:
         model = User
 
-    attribution = factory.Sequence(lambda n: 'Attribution %s' % n)
+    attribution = factory.Sequence(lambda n: 'Some User %s' % n)
     affiliation = factory.Sequence(lambda n: 'Affiliation %s' % n)
+    verified_email = True
 
 
 @register_factory
@@ -86,6 +87,19 @@ class CasebookFactory(ContentNodeFactory):
 
     contentcollaborator_set = factory.RelatedFactory('conftest.ContentCollaboratorFactory', 'content')
     title = factory.Sequence(lambda n: 'Some Title %s' % n)
+    public = True
+
+
+@register_factory
+class PrivateCasebookFactory(CasebookFactory):
+    public = False
+
+
+@register_factory
+class DraftCasebookFactory(CasebookFactory):
+    public = False
+    draft_mode_of_published_casebook=True
+    copy_of = factory.SubFactory(CasebookFactory)
 
 
 @register_factory
@@ -104,8 +118,8 @@ class ResourceFactory(ContentNodeFactory):
         model = Resource
 
     casebook = factory.SubFactory(CasebookFactory)
-    resource_type = None
-    resource_id = None
+    resource_type = 'Case'
+    resource_id = factory.LazyFunction(lambda: CaseFactory().id)
 
 
 @register_factory
@@ -177,6 +191,11 @@ class CaseFactory(factory.DjangoModelFactory):
 
 
 @register_factory
+class PrivateCaseFactory(CaseFactory):
+    public = False
+
+
+@register_factory
 class ContentAnnotationFactory(factory.DjangoModelFactory):
     class Meta:
         model = ContentAnnotation
@@ -213,7 +232,7 @@ def casebook_tree(casebook_factory):
 
 @pytest.fixture
 def admin_user(user_factory):
-    user = user_factory()
+    user = user_factory(attribution='Admin')
     role, created = Role.objects.get_or_create(name='superadmin')
     user.roles.add(role)
     return user
@@ -324,80 +343,11 @@ def full_casebook_with_draft(full_casebook):
     casebook.make_draft()
     return casebook
 
-@pytest.fixture
-def user_with_cloneable_casebook(casebook_factory, user_factory):
-    """
-        Standard casebooks can be cloned.
-
-        >>> user = getfixture('user_with_cloneable_casebook')
-        >>> casebook = user.casebooks.first()
-        >>> assert casebook.permits_cloning
-    """
-    user = user_factory()
-    casebook_factory(contentcollaborator_set__user=user)
-    return user
-
 
 @pytest.fixture
-def user_with_uncloneable_casebook(casebook_factory, user_factory):
-    """
-        Casebooks that are drafts of already-published casebooks may not
-        be cloned.
-
-        >>> user = getfixture('user_with_uncloneable_casebook')
-        >>> casebook = user.casebooks.first()
-        >>> assert not casebook.permits_cloning
-    """
-    user = user_factory()
-    casebook_factory(
-        contentcollaborator_set__user=user,
-        draft_mode_of_published_casebook=True
-    )
-    return user
-
-
-@pytest.fixture
-def user_with_draftable_casebook(casebook_factory, user_factory):
-    """
-        Already-published casebooks may be edited via the draft mechanism.
-
-        >>> user = getfixture('user_with_draftable_casebook')
-        >>> casebook = user.casebooks.first()
-        >>> assert casebook.allows_draft_creation_by(user)
-    """
-    user = user_factory()
-    casebook_factory(
-        contentcollaborator_set__user=user,
-        public=True
-    )
-    return user
-
-
-@pytest.fixture
-def user_with_undraftable_casebooks(casebook_factory, user_factory):
-    """
-        Private casebooks may be edited directly; they may not be edited
-        via the draft mechanism.
-
-        >>> user = getfixture('user_with_undraftable_casebooks')
-        >>> casebook = user.casebooks.first()
-        >>> assert not casebook.allows_draft_creation_by(user)
-
-        Casebooks may only have one draft at a time.
-        >>> casebook = user.casebooks.last()
-        >>> assert not casebook.allows_draft_creation_by(user)
-    """
-    user = user_factory()
-    casebook_factory(
-        contentcollaborator_set__user=user,
-        public=False
-    )
-    casebook = casebook_factory(
-        contentcollaborator_set__user=user,
-        public=True
-    )
-    casebook.make_draft()
-    return user
+def other_user(user_factory):
+    """ A user who has no relationship to a given casebook. """
+    return user_factory()
 
 
 @pytest.fixture

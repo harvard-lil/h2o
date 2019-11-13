@@ -18,6 +18,8 @@ from django.utils.decorators import method_decorator
 from django.views.decorators.http import require_POST, require_http_methods
 from django.views import View
 
+from .test.test_permissions_helpers import perms_test, viewable_section, directly_editable_section, viewable_resource, \
+    directly_editable_resource, patch_directly_editable_resource, no_perms_test
 from test_helpers import check_response, assert_url_equal, dump_content_tree_children
 from pytest import raises as assert_raises
 
@@ -106,15 +108,15 @@ def actions(request, context):
 
         Given:
         >>> published, private, with_draft, client = [getfixture(f) for f in ['full_casebook', 'full_private_casebook', 'full_casebook_with_draft', 'client']]
-        >>> published_section = published.contents.all()[0]
-        >>> published_resource = published.contents.all()[1]
-        >>> private_section = private.contents.all()[0]
-        >>> private_resource = private.contents.all()[1]
-        >>> with_draft_section = with_draft.contents.all()[0]
-        >>> with_draft_resource = with_draft.contents.all()[1]
+        >>> published_section = published.sections.first()
+        >>> published_resource = published.resources.first()
+        >>> private_section = private.sections.first()
+        >>> private_resource = private.resources.first()
+        >>> with_draft_section = with_draft.sections.first()
+        >>> with_draft_resource = with_draft.resources.first()
         >>> draft = with_draft.drafts()
-        >>> draft_section = draft.contents.all()[0]
-        >>> draft_resource = draft.contents.all()[1]
+        >>> draft_section = draft.sections.first()
+        >>> draft_resource = draft.resources.first()
 
         ##
         # These pages allow the same actions regardless of node types
@@ -257,6 +259,11 @@ def render_with_actions(request, template_name, context=None, content_type=None,
 
 ### views ###
 
+@perms_test(
+    {'args': ['resource.id'], 'results': {200: ['resource.casebook.owner', 'other_user', 'admin_user', None]}},
+    # only editor can get annotations for draft resource
+    {'args': ['full_casebook_with_draft.drafts.resources.first.id'], 'results': {200: ['full_casebook_with_draft.drafts.resources.first.casebook.owner', 'admin_user'], 403: ['other_user'], 'login': [None]}},
+)
 @api_view(['GET'])
 def annotations(request, resource_id, format=None):
     """
@@ -273,6 +280,7 @@ def annotations(request, resource_id, format=None):
         return Response(ContentAnnotationSerializer(resource.annotations.all(), many=True).data)
 
 
+@perms_test({'results': {200: ['user', None]}})
 def index(request):
     if request.user.is_authenticated:
         return render(request, 'dashboard.html', {'user': request.user})
@@ -280,6 +288,7 @@ def index(request):
         return render(request, 'index.html')
 
 
+@perms_test({'args': ['user.id'], 'results': {200: ['user', None]}})
 def dashboard(request, user_id):
     """
         Show given user's casebooks.
@@ -322,6 +331,7 @@ def dashboard(request, user_id):
     return render(request, 'dashboard.html', {'user': user})
 
 
+@no_perms_test  # not really testable until we migrate to Django auth, at which point it hopefully won't be a custom view anyway
 @require_POST
 def logout(request, id=None):
     fix_after_rails("id isn't used; just kept for rails compat")
@@ -334,6 +344,11 @@ def logout(request, id=None):
 
 class CasebookView(View):
 
+    @method_decorator(perms_test(
+        {'args': ['casebook'], 'results': {200: [None, 'other_user', 'casebook.owner']}},
+        {'args': ['private_casebook'], 'results': {200: ['private_casebook.owner'], 'login': [None], 403: ['other_user']}},
+        {'args': ['draft_casebook'], 'results': {200: ['draft_casebook.owner'], 'login': [None], 403: ['other_user']}},
+    ))
     @method_decorator(hydrate_params)
     @method_decorator(user_has_casebook_perm('viewable_by'))
     def get(self, request, casebook):
@@ -350,22 +365,11 @@ class CasebookView(View):
             All users can see public casebooks:
             >>> check_response(client.get(casebook.get_absolute_url(), content_includes=casebook.title))
 
-            Other users cannot see non-public casebooks:
-            >>> check_response(client.get(private_casebook.get_absolute_url()), status_code=302)
-            >>> check_response(client.get(private_casebook.get_absolute_url(), as_user=non_collaborating_user), status_code=403)
-
             Users can see their own non-public casebooks in preview mode:
-            >>> check_response(
-            ...     client.get(private_casebook.get_absolute_url(), as_user=user),
-            ...     content_includes=[private_casebook.title, "You are viewing a preview"],
-            ... )
+            >>> check_response(client.get(private_casebook.get_absolute_url(), as_user=user), content_includes=[private_casebook.title, "You are viewing a preview"])
 
-            Owners and admins see the "preview mode" of draft casebooks:
+            Owners see the "preview mode" of draft casebooks:
             >>> check_response(client.get(draft_casebook.get_absolute_url(), as_user=user), content_includes="You are viewing a preview")
-
-            Other users cannot see draft casebooks:
-            >>> check_response(client.get(draft_casebook.get_absolute_url()), status_code=302)
-            >>> check_response(client.get(draft_casebook.get_absolute_url(), as_user=non_collaborating_user), status_code=403)
         """
         # canonical redirect
         canonical = casebook.get_absolute_url()
@@ -378,6 +382,11 @@ class CasebookView(View):
             'contents': contents
         })
 
+    @method_decorator(perms_test(
+        {'args': ['private_casebook'], 'results': {302: ['private_casebook.owner'], 'login': [None], 403: ['other_user']}},
+        {'args': ['draft_casebook'], 'results': {302: ['draft_casebook.owner'], 'login': [None], 403: ['other_user']}},
+        {'args': ['casebook'], 'results': {403: ['casebook.owner']}},
+    ))
     @method_decorator(hydrate_params)
     @method_decorator(user_has_casebook_perm('editable_by'))
     def patch(self, request, casebook):
@@ -390,13 +399,6 @@ class CasebookView(View):
             >>> non_collaborating_user = user_factory()
             >>> private_casebook = casebook_factory(contentcollaborator_set__user=user, public=False)
             >>> draft_casebook = casebook_factory(contentcollaborator_set__user=user, public=False, draft_mode_of_published_casebook=True, copy_of=casebook)
-
-            Only authors (admins, etc.) may publish casebooks.
-            >>> check_response(client.patch(draft_casebook.get_absolute_url()), status_code=302)
-            >>> check_response(client.patch(draft_casebook.get_absolute_url(), as_user=non_collaborating_user), status_code=403)
-
-            Already-published casebooks cannot be re-published.
-            >>> check_response(client.patch(casebook.get_absolute_url(), as_user=user), status_code=403)
 
             Newly-composed (private, never-published) casebooks, when published, become public.
             >>> response = client.patch(private_casebook.get_absolute_url(), as_user=user, follow=True)
@@ -441,27 +443,16 @@ class CasebookView(View):
         return HttpResponseRedirect(reverse('casebook', args=[casebook]))
 
 
+@perms_test(
+    {'method': 'post', 'args': ['casebook'], 'results': {302: ['casebook.owner', 'other_user'], 'login': [None]}},
+    {'method': 'post', 'args': ['draft_casebook'], 'results': {403: ['casebook.owner', 'other_user'], 'login': [None]}},
+)
 @require_POST
 @login_required
 @hydrate_params
 def clone_casebook(request, casebook):
     """
         Clone a casebook and redirect to edit page for clone.
-
-        Given:
-        >>> client, user, owner_of_cloneable_casebook, owner_of_uncloneable_casebook = [getfixture(f) for f in [
-        ...     'client', 'user', 'user_with_cloneable_casebook', 'user_with_uncloneable_casebook']
-        ... ]
-
-        If the casebook can be cloned, do so, then redirect to new clone:
-        >>> casebook = owner_of_cloneable_casebook.casebooks.first()
-        >>> check_response(client.post(reverse('clone', args=[casebook]), as_user=user), status_code=302)
-        >>> check_response(client.post(reverse('clone', args=[casebook]), as_user=owner_of_cloneable_casebook), status_code=302)
-
-        Otherwise, return Permission Denied:
-        >>> casebook = owner_of_uncloneable_casebook.casebooks.first()
-        >>> check_response(client.post(reverse('clone', args=[casebook]), as_user=user), status_code=403)
-        >>> check_response(client.post(reverse('clone', args=[casebook]), as_user=owner_of_uncloneable_casebook), status_code=403)
     """
     if casebook.permits_cloning:
         clone = casebook.clone(request.user)
@@ -469,28 +460,18 @@ def clone_casebook(request, casebook):
     raise PermissionDenied
 
 
+@perms_test(
+    {'method': 'post', 'args': ['casebook'], 'results': {302: ['casebook.owner'], 403: ['other_user'], 'login': [None]}},  # casebook owner can make drafts
+    {'method': 'post', 'args': ['private_casebook'], 'results': {403: ['private_casebook.owner', 'other_user'], 'login': [None]}},  # no drafts of private casebooks
+    {'method': 'post', 'args': ['draft_casebook'], 'results': {403: ['draft_casebook.owner', 'other_user'], 'login': [None]}},  # no drafts of draft casebooks
+    {'method': 'post', 'args': ['draft_casebook.copy_of'], 'results': {403: ['draft_casebook.copy_of.owner', 'other_user'], 'login': [None]}},  # no drafts of casebooks with drafts
+)
 @require_POST
 @hydrate_params
 @user_has_casebook_perm('allows_draft_creation_by')
 def create_draft(request, casebook):
     """
         Create a draft of a casebook and redirect to its edit page.
-
-        Given:
-        >>> client, user, owner_of_undraftable_casebooks, owner_of_draftable_casebook = [
-        ...     getfixture(f) for f in ['client', 'user', 'user_with_undraftable_casebooks', 'user_with_draftable_casebook']
-        ... ]
-
-        Only some casebooks can be edited via this draft mechanism.
-        >>> for casebook in owner_of_undraftable_casebooks.casebooks.all():
-        ...     check_response(client.post(reverse('create_draft', args=[casebook]), as_user=owner_of_undraftable_casebooks), status_code=403)
-
-        And, drafts can only be created by authorized users.
-        >>> casebook = owner_of_draftable_casebook.casebooks.first()
-        >>> check_response(client.post(reverse('create_draft', args=[casebook]), as_user=user), status_code=403)
-
-        When draft creation is permitted, create one, and redirect to it:
-        >>> check_response(client.post(reverse('create_draft', args=[casebook]), as_user=owner_of_draftable_casebook), status_code=302)
     """
     # NB: in the Rails app, drafts are created via GET rather than POST
     # Started GET "/casebooks/128853-constitutional-law/resources/1.2.1-marbury-v-madison/create_draft" for 172.18.0.1 at 2019-10-22 18:00:49 +0000
@@ -501,6 +482,11 @@ def create_draft(request, casebook):
     return HttpResponseRedirect(reverse('edit_casebook', args=[clone]))
 
 
+@perms_test(
+    {'method': 'post', 'args': ['casebook'], 'results': {403: ['casebook.owner', 'other_user'], 'login': [None]}},
+    {'method': 'post', 'args': ['draft_casebook'], 'results': {200: ['draft_casebook.owner'], 403: ['other_user'], 'login': [None]}},
+    {'method': 'post', 'args': ['private_casebook'], 'results': {200: ['private_casebook.owner'], 403: ['other_user'], 'login': [None]}},
+)
 @require_http_methods(["GET", "POST"])
 @hydrate_params
 @user_has_casebook_perm('directly_editable_by')
@@ -537,6 +523,7 @@ def edit_casebook(request, casebook):
     })
 
 
+@perms_test(viewable_section)
 @hydrate_params
 @user_has_casebook_perm('viewable_by')
 def section(request, casebook, section):
@@ -545,9 +532,9 @@ def section(request, casebook, section):
 
         Given:
         >>> published, private, with_draft, client = [getfixture(f) for f in ['full_casebook', 'full_private_casebook', 'full_casebook_with_draft', 'client']]
-        >>> published_section = published.contents.all()[0]
-        >>> private_section = private.contents.all()[0]
-        >>> draft_section = with_draft.drafts().contents.all()[0]
+        >>> published_section = published.sections.first()
+        >>> private_section = private.sections.first()
+        >>> draft_section = with_draft.drafts().sections.first()
 
         All users can see sections in public casebooks:
         >>> check_response(client.get(published_section.get_absolute_url(), content_includes=published_section.title))
@@ -573,6 +560,7 @@ def section(request, casebook, section):
     })
 
 
+@perms_test(directly_editable_section)
 @require_http_methods(["GET", "POST"])
 @hydrate_params
 @user_has_casebook_perm('directly_editable_by')
@@ -582,8 +570,8 @@ def edit_section(request, casebook, section):
 
         Given:
         >>> private, with_draft, client = [getfixture(f) for f in ['full_private_casebook', 'full_casebook_with_draft', 'client']]
-        >>> private_section = private.contents.all()[0]
-        >>> draft_section = with_draft.drafts().contents.all()[0]
+        >>> private_section = private.sections.first()
+        >>> draft_section = with_draft.drafts().sections.first()
 
         Users can edit sections in their unpublished and draft casebooks:
         >>> for section in [private_section, draft_section]:
@@ -612,6 +600,7 @@ def edit_section(request, casebook, section):
     })
 
 
+@perms_test(viewable_resource)
 @hydrate_params
 @user_has_casebook_perm('viewable_by')
 def resource(request, casebook, resource):
@@ -620,9 +609,9 @@ def resource(request, casebook, resource):
 
         Given:
         >>> published, private, with_draft, client = [getfixture(f) for f in ['full_casebook', 'full_private_casebook', 'full_casebook_with_draft', 'client']]
-        >>> published_resource = published.contents.all()[1]
-        >>> private_resource = private.contents.all()[1]
-        >>> draft_resource = with_draft.drafts().contents.all()[1]
+        >>> published_resource = published.resources.first()
+        >>> private_resource = private.resources.first()
+        >>> draft_resource = with_draft.drafts().resources.first()
 
         All users can see resources in public casebooks:
         >>> check_response(client.get(published_resource.get_absolute_url(), content_includes=published_resource.title))
@@ -652,6 +641,7 @@ def resource(request, casebook, resource):
     })
 
 
+@perms_test(directly_editable_resource)
 @require_http_methods(["GET", "POST"])
 @hydrate_params
 @user_has_casebook_perm('directly_editable_by')
@@ -742,6 +732,7 @@ def edit_resource(request, casebook, resource):
     })
 
 
+@perms_test(directly_editable_resource)
 @hydrate_params
 @user_has_casebook_perm('directly_editable_by')
 def annotate_resource(request, casebook, resource):
@@ -764,6 +755,7 @@ def annotate_resource(request, casebook, resource):
     })
 
 
+@perms_test(patch_directly_editable_resource)
 @require_http_methods(["PATCH"])
 @hydrate_params
 @user_has_casebook_perm('directly_editable_by')
@@ -815,6 +807,10 @@ def reorder_node(request, casebook, section=None, node=None):
         return HttpResponseRedirect(reverse('edit_casebook', args=[casebook]))
 
 
+@perms_test(
+    {'args': ['case.id'], 'results': {200: ['user', None]}},
+    {'args': ['private_case.id'], 'results': {403: ['user', None]}},
+)
 def case(request, case_id):
     case = get_object_or_404(Case, id=case_id)
     if not case.public:
@@ -827,6 +823,8 @@ def case(request, case_id):
     })
 
 
+@perms_test({'method': 'post', 'results': {400: ['user'], 'login': [None]}})
+@require_POST
 @login_required
 def from_capapi(request):
     """
@@ -853,7 +851,7 @@ def from_capapi(request):
         data = json.loads(request.body.decode("utf-8"))
         cap_id = int(data['id'])
     except Exception:
-        raise HttpResponseBadRequest
+        return HttpResponseBadRequest("Request body should match {'id': <int>}")
 
     # try to fetch existing case:
     case = Case.objects.filter(capapi_id=cap_id, public=True).first()
@@ -908,6 +906,7 @@ def from_capapi(request):
     return JsonResponse({'id': case.id})
 
 
+@no_perms_test
 def not_implemented_yet(request):
     """ Used for routes we want to be able to reverse(), but that aren't implemented yet. """
     raise Http404

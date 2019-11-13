@@ -36,6 +36,7 @@ INSTALLED_APPS = [
     # third party
     'django_extensions',
     'crispy_forms',
+    'rest_framework',
 ]
 
 MIDDLEWARE = [
@@ -141,6 +142,7 @@ STATIC_ROOT = os.path.join(BASE_DIR, 'static')
 
 RAILS_SECRET_KEY_BASE = None
 
+LOGIN_URL = '/user_sessions/new'
 GUIDE_URL = 'https://about.opencasebook.org/'
 BLOG_URL = 'https://about.opencasebook.org/blog/'
 CAPAPI_CASE_URL_FSTRING = 'https://api.case.law/v1/cases/{}/'
@@ -205,3 +207,9 @@ CRISPY_FAIL_SILENTLY = False
 
 # Temporary: this is the name of the CSRF header used by the Rails app's AJAX requests
 CSRF_HEADER_NAME = 'HTTP_X_CSRF_TOKEN'
+
+REST_FRAMEWORK = {
+    'DEFAULT_AUTHENTICATION_CLASSES': (
+        'rest_framework.authentication.SessionAuthentication',  # authenticate with Django login
+    ),
+}

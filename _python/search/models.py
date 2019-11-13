@@ -61,9 +61,9 @@ class SearchIndex(models.Model):
         Get all casebooks:
         >>> assert dump_search_results(SearchIndex().search('casebook')) == (
         ...     [
-        ...         {'affiliation': 'Affiliation 0', 'created_at': '...', 'title': 'Some Title 0', 'attribution': 'Attribution 0'},
-        ...         {'affiliation': 'Affiliation 1', 'created_at': '...', 'title': 'Some Title 1', 'attribution': 'Attribution 1'},
-        ...         {'affiliation': 'Affiliation 2', 'created_at': '...', 'title': 'Some Title 2', 'attribution': 'Attribution 2'}
+        ...         {'affiliation': 'Affiliation 0', 'created_at': '...', 'title': 'Some Title 0', 'attribution': 'Some User 0'},
+        ...         {'affiliation': 'Affiliation 1', 'created_at': '...', 'title': 'Some Title 1', 'attribution': 'Some User 1'},
+        ...         {'affiliation': 'Affiliation 2', 'created_at': '...', 'title': 'Some Title 2', 'attribution': 'Some User 2'}
         ...     ],
         ...     {'user': 3, 'case': 3, 'casebook': 3},
         ...     {}
@@ -71,20 +71,20 @@ class SearchIndex(models.Model):
 
         Get casebooks by query string:
         >>> assert dump_search_results(SearchIndex().search('casebook', 'Some Title 0'))[0] == [
-        ...     {'affiliation': 'Affiliation 0', 'created_at': '...', 'title': 'Some Title 0', 'attribution': 'Attribution 0'},
+        ...     {'affiliation': 'Affiliation 0', 'created_at': '...', 'title': 'Some Title 0', 'attribution': 'Some User 0'},
         ... ]
 
         Get casebooks by filter field:
-        >>> assert dump_search_results(SearchIndex().search('casebook', filters={'attribution': 'Attribution 1'}))[0] == [
-        ...     {'affiliation': 'Affiliation 1', 'created_at': '...', 'title': 'Some Title 1', 'attribution': 'Attribution 1'},
+        >>> assert dump_search_results(SearchIndex().search('casebook', filters={'attribution': 'Some User 1'}))[0] == [
+        ...     {'affiliation': 'Affiliation 1', 'created_at': '...', 'title': 'Some Title 1', 'attribution': 'Some User 1'},
         ... ]
 
         Get all users:
         >>> assert dump_search_results(SearchIndex().search('user')) == (
         ...     [
-        ...         {'casebook_count': 1, 'attribution': 'Attribution 0', 'affiliation': 'Affiliation 0'},
-        ...         {'casebook_count': 1, 'attribution': 'Attribution 1', 'affiliation': 'Affiliation 1'},
-        ...         {'casebook_count': 1, 'attribution': 'Attribution 2', 'affiliation': 'Affiliation 2'},
+        ...         {'casebook_count': 1, 'attribution': 'Some User 0', 'affiliation': 'Affiliation 0'},
+        ...         {'casebook_count': 1, 'attribution': 'Some User 1', 'affiliation': 'Affiliation 1'},
+        ...         {'casebook_count': 1, 'attribution': 'Some User 2', 'affiliation': 'Affiliation 2'},
         ...     ],
         ...     {'casebook': 3, 'case': 3, 'user': 3},
         ...     {},

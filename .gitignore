@@ -45,3 +45,4 @@ package-lock.json
 
 # IntelliJ IDEA
 *.iml
+.vscode

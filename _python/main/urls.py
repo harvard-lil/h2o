@@ -2,6 +2,7 @@ from django.urls import path, re_path, register_converter
 from django.views.generic import RedirectView, TemplateView
 from rest_framework.urlpatterns import format_suffix_patterns
 
+from .test.test_permissions_helpers import no_perms_test
 from .utils import fix_after_rails
 from .models import Casebook, Section
 from . import views
@@ -123,7 +124,7 @@ urlpatterns = format_suffix_patterns(drf_urlpatterns) + [
     path('casebooks/<idslug:casebook_param>/create_draft/', views.create_draft, name='create_draft'),
     # TODO: we temporarily need to list with and without trailing slash, to handle POSTs without slashes
     path('casebooks/<idslug:casebook_param>/', views.CasebookView.as_view(), name='casebook'),
-    path('casebooks/<idslug:casebook_param>', views.CasebookView.as_view(), name='casebook'),
+    path('casebooks/<idslug:casebook_param>', no_perms_test(views.CasebookView.as_view())),
     # cases
     path('cases/from_capapi', views.from_capapi, name='from_capapi'),
     path('cases/<int:case_id>/', views.case, name='case'),
