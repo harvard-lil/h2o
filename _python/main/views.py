@@ -586,16 +586,21 @@ def new_section(request, casebook):
         >>> assert_url_equal(response, s_1_5.get_edit_url())
 
     """
-    # TODO: let's not have a single route create sections and resources
 
-    if request.body:
+    # If we are supposed to create a resource, we are sent JSON data in the request body.
+    # Otherwise, we are supposed to create a section.
+    # TODO: let's not have a single route create sections and resources, and
+    # let's be consistent about the format/technique we use to POST data.
+    data = None
+    try:
+        data = json.loads(request.body.decode('utf-8'))
+    except ValueError:
+        pass
+
+    if data:
         ##
         # Creates a new resource
         ##
-        try:
-            data = json.loads(request.body.decode("utf-8"))
-        except ValueError:
-            return HttpResponseBadRequest(b'Request body must be valid, UTF-8 encoded JSON')
 
         # ordinals
         if data.get('parent'):
