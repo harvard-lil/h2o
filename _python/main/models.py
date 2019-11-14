@@ -748,7 +748,7 @@ class ContentNode(TimestampedModel, BigPkModel):
             values. The one value that will *not* work after this call is self.content_tree__parent; only the sub-tree is fetched.
 
             Given:
-            >>> assert_num_queries = getfixture('assert_num_queries')
+            >>> assert_num_queries, casebook_sections_factory = [getfixture(i) for i in ['assert_num_queries', 'casebook_sections_factory']]
             >>> casebook, s_1, r_1_1, r_1_2, r_1_3, s_1_4, r_1_4_1, r_1_4_2, r_1_4_3, s_2 = getfixture('full_casebook_parts')
 
             Can prefetch a single section:
@@ -774,13 +774,25 @@ class ContentNode(TimestampedModel, BigPkModel):
             ...         ]],
             ...         [s_2, casebook, []],
             ...     ]
+
+            Real-life test case that revealed an error in the "elif parent:" logic:
+            >>> casebook, ords = casebook_sections_factory((1,), (1, 1), (1, 1, 1), (1, 2), (1, 2, 1), (1, 3), (1, 3, 1), (2,))
+            >>> assert dump_content_tree(casebook) == [
+            ...     [ords[(1,)], casebook, [
+            ...         [ords[(1, 1)], ords[(1,)], [
+            ...             [ords[(1, 1, 1)], ords[(1, 1)], []]]],
+            ...         [ords[(1, 2)], ords[(1,)], [
+            ...             [ords[(1, 2, 1)], ords[(1, 2)], []]]],
+            ...         [ords[(1, 3)], ords[(1,)], [
+            ...             [ords[(1, 3, 1)], ords[(1, 3)], []]]]]],
+            ...     [ords[(2,)], casebook, []]]
         """
         parents = []
         parent = last_child = None
         for node in [self] + list(self.contents.all()):
             if last_child and node.content_tree__is_descendent_of(last_child):
-                parent = last_child
                 parents.append(parent)
+                parent = last_child
             elif parent:
                 while not node.content_tree__is_descendent_of(parent):
                     parent = parents.pop()

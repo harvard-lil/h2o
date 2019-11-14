@@ -345,6 +345,20 @@ def full_casebook_with_draft(full_casebook):
 
 
 @pytest.fixture
+def casebook_sections_factory(casebook_factory, section_factory):
+    """
+        Factory that returns a casebook plus a set of sections with the given ordinals.
+    """
+    def factory(*ords):
+        casebook = casebook_factory()
+        sections_by_ordinal = {}
+        for ord in ords:
+            sections_by_ordinal[ord] = section_factory(casebook=casebook, ordinals=ord)
+        return casebook, sections_by_ordinal
+    return factory
+
+
+@pytest.fixture
 def other_user(user_factory):
     """ A user who has no relationship to a given casebook. """
     return user_factory()
