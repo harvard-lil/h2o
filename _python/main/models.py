@@ -1751,8 +1751,10 @@ class TextBlock(NullableTimestampedModel, AnnotatedModel):
     created_via_import = models.BooleanField(default=False)
     annotations_count = models.IntegerField(default=0, blank=True, null=True)
 
-    # the person who created the TextBlock. what's the correct on_delete here?
-    # don't know what it means currently when blank/null
+    # The person who created the TextBlock.
+    # This field doesn't appear to be populated by Rails at present,
+    # when creating new TextBlocks...
+    # What's the correct "on_delete" behavior? Can we.... delete this whole column?
     user = models.ForeignKey('User',
         blank=True,
         null=True,

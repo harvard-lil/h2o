@@ -133,3 +133,10 @@ class TextBlockForm(ModelForm):
         # These will be handled independently
         self.helper.form_tag = False
         self.helper.disable_csrf = True
+
+
+class NewTextBlockForm(ModelForm):
+
+    class Meta:
+        model = TextBlock
+        fields = ['name', 'content']

@@ -10,7 +10,7 @@ from rest_framework.response import Response
 from django.conf import settings
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.views import redirect_to_login
-from django.core.exceptions import PermissionDenied
+from django.core.exceptions import PermissionDenied, ValidationError
 from django.http import HttpResponseRedirect, HttpResponseBadRequest, JsonResponse, Http404
 from django.shortcuts import render, get_object_or_404
 from django.urls import reverse
@@ -26,7 +26,7 @@ from pytest import raises as assert_raises
 from .utils import parse_cap_decision_date, fix_after_rails
 from .serializers import ContentAnnotationSerializer, CaseSerializer, TextBlockSerializer
 from .models import Casebook, Section, Resource, Case, User, CaseCourt, ContentNode
-from .forms import CasebookForm, SectionForm, ResourceForm, LinkForm, TextBlockForm
+from .forms import CasebookForm, SectionForm, ResourceForm, LinkForm, TextBlockForm, NewTextBlockForm
 
 
 ### helpers ###
@@ -586,24 +586,83 @@ def new_section(request, casebook):
         >>> assert_url_equal(response, s_1_5.get_edit_url())
 
     """
-    # TODO: let's not get the "parent" via a GET param containing a node id;
-    # let's consider having separate routes for adding a section at the top-level
-    # of a casebook and for nesting sections using ordinals in the URL, so that this
-    # is more like everything else.
+    # TODO: let's not have a single route create sections and resources
 
-    # TODO: does this want to be a content_tree method?
-    # Manually manipulating ordinals in a view might not be the way to go.
-    if request.GET.get('parent'):
-        parent_section = get_object_or_404(Section, id=request.GET.get('parent'))
-        parent_section.content_tree__load()
-        ordinals_for_new_section = parent_section.ordinals + [len(parent_section.content_tree__children) + 1]
+    if request.body:
+        ##
+        # Creates a new resource
+        ##
+        try:
+            data = json.loads(request.body.decode("utf-8"))
+        except ValueError:
+            return HttpResponseBadRequest(b'Request body must be valid, UTF-8 encoded JSON')
+
+        # ordinals
+        if data.get('parent'):
+            parent_id = int(data['parent'])
+            parent_section = get_object_or_404(Section, id=parent_id)
+            parent_section.content_tree__load()
+            ordinals_for_new_resource = parent_section.ordinals + [len(parent_section.content_tree__children) + 1]
+        else:
+            casebook.content_tree__load()
+            ordinals_for_new_resource = [len(casebook.content_tree__children) + 1]
+
+        if data.get('resource_id'):
+            # This is a case resource
+            resource_id = int(data['resource_id'])
+            related_resource = Case.objects.get(id=resource_id)
+        elif data.get('text'):
+            # This is a text resource
+            form = NewTextBlockForm({
+                'name': data['text']['title'],
+                'content': data['text']['content']
+            })
+            if form.is_valid():
+                related_resource = form.save()
+            else:
+                return HttpResponseBadRequest(b'Whoops.')
+        elif data.get('link'):
+            # This is a link/default resource
+            form = LinkForm({'url': data['link']['url']})
+            if form.is_valid():
+                related_resource = form.save()
+            else:
+                return HttpResponseBadRequest(b'Whoops.')
+        else:
+            return HttpResponseBadRequest(b'Whoops')
+
+        new_resource = Resource(
+            casebook=casebook,
+            ordinals=ordinals_for_new_resource,
+            resource_id=related_resource.id,
+            resource_type=type(related_resource).__name__
+        )
+        new_resource.save()
+        return HttpResponseRedirect(new_resource.get_edit_or_absolute_url(editing=True))
+
     else:
-        casebook.content_tree__load()
-        ordinals_for_new_section = [len(casebook.content_tree__children) + 1]
+        ##
+        # Creates a new section
+        ##
 
-    new_section = Section(casebook=casebook, ordinals=ordinals_for_new_section)
-    new_section.save()
-    return HttpResponseRedirect(new_section.get_edit_url())
+        # TODO: let's not get the "parent" via a GET param containing a node id;
+        # let's consider having separate routes for adding a section at the top-level
+        # of a casebook and for nesting sections using ordinals in the URL, so that this
+        # is more like everything else.
+
+        # TODO: does this want to be a content_tree method?
+        # Manually manipulating ordinals in a view might not be the way to go.
+        if request.GET.get('parent'):
+            parent_section = get_object_or_404(Section, id=request.GET.get('parent'))
+            parent_section.content_tree__load()
+            ordinals_for_new_section = parent_section.ordinals + [len(parent_section.content_tree__children) + 1]
+        else:
+            casebook.content_tree__load()
+            ordinals_for_new_section = [len(casebook.content_tree__children) + 1]
+
+        new_section = Section(casebook=casebook, ordinals=ordinals_for_new_section)
+        new_section.save()
+        return HttpResponseRedirect(new_section.get_edit_url())
 
 
 @perms_test(viewable_section)
