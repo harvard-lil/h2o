@@ -23,7 +23,7 @@ from .test.test_permissions_helpers import perms_test, viewable_section, directl
 from test_helpers import check_response, assert_url_equal, dump_content_tree_children
 from pytest import raises as assert_raises
 
-from .utils import parse_cap_decision_date, fix_after_rails
+from .utils import parse_cap_decision_date, fix_after_rails, CapapiCommunicationException
 from .serializers import ContentAnnotationSerializer, CaseSerializer, TextBlockSerializer
 from .models import Casebook, Section, Resource, Case, User, CaseCourt, ContentNode
 from .forms import CasebookForm, SectionForm, ResourceForm, LinkForm, TextBlockForm, NewTextBlockForm
@@ -1000,13 +1000,20 @@ def from_capapi(request):
 
     if not case:
         # fetch from CAP:
-        response = requests.get(
-            settings.CAPAPI_BASE_URL+"cases/%s/" % cap_id,
-            {"full_case": "true", "body_format": "html"},
-            headers={'Authorization': 'Token %s' % settings.CAPAPI_API_KEY},
-        )
-        cap_case = response.json()
+        if not settings.CAPAPI_API_KEY:
+            raise CapapiCommunicationException('To interact with CAP, CAPAPI_API_KEY must be set.')
+        try:
+            response = requests.get(
+                settings.CAPAPI_BASE_URL+"cases/%s/" % cap_id,
+                {"full_case": "true", "body_format": "html"},
+                headers={'Authorization': 'Token %s' % settings.CAPAPI_API_KEY},
+            )
+            assert response.ok
+        except (requests.RequestException, AssertionError) as e:
+            msg = "Communication with CAPAPI failed: {}".format(str(e))
+            raise CapapiCommunicationException(msg)
 
+        cap_case = response.json()
         # get or create local CaseCourt object:
         # (don't use get_or_create() because current data may have duplicates; we get the first one by id)
         court_args = {
