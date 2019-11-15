@@ -25,7 +25,7 @@ from pytest import raises as assert_raises
 
 from .utils import parse_cap_decision_date, fix_after_rails, CapapiCommunicationException
 from .serializers import ContentAnnotationSerializer, CaseSerializer, TextBlockSerializer
-from .models import Casebook, Section, Resource, Case, User, CaseCourt, ContentNode
+from .models import Casebook, Section, Resource, Case, User, CaseCourt, ContentNode, TextBlock, Default
 from .forms import CasebookForm, SectionForm, ResourceForm, LinkForm, TextBlockForm, NewTextBlockForm
 
 
@@ -563,7 +563,8 @@ def new_section_or_resource(request, casebook):
         Create a new casebook section or resource for a user and redirect to its edit/annotate page.
 
         Given:
-        >>> client = getfixture('client')
+        >>> client, case_factory = [getfixture(i) for i in ['client', 'case_factory']]
+        >>> case = case_factory()
         >>> casebook, s_1, r_1_1, r_1_2, r_1_3, s_1_4, r_1_4_1, r_1_4_2, r_1_4_3, s_2 = getfixture('full_casebook_parts')
         >>> casebook.public = False
         >>> casebook.save()
@@ -590,12 +591,41 @@ def new_section_or_resource(request, casebook):
 
         To create new resources, POST the necessary data as JSON.
 
-        For cases: a case ID and optional parent section ID
+        For cases: a case ID and optional parent section ID (omitted here)
+        >>> url = reverse('new_section_or_resource', args=[casebook])
+        >>> data = {'resource_id': case.id}
+        >>> response = client.post(url, data, content_type='application/json', as_user=casebook.owner, follow=True)
+        >>> check_response(response)
+        >>> r_4 = casebook.contents.last()
+        >>> assert isinstance(r_4, Resource)
+        >>> assert r_4.ordinals == [4]
+        >>> assert r_4.resource == case
+        >>> assert dump_content_tree_children(casebook) == [s_1, s_2, s_3, r_4]
+        >>> assert_url_equal(response, r_4.get_edit_or_absolute_url(editing=True))
 
-        For text blocks: a title, content, and optional parent section ID
+        For text blocks: a title, content, and optional parent section ID (included here)
+        >>> url = reverse('new_section_or_resource', args=[casebook])
+        >>> data = {'text': {'title': 'Eureka!', 'content': '<em>Eureka</em>'}, 'parent': s_1.id}
+        >>> response = client.post(url, data, content_type='application/json', as_user=casebook.owner, follow=True)
+        >>> check_response(response)
+        >>> r_1_6 = s_1.contents.last()
+        >>> assert isinstance(r_1_6, Resource)
+        >>> assert r_1_6.ordinals == [1,6]
+        >>> assert all([isinstance(r_1_6.resource, TextBlock), r_1_6.resource.name == data['text']['title'], r_1_6.resource.content == data['text']['content']])
+        >>> assert dump_content_tree_children(s_1) == [r_1_1, r_1_2, r_1_3, s_1_4, s_1_5, r_1_6]
+        >>> assert_url_equal(response, r_1_6.get_edit_or_absolute_url(editing=True))
 
-        For links: a URL and optional parent section ID
-
+        For links: a URL and optional parent section ID (included here)
+        >>> url = reverse('new_section_or_resource', args=[casebook])
+        >>> data = {'link': {'url': 'http://example.com'}, 'parent': s_1.id}
+        >>> response = client.post(url, data, content_type='application/json', as_user=casebook.owner, follow=True)
+        >>> check_response(response)
+        >>> r_1_7 = s_1.contents.last()
+        >>> assert isinstance(r_1_7, Resource)
+        >>> assert r_1_7.ordinals == [1,7]
+        >>> assert all([isinstance(r_1_7.resource, Default), r_1_7.resource.url == data['link']['url']])
+        >>> assert dump_content_tree_children(s_1) == [r_1_1, r_1_2, r_1_3, s_1_4, s_1_5, r_1_6, r_1_7]
+        >>> assert_url_equal(response, r_1_7.get_edit_or_absolute_url(editing=True))
 
     """
 
