@@ -7,8 +7,21 @@ import Component from 'lib/ui/component';
 import AxiosConfig from 'axios';
 import {post} from 'lib/requests';
 
-const csrf_el = document.querySelector('meta[name=csrf-token]'),
-      headers = csrf_el ? {'X-CSRF-Token': csrf_el.getAttribute('content')} : {};
+// The CAP api search functions use regular Axios, rather than the customized
+// stuff available in lib/requests, which sets location on parent pages, etc.
+// So.... CSRF handling stuff here too....
+// For now, separate handling of csrf in the Rails and Django apps.
+// Remark: in Django land, this probably wants to get the token from
+// the user's cookie, rather than from the DOM; punting for now.
+const rails_csrf_el = document.querySelector('meta[name=csrf-token]');
+const django_csrf_el = document.querySelector('[name=csrfmiddlewaretoken]');
+let csrf_token = undefined;
+if (rails_csrf_el){
+  csrf_token = rails_csrf_el.getAttribute('content');
+} else if (django_csrf_el){
+  csrf_token = django_csrf_el.value;
+}
+let headers = csrf_token ? {'X-CSRF-Token': csrf_token} : {};
 let Axios = AxiosConfig.create({headers: headers});
 
 delegate(document, '.action.add-resource, .listing .add-resource', 'click', showResourceModal);
@@ -55,7 +68,7 @@ class AddResourceModal extends Component {
             }
           }, {modal: this});
         },
-        'submit form.case-search, click .pagination > a': (e) => {
+        'submit form.case-search, click .pagination a': (e) => {
           e.preventDefault();
           e.stopPropagation();
           let request;

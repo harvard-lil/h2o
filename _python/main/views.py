@@ -23,10 +23,10 @@ from .test.test_permissions_helpers import perms_test, viewable_section, directl
 from test_helpers import check_response, assert_url_equal, dump_content_tree_children
 from pytest import raises as assert_raises
 
-from .utils import parse_cap_decision_date, fix_after_rails
+from .utils import parse_cap_decision_date, fix_after_rails, CapapiCommunicationException
 from .serializers import ContentAnnotationSerializer, CaseSerializer, TextBlockSerializer
-from .models import Casebook, Resource, Case, User, CaseCourt, ContentNode
-from .forms import CasebookForm, SectionForm, ResourceForm, LinkForm, TextBlockForm
+from .models import Casebook, Section, Resource, Case, User, CaseCourt, ContentNode, TextBlock, Default
+from .forms import CasebookForm, SectionForm, ResourceForm, LinkForm, TextBlockForm, NewTextBlockForm
 
 
 ### helpers ###
@@ -342,6 +342,33 @@ def logout(request, id=None):
     return response
 
 
+@perms_test({'results': {302: ['user'], 'login': [None]}})
+# @require_POST
+@login_required
+def new_casebook(request):
+    """
+        Create a new casebook for a user and redirect to its edit page.
+
+        Given:
+        >>> client, user = [getfixture(f) for f in ['client', 'user']]
+        >>> assert user.casebooks.count() == 0
+
+        Create a casebook and redirect to its edit page.
+        >>> response = client.get(reverse('new_casebook'), as_user=user, follow=True)
+        >>> check_response(response)
+        >>> assert user.casebooks.count() == 1
+        >>> assert_url_equal(response, user.casebooks.first().get_edit_url())
+    """
+    # NB: in the Rails app, drafts are created via GET rather than POST
+    # I'm recreating that here for now, to avoid complicating the javascript
+    # that generates the "new casebook" modal (see dashboard.js).
+    # We should switch to POST as soon as we are free to do so.
+    casebook = Casebook()
+    casebook.save()
+    casebook.add_collaborator(user=request.user, role='owner', has_attribution=True)
+    return HttpResponseRedirect(casebook.get_edit_url())
+
+
 class CasebookView(View):
 
     @method_decorator(perms_test(
@@ -521,6 +548,154 @@ def edit_casebook(request, casebook):
         'editing': True,
         'form': form
     })
+
+
+@perms_test(
+    {'method': 'post', 'args': ['casebook'], 'results': {403: ['casebook.owner', 'other_user'], 'login': [None]}},
+    {'method': 'post', 'args': ['draft_casebook'], 'results': {302: ['draft_casebook.owner'], 403: ['other_user'], 'login': [None]}},
+    {'method': 'post', 'args': ['private_casebook'], 'results': {302: ['private_casebook.owner'], 403: ['other_user'], 'login': [None]}},
+)
+@require_http_methods(["POST"])
+@hydrate_params
+@user_has_casebook_perm('directly_editable_by')
+def new_section_or_resource(request, casebook):
+    """
+        Create a new casebook section or resource for a user and redirect to its edit/annotate page.
+
+        Given:
+        >>> client, case_factory = [getfixture(i) for i in ['client', 'case_factory']]
+        >>> case = case_factory()
+        >>> casebook, s_1, r_1_1, r_1_2, r_1_3, s_1_4, r_1_4_1, r_1_4_2, r_1_4_3, s_2 = getfixture('full_casebook_parts')
+        >>> casebook.public = False
+        >>> casebook.save()
+
+        A simple POST adds a new section to the end of the casebook.
+        >>> url = reverse('new_section_or_resource', args=[casebook])
+        >>> response = client.post(url, as_user=casebook.owner, follow=True)
+        >>> check_response(response)
+        >>> s_3 = casebook.contents.last()
+        >>> assert isinstance(s_3, Section)
+        >>> assert s_3.ordinals == [3]
+        >>> assert dump_content_tree_children(casebook) == [s_1, s_2, s_3]
+        >>> assert_url_equal(response, s_3.get_edit_url())
+
+        Include the ID of a section as a GET param to nest the new section inside it.
+        >>> response = client.post(reverse('new_section_or_resource', args=[casebook]) + "?parent={}".format(s_1.id), as_user=casebook.owner, follow=True)
+        >>> check_response(response)
+        >>> s_1_5 = s_1.contents.last()
+        >>> assert isinstance(s_1_5, Section)
+        >>> assert s_1_5.ordinals == [1,5]
+        >>> assert dump_content_tree_children(casebook) == [s_1, s_2, s_3]
+        >>> assert dump_content_tree_children(s_1) == [r_1_1, r_1_2, r_1_3, s_1_4, s_1_5]
+        >>> assert_url_equal(response, s_1_5.get_edit_url())
+
+        To create new resources, POST the necessary data as JSON.
+
+        For cases: a case ID and optional parent section ID (omitted here)
+        >>> url = reverse('new_section_or_resource', args=[casebook])
+        >>> data = {'resource_id': case.id}
+        >>> response = client.post(url, data, content_type='application/json', as_user=casebook.owner, follow=True)
+        >>> check_response(response)
+        >>> r_4 = casebook.contents.last()
+        >>> assert isinstance(r_4, Resource)
+        >>> assert r_4.ordinals == [4]
+        >>> assert r_4.resource == case
+        >>> assert dump_content_tree_children(casebook) == [s_1, s_2, s_3, r_4]
+        >>> assert_url_equal(response, r_4.get_edit_or_absolute_url(editing=True))
+
+        For text blocks: a title, content, and optional parent section ID (included here)
+        >>> url = reverse('new_section_or_resource', args=[casebook])
+        >>> data = {'text': {'title': 'Eureka!', 'content': '<em>Eureka</em>'}, 'parent': s_1.id}
+        >>> response = client.post(url, data, content_type='application/json', as_user=casebook.owner, follow=True)
+        >>> check_response(response)
+        >>> r_1_6 = s_1.contents.last()
+        >>> assert isinstance(r_1_6, Resource)
+        >>> assert r_1_6.ordinals == [1,6]
+        >>> assert all([isinstance(r_1_6.resource, TextBlock), r_1_6.resource.name == data['text']['title'], r_1_6.resource.content == data['text']['content']])
+        >>> assert dump_content_tree_children(s_1) == [r_1_1, r_1_2, r_1_3, s_1_4, s_1_5, r_1_6]
+        >>> assert_url_equal(response, r_1_6.get_edit_or_absolute_url(editing=True))
+
+        For links: a URL and optional parent section ID (included here)
+        >>> url = reverse('new_section_or_resource', args=[casebook])
+        >>> data = {'link': {'url': 'http://example.com'}, 'parent': s_1.id}
+        >>> response = client.post(url, data, content_type='application/json', as_user=casebook.owner, follow=True)
+        >>> check_response(response)
+        >>> r_1_7 = s_1.contents.last()
+        >>> assert isinstance(r_1_7, Resource)
+        >>> assert r_1_7.ordinals == [1,7]
+        >>> assert all([isinstance(r_1_7.resource, Default), r_1_7.resource.url == data['link']['url']])
+        >>> assert dump_content_tree_children(s_1) == [r_1_1, r_1_2, r_1_3, s_1_4, s_1_5, r_1_6, r_1_7]
+        >>> assert_url_equal(response, r_1_7.get_edit_or_absolute_url(editing=True))
+    """
+
+    def retrieve_data(func, msg, exceptions=(Exception,)):
+        try:
+            data = func()
+        except exceptions:
+            return HttpResponseBadRequest(msg)
+        return data
+
+    # If we received JSON, this is a request to create a new Resource
+    # Otherwise, this is a request to create a new Section
+    fix_after_rails("Let's separate this out, simplify the data handling, and simplify retrieval of the parent node.")
+    fix_after_rails("When we do, let's create text block and link resources within a transaction.")
+    fix_after_rails("When we do, let's add tests for error handling.")
+
+    if request.content_type == 'application/json':
+        node_class = Resource
+
+        # Load the JSON
+        try:
+            data = json.loads(request.body.decode('utf-8'))
+        except ValueError:
+            return HttpResponseBadRequest(b'Request body should be valid, utf-8 encoded JSON.')
+
+        # Retrieve or create the associated resource
+        if data.get('resource_id'):
+            msg = 'To add a case, provide {"resource_id": &lsaquo;case_id:int&rsaquo;}'
+            resource_id = retrieve_data(lambda: int(data['resource_id']), msg)
+            related_resource = retrieve_data(lambda: Case.objects.get(id=resource_id), msg)
+        elif data.get('text'):
+            msg = 'To add a text block, provide {"text": {"title": "title", "content": "&lsaquo;content:html&rsaquo;"}}'
+            title = retrieve_data(lambda: data['text']['title'], msg)
+            content = retrieve_data(lambda: data['text']['content'], msg)
+            form = NewTextBlockForm({'name': title, 'content': content})
+            if form.is_valid():
+                related_resource = form.save()
+            else:
+                return HttpResponseBadRequest("Error: {} ({})".format(dict(form.errors), msg))
+        elif data.get('link'):
+            msg = 'To add a link, provide {"link": {"url": "&lsaquo;url&rsaquo;"}}'
+            url = retrieve_data(lambda: data['link']['url'], msg)
+            form = LinkForm({'url': url})
+            if form.is_valid():
+                related_resource = form.save()
+            else:
+                return HttpResponseBadRequest("Error: {} ({})".format(dict(form.errors), msg))
+        else:
+            return HttpResponseBadRequest('To add a resource, provide one of "resource_id", "text", "link".')
+    else:
+        node_class = Section
+        data = request.GET
+        related_resource = None
+
+    # Retrieve the parent of the new node
+    if data.get('parent'):
+        msg = 'Parent must be the ID (not ordinals) of a section in the current casebook'
+        parent = retrieve_data(lambda: Section.objects.get(casebook=casebook, id=int(data['parent'])), msg)
+    else:
+        parent = casebook
+
+    # Create the new node, and redirect to its edit/annotate page
+    new_node = node_class(
+        casebook=casebook,
+        ordinals=parent.content_tree__get_next_available_child_ordinals(),
+        resource_id=related_resource.id if related_resource else None,
+        resource_type=type(related_resource).__name__ if related_resource else None
+    )
+    new_node.save()
+    return HttpResponseRedirect(new_node.get_edit_or_absolute_url(editing=True))
+
 
 
 @perms_test(viewable_section)
@@ -792,7 +967,7 @@ def reorder_node(request, casebook, section=None, node=None):
         data = json.loads(request.body.decode("utf-8"))
         new_ordinals = [int(i) for i in data['child']['ordinals']]
     except Exception:
-        return HttpResponseBadRequest(b"Request body should match data['child']['ordinals'] == [<list of ints>]")
+        return HttpResponseBadRequest(b"Request body should match data['child']['ordinals'] == [&lsaquo;list of ints&rsaquo']")
 
     # update ordinals
     try:
@@ -851,20 +1026,27 @@ def from_capapi(request):
         data = json.loads(request.body.decode("utf-8"))
         cap_id = int(data['id'])
     except Exception:
-        return HttpResponseBadRequest("Request body should match {'id': <int>}")
+        return HttpResponseBadRequest("Request body should match {'id': &lsaquo;int&rsaquo'}")
 
     # try to fetch existing case:
     case = Case.objects.filter(capapi_id=cap_id, public=True).first()
 
     if not case:
         # fetch from CAP:
-        response = requests.get(
-            settings.CAPAPI_BASE_URL+"cases/%s/" % cap_id,
-            {"full_case": "true", "body_format": "html"},
-            headers={'Authorization': 'Token %s' % settings.CAPAPI_API_KEY},
-        )
-        cap_case = response.json()
+        if not settings.CAPAPI_API_KEY:
+            raise CapapiCommunicationException('To interact with CAP, CAPAPI_API_KEY must be set.')
+        try:
+            response = requests.get(
+                settings.CAPAPI_BASE_URL+"cases/%s/" % cap_id,
+                {"full_case": "true", "body_format": "html"},
+                headers={'Authorization': 'Token %s' % settings.CAPAPI_API_KEY},
+            )
+            assert response.ok
+        except (requests.RequestException, AssertionError) as e:
+            msg = "Communication with CAPAPI failed: {}".format(str(e))
+            raise CapapiCommunicationException(msg)
 
+        cap_case = response.json()
         # get or create local CaseCourt object:
         # (don't use get_or_create() because current data may have duplicates; we get the first one by id)
         court_args = {

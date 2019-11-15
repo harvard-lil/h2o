@@ -11,3 +11,4 @@ from .settings_dev import *
 # increases test time.
 MIDDLEWARE.remove('whitenoise.middleware.WhiteNoiseMiddleware')
 
+CAPAPI_API_KEY = '12345'

@@ -114,6 +114,8 @@ urlpatterns = format_suffix_patterns(drf_urlpatterns) + [
     path('casebooks/<idslug:casebook_param>/sections/<ordslug:section_param>/layout/', views.edit_section, name='edit_section'),
     path('casebooks/<idslug:casebook_param>/sections/<ordslug:section_param>/edit/', RedirectView.as_view(pattern_name='edit_section', permanent=True)),
     path('casebooks/<idslug:casebook_param>/sections/<ordslug:section_param>/', views.section, name='section'),
+    # sections and resources
+    path('casebooks/<idslug:casebook_param>/sections', views.new_section_or_resource, name='new_section_or_resource'),
     # reordering nodes
     path('casebooks/<idslug:casebook_param>/sections/<ordslug:section_param>/reorder/<ordslug:node_param>', views.reorder_node, name='reorder_node'),
     path('casebooks/<idslug:casebook_param>/reorder/<ordslug:node_param>', views.reorder_node, name='reorder_node'),
@@ -125,6 +127,7 @@ urlpatterns = format_suffix_patterns(drf_urlpatterns) + [
     # TODO: we temporarily need to list with and without trailing slash, to handle POSTs without slashes
     path('casebooks/<idslug:casebook_param>/', views.CasebookView.as_view(), name='casebook'),
     path('casebooks/<idslug:casebook_param>', no_perms_test(views.CasebookView.as_view())),
+    path('casebooks/new', views.new_casebook, name='new_casebook'),
     # cases
     path('cases/from_capapi', views.from_capapi, name='from_capapi'),
     path('cases/<int:case_id>/', views.case, name='case'),

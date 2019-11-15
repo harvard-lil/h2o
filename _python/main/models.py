@@ -611,7 +611,17 @@ class ContentNode(TimestampedModel, BigPkModel):
     ##
 
     ## content tree: public methods
-    # (these can be called without calling content_tree_load first, and are intended for manipulating the tree from outside)
+    # (these can be called without calling content_tree__load first, and are intended for manipulating the tree from outside)
+
+    def content_tree__get_next_available_child_ordinals(self):
+        """
+            If we add a new section or resource as a child to this node,
+            what should that node's ordinals be?
+        """
+        self.content_tree__load()
+        prefix = self.ordinals if self.ordinals else []
+        return prefix + [len(self.content_tree__children) + 1]
+
 
     def content_tree__move_to(self, new_ordinals):
         """
@@ -1751,8 +1761,10 @@ class TextBlock(NullableTimestampedModel, AnnotatedModel):
     created_via_import = models.BooleanField(default=False)
     annotations_count = models.IntegerField(default=0, blank=True, null=True)
 
-    # the person who created the TextBlock. what's the correct on_delete here?
-    # don't know what it means currently when blank/null
+    # The person who created the TextBlock.
+    # This field doesn't appear to be populated by Rails at present,
+    # when creating new TextBlocks...
+    # What's the correct "on_delete" behavior? Can we.... delete this whole column?
     user = models.ForeignKey('User',
         blank=True,
         null=True,

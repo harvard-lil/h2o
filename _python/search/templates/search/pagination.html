@@ -5,7 +5,7 @@
   <ul class="pagination">
     {% if results.has_previous %}
       <li>
-        <a rel="prev" href="?{% current_query_string page=results.previous_page_number %}" aria-label="Previous">
+        <a rel="prev" href="{{ path }}?{% current_query_string page=results.previous_page_number %}" aria-label="Previous">
           <span aria-hidden="true">←</span>
         </a>
       </li>
@@ -31,14 +31,14 @@
             <span style="background-color: #3e72d8;"><span class="sr-only">Page</span>{{ results.number }} <span class="sr-only">(current page)</span></span>
           </li>
         {% else %}
-          <li><a href="?{% current_query_string page=i %}"><span class="sr-only">Page</span> {{ i }}</a></li>
+          <li><a href="{{ path }}?{% current_query_string page=i %}"><span class="sr-only">Page</span> {{ i }}</a></li>
         {% endifequal %}
       {% endif %}
     {% endfor %}
 
     {% if results.has_next %}
       <li>
-        <a rel="next" href="?{% current_query_string page=results.next_page_number %}" aria-label="Next">
+        <a rel="next" href="{{ path }}?{% current_query_string page=results.next_page_number %}" aria-label="Next">
           <span aria-hidden="true">→</span>
         </a>
       </li>

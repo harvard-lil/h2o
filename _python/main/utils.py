@@ -5,6 +5,9 @@ import bleach
 
 from django.conf import settings
 
+class CapapiCommunicationException(Exception):
+    pass
+
 
 def sanitize(html):
     """
