@@ -10,7 +10,7 @@ from rest_framework.response import Response
 from django.conf import settings
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.views import redirect_to_login
-from django.core.exceptions import PermissionDenied, ValidationError
+from django.core.exceptions import PermissionDenied
 from django.http import HttpResponseRedirect, HttpResponseBadRequest, JsonResponse, Http404
 from django.shortcuts import render, get_object_or_404
 from django.urls import reverse
@@ -626,12 +626,20 @@ def new_section_or_resource(request, casebook):
         >>> assert all([isinstance(r_1_7.resource, Default), r_1_7.resource.url == data['link']['url']])
         >>> assert dump_content_tree_children(s_1) == [r_1_1, r_1_2, r_1_3, s_1_4, s_1_5, r_1_6, r_1_7]
         >>> assert_url_equal(response, r_1_7.get_edit_or_absolute_url(editing=True))
-
     """
+
+    def retrieve_data(func, msg, exceptions=(Exception,)):
+        try:
+            data = func()
+        except exceptions:
+            return HttpResponseBadRequest(msg)
+        return data
 
     # If we received JSON, this is a request to create a new Resource
     # Otherwise, this is a request to create a new Section
-    fix_after_rails("Let's separate this out, and simplify the retrieval of the parent node.")
+    fix_after_rails("Let's separate this out, simplify the data handling, and simplify retrieval of the parent node.")
+    fix_after_rails("When we do, let's create text block and link resources within a transaction.")
+    fix_after_rails("When we do, let's add tests for error handling.")
 
     if request.content_type == 'application/json':
         node_class = Resource
@@ -640,29 +648,32 @@ def new_section_or_resource(request, casebook):
         try:
             data = json.loads(request.body.decode('utf-8'))
         except ValueError:
-            return HttpResponseBadRequest(b'Whoops.')
+            return HttpResponseBadRequest(b'Request body should be valid, utf-8 encoded JSON.')
 
         # Retrieve or create the associated resource
         if data.get('resource_id'):
-            resource_id = int(data['resource_id'])
-            related_resource = Case.objects.get(id=resource_id)
+            msg = 'To add a case, provide {"resource_id": &lsaquo;case_id:int&rsaquo;}'
+            resource_id = retrieve_data(lambda: int(data['resource_id']), msg)
+            related_resource = retrieve_data(lambda: Case.objects.get(id=resource_id), msg)
         elif data.get('text'):
-            form = NewTextBlockForm({
-                'name': data['text']['title'],
-                'content': data['text']['content']
-            })
+            msg = 'To add a text block, provide {"text": {"title": "title", "content": "&lsaquo;content:html&rsaquo;"}}'
+            title = retrieve_data(lambda: data['text']['title'], msg)
+            content = retrieve_data(lambda: data['text']['content'], msg)
+            form = NewTextBlockForm({'name': title, 'content': content})
             if form.is_valid():
                 related_resource = form.save()
             else:
-                return HttpResponseBadRequest(b'Whoops.')
+                return HttpResponseBadRequest("Error: {} ({})".format(dict(form.errors), msg))
         elif data.get('link'):
-            form = LinkForm({'url': data['link']['url']})
+            msg = 'To add a link, provide {"link": {"url": "&lsaquo;url&rsaquo;"}}'
+            url = retrieve_data(lambda: data['link']['url'], msg)
+            form = LinkForm({'url': url})
             if form.is_valid():
                 related_resource = form.save()
             else:
-                return HttpResponseBadRequest(b'Whoops.')
+                return HttpResponseBadRequest("Error: {} ({})".format(dict(form.errors), msg))
         else:
-            return HttpResponseBadRequest(b'Whoops')
+            return HttpResponseBadRequest('To add a resource, provide one of "resource_id", "text", "link".')
     else:
         node_class = Section
         data = request.GET
@@ -670,8 +681,8 @@ def new_section_or_resource(request, casebook):
 
     # Retrieve the parent of the new node
     if data.get('parent'):
-        parent_id = int(data['parent'])
-        parent = get_object_or_404(Section, id=parent_id)
+        msg = 'Parent must be the ID (not ordinals) of a section in the current casebook'
+        parent = retrieve_data(lambda: Section.objects.get(casebook=casebook, id=int(data['parent'])), msg)
     else:
         parent = casebook
 
@@ -956,7 +967,7 @@ def reorder_node(request, casebook, section=None, node=None):
         data = json.loads(request.body.decode("utf-8"))
         new_ordinals = [int(i) for i in data['child']['ordinals']]
     except Exception:
-        return HttpResponseBadRequest(b"Request body should match data['child']['ordinals'] == [<list of ints>]")
+        return HttpResponseBadRequest(b"Request body should match data['child']['ordinals'] == [&lsaquo;list of ints&rsaquo']")
 
     # update ordinals
     try:
@@ -1015,7 +1026,7 @@ def from_capapi(request):
         data = json.loads(request.body.decode("utf-8"))
         cap_id = int(data['id'])
     except Exception:
-        return HttpResponseBadRequest("Request body should match {'id': <int>}")
+        return HttpResponseBadRequest("Request body should match {'id': &lsaquo;int&rsaquo'}")
 
     # try to fetch existing case:
     case = Case.objects.filter(capapi_id=cap_id, public=True).first()
