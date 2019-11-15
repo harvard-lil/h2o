@@ -611,7 +611,17 @@ class ContentNode(TimestampedModel, BigPkModel):
     ##
 
     ## content tree: public methods
-    # (these can be called without calling content_tree_load first, and are intended for manipulating the tree from outside)
+    # (these can be called without calling content_tree__load first, and are intended for manipulating the tree from outside)
+
+    def content_tree__get_next_available_child_ordinals(self):
+        """
+            If we add a new section or resource as a child to this node,
+            what should that node's ordinals be?
+        """
+        self.content_tree__load()
+        prefix = self.ordinals if self.ordinals else []
+        return prefix + [len(self.content_tree__children) + 1]
+
 
     def content_tree__move_to(self, new_ordinals):
         """

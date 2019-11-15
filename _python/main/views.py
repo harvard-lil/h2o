@@ -342,8 +342,9 @@ def logout(request, id=None):
     return response
 
 
-@login_required
+@perms_test({'results': {302: ['user'], 'login': [None]}})
 # @require_POST
+@login_required
 def new_casebook(request):
     """
         Create a new casebook for a user and redirect to its edit page.
@@ -352,10 +353,7 @@ def new_casebook(request):
         >>> client, user = [getfixture(f) for f in ['client', 'user']]
         >>> assert user.casebooks.count() == 0
 
-        We don't create textbooks for anonymous users:
-        >>> check_response(client.get(reverse('new_casebook')), status_code=302)
-
-        But any logged in user can create as many as they want:
+        Create a casebook and redirect to its edit page.
         >>> response = client.get(reverse('new_casebook'), as_user=user, follow=True)
         >>> check_response(response)
         >>> assert user.casebooks.count() == 1
@@ -552,12 +550,17 @@ def edit_casebook(request, casebook):
     })
 
 
+@perms_test(
+    {'method': 'post', 'args': ['casebook'], 'results': {403: ['casebook.owner', 'other_user'], 'login': [None]}},
+    {'method': 'post', 'args': ['draft_casebook'], 'results': {302: ['draft_casebook.owner'], 403: ['other_user'], 'login': [None]}},
+    {'method': 'post', 'args': ['private_casebook'], 'results': {302: ['private_casebook.owner'], 403: ['other_user'], 'login': [None]}},
+)
 @require_http_methods(["POST"])
 @hydrate_params
 @user_has_casebook_perm('directly_editable_by')
-def new_section(request, casebook):
+def new_section_or_resource(request, casebook):
     """
-        Create a new section in a casebook for a user and redirect to its edit page.
+        Create a new casebook section or resource for a user and redirect to its edit/annotate page.
 
         Given:
         >>> client = getfixture('client')
@@ -566,7 +569,7 @@ def new_section(request, casebook):
         >>> casebook.save()
 
         A simple POST adds a new section to the end of the casebook.
-        >>> url = reverse('new_section', args=[casebook])
+        >>> url = reverse('new_section_or_resource', args=[casebook])
         >>> response = client.post(url, as_user=casebook.owner, follow=True)
         >>> check_response(response)
         >>> s_3 = casebook.contents.last()
@@ -575,8 +578,8 @@ def new_section(request, casebook):
         >>> assert dump_content_tree_children(casebook) == [s_1, s_2, s_3]
         >>> assert_url_equal(response, s_3.get_edit_url())
 
-        Or, include the ID of a section as a GET param to nest the new section inside it.
-        >>> response = client.post(reverse('new_section', args=[casebook]) + "?parent={}".format(s_1.id), as_user=casebook.owner, follow=True)
+        Include the ID of a section as a GET param to nest the new section inside it.
+        >>> response = client.post(reverse('new_section_or_resource', args=[casebook]) + "?parent={}".format(s_1.id), as_user=casebook.owner, follow=True)
         >>> check_response(response)
         >>> s_1_5 = s_1.contents.last()
         >>> assert isinstance(s_1_5, Section)
@@ -585,39 +588,35 @@ def new_section(request, casebook):
         >>> assert dump_content_tree_children(s_1) == [r_1_1, r_1_2, r_1_3, s_1_4, s_1_5]
         >>> assert_url_equal(response, s_1_5.get_edit_url())
 
+        To create new resources, POST the necessary data as JSON.
+
+        For cases: a case ID and optional parent section ID
+
+        For text blocks: a title, content, and optional parent section ID
+
+        For links: a URL and optional parent section ID
+
+
     """
 
-    # If we are supposed to create a resource, we are sent JSON data in the request body.
-    # Otherwise, we are supposed to create a section.
-    # TODO: let's not have a single route create sections and resources, and
-    # let's be consistent about the format/technique we use to POST data.
-    data = None
-    try:
-        data = json.loads(request.body.decode('utf-8'))
-    except ValueError:
-        pass
+    # If we received JSON, this is a request to create a new Resource
+    # Otherwise, this is a request to create a new Section
+    fix_after_rails("Let's separate this out, and simplify the retrieval of the parent node.")
 
-    if data:
-        ##
-        # Creates a new resource
-        ##
+    if request.content_type == 'application/json':
+        node_class = Resource
 
-        # ordinals
-        if data.get('parent'):
-            parent_id = int(data['parent'])
-            parent_section = get_object_or_404(Section, id=parent_id)
-            parent_section.content_tree__load()
-            ordinals_for_new_resource = parent_section.ordinals + [len(parent_section.content_tree__children) + 1]
-        else:
-            casebook.content_tree__load()
-            ordinals_for_new_resource = [len(casebook.content_tree__children) + 1]
+        # Load the JSON
+        try:
+            data = json.loads(request.body.decode('utf-8'))
+        except ValueError:
+            return HttpResponseBadRequest(b'Whoops.')
 
+        # Retrieve or create the associated resource
         if data.get('resource_id'):
-            # This is a case resource
             resource_id = int(data['resource_id'])
             related_resource = Case.objects.get(id=resource_id)
         elif data.get('text'):
-            # This is a text resource
             form = NewTextBlockForm({
                 'name': data['text']['title'],
                 'content': data['text']['content']
@@ -627,7 +626,6 @@ def new_section(request, casebook):
             else:
                 return HttpResponseBadRequest(b'Whoops.')
         elif data.get('link'):
-            # This is a link/default resource
             form = LinkForm({'url': data['link']['url']})
             if form.is_valid():
                 related_resource = form.save()
@@ -635,39 +633,28 @@ def new_section(request, casebook):
                 return HttpResponseBadRequest(b'Whoops.')
         else:
             return HttpResponseBadRequest(b'Whoops')
-
-        new_resource = Resource(
-            casebook=casebook,
-            ordinals=ordinals_for_new_resource,
-            resource_id=related_resource.id,
-            resource_type=type(related_resource).__name__
-        )
-        new_resource.save()
-        return HttpResponseRedirect(new_resource.get_edit_or_absolute_url(editing=True))
-
     else:
-        ##
-        # Creates a new section
-        ##
+        node_class = Section
+        data = request.GET
+        related_resource = None
 
-        # TODO: let's not get the "parent" via a GET param containing a node id;
-        # let's consider having separate routes for adding a section at the top-level
-        # of a casebook and for nesting sections using ordinals in the URL, so that this
-        # is more like everything else.
+    # Retrieve the parent of the new node
+    if data.get('parent'):
+        parent_id = int(data['parent'])
+        parent = get_object_or_404(Section, id=parent_id)
+    else:
+        parent = casebook
 
-        # TODO: does this want to be a content_tree method?
-        # Manually manipulating ordinals in a view might not be the way to go.
-        if request.GET.get('parent'):
-            parent_section = get_object_or_404(Section, id=request.GET.get('parent'))
-            parent_section.content_tree__load()
-            ordinals_for_new_section = parent_section.ordinals + [len(parent_section.content_tree__children) + 1]
-        else:
-            casebook.content_tree__load()
-            ordinals_for_new_section = [len(casebook.content_tree__children) + 1]
+    # Create the new node, and redirect to its edit/annotate page
+    new_node = node_class(
+        casebook=casebook,
+        ordinals=parent.content_tree__get_next_available_child_ordinals(),
+        resource_id=related_resource.id if related_resource else None,
+        resource_type=type(related_resource).__name__ if related_resource else None
+    )
+    new_node.save()
+    return HttpResponseRedirect(new_node.get_edit_or_absolute_url(editing=True))
 
-        new_section = Section(casebook=casebook, ordinals=ordinals_for_new_section)
-        new_section.save()
-        return HttpResponseRedirect(new_section.get_edit_url())
 
 
 @perms_test(viewable_section)
