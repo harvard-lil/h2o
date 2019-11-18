@@ -30,28 +30,31 @@ CREATE MATERIALIZED VIEW search_view AS
 UNION ALL
     -- via app/models/content/casebook.rb
     SELECT
-           row_number() OVER (PARTITION BY true) AS id,
-           c.id AS result_id,
-           (
-                setweight(to_tsvector(coalesce(c.title, '')), 'A') ||
-                setweight(to_tsvector(coalesce(subtitle, '')), 'D') ||
-                setweight(to_tsvector(coalesce(headnote, '')), 'D')
-            )  AS document,
-           jsonb_build_object(
-               'title', coalesce(c.title, 'Untitled'),
-               'attribution', u.attribution,
-               'affiliation', u.affiliation,
-               'created_at', c.created_at
-           ) AS metadata,
-           'casebook'::text AS category
+        row_number() OVER (PARTITION BY true) AS id,
+        c.id AS result_id,
+        (
+            setweight(to_tsvector(coalesce(c.title, '')), 'A') ||
+            setweight(to_tsvector(coalesce(string_agg(u.attribution, ', '), '')), 'A') ||
+            setweight(to_tsvector(coalesce(string_agg(u.affiliation, ', '), '')), 'A') ||
+            setweight(to_tsvector(coalesce(subtitle, '')), 'D') ||
+            setweight(to_tsvector(coalesce(headnote, '')), 'D')
+        )  AS document,
+        jsonb_build_object(
+            'title', coalesce(c.title, 'Untitled'),
+            'attribution', string_agg(u.attribution, ', '),
+            'affiliation', string_agg(u.affiliation, ', '),
+            'created_at', c.created_at
+        ) AS metadata,
+        'casebook'::text AS category
     FROM
         content_nodes c
-        LEFT JOIN content_collaborators cc ON cc.content_id = c.id AND cc.role = 'owner'
+        LEFT JOIN content_collaborators cc ON cc.content_id = c.id AND cc.role = 'owner' AND cc.has_attribution = true
         LEFT JOIN users u ON cc.user_id = u.id
     WHERE
-          casebook_id IS NULL AND
-          public = true AND
-          u.verified_professor = true
+        casebook_id IS NULL AND
+        public = true AND
+        u.verified_professor = true
+    GROUP BY c.id
 UNION ALL
     -- via app/models/user.rb
     SELECT
@@ -75,6 +78,7 @@ UNION ALL
           u.attribution != ''
     GROUP BY u.id
 ;
+CREATE UNIQUE INDEX search_view_refresh_index ON search_view (result_id, category);
 
 -- -- get search results
 -- SELECT category, result_id, metadata

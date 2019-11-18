@@ -37,10 +37,18 @@ def run_django(port=None):
 
 @task
 @setup_django
-def refresh_search_index():
-    """ Recreate the search_view materialized view """
+def create_search_index():
+    """ Create (or recreate) the search_view materialized view """
     from search.models import SearchIndex
     SearchIndex.create_search_index()
+
+
+@task
+@setup_django
+def refresh_search_index():
+    """ Update an existing search_view materialized view; will fail if create_search_index hasn't been run once """
+    from search.models import SearchIndex
+    SearchIndex.refresh_search_index()
 
 
 if __name__ == "__main__":

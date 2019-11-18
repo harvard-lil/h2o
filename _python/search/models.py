@@ -35,8 +35,19 @@ class SearchIndex(models.Model):
 
     @classmethod
     def create_search_index(cls):
+        """ Create or replace the materialized view 'search_view', which backs this model """
         with connection.cursor() as cursor:
             cursor.execute(Path(__file__).parent.joinpath('create_search_index.sql').read_text())
+
+    @classmethod
+    def refresh_search_index(cls):
+        """ Refresh the contents of the materialized view """
+        with connection.cursor() as cursor:
+            try:
+                cursor.execute("REFRESH MATERIALIZED VIEW CONCURRENTLY search_view")
+            except ProgrammingError as e:
+                if e.args[0].startswith('relation "search_view" does not exist'):
+                    cls.create_search_index()
 
     @classmethod
     def search(cls, *args, **kwargs):
