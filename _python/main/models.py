@@ -1727,8 +1727,8 @@ class Resource(SectionAndResourceMixin, ContentNode):
             Return content as html for export to Pandoc, without annotations.
 
             >>> resource, *_ = [getfixture(f) for f in ['resource']]
-            >>> resource.resource.content = '<center>Title</center><p>An image <img src=""></p>'
-            >>> output = '<div data-custom-style="Case Header"><center>Title</center></div><p>An image </p>'
+            >>> resource.resource.content = '<center>Title</center><h2 align="center">Subtitle</h2><p>An image <img src=""></p>'
+            >>> output = '<div data-custom-style="Case Header"><center>Title</center></div><div align="center" data-custom-style="Case Header">Subtitle</div><p>An image </p>'
             >>> assert resource.content_for_export() == output
         """
         tree = parse_html_fragment(self.resource.content)
@@ -1984,9 +1984,6 @@ class Resource(SectionAndResourceMixin, ContentNode):
     def update_tree_for_export(tree):
         """
             Prepare an lxml tree (annotated or un-annotated) for export.
-
-            TODO: in Ruby this logic was applied to the entire tree; in Python it is only being applied to Case and
-            TextBlock content, but not to headnotes. Should it be?
         """
         tree = PyQuery(tree)
 
@@ -1994,11 +1991,11 @@ class Resource(SectionAndResourceMixin, ContentNode):
         tree.remove('img')
 
         # Case Header styling
-        for pq in PyQuery(tree)('section.head-matter p, center, p[style="text-align:center"], p[align="center"]').items():
+        for pq in tree('section.head-matter p, center, p[style="text-align:center"], p[align="center"]').items():
             pq.wrap("<div data-custom-style='Case Header'></div>")
-        for el in PyQuery(tree)('section.head-matter h4, center h2, h2[style="text-align:center"], h2[align="center"]'):
-            el.name = 'div'
-            el['data-custom-style'] = 'Case Header'
+        for el in tree('section.head-matter h4, center h2, h2[style="text-align:center"], h2[align="center"]'):
+            el.tag = 'div'
+            el.attrib['data-custom-style'] = 'Case Header'
 
         return tree
 
