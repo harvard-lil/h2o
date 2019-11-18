@@ -1,0 +1,36 @@
+{% if node.type == 'section' %}
+  <div class="SectionNumber" data-custom-style="Section Number" data-toc-idx="{{ index }}">{{ node.ordinal_string }}</div>
+  <div class="SectionTitle" data-custom-style="Section Title">{{ node.get_title }}</div>
+  {% if node.subtitle %}
+    <div class="SectionSubtitle" data-custom-style="Section Subtitle">{{ node.subtitle }}</div>
+  {% endif %}
+  {% if node.headnote %}
+    <div class="SectionHeadnote" data-custom-style="Section Headnote">{{ node.headnote_for_export }}</div>
+  {% endif %}
+{% elif node.type == 'resource' %}
+  <div class="ResourceNumber" data-custom-style="Resource Number" data-toc-idx="{{ index }}">{{ node.ordinal_string }}</div>
+  <div class="ResourceTitle" data-custom-style="Resource Title">{{ node.get_title }}</div>
+  {% if node.subtitle %}
+    <div class="ResourceSubtitle" data-custom-style="Resource Subtitle">{{ node.subtitle }}</div>
+  {% endif %}
+  {% if node.headnote %}
+    <div class="ResourceHeadnote" data-custom-style="Resource Headnote">{{ node.headnote_for_export }}</div>
+  {% endif %}
+
+  {% if node.resource_type == 'Default' %}
+    <div data-custom-style="Resource Link">
+      <a href="{{ node.resource.url }}" target="_blank">{{ node.resource.url }}</a>
+    </div>
+  {% else %}  {# case or textblock #}
+    <div class="ResourceBody">
+      {% if include_annotations %}
+        {{ node.annotated_content_for_export }}
+      {% else %}
+        {{ node.content_for_export }}
+      {% endif %}
+      {% if include_annotations %}
+        <div>{{ node.footnote_annotations }}</div>
+      {% endif %}
+    </div>
+  {% endif %}
+{% endif %}

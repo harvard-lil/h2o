@@ -1,0 +1,25 @@
+<body>
+  <div class="CasebookTitle" data-custom-style="Casebook Title">{{ node.title }}</div>
+  {% if node.subtitle %}
+    <div class="CasebookSubtitle" data-custom-style="Casebook Subtitle">{{ node.subtitle }}</div>
+  {% endif %}
+  {% if node.headnote %}
+    <div class="CasebookHeadnote" data-custom-style="Casebook Headnote">{{ node.headnote_for_export }}</div>
+  {% endif %}
+
+  {% comment %}
+    Note: the contents of this TOC div is manually converted to XML during the export
+    process by a Lua filter; it is not passed through Pandoc's standard DOCX/XML writer.
+    This chain requires strings to be double-escaped, e.g "&" in a title becomes "&amp;amp;".
+    (TODO: figure out if we can escape in Lua instead of here.)
+  {% endcomment %}
+  <div class="table-of-contents">
+    {% for child in children %}
+      <div class="toc-entry" data-depth="{{ child.ordinals.length }}" data-idx="{{ forloop.counter }}" data-title="{{ child.ordinal_string }} {{ child.get_title|force_escape|force_escape }}"></div>
+    {% endfor %}
+  </div>
+
+  {% for child in children %}
+    {% include "export/node.html" with index=forloop.counter node=child %}
+  {% endfor %}
+</body>

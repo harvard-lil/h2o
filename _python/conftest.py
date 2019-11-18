@@ -17,11 +17,26 @@ from main.models import ContentNode, User, Casebook, Section, Resource, ContentC
     Case, CaseCourt, ContentAnnotation
 from main.utils import re_split_offsets
 
-from test_helpers import dump_casebook_outline
+from test.test_helpers import dump_casebook_outline
 
 
 # This file defines test fixtures available to all tests.
 # To see available fixtures run pytest --fixtures
+
+
+### pytest configuration ###
+
+def pytest_addoption(parser):
+    """
+        Custom command line options.
+    """
+    parser.addoption(
+        "--write-files",
+        default=False,
+        action='store_true',
+        help="Tests that compare to files on disk should instead update those files"
+    )
+
 
 ### internal helpers ###
 
@@ -244,30 +259,35 @@ def annotations_factory(db):
         Return a factory function that makes annotated casebooks from brackets in HTML. Example:
 
         >>> _, annotations_factory = [getfixture(f) for f in ['reset_sequences', 'annotations_factory']]
-        >>> casebook, case = annotations_factory('Case', '<p>[replace]This[/replace] [highlight]is[/highlight] [elide]a[/elide] [note]case[/note].</p>')
+        >>> casebook, resource = annotations_factory('Case', '<p>[replace]This[/replace] [highlight]is[/highlight] [elide]a[/elide] [note]case[/note].</p>')
         >>> assert dump_casebook_outline(casebook) == [
         ...     'Casebook<1>: Some Title 0',
-        ...     ' ContentNode<2> -> Case<1>: Foo Foo0 vs. Bar Bar0',
-        ...     '  ContentAnnotation<1>: replace 0-4',
-        ...     '  ContentAnnotation<2>: highlight 5-7',
-        ...     '  ContentAnnotation<3>: elide 8-9',
-        ...     '  ContentAnnotation<4>: note 10-14',
+        ...     ' Section<2>: Some Section 1',
+        ...     '  ContentNode<3> -> Case<1>: Foo Foo0 vs. Bar Bar0',
+        ...     '   ContentAnnotation<1>: replace 0-4',
+        ...     '   ContentAnnotation<2>: highlight 5-7',
+        ...     '   ContentAnnotation<3>: elide 8-9',
+        ...     '   ContentAnnotation<4>: note 10-14',
         ... ]
     """
-    def factory(resource_type, html):
+    def factory(resource_type, html, casebook=None, ordinals=None):
         # break apart provided html and get annotation brackets and offsets
         content = re.sub(r'\[.*?\]', '', html)  # strip brackets
         html = re.sub(r'<[^>]+?>', '', html)  # strip html tags
-        html_strs, annotation_offsets, annotation_strs = re_split_offsets(r'\[/?(?:highlight|elide|note|replace)\]', html)
+        html_strs, annotation_offsets, annotation_strs = re_split_offsets(r'\[/?.+?\]', html)
 
         # create casebook, resource, resource_target, and annotations
-        casebook = CasebookFactory()
+        if not casebook:
+            casebook = CasebookFactory()
+            SectionFactory(casebook=casebook, ordinals=[1])
+            ordinals = [1, 1]
         resource_target = {'Case': CaseFactory, 'TextBlock': TextBlockFactory}[resource_type](content=content)
-        resource = ResourceFactory(casebook=casebook, ordinals=[1], resource_type=resource_type, resource_id=resource_target.id)
+        resource = ResourceFactory(casebook=casebook, ordinals=ordinals, resource_type=resource_type, resource_id=resource_target.id)
         for i in range(0, len(annotation_strs), 2):
-            ContentAnnotationFactory(resource=resource, kind=annotation_strs[i][1:-1], global_start_offset=annotation_offsets[i], global_end_offset=annotation_offsets[i+1])
+            kind, content = (annotation_strs[i][1:-1].split(" ", 1) + [None])[:2]
+            ContentAnnotationFactory(resource=resource, kind=kind, content=content, global_start_offset=annotation_offsets[i], global_end_offset=annotation_offsets[i+1])
 
-        return casebook, resource_target
+        return casebook, resource
     return factory
 
 

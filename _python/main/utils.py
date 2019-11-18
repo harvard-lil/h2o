@@ -2,8 +2,11 @@ import re
 from copy import deepcopy
 from datetime import datetime, date
 import bleach
+from lxml import etree, html
+import html as python_html
 
 from django.conf import settings
+
 
 class CapapiCommunicationException(Exception):
     pass
@@ -103,3 +106,70 @@ def re_split_offsets(pattern, s):
     split_strs = [parts[i] for i in range(1, len(parts), 2)]
     split_offsets = [sum(len(s) for s in strs[:i+1]) for i in range(len(strs)-1)]
     return strs, split_offsets, split_strs
+
+
+def parse_html_fragment(html_str):
+    """
+        Parse an html fragment (one or more tags with optional surrounding text) into an lxml tree
+        wrapped in a parent <div>.
+    """
+    # lxml's fragment_fromstring() throws away whitespace that comes at the start of the string if followed by
+    # a tag. Avoid this edgecase by stripping leading whitespace and re-appending to our output:
+    initial_spaces = re.match(r'\s+', html_str)
+    if initial_spaces:
+        initial_spaces = initial_spaces.group(0)
+        html_str = html_str[len(initial_spaces):]
+    else:
+        initial_spaces = ''
+
+    el = html.fragment_fromstring(html_str, create_parent=True)
+    if initial_spaces:
+        el.text = initial_spaces + (el.text or '')
+
+    return el
+
+fix_after_rails("this is redundant of the BLOCK_LEVEL_ELEMENTS javascript array; one could feed the other once we move the asset pipeline over")
+block_level_elements = {
+    'address', 'article', 'aside', 'blockquote', 'details', 'dialog', 'dd', 'div', 'dl', 'dt', 'fieldset', 'figcaption',
+    'figure', 'footer', 'form', 'h1', 'h2', 'h3', 'h4', 'h5', 'h6', 'header', 'hgroup', 'hr', 'li', 'main', 'nav', 'ol',
+    'p', 'pre', 'section', 'table', 'ul'
+}
+void_elements = {
+    'base', 'command', 'event-source', 'link', 'meta', 'hr', 'br', 'img', 'embed', 'param', 'area', 'col', 'input',
+    'source', 'track'
+}
+
+
+def remove_empty_tags(tree, ignore_tags=void_elements):
+    """
+        Remove empty child elements from an lxml Element, except for any listed in the ignore_tags set. Example:
+            >>> tree = etree.XML('<p>asfd<a><b>asdf<c/>asdf</b></a>asdf<d></d></p>')
+            >>> remove_empty_tags(tree)
+            >>> etree.tostring(tree)
+            b'<p>asfd<a><b>asdfasdf</b></a>asdf</p>'
+            >>> tree = etree.XML('<p><a><b><c></c></b></a></p>')
+            >>> remove_empty_tags(tree, {'a'})
+            >>> etree.tostring(tree)
+            b'<p><a/></p>'
+    """
+    for el in tree.iterdescendants():
+        while True:
+            if el.tag in ignore_tags or el.text or len(el):
+                break
+            parent = el.getparent()
+            if el.tail:
+                prev = el.getprevious()
+                if prev is None:
+                    parent.text = (parent.text or '') + el.tail
+                else:
+                    prev.tail = (prev.tail or '') + el.tail
+            parent.remove(el)
+            if parent == tree:
+                break
+            el = parent
+
+
+def inner_html(tree):
+    """ Return inner HTML of lxml element """
+    return (python_html.escape(tree.text) if tree.text else '') + \
+        ''.join([html.tostring(child, encoding=str) for child in tree.iterchildren()])

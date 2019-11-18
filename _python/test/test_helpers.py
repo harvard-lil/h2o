@@ -5,30 +5,33 @@ from urllib.parse import urljoin, urlsplit
 from main.utils import re_split_offsets
 
 
-def check_response(response, status_code=200, content_type=None, content_includes=None, content_excludes=None):
+_default = object()
+def check_response(response, status_code=200, content_type=_default, content_includes=None, content_excludes=None):
     assert response.status_code == status_code
 
     # check content-type if not a redirect
     if response['content-type']:
         # For rest framework response, expect json; else expect html.
-        if not content_type:
+        if content_type is _default:
             if type(response) == Response:
                 content_type = "application/json"
             else:
                 content_type = "text/html"
-        assert response['content-type'].split(';')[0] == content_type
+        if content_type is not None:
+            assert response['content-type'].split(';')[0] == content_type
 
-    content = response.content.decode()
-    if content_includes:
-        if isinstance(content_includes, str):
-            content_includes = [content_includes]
-        for content_include in content_includes:
-            assert content_include in content
-    if content_excludes:
-        if isinstance(content_excludes, str):
-            content_excludes = [content_excludes]
-        for content_exclude in content_excludes:
-            assert content_exclude not in content
+    if content_includes or content_excludes:
+        content = response.content.decode()
+        if content_includes:
+            if isinstance(content_includes, str):
+                content_includes = [content_includes]
+            for content_include in content_includes:
+                assert content_include in content
+        if content_excludes:
+            if isinstance(content_excludes, str):
+                content_excludes = [content_excludes]
+            for content_exclude in content_excludes:
+                assert content_exclude not in content
 
 
 def assert_url_equal(response, expected_url):
@@ -112,9 +115,9 @@ def dump_annotated_text(case_or_textblock):
         >>> casebook, case = annotations_factory('Case', html)
         >>> assert dump_annotated_text(case) == html
     """
-    text_strs, offsets, tags = re_split_offsets(r'<[^>]+?>', case_or_textblock.content)
+    text_strs, offsets, tags = re_split_offsets(r'<[^>]+?>', case_or_textblock.resource.content)
     to_insert = list(zip(offsets, tags))
-    for annotation in case_or_textblock.related_annotations():
+    for annotation in case_or_textblock.annotations.filter(global_start_offset__gte=0):
         to_insert.extend([
             (annotation.global_start_offset, '[%s]' % annotation.kind),
             (annotation.global_end_offset, '[/%s]' % annotation.kind),

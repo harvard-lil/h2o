@@ -1,17 +1,18 @@
+from io import BytesIO
 from collections import OrderedDict
 import json
 from functools import wraps
-
 from pyquery import PyQuery
 import requests
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
 
+from django.utils.text import Truncator
 from django.conf import settings
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.views import redirect_to_login
 from django.core.exceptions import PermissionDenied
-from django.http import HttpResponseRedirect, HttpResponseBadRequest, JsonResponse, Http404
+from django.http import HttpResponseRedirect, HttpResponseBadRequest, JsonResponse, Http404, FileResponse, HttpResponse
 from django.shortcuts import render, get_object_or_404
 from django.urls import reverse
 from django.utils.decorators import method_decorator
@@ -20,7 +21,7 @@ from django.views import View
 
 from .test.test_permissions_helpers import perms_test, viewable_section, directly_editable_section, viewable_resource, \
     directly_editable_resource, patch_directly_editable_resource, no_perms_test
-from test_helpers import check_response, assert_url_equal, dump_content_tree_children
+from test.test_helpers import check_response, assert_url_equal, dump_content_tree_children
 from pytest import raises as assert_raises
 
 from .utils import parse_cap_decision_date, fix_after_rails, CapapiCommunicationException
@@ -81,18 +82,14 @@ def hydrate_params(func):
     return wrapper
 
 
-def user_has_casebook_perm(casebook_method):
+def user_has_perm(kwarg, method):
     """
-        Raise permission denied unless the 'casebook' parameter specifies a casebook that has the required permission
-        for the current user. This decorator must come after @hydrate_params.
-
-        TODO: this is currently implicitly tested by CasebookView.get, but we need a comprehensive permissions test
-        similar to Perma's.
+        Raise permission denied unless view_kwargs[kwarg].method(request.user) returns True.
     """
     def decorator(func):
         @wraps(func)
         def wrapper(request, *args, **kwargs):
-            if not getattr(kwargs['casebook'], casebook_method)(request.user):
+            if not getattr(kwargs[kwarg], method)(request.user):
                 return login_required_response(request)
             return func(request, *args, **kwargs)
         return wrapper
@@ -273,7 +270,7 @@ def annotations(request, resource_id, format=None):
     resource = get_object_or_404(Resource.objects.select_related('casebook'), pk=resource_id)
 
     # check permissions
-    if not resource.casebook.viewable_by(request.user):
+    if not resource.viewable_by(request.user):
         return login_required_response(request)
 
     if request.method == 'GET':
@@ -377,7 +374,7 @@ class CasebookView(View):
         {'args': ['draft_casebook'], 'results': {200: ['draft_casebook.owner'], 'login': [None], 403: ['other_user']}},
     ))
     @method_decorator(hydrate_params)
-    @method_decorator(user_has_casebook_perm('viewable_by'))
+    @method_decorator(user_has_perm('casebook', 'viewable_by'))
     def get(self, request, casebook):
         """
             Show a casebook's front page.
@@ -415,7 +412,7 @@ class CasebookView(View):
         {'args': ['casebook'], 'results': {403: ['casebook.owner']}},
     ))
     @method_decorator(hydrate_params)
-    @method_decorator(user_has_casebook_perm('editable_by'))
+    @method_decorator(user_has_perm('casebook', 'editable_by'))
     def patch(self, request, casebook):
         """
             Publish a casebook.
@@ -495,7 +492,7 @@ def clone_casebook(request, casebook):
 )
 @require_POST
 @hydrate_params
-@user_has_casebook_perm('allows_draft_creation_by')
+@user_has_perm('casebook', 'allows_draft_creation_by')
 def create_draft(request, casebook):
     """
         Create a draft of a casebook and redirect to its edit page.
@@ -516,7 +513,7 @@ def create_draft(request, casebook):
 )
 @require_http_methods(["GET", "POST"])
 @hydrate_params
-@user_has_casebook_perm('directly_editable_by')
+@user_has_perm('casebook', 'directly_editable_by')
 def edit_casebook(request, casebook):
     """
         Given:
@@ -557,7 +554,7 @@ def edit_casebook(request, casebook):
 )
 @require_http_methods(["POST"])
 @hydrate_params
-@user_has_casebook_perm('directly_editable_by')
+@user_has_perm('casebook', 'directly_editable_by')
 def new_section_or_resource(request, casebook):
     """
         Create a new casebook section or resource for a user and redirect to its edit/annotate page.
@@ -700,7 +697,7 @@ def new_section_or_resource(request, casebook):
 
 @perms_test(viewable_section)
 @hydrate_params
-@user_has_casebook_perm('viewable_by')
+@user_has_perm('casebook', 'viewable_by')
 def section(request, casebook, section):
     """
         Show a section within a casebook.
@@ -738,7 +735,7 @@ def section(request, casebook, section):
 @perms_test(directly_editable_section)
 @require_http_methods(["GET", "POST"])
 @hydrate_params
-@user_has_casebook_perm('directly_editable_by')
+@user_has_perm('casebook', 'directly_editable_by')
 def edit_section(request, casebook, section):
     """
         Let authorized users update Section metadata.
@@ -777,7 +774,7 @@ def edit_section(request, casebook, section):
 
 @perms_test(viewable_resource)
 @hydrate_params
-@user_has_casebook_perm('viewable_by')
+@user_has_perm('casebook', 'viewable_by')
 def resource(request, casebook, resource):
     """
         Show a resource within a casebook.
@@ -819,7 +816,7 @@ def resource(request, casebook, resource):
 @perms_test(directly_editable_resource)
 @require_http_methods(["GET", "POST"])
 @hydrate_params
-@user_has_casebook_perm('directly_editable_by')
+@user_has_perm('casebook', 'directly_editable_by')
 def edit_resource(request, casebook, resource):
     """
         Let authorized users update Resource metadata.
@@ -909,7 +906,7 @@ def edit_resource(request, casebook, resource):
 
 @perms_test(directly_editable_resource)
 @hydrate_params
-@user_has_casebook_perm('directly_editable_by')
+@user_has_perm('casebook', 'directly_editable_by')
 def annotate_resource(request, casebook, resource):
     # NB: The Rails app does NOT redirect here to a canonical URL; it silently accepts any slug.
     # Duplicating that here.
@@ -933,7 +930,7 @@ def annotate_resource(request, casebook, resource):
 @perms_test(patch_directly_editable_resource)
 @require_http_methods(["PATCH"])
 @hydrate_params
-@user_has_casebook_perm('directly_editable_by')
+@user_has_perm('casebook', 'directly_editable_by')
 def reorder_node(request, casebook, section=None, node=None):
     """
         Given:
@@ -1092,3 +1089,34 @@ def from_capapi(request):
 def not_implemented_yet(request):
     """ Used for routes we want to be able to reverse(), but that aren't implemented yet. """
     raise Http404
+
+
+@method_decorator(perms_test(
+    {'args': ['casebook', '"docx"'], 'results': {200: [None, 'other_user', 'casebook.owner']}},
+    {'args': ['private_casebook', '"docx"'], 'results': {200: ['private_casebook.owner'], 'login': [None], 403: ['other_user']}},
+    {'args': ['draft_casebook', '"docx"'], 'results': {200: ['draft_casebook.owner'], 'login': [None], 403: ['other_user']}},
+))
+@user_has_perm('node', 'viewable_by')
+def export(request, node, file_type='docx'):
+    """
+        Export casebook. File type can be 'docx' or 'html' (in which case we dump pre-pandoc html directly to the
+        browser), and ?annotations=true will include annotations in the exported file.
+    """
+    if file_type not in ('docx', 'html'):
+        raise Http404
+
+    include_annotations = request.GET.get('annotations') == 'true'
+
+    # get response data
+    response_data = node.export(include_annotations, file_type)
+
+    # return html
+    if file_type == 'html':
+        return HttpResponse(response_data)
+
+    # return docx
+    filename = "%s%s.docx" % (
+        Truncator(node.get_title()).words(45, truncate='-'),
+        '_annotated' if include_annotations else ''
+    )
+    return FileResponse(BytesIO(response_data), as_attachment=True, filename=filename)

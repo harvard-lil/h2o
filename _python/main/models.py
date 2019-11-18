@@ -1,20 +1,31 @@
+import os
 import re
+import subprocess
+import tempfile
 from os.path import commonprefix
 from urllib.parse import urlparse
 
+from django.conf import settings
 from django.contrib.auth.models import AnonymousUser
 from django.contrib.postgres.fields import JSONField, ArrayField
 from django.contrib.postgres.indexes import GinIndex
 from django.db import models, transaction
 from django.db.models import Q
+from django.template.defaultfilters import truncatechars
+from django.template.loader import render_to_string
 from django.urls import reverse
+from django.utils.safestring import mark_safe
 from django.utils.text import slugify
-from lxml.html import fragment_fromstring
+import django.utils.html
+import lxml.etree
+import lxml.sax
+from pyquery import PyQuery
 from pytest import raises
 
 from .differ import AnnotationUpdater
-from test_helpers import dump_casebook_outline, dump_content_tree, dump_annotated_text, dump_content_tree_children
-from .utils import clone_model_instance, fix_after_rails, sanitize, fix_before_deploy
+from test.test_helpers import dump_casebook_outline, dump_content_tree, dump_annotated_text, dump_content_tree_children
+from .utils import clone_model_instance, fix_after_rails, sanitize, fix_before_deploy, parse_html_fragment, \
+    remove_empty_tags, inner_html, block_level_elements, void_elements
 
 
 class BigPkModel(models.Model):
@@ -157,6 +168,7 @@ class ArInternalMetadata(TimestampedModel):
         # managed = False
         db_table = 'ar_internal_metadata'
 
+
 class SchemaMigration(models.Model):
     version = models.CharField(primary_key=True, max_length=255)
 
@@ -208,8 +220,8 @@ class AnnotatedModel(EditTrackedModel):
         Case and TextBlock annotations are updated on save:
         >>> for resource_type in ('Case', 'TextBlock'):
         ...     casebook, case_or_textblock = annotations_factory(resource_type, html_with_annotations)
-        ...     case_or_textblock.content = new_html
-        ...     case_or_textblock.save()
+        ...     case_or_textblock.resource.content = new_html
+        ...     case_or_textblock.resource.save()
         ...     assert dump_annotated_text(case_or_textblock) == new_html_with_annotations
     """
     class Meta:
@@ -218,7 +230,6 @@ class AnnotatedModel(EditTrackedModel):
     tracked_fields = ['content']
 
     def related_annotations(self):
-        fix_before_deploy("Should this be filtering out annotations with -1 offsets?")
         return ContentAnnotation.objects.filter(resource__resource_id=self.id, resource__resource_type=self.__class__.__name__, global_start_offset__gte=0)
 
     def save(self, *args, **kwargs):
@@ -281,7 +292,7 @@ class ContentAnnotation(TimestampedModel, BigPkModel):
     end_paragraph = models.IntegerField(blank=True, null=True)
     start_offset = models.IntegerField()
     end_offset = models.IntegerField()
-    kind = models.CharField(max_length=255)
+    kind = models.CharField(max_length=255, choices=(('replace', 'replace'), ('highlight', 'highlight'), ('elide', 'elide'), ('note', 'note'), ('link', 'link')))
     content = models.TextField(blank=True, null=True)
     global_start_offset = models.IntegerField(blank=True, null=True)
     global_end_offset = models.IntegerField(blank=True, null=True)
@@ -298,6 +309,11 @@ class ContentAnnotation(TimestampedModel, BigPkModel):
         indexes = [
             models.Index(fields=['resource', 'start_paragraph'])
         ]
+        # annotations return in document order, with id to ensure sort stability
+        ordering = ['global_start_offset', 'id']
+
+    def __str__(self):
+        return "%s %s-%s%s" % (self.kind, self.global_start_offset, self.global_end_offset, " with %s" % truncatechars(self.content, 20) if self.content else "")
 
     @staticmethod
     def text_from_html(html):
@@ -308,16 +324,7 @@ class ContentAnnotation(TimestampedModel, BigPkModel):
             >>> assert ContentAnnotation.text_from_html(' foo ') == ' foo '
             >>> assert ContentAnnotation.text_from_html(' foo <p> bar </p> baz ') == ' foo  bar  baz '
         """
-        # lxml's fragment_fromstring() throws away whitespace that comes at the start of the string if followed by
-        # a tag. avoid this edgecase by stripping leading whitespace and re-appending to our output:
-        initial_spaces = re.match(r'\s+', html)
-        if initial_spaces:
-            initial_spaces = initial_spaces.group(0)
-            html = html[len(initial_spaces):]
-        else:
-            initial_spaces = ''
-
-        return initial_spaces + fragment_fromstring(html, create_parent=True).text_content()
+        return parse_html_fragment(html).text_content()
 
     @classmethod
     def update_annotations(cls, queryset, before_html, after_html):
@@ -585,6 +592,63 @@ class ContentNode(TimestampedModel, BigPkModel):
     def type(self):
         # TODO: In use in templates and tests; shouldn't be necessary. Consider refactoring.
         return type(self).__name__.lower()
+
+    def export(self, include_annotations, file_type='docx'):
+        """
+            Export this node and children as docx, or as html for conversion by pandoc.
+
+            Given:
+            >>> full_casebook, assert_num_queries = [getfixture(f) for f in ['full_casebook', 'assert_num_queries']]
+
+            Export uses 5 queries: selecting descendent nodes, and prefetching ContentAnnotation, Case, TextBlock, and Default.
+            >>> with assert_num_queries(select=5):
+            ...     file_data = full_casebook.export(include_annotations=True)
+        """
+        # prefetch all child nodes and related data
+        children = list(self.contents.prefetch_resources().prefetch_related('annotations')) if type(self) is not Resource else None
+
+        # render html
+        template_name = {Casebook: 'export/casebook.html', Section: 'export/section.html', Resource: 'export/node.html'}[type(self)]
+        html = render_to_string(template_name, {
+            'node': self,
+            'children': children,
+            'include_annotations': include_annotations,
+        })
+        if file_type == 'html':
+            return html
+
+        # convert to docx with pandoc
+        with tempfile.NamedTemporaryFile(suffix='.docx') as pandoc_out:
+            command = [
+                'pandoc',
+                '--from', 'html',
+                '--to', 'docx',
+                '--reference-doc', os.path.join(settings.PANDOC_DIR, 'reference.docx'),
+                '--docx-preserve-style',
+                '--output', pandoc_out.name,
+                '--quiet'
+            ]
+            if type(self) is Casebook:
+                command.extend(['--lua-filter', os.path.join(settings.PANDOC_DIR, 'table_of_contents.lua')])
+            try:
+                response = subprocess.run(command, input=html.encode('utf8'), stderr=subprocess.PIPE, stdout=subprocess.PIPE)
+            except subprocess.CalledProcessError as e:
+                raise Exception("Pandoc command failed: %s" % e.stderr[:100])
+            if response.stderr:
+                raise Exception("Pandoc reported error: %s" % response.stderr[:100])
+            return pandoc_out.read()
+
+    def headnote_for_export(self):
+        r"""
+            Return headnote HTML prepared for pandoc export.
+
+            >>> assert Resource(headnote='<p>An image <img src=""></p>').headnote_for_export() == '<p>An image </p>'
+        """
+        if not self.headnote:
+            return ''
+        tree = parse_html_fragment(self.headnote)
+        PyQuery(tree).remove('img')
+        return mark_safe(inner_html(tree))
 
     ##
     # About ContentNode Trees:
@@ -1631,15 +1695,16 @@ class Resource(SectionAndResourceMixin, ContentNode):
         foreign keys (not possible on the Django side, without altering the
         database so as to support generic foreign keys or polymorphic models).
         """
-        if self._resource_prefetched:
-            return self._resource
-        if not self.resource_id:
-            return None
-        if self.resource_type in ['Case', 'TextBlock', 'Default']:
-            # so fancy...
-            return globals()[self.resource_type].objects.get(id=self.resource_id)
-        else:
-            raise NotImplementedError
+        if not self._resource_prefetched:
+            if not self.resource_id:
+                return None
+            if self.resource_type in ['Case', 'TextBlock', 'Default']:
+                # so fancy...
+                self._resource = globals()[self.resource_type].objects.get(id=self.resource_id)
+                self._resource_prefetched = True
+            else:
+                raise NotImplementedError
+        return self._resource
 
     @property
     def annotatable(self):
@@ -1657,6 +1722,285 @@ class Resource(SectionAndResourceMixin, ContentNode):
             return reverse('annotate_resource', args=[self.casebook, self])
         raise ValueError('Only Resources (Case and TextBlock) can be annotated.')
 
+    def content_for_export(self):
+        r"""
+            Return content as html for export to Pandoc, without annotations.
+
+            >>> resource, *_ = [getfixture(f) for f in ['resource']]
+            >>> resource.resource.content = '<center>Title</center><p>An image <img src=""></p>'
+            >>> output = '<div data-custom-style="Case Header"><center>Title</center></div><p>An image </p>'
+            >>> assert resource.content_for_export() == output
+        """
+        tree = parse_html_fragment(self.resource.content)
+        self.update_tree_for_export(tree)
+        return mark_safe(inner_html(tree))
+
+    def annotated_content_for_export(self):
+        r"""
+            Return content as html for export to Pandoc, with annotations.
+
+            Given:
+            >>> annotations_factory, *_ = [getfixture(f) for f in ['annotations_factory']]
+            >>> def assert_match(source_html, expected_html):
+            ...     annotated_html = annotations_factory('Case', source_html)[1].annotated_content_for_export()
+            ...     assert annotated_html == expected_html, "Expected:\n%s\nGot:\n%s" % (expected_html, annotated_html)
+
+            Basic format of all annotations:
+            >>> input = '''<p>
+            ...     [note my note]Has a note[/note]
+            ...     [highlight]is highlighted[/highlight]
+            ...     [elide]is elided[/elide]
+            ...     [replace new content]is replaced[/replace]
+            ...     [link http://example.com]is linked[/link]
+            ... </p>'''
+            >>> expected = '''<p>
+            ...     <span class="annotate">Has a note</span><span custom-style="Footnote Reference">*</span>
+            ...     <span class="annotate highlighted" custom-style="Highlighted Text">is highlighted</span>
+            ...     <span custom-style="Elision">[ … ]</span>
+            ...     <span custom-style="Replacement Text">new content</span>
+            ...     <a class="annotate" href="http://example.com">is linked</a><span custom-style="Footnote Reference">**</span>
+            ... </p>'''
+            >>> assert_match(input, expected)
+
+            Annotation spanning paragraphs:
+            >>> input = '''
+            ... <p>Some [highlight] text</p>
+            ... <p>Some <em>text</em></p>
+            ... <p>Some [/highlight] text</p>
+            ... '''
+            >>> expected = '''
+            ... <p>Some <span class="annotate highlighted" custom-style="Highlighted Text"> text</span></p>
+            ... <p><span class="annotate highlighted" custom-style="Highlighted Text">Some </span><em><span class="annotate highlighted" custom-style="Highlighted Text">text</span></em></p>
+            ... <p><span class="annotate highlighted" custom-style="Highlighted Text">Some </span> text</p>
+            ... '''
+            >>> assert_match(input, expected)
+
+            Deletion spanning paragraphs:
+            >>> input = '''
+            ... <p>Some [replace new content] text</p>
+            ... <p>Some <em>text</em> <br></p>
+            ... <p>Some [/replace] text</p>
+            ... '''
+            >>> expected = '''
+            ... <p>Some <span custom-style="Replacement Text">new content</span></p><p> text</p>
+            ... '''
+            >>> assert_match(input, expected)
+
+            Void elements:
+            >>> input = '''<p> [highlight] <br> [/highlight] </p>'''
+            >>> expected = '''<p> <span class="annotate highlighted" custom-style="Highlighted Text"> </span><br><span class="annotate highlighted" custom-style="Highlighted Text"> </span> </p>'''
+            >>> assert_match(input, expected)
+        """
+
+        # Start with a sorted list of the start and end insertion points for each annotation.
+        # Each entry in the list is shaped like (annotation_offset, is_start_tag, annotation):
+        annotations = []
+        for annotation in self.annotations.all():
+            annotations.append((annotation.global_start_offset, True, annotation))
+            annotations.append((annotation.global_end_offset, False, annotation))
+        annotations.sort(key=lambda a: a[:2])  # sort by first two fields
+
+        # This SAX ContentHandler does the heavy lifting of stepping through each HTML tag and text string in the
+        # source HTML and building a list of destination tags and text, inserting annotation tags or deleting text
+        # as appropriate:
+        class AnnotationContentHandler(lxml.sax.ContentHandler):
+            def __init__(self):
+                # internal state:
+                self.offset = 0  # current offset in the text stream
+                self.elide = 0  # Greater than 0 if characters are currently being elided
+                self.wrap_before_tags = []  # before emitting a tag, close these
+                self.wrap_after_tags = []  # after emitting a tag, re-open these
+                self.footnote_index = 0  # footnote count
+                self.prev_tag = None  # previous source tag emitted
+                self.skip_next_wrap_before = False  # whether to apply wrap_before_tags to the next element emitted
+
+                # output state:
+                self.out_handler = lxml.sax.ElementTreeContentHandler()  # the sax ContentHandler that will be used to generate the output
+                self.out_ops = []  # list of operations to apply to the out_handler
+
+            ## event handlers
+
+            def characters(self, data):
+                """
+                    Called when the SAX parser encounters a text string in the source HTML. Handle each annotation
+                    within the current string.
+                """
+                # calculate the range of annotations affected by this string:
+                start_offset = self.offset
+                self.offset = end_offset = start_offset + len(data)
+
+                # special case -- don't annotate empty whitespace that comes after a block tag, because annotating
+                # non-printing whitespace would insert empty paragraphs in the output:
+                if (
+                        # ... we have annotation spans open
+                        self.wrap_after_tags and
+                        # ... previous tag was closing a block-level element
+                        self.prev_tag and self.prev_tag[0] == self.out_handler.endElement and self.prev_tag[1] in block_level_elements and
+                        # ... text after tag is whitespace
+                        re.match(r'\s*$', data) and
+                        # ... the text is not annotated
+                        ((not annotations) or end_offset < annotations[0][0])
+                ):
+                    # remove the open spans added by the previous /tag
+                    self.out_ops = self.out_ops[:-len(self.wrap_after_tags)]
+                    # prevent spans from closing before the next tag
+                    self.skip_next_wrap_before = True
+
+                # process each annotation before end_offset:
+                while annotations and end_offset >= annotations[0][0]:
+                    annotation_offset, is_start_tag, annotation = annotations.pop(0)
+
+                    # consume and emit the text that comes before this annotation:
+                    if annotation_offset > start_offset:
+                        split = annotation_offset-start_offset
+                        if not self.elide:
+                            self.addText(data[:split])
+                        data = data[split:]
+                        start_offset = annotation_offset
+
+                    # handle the annotation
+                    kind = annotation.kind
+                    if kind == 'replace' or kind == 'elide':
+                        # replace/elide tags are simpler because we don't need to do anything special for annotations
+                        # that span paragraphs. Just emit the elision text and increment elide when opening the tag,
+                        # and decrement when closing. Use a counter for elide instead of a boolean so we handle
+                        # overlapping elision ranges correctly (though those shouldn't happen in practice).
+                        if is_start_tag:
+                            self.out_ops.append((self.out_handler.startElement, 'span', {'custom-style': 'Elision' if kind == 'elide' else 'Replacement Text'}))
+                            self.addText(annotation.content or '' if kind == 'replace' else '[ … ]')
+                            self.out_ops.append((self.out_handler.endElement, 'span'))
+                            self.elide += 1
+                        else:
+                            self.elide = max(self.elide-1, 0)  # decrement, but no lower than zero
+
+                    else:  # kind == 'link' or 'note' or 'highlight'
+                        # link/note/highlight tags require wrapping all subsequent text in <span> tags.
+                        # In addition to emitting the open tags themselves, also add the open and close tags to
+                        # wrap_before_tags and wrap_after_tags so that every tag we encounter can be wrapped with
+                        # close and open tags for all open annotations.
+                        if is_start_tag:
+                            # get correct open and close tags for this annotation:
+                            if kind == 'link':
+                                open_tag = (self.out_handler.startElement, 'a', {'href': annotation.content, 'class': 'annotate'})
+                                close_tag = (self.out_handler.endElement, 'a')
+                            elif kind == 'note':
+                                open_tag = (self.out_handler.startElement, 'span', {'class': 'annotate'})
+                                close_tag = (self.out_handler.endElement, 'span')
+                            elif kind == 'highlight':
+                                open_tag = (self.out_handler.startElement, 'span', {'class': 'annotate highlighted', 'custom-style': 'Highlighted Text'})
+                                close_tag = (self.out_handler.endElement, 'span')
+                            else:
+                                raise ValueError("Unknown annotation kind '%s'" % kind)
+
+                            # emit the open tag itself:
+                            self.out_ops.append(open_tag)
+
+                            # track that the tag is currently open:
+                            self.wrap_after_tags.append(open_tag)
+                            self.wrap_before_tags.insert(0, close_tag)
+                            annotation.open_tag = open_tag
+                            annotation.close_tag = close_tag
+                        else:
+                            # emit the close tag itself:
+                            self.out_ops.extend(self.wrap_before_tags[:self.wrap_before_tags.index(annotation.close_tag)]+[annotation.close_tag])
+
+                            # stop tracking that the tag is open
+                            self.wrap_after_tags.remove(annotation.open_tag)
+                            self.wrap_before_tags.remove(annotation.close_tag)
+
+                            # emit the footnote marker:
+                            if kind == 'note' or kind == 'link':
+                                self.footnote_index += 1
+                                self.out_ops.append((self.out_handler.startElement, 'span', {'custom-style': 'Footnote Reference'}))
+                                self.addText('*' * self.footnote_index)
+                                self.out_ops.append((self.out_handler.endElement, 'span'))
+
+                # emit any text that comes after the final annotation in this text string:
+                if data and not self.elide:
+                    self.addText(data)
+
+            def startElementNS(self, name, qname, attributes):
+                """ Handle opening elements from the source HTML. """
+                if self.omitTag(name[1]):
+                    return
+                self.addTag((self.out_handler.startElement, name[1], {k[1]: v for k, v in attributes.items()}))
+
+            def endElementNS(self, name, qname):
+                """ Handle closing elements from the source HTML. """
+                if self.omitTag(name[1]):
+                    return
+                self.addTag((self.out_handler.endElement, name[1]))
+
+            ## helpers
+
+            def addTag(self, tag):
+                """ Add a tag from the source HTML, wrapped with the currently open annotation tags. """
+                if self.skip_next_wrap_before:
+                    self.out_ops.extend([tag] + self.wrap_after_tags)
+                    self.skip_next_wrap_before = False
+                else:
+                    self.out_ops.extend(self.wrap_before_tags + [tag] + self.wrap_after_tags)
+                self.prev_tag = tag
+
+            def addText(self, text):
+                self.out_ops.append((self.out_handler.characters, text))
+
+            def omitTag(self, tag):
+                """
+                    True if a tag from the source HTML should be omitted. This is True if we are currently in an
+                    elided section, and this is a void element like '<br>'. We can't omit matched elements like
+                    '<p>' because the elided section may end before we reach the closing '</p>'. Instead it's fine
+                    to emit '<p></p>', which will later be filtered out by remove_empty_tags().
+                """
+                return self.elide and tag in void_elements
+
+            def get_output_tree(self):
+                """ Render and return the lxml content tree from out_handler. """
+                # each entry in out_ops will be a method on out_handler and a list of arguments, like
+                # (self.out_handler.startElement, 'span')
+                for method, *args in self.out_ops:
+                    method(*args)
+                return self.out_handler.etree.getroot()
+
+        # use AnnotationContentHandler to insert annotations in our content HTML:
+        source_tree = parse_html_fragment(self.resource.content)
+        handler = AnnotationContentHandler()
+        lxml.sax.saxify(source_tree, handler)
+        dest_tree = handler.get_output_tree()
+
+        # clean up the output tree:
+        remove_empty_tags(dest_tree)  # tree may contain empty tags from elide/replace annotations
+        self.update_tree_for_export(dest_tree)  # apply general rules that are the same for annotated or un-annotated trees
+
+        return mark_safe(inner_html(dest_tree))
+
+    def footnote_annotations(self):
+        return mark_safe("".join(
+            '<span custom-style="Footnote Reference">%s</span> %s ' % ("*" * (i+1), django.utils.html.escape(annotation.content))
+            for i, annotation in enumerate(a for a in self.annotations.all() if a.kind in ('note', 'link'))
+        ))
+
+    @staticmethod
+    def update_tree_for_export(tree):
+        """
+            Prepare an lxml tree (annotated or un-annotated) for export.
+
+            TODO: in Ruby this logic was applied to the entire tree; in Python it is only being applied to Case and
+            TextBlock content, but not to headnotes. Should it be?
+        """
+        tree = PyQuery(tree)
+
+        # remove images
+        tree.remove('img')
+
+        # Case Header styling
+        for pq in PyQuery(tree)('section.head-matter p, center, p[style="text-align:center"], p[align="center"]').items():
+            pq.wrap("<div data-custom-style='Case Header'></div>")
+        for el in PyQuery(tree)('section.head-matter h4, center h2, h2[style="text-align:center"], h2[align="center"]'):
+            el.name = 'div'
+            el['data-custom-style'] = 'Case Header'
+
+        return tree
 
 
 #

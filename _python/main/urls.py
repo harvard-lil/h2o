@@ -2,95 +2,19 @@ from django.urls import path, re_path, register_converter
 from django.views.generic import RedirectView, TemplateView
 from rest_framework.urlpatterns import format_suffix_patterns
 
+from .models import Casebook, Section, Resource
 from .test.test_permissions_helpers import no_perms_test
+from .url_converters import IdSlugConverter, OrdinalSlugConverter, register_model_converter
 from .utils import fix_after_rails
-from .models import Casebook, Section
 from . import views
-
-
-#
-# Converters
-#
-
-class IdSlugConverter:
-    # matches:
-    # 2, 2-, 22-slug, etc.
-    regex = r'[0-9]+(\-[^/]*)?'
-
-    def to_python(self, value):
-        id_slug = value.split('-', 1)
-        try:
-            slug = id_slug[1]
-        except IndexError:
-            slug = ''
-        return {
-            'id': int(id_slug[0]),
-            'slug': slug
-        }
-
-    @staticmethod
-    def to_url(value):
-        """
-            >>> assert IdSlugConverter.to_url(1) == "1"
-            >>> assert IdSlugConverter.to_url({"id": 1}) == "1"
-            >>> assert IdSlugConverter.to_url({"id": 1, "slug": "foo"}) == "1-foo"
-            >>> assert IdSlugConverter.to_url(Casebook(id=1, title="foo")) == "1-foo"
-        """
-        if hasattr(value, 'id'):
-            id = value.id
-            slug = value.get_slug()
-        elif isinstance(value, int):
-            id = value
-            slug = None
-        elif isinstance(value, dict):
-            id = value['id']
-            slug = value.get('slug')
-        else:
-            raise ValueError("Cannot create IdSlug from argument type %s" % type(value))
-        return str(id) + (("-%s" % slug) if slug else "")
-
-
-class OrdinalSlugConverter:
-    # matches:
-    # 2, 2.2, 22.2.22, 2-, 2-slug, 2.22.2-, 2.2.22-slug, etc.
-    regex = r'([0-9]+\.)*[0-9]+(\-[^/]*)?'
-
-    def to_python(self, value):
-        ord_slug = value.split('-', 1)
-        try:
-            slug = ord_slug[1]
-        except IndexError:
-            slug = ''
-        return {
-            'ordinals': [int(i) for i in ord_slug[0].split('.')],
-            'slug': slug
-        }
-
-    @staticmethod
-    def to_url(value):
-        """
-            >>> assert OrdinalSlugConverter.to_url({"ordinals": [1, 2]}) == "1.2"
-            >>> assert OrdinalSlugConverter.to_url({"ordinals": [1, 2], "slug": "foo"}) == "1.2-foo"
-            >>> assert OrdinalSlugConverter.to_url(Section(ordinals=[1, 2], title="foo")) == "1.2-foo"
-        """
-        if hasattr(value, 'ordinals'):
-            ordinals = value.ordinals
-            slug = value.get_slug()
-        elif isinstance(value, dict):
-            ordinals = value['ordinals']
-            slug = value.get('slug')
-        else:
-            raise ValueError("Cannot create OrdinalSlug from argument type %s" % type(value))
-        return '.'.join(str(i) for i in ordinals) + (("-%s" % slug) if slug else "")
 
 
 register_converter(IdSlugConverter, 'idslug')
 register_converter(OrdinalSlugConverter, 'ordslug')
+register_model_converter(Casebook)
+register_model_converter(Section)
+register_model_converter(Resource)
 
-
-#
-# URLs
-#
 
 # these patterns will have optional format suffixes added, like '.json'
 drf_urlpatterns = [
@@ -131,6 +55,10 @@ urlpatterns = format_suffix_patterns(drf_urlpatterns) + [
     # cases
     path('cases/from_capapi', views.from_capapi, name='from_capapi'),
     path('cases/<int:case_id>/', views.case, name='case'),
+    # export
+    path('casebooks/<casebook:node>/export.<file_type>', views.export, name='export'),
+    path('sections/<section:node>/export.<file_type>', views.export, name='export'),
+    path('resources/<resource:node>/export.<file_type>', views.export, name='export'),
     # canonical paths for static pages
     path('pages/about/', TemplateView.as_view(template_name='pages/about.html'), name='about'),
     path('pages/privacy-policy/', TemplateView.as_view(template_name='pages/privacy-policy.html'), name='privacy-policy'),
