@@ -1,10 +1,11 @@
 import pytest
+from _pytest.fixtures import FixtureLookupError
 
 from django.template import Variable
 from django.urls import reverse
 
 from ..urls import urlpatterns
-from test_helpers import check_response
+from test.test_helpers import check_response
 
 
 """
@@ -81,9 +82,11 @@ def test_permissions(
         if path not in context:
             fixture_name = path.split('.', 1)[0]
             if fixture_name not in context:
-                context[fixture_name] = request.getfixturevalue(fixture_name)
-            if fixture_name != path:
-                context[path] = Variable(path).resolve(context)
+                try:
+                    context[fixture_name] = request.getfixturevalue(fixture_name)
+                except FixtureLookupError:
+                    pass  # path may not be a fixture name, like '"some string"'
+            context[path] = Variable(path).resolve(context)
         return context[path]
 
     # Special handling for status code 'login' -- expect a 302, but also check that we redirect to
@@ -100,6 +103,6 @@ def test_permissions(
     response = getattr(client, request_method)(url, as_user=user)
 
     # check response
-    check_response(response, status_code=status_code)
+    check_response(response, status_code=status_code, content_type=None)
     if should_redirect_to_login:
         assert response.url.startswith('/user_sessions/new'), "View failed to redirect to login page"

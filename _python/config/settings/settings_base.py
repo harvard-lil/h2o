@@ -213,3 +213,5 @@ REST_FRAMEWORK = {
         'rest_framework.authentication.SessionAuthentication',  # authenticate with Django login
     ),
 }
+
+PANDOC_DIR = os.path.join(os.path.dirname(BASE_DIR), 'lib/pandoc')
