@@ -35,7 +35,7 @@ def test_export(request, casebook_factory, section_factory, annotations_factory,
             <p>This text [note my note]has a note</p>
             <p>spanning[/note] paragraphs</p>
             <p>This text [link http://example.com]has a link</p>
-            <p>spanning[/note] paragraphs</p>
+            <p>spanning[/link] paragraphs</p>
             <p>This text [highlight]is highlighted</p>
             <p>spanning[/highlight] paragraphs</p>
             <p>This text is elided: [elide]is elided</p>
