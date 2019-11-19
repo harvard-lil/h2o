@@ -19,7 +19,7 @@ register_model_converter(Resource)
 # these patterns will have optional format suffixes added, like '.json'
 drf_urlpatterns = [
     # annotations resource
-    re_path(r'^resources/(?P<resource_id>\d+)/annotations$', views.annotations, name='annotations'),
+    path('resources/<resource:resource>/annotations', views.AnnotationsView.as_view(), name='annotations'),
 ]
 
 urlpatterns = format_suffix_patterns(drf_urlpatterns) + [

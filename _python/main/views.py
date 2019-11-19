@@ -3,8 +3,8 @@ import json
 from functools import wraps
 from pyquery import PyQuery
 import requests
-from rest_framework.decorators import api_view
 from rest_framework.response import Response
+from rest_framework.views import APIView
 
 from django.utils.text import Truncator
 from django.conf import settings
@@ -255,24 +255,19 @@ def render_with_actions(request, template_name, context=None, content_type=None,
 
 ### views ###
 
-@perms_test(
-    {'args': ['resource.id'], 'results': {200: ['resource.casebook.owner', 'other_user', 'admin_user', None]}},
-    # only editor can get annotations for draft resource
-    {'args': ['full_casebook_with_draft.drafts.resources.first.id'], 'results': {200: ['full_casebook_with_draft.drafts.resources.first.casebook.owner', 'admin_user'], 403: ['other_user'], 'login': [None]}},
-)
-@api_view(['GET'])
-def annotations(request, resource_id, format=None):
-    """
-        /resources/:resource_id/annotations view.
-        Was: app/controllers/content/annotations_controller.rb
-    """
-    resource = get_object_or_404(Resource.objects.select_related('casebook'), pk=resource_id)
 
-    # check permissions
-    if not resource.viewable_by(request.user):
-        return login_required_response(request)
+class AnnotationsView(APIView):
 
-    if request.method == 'GET':
+    @method_decorator(perms_test(
+        {'args': ['resource'], 'results': {200: ['resource.casebook.owner', 'other_user', 'admin_user', None]}},
+        # only editor can get annotations for draft resource
+        {'args': ['full_casebook_with_draft.drafts.resources.first'], 'results': {200: ['full_casebook_with_draft.drafts.resources.first.casebook.owner', 'admin_user'], 403: ['other_user'], 'login': [None]}},
+    ))
+    @method_decorator(user_has_perm('resource', 'viewable_by'))
+    def get(self, request, resource, format=None):
+        """
+            Return all annotations associated with a Resource node.
+        """
         return Response(ContentAnnotationSerializer(resource.annotations.all(), many=True).data)
 
 
