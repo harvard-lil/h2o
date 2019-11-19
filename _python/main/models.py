@@ -1790,6 +1790,29 @@ class Resource(SectionAndResourceMixin, ContentNode):
             >>> input = '''<p> [highlight] <br> [/highlight] </p>'''
             >>> expected = '''<p> <span class="annotate highlighted" custom-style="Highlighted Text"> </span><br><span class="annotate highlighted" custom-style="Highlighted Text"> </span> </p>'''
             >>> assert_match(input, expected)
+
+            Annotations with ambiguous placement:
+            >>> input = '<p>First</p><p>[highlight]Second[/highlight]</p><p>Third</p>'
+            >>> expected = '<p>First</p><p><span class="annotate highlighted" custom-style="Highlighted Text">Second</span></p><p>Third</p>'
+            >>> assert_match(input, expected)
+            >>> input = '<p>First</p><p>[elide]Second[/elide]</p><p>Third</p>'
+            >>> expected = '<p>First</p><p><span custom-style="Elision">[ … ]</span></p><p>Third</p>'
+            >>> assert_match(input, expected)
+            >>> input = '<p>[highlight]First[/highlight]</p><p>[highlight]Sec[/highlight][highlight]ond[/highlight]</p><p>[highlight]Third[/highlight]</p>'
+            >>> expected = '<p><span class="annotate highlighted" custom-style="Highlighted Text">First</span></p>' \
+            ...     '<p><span class="annotate highlighted" custom-style="Highlighted Text">Sec</span><span class="annotate highlighted" custom-style="Highlighted Text">ond</span></p>' \
+            ...     '<p><span class="annotate highlighted" custom-style="Highlighted Text">Third</span></p>'
+            >>> assert_match(input, expected)
+
+            Overlapping annotations:
+            (Not sure if these can happen in practice, but they do work for export, at least in simple cases.)
+            >>> input = '<p>[highlight]One [note my note]two[/highlight] three[/note]</p>'
+            >>> expected = '<p><span class="annotate highlighted" custom-style="Highlighted Text">One <span class="annotate">two</span></span>' \
+            ...     '<span class="annotate"> three</span><span custom-style="Footnote Reference">*</span></p>'
+            >>> assert_match(input, expected)
+            >>> input = '<p>[highlight]One [elide]two[/highlight] three[/elide]</p>'
+            >>> expected = '<p><span class="annotate highlighted" custom-style="Highlighted Text">One <span custom-style="Elision">[ … ]</span></span></p>'
+            >>> assert_match(input, expected)
         """
 
         # Start with a sorted list of the start and end insertion points for each annotation.
@@ -1798,7 +1821,7 @@ class Resource(SectionAndResourceMixin, ContentNode):
         for annotation in self.annotations.all():
             annotations.append((annotation.global_start_offset, True, annotation))
             annotations.append((annotation.global_end_offset, False, annotation))
-        annotations.sort(key=lambda a: a[:2])  # sort by first two fields
+        annotations.sort(key=lambda a: a[:2])  # sort by first two fields, so we're ordered by offset, then we get end tags and then start tags for a given offset
 
         # This SAX ContentHandler does the heavy lifting of stepping through each HTML tag and text string in the
         # source HTML and building a list of destination tags and text, inserting annotation tags or deleting text
@@ -1846,8 +1869,11 @@ class Resource(SectionAndResourceMixin, ContentNode):
                     # prevent spans from closing before the next tag
                     self.skip_next_wrap_before = True
 
-                # process each annotation before end_offset:
-                while annotations and end_offset >= annotations[0][0]:
+                # Process each annotation within this character range.
+                # Include end annotations that come after the final character of the string, but NOT start annotations,
+                # so that annotations tend to go inside block tags -- start annotations go to the right of tags
+                # and end annotations go to the left.
+                while annotations and (end_offset > annotations[0][0] or (end_offset == annotations[0][0] and not annotations[0][1])):
                     annotation_offset, is_start_tag, annotation = annotations.pop(0)
 
                     # consume and emit the text that comes before this annotation:
@@ -1901,11 +1927,10 @@ class Resource(SectionAndResourceMixin, ContentNode):
                             annotation.open_tag = open_tag
                             annotation.close_tag = close_tag
                         else:
-                            # emit the close tag itself:
-                            self.out_ops.extend(self.wrap_before_tags[:self.wrap_before_tags.index(annotation.close_tag)]+[annotation.close_tag])
-
-                            # stop tracking that the tag is open
+                            # close the annotation tag:
+                            # to handle overlapping annotations, close all tags including this one, and then re-open all tags except this one:
                             self.wrap_after_tags.remove(annotation.open_tag)
+                            self.out_ops.extend(self.wrap_before_tags+self.wrap_after_tags)
                             self.wrap_before_tags.remove(annotation.close_tag)
 
                             # emit the footnote marker:

@@ -283,9 +283,20 @@ def annotations_factory(db):
             ordinals = [1, 1]
         resource_target = {'Case': CaseFactory, 'TextBlock': TextBlockFactory}[resource_type](content=content)
         resource = ResourceFactory(casebook=casebook, ordinals=ordinals, resource_type=resource_type, resource_id=resource_target.id)
-        for i in range(0, len(annotation_strs), 2):
-            kind, content = (annotation_strs[i][1:-1].split(" ", 1) + [None])[:2]
-            ContentAnnotationFactory(resource=resource, kind=kind, content=content, global_start_offset=annotation_offsets[i], global_end_offset=annotation_offsets[i+1])
+
+        # create each annotation. to support overlapping annotations, pop off each starting annotation and then find
+        # the nearest ending annotation:
+        annotations = list(zip(annotation_strs, annotation_offsets))
+        while annotations:
+            annotation_str, annotation_offset = annotations.pop(0)
+            kind, content = (annotation_str[1:-1].split(" ", 1) + [None])[:2]
+            closing_annotation_str = '[/%s]' % kind
+            try:
+                closing_index = next(i for i in range(len(annotations)) if annotations[i][0] == closing_annotation_str)
+            except StopIteration:
+                raise Exception("Closing annotation %s not found." % closing_annotation_str)
+            _, closing_annotation_offset = annotations.pop(closing_index)
+            ContentAnnotationFactory(resource=resource, kind=kind, content=content, global_start_offset=annotation_offset, global_end_offset=closing_annotation_offset)
 
         return casebook, resource
     return factory
