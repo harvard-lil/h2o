@@ -1,4 +1,3 @@
-from io import BytesIO
 from collections import OrderedDict
 import json
 from functools import wraps
@@ -12,7 +11,7 @@ from django.conf import settings
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.views import redirect_to_login
 from django.core.exceptions import PermissionDenied
-from django.http import HttpResponseRedirect, HttpResponseBadRequest, JsonResponse, Http404, FileResponse, HttpResponse
+from django.http import HttpResponseRedirect, HttpResponseBadRequest, JsonResponse, Http404, HttpResponse
 from django.shortcuts import render, get_object_or_404
 from django.urls import reverse
 from django.utils.decorators import method_decorator
@@ -24,7 +23,7 @@ from .test.test_permissions_helpers import perms_test, viewable_section, directl
 from test.test_helpers import check_response, assert_url_equal, dump_content_tree_children
 from pytest import raises as assert_raises
 
-from .utils import parse_cap_decision_date, fix_after_rails, CapapiCommunicationException
+from .utils import parse_cap_decision_date, fix_after_rails, CapapiCommunicationException, StringFileResponse
 from .serializers import ContentAnnotationSerializer, CaseSerializer, TextBlockSerializer
 from .models import Casebook, Section, Resource, Case, User, CaseCourt, ContentNode, TextBlock, Default
 from .forms import CasebookForm, SectionForm, ResourceForm, LinkForm, TextBlockForm, NewTextBlockForm
@@ -1119,4 +1118,4 @@ def export(request, node, file_type='docx'):
         Truncator(node.get_title()).words(45, truncate='-'),
         '_annotated' if include_annotations else ''
     )
-    return FileResponse(BytesIO(response_data), as_attachment=True, filename=filename)
+    return StringFileResponse(response_data, as_attachment=True, filename=filename)

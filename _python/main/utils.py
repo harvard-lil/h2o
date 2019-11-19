@@ -1,10 +1,13 @@
-import re
+import bleach
 from copy import deepcopy
 from datetime import datetime, date
-import bleach
+import html as   python_html
 from lxml import etree, html
-import html as python_html
+import mimetypes
+import re
+from urllib.parse import quote
 
+from django.http import HttpResponse
 from django.conf import settings
 
 
@@ -173,3 +176,43 @@ def inner_html(tree):
     """ Return inner HTML of lxml element """
     return (python_html.escape(tree.text) if tree.text else '') + \
         ''.join([html.tostring(child, encoding=str) for child in tree.iterchildren()])
+
+
+class StringFileResponse(HttpResponse):
+    """
+        A response that sets Content-Type and Content-Disposition like Django's FileResponse, but takes a string instead
+        of a filelike object. This is needed because uwsgi can't handle BytesIO objects --
+        see https://github.com/unbit/uwsgi/issues/1126
+
+        Logic based on django.http.response.FileResponse.set_headers.
+    """
+    def __init__(self, *args, as_attachment=False, filename='', **kwargs):
+        super().__init__(*args, **kwargs)
+
+        # set Content-Type
+        if self.get('Content-Type', '').startswith('text/html'):
+            if filename:
+                content_type, encoding = mimetypes.guess_type(filename)
+                # Encoding isn't set to prevent browsers from automatically
+                # uncompressing files.
+                encoding_map = {
+                    'bzip2': 'application/x-bzip',
+                    'gzip': 'application/gzip',
+                    'xz': 'application/x-xz',
+                }
+                content_type = encoding_map.get(encoding, content_type)
+                self['Content-Type'] = content_type or 'application/octet-stream'
+            else:
+                self['Content-Type'] = 'application/octet-stream'
+
+        # set Content-Disposition
+        if filename:
+            disposition = 'attachment' if as_attachment else 'inline'
+            try:
+                filename.encode('ascii')
+                file_expr = 'filename="{}"'.format(filename)
+            except UnicodeEncodeError:
+                file_expr = "filename*=utf-8''{}".format(quote(filename))
+            self['Content-Disposition'] = '{}; {}'.format(disposition, file_expr)
+        elif as_attachment:
+            self['Content-Disposition'] = 'attachment'
