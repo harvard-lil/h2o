@@ -258,7 +258,7 @@ def render_with_actions(request, template_name, context=None, content_type=None,
 ### views ###
 
 
-class AnnotationsView(APIView):
+class AnnotationListView(APIView):
 
     @method_decorator(perms_test(
         {'args': ['resource'], 'results': {200: ['resource.casebook.owner', 'other_user', 'admin_user', None]}},
@@ -283,6 +283,25 @@ class AnnotationsView(APIView):
             serializer.save(resource=resource)
             return Response(serializer.data, status=status.HTTP_201_CREATED)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+
+class AnnotationDetailView(APIView):
+
+    def initial(self, request, *args, **kwargs):
+        if kwargs.get('annotation').resource != kwargs.get('resource'):
+            # Maybe there is a nicer way to do this via the URL converters...
+            return Response(status=status.HTTP_404_NOT_FOUND)
+        return super().initial(request, *args, **kwargs)
+
+    @method_decorator(no_perms_test)
+    @method_decorator(user_has_perm('resource', 'directly_editable_by'))
+    def delete(self, request, resource, annotation, format=None):
+        """
+            Delete an annotation associated with a Resource node.
+        """
+        annotation.delete()
+        return Response(status=status.HTTP_204_NO_CONTENT)
+
 
 @perms_test({'results': {200: ['user', None]}})
 def index(request):
