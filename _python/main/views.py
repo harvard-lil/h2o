@@ -295,6 +295,18 @@ class AnnotationDetailView(APIView):
 
     @method_decorator(no_perms_test)
     @method_decorator(user_has_perm('resource', 'directly_editable_by'))
+    def patch(self, request, resource, annotation, format=json):
+        """
+            Update an annotation associated with a Resource node.
+        """
+        serializer = ContentAnnotationSerializer(annotation, data=request.data.get('annotation'), partial=True)
+        if serializer.is_valid():
+            serializer.save()
+            return Response({'id': serializer.data['id'], 'content': serializer.data['content']})
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+    @method_decorator(no_perms_test)
+    @method_decorator(user_has_perm('resource', 'directly_editable_by'))
     def delete(self, request, resource, annotation, format=None):
         """
             Delete an annotation associated with a Resource node.
