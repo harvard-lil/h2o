@@ -26,7 +26,7 @@ from test.test_helpers import check_response, assert_url_equal, dump_content_tre
 from pytest import raises as assert_raises
 
 from .utils import parse_cap_decision_date, fix_after_rails, CapapiCommunicationException, StringFileResponse
-from .serializers import ContentAnnotationSerializer, CaseSerializer, TextBlockSerializer
+from .serializers import AnnotationSerializer, NewAnnotationSerializer, UpdateAnnotationSerializer, CaseSerializer, TextBlockSerializer
 from .models import Casebook, Section, Resource, Case, User, CaseCourt, ContentNode, TextBlock, Default
 from .forms import CasebookForm, SectionForm, ResourceForm, LinkForm, TextBlockForm, NewTextBlockForm
 
@@ -270,7 +270,7 @@ class AnnotationListView(APIView):
         """
             Return all annotations associated with a Resource node.
         """
-        return Response(ContentAnnotationSerializer(resource.annotations.all(), many=True).data)
+        return Response(AnnotationSerializer(resource.annotations.all(), many=True).data)
 
     @method_decorator(no_perms_test)
     @method_decorator(user_has_perm('resource', 'directly_editable_by'))
@@ -278,7 +278,7 @@ class AnnotationListView(APIView):
         """
             Create a new annotation associated with a Resource node.
         """
-        serializer = ContentAnnotationSerializer(data=request.data.get('annotation'))
+        serializer = NewAnnotationSerializer(data=request.data.get('annotation'))
         if serializer.is_valid():
             serializer.save(resource=resource)
             return Response(serializer.data, status=status.HTTP_201_CREATED)
@@ -299,10 +299,10 @@ class AnnotationDetailView(APIView):
         """
             Update an annotation associated with a Resource node.
         """
-        serializer = ContentAnnotationSerializer(annotation, data=request.data.get('annotation'), partial=True)
+        serializer = UpdateAnnotationSerializer(annotation, data=request.data.get('annotation'), partial=True)
         if serializer.is_valid():
             serializer.save()
-            return Response({'id': serializer.data['id'], 'content': serializer.data['content']})
+            return Response(serializer.data)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
     @method_decorator(no_perms_test)
