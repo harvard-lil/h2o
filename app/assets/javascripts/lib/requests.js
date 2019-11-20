@@ -1,4 +1,5 @@
 import Axios from 'axios';
+import {get_csrf_token} from 'lib/helpers';
 
 function destroy_modal(modal) {
   if(modal){
@@ -9,17 +10,7 @@ function destroy_modal(modal) {
 
 export function request (url, method, data = {}, options = {scroll: true}) {
 
-  // For now, separate handling of csrf in the Rails and Django apps.
-  // Remark: in Django land, this probably wants to get the token from
-  // the user's cookie, rather than from the DOM; punting for now.
-  const rails_csrf_el = document.querySelector('meta[name=csrf-token]');
-  const django_csrf_el = document.querySelector('[name=csrfmiddlewaretoken]');
-  let csrf_token = undefined;
-  if (rails_csrf_el){
-    csrf_token = rails_csrf_el.getAttribute('content');
-  } else if (django_csrf_el){
-    csrf_token = django_csrf_el.value;
-  }
+  const csrf_token = get_csrf_token();
   let headers = csrf_token ? {'X-CSRF-Token': csrf_token} : {};
   headers['X-HTTP-Method-Override'] = method;
 

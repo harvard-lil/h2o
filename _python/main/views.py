@@ -6,15 +6,16 @@ import requests
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
-from django.utils.text import Truncator
 from django.conf import settings
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.views import redirect_to_login
 from django.core.exceptions import PermissionDenied
 from django.http import HttpResponseRedirect, HttpResponseBadRequest, JsonResponse, Http404, HttpResponse
 from django.shortcuts import render, get_object_or_404
+from django.utils.text import Truncator
 from django.urls import reverse
 from django.utils.decorators import method_decorator
+from django.views.decorators.csrf import requires_csrf_token
 from django.views.decorators.http import require_POST, require_http_methods
 from django.views import View
 
@@ -367,6 +368,7 @@ class CasebookView(View):
         {'args': ['private_casebook'], 'results': {200: ['private_casebook.owner'], 'login': [None], 403: ['other_user']}},
         {'args': ['draft_casebook'], 'results': {200: ['draft_casebook.owner'], 'login': [None], 403: ['other_user']}},
     ))
+    @method_decorator(requires_csrf_token)
     @method_decorator(hydrate_params)
     @method_decorator(user_has_perm('casebook', 'viewable_by'))
     def get(self, request, casebook):
@@ -506,6 +508,7 @@ def create_draft(request, casebook):
     {'method': 'post', 'args': ['private_casebook'], 'results': {200: ['private_casebook.owner'], 403: ['other_user'], 'login': [None]}},
 )
 @require_http_methods(["GET", "POST"])
+@requires_csrf_token
 @hydrate_params
 @user_has_perm('casebook', 'directly_editable_by')
 def edit_casebook(request, casebook):
@@ -690,6 +693,7 @@ def new_section_or_resource(request, casebook):
 
 
 @perms_test(viewable_section)
+@requires_csrf_token
 @hydrate_params
 @user_has_perm('casebook', 'viewable_by')
 def section(request, casebook, section):
@@ -728,6 +732,7 @@ def section(request, casebook, section):
 
 @perms_test(directly_editable_section)
 @require_http_methods(["GET", "POST"])
+@requires_csrf_token
 @hydrate_params
 @user_has_perm('casebook', 'directly_editable_by')
 def edit_section(request, casebook, section):
@@ -767,6 +772,7 @@ def edit_section(request, casebook, section):
 
 
 @perms_test(viewable_resource)
+@requires_csrf_token
 @hydrate_params
 @user_has_perm('casebook', 'viewable_by')
 def resource(request, casebook, resource):
@@ -809,6 +815,7 @@ def resource(request, casebook, resource):
 
 @perms_test(directly_editable_resource)
 @require_http_methods(["GET", "POST"])
+@requires_csrf_token
 @hydrate_params
 @user_has_perm('casebook', 'directly_editable_by')
 def edit_resource(request, casebook, resource):
@@ -899,6 +906,7 @@ def edit_resource(request, casebook, resource):
 
 
 @perms_test(directly_editable_resource)
+@requires_csrf_token
 @hydrate_params
 @user_has_perm('casebook', 'directly_editable_by')
 def annotate_resource(request, casebook, resource):
