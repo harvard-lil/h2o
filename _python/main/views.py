@@ -3,6 +3,7 @@ import json
 from functools import wraps
 from pyquery import PyQuery
 import requests
+from rest_framework import status
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
@@ -271,6 +272,17 @@ class AnnotationsView(APIView):
         """
         return Response(ContentAnnotationSerializer(resource.annotations.all(), many=True).data)
 
+    @method_decorator(no_perms_test)
+    @method_decorator(user_has_perm('resource', 'directly_editable_by'))
+    def post(self, request, resource, format=None):
+        """
+            Create a new annotation associated with a Resource node.
+        """
+        serializer = ContentAnnotationSerializer(data=request.data.get('annotation'))
+        if serializer.is_valid():
+            serializer.save(resource=resource)
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 @perms_test({'results': {200: ['user', None]}})
 def index(request):
