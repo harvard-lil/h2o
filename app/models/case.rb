@@ -42,31 +42,31 @@ class Case < ApplicationRecord
   validates_length_of     :header_html,            :in => 1..(15.kilobytes), :allow_blank => true, :allow_nil => true
   validates_length_of     :content,                :in => 1..(5.megabytes), :allow_blank => true, :allow_nil => true
 
-  searchable do
-    text :name, boost: 3.0
-    text :name_abbreviation
-    text :docket_number
-    text :indexable_case_citations, boost: 3.0
-    text :indexable_case_court
-
-    string :display_name, stored: true
-    string :id, stored: true
-    date :decision_date, stored: true
-
-    time(:created_at, stored: true) { created_at.to_time }
-    time(:updated_at, stored: true) { updated_at.to_time }
-    boolean :public
-
-    string :klass, :stored => true
-    boolean :primary do
-      false
-    end
-    boolean :secondary do
-      false
-    end
-
-    string(:verified_professor, stored: true)
-  end
+  # searchable do
+  #   text :name, boost: 3.0
+  #   text :name_abbreviation
+  #   text :docket_number
+  #   text :indexable_case_citations, boost: 3.0
+  #   text :indexable_case_court
+  #
+  #   string :display_name, stored: true
+  #   string :id, stored: true
+  #   date :decision_date, stored: true
+  #
+  #   time(:created_at, stored: true) { created_at.to_time }
+  #   time(:updated_at, stored: true) { updated_at.to_time }
+  #   boolean :public
+  #
+  #   string :klass, :stored => true
+  #   boolean :primary do
+  #     false
+  #   end
+  #   boolean :secondary do
+  #     false
+  #   end
+  #
+  #   string(:verified_professor, stored: true)
+  # end
   
   alias :to_s :display_name
 

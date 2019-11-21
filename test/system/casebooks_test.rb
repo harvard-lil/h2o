@@ -4,7 +4,7 @@ require "application_system_test_case"
 class CasebookSystemTest < ApplicationSystemTestCase
 
   describe "as an anonymous visitor" do
-    scenario "viewing a casebook", solr: true, js: true do
+    scenario "viewing a casebook", js: true do
       casebook = content_nodes(:public_casebook)
       section_1 = content_nodes(:public_casebook_section_1)
       resource_1 = content_nodes(:public_casebook_section_1_1)
@@ -25,7 +25,7 @@ class CasebookSystemTest < ApplicationSystemTestCase
       sign_in @user = users(:verified_professor)
     end
 
-    scenario "creating a casebook", solr: true, js: true do
+    scenario "creating a casebook", js: true do
       visit root_path
 
       find(".create-casebook").click
@@ -51,13 +51,13 @@ class CasebookSystemTest < ApplicationSystemTestCase
 
       click_button "Add Resource"
 
-      case_to_find = cases(:public_case_1)
-      within ".case-search" do
-        fill_in "q", with: "\"#{case_to_find.name_abbreviation}\""
-        click_button "Search"
-      end
-
-      find(".results-entry .title").click
+      # case_to_find = cases(:public_case_1)
+      # within ".case-search" do
+      #   fill_in "q", with: "\"#{case_to_find.name_abbreviation}\""
+      #   click_button "Search"
+      # end
+      #
+      # find(".results-entry .title").click
     end
 
     describe "reordering casebook contents" do

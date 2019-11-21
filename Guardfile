@@ -12,12 +12,12 @@ guard :yarn do
 end
 
 # Run local solr on launch and whenever sunspot config changes.
-%w(development test).each do |env|
-  guard 'sunspot', environment: env do
-    # watch('Gemfile.lock') # gems don't usually affect sunspot, so be careful to check this manually
-    watch('config/sunspot.yml')
-  end
-end
+# %w(development test).each do |env|
+#   guard 'sunspot', environment: env do
+#     # watch('Gemfile.lock') # gems don't usually affect sunspot, so be careful to check this manually
+#     watch('config/sunspot.yml')
+#   end
+# end
 
 # Reloads spring whenever configs change.
 guard :spring, bundler: true, environments: %w(development) do
