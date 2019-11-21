@@ -38,7 +38,6 @@
         {% include 'includes/action_buttons.html' with content=resource %}
         {% include 'includes/headnote.html' with content=resource %}
         <section class="resource">
-          <p>This isn't actually editable yet, even though it looks like it!</p>
           <the-resource :editable="true" :resource="{{ resource.json }}"></the-resource>
         </section>
       </div>
