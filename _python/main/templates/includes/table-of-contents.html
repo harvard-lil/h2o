@@ -61,6 +61,7 @@
                     </div>
                 {% endif %}
               </a>
+              {% if editing %}<div class="actions"><button class="action-delete"></button></div>{% endif %}
             </div>
           {% elif content.type == 'section' %}
             <div class="listing-wrapper" {% if editing %}draggable="true" data-ordinals="{{ content.ordinal_string }}"{% endif %}>
@@ -68,6 +69,7 @@
                 <div class="section-number">{{ content.ordinal_string }}</div>
                 <div class="section-title">{{ content.get_title }}</div>
               </a>
+              {% if editing %}<div class="actions"><button class="action-delete"></button></div>{% endif %}
             </div>
           {% endif %}
 
