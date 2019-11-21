@@ -10,7 +10,7 @@ def check_response(response, status_code=200, content_type=_default, content_inc
     assert response.status_code == status_code
 
     # check content-type if not a redirect
-    if response['content-type']:
+    if response.get('content-type'):
         # For rest framework response, expect json; else expect html.
         if content_type is _default:
             if type(response) == Response:

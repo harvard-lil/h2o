@@ -295,7 +295,7 @@ class ContentAnnotation(TimestampedModel, BigPkModel):
     start_offset = models.IntegerField(blank=True, null=True)
     end_offset = models.IntegerField(blank=True, null=True)
     kind = models.CharField(max_length=255, choices=(('replace', 'replace'), ('highlight', 'highlight'), ('elide', 'elide'), ('note', 'note'), ('link', 'link')))
-    content = models.TextField(blank=True, null=True)
+    content = models.TextField(blank=True, null=True)  #TODO: validation for URLs
     global_start_offset = models.IntegerField(blank=True, null=True)
     global_end_offset = models.IntegerField(blank=True, null=True)
 

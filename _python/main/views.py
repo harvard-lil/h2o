@@ -21,13 +21,13 @@ from django.views.decorators.http import require_POST, require_http_methods
 from django.views import View
 
 from .test.test_permissions_helpers import perms_test, viewable_section, directly_editable_section, viewable_resource, \
-    directly_editable_resource, patch_directly_editable_resource, no_perms_test
+    directly_editable_resource, post_directly_editable_resource, patch_directly_editable_resource, no_perms_test
 from test.test_helpers import check_response, assert_url_equal, dump_content_tree_children
 from pytest import raises as assert_raises
 
 from .utils import parse_cap_decision_date, fix_after_rails, CapapiCommunicationException, StringFileResponse
 from .serializers import AnnotationSerializer, NewAnnotationSerializer, UpdateAnnotationSerializer, CaseSerializer, TextBlockSerializer
-from .models import Casebook, Section, Resource, Case, User, CaseCourt, ContentNode, TextBlock, Default
+from .models import Casebook, Section, Resource, Case, User, CaseCourt, ContentNode, TextBlock, Default, ContentAnnotation
 from .forms import CasebookForm, SectionForm, ResourceForm, LinkForm, TextBlockForm, NewTextBlockForm
 
 
@@ -262,7 +262,6 @@ class AnnotationListView(APIView):
 
     @method_decorator(perms_test(
         {'args': ['resource'], 'results': {200: ['resource.casebook.owner', 'other_user', 'admin_user', None]}},
-        # only editor can get annotations for draft resource
         {'args': ['full_casebook_with_draft.drafts.resources.first'], 'results': {200: ['full_casebook_with_draft.drafts.resources.first.casebook.owner', 'admin_user'], 403: ['other_user'], 'login': [None]}},
     ))
     @method_decorator(user_has_perm('resource', 'viewable_by'))
@@ -272,11 +271,32 @@ class AnnotationListView(APIView):
         """
         return Response(AnnotationSerializer(resource.annotations.all(), many=True).data)
 
-    @method_decorator(no_perms_test)
+    @method_decorator(perms_test(post_directly_editable_resource))
     @method_decorator(user_has_perm('resource', 'directly_editable_by'))
     def post(self, request, resource, format=None):
         """
             Create a new annotation associated with a Resource node.
+
+            Given:
+            >>> casebook, client = [getfixture(f) for f in ['full_private_casebook', 'client']]
+            >>> resource = casebook.resources.first()
+            >>> assert resource.annotations.count() == 0
+            >>> data = {'id': -1, 'kind': 'note', 'content': 'Some content', 'start_offset': 0, 'end_offset': 10}
+            >>> payload = json.dumps({'annotation': data})
+
+            Post the required data as JSON to create a new annotation:
+            >>> url = reverse('annotation_list', args=[resource])
+            >>> response = client.post(url, payload, content_type="application/json", as_user=resource.owner)
+            >>> check_response(response, status_code=201)
+            >>> resource.refresh_from_db()
+            >>> assert resource.annotations.count() == 1
+            >>> assert all([response.data[key] == data[key] for key in ['kind', 'content', 'start_offset', 'end_offset']])
+            >>> assert (response.data['id'] != data['id']) and response.data['id'] > 0
+
+            (If you omit any required data, an annotation is not created)
+            >>> for key in ['kind', 'content', 'start_offset', 'end_offset']:
+            ...     payload = json.dumps({k:v for k,v in data.items() if k != key})
+            ...     check_response(client.post(url, payload, content_type="application/json", as_user=resource.owner), status_code=400)
         """
         serializer = NewAnnotationSerializer(data=request.data.get('annotation'))
         if serializer.is_valid():
@@ -288,16 +308,40 @@ class AnnotationListView(APIView):
 class AnnotationDetailView(APIView):
 
     def initial(self, request, *args, **kwargs):
+        fix_after_rails("Let's not use resource in these URLs; let's just use annotation, and load resource as needed from there.")
         if kwargs.get('annotation').resource != kwargs.get('resource'):
-            # Maybe there is a nicer way to do this via the URL converters...
             return Response(status=status.HTTP_404_NOT_FOUND)
         return super().initial(request, *args, **kwargs)
 
-    @method_decorator(no_perms_test)
+    @method_decorator(perms_test([
+        {'args': ['published_annotation.resource', 'published_annotation'], 'results': {403: ['published_annotation.resource.owner', 'other_user'], 'login': [None]}},
+        {'args': ['private_annotation.resource', 'private_annotation'], 'results': {400: ['private_annotation.resource.owner'], 403: ['other_user'], 'login': [None]}},
+    ]))
     @method_decorator(user_has_perm('resource', 'directly_editable_by'))
     def patch(self, request, resource, annotation, format=json):
         """
-            Update an annotation associated with a Resource node.
+            Update the 'content' field of an annotation associated with a Resource node.
+
+            Given:
+            >>> annotation, client = [getfixture(f) for f in ['private_annotation', 'client']]
+            >>> original_content = annotation.content
+            >>> new_content = 'New Content'
+            >>> payload = json.dumps({'annotation': {'id': annotation.id, 'content': new_content}})
+
+            Alter the content of an annotation:
+            >>> url = reverse('annotation_detail', args=[annotation.resource, annotation])
+            >>> response = client.patch(url, payload, content_type="application/json", as_user=annotation.resource.owner)
+            >>> check_response(response)
+            >>> annotation.refresh_from_db()
+            >>> assert annotation.content == new_content
+
+            (At present, you may not alter anything else.)
+            >>> payload = json.dumps({'annotation': {'id': annotation.id, 'kind': 'highlight'}})
+            >>> check_response(client.patch(url, payload, status_code=400, content_type="application/json", as_user=annotation.resource.owner))
+            >>> payload = json.dumps({'annotation': {'id': annotation.id, 'start_offset': 1000}})
+            >>> check_response(client.patch(url, payload, status_code=400, content_type="application/json", as_user=annotation.resource.owner))
+            >>> payload = json.dumps({'annotation': {'id': annotation.id, 'end_offset': 1000}})
+            >>> check_response(client.patch(url, payload, status_code=400, content_type="application/json", as_user=annotation.resource.owner))
         """
         serializer = UpdateAnnotationSerializer(annotation, data=request.data.get('annotation'), partial=True)
         if serializer.is_valid():
@@ -305,11 +349,23 @@ class AnnotationDetailView(APIView):
             return Response(serializer.data)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
-    @method_decorator(no_perms_test)
+    @method_decorator(perms_test([
+        {'args': ['published_annotation.resource', 'published_annotation'], 'results': {403: ['published_annotation.resource.owner', 'other_user'], 'login': [None]}},
+        {'args': ['private_annotation.resource', 'private_annotation'], 'results': {204: ['private_annotation.resource.owner'], 403: ['other_user'], 'login': [None]}},
+    ]))
     @method_decorator(user_has_perm('resource', 'directly_editable_by'))
     def delete(self, request, resource, annotation, format=None):
         """
             Delete an annotation associated with a Resource node.
+
+            Given:
+            >>> annotation, client = [getfixture(f) for f in ['private_annotation', 'client']]
+
+            Delete the annotation:
+            >>> url = reverse('annotation_detail', args=[annotation.resource, annotation])
+            >>> check_response(client.delete(url, as_user=annotation.resource.owner), status_code=204)
+            >>> with assert_raises(ContentAnnotation.DoesNotExist):
+            ...     annotation.refresh_from_db()
         """
         annotation.delete()
         return Response(status=status.HTTP_204_NO_CONTENT)

@@ -252,6 +252,13 @@ def admin_user(user_factory):
     user.roles.add(role)
     return user
 
+@pytest.fixture
+def published_annotation(db):
+    return ContentAnnotationFactory(resource=ResourceFactory())
+
+@pytest.fixture
+def private_annotation(db):
+    return ContentAnnotationFactory(resource=ResourceFactory(casebook=PrivateCasebookFactory()))
 
 @pytest.fixture
 def annotations_factory(db):
@@ -388,6 +395,12 @@ def casebook_sections_factory(casebook_factory, section_factory):
         return casebook, sections_by_ordinal
     return factory
 
+@pytest.fixture
+def first_annotated_resource(full_casebook):
+    """
+    Given a casebook, returns its first annotated resource and annotation.
+    """
+    next(([r, r.annotations.first()] for r in full_casebook.resources if r.annotations.count() !=0), None)
 
 @pytest.fixture
 def other_user(user_factory):
