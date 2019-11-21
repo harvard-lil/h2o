@@ -790,43 +790,44 @@ def new_section_or_resource(request, casebook):
     return HttpResponseRedirect(new_node.get_edit_or_absolute_url(editing=True))
 
 
+class SectionView(View):
 
-@perms_test(viewable_section)
-@requires_csrf_token
-@hydrate_params
-@user_has_perm('casebook', 'viewable_by')
-def section(request, casebook, section):
-    """
-        Show a section within a casebook.
+    @method_decorator(perms_test(viewable_section))
+    @method_decorator(requires_csrf_token)
+    @method_decorator(hydrate_params)
+    @method_decorator(user_has_perm('casebook', 'viewable_by'))
+    def get(self, request, casebook, section):
+        """
+            Show a section within a casebook.
 
-        Given:
-        >>> published, private, with_draft, client = [getfixture(f) for f in ['full_casebook', 'full_private_casebook', 'full_casebook_with_draft', 'client']]
-        >>> published_section = published.sections.first()
-        >>> private_section = private.sections.first()
-        >>> draft_section = with_draft.drafts().sections.first()
+            Given:
+            >>> published, private, with_draft, client = [getfixture(f) for f in ['full_casebook', 'full_private_casebook', 'full_casebook_with_draft', 'client']]
+            >>> published_section = published.sections.first()
+            >>> private_section = private.sections.first()
+            >>> draft_section = with_draft.drafts().sections.first()
 
-        All users can see sections in public casebooks:
-        >>> check_response(client.get(published_section.get_absolute_url(), content_includes=published_section.title))
+            All users can see sections in public casebooks:
+            >>> check_response(client.get(published_section.get_absolute_url(), content_includes=published_section.title))
 
-        Users can see sections in their own non-public casebooks in preview mode:
-        >>> check_response(
-        ...     client.get(private_section.get_absolute_url(), as_user=private_section.owner),
-        ...     content_includes=[private_section.title, "You are viewing a preview"],
-        ... )
+            Users can see sections in their own non-public casebooks in preview mode:
+            >>> check_response(
+            ...     client.get(private_section.get_absolute_url(), as_user=private_section.owner),
+            ...     content_includes=[private_section.title, "You are viewing a preview"],
+            ... )
 
-        Owners see the "preview mode" of sections in draft casebooks:
-        >>> check_response(client.get(draft_section.get_absolute_url(), as_user=draft_section.owner), content_includes="You are viewing a preview")
-    """
-    # canonical redirect
-    canonical = section.get_absolute_url()
-    if request.path != canonical:
-        return HttpResponseRedirect(canonical)
+            Owners see the "preview mode" of sections in draft casebooks:
+            >>> check_response(client.get(draft_section.get_absolute_url(), as_user=draft_section.owner), content_includes="You are viewing a preview")
+        """
+        # canonical redirect
+        canonical = section.get_absolute_url()
+        if request.path != canonical:
+            return HttpResponseRedirect(canonical)
 
-    contents = section.contents.prefetch_resources()
-    return render_with_actions(request, 'section.html', {
-        'section': section,
-        'contents': contents
-    })
+        contents = section.contents.prefetch_resources()
+        return render_with_actions(request, 'section.html', {
+            'section': section,
+            'contents': contents
+        })
 
 
 @perms_test(directly_editable_section)
@@ -870,46 +871,49 @@ def edit_section(request, casebook, section):
     })
 
 
-@perms_test(viewable_resource)
-@requires_csrf_token
-@hydrate_params
-@user_has_perm('casebook', 'viewable_by')
-def resource(request, casebook, resource):
-    """
-        Show a resource within a casebook.
+class ResourceView(View):
 
-        Given:
-        >>> published, private, with_draft, client = [getfixture(f) for f in ['full_casebook', 'full_private_casebook', 'full_casebook_with_draft', 'client']]
-        >>> published_resource = published.resources.first()
-        >>> private_resource = private.resources.first()
-        >>> draft_resource = with_draft.drafts().resources.first()
+    @method_decorator(perms_test(viewable_resource))
+    @method_decorator(requires_csrf_token)
+    @method_decorator(hydrate_params)
+    @method_decorator(user_has_perm('casebook', 'viewable_by'))
+    def get(self, request, casebook, resource):
+        """
+            Show a resource within a casebook.
 
-        All users can see resources in public casebooks:
-        >>> check_response(client.get(published_resource.get_absolute_url(), content_includes=published_resource.title))
+            Given:
+            >>> published, private, with_draft, client = [getfixture(f) for f in ['full_casebook', 'full_private_casebook', 'full_casebook_with_draft', 'client']]
+            >>> published_resource = published.resources.first()
+            >>> private_resource = private.resources.first()
+            >>> draft_resource = with_draft.drafts().resources.first()
 
-        Users can see resources in their own non-public casebooks in preview mode:
-        >>> check_response(
-        ...     client.get(private_resource.get_absolute_url(), as_user=private_resource.owner),
-        ...     content_includes=[private_resource.get_title(), "You are viewing a preview"],
-        ... )
+            All users can see resources in public casebooks:
+            >>> check_response(client.get(published_resource.get_absolute_url(), content_includes=published_resource.title))
 
-        Owners see the "preview mode" of resources in draft casebooks:
-        >>> check_response(client.get(draft_resource.get_absolute_url(), as_user=draft_resource.owner), content_includes="You are viewing a preview")
-    """
-    # canonical redirect
-    canonical = resource.get_absolute_url()
-    if request.path != canonical:
-        return HttpResponseRedirect(canonical)
+            Users can see resources in their own non-public casebooks in preview mode:
+            >>> check_response(
+            ...     client.get(private_resource.get_absolute_url(), as_user=private_resource.owner),
+            ...     content_includes=[private_resource.get_title(), "You are viewing a preview"],
+            ... )
 
-    if resource.resource_type == 'Case':
-        resource.json = json.dumps(CaseSerializer(resource.resource).data)
-    elif resource.resource_type == 'TextBlock':
-        resource.json = json.dumps(TextBlockSerializer(resource.resource).data)
+            Owners see the "preview mode" of resources in draft casebooks:
+            >>> check_response(client.get(draft_resource.get_absolute_url(), as_user=draft_resource.owner), content_includes="You are viewing a preview")
+        """
+        # canonical redirect
+        canonical = resource.get_absolute_url()
+        if request.path != canonical:
+            return HttpResponseRedirect(canonical)
 
-    return render_with_actions(request, 'resource.html', {
-        'resource': resource,
-        'include_vuejs': resource.annotatable
-    })
+        if resource.resource_type == 'Case':
+            resource.json = json.dumps(CaseSerializer(resource.resource).data)
+        elif resource.resource_type == 'TextBlock':
+            resource.json = json.dumps(TextBlockSerializer(resource.resource).data)
+
+        return render_with_actions(request, 'resource.html', {
+            'resource': resource,
+            'include_vuejs': resource.annotatable
+        })
+
 
 
 @perms_test(directly_editable_resource)
