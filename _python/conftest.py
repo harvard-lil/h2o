@@ -223,6 +223,15 @@ class ContentAnnotationFactory(factory.DjangoModelFactory):
     global_end_offset = 10
 
 
+@register_factory
+class PublishedAnnotationFactory(ContentAnnotationFactory):
+    resource=factory.SubFactory(ResourceFactory)
+
+@register_factory
+class PrivateAnnotationFactory(ContentAnnotationFactory):
+    resource=factory.SubFactory(ResourceFactory, casebook=factory.SubFactory(PrivateCasebookFactory))
+
+
 ### fixture functions ###
 
 # these can be injected on demand with getfixture() in doctests, or as function arguments in test files
@@ -252,13 +261,6 @@ def admin_user(user_factory):
     user.roles.add(role)
     return user
 
-@pytest.fixture
-def published_annotation(db):
-    return ContentAnnotationFactory(resource=ResourceFactory())
-
-@pytest.fixture
-def private_annotation(db):
-    return ContentAnnotationFactory(resource=ResourceFactory(casebook=PrivateCasebookFactory()))
 
 @pytest.fixture
 def annotations_factory(db):
