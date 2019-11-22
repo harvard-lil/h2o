@@ -815,7 +815,7 @@ def section(request, casebook, section):
         ... )
 
         Owners see the "preview mode" of sections in draft casebooks:
-        >>> check_response(client.get(draft_section.get_absolute_url(), as_user=private_section.owner), content_includes="You are viewing a preview")
+        >>> check_response(client.get(draft_section.get_absolute_url(), as_user=draft_section.owner), content_includes="You are viewing a preview")
     """
     # canonical redirect
     canonical = section.get_absolute_url()
@@ -894,7 +894,7 @@ def resource(request, casebook, resource):
         ... )
 
         Owners see the "preview mode" of resources in draft casebooks:
-        >>> check_response(client.get(draft_resource.get_absolute_url(), as_user=private_resource.owner), content_includes="You are viewing a preview")
+        >>> check_response(client.get(draft_resource.get_absolute_url(), as_user=draft_resource.owner), content_includes="You are viewing a preview")
     """
     # canonical redirect
     canonical = resource.get_absolute_url()
