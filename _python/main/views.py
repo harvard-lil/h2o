@@ -829,6 +829,30 @@ class SectionView(View):
             'contents': contents
         })
 
+    @method_decorator(perms_test(directly_editable_section))
+    @method_decorator(hydrate_params)
+    @method_decorator(user_has_perm('casebook', 'directly_editable_by'))
+    def delete(self, request, casebook, section):
+        """
+            Delete a section from a casebook
+
+            Given:
+            >>> private, with_draft, client = [getfixture(f) for f in ['full_private_casebook', 'full_casebook_with_draft', 'client']]
+            >>> private_section = private.sections.first()
+            >>> draft_section = with_draft.drafts().sections.first()
+
+            Users can delete sections in their unpublished and draft casebooks:
+            >>> for section in [private_section, draft_section]:
+            ...     owner = section.owner
+            ...     url = reverse('section', args=[section.casebook, section])
+            ...     check_response(client.delete(url, as_user=owner))
+            ...     with assert_raises(Section.DoesNotExist):
+            ...         section.refresh_from_db()
+        """
+        fix_after_rails("Let's return 204 instead of 200.")
+        section.delete()
+        return HttpResponse()
+
 
 @perms_test(directly_editable_section)
 @require_http_methods(["GET", "POST"])
@@ -914,6 +938,29 @@ class ResourceView(View):
             'include_vuejs': resource.annotatable
         })
 
+    @method_decorator(perms_test(directly_editable_resource))
+    @method_decorator(hydrate_params)
+    @method_decorator(user_has_perm('casebook', 'directly_editable_by'))
+    def delete(self, request, casebook, resource):
+        """
+            Delete a resource from a casebook
+
+            Given:
+            >>> private, with_draft, client = [getfixture(f) for f in ['full_private_casebook', 'full_casebook_with_draft', 'client']]
+            >>> private_resource = private.resources.first()
+            >>> draft_resource = with_draft.drafts().resources.first()
+
+            Users can delete resources in their unpublished and draft casebooks:
+            >>> for resource in [private_resource, draft_resource]:
+            ...     owner = resource.owner
+            ...     url = reverse('resource', args=[resource.casebook, resource])
+            ...     check_response(client.delete(url, as_user=owner))
+            ...     with assert_raises(Resource.DoesNotExist):
+            ...         resource.refresh_from_db()
+        """
+        fix_after_rails("Let's return 204 instead of 200.")
+        resource.delete()
+        return HttpResponse()
 
 
 @perms_test(directly_editable_resource)
