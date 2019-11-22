@@ -47,30 +47,30 @@ class TextBlock < ApplicationRecord
 
   alias :to_s :display_name
 
-  searchable(:include => [:metadatum, :tags]) do
-    text :display_name, :boost => 3.0
-    string :display_name, :stored => true
-    string :id, :stored => true
-    text :clean_content
-    boolean :public
-
-    string :user
-    string :user_display, :stored => true
-    integer :user_id, :stored => true
-
-    string :metadatum, :stored => true, :multiple => true
-
-    time :created_at
-    time :updated_at
-
-    string :klass, :stored => true
-    boolean :primary do
-      false
-    end
-    boolean :secondary do
-      false
-    end
-  end
+  # searchable(:include => [:metadatum, :tags]) do
+  #   text :display_name, :boost => 3.0
+  #   string :display_name, :stored => true
+  #   string :id, :stored => true
+  #   text :clean_content
+  #   boolean :public
+  #
+  #   string :user
+  #   string :user_display, :stored => true
+  #   integer :user_id, :stored => true
+  #
+  #   string :metadatum, :stored => true, :multiple => true
+  #
+  #   time :created_at
+  #   time :updated_at
+  #
+  #   string :klass, :stored => true
+  #   boolean :primary do
+  #     false
+  #   end
+  #   boolean :secondary do
+  #     false
+  #   end
+  # end
 
   def clean_content
     self.content.gsub!(/\p{Cc}/, "")

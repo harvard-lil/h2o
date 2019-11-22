@@ -5,8 +5,8 @@ class UserSweeper < ActionController::Caching::Sweeper
 
   def after_update(record)
     if record.saved_changes.keys.include?("attribution")
-      Sunspot.index record.text_blocks
-      Sunspot.commit
+      # Sunspot.index record.text_blocks
+      # Sunspot.commit
     end
   end
 end

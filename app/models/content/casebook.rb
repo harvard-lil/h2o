@@ -15,23 +15,23 @@ class Content::Casebook < Content::Node
 
   after_create :clone_contents, if: -> {copy_of.present?}
 
-  searchable do
-    text :title, boost: 3.0
-    text :subtitle
-    text :headnote
-    string(:klass, stored: true) { self.class.name }
-    string(:display_name, stored: true) { title }
-    string(:attribution, stored: true) { owners.first.try(:attribution) }
-    string(:affiliation, stored: true) { owners.first.try(:affiliation) }
-    string(:verified_professor, stored: true) { owners.first.try(:verified_professor) }
-    boolean :public
-    time(:created_at, stored: true) { created_at.to_time }
-    time(:updated_at, stored: true) { updated_at.to_time }
-
-    integer :owner_ids, stored: true, multiple: true do
-      owners.map &:id
-    end
-  end
+  # searchable do
+  #   text :title, boost: 3.0
+  #   text :subtitle
+  #   text :headnote
+  #   string(:klass, stored: true) { self.class.name }
+  #   string(:display_name, stored: true) { title }
+  #   string(:attribution, stored: true) { owners.first.try(:attribution) }
+  #   string(:affiliation, stored: true) { owners.first.try(:affiliation) }
+  #   string(:verified_professor, stored: true) { owners.first.try(:verified_professor) }
+  #   boolean :public
+  #   time(:created_at, stored: true) { created_at.to_time }
+  #   time(:updated_at, stored: true) { updated_at.to_time }
+  #
+  #   integer :owner_ids, stored: true, multiple: true do
+  #     owners.map &:id
+  #   end
+  # end
 
   def clone(draft_mode, current_user = nil)
     if draft_mode

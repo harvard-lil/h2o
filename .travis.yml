@@ -34,7 +34,7 @@ before_install:
   - nvm install 10
   - npm install yarn -g && yarn install --frozen-lockfile --check-files
 before_script:
-  - bundle exec bin/rails sunspot:solr:start
+  #  - bundle exec bin/rails sunspot:solr:start
   - bundle exec bin/rails db:setup
   - bundle exec bin/rails assets:precompile DISABLE_SPRING=1
 script:

@@ -12,30 +12,30 @@ class Default < ApplicationRecord
 
   has_many :casebooks, inverse_of: :contents, class_name: 'Content::Casebook', foreign_key: :resource_id
 
-  searchable(:include => [:metadatum, :tags]) do
-    text :display_name
-    string :display_name, :stored => true
-    string :id, :stored => true
-    text :url
-    text :description
-    integer :user_id, :stored => true
-
-    string :metadatum, :stored => true, :multiple => true
-
-    string :user
-    boolean :public
-
-    time :created_at
-    time :updated_at
-
-    string :klass, :stored => true
-    boolean :primary do
-      false
-    end
-    boolean :secondary do
-      false
-    end
-  end
+  # searchable(:include => [:metadatum, :tags]) do
+  #   text :display_name
+  #   string :display_name, :stored => true
+  #   string :id, :stored => true
+  #   text :url
+  #   text :description
+  #   integer :user_id, :stored => true
+  #
+  #   string :metadatum, :stored => true, :multiple => true
+  #
+  #   string :user
+  #   boolean :public
+  #
+  #   time :created_at
+  #   time :updated_at
+  #
+  #   string :klass, :stored => true
+  #   boolean :primary do
+  #     false
+  #   end
+  #   boolean :secondary do
+  #     false
+  #   end
+  # end
 
   def url_format
     self.errors.add(:url, "must be an absolute path (it must contain http)") if !self.url.to_s.match(/^http/)

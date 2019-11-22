@@ -31,20 +31,20 @@ class User < ApplicationRecord
   validates_presence_of :email_address
   alias_attribute :login, :email_address
 
-  searchable :if => :not_anonymous do
-    text :simple_display
-    string :display_name, :stored => true
-    string(:affiliation, stored: true) { affiliation }
-    string(:attribution, stored: true) { attribution }
-    string(:verified_professor, stored: true) { verified_professor }
-    boolean :public do
-      true
-    end
-    time(:updated_at, stored: true) { updated_at.to_time }
-    time(:created_at, stored: true) { created_at.to_time }
-    integer :user_id, :stored => true
-    string(:klass, stored: true) { 'User' }
-  end
+  # searchable :if => :not_anonymous do
+  #   text :simple_display
+  #   string :display_name, :stored => true
+  #   string(:affiliation, stored: true) { affiliation }
+  #   string(:attribution, stored: true) { attribution }
+  #   string(:verified_professor, stored: true) { verified_professor }
+  #   boolean :public do
+  #     true
+  #   end
+  #   time(:updated_at, stored: true) { updated_at.to_time }
+  #   time(:created_at, stored: true) { created_at.to_time }
+  #   integer :user_id, :stored => true
+  #   string(:klass, stored: true) { 'User' }
+  # end
 
   def allowed_email_domain
     # Rails.logger.warn "SKIPPING DOMAIN VALIDATION FOR test purposes"

@@ -27,15 +27,15 @@ class UserSystemTest < ApplicationSystemTestCase
         assert_content 'Email address is not .edu.'
       end
     end
-    scenario 'browsing users', solr: true do
-      visit users_path
-      assert_content "verified_professor"
-    end
+    # scenario 'browsing users', solr: true do
+    #   visit users_path
+    #   assert_content "verified_professor"
+    # end
     scenario 'browsing a non-user' do
       visit user_path(:nonID)
       assert_current_path root_path
     end
-    scenario 'browsing a user with content', solr: true, js: true do
+    scenario 'browsing a user with content', js: true do
       public_casebook = content_nodes(:public_casebook)
       private_casebook = content_nodes(:private_casebook)
       visit user_path public_casebook.owners.first
