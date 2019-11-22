@@ -3,13 +3,29 @@ from rest_framework import serializers
 from . import models
 
 
-class ContentAnnotationSerializer(serializers.ModelSerializer):
+class AnnotationSerializer(serializers.ModelSerializer):
     start_offset = serializers.IntegerField(source='global_start_offset')
     end_offset = serializers.IntegerField(source='global_end_offset')
 
     class Meta:
         model = models.ContentAnnotation
         fields = ('id', 'resource_id', 'start_offset', 'end_offset', 'kind', 'content', 'created_at', 'updated_at')
+
+
+class NewAnnotationSerializer(serializers.ModelSerializer):
+    start_offset = serializers.IntegerField(source='global_start_offset')
+    end_offset = serializers.IntegerField(source='global_end_offset')
+
+    class Meta:
+        model = models.ContentAnnotation
+        fields = ('id', 'start_offset', 'end_offset', 'kind', 'content')
+
+
+class UpdateAnnotationSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = models.ContentAnnotation
+        fields = ('id','content')
 
 
 class CaseSerializer(serializers.ModelSerializer):

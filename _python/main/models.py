@@ -288,12 +288,14 @@ class Case(NullableTimestampedModel, AnnotatedModel):
 
 
 class ContentAnnotation(TimestampedModel, BigPkModel):
-    start_paragraph = models.IntegerField()
+    # NOTE: In the Rails app, paragraph-based offsets are always still calculated,
+    # to smooth the transition to document-based offsets. We are not recreating that here.
+    start_paragraph = models.IntegerField(blank=True, null=True)
     end_paragraph = models.IntegerField(blank=True, null=True)
-    start_offset = models.IntegerField()
-    end_offset = models.IntegerField()
+    start_offset = models.IntegerField(blank=True, null=True)
+    end_offset = models.IntegerField(blank=True, null=True)
     kind = models.CharField(max_length=255, choices=(('replace', 'replace'), ('highlight', 'highlight'), ('elide', 'elide'), ('note', 'note'), ('link', 'link')))
-    content = models.TextField(blank=True, null=True)
+    content = models.TextField(blank=True, null=True)  #TODO: validation for URLs
     global_start_offset = models.IntegerField(blank=True, null=True)
     global_end_offset = models.IntegerField(blank=True, null=True)
 

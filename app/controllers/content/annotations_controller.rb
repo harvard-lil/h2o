@@ -13,7 +13,8 @@ class Content::AnnotationsController < ApplicationController
   end
 
   def create
-    nodes = HTMLUtils.parse(@resource.resource.content).at('body').children
+    # This is parsed, but doesn't seem to be in use... commenting out for now.
+    # nodes = HTMLUtils.parse(@resource.resource.content).at('body').children
     params = annotation_params
                .except(:start_offset, :end_offset)
                .merge(resource: @resource)

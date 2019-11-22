@@ -1,8 +1,8 @@
-from django.urls import path, re_path, register_converter
+from django.urls import path, register_converter
 from django.views.generic import RedirectView, TemplateView
 from rest_framework.urlpatterns import format_suffix_patterns
 
-from .models import Casebook, Section, Resource
+from .models import Casebook, Section, Resource, ContentAnnotation
 from .test.test_permissions_helpers import no_perms_test
 from .url_converters import IdSlugConverter, OrdinalSlugConverter, register_model_converter
 from .utils import fix_after_rails
@@ -14,12 +14,14 @@ register_converter(OrdinalSlugConverter, 'ordslug')
 register_model_converter(Casebook)
 register_model_converter(Section)
 register_model_converter(Resource)
+register_model_converter(ContentAnnotation, 'annotation')
 
 
 # these patterns will have optional format suffixes added, like '.json'
 drf_urlpatterns = [
-    # annotations resource
-    re_path(r'^resources/(?P<resource_id>\d+)/annotations$', views.annotations, name='annotations'),
+    # annotations
+    path('resources/<resource:resource>/annotations/<annotation:annotation>', views.AnnotationDetailView.as_view(), name='annotation_detail'),
+    path('resources/<resource:resource>/annotations', views.AnnotationListView.as_view(), name='annotation_list'),
 ]
 
 urlpatterns = format_suffix_patterns(drf_urlpatterns) + [

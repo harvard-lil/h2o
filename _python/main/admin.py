@@ -139,8 +139,8 @@ class CollaboratorInline(admin.TabularInline):
 
 class AnnotationInline(admin.TabularInline):
     model = ContentAnnotation
-    readonly_fields = ['created_at', 'updated_at', 'start_paragraph', 'end_paragraph', 'start_offset', 'end_offset', 'kind']
-    fields = ['resource', ('global_start_offset', 'global_end_offset'), ('start_paragraph', 'end_paragraph'), ('start_offset', 'end_offset'), 'kind', 'content', 'created_at', 'updated_at']
+    readonly_fields = ['id', 'created_at', 'updated_at', 'start_paragraph', 'end_paragraph', 'start_offset', 'end_offset', 'kind']
+    fields = ['id', 'resource', ('global_start_offset', 'global_end_offset'), ('start_paragraph', 'end_paragraph'), ('start_offset', 'end_offset'), 'kind', 'content', 'created_at', 'updated_at']
     raw_id_fields = ['resource']
     extra = 0
     ordering = ['global_start_offset',  'global_end_offset']

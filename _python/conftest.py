@@ -42,7 +42,6 @@ def pytest_addoption(parser):
 
 # functions used within this file to set up fixtures
 
-
 def register_factory(cls):
     """
         Decorator to take a factory class and inject test fixtures. For example,
@@ -223,6 +222,16 @@ class ContentAnnotationFactory(factory.DjangoModelFactory):
     global_end_offset = 10
 
 
+@register_factory
+class PublishedAnnotationFactory(ContentAnnotationFactory):
+    resource=factory.SubFactory(ResourceFactory)
+
+
+@register_factory
+class PrivateAnnotationFactory(ContentAnnotationFactory):
+    resource=factory.SubFactory(ResourceFactory, casebook=factory.SubFactory(PrivateCasebookFactory))
+
+
 ### fixture functions ###
 
 # these can be injected on demand with getfixture() in doctests, or as function arguments in test files
@@ -247,6 +256,9 @@ def casebook_tree(casebook_factory):
 
 @pytest.fixture
 def admin_user(user_factory):
+    # This could be implemented via a subclass of UserFactory...
+    # keeping this way for now for simplicity
+    # https://factoryboy.readthedocs.io/en/latest/recipes.html#many-to-many-relation-with-a-through
     user = user_factory(attribution='Admin')
     role, created = Role.objects.get_or_create(name='superadmin')
     user.roles.add(role)
@@ -303,7 +315,7 @@ def annotations_factory(db):
 
 
 @pytest.fixture
-def full_casebook_parts(casebook_factory):
+def full_casebook_parts_factory(db):
     """
         Create:
             - owner
@@ -322,22 +334,29 @@ def full_casebook_parts(casebook_factory):
                          - resource -> link
                 - section
     """
-    user = UserFactory()
-    casebook = casebook_factory(contentcollaborator_set__user=user)
-    s_1 = SectionFactory(casebook=casebook, ordinals=[1])
-    r_1_1 = ResourceFactory(casebook=casebook, ordinals=[1, 1], resource_type='TextBlock', resource_id=TextBlockFactory(user=user).id)
-    r_1_2 = case_resource = ResourceFactory(casebook=casebook, ordinals=[1, 2], resource_type='Case', resource_id=CaseFactory().id)
-    ContentAnnotationFactory(resource=case_resource)
-    ContentAnnotationFactory(resource=case_resource, kind='elide')
-    r_1_3 = ResourceFactory(casebook=casebook, ordinals=[1, 3], resource_type='Default', resource_id=DefaultFactory(user=user).id)
-    s_1_4 = SectionFactory(casebook=casebook,  ordinals=[1, 4])
-    r_1_4_1 = ResourceFactory(casebook=casebook, ordinals=[1, 4, 1], resource_type='TextBlock', resource_id=TextBlockFactory(user=user).id)
-    r_1_4_2 = case_resource = ResourceFactory(casebook=casebook, ordinals=[1, 4, 2], resource_type='Case', resource_id=CaseFactory().id)
-    ContentAnnotationFactory(resource=case_resource, kind='note')
-    ContentAnnotationFactory(resource=case_resource, kind='replace')
-    r_1_4_3 = ResourceFactory(casebook=casebook, ordinals=[1, 4, 3], resource_type='Default', resource_id=DefaultFactory(user=user).id)
-    s_2 = SectionFactory(casebook=casebook, ordinals=[2])
-    return [casebook, s_1, r_1_1, r_1_2, r_1_3, s_1_4, r_1_4_1, r_1_4_2, r_1_4_3, s_2]
+    def factory(public=True):
+        user = UserFactory()
+        casebook = CasebookFactory(contentcollaborator_set__user=user, public=public)
+        s_1 = SectionFactory(casebook=casebook, ordinals=[1])
+        r_1_1 = ResourceFactory(casebook=casebook, ordinals=[1, 1], resource_type='TextBlock', resource_id=TextBlockFactory(user=user).id)
+        r_1_2 = case_resource = ResourceFactory(casebook=casebook, ordinals=[1, 2], resource_type='Case', resource_id=CaseFactory().id)
+        ContentAnnotationFactory(resource=case_resource)
+        ContentAnnotationFactory(resource=case_resource, kind='elide')
+        r_1_3 = ResourceFactory(casebook=casebook, ordinals=[1, 3], resource_type='Default', resource_id=DefaultFactory(user=user).id)
+        s_1_4 = SectionFactory(casebook=casebook,  ordinals=[1, 4])
+        r_1_4_1 = ResourceFactory(casebook=casebook, ordinals=[1, 4, 1], resource_type='TextBlock', resource_id=TextBlockFactory(user=user).id)
+        r_1_4_2 = case_resource = ResourceFactory(casebook=casebook, ordinals=[1, 4, 2], resource_type='Case', resource_id=CaseFactory().id)
+        ContentAnnotationFactory(resource=case_resource, kind='note')
+        ContentAnnotationFactory(resource=case_resource, kind='replace')
+        r_1_4_3 = ResourceFactory(casebook=casebook, ordinals=[1, 4, 3], resource_type='Default', resource_id=DefaultFactory(user=user).id)
+        s_2 = SectionFactory(casebook=casebook, ordinals=[2])
+        return [casebook, s_1, r_1_1, r_1_2, r_1_3, s_1_4, r_1_4_1, r_1_4_2, r_1_4_3, s_2]
+    return factory
+
+
+@pytest.fixture
+def full_casebook_parts(full_casebook_parts_factory):
+    return full_casebook_parts_factory()
 
 
 @pytest.fixture
@@ -346,7 +365,7 @@ def full_casebook(full_casebook_parts):
 
 
 @pytest.fixture
-def full_private_casebook(full_casebook):
+def full_private_casebook(full_casebook_parts_factory):
     """
         The same as full_casebook, except private
 
@@ -354,11 +373,11 @@ def full_private_casebook(full_casebook):
         >>> assert private.is_private and not published.is_private
         >>> assert all(node.is_private for node in private.contents.all())
     """
-    casebook = full_casebook.clone()
-    return casebook
+    return full_casebook_parts_factory(public=False)[0]
+
 
 @pytest.fixture
-def full_casebook_with_draft(full_casebook):
+def full_casebook_with_draft(full_casebook_parts_factory):
     """
         The same as full_casebook, except has an in-progress draft
 
@@ -368,9 +387,10 @@ def full_casebook_with_draft(full_casebook):
         >>> assert has_draft.is_public
         >>> assert has_draft.drafts().is_private
     """
-    casebook = full_casebook.clone()
-    casebook.public = True
-    casebook.save()
+    # Use full_casebook_parts_factory instead of the full_casebook fixture
+    # so that full_casebook_with_draft and full_casebook are independent objects
+    # and can be used within the same test
+    casebook = full_casebook_parts_factory()[0]
     casebook.make_draft()
     return casebook
 
