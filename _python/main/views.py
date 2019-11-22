@@ -262,7 +262,7 @@ class AnnotationListView(APIView):
 
     @method_decorator(perms_test(
         {'args': ['resource'], 'results': {200: ['resource.casebook.owner', 'other_user', 'admin_user', None]}},
-        {'args': ['full_casebook_with_draft.drafts.resources.first'], 'results': {200: ['full_casebook_with_draft.drafts.resources.first.casebook.owner', 'admin_user'], 403: ['other_user'], 'login': [None]}},
+        {'args': ['full_casebook_with_draft.drafts.resources.first'], 'results': {200: ['full_casebook_with_draft.drafts.owner', 'admin_user'], 403: ['other_user'], 'login': [None]}},
     ))
     @method_decorator(user_has_perm('resource', 'viewable_by'))
     def get(self, request, resource, format=None):
