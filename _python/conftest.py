@@ -377,7 +377,7 @@ def full_private_casebook(full_casebook_parts_factory):
 
 
 @pytest.fixture
-def full_casebook_with_draft(full_casebook_parts_factory):
+def full_casebook_parts_with_draft(full_casebook_parts_factory):
     """
         The same as full_casebook, except has an in-progress draft
 
@@ -385,14 +385,19 @@ def full_casebook_with_draft(full_casebook_parts_factory):
         >>> assert has_draft.has_draft and not draftless.has_draft
         >>> assert all(node.has_draft for node in has_draft.contents.all())
         >>> assert has_draft.is_public
-        >>> assert has_draft.drafts().is_private
+        >>> assert has_draft.draft.is_private
     """
     # Use full_casebook_parts_factory instead of the full_casebook fixture
     # so that full_casebook_with_draft and full_casebook are independent objects
     # and can be used within the same test
-    casebook = full_casebook_parts_factory()[0]
+    casebook, s_1, r_1_1, r_1_2, r_1_3, s_1_4, r_1_4_1, r_1_4_2, r_1_4_3, s_2 = full_casebook_parts_factory()
     casebook.make_draft()
-    return casebook
+    return [casebook, s_1, r_1_1, r_1_2, r_1_3, s_1_4, r_1_4_1, r_1_4_2, r_1_4_3, s_2]
+
+
+@pytest.fixture
+def full_casebook_with_draft(full_casebook_parts_with_draft):
+    return full_casebook_parts_with_draft[0]
 
 
 @pytest.fixture

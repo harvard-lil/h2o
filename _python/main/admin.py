@@ -5,11 +5,32 @@ from django.db.models import Q, Count
 from django.urls import reverse
 from django.utils.html import format_html
 from django.shortcuts import redirect
+from django.utils.safestring import mark_safe
 
+from .utils import fix_after_rails, clone_model_instance
 from .models import Case, CaseCourt, Default, User, Casebook, Section, \
     Resource, ContentCollaborator, ContentAnnotation, TextBlock, \
     Role, RolesUser, UnpublishedRevision
 
+
+
+#
+# Helpers
+#
+
+def edit_link(obj, as_str=False):
+    """ Generate a link to the admin edit screen for the given object. """
+    if not obj:
+        return None
+    url = reverse('admin:%s_%s_change' % (obj._meta.app_label,  obj._meta.model_name), args=[obj.id])
+    if as_str:
+        return format_html('<a href="{}">→{} ({})</a>', url, obj, obj.id)
+    else:
+        return format_html('<a href="{}">→{}</a>', url, obj.id)
+
+#
+# Admin site config
+#
 
 # Until we are integrated with Django's authentication system,
 # point login etc. to the Rails app.
@@ -36,6 +57,10 @@ admin_site = CustomAdminSite(name='h2oadmin')
 # we want to remove builtin models
 # admin.site.unregister(Group)
 # admin.site.unregister(BuiltInUser)
+
+# change Django defaults, because 'extra' isn't helpful anymore now you can add more with javascript
+admin.TabularInline.extra = 0
+admin.StackedInline.extra = 0
 
 
 #
@@ -132,9 +157,8 @@ class RoleNameFilter(InputFilter):
 
 class CollaboratorInline(admin.TabularInline):
     model = ContentCollaborator
-    readonly_fields = ['created_at', 'updated_at']
+    fields = ['role', 'user', 'content', 'has_attribution']
     raw_id_fields = ['user', 'content']
-    extra = 0
 
 
 class AnnotationInline(admin.TabularInline):
@@ -142,7 +166,6 @@ class AnnotationInline(admin.TabularInline):
     readonly_fields = ['id', 'created_at', 'updated_at', 'start_paragraph', 'end_paragraph', 'start_offset', 'end_offset', 'kind']
     fields = ['id', 'resource', ('global_start_offset', 'global_end_offset'), ('start_paragraph', 'end_paragraph'), ('start_offset', 'end_offset'), 'kind', 'content', 'created_at', 'updated_at']
     raw_id_fields = ['resource']
-    extra = 0
     ordering = ['global_start_offset',  'global_end_offset']
 
     def formfield_for_dbfield(self, db_field, **kwargs):
@@ -157,7 +180,6 @@ class RolesUserInline(admin.TabularInline):
     list_select_related = ['user', 'role']
     fields = ['user', 'role']
     raw_id_fields = ['user', 'role']
-    extra = 0
 
 
 #
@@ -165,13 +187,13 @@ class RolesUserInline(admin.TabularInline):
 #
 
 
-class NonLoggingAdmin(admin.ModelAdmin):
-    """
+fix_after_rails("""
     The LogEntry class tracks additions, changes, and deletions of objects
     done through the admin interface. It requires the Django app to be
     fully integrated with the AUTH_USER_MODEL... which we aren't yet. So,
     for now, disable logging.
-    """
+""")
+class NonLoggingAdmin(admin.ModelAdmin):
     def log_addition(self, request, object, message):
         pass
 
@@ -185,33 +207,49 @@ class NonLoggingAdmin(admin.ModelAdmin):
 ## Casebooks
 
 class CasebookAdmin(NonLoggingAdmin):
-    readonly_fields = ['created_at', 'updated_at', 'owner_link', 'clone_of', 'copy_of', 'ancestry', 'root_user', 'playlist_id']
-    list_select_related = ['root_user', 'copy_of']
-    list_display = ['id', 'get_title', 'owner_link', 'public', 'draft_mode_of_published_casebook', 'clone_of', 'root_user', 'created_at', 'updated_at']
+    list_display = ['id', 'get_title', 'owner_link', 'public', 'source', 'draft_link', 'root_user', 'created_at', 'updated_at']
     list_filter = [CollaboratorNameFilter, CollaboratorIdFilter, 'public', 'draft_mode_of_published_casebook']
     search_fields = ['title']
-    fields = ['title', 'subtitle', 'public', 'draft_mode_of_published_casebook', 'copy_of', 'ancestry', 'root_user', 'headnote', 'playlist_id', 'created_at', 'updated_at']
+
+    fields = ['title', 'subtitle', 'public', 'draft_mode_of_published_casebook', 'source', 'draft_link', 'ancestry', 'root_user', 'headnote', 'playlist_id', 'created_at', 'updated_at']
+    readonly_fields = ['created_at', 'updated_at', 'owner_link', 'source', 'draft_link', 'ancestry', 'root_user', 'playlist_id']
     raw_id_fields = ['collaborators', 'copy_of', 'root_user', 'casebook']
     inlines = [CollaboratorInline]
 
+    def save_model(self, request, obj, form, change):
+        # Workaround -- we need to make some changes after save_related, but save_related can't access the object being
+        # saved. Attach it to request here so we can access it later.
+        super().save_model(request, obj, form, change)
+        request.saved_obj = obj
+
+    def save_related(self, request, form, formsets, change):
+        super().save_related(request, form, formsets, change)
+
+        # Updating the collaborators on a casebook also updates the collaborators on a current draft, and vice versa.
+        # Copy current collaborators from the saved object to its draft/draft_of:
+        # TODO: testing the admin is tricky; this would be a good candidate for integration testing
+        saved_obj = request.saved_obj
+        other_casebook = saved_obj.draft or saved_obj.draft_of
+        if other_casebook:
+            other_casebook.contentcollaborator_set.all().delete()
+            roles = saved_obj.contentcollaborator_set.prefetch_related(None)  # prefetch_related cancels out an earlier prefetch so we see fresh results
+            ContentCollaborator.objects.bulk_create(clone_model_instance(c, content=other_casebook) for c in roles)
+
+    def get_queryset(self, request):
+        return super().get_queryset(request).select_related('root_user', 'copy_of').prefetch_related('contentcollaborator_set__user').prefetch_draft()
+
     def owner_link(self, obj):
-        if obj.owner:
-            return format_html(
-                '<a href="{}">{} ({})</a>',
-                reverse('admin:main_user_change', args=(obj.owner.id,)),
-                obj.owner.display_name,
-                obj.owner.id
-            )
+        edit_link(obj.owner, True)
     owner_link.short_description = 'owner'
 
-    def clone_of(self, obj):
+    def draft_link(self, obj):
+        edit_link(obj.draft)
+    draft_link.short_description = 'drafts'
+
+    def source(self, obj):
         if obj.copy_of:
-            return format_html(
-                '<a href="{}">{}</a>',
-                reverse('admin:main_casebook_change', args=(obj.copy_of.id,)),
-                str(obj.copy_of)
-            )
-    clone_of.short_description = 'copy of'
+            return mark_safe('draft&nbsp;of' if obj.draft_mode_of_published_casebook else 'copy&nbsp;of') + edit_link(obj.copy_of)
+    source.short_description = 'source'
 
 
 class SectionAdmin(NonLoggingAdmin):
@@ -223,22 +261,15 @@ class SectionAdmin(NonLoggingAdmin):
     fields = ['casebook', 'ordinals', 'title', 'subtitle', 'copy_of', 'headnote', 'created_at', 'updated_at']
     raw_id_fields = ['collaborators', 'copy_of', 'root_user', 'casebook']
 
+    def get_queryset(self, request):
+        return super().get_queryset(request).select_related('casebook', 'copy_of').prefetch_related('casebook__contentcollaborator_set__user')
+
     def owner_link(self, obj):
-        if obj.casebook.owner:
-            return format_html(
-                '<a href="{}">{} ({})</a>',
-                reverse('admin:main_user_change', args=(obj.casebook.owner.id,)),
-                obj.casebook.owner.display_name,
-                obj.casebook.owner.id
-            )
+        edit_link(obj.casebook.owner, True)
     owner_link.short_description = 'owner'
 
     def casebook_link(self, obj):
-        return format_html(
-            '<a href="{}">{}</a>',
-            reverse('admin:main_casebook_change', args=(obj.casebook.id,)),
-            str(obj.casebook)
-        )
+        edit_link(obj.casebook, True)
     casebook_link.short_description = 'casebook'
 
 
@@ -252,31 +283,19 @@ class ResourceAdmin(NonLoggingAdmin):
     raw_id_fields = ['collaborators', 'copy_of', 'root_user', 'casebook']
     inlines = [AnnotationInline]
 
+    def get_queryset(self, request):
+        return super().get_queryset(request).select_related('casebook', 'copy_of').prefetch_related('casebook__contentcollaborator_set__user').annotate(annotations_count=Count('annotations'))
+
     def owner_link(self, obj):
-        if obj.casebook.owner:
-            return format_html(
-                '<a href="{}">{} ({})</a>',
-                reverse('admin:main_user_change', args=(obj.casebook.owner.id,)),
-                obj.casebook.owner.display_name,
-                obj.casebook.owner.id
-            )
+        edit_link(obj.casebook.owner, True)
     owner_link.short_description = 'owner'
 
     def casebook_link(self, obj):
-        return format_html(
-            '<a href="{}">{} ({})</a>',
-            reverse('admin:main_casebook_change', args=(obj.casebook.id,)),
-            obj.casebook.get_title(),
-            obj.casebook.id
-        )
+        edit_link(obj.casebook, True)
     casebook_link.short_description = 'casebook'
 
     def annotation_count(self, obj):
-        # This makes a lot of database queries, but I can't think of a
-        # better way, with the current models
-        if obj.resource_type == 'Default':
-            return None
-        return obj.annotations.count()
+        return 'n/a' if obj.resource_type == 'Default' else obj.annotations_count
 
 
 class AnnotationsAdmin(NonLoggingAdmin):
@@ -303,12 +322,7 @@ class UnpublishedRevisionAdmin(NonLoggingAdmin):
     list_filter = [CasebookIdFilter, 'field']
 
     def the_draft(self, obj):
-        return format_html(
-            '<a href="{}">{} ({})</a>',
-            reverse('admin:main_casebook_change', args=(obj.casebook.id,)),
-            obj.casebook.get_title(),
-            obj.casebook.id
-        )
+        edit_link(obj.casebook, True)
     the_draft.admin_order_field = 'casebook'
 
     def parent(self, obj):
@@ -334,7 +348,6 @@ class CaseAdmin(NonLoggingAdmin):
     search_fields = ['name_abbreviation', 'name']
     raw_id_fields = ['case_court']
 
-
     def formfield_for_dbfield(self, db_field, **kwargs):
         formfield = super().formfield_for_dbfield(db_field, **kwargs)
         if db_field.name == 'content':
@@ -351,12 +364,7 @@ class CaseAdmin(NonLoggingAdmin):
     capapi_link.short_description = 'capapi id'
 
     def court_link(self, obj):
-        if obj.case_court:
-            return format_html(
-                '<a href="{}">{}</a>',
-                reverse('admin:main_casecourt_change', args=(obj.case_court.id,)),
-                obj.case_court.id
-            )
+        edit_link(obj.case_court)
     court_link.short_description = 'court'
     court_link.admin_order_field = 'case_court'
 
@@ -379,13 +387,7 @@ class DefaultAdmin(NonLoggingAdmin):
     fields = ['name', 'url', 'description', 'public', 'created_at', 'updated_at', 'content_type', 'user', 'ancestry', 'created_via_import']
 
     def user_link(self, obj):
-        if obj.user:
-            return format_html(
-                '<a href="{}">{} ({})</a>',
-                reverse('admin:main_user_change', args=(obj.user.id,)),
-                obj.user.display_name,
-                obj.user.id
-            )
+        edit_link(obj.user, True)
     user_link.short_description = 'user'
 
     def related_resources(self, obj):
@@ -412,13 +414,7 @@ class TextBlockAdmin(NonLoggingAdmin):
         return formfield
 
     def user_link(self, obj):
-        if obj.user:
-            return format_html(
-                '<a href="{}">{} ({})</a>',
-                reverse('admin:main_user_change', args=(obj.user.id,)),
-                obj.user.display_name,
-                obj.user.id
-            )
+        edit_link(obj.user, True)
     user_link.short_description = 'user'
 
     def related_resources(self, obj):
@@ -439,8 +435,11 @@ class UserAdmin(NonLoggingAdmin):
     fields = ['title', 'attribution', 'login', 'email_address', 'verified_email', 'professor_verification_requested', 'verified_professor', 'affiliation', 'last_request_at', 'last_login_at', 'login_count', 'created_at', 'updated_at']
     inlines = [RolesUserInline]
 
+    def get_queryset(self, request):
+        return super().get_queryset(request).prefetch_related('roles')
+
     def get_roles(self, obj):
-        return ','.join(str(o) for o in obj.roles.distinct('name')) or None
+        return ','.join(str(o) for o in set(r.name for r in obj.roles.all())) or None
     get_roles.short_description = 'Roles'
 
 

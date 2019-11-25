@@ -35,11 +35,13 @@ urlpatterns = format_suffix_patterns(drf_urlpatterns) + [
     path('casebooks/<idslug:casebook_param>/resources/<ordslug:resource_param>/layout/', RedirectView.as_view(pattern_name='resource', permanent=True)),
     path('casebooks/<idslug:casebook_param>/resources/<ordslug:resource_param>/edit/', views.edit_resource, name='edit_resource'),
     path('casebooks/<idslug:casebook_param>/resources/<ordslug:resource_param>/annotate/', views.annotate_resource, name='annotate_resource'),
-    path('casebooks/<idslug:casebook_param>/resources/<ordslug:resource_param>/', views.resource, name='resource'),
+    path('casebooks/<idslug:casebook_param>/resources/<ordslug:resource_param>/', views.ResourceView.as_view(), name='resource'),
+    path('casebooks/<idslug:casebook_param>/resources/<ordslug:resource_param>', no_perms_test(views.ResourceView.as_view())),
     # sections
     path('casebooks/<idslug:casebook_param>/sections/<ordslug:section_param>/layout/', views.edit_section, name='edit_section'),
     path('casebooks/<idslug:casebook_param>/sections/<ordslug:section_param>/edit/', RedirectView.as_view(pattern_name='edit_section', permanent=True)),
-    path('casebooks/<idslug:casebook_param>/sections/<ordslug:section_param>/', views.section, name='section'),
+    path('casebooks/<idslug:casebook_param>/sections/<ordslug:section_param>/', views.SectionView.as_view(), name='section'),
+    path('casebooks/<idslug:casebook_param>/sections/<ordslug:section_param>', no_perms_test(views.SectionView.as_view())),
     # sections and resources
     path('casebooks/<idslug:casebook_param>/sections', views.new_section_or_resource, name='new_section_or_resource'),
     # reordering nodes

@@ -10,13 +10,14 @@ from django.contrib.auth.models import AnonymousUser
 from django.contrib.postgres.fields import JSONField, ArrayField
 from django.contrib.postgres.indexes import GinIndex
 from django.db import models, transaction
-from django.db.models import Q
+from django.db.models import Q, Prefetch
 from django.template.defaultfilters import truncatechars
 from django.template.loader import render_to_string
 from django.urls import reverse
+from django.utils.functional import cached_property
+from django.utils.html import format_html
 from django.utils.safestring import mark_safe
 from django.utils.text import slugify
-import django.utils.html
 import lxml.etree
 import lxml.sax
 from pyquery import PyQuery
@@ -24,6 +25,8 @@ from pytest import raises
 
 from .differ import AnnotationUpdater
 from test.test_helpers import dump_casebook_outline, dump_content_tree, dump_annotated_text, dump_content_tree_children
+from pytest import raises as assert_raises
+
 from .utils import clone_model_instance, fix_after_rails, sanitize, fix_before_deploy, parse_html_fragment, \
     remove_empty_tags, inner_html, block_level_elements, void_elements
 
@@ -300,7 +303,7 @@ class ContentAnnotation(TimestampedModel, BigPkModel):
     global_end_offset = models.IntegerField(blank=True, null=True)
 
     resource = models.ForeignKey(
-        'ContentNode',
+        'Resource',
         on_delete=models.CASCADE,
         related_name='annotations',
     )
@@ -386,9 +389,11 @@ class ContentCollaborator(TimestampedModel, BigPkModel):
         null=True,
         db_constraint=False
     )
+    # This is marked "on_delete=models.DO_NOTHING" to avoid unnecessary queries when deleting Sections and Resources....
+    # We make sure to delete unneeded ContentCollaborator rows in the Casebook.delete method.
     content = models.ForeignKey(
         'ContentNode',
-        on_delete=models.CASCADE,
+        on_delete=models.DO_NOTHING,
         blank=True,
         null=True
     )
@@ -469,6 +474,10 @@ class ContentNodeQueryset(models.QuerySet):
                     content_node._resource = resources.get((content_node.resource_type, content_node.resource_id))
                     content_node._resource_prefetched = True
 
+    def prefetch_draft(self):
+        """ Populate the _drafts queryset so it can be read by casebook.draft """
+        return self.prefetch_related(Prefetch('clones', Casebook.objects.filter(draft_mode_of_published_casebook=True), '_drafts'))
+
 
 class ContentNode(TimestampedModel, BigPkModel):
     title = models.CharField(max_length=10000, blank=True, null=True)
@@ -508,9 +517,11 @@ class ContentNode(TimestampedModel, BigPkModel):
 
     # sections and resources only
     ordinals = ArrayField(models.IntegerField(), default=list)
+    # This is marked "on_delete=models.DO_NOTHING" to avoid unnecessary queries when deleting Sections and Resources....
+    # We make sure to delete Casebook contents in the Casebook.delete method.
     casebook = models.ForeignKey(
         'Casebook',
-        on_delete=models.CASCADE,
+        on_delete=models.DO_NOTHING,
         blank=True,
         null=True,
         related_name='contents'
@@ -688,7 +699,6 @@ class ContentNode(TimestampedModel, BigPkModel):
         prefix = self.ordinals if self.ordinals else []
         return prefix + [len(self.content_tree__children) + 1]
 
-
     def content_tree__move_to(self, new_ordinals):
         """
             Move this node to a new place in the content tree. This is the main entrypoint for content tree work; the
@@ -797,6 +807,18 @@ class ContentNode(TimestampedModel, BigPkModel):
         # save results
         common_parent_node.content_tree__store()
         self.ordinals = moved_node.ordinals
+
+    def content_tree__repair(self):
+        """
+            For more complete tests, see Section.delete and Resource.delete
+
+            >>> assert_num_queries, casebook = [getfixture(f) for f in ['assert_num_queries', 'full_casebook']]
+
+            >>> with assert_num_queries(select=1, update=1):
+            ...     casebook.content_tree__repair()
+        """
+        self.content_tree__load()
+        self.content_tree__store()
 
     ## content tree: pre-fetching
     # For query efficiency, content trees must be prefetched by content_tree__load() before most methods will work.
@@ -1166,6 +1188,17 @@ class CasebookAndSectionMixin(models.Model):
             return self.get_edit_url()
         return self.get_absolute_url()
 
+    def _delete_related_links_and_text_blocks(self):
+        """
+            A private utility for efficiently deleting associated Link and TextBlock objects.
+        """
+        to_delete = {Default: [], TextBlock: []}
+        for resource in self.contents.prefetch_resources():
+            if resource.resource_id and resource.resource_type in ('Default', 'TextBlock'):
+                to_delete[type(resource.resource)].append(resource.resource_id)
+        for cls, ids in to_delete.items():
+            cls.objects.filter(id__in=ids).delete()
+
 
 class SectionAndResourceMixin(models.Model):
     """
@@ -1173,6 +1206,133 @@ class SectionAndResourceMixin(models.Model):
     """
     class Meta:
         abstract = True
+
+    def delete(self, *args, **kwargs):
+        """
+            Override delete, to ensure the tree is re-ordered afterwards,
+            and to clean up now-unused TextBlock and Default/Link resources.
+
+            Given:
+            >>> full_casebook_parts_factory, assert_num_queries = [getfixture(i) for i in ['full_casebook_parts_factory','assert_num_queries']]
+
+            # Sections
+            >>> casebook, s_1, r_1_1, r_1_2, r_1_3, s_1_4, r_1_4_1, r_1_4_2, r_1_4_3, s_2 = full_casebook_parts_factory()
+
+            Delete a section in a section (and children, including one case, one text block, and one link/default), no reordering required:
+            >>> with assert_num_queries(delete=6, select=9, update=1):
+            ...     deleted = s_1_4.delete()
+            >>> assert deleted == (1, {'main.ContentAnnotation': 0, 'main.Section': 1})
+            >>> assert dump_content_tree(casebook) == [
+            ...         [s_1, casebook, [
+            ...             [r_1_1, s_1, []],
+            ...             [r_1_2, s_1, []],
+            ...             [r_1_3, s_1, []],
+            ...         ]],
+            ...         [s_2, casebook, []],
+            ... ]
+            >>> for node in [s_1_4, r_1_4_1, r_1_4_2, r_1_4_3]:
+            ...     with assert_raises(ContentNode.DoesNotExist):
+            ...         node.refresh_from_db()
+
+            Delete the first section in the book (and children, including one case, one text block, and one link/default), triggering reordering:
+            >>> with assert_num_queries(delete=6, select=8, update=1):
+            ...     deleted = s_1.delete()
+            >>> assert deleted == (1, {'main.ContentAnnotation': 0, 'main.Section': 1})
+            >>> assert dump_content_tree(casebook) == [
+            ...         [s_2, casebook, []],
+            ... ]
+            >>> for node in [s_1, r_1_1, r_1_2, r_1_3]:
+            ...     with assert_raises(ContentNode.DoesNotExist):
+            ...         node.refresh_from_db()
+            >>> s_2.refresh_from_db()
+            >>> assert s_2.ordinals == [1]
+
+            # Resources
+            >>> casebook, s_1, r_1_1, r_1_2, r_1_3, s_1_4, r_1_4_1, r_1_4_2, r_1_4_3, s_2 = getfixture('full_casebook_parts')
+
+            Delete a case resource in the middle of a section:
+            >>> with assert_num_queries(delete=2, select=3, update=1):
+            ...     deleted = r_1_2.delete()
+            >>> assert deleted == (3, {'main.Resource': 1, 'main.ContentAnnotation': 2})
+            >>> assert dump_content_tree(casebook) == [
+            ...     [s_1, casebook, [
+            ...         [r_1_1, s_1, []],
+            ...         [r_1_3, s_1, []],
+            ...         [s_1_4, s_1, [
+            ...             [r_1_4_1, s_1_4, []],
+            ...             [r_1_4_2, s_1_4, []],
+            ...             [r_1_4_3, s_1_4, []],
+            ...         ]],
+            ...     ]],
+            ...     [s_2, casebook, []],
+            ... ]
+            >>> with assert_raises(Resource.DoesNotExist):
+            ...     r_1_2.refresh_from_db()
+            >>> r_1_3.refresh_from_db()
+            >>> s_1_4.refresh_from_db()
+            >>> assert all([r_1_1.ordinals == [1,1], r_1_3.ordinals == [1,2], s_1_4.ordinals == [1,3]])
+
+            Delete a text resource at the beginning of a section:
+            >>> r_1_4_1.refresh_from_db()
+            >>> with assert_num_queries(delete=3, select=5, update=1):
+            ...     deleted = r_1_4_1.delete()
+            >>> assert deleted == (1, {'main.Resource': 1, 'main.ContentAnnotation': 0})
+            >>> assert dump_content_tree(casebook) == [
+            ...     [s_1, casebook, [
+            ...         [r_1_1, s_1, []],
+            ...         [r_1_3, s_1, []],
+            ...         [s_1_4, s_1, [
+            ...             [r_1_4_2, s_1_4, []],
+            ...             [r_1_4_3, s_1_4, []],
+            ...         ]],
+            ...     ]],
+            ...     [s_2, casebook, []],
+            ... ]
+            >>> with assert_raises(Resource.DoesNotExist):
+            ...     r_1_4_1.refresh_from_db()
+
+            Delete a link/default resource at the end of a section:
+            >>> r_1_4_3.refresh_from_db()
+            >>> with assert_num_queries(delete=3, select=5, update=1):
+            ...     deleted = r_1_4_3.delete()
+            >>> assert deleted == (1, {'main.Resource': 1, 'main.ContentAnnotation': 0})
+            >>> assert dump_content_tree(casebook) == [
+            ...     [s_1, casebook, [
+            ...         [r_1_1, s_1, []],
+            ...         [r_1_3, s_1, []],
+            ...         [s_1_4, s_1, [
+            ...             [r_1_4_2, s_1_4, []],
+            ...         ]],
+            ...     ]],
+            ...     [s_2, casebook, []],
+            ... ]
+            >>> with assert_raises(Resource.DoesNotExist):
+            ...     r_1_4_3.refresh_from_db()
+
+        """
+        # Find this nodes's parent
+        ordinals_of_parent = self.ordinals[:-1]
+        if ordinals_of_parent:
+            parent = ContentNode.objects.get(casebook=self.casebook, ordinals=ordinals_of_parent)
+        else:
+            parent = self.casebook
+
+        # Delete this nodes's children, and any related links and textblocks,
+        # without recursively calling our custom Section.delete and Resource.delete methods
+        # https://docs.djangoproject.com/en/2.2/topics/db/queries/#deleting-objects
+        if type(self) is Section:
+            self._delete_related_links_and_text_blocks()
+            self.contents.delete()
+        elif self.resource_type in ['TextBlock', 'Default']:
+            self.resource.delete()
+
+        # Delete this node
+        return_value = super().delete(*args, **kwargs)
+
+        # Update the ordinals of the content tree
+        parent.content_tree__repair()
+
+        return return_value
 
     @property
     def is_public(self):
@@ -1240,7 +1400,7 @@ class SectionAndResourceMixin(models.Model):
         return self.casebook.owner
 
 
-class CasebookManager(models.Manager):
+class CasebookManager(models.Manager.from_queryset(ContentNodeQueryset)):
     def get_queryset(self):
         return super().get_queryset().filter(casebook__isnull=True)
 
@@ -1250,6 +1410,43 @@ class Casebook(CasebookAndSectionMixin, ContentNode):
         proxy = True
 
     objects = CasebookManager()
+
+    def delete(self, *args, **kwargs):
+        """
+            Override delete, to ensure that a Casebook is deleted in its entirety.
+
+            Casebook contents and ContentCollaborators would normally be deleted by setting
+            Django's `on_delete` attribute to CASCADE, but since we don't want this
+            behavior during the deletion of all ContentNode objects, only of Casebooks,
+            we have to take care of it manually.
+
+            Similarly, the manual deletion of related Links/Defaults and TextBlocks is due to
+            limitations in our current data model, where Resource objects are not
+            tied to their related Case/TextBlock/Default objects via foreign keys.
+
+            Given:
+            >>> assert_num_queries = getfixture('assert_num_queries')
+            >>> nodes = getfixture('full_casebook_parts_with_draft')
+            >>> casebook, s_1, r_1_1, r_1_2, r_1_3, s_1_4, r_1_4_1, r_1_4_2, r_1_4_3, s_2 = nodes
+            >>> draft = casebook.draft
+            >>> assert casebook.contentcollaborator_set.count() == 1
+
+            >>> with assert_num_queries(delete=14, select=15):
+            ...     deleted = casebook.delete()
+            >>> assert deleted == (1, {'main.ContentAnnotation': 0, 'main.Casebook': 1})
+            >>> assert casebook.contentcollaborator_set.count() == 0
+            >>> for node in nodes:
+            ...     with assert_raises(ContentNode.DoesNotExist):
+            ...         node.refresh_from_db()
+            >>> with assert_raises(Casebook.DoesNotExist):
+            ...     draft.refresh_from_db()
+        """
+        if self.draft:
+            self.draft.delete()
+        self._delete_related_links_and_text_blocks()
+        self.contents.all().delete()
+        self.contentcollaborator_set.all().delete()
+        return super().delete(*args, **kwargs)
 
     @property
     def sections(self):
@@ -1265,9 +1462,8 @@ class Casebook(CasebookAndSectionMixin, ContentNode):
 
     def get_draft_url(self):
         """See ContentNode.get_draft_url"""
-        draft = self.drafts()
-        if draft:
-            return reverse('edit_casebook', args=[draft])
+        if self.draft:
+            return reverse('edit_casebook', args=[self.draft])
         raise ValueError("This casebook doesn't have a draft.")
 
     def get_edit_url(self):
@@ -1308,12 +1504,18 @@ class Casebook(CasebookAndSectionMixin, ContentNode):
         """See ContentNode.allows_draft_creation_by"""
         return self.is_public and not self.has_draft and self.editable_by(user)
 
-    def drafts(self):
-        """
-            Return first existing draft.
-            TODO: Should this be named "draft"? It only returns one, and logic should ensure that only one ever exists.
-        """
+    @cached_property
+    def draft(self):
+        """ Return the draft copy of this casebook, if it exists, or else None. """
+        if hasattr(self, '_drafts'):
+            # populated by Casebook.objects.prefetch_draft()
+            return self._drafts[0] if self._drafts else None
         return self.clones.filter(draft_mode_of_published_casebook=True).first()
+
+    @cached_property
+    def draft_of(self):
+        """ Return the casebook for which this is a draft, if this is a draft, or else None. """
+        return self.copy_of if self.draft_mode_of_published_casebook else None
 
     def make_draft(self):
         """
@@ -1344,7 +1546,7 @@ class Casebook(CasebookAndSectionMixin, ContentNode):
             Merge draft back into original:
             >>> draft.title = "New Title"
             >>> draft.save()
-            >>> with assert_num_queries(delete=14, select=13, update=3):
+            >>> with assert_num_queries(delete=8, select=11, update=3):
             ...     new_casebook = draft.merge_draft()
             >>> assert new_casebook == full_casebook
             >>> expected = [
@@ -1386,12 +1588,7 @@ class Casebook(CasebookAndSectionMixin, ContentNode):
         parent.save()
 
         # delete old links and textblocks
-        to_delete = {Default: [], TextBlock: []}
-        for resource in parent.contents.prefetch_resources():
-            if resource.resource_id and resource.resource_type in ('Default', 'TextBlock'):
-                to_delete[type(resource.resource)].append(resource.resource_id)
-        for cls, ids in to_delete.items():
-            cls.objects.filter(id__in=ids).delete()
+        parent._delete_related_links_and_text_blocks()
 
         # delete old annotations
         ContentAnnotation.objects.filter(resource__casebook=parent).delete()
@@ -1469,10 +1666,7 @@ class Casebook(CasebookAndSectionMixin, ContentNode):
         """
         # clone casebook
         old_casebook = self
-        cloned_casebook = clone_model_instance(old_casebook)
-        cloned_casebook.copy_of = old_casebook
-        cloned_casebook.public = False
-        cloned_casebook.draft_mode_of_published_casebook = draft_mode
+        cloned_casebook = clone_model_instance(old_casebook, copy_of=old_casebook, public=False, draft_mode_of_published_casebook=(draft_mode or None))
         if old_casebook.ancestry:
             cloned_casebook.ancestry = "{}/{}".format(old_casebook.ancestry, old_casebook.id)
         else:
@@ -1483,9 +1677,7 @@ class Casebook(CasebookAndSectionMixin, ContentNode):
         if owner:
             cloned_casebook.add_collaborator(user=owner, role='owner', has_attribution=True)
         else:
-            roles = [clone_model_instance(c) for c in self.contentcollaborator_set.all()]
-            for role in roles:
-                role.content = cloned_casebook
+            roles = [clone_model_instance(c, content=cloned_casebook) for c in self.contentcollaborator_set.all()]
             ContentCollaborator.objects.bulk_create(roles)
             owner = next(role.user for role in roles if role.role == 'owner')
 
@@ -1495,9 +1687,7 @@ class Casebook(CasebookAndSectionMixin, ContentNode):
         cloned_annotations = []  # collect new ContentAnnotations for bulk_create
         for old_content_node in old_casebook.contents.prefetch_resources().prefetch_related('annotations'):
             # clone content_node
-            cloned_content_node = clone_model_instance(old_content_node)
-            cloned_content_node.copy_of = old_content_node
-            cloned_content_node.casebook = cloned_casebook
+            cloned_content_node = clone_model_instance(old_content_node, copy_of=old_content_node, casebook=cloned_casebook, is_alias=False)
             # TODO: On rails is_alias is set to True by CloneCasebook.clone_resources (in raw sql), and then set to False
             # TODO: again by CloneCasebook.clone_annotations. I think the field is unused in any application logic.
             # TODO: Prod data has about equal parts True, False, and null in this column.
@@ -1509,7 +1699,6 @@ class Casebook(CasebookAndSectionMixin, ContentNode):
             # {'resource'}
             # >>> set(node.type for node in ContentNode.objects.filter(is_alias=None))
             # {'resource', 'casebook', 'section'}
-            cloned_content_node.is_alias = False
             cloned_content_nodes.append(cloned_content_node)
 
             # clone annotations
@@ -1556,7 +1745,8 @@ class Casebook(CasebookAndSectionMixin, ContentNode):
             return self.version_tree__root().owner
 
     def users_with_role(self, role):
-        return self.collaborators.filter(contentcollaborator__role=role)
+        # filter in the client to allow .prefetch_related('contentcollaborator_set__user') to work:
+        return [c.user for c in self.contentcollaborator_set.all() if c.role == role]
 
     @property
     def attributors(self):
@@ -1566,7 +1756,8 @@ class Casebook(CasebookAndSectionMixin, ContentNode):
         TODO: should all owners have attribution?
         TODO: should any editors have attribution?
         """
-        return self.collaborators.filter(contentcollaborator__has_attribution=True).order_by('-contentcollaborator__role')
+        # filter in the client to allow .prefetch_related('contentcollaborator_set__user') to work:
+        return [c.user for c in sorted((c for c in self.contentcollaborator_set.all() if c.has_attribution), key=lambda c: 1 if c.role == 'owner' else 2)]
 
     @property
     def editors(self):
@@ -1579,10 +1770,11 @@ class Casebook(CasebookAndSectionMixin, ContentNode):
 
     @property
     def owner(self):
-        return self.owners.first()
+        return self.owners[0]
 
     def has_collaborator(self, user):
-        return self.collaborators.filter(pk=user.pk).exists()
+        # filter in the client to allow .prefetch_related('contentcollaborator_set__user') to work:
+        return any(c.user_id == user.id for c in self.contentcollaborator_set.all())
 
     def add_collaborator(self, user, **collaborator_kwargs):
         ContentCollaborator.objects.create(user=user, content=self, **collaborator_kwargs)
@@ -2003,7 +2195,7 @@ class Resource(SectionAndResourceMixin, ContentNode):
 
     def footnote_annotations(self):
         return mark_safe("".join(
-            '<span custom-style="Footnote Reference">%s</span> %s ' % ("*" * (i+1), django.utils.html.escape(annotation.content))
+            format_html('<span custom-style="Footnote Reference">{}</span> {} ', "*" * (i+1), annotation.content)
             for i, annotation in enumerate(a for a in self.annotations.all() if a.kind in ('note', 'link'))
         ))
 
@@ -2167,9 +2359,13 @@ class UnpublishedRevision(TimestampedModel, BigPkModel):
     # N.B. in the prod database, these relationships are tracked in Int fields,
     # rather than a BigInt fields, even though these models' primary keys are
     # BigInts. We should consider migrating soon to reconcile this.
+
+    # These foreign keys are marked "on_delete=models.DO_NOTHING" to avoid unnecessary queries when deleting Sections and Resources.
+    # This table is not used by the Django application; we will drop it soon.
+
     node = models.ForeignKey(
         'ContentNode',
-        on_delete=models.CASCADE,
+        on_delete=models.DO_NOTHING,
         related_name='revisions',
         help_text='Node in the draft.',
         blank=True,
@@ -2179,7 +2375,7 @@ class UnpublishedRevision(TimestampedModel, BigPkModel):
     )
     node_parent = models.ForeignKey(
         'ContentNode',
-        on_delete=models.CASCADE,
+        on_delete=models.DO_NOTHING,
         related_name='draft_revisions',
         help_text='Corresponding node in the original, published casebook.',
         blank=True,
@@ -2190,7 +2386,7 @@ class UnpublishedRevision(TimestampedModel, BigPkModel):
     # I'm not sure why this is stored separately; redundant with node?
     casebook = models.ForeignKey(
         'Casebook',
-        on_delete=models.CASCADE,
+        on_delete=models.DO_NOTHING,
         related_name='casebook_revisions',
         help_text='The draft casebook.',
         blank=True,
@@ -2203,7 +2399,7 @@ class UnpublishedRevision(TimestampedModel, BigPkModel):
         'ContentAnnotation',
         blank=True,
         null=True,
-        on_delete=models.CASCADE,
+        on_delete=models.DO_NOTHING,
         db_constraint=False,
         db_index=False
     )
@@ -2322,7 +2518,7 @@ class User(NullableTimestampedModel):
     def has_role(self, role):
         return self.roles.filter(name=role).exists()
 
-    @property
+    @cached_property
     def is_superadmin(self):
         return self.has_role('superadmin')
 

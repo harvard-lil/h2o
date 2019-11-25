@@ -42,6 +42,9 @@ def path_lookup():
     out = {}
     exact_paths = []
 
+    # sort oldest to newest, so we overwrite older answers with new ones and return the newest version of each file
+    paths = sorted(paths, key=lambda p: p.stat().st_mtime)
+
     # add all paths with hashes stripped
     for path in paths:
         path = str(path).split(settings.WHITENOISE_ROOT, 1)[1].lstrip('/')
