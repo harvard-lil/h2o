@@ -137,32 +137,32 @@ main > header.casebook {
       background-position: 4px center;
     }
     &.add-resource {
-      background-image: url('~assets/images/ui/casebook/add-material.png');
+      background-image: url('~assets/images/ui/casebook/add-material.svg');
     }
     &.add-section {
-      background-image: url('~assets/images/ui/casebook/add-section.png');
+      background-image: url('~assets/images/ui/casebook/add-section.svg');
     }
     &.publish {
-      background-image: url('~assets/images/ui/casebook/publish.png');
+      background-image: url('~assets/images/ui/casebook/publish.svg');
     }
     &.clone-casebook {
-      background-image: url('~assets/images/ui/casebook/clone.png');
+      background-image: url('~assets/images/ui/casebook/clone.svg');
       border: none;
     }
     &.export {
-      background-image: url('~assets/images/ui/casebook/export.png');
+      background-image: url('~assets/images/ui/casebook/export.svg');
     }
     &.more, &.preview {
-      background-image: url('~assets/images/ui/casebook/more.png');
+      background-image: url('~assets/images/ui/casebook/preview.svg');
     }
     &.edit {
-      background-image: url('~assets/images/ui/casebook/edit-icon.png');
+      background-image: url('~assets/images/ui/casebook/edit-icon.svg');
     }
     &.save {
-      background-image: url('~assets/images/ui/casebook/save-icon.png');
+      background-image: url('~assets/images/ui/casebook/save-icon.svg');
     }
     &.cancel {
-      background-image: url('~assets/images/ui/casebook/cancel-icon.png');
+      background-image: url('~assets/images/ui/casebook/cancel-icon.svg');
     }
   }
 }
