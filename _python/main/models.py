@@ -1666,7 +1666,7 @@ class Casebook(CasebookAndSectionMixin, ContentNode):
         """
         # clone casebook
         old_casebook = self
-        cloned_casebook = clone_model_instance(old_casebook, copy_of=old_casebook, public=False, draft_mode_of_published_casebook=draft_mode)
+        cloned_casebook = clone_model_instance(old_casebook, copy_of=old_casebook, public=False, draft_mode_of_published_casebook=(draft_mode or None))
         if old_casebook.ancestry:
             cloned_casebook.ancestry = "{}/{}".format(old_casebook.ancestry, old_casebook.id)
         else:
