@@ -10,13 +10,14 @@ from django.contrib.auth.models import AnonymousUser
 from django.contrib.postgres.fields import JSONField, ArrayField
 from django.contrib.postgres.indexes import GinIndex
 from django.db import models, transaction
-from django.db.models import Q
+from django.db.models import Q, Prefetch
 from django.template.defaultfilters import truncatechars
 from django.template.loader import render_to_string
 from django.urls import reverse
+from django.utils.functional import cached_property
+from django.utils.html import format_html
 from django.utils.safestring import mark_safe
 from django.utils.text import slugify
-import django.utils.html
 import lxml.etree
 import lxml.sax
 from pyquery import PyQuery
@@ -472,6 +473,10 @@ class ContentNodeQueryset(models.QuerySet):
                 if content_node.resource_id:
                     content_node._resource = resources.get((content_node.resource_type, content_node.resource_id))
                     content_node._resource_prefetched = True
+
+    def prefetch_draft(self):
+        """ Populate the _drafts queryset so it can be read by casebook.draft """
+        return self.prefetch_related(Prefetch('clones', Casebook.objects.filter(draft_mode_of_published_casebook=True), '_drafts'))
 
 
 class ContentNode(TimestampedModel, BigPkModel):
@@ -1257,7 +1262,7 @@ class SectionAndResourceMixin(models.Model):
         return self.casebook.owner
 
 
-class CasebookManager(models.Manager):
+class CasebookManager(models.Manager.from_queryset(ContentNodeQueryset)):
     def get_queryset(self):
         return super().get_queryset().filter(casebook__isnull=True)
 
@@ -1310,9 +1315,8 @@ class Casebook(CasebookAndSectionMixin, ContentNode):
 
     def get_draft_url(self):
         """See ContentNode.get_draft_url"""
-        draft = self.drafts()
-        if draft:
-            return reverse('edit_casebook', args=[draft])
+        if self.draft:
+            return reverse('edit_casebook', args=[self.draft])
         raise ValueError("This casebook doesn't have a draft.")
 
     def get_edit_url(self):
@@ -1353,12 +1357,18 @@ class Casebook(CasebookAndSectionMixin, ContentNode):
         """See ContentNode.allows_draft_creation_by"""
         return self.is_public and not self.has_draft and self.editable_by(user)
 
-    def drafts(self):
-        """
-            Return first existing draft.
-            TODO: Should this be named "draft"? It only returns one, and logic should ensure that only one ever exists.
-        """
+    @cached_property
+    def draft(self):
+        """ Return the draft copy of this casebook, if it exists, or else None. """
+        if hasattr(self, '_drafts'):
+            # populated by Casebook.objects.prefetch_draft()
+            return self._drafts[0] if self._drafts else None
         return self.clones.filter(draft_mode_of_published_casebook=True).first()
+
+    @cached_property
+    def draft_of(self):
+        """ Return the casebook for which this is a draft, if this is a draft, or else None. """
+        return self.copy_of if self.draft_mode_of_published_casebook else None
 
     def make_draft(self):
         """
@@ -1514,10 +1524,7 @@ class Casebook(CasebookAndSectionMixin, ContentNode):
         """
         # clone casebook
         old_casebook = self
-        cloned_casebook = clone_model_instance(old_casebook)
-        cloned_casebook.copy_of = old_casebook
-        cloned_casebook.public = False
-        cloned_casebook.draft_mode_of_published_casebook = draft_mode
+        cloned_casebook = clone_model_instance(old_casebook, copy_of=old_casebook, public=False, draft_mode_of_published_casebook=draft_mode)
         if old_casebook.ancestry:
             cloned_casebook.ancestry = "{}/{}".format(old_casebook.ancestry, old_casebook.id)
         else:
@@ -1528,9 +1535,7 @@ class Casebook(CasebookAndSectionMixin, ContentNode):
         if owner:
             cloned_casebook.add_collaborator(user=owner, role='owner', has_attribution=True)
         else:
-            roles = [clone_model_instance(c) for c in self.contentcollaborator_set.all()]
-            for role in roles:
-                role.content = cloned_casebook
+            roles = [clone_model_instance(c, content=cloned_casebook) for c in self.contentcollaborator_set.all()]
             ContentCollaborator.objects.bulk_create(roles)
             owner = next(role.user for role in roles if role.role == 'owner')
 
@@ -1540,9 +1545,7 @@ class Casebook(CasebookAndSectionMixin, ContentNode):
         cloned_annotations = []  # collect new ContentAnnotations for bulk_create
         for old_content_node in old_casebook.contents.prefetch_resources().prefetch_related('annotations'):
             # clone content_node
-            cloned_content_node = clone_model_instance(old_content_node)
-            cloned_content_node.copy_of = old_content_node
-            cloned_content_node.casebook = cloned_casebook
+            cloned_content_node = clone_model_instance(old_content_node, copy_of=old_content_node, casebook=cloned_casebook, is_alias=False)
             # TODO: On rails is_alias is set to True by CloneCasebook.clone_resources (in raw sql), and then set to False
             # TODO: again by CloneCasebook.clone_annotations. I think the field is unused in any application logic.
             # TODO: Prod data has about equal parts True, False, and null in this column.
@@ -1554,7 +1557,6 @@ class Casebook(CasebookAndSectionMixin, ContentNode):
             # {'resource'}
             # >>> set(node.type for node in ContentNode.objects.filter(is_alias=None))
             # {'resource', 'casebook', 'section'}
-            cloned_content_node.is_alias = False
             cloned_content_nodes.append(cloned_content_node)
 
             # clone annotations
@@ -1601,7 +1603,8 @@ class Casebook(CasebookAndSectionMixin, ContentNode):
             return self.version_tree__root().owner
 
     def users_with_role(self, role):
-        return self.collaborators.filter(contentcollaborator__role=role)
+        # filter in the client to allow .prefetch_related('contentcollaborator_set__user') to work:
+        return [c.user for c in self.contentcollaborator_set.all() if c.role == role]
 
     @property
     def attributors(self):
@@ -1611,7 +1614,8 @@ class Casebook(CasebookAndSectionMixin, ContentNode):
         TODO: should all owners have attribution?
         TODO: should any editors have attribution?
         """
-        return self.collaborators.filter(contentcollaborator__has_attribution=True).order_by('-contentcollaborator__role')
+        # filter in the client to allow .prefetch_related('contentcollaborator_set__user') to work:
+        return [c.user for c in sorted((c for c in self.contentcollaborator_set.all() if c.has_attribution), key=lambda c: 1 if c.role == 'owner' else 2)]
 
     @property
     def editors(self):
@@ -1624,10 +1628,11 @@ class Casebook(CasebookAndSectionMixin, ContentNode):
 
     @property
     def owner(self):
-        return self.owners.first()
+        return self.owners[0]
 
     def has_collaborator(self, user):
-        return self.collaborators.filter(pk=user.pk).exists()
+        # filter in the client to allow .prefetch_related('contentcollaborator_set__user') to work:
+        return any(c.user_id == user.id for c in self.contentcollaborator_set.all())
 
     def add_collaborator(self, user, **collaborator_kwargs):
         ContentCollaborator.objects.create(user=user, content=self, **collaborator_kwargs)
@@ -2174,7 +2179,7 @@ class Resource(SectionAndResourceMixin, ContentNode):
 
     def footnote_annotations(self):
         return mark_safe("".join(
-            '<span custom-style="Footnote Reference">%s</span> %s ' % ("*" * (i+1), django.utils.html.escape(annotation.content))
+            format_html('<span custom-style="Footnote Reference">{}</span> {} ', "*" * (i+1), annotation.content)
             for i, annotation in enumerate(a for a in self.annotations.all() if a.kind in ('note', 'link'))
         ))
 
@@ -2497,7 +2502,7 @@ class User(NullableTimestampedModel):
     def has_role(self, role):
         return self.roles.filter(name=role).exists()
 
-    @property
+    @cached_property
     def is_superadmin(self):
         return self.has_role('superadmin')
 

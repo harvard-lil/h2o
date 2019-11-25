@@ -112,7 +112,7 @@ def actions(request, context):
         >>> private_resource = private.resources.first()
         >>> with_draft_section = with_draft.sections.first()
         >>> with_draft_resource = with_draft.resources.first()
-        >>> draft = with_draft.drafts()
+        >>> draft = with_draft.draft
         >>> draft_section = draft.sections.first()
         >>> draft_resource = draft.resources.first()
 
@@ -262,7 +262,7 @@ class AnnotationListView(APIView):
 
     @method_decorator(perms_test(
         {'args': ['resource'], 'results': {200: ['resource.casebook.owner', 'other_user', 'admin_user', None]}},
-        {'args': ['full_casebook_with_draft.drafts.resources.first'], 'results': {200: ['full_casebook_with_draft.drafts.owner', 'admin_user'], 403: ['other_user'], 'login': [None]}},
+        {'args': ['full_casebook_with_draft.draft.resources.first'], 'results': {200: ['full_casebook_with_draft.draft.owner', 'admin_user'], 403: ['other_user'], 'login': [None]}},
     ))
     @method_decorator(user_has_perm('resource', 'viewable_by'))
     def get(self, request, resource, format=None):
@@ -614,7 +614,7 @@ def edit_casebook(request, casebook):
     """
         Given:
         >>> private, with_draft, client = [getfixture(f) for f in ['full_private_casebook', 'full_casebook_with_draft', 'client']]
-        >>> draft = with_draft.drafts()
+        >>> draft = with_draft.draft
 
         Users can edit their unpublished and draft casebooks:
         >>> for book in [private, draft]:
@@ -804,7 +804,7 @@ class SectionView(View):
             >>> published, private, with_draft, client = [getfixture(f) for f in ['full_casebook', 'full_private_casebook', 'full_casebook_with_draft', 'client']]
             >>> published_section = published.sections.first()
             >>> private_section = private.sections.first()
-            >>> draft_section = with_draft.drafts().sections.first()
+            >>> draft_section = with_draft.draft.sections.first()
 
             All users can see sections in public casebooks:
             >>> check_response(client.get(published_section.get_absolute_url(), content_includes=published_section.title))
@@ -839,7 +839,7 @@ class SectionView(View):
             Given:
             >>> private, with_draft, client = [getfixture(f) for f in ['full_private_casebook', 'full_casebook_with_draft', 'client']]
             >>> private_section = private.sections.first()
-            >>> draft_section = with_draft.drafts().sections.first()
+            >>> draft_section = with_draft.draft.sections.first()
 
             Users can delete sections in their unpublished and draft casebooks:
             >>> for section in [private_section, draft_section]:
@@ -866,7 +866,7 @@ def edit_section(request, casebook, section):
         Given:
         >>> private, with_draft, client = [getfixture(f) for f in ['full_private_casebook', 'full_casebook_with_draft', 'client']]
         >>> private_section = private.sections.first()
-        >>> draft_section = with_draft.drafts().sections.first()
+        >>> draft_section = with_draft.draft.sections.first()
 
         Users can edit sections in their unpublished and draft casebooks:
         >>> for section in [private_section, draft_section]:
@@ -909,7 +909,7 @@ class ResourceView(View):
             >>> published, private, with_draft, client = [getfixture(f) for f in ['full_casebook', 'full_private_casebook', 'full_casebook_with_draft', 'client']]
             >>> published_resource = published.resources.first()
             >>> private_resource = private.resources.first()
-            >>> draft_resource = with_draft.drafts().resources.first()
+            >>> draft_resource = with_draft.draft.resources.first()
 
             All users can see resources in public casebooks:
             >>> check_response(client.get(published_resource.get_absolute_url(), content_includes=published_resource.title))
@@ -948,7 +948,7 @@ class ResourceView(View):
             Given:
             >>> private, with_draft, client = [getfixture(f) for f in ['full_private_casebook', 'full_casebook_with_draft', 'client']]
             >>> private_resource = private.resources.first()
-            >>> draft_resource = with_draft.drafts().resources.first()
+            >>> draft_resource = with_draft.draft.resources.first()
 
             Users can delete resources in their unpublished and draft casebooks:
             >>> for resource in [private_resource, draft_resource]:
@@ -974,7 +974,7 @@ def edit_resource(request, casebook, resource):
 
         Given:
         >>> private, with_draft, client = [getfixture(f) for f in ['full_private_casebook', 'full_casebook_with_draft', 'client']]
-        >>> draft = with_draft.drafts()
+        >>> draft = with_draft.draft
         >>> private_resources = {'TextBlock': private.contents.all()[1], 'Case': private.contents.all()[2], 'Default': private.contents.all()[3]}
         >>> draft_resources = {'TextBlock': draft.contents.all()[1], 'Case': draft.contents.all()[2], 'Default': draft.contents.all()[3]}
 
