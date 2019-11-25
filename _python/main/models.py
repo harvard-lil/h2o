@@ -1579,12 +1579,7 @@ class Casebook(CasebookAndSectionMixin, ContentNode):
         parent.save()
 
         # delete old links and textblocks
-        to_delete = {Default: [], TextBlock: []}
-        for resource in parent.contents.prefetch_resources():
-            if resource.resource_id and resource.resource_type in ('Default', 'TextBlock'):
-                to_delete[type(resource.resource)].append(resource.resource_id)
-        for cls, ids in to_delete.items():
-            cls.objects.filter(id__in=ids).delete()
+        parent._delete_related_links_and_text_blocks()
 
         # delete old annotations
         ContentAnnotation.objects.filter(resource__casebook=parent).delete()
