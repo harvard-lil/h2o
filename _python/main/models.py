@@ -24,6 +24,8 @@ from pytest import raises
 
 from .differ import AnnotationUpdater
 from test.test_helpers import dump_casebook_outline, dump_content_tree, dump_annotated_text, dump_content_tree_children
+from pytest import raises as assert_raises
+
 from .utils import clone_model_instance, fix_after_rails, sanitize, fix_before_deploy, parse_html_fragment, \
     remove_empty_tags, inner_html, block_level_elements, void_elements
 
@@ -300,7 +302,7 @@ class ContentAnnotation(TimestampedModel, BigPkModel):
     global_end_offset = models.IntegerField(blank=True, null=True)
 
     resource = models.ForeignKey(
-        'ContentNode',
+        'Resource',
         on_delete=models.CASCADE,
         related_name='annotations',
     )
@@ -386,9 +388,11 @@ class ContentCollaborator(TimestampedModel, BigPkModel):
         null=True,
         db_constraint=False
     )
+    # This is marked "on_delete=models.DO_NOTHING" to avoid unnecessary queries when deleting Sections and Resources....
+    # We make sure to delete unneeded ContentCollaborator rows in the Casebook.delete method.
     content = models.ForeignKey(
         'ContentNode',
-        on_delete=models.CASCADE,
+        on_delete=models.DO_NOTHING,
         blank=True,
         null=True
     )
@@ -508,9 +512,11 @@ class ContentNode(TimestampedModel, BigPkModel):
 
     # sections and resources only
     ordinals = ArrayField(models.IntegerField(), default=list)
+    # This is marked "on_delete=models.DO_NOTHING" to avoid unnecessary queries when deleting Sections and Resources....
+    # We make sure to delete Casebook contents in the Casebook.delete method.
     casebook = models.ForeignKey(
         'Casebook',
-        on_delete=models.CASCADE,
+        on_delete=models.DO_NOTHING,
         blank=True,
         null=True,
         related_name='contents'
@@ -688,7 +694,6 @@ class ContentNode(TimestampedModel, BigPkModel):
         prefix = self.ordinals if self.ordinals else []
         return prefix + [len(self.content_tree__children) + 1]
 
-
     def content_tree__move_to(self, new_ordinals):
         """
             Move this node to a new place in the content tree. This is the main entrypoint for content tree work; the
@@ -797,6 +802,18 @@ class ContentNode(TimestampedModel, BigPkModel):
         # save results
         common_parent_node.content_tree__store()
         self.ordinals = moved_node.ordinals
+
+    def content_tree__repair(self):
+        """
+            For more complete tests, see Section.delete and Resource.delete
+
+            >>> assert_num_queries, casebook = [getfixture(f) for f in ['assert_num_queries', 'full_casebook']]
+
+            >>> with assert_num_queries(select=1, update=1):
+            ...     casebook.content_tree__repair()
+        """
+        self.content_tree__load()
+        self.content_tree__store()
 
     ## content tree: pre-fetching
     # For query efficiency, content trees must be prefetched by content_tree__load() before most methods will work.
@@ -1251,6 +1268,34 @@ class Casebook(CasebookAndSectionMixin, ContentNode):
 
     objects = CasebookManager()
 
+    def delete(self, *args, **kwargs):
+        """
+            Override delete, to ensure that a Casebook's contents and ContentCollaborators
+            are deleted.
+
+            This would normally be achieved by setting Django's `on_delete`
+            attribute to CASCADE, but since we don't want this behavior during
+            the deletion of all ContentNode objects, only of Casebooks, we have
+            to take care of it manually.
+
+            Given:
+            >>> assert_num_queries = getfixture('assert_num_queries')
+            >>> nodes = getfixture('full_casebook_parts')
+            >>> casebook, s_1, r_1_1, r_1_2, r_1_3, s_1_4, r_1_4_1, r_1_4_2, r_1_4_3, s_2 = nodes
+            >>> assert casebook.contentcollaborator_set.count() == 1
+
+            >>> with assert_num_queries(delete=5, select=3):
+            ...     deleted = casebook.delete()
+            >>> assert deleted == (1, {'main.ContentAnnotation': 0, 'main.Casebook': 1})
+            >>> assert casebook.contentcollaborator_set.count() == 0
+            >>> for node in nodes:
+            ...     with assert_raises(ContentNode.DoesNotExist):
+            ...         node.refresh_from_db()
+        """
+        self.contents.all().delete()
+        self.contentcollaborator_set.all().delete()
+        return super().delete(*args, **kwargs)
+
     @property
     def sections(self):
         return Section.objects.filter(casebook=self)
@@ -1344,7 +1389,7 @@ class Casebook(CasebookAndSectionMixin, ContentNode):
             Merge draft back into original:
             >>> draft.title = "New Title"
             >>> draft.save()
-            >>> with assert_num_queries(delete=14, select=13, update=3):
+            >>> with assert_num_queries(delete=8, select=9, update=3):
             ...     new_casebook = draft.merge_draft()
             >>> assert new_casebook == full_casebook
             >>> expected = [
@@ -1628,6 +1673,70 @@ class Section(CasebookAndSectionMixin, SectionAndResourceMixin, ContentNode):
             "ordinals__len__gte": len(self.ordinals) + 1
         })
 
+    def delete(self, *args, **kwargs):
+        """
+            Override delete, to ensure the tree is re-ordered afterwards.
+
+            Given:
+            >>> assert_num_queries = getfixture('assert_num_queries')
+            >>> casebook, s_1, r_1_1, r_1_2, r_1_3, s_1_4, r_1_4_1, r_1_4_2, r_1_4_3, s_2 = getfixture('full_casebook_parts')
+
+            Delete a section in a section (and children), no reordering required:
+            >>> with assert_num_queries(delete=4, select=5, update=1):
+            ...     deleted = s_1_4.delete()
+            >>> assert deleted == (1, {'main.ContentAnnotation': 0, 'main.Section': 1})
+            >>> assert dump_content_tree(casebook) == [
+            ...         [s_1, casebook, [
+            ...             [r_1_1, s_1, []],
+            ...             [r_1_2, s_1, []],
+            ...             [r_1_3, s_1, []],
+            ...         ]],
+            ...         [s_2, casebook, []],
+            ... ]
+            >>> for node in [s_1_4, r_1_4_1, r_1_4_2, r_1_4_3]:
+            ...     with assert_raises(ContentNode.DoesNotExist):
+            ...         node.refresh_from_db()
+
+            Delete the first section in the book (and children), triggering reordering:
+            >>> with assert_num_queries(delete=4, select=4, update=1):
+            ...     deleted = s_1.delete()
+            >>> assert deleted == (1, {'main.ContentAnnotation': 0, 'main.Section': 1})
+            >>> assert dump_content_tree(casebook) == [
+            ...         [s_2, casebook, []],
+            ... ]
+            >>> for node in [s_1, r_1_1, r_1_2, r_1_3]:
+            ...     with assert_raises(ContentNode.DoesNotExist):
+            ...         node.refresh_from_db()
+            >>> s_2.refresh_from_db()
+            >>> assert s_2.ordinals == [1]
+
+            Delete the last section in the book (childless):
+            >>> with assert_num_queries(delete=2, select=4, update=1):
+            ...     deleted = s_2.delete()
+            >>> assert deleted == (1, {'main.ContentAnnotation': 0, 'main.Section': 1})
+            >>> assert dump_content_tree(casebook) == []
+            >>> with assert_raises(Section.DoesNotExist):
+            ...     s_2.refresh_from_db()
+        """
+        # Find this section's parent
+        ordinals_of_parent = self.ordinals[:-1]
+        if ordinals_of_parent:
+            parent = ContentNode.objects.get(casebook=self.casebook, ordinals=ordinals_of_parent)
+        else:
+            parent = self.casebook
+
+        # Delete this section's children, without recursively calling our custom Section.delete and Resource.delete methods
+        # https://docs.djangoproject.com/en/2.2/topics/db/queries/#deleting-objects
+        self.contents.delete()
+
+        # Delete this node
+        return_value = super().delete(*args, **kwargs)
+
+        # Update the ordinals of the content tree
+        parent.content_tree__repair()
+
+        return return_value
+
 
 class ResourceManager(models.Manager):
     def get_queryset(self):
@@ -1680,6 +1789,68 @@ class Resource(SectionAndResourceMixin, ContentNode):
     def is_annotated(self):
         """See ContentNode.is_annotated"""
         return bool(self.annotations)
+
+    def delete(self, *args, **kwargs):
+        """
+            Override delete, to ensure the tree is re-ordered afterwards.
+
+            Given:
+            >>> assert_num_queries = getfixture('assert_num_queries')
+            >>> casebook, s_1, r_1_1, r_1_2, r_1_3, s_1_4, r_1_4_1, r_1_4_2, r_1_4_3, s_2 = getfixture('full_casebook_parts')
+
+            Delete a resource in the middle of a section:
+            >>> with assert_num_queries(delete=2, select=3, update=1):
+            ...     deleted = r_1_2.delete()
+            >>> assert dump_content_tree(casebook) == [
+            ...     [s_1, casebook, [
+            ...         [r_1_1, s_1, []],
+            ...         [r_1_3, s_1, []],
+            ...         [s_1_4, s_1, [
+            ...             [r_1_4_1, s_1_4, []],
+            ...             [r_1_4_2, s_1_4, []],
+            ...             [r_1_4_3, s_1_4, []],
+            ...         ]],
+            ...     ]],
+            ...     [s_2, casebook, []],
+            ... ]
+            >>> with assert_raises(Resource.DoesNotExist):
+            ...     r_1_2.refresh_from_db()
+            >>> r_1_3.refresh_from_db()
+            >>> s_1_4.refresh_from_db()
+            >>> assert all([r_1_1.ordinals == [1,1], r_1_3.ordinals == [1,2], s_1_4.ordinals == [1,3]])
+
+            Delete a resource at the end of a section:
+            >>> r_1_4_3.refresh_from_db()
+            >>> with assert_num_queries(delete=2, select=4, update=1):
+            ...     deleted = r_1_4_3.delete()
+            >>> assert dump_content_tree(casebook) == [
+            ...     [s_1, casebook, [
+            ...         [r_1_1, s_1, []],
+            ...         [r_1_3, s_1, []],
+            ...         [s_1_4, s_1, [
+            ...             [r_1_4_1, s_1_4, []],
+            ...             [r_1_4_2, s_1_4, []],
+            ...         ]],
+            ...     ]],
+            ...     [s_2, casebook, []],
+            ... ]
+            >>> with assert_raises(Resource.DoesNotExist):
+            ...     r_1_4_3.refresh_from_db()
+        """
+        # Find this resource's parent
+        ordinals_of_parent = self.ordinals[:-1]
+        if ordinals_of_parent:
+            parent = ContentNode.objects.get(casebook=self.casebook, ordinals=ordinals_of_parent)
+        else:
+            parent = self.casebook
+
+        # Delete this node
+        return_value = super().delete(*args, **kwargs)
+
+        # Update the ordinals of the content tree
+        parent.content_tree__repair()
+
+        return return_value
 
     _resource_prefetched = False
     _resource = None
@@ -2167,9 +2338,13 @@ class UnpublishedRevision(TimestampedModel, BigPkModel):
     # N.B. in the prod database, these relationships are tracked in Int fields,
     # rather than a BigInt fields, even though these models' primary keys are
     # BigInts. We should consider migrating soon to reconcile this.
+
+    # These foreign keys are marked "on_delete=models.DO_NOTHING" to avoid unnecessary queries when deleting Sections and Resources.
+    # This table is not used by the Django application; we will drop it soon.
+
     node = models.ForeignKey(
         'ContentNode',
-        on_delete=models.CASCADE,
+        on_delete=models.DO_NOTHING,
         related_name='revisions',
         help_text='Node in the draft.',
         blank=True,
@@ -2179,7 +2354,7 @@ class UnpublishedRevision(TimestampedModel, BigPkModel):
     )
     node_parent = models.ForeignKey(
         'ContentNode',
-        on_delete=models.CASCADE,
+        on_delete=models.DO_NOTHING,
         related_name='draft_revisions',
         help_text='Corresponding node in the original, published casebook.',
         blank=True,
@@ -2190,7 +2365,7 @@ class UnpublishedRevision(TimestampedModel, BigPkModel):
     # I'm not sure why this is stored separately; redundant with node?
     casebook = models.ForeignKey(
         'Casebook',
-        on_delete=models.CASCADE,
+        on_delete=models.DO_NOTHING,
         related_name='casebook_revisions',
         help_text='The draft casebook.',
         blank=True,
@@ -2203,7 +2378,7 @@ class UnpublishedRevision(TimestampedModel, BigPkModel):
         'ContentAnnotation',
         blank=True,
         null=True,
-        on_delete=models.CASCADE,
+        on_delete=models.DO_NOTHING,
         db_constraint=False,
         db_index=False
     )
