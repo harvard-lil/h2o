@@ -377,7 +377,7 @@ def full_private_casebook(full_casebook_parts_factory):
 
 
 @pytest.fixture
-def full_casebook_with_draft(full_casebook_parts_factory):
+def full_casebook_parts_with_draft(full_casebook_parts_factory):
     """
         The same as full_casebook, except has an in-progress draft
 
@@ -390,9 +390,14 @@ def full_casebook_with_draft(full_casebook_parts_factory):
     # Use full_casebook_parts_factory instead of the full_casebook fixture
     # so that full_casebook_with_draft and full_casebook are independent objects
     # and can be used within the same test
-    casebook = full_casebook_parts_factory()[0]
+    casebook, s_1, r_1_1, r_1_2, r_1_3, s_1_4, r_1_4_1, r_1_4_2, r_1_4_3, s_2 = full_casebook_parts_factory()
     casebook.make_draft()
-    return casebook
+    return [casebook, s_1, r_1_1, r_1_2, r_1_3, s_1_4, r_1_4_1, r_1_4_2, r_1_4_3, s_2]
+
+
+@pytest.fixture
+def full_casebook_with_draft(full_casebook_parts_with_draft):
+    return full_casebook_parts_with_draft[0]
 
 
 @pytest.fixture

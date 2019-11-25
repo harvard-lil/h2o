@@ -1413,28 +1413,37 @@ class Casebook(CasebookAndSectionMixin, ContentNode):
 
     def delete(self, *args, **kwargs):
         """
-            Override delete, to ensure that a Casebook's contents and ContentCollaborators
-            are deleted.
+            Override delete, to ensure that a Casebook is deleted in its entirety.
 
-            This would normally be achieved by setting Django's `on_delete`
-            attribute to CASCADE, but since we don't want this behavior during
-            the deletion of all ContentNode objects, only of Casebooks, we have
-            to take care of it manually.
+            Casebook contents and ContentCollaborators would normally be deleted by setting
+            Django's `on_delete` attribute to CASCADE, but since we don't want this
+            behavior during the deletion of all ContentNode objects, only of Casebooks,
+            we have to take care of it manually.
+
+            Similarly, the manual deletion of related Links/Defaults and TextBlocks is due to
+            limitations in our current data model, where Resource objects are not
+            tied to their related Case/TextBlock/Default objects via foreign keys.
 
             Given:
             >>> assert_num_queries = getfixture('assert_num_queries')
-            >>> nodes = getfixture('full_casebook_parts')
+            >>> nodes = getfixture('full_casebook_parts_with_draft')
             >>> casebook, s_1, r_1_1, r_1_2, r_1_3, s_1_4, r_1_4_1, r_1_4_2, r_1_4_3, s_2 = nodes
+            >>> draft = casebook.draft
             >>> assert casebook.contentcollaborator_set.count() == 1
 
-            >>> with assert_num_queries(delete=5, select=3):
+            >>> with assert_num_queries(delete=14, select=15):
             ...     deleted = casebook.delete()
             >>> assert deleted == (1, {'main.ContentAnnotation': 0, 'main.Casebook': 1})
             >>> assert casebook.contentcollaborator_set.count() == 0
             >>> for node in nodes:
             ...     with assert_raises(ContentNode.DoesNotExist):
             ...         node.refresh_from_db()
+            >>> with assert_raises(Casebook.DoesNotExist):
+            ...     draft.refresh_from_db()
         """
+        if self.draft:
+            self.draft.delete()
+        self._delete_related_links_and_text_blocks()
         self.contents.all().delete()
         self.contentcollaborator_set.all().delete()
         return super().delete(*args, **kwargs)
@@ -1537,7 +1546,7 @@ class Casebook(CasebookAndSectionMixin, ContentNode):
             Merge draft back into original:
             >>> draft.title = "New Title"
             >>> draft.save()
-            >>> with assert_num_queries(delete=8, select=9, update=3):
+            >>> with assert_num_queries(delete=8, select=11, update=3):
             ...     new_casebook = draft.merge_draft()
             >>> assert new_casebook == full_casebook
             >>> expected = [
