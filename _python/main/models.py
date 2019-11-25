@@ -1188,6 +1188,17 @@ class CasebookAndSectionMixin(models.Model):
             return self.get_edit_url()
         return self.get_absolute_url()
 
+    def _delete_related_links_and_text_blocks(self):
+        """
+            A private utility for efficiently deleting associated Link and TextBlock objects.
+        """
+        to_delete = {Default: [], TextBlock: []}
+        for resource in self.contents.prefetch_resources():
+            if resource.resource_id and resource.resource_type in ('Default', 'TextBlock'):
+                to_delete[type(resource.resource)].append(resource.resource_id)
+        for cls, ids in to_delete.items():
+            cls.objects.filter(id__in=ids).delete()
+
 
 class SectionAndResourceMixin(models.Model):
     """
@@ -1195,6 +1206,133 @@ class SectionAndResourceMixin(models.Model):
     """
     class Meta:
         abstract = True
+
+    def delete(self, *args, **kwargs):
+        """
+            Override delete, to ensure the tree is re-ordered afterwards,
+            and to clean up now-unused TextBlock and Default/Link resources.
+
+            Given:
+            >>> full_casebook_parts_factory, assert_num_queries = [getfixture(i) for i in ['full_casebook_parts_factory','assert_num_queries']]
+
+            # Sections
+            >>> casebook, s_1, r_1_1, r_1_2, r_1_3, s_1_4, r_1_4_1, r_1_4_2, r_1_4_3, s_2 = full_casebook_parts_factory()
+
+            Delete a section in a section (and children, including one case, one text block, and one link/default), no reordering required:
+            >>> with assert_num_queries(delete=6, select=9, update=1):
+            ...     deleted = s_1_4.delete()
+            >>> assert deleted == (1, {'main.ContentAnnotation': 0, 'main.Section': 1})
+            >>> assert dump_content_tree(casebook) == [
+            ...         [s_1, casebook, [
+            ...             [r_1_1, s_1, []],
+            ...             [r_1_2, s_1, []],
+            ...             [r_1_3, s_1, []],
+            ...         ]],
+            ...         [s_2, casebook, []],
+            ... ]
+            >>> for node in [s_1_4, r_1_4_1, r_1_4_2, r_1_4_3]:
+            ...     with assert_raises(ContentNode.DoesNotExist):
+            ...         node.refresh_from_db()
+
+            Delete the first section in the book (and children, including one case, one text block, and one link/default), triggering reordering:
+            >>> with assert_num_queries(delete=6, select=8, update=1):
+            ...     deleted = s_1.delete()
+            >>> assert deleted == (1, {'main.ContentAnnotation': 0, 'main.Section': 1})
+            >>> assert dump_content_tree(casebook) == [
+            ...         [s_2, casebook, []],
+            ... ]
+            >>> for node in [s_1, r_1_1, r_1_2, r_1_3]:
+            ...     with assert_raises(ContentNode.DoesNotExist):
+            ...         node.refresh_from_db()
+            >>> s_2.refresh_from_db()
+            >>> assert s_2.ordinals == [1]
+
+            # Resources
+            >>> casebook, s_1, r_1_1, r_1_2, r_1_3, s_1_4, r_1_4_1, r_1_4_2, r_1_4_3, s_2 = getfixture('full_casebook_parts')
+
+            Delete a case resource in the middle of a section:
+            >>> with assert_num_queries(delete=2, select=3, update=1):
+            ...     deleted = r_1_2.delete()
+            >>> assert deleted == (3, {'main.Resource': 1, 'main.ContentAnnotation': 2})
+            >>> assert dump_content_tree(casebook) == [
+            ...     [s_1, casebook, [
+            ...         [r_1_1, s_1, []],
+            ...         [r_1_3, s_1, []],
+            ...         [s_1_4, s_1, [
+            ...             [r_1_4_1, s_1_4, []],
+            ...             [r_1_4_2, s_1_4, []],
+            ...             [r_1_4_3, s_1_4, []],
+            ...         ]],
+            ...     ]],
+            ...     [s_2, casebook, []],
+            ... ]
+            >>> with assert_raises(Resource.DoesNotExist):
+            ...     r_1_2.refresh_from_db()
+            >>> r_1_3.refresh_from_db()
+            >>> s_1_4.refresh_from_db()
+            >>> assert all([r_1_1.ordinals == [1,1], r_1_3.ordinals == [1,2], s_1_4.ordinals == [1,3]])
+
+            Delete a text resource at the beginning of a section:
+            >>> r_1_4_1.refresh_from_db()
+            >>> with assert_num_queries(delete=3, select=5, update=1):
+            ...     deleted = r_1_4_1.delete()
+            >>> assert deleted == (1, {'main.Resource': 1, 'main.ContentAnnotation': 0})
+            >>> assert dump_content_tree(casebook) == [
+            ...     [s_1, casebook, [
+            ...         [r_1_1, s_1, []],
+            ...         [r_1_3, s_1, []],
+            ...         [s_1_4, s_1, [
+            ...             [r_1_4_2, s_1_4, []],
+            ...             [r_1_4_3, s_1_4, []],
+            ...         ]],
+            ...     ]],
+            ...     [s_2, casebook, []],
+            ... ]
+            >>> with assert_raises(Resource.DoesNotExist):
+            ...     r_1_4_1.refresh_from_db()
+
+            Delete a link/default resource at the end of a section:
+            >>> r_1_4_3.refresh_from_db()
+            >>> with assert_num_queries(delete=3, select=5, update=1):
+            ...     deleted = r_1_4_3.delete()
+            >>> assert deleted == (1, {'main.Resource': 1, 'main.ContentAnnotation': 0})
+            >>> assert dump_content_tree(casebook) == [
+            ...     [s_1, casebook, [
+            ...         [r_1_1, s_1, []],
+            ...         [r_1_3, s_1, []],
+            ...         [s_1_4, s_1, [
+            ...             [r_1_4_2, s_1_4, []],
+            ...         ]],
+            ...     ]],
+            ...     [s_2, casebook, []],
+            ... ]
+            >>> with assert_raises(Resource.DoesNotExist):
+            ...     r_1_4_3.refresh_from_db()
+
+        """
+        # Find this nodes's parent
+        ordinals_of_parent = self.ordinals[:-1]
+        if ordinals_of_parent:
+            parent = ContentNode.objects.get(casebook=self.casebook, ordinals=ordinals_of_parent)
+        else:
+            parent = self.casebook
+
+        # Delete this nodes's children, and any related links and textblocks,
+        # without recursively calling our custom Section.delete and Resource.delete methods
+        # https://docs.djangoproject.com/en/2.2/topics/db/queries/#deleting-objects
+        if type(self) is Section:
+            self._delete_related_links_and_text_blocks()
+            self.contents.delete()
+        elif self.resource_type in ['TextBlock', 'Default']:
+            self.resource.delete()
+
+        # Delete this node
+        return_value = super().delete(*args, **kwargs)
+
+        # Update the ordinals of the content tree
+        parent.content_tree__repair()
+
+        return return_value
 
     @property
     def is_public(self):
@@ -1678,70 +1816,6 @@ class Section(CasebookAndSectionMixin, SectionAndResourceMixin, ContentNode):
             "ordinals__len__gte": len(self.ordinals) + 1
         })
 
-    def delete(self, *args, **kwargs):
-        """
-            Override delete, to ensure the tree is re-ordered afterwards.
-
-            Given:
-            >>> assert_num_queries = getfixture('assert_num_queries')
-            >>> casebook, s_1, r_1_1, r_1_2, r_1_3, s_1_4, r_1_4_1, r_1_4_2, r_1_4_3, s_2 = getfixture('full_casebook_parts')
-
-            Delete a section in a section (and children), no reordering required:
-            >>> with assert_num_queries(delete=4, select=5, update=1):
-            ...     deleted = s_1_4.delete()
-            >>> assert deleted == (1, {'main.ContentAnnotation': 0, 'main.Section': 1})
-            >>> assert dump_content_tree(casebook) == [
-            ...         [s_1, casebook, [
-            ...             [r_1_1, s_1, []],
-            ...             [r_1_2, s_1, []],
-            ...             [r_1_3, s_1, []],
-            ...         ]],
-            ...         [s_2, casebook, []],
-            ... ]
-            >>> for node in [s_1_4, r_1_4_1, r_1_4_2, r_1_4_3]:
-            ...     with assert_raises(ContentNode.DoesNotExist):
-            ...         node.refresh_from_db()
-
-            Delete the first section in the book (and children), triggering reordering:
-            >>> with assert_num_queries(delete=4, select=4, update=1):
-            ...     deleted = s_1.delete()
-            >>> assert deleted == (1, {'main.ContentAnnotation': 0, 'main.Section': 1})
-            >>> assert dump_content_tree(casebook) == [
-            ...         [s_2, casebook, []],
-            ... ]
-            >>> for node in [s_1, r_1_1, r_1_2, r_1_3]:
-            ...     with assert_raises(ContentNode.DoesNotExist):
-            ...         node.refresh_from_db()
-            >>> s_2.refresh_from_db()
-            >>> assert s_2.ordinals == [1]
-
-            Delete the last section in the book (childless):
-            >>> with assert_num_queries(delete=2, select=4, update=1):
-            ...     deleted = s_2.delete()
-            >>> assert deleted == (1, {'main.ContentAnnotation': 0, 'main.Section': 1})
-            >>> assert dump_content_tree(casebook) == []
-            >>> with assert_raises(Section.DoesNotExist):
-            ...     s_2.refresh_from_db()
-        """
-        # Find this section's parent
-        ordinals_of_parent = self.ordinals[:-1]
-        if ordinals_of_parent:
-            parent = ContentNode.objects.get(casebook=self.casebook, ordinals=ordinals_of_parent)
-        else:
-            parent = self.casebook
-
-        # Delete this section's children, without recursively calling our custom Section.delete and Resource.delete methods
-        # https://docs.djangoproject.com/en/2.2/topics/db/queries/#deleting-objects
-        self.contents.delete()
-
-        # Delete this node
-        return_value = super().delete(*args, **kwargs)
-
-        # Update the ordinals of the content tree
-        parent.content_tree__repair()
-
-        return return_value
-
 
 class ResourceManager(models.Manager):
     def get_queryset(self):
@@ -1794,68 +1868,6 @@ class Resource(SectionAndResourceMixin, ContentNode):
     def is_annotated(self):
         """See ContentNode.is_annotated"""
         return bool(self.annotations)
-
-    def delete(self, *args, **kwargs):
-        """
-            Override delete, to ensure the tree is re-ordered afterwards.
-
-            Given:
-            >>> assert_num_queries = getfixture('assert_num_queries')
-            >>> casebook, s_1, r_1_1, r_1_2, r_1_3, s_1_4, r_1_4_1, r_1_4_2, r_1_4_3, s_2 = getfixture('full_casebook_parts')
-
-            Delete a resource in the middle of a section:
-            >>> with assert_num_queries(delete=2, select=3, update=1):
-            ...     deleted = r_1_2.delete()
-            >>> assert dump_content_tree(casebook) == [
-            ...     [s_1, casebook, [
-            ...         [r_1_1, s_1, []],
-            ...         [r_1_3, s_1, []],
-            ...         [s_1_4, s_1, [
-            ...             [r_1_4_1, s_1_4, []],
-            ...             [r_1_4_2, s_1_4, []],
-            ...             [r_1_4_3, s_1_4, []],
-            ...         ]],
-            ...     ]],
-            ...     [s_2, casebook, []],
-            ... ]
-            >>> with assert_raises(Resource.DoesNotExist):
-            ...     r_1_2.refresh_from_db()
-            >>> r_1_3.refresh_from_db()
-            >>> s_1_4.refresh_from_db()
-            >>> assert all([r_1_1.ordinals == [1,1], r_1_3.ordinals == [1,2], s_1_4.ordinals == [1,3]])
-
-            Delete a resource at the end of a section:
-            >>> r_1_4_3.refresh_from_db()
-            >>> with assert_num_queries(delete=2, select=4, update=1):
-            ...     deleted = r_1_4_3.delete()
-            >>> assert dump_content_tree(casebook) == [
-            ...     [s_1, casebook, [
-            ...         [r_1_1, s_1, []],
-            ...         [r_1_3, s_1, []],
-            ...         [s_1_4, s_1, [
-            ...             [r_1_4_1, s_1_4, []],
-            ...             [r_1_4_2, s_1_4, []],
-            ...         ]],
-            ...     ]],
-            ...     [s_2, casebook, []],
-            ... ]
-            >>> with assert_raises(Resource.DoesNotExist):
-            ...     r_1_4_3.refresh_from_db()
-        """
-        # Find this resource's parent
-        ordinals_of_parent = self.ordinals[:-1]
-        if ordinals_of_parent:
-            parent = ContentNode.objects.get(casebook=self.casebook, ordinals=ordinals_of_parent)
-        else:
-            parent = self.casebook
-
-        # Delete this node
-        return_value = super().delete(*args, **kwargs)
-
-        # Update the ordinals of the content tree
-        parent.content_tree__repair()
-
-        return return_value
 
     _resource_prefetched = False
     _resource = None
