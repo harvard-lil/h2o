@@ -74,7 +74,7 @@ export default {
     }
   }
 }
-.page-label {
+.page-label, .page-number {
   font-size: small;
   color: darkgrey;
   vertical-align: super;
