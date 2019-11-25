@@ -385,7 +385,7 @@ def full_casebook_with_draft(full_casebook_parts_factory):
         >>> assert has_draft.has_draft and not draftless.has_draft
         >>> assert all(node.has_draft for node in has_draft.contents.all())
         >>> assert has_draft.is_public
-        >>> assert has_draft.drafts().is_private
+        >>> assert has_draft.draft.is_private
     """
     # Use full_casebook_parts_factory instead of the full_casebook fixture
     # so that full_casebook_with_draft and full_casebook are independent objects

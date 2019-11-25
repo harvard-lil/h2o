@@ -76,9 +76,11 @@ def looks_like_citation(s):
     return bool(re.match(r'\d+(\s+|-).*(\s+|-)\d+$', s))
 
 
-def clone_model_instance(instance):
+def clone_model_instance(instance, **kwargs):
     clone = deepcopy(instance)
     clone.id = clone.pk = clone.created_at = None
+    for k, v in kwargs.items():
+        setattr(clone, k, v)
     return clone
 
 
