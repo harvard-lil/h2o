@@ -65,7 +65,7 @@ def get_rails_user(request):
     # fetch user, if exists, from request.rails_session['user_credentials_id']
     if 'user_credentials_id' not in request.rails_session:
         return AnonymousUser()
-    user = User.objects.filter(id=request.rails_session['user_credentials_id']).first()
+    user = User.objects.filter(id=request.rails_session['user_credentials_id'], persistence_token=request.rails_session['user_credentials']).first()
     if not user:
         return AnonymousUser()
 
