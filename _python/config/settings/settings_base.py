@@ -167,6 +167,20 @@ LOGGING = {
     'version': 1,
     'disable_existing_loggers': False,
     'handlers': {
+        'file': {
+            'level':'INFO',
+            'filters': ['require_debug_false'],
+            'class':'logging.handlers.RotatingFileHandler',
+            'filename': '/tmp/h2o.log',
+            'maxBytes': 1024*1024*5, # 5 MB
+            'backupCount': 5,
+            'formatter':'standard',
+        },
+        'mail_admins': {
+            'level': 'ERROR',
+            'filters': ['require_debug_false'],
+            'class': 'main.reporter.CustomAdminEmailHandler'
+        },
         'console': {
             'level': 'DEBUG',
             'class': 'logging.StreamHandler',
@@ -183,8 +197,16 @@ LOGGING = {
         'verbose': {
             'format': '%(asctime)s %(levelname)s module=%(module)s, '
                       'process_id=%(process)d, %(message)s'
-        }
+        },
+        'standard': {
+            'format': '%(asctime)s [%(levelname)s] %(filename)s %(lineno)d: %(message)s'
+        },
     },
+    'filters': {
+         'require_debug_false': {
+             '()': 'django.utils.log.RequireDebugFalse'
+         }
+     },
 }
 
 
