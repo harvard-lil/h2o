@@ -1,0 +1,13 @@
+{% extends 'base.html' %}
+
+{% block page_title %}404 Page Not Found{% endblock %}
+
+{% block mainContent %}
+<div class="content">
+  <div class="pages-content">
+   <h1>Oops!</h1>
+   <p>We can't seem to find the page you are looking for.</p>
+   <p>To report a broken link, please <a href="mailto:{{ CONTACT_EMAIL }}">contact us</a>.</p>
+  </div>
+</div>
+{% endblock %}
