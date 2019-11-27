@@ -239,12 +239,12 @@ class CasebookAdmin(NonLoggingAdmin):
         return super().get_queryset(request).select_related('root_user', 'copy_of').prefetch_related('contentcollaborator_set__user').prefetch_draft()
 
     def owner_link(self, obj):
-        edit_link(obj.owner, True)
+        return edit_link(obj.owner, True)
     owner_link.short_description = 'owner'
 
     def draft_link(self, obj):
-        edit_link(obj.draft)
-    draft_link.short_description = 'drafts'
+        return edit_link(obj.draft)
+    draft_link.short_description = 'draft'
 
     def source(self, obj):
         if obj.copy_of:
@@ -265,11 +265,11 @@ class SectionAdmin(NonLoggingAdmin):
         return super().get_queryset(request).select_related('casebook', 'copy_of').prefetch_related('casebook__contentcollaborator_set__user')
 
     def owner_link(self, obj):
-        edit_link(obj.casebook.owner, True)
+        return edit_link(obj.casebook.owner, True)
     owner_link.short_description = 'owner'
 
     def casebook_link(self, obj):
-        edit_link(obj.casebook, True)
+        return edit_link(obj.casebook, True)
     casebook_link.short_description = 'casebook'
 
 
@@ -287,11 +287,11 @@ class ResourceAdmin(NonLoggingAdmin):
         return super().get_queryset(request).select_related('casebook', 'copy_of').prefetch_related('casebook__contentcollaborator_set__user').annotate(annotations_count=Count('annotations'))
 
     def owner_link(self, obj):
-        edit_link(obj.casebook.owner, True)
+        return edit_link(obj.casebook.owner, True)
     owner_link.short_description = 'owner'
 
     def casebook_link(self, obj):
-        edit_link(obj.casebook, True)
+        return edit_link(obj.casebook, True)
     casebook_link.short_description = 'casebook'
 
     def annotation_count(self, obj):
@@ -322,7 +322,7 @@ class UnpublishedRevisionAdmin(NonLoggingAdmin):
     list_filter = [CasebookIdFilter, 'field']
 
     def the_draft(self, obj):
-        edit_link(obj.casebook, True)
+        return edit_link(obj.casebook, True)
     the_draft.admin_order_field = 'casebook'
 
     def parent(self, obj):
@@ -364,7 +364,7 @@ class CaseAdmin(NonLoggingAdmin):
     capapi_link.short_description = 'capapi id'
 
     def court_link(self, obj):
-        edit_link(obj.case_court)
+        return edit_link(obj.case_court)
     court_link.short_description = 'court'
     court_link.admin_order_field = 'case_court'
 
@@ -387,7 +387,7 @@ class DefaultAdmin(NonLoggingAdmin):
     fields = ['name', 'url', 'description', 'public', 'created_at', 'updated_at', 'content_type', 'user', 'ancestry', 'created_via_import']
 
     def user_link(self, obj):
-        edit_link(obj.user, True)
+        return edit_link(obj.user, True)
     user_link.short_description = 'user'
 
     def related_resources(self, obj):
@@ -414,7 +414,7 @@ class TextBlockAdmin(NonLoggingAdmin):
         return formfield
 
     def user_link(self, obj):
-        edit_link(obj.user, True)
+        return edit_link(obj.user, True)
     user_link.short_description = 'user'
 
     def related_resources(self, obj):
