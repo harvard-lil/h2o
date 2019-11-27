@@ -1546,6 +1546,7 @@ class Casebook(CasebookAndSectionMixin, ContentNode):
             Merge draft back into original:
             >>> draft.title = "New Title"
             >>> draft.save()
+            >>> Section(casebook=draft, ordinals=[3], title="New Section").save()
             >>> with assert_num_queries(delete=8, select=11, update=3):
             ...     new_casebook = draft.merge_draft()
             >>> assert new_casebook == full_casebook
@@ -1564,11 +1565,12 @@ class Casebook(CasebookAndSectionMixin, ContentNode):
             ...     '    ContentAnnotation<8>: replace 0-10',
             ...     '   ContentNode<19> -> Default<4>: Some Link Name 1',
             ...     ' Section<20>: Some Section 9',
+            ...     ' Section<21>: New Section',
             ... ]
             >>> assert dump_casebook_outline(full_casebook) == expected
 
             Assets associated with old published version are gone:
-            >>> assert set(ContentNode.objects.values_list('id', flat=True)) == {1, 12, 13, 14, 15, 16, 17, 18, 19, 20}
+            >>> assert set(ContentNode.objects.values_list('id', flat=True)) == {1, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21}
             >>> assert set(ContentAnnotation.objects.values_list('id', flat=True)) == {5, 6, 7, 8}
             >>> assert set(TextBlock.objects.values_list('id', flat=True)) == {3, 4}
             >>> assert set(Default.objects.values_list('id', flat=True)) == {3, 4}
@@ -1594,9 +1596,11 @@ class Casebook(CasebookAndSectionMixin, ContentNode):
         ContentAnnotation.objects.filter(resource__casebook=parent).delete()
 
         # copy copy_of attribute from old content nodes to new ones
-        nodes_to_update = list(draft.contents.select_related('copy_of'))
-        for node in nodes_to_update:
-            node.copy_of_id = node.copy_of.copy_of_id
+        nodes_to_update = []
+        for node in draft.contents.select_related('copy_of'):
+            if node.copy_of:
+                nodes_to_update.append(node)
+                node.copy_of_id = node.copy_of.copy_of_id
         ContentNode.objects.bulk_update(nodes_to_update, ['copy_of_id'])
 
         # delete old content nodes
