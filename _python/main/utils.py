@@ -1,4 +1,3 @@
-import bleach
 from copy import deepcopy
 from datetime import datetime, date
 import html as   python_html
@@ -13,13 +12,6 @@ from django.conf import settings
 
 class CapapiCommunicationException(Exception):
     pass
-
-
-def sanitize(html):
-    """
-    TODO: read up on this sanitization library
-    """
-    return bleach.clean(html, tags=['p', 'br', 'span', *bleach.sanitizer.ALLOWED_TAGS])
 
 
 def show_debug_toolbar(request):
@@ -139,9 +131,9 @@ block_level_elements = {
     'figure', 'footer', 'form', 'h1', 'h2', 'h3', 'h4', 'h5', 'h6', 'header', 'hgroup', 'hr', 'li', 'main', 'nav', 'ol',
     'p', 'pre', 'section', 'table', 'ul'
 }
+# via https://developer.mozilla.org/en-US/docs/Glossary/empty_element
 void_elements = {
-    'base', 'command', 'event-source', 'link', 'meta', 'hr', 'br', 'img', 'embed', 'param', 'area', 'col', 'input',
-    'source', 'track'
+    'area', 'base', 'br', 'col', 'embed', 'hr', 'img', 'input', 'keygen', 'link', 'meta', 'param', 'source', 'track', 'wbr'
 }
 
 
