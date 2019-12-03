@@ -73,6 +73,7 @@ class AnnotationUpdater:
         delta = 0
         self.offsets = offsets = []
         self.deltas = deltas = []
+        self.max_offset = len(before)
 
         for op, text in self.get_dmp_diff(before, after):
             if op == diff_match_patch.DIFF_EQUAL:
@@ -136,5 +137,11 @@ class AnnotationUpdater:
             >>> assert_offsets_adjusted("foo *bar* baz", "foo *lorem bar ipsum* baz")
             >>> assert_offsets_adjusted("foo *bar* baz", "foo *bar* ipsum baz")  # ipsum is outside, unlike previous example, because of diff cleanup
             >>> assert_offsets_adjusted("foo *bar* baz", "foo re*barbosa* baz")  # one goes inside and one outside
+
+            Handling of offsets at or beyond the right edge:
+            >>> assert_offsets_adjusted("foo*", "foo* bar")
+            >>> assert AnnotationUpdater("foo", "foo bar").adjust_offset(10) == 3
+            >>> assert_offsets_adjusted("foo bar*", "foo *lorem")
         """
+        offset = min(self.max_offset, offset)  # clamp offsets to the end of the original text
         return self.deltas[bisect_right(self.offsets, offset)-1].apply_delta(offset)
