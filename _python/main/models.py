@@ -2016,14 +2016,24 @@ class Resource(SectionAndResourceMixin, ContentNode):
             >>> input = '<p>[highlight]One [elide]two[/highlight] three[/elide]</p>'
             >>> expected = '<p><span class="annotate highlighted" custom-style="Highlighted Text">One <span custom-style="Elision">[ … ]</span></span></p>'
             >>> assert_match(input, expected)
+
+            Annotations with invalid offsets are clamped:
+            >>> input = '<p>[highlight]F[/highlight]oo</p>'
+            >>> expected = '<p><span class="annotate highlighted" custom-style="Highlighted Text">Foo</span></p>'
+            >>> resource = annotations_factory('Case', input)[1]
+            >>> _ = resource.annotations.update(global_end_offset=1000)  # move end offset past end of text
+            >>> assert resource.annotated_content_for_export() == expected
         """
 
         # Start with a sorted list of the start and end insertion points for each annotation.
-        # Each entry in the list is shaped like (annotation_offset, is_start_tag, annotation):
+        # Each entry in the list is shaped like (annotation_offset, is_start_tag, annotation).
+        # Clamp offsets to the max valid value, as we may have legacy invalid values in the database that are too large.
+        source_tree = parse_html_fragment(self.resource.content)
+        max_valid_offset = len(source_tree.text_content())
         annotations = []
         for annotation in self.annotations.all():
-            annotations.append((annotation.global_start_offset, True, annotation))
-            annotations.append((annotation.global_end_offset, False, annotation))
+            annotations.append((min(annotation.global_start_offset, max_valid_offset), True, annotation))
+            annotations.append((min(annotation.global_end_offset, max_valid_offset), False, annotation))
         annotations.sort(key=lambda a: a[:2])  # sort by first two fields, so we're ordered by offset, then we get end tags and then start tags for a given offset
 
         # This SAX ContentHandler does the heavy lifting of stepping through each HTML tag and text string in the
@@ -2191,7 +2201,6 @@ class Resource(SectionAndResourceMixin, ContentNode):
                 return self.out_handler.etree.getroot()
 
         # use AnnotationContentHandler to insert annotations in our content HTML:
-        source_tree = parse_html_fragment(self.resource.content)
         handler = AnnotationContentHandler()
         lxml.sax.saxify(source_tree, handler)
         dest_tree = handler.get_output_tree()
