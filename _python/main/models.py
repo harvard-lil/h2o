@@ -27,8 +27,9 @@ from .differ import AnnotationUpdater
 from test.test_helpers import dump_casebook_outline, dump_content_tree, dump_annotated_text, dump_content_tree_children
 from pytest import raises as assert_raises
 
-from .utils import clone_model_instance, fix_after_rails, sanitize, fix_before_deploy, parse_html_fragment, \
+from .utils import clone_model_instance, fix_after_rails, fix_before_deploy, parse_html_fragment, \
     remove_empty_tags, inner_html, block_level_elements, void_elements
+from .sanitize import sanitize
 
 
 class BigPkModel(models.Model):
@@ -139,16 +140,13 @@ class SanitizingMixin(object):
     Removes dangerous HTML from a TextField before it is saved to the database.
     See https://docs.djangoproject.com/en/2.2/howto/custom-model-fields/#preprocessing-values-before-saving
     and https://docs.djangoproject.com/en/2.2/ref/models/fields/#django.db.models.Field.pre_save
+
+    Models using this field should use EditTrackedModel so model_instance.has_changed() works.
     """
 
     def pre_save(self, model_instance, add):
-        # TODO:
-        # Rails checks to see if the value has changed first;
-        # I don't know of a clean and reliable way to do this in Django.
-        # Do we need to avoid sanitizing redundantly? In Django, I believe
-        # this is handled at the Form level; do we need Model level checks too?
         value = getattr(model_instance, self.attname)
-        if value:
+        if value and model_instance.has_changed(self.attname):
             value = sanitize(value)
             setattr(model_instance, self.attname, value)
         return value
@@ -217,15 +215,21 @@ class AnnotatedModel(EditTrackedModel):
         Given:
         >>> annotations_factory, *_ = [getfixture(f) for f in ['annotations_factory']]
         >>> html_with_annotations =     '<p>\n  <em>[note]Keep foo[/note] [highlight]delete bar[/highlight] [elide]keep baz[/elide] buzz</em>\n</p>'
-        >>> new_html =                  '<p>\n  <em>Keep foo keep baz buzz add boo</em>\n</p>'
-        >>> new_html_with_annotations = '<p>\n  <em>[note]Keep foo[/note] [elide]keep baz[/elide] buzz add boo</em>\n</p>'
+        >>> new_html =                  '<p>\n  <em invalid-attr="invalid">Keep foo <invalid>keep baz</invalid> buzz add boo</em>\n</p>'
+        >>> new_textblock_html_with_annotations = '<p>\n  <em>[note]Keep foo[/note] [elide]keep baz[/elide] buzz add boo</em>\n</p>'
+        >>> new_case_html_with_annotations = '<p>\n  <em invalid-attr="invalid">[note]Keep foo[/note] <invalid>[elide]keep baz</invalid>[/elide] buzz add boo</em>\n</p>'
 
-        Case and TextBlock annotations are updated on save:
-        >>> for resource_type in ('Case', 'TextBlock'):
-        ...     casebook, case_or_textblock = annotations_factory(resource_type, html_with_annotations)
-        ...     case_or_textblock.resource.content = new_html
-        ...     case_or_textblock.resource.save()
-        ...     assert dump_annotated_text(case_or_textblock) == new_html_with_annotations
+        Case annotations are updated on save:
+        >>> _, case = annotations_factory('Case', html_with_annotations)
+        >>> case.resource.content = new_html
+        >>> case.resource.save()
+        >>> assert dump_annotated_text(case) == new_case_html_with_annotations
+
+        TextBlock HTML is sanitized and annotations are updated on save:
+        >>> _, textblock = annotations_factory('TextBlock', html_with_annotations)
+        >>> textblock.resource.content = new_html
+        >>> textblock.resource.save()
+        >>> assert dump_annotated_text(textblock) == new_textblock_html_with_annotations
     """
     class Meta:
         abstract = True
@@ -479,7 +483,7 @@ class ContentNodeQueryset(models.QuerySet):
         return self.prefetch_related(Prefetch('clones', Casebook.objects.filter(draft_mode_of_published_casebook=True), '_drafts'))
 
 
-class ContentNode(TimestampedModel, BigPkModel):
+class ContentNode(EditTrackedModel, TimestampedModel, BigPkModel):
     title = models.CharField(max_length=10000, blank=True, null=True)
     subtitle = models.CharField(max_length=10000, blank=True, null=True)
     headnote = SanitizingTextField(blank=True, null=True)
@@ -539,6 +543,7 @@ class ContentNode(TimestampedModel, BigPkModel):
     slug = models.CharField(max_length=10000, blank=True, null=True)
 
     objects = ContentNodeQueryset.as_manager()
+    tracked_fields = ['headnote']
 
     class Meta:
         # managed = False

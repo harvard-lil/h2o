@@ -1,5 +1,6 @@
 pip-tools
 fabric3
+tqdm
 
 django
 django-extensions
