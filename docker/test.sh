@@ -2,7 +2,8 @@
 set -e
 
 function cleanup {
-#  echo "Stopping solr ..."  && docker-compose exec web rails sunspot:solr:stop
+    #  echo "Stopping solr ..."  && docker-compose exec web rails sunspot:solr:stop
+    :
 }
 trap cleanup EXIT
 
