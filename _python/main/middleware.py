@@ -15,6 +15,9 @@ from django.utils.functional import SimpleLazyObject
 
 from .models import User
 
+import logging
+logger = logging.getLogger(__name__)
+
 
 ### rails auth middleware ###
 
@@ -78,7 +81,10 @@ def get_rails_user(request):
 
 def rails_session_middleware(get_response):
     def middleware(request):
-        request.rails_session = SimpleLazyObject(lambda: read_rails_cookie(request))
+        try:
+            request.rails_session = SimpleLazyObject(lambda: read_rails_cookie(request))
+        except Exception:
+            logger.exception("Error reading rails cookie '%s'" % request.COOKIES.get('_h2o_session', ''))
         return get_response(request)
     return middleware
 
