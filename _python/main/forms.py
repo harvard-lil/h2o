@@ -1,8 +1,13 @@
+import django.contrib.auth.forms as auth_forms
+from django.conf import settings
+from django.core.mail import send_mail
 from django.forms import ModelForm, Textarea
 from crispy_forms.helper import FormHelper
-from crispy_forms.layout import Layout, Field, Div, HTML
+from crispy_forms.layout import Layout, Field, Div, HTML, Submit
+from django.urls import reverse
 
-from main.models import ContentNode, Default, TextBlock
+from main.models import ContentNode, Default, TextBlock, User
+from main.utils import fix_after_rails
 
 
 class ContentNodeForm(ModelForm):
@@ -140,3 +145,64 @@ class NewTextBlockForm(ModelForm):
     class Meta:
         model = TextBlock
         fields = ['name', 'content']
+
+
+class UserProfileForm(ModelForm):
+    class Meta:
+        model = User
+        fields = ['email_address', 'attribution', 'affiliation', 'professor_verification_requested']
+
+    def __init__(self, *args, **kwargs):
+        """
+            All of the custom logic in this form is to handle the professor verification flow:
+
+                - show a "Request Professor Verification" checkbox by default
+                - if checked, switch the checkbox to a "Professor Verification Requested" message and send admins an email
+                - if an admin sets verified_professor=True, change the message to "Verified Professor"
+        """
+        self.request = kwargs.pop("request", None)
+        super().__init__(*args, **kwargs)
+        self.helper = FormHelper()
+        self.helper.layout = Layout(
+            'email_address', 'attribution', 'affiliation',
+            (
+                HTML('<div class="verified-professor">Verified Professor<span class="verified"></span></div>') if self.instance.verified_professor else
+                HTML('<div class="verified-professor">Professor Verification Requested</div>') if self.instance.professor_verification_requested else
+                'professor_verification_requested'
+            ),
+            Submit('submit', 'Save changes'),
+        )
+        if self.instance.professor_verification_requested or self.instance.verified_professor:
+            self.fields.pop('professor_verification_requested')
+        else:
+            self.fields['professor_verification_requested'].label = 'Request Professor Verification'
+        fix_after_rails("setting email_address.required to True manually until the field is required in the model")
+        self.fields['email_address'].required = True
+
+    def save(self, commit=True):
+        super(UserProfileForm, self).save()
+
+        # let admin know of professor verification requests
+        user = self.instance
+        if user.professor_verification_requested and 'professor_verification_requested' in self.changed_data:
+            message = "Verify %s: %s\nAffiliation: %s\nEmail address: %s" % (
+                user,
+                self.request.build_absolute_uri(reverse('h2oadmin:main_user_change', args=[user.id])),
+                user.affiliation,
+                user.email_address)
+            send_mail(
+                "H2O Professor Verification Request for %s" % user,
+                message,
+                settings.DEFAULT_FROM_EMAIL,
+                settings.PROFESSOR_VERIFIER_EMAILS
+            )
+
+class PasswordChangeForm(auth_forms.PasswordChangeForm):
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.helper = FormHelper()
+        self.helper.layout = Layout(
+            'old_password', 'new_password1', 'new_password2',
+            Submit('submit', 'Change password'),
+        )
+        self.fields['old_password'].widget.attrs.pop('autofocus')

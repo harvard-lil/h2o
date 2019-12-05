@@ -8,6 +8,7 @@ from rest_framework.response import Response
 from rest_framework.views import APIView
 
 from django.conf import settings
+from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.views import redirect_to_login
 from django.core.exceptions import PermissionDenied
@@ -28,7 +29,8 @@ from pytest import raises as assert_raises
 from .utils import parse_cap_decision_date, fix_after_rails, CapapiCommunicationException, StringFileResponse
 from .serializers import AnnotationSerializer, NewAnnotationSerializer, UpdateAnnotationSerializer, CaseSerializer, TextBlockSerializer
 from .models import Casebook, Section, Resource, Case, User, CaseCourt, ContentNode, TextBlock, Default, ContentAnnotation
-from .forms import CasebookForm, SectionForm, ResourceForm, LinkForm, TextBlockForm, NewTextBlockForm
+from .forms import CasebookForm, SectionForm, ResourceForm, LinkForm, TextBlockForm, NewTextBlockForm, UserProfileForm, \
+    PasswordChangeForm
 
 
 ### helpers ###
@@ -431,6 +433,59 @@ def logout(request, id=None):
     response.delete_cookie('user_credentials')
     response.delete_cookie('csrftoken')
     return response
+
+
+@perms_test({'args': ['user.id'], 'results': {200: ['user'], 'login': [None]}})
+@login_required
+def edit_user(request, user_id):
+    """
+        Given:
+        >>> user, client, mailoutbox = [getfixture(f) for f in ['user', 'client', 'mailoutbox']]
+        >>> url = reverse('edit_user', args=[user.id])
+        >>> post_kwargs = {'email_address': user.email_address, 'affiliation': user.affiliation, 'attribution': user.attribution}
+
+        Verified professor flow:
+        >>> check_response(client.get(url, as_user=user), content_includes=['Request Professor Verification'])
+        >>> check_response(client.post(url, {'professor_verification_requested': 'on', **post_kwargs}, as_user=user), content_includes=['Your changes have been saved', 'Professor Verification Requested'])
+        >>> assert len(mailoutbox) == 1
+        >>> user.verified_professor = True; user.save()
+        >>> check_response(client.get(url, as_user=user), content_includes=['Verified Professor'])
+        >>> check_response(client.post(url, post_kwargs, as_user=user), content_includes=['Your changes have been saved'])
+        >>> assert len(mailoutbox) == 1  # no emails sent if setting isn't changed
+
+        Change password flow:
+        >>> user.set_password('old_password'); user.save()
+        >>> check_response(
+        ...     client.post(url, {'old_password': 'wrong', 'new_password1': 'password', 'new_password2': 'password'}, as_user=user),
+        ...     content_includes=['Your old password was entered incorrectly.'])
+        >>> check_response(
+        ...     client.post(url, {'old_password': 'old_password', 'new_password1': 'Password2', 'new_password2': 'Password2'}, as_user=user),
+        ...     content_includes=['Your changes have been saved'])
+        >>> user.refresh_from_db()
+        >>> assert user.check_password('Password2')
+    """
+    fix_after_rails("there's no reason for this route to include a user_id")
+    password_form = profile_form = None
+    if request.method == 'POST':
+        if 'old_password' in request.POST:
+            form = password_form = PasswordChangeForm(request.user, request.POST)
+        else:
+            form = profile_form = UserProfileForm(request.POST, instance=request.user, request=request)
+        if form.is_valid():
+            form.save()
+            messages.success(request, "Your changes have been saved.")
+
+            # workaround so professor verification checkbox updates
+            if form == profile_form:
+                profile_form = None
+    if not password_form:
+        password_form = PasswordChangeForm(request.user)
+    if not profile_form:
+        profile_form = UserProfileForm(instance=request.user)
+    return render(request, 'user_edit.html', {
+        'profile_form': profile_form,
+        'password_form': password_form,
+    })
 
 
 @perms_test({'results': {302: ['user'], 'login': [None]}})

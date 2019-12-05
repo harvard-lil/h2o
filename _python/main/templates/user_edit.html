@@ -1,0 +1,24 @@
+{% extends 'base.html' %}
+
+{% load crispy_forms_tags %}
+
+{% block page_title %}Your Profile{% endblock %}
+
+{% block mainContent %}
+  <header><h1 class="content">Edit your profile</h1></header>
+  <section class="sign-up">
+    <div class="content">
+      <div class="layout form">
+        {% crispy profile_form %}
+      </div>
+    </div>
+  </section>
+  <section class="reset-password">
+    <div class="content">
+      <div class="layout form">
+        <h3>Change your password</h3>
+        {% crispy password_form %}
+      </div>
+    </div>
+  </section>
+{% endblock %}

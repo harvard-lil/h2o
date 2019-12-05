@@ -1,3 +1,4 @@
+import hashlib
 import os
 import re
 import subprocess
@@ -14,6 +15,7 @@ from django.db.models import Q, Prefetch
 from django.template.defaultfilters import truncatechars
 from django.template.loader import render_to_string
 from django.urls import reverse
+from django.utils.crypto import constant_time_compare
 from django.utils.functional import cached_property
 from django.utils.html import format_html
 from django.utils.safestring import mark_safe
@@ -2434,7 +2436,7 @@ class User(NullableTimestampedModel):
     login = models.CharField(max_length=255, blank=True, null=True)
     email_address = models.CharField(max_length=255, blank=True, null=True, unique=True)
     title = models.CharField(max_length=255, blank=True, null=True)
-    attribution = models.CharField(max_length=255, default='Anonymous')
+    attribution = models.CharField(max_length=255, default='Anonymous', verbose_name='Display name')
     affiliation = models.CharField(max_length=255, blank=True, null=True)
     verified_email = models.BooleanField(default=False)
     verified_professor = models.BooleanField(default=False)
@@ -2586,6 +2588,28 @@ class User(NullableTimestampedModel):
         # return self.casebooks.filter(contentcollaborator__has_attribution=True, public=True)
         # TBD: We probably need some guarantee that drafts aren't public.
         return self.casebooks.filter(contentcollaborator__role='owner', public=True)
+
+    ## password management
+    # functions to adapt Django to Rails stored passwords
+    fix_after_rails("Password field should be migrated to django's default key derivation function; let's talk about how to do this")
+
+    def hash_rails_password(self, password):
+        """
+             Hash password using the old Rails logic -- append salt and then apply sha512 20 times.
+
+             >>> User(password_salt='1234').hash_rails_password('password')
+             'e54312aa60dfb7e96f8d5a4cb84ea70caf84d8382a89111aaf95aefdca1e563fb4ff151f7ba0b3ae878f7b236954e15c1fb06f2e461e6e83bb529d4ffd40e2a6'
+        """
+        digest = password + self.password_salt
+        for _ in range(20):
+            digest = hashlib.sha512(digest.encode('utf8')).hexdigest()
+        return digest
+
+    def check_password(self, raw_password):
+        return constant_time_compare(self.hash_rails_password(raw_password), self.crypted_password)
+
+    def set_password(self, raw_password):
+        self.crypted_password = self.hash_rails_password(raw_password)
 
 
 # make AnonymousUser API conform with User API
