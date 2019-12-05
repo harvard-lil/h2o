@@ -144,9 +144,9 @@ django-crispy-forms==1.8.0 \
 django-extensions==2.2.1 \
     --hash=sha256:4aafdb865104eaa5d681b9976b36c52c9d441be89b7d782e40808f1c5c0c8f93 \
     --hash=sha256:8a2552fdeb222b23895ef52cdc28fc56efba976f6da07ca92937f6f5e626e345
-django==2.2.4 \
-    --hash=sha256:16a5d54411599780ac9dfe3b9b38f90f785c51259a584e0b24b6f14a7f69aae8 \
-    --hash=sha256:9a2f98211ab474c710fcdad29c82f30fc14ce9917c7a70c3682162a624de4035
+django==2.2.8 \
+    --hash=sha256:a4ad4f6f9c6a4b7af7e2deec8d0cbff28501852e5010d6c2dc695d3d1fae7ca0 \
+    --hash=sha256:fa98ec9cc9bf5d72a08ebf3654a9452e761fbb8566e3f80de199cbc15477e891
 djangorestframework==3.10.2 \
     --hash=sha256:42979bd5441bb4d8fd69d0f385024a114c3cae7df0f110600b718751250f6929 \
     --hash=sha256:aedb48010ebfab9651aaab1df5fd3b4848eb4182afc909852a2110c24f89a359
@@ -215,10 +215,6 @@ paramiko==2.6.0 \
     --hash=sha256:99f0179bdc176281d21961a003ffdb2ec369daac1a1007241f53374e376576cf \
     --hash=sha256:f4b2edfa0d226b70bd4ca31ea7e389325990283da23465d572ed1f70a7583041 \
     # via fabric3
-pathlib2==2.3.4 \
-    --hash=sha256:2156525d6576d21c4dcaddfa427fae887ef89a7a9de5cbfe0728b3aafa78427e \
-    --hash=sha256:446014523bb9be5c28128c4d2a10ad6bb60769e78bd85658fe44a450674e0ef8 \
-    # via pytest
 pip-tools==4.2.0 \
     --hash=sha256:123174aabf7f4a63dd6e0bfc8aeeb5eaddbecb75a41e9f0dd4c447b1f2de14f7 \
     --hash=sha256:5427ea4dcc175649723985fbcace9b2d8f46f9adbcc63bc2d7b247d9bcc74917
@@ -315,7 +311,7 @@ rubymarshal==1.2.6 \
 six==1.12.0 \
     --hash=sha256:3350809f0555b11f552448330d0b52d5f24c91a322ea4a15ef22629740f3761c \
     --hash=sha256:d16a0141ec1a18405cd4ce8b4613101da75da0e9a7aec5bdd4fa804d0e0eba73 \
-    # via bcrypt, bleach, cryptography, django-extensions, fabric3, faker, packaging, pathlib2, pip-tools, pynacl, python-dateutil, requests-mock
+    # via bcrypt, bleach, cryptography, django-extensions, fabric3, faker, packaging, pip-tools, pynacl, python-dateutil, requests-mock
 sqlparse==0.3.0 \
     --hash=sha256:40afe6b8d4b1117e7dff5504d7a8ce07d9a1b15aeeade8a2d10f130a834f8177 \
     --hash=sha256:7c3dca29c022744e95b547e867cee89f4fce4373f3549ccd8797d8eb52cdb873 \
