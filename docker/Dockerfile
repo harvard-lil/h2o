@@ -57,7 +57,6 @@ RUN apt-get update \
     && apt-get install -y nano \
     && apt-get install -y wdiff
 
-# Custom version of Pandoc, for export
-RUN wget https://lilresources.s3.amazonaws.com/h2o/pandoc-889810d -O /usr/bin/pandoc \
-    && chmod +x /usr/bin/pandoc
-
+# Install Pandoc, for export
+RUN wget https://github.com/jgm/pandoc/releases/download/2.8.0.1/pandoc-2.8.0.1-1-amd64.deb \
+    && dpkg -i pandoc-2.8.0.1-1-amd64.deb

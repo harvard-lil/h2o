@@ -44,7 +44,6 @@ module Export
           '--from html',
           '--to docx',
           '--reference-doc "lib/pandoc/reference.docx"',
-          '--docx-preserve-style',
           "--output #{file_path}",
           '--quiet'
       ]
