@@ -1779,7 +1779,12 @@ class Casebook(CasebookAndSectionMixin, ContentNode):
 
     @property
     def owner(self):
-        return self.owners[0]
+        # All casebooks should have owners, but presently, a small number do not.
+        fix_after_rails("Let's add validation logic, forcing casebooks to have at least one owner.")
+        try:
+            return self.owners[0]
+        except IndexError:
+            return None
 
     def has_collaborator(self, user):
         # filter in the client to allow .prefetch_related('contentcollaborator_set__user') to work:
