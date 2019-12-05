@@ -17,6 +17,7 @@ from django.shortcuts import render, get_object_or_404
 from django.utils.text import Truncator
 from django.urls import reverse
 from django.utils.decorators import method_decorator
+from django.utils.html import escape
 from django.views.decorators.csrf import requires_csrf_token
 from django.views.decorators.http import require_POST, require_http_methods
 from django.views import View
@@ -1057,15 +1058,14 @@ def edit_resource(request, casebook, resource):
         ...         content_excludes=original_url
         ...     )
 
-        You CANNOT presently edit the text associated with a 'TextBlock' resource, from its edit page,
-        but you can see it (editing is not safe yet):
+        You can edit the text associated with a 'TextBlock' resource, from its edit page:
         >>> for resource in [private_resources['TextBlock'], draft_resources['TextBlock']]:
         ...     original_text = resource.resource.content
         ...     new_text = "<p>I'm new text</p>"
         ...     check_response(
         ...         client.post(resource.get_edit_url(), {'content': new_text}, as_user=resource.owner),
-        ...         content_includes=original_text,
-        ...         content_excludes=new_text
+        ...         content_includes=escape(new_text),
+        ...         content_excludes=escape(original_text)
         ...     )
     """
     # NB: The Rails app does NOT redirect here to a canonical URL; it silently accepts any slug.
