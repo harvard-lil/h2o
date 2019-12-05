@@ -32,7 +32,10 @@ from pytest import raises as assert_raises
 from .utils import clone_model_instance, fix_after_rails, fix_before_deploy, parse_html_fragment, \
     remove_empty_tags, inner_html, block_level_elements, void_elements
 from .sanitize import sanitize
+from .normalize import normalize
 
+import logging
+logger = logging.getLogger(__name__)
 
 class BigPkModel(models.Model):
     id = models.BigAutoField(primary_key=True)
@@ -137,28 +140,32 @@ class EditTrackedModel(models.Model):
         return self.original_state[field_name] != getattr(self, field_name)
 
 
-class SanitizingMixin(object):
+def normalize_field(model_instance, fieldname):
     """
-    Removes dangerous HTML from a TextField before it is saved to the database.
-    See https://docs.djangoproject.com/en/2.2/howto/custom-model-fields/#preprocessing-values-before-saving
-    and https://docs.djangoproject.com/en/2.2/ref/models/fields/#django.db.models.Field.pre_save
+    Standardizes newlines. See ContentNode.save for tests.
 
-    Models using this field should use EditTrackedModel so model_instance.has_changed() works.
+    Models using this helper should use EditTrackedModel so model_instance.has_changed() works.
     """
+    value = getattr(model_instance, fieldname)
+    if value and model_instance.has_changed(fieldname):
+        logger.debug("Normalizing {} {}".format(type(model_instance).__name__, fieldname))
+        value = normalize(value)
+        setattr(model_instance, fieldname, value)
+    return value
 
-    def pre_save(self, model_instance, add):
-        value = getattr(model_instance, self.attname)
-        if value and model_instance.has_changed(self.attname):
-            value = sanitize(value)
-            setattr(model_instance, self.attname, value)
-        return value
 
+def sanitize_field(model_instance, fieldname):
+    """
+    Removes dangerous HTML from a TextField before it is saved to the database. See ContentNode.save for tests.
 
-class SanitizingCharField(SanitizingMixin, models.TextField):
-    pass
-
-class SanitizingTextField(SanitizingMixin, models.TextField):
-    pass
+    Models using this helper should use EditTrackedModel so model_instance.has_changed() works.
+    """
+    value = getattr(model_instance, fieldname)
+    if value and model_instance.has_changed(fieldname):
+        logger.debug("Sanitizing {} {}".format(type(model_instance).__name__, fieldname))
+        value = sanitize(value)
+        setattr(model_instance, fieldname, value)
+    return value
 
 
 # Internal
@@ -210,28 +217,9 @@ class CaseCourt(NullableTimestampedModel):
 
 
 class AnnotatedModel(EditTrackedModel):
-    r"""
+    """
         Abstract base class for Case and TextBlock resource types, which can be annotated. Ensures that annotation
         offsets will be updated when the text contents of this resource are modified.
-
-        Given:
-        >>> annotations_factory, *_ = [getfixture(f) for f in ['annotations_factory']]
-        >>> html_with_annotations =     '<p>\n  <em>[note]Keep foo[/note] [highlight]delete bar[/highlight] [elide]keep baz[/elide] buzz</em>\n</p>'
-        >>> new_html =                  '<p>\n  <em invalid-attr="invalid">Keep foo <invalid>keep baz</invalid> buzz add boo</em>\n</p>'
-        >>> new_textblock_html_with_annotations = '<p>\n  <em>[note]Keep foo[/note] [elide]keep baz[/elide] buzz add boo</em>\n</p>'
-        >>> new_case_html_with_annotations = '<p>\n  <em invalid-attr="invalid">[note]Keep foo[/note] <invalid>[elide]keep baz</invalid>[/elide] buzz add boo</em>\n</p>'
-
-        Case annotations are updated on save:
-        >>> _, case = annotations_factory('Case', html_with_annotations)
-        >>> case.resource.content = new_html
-        >>> case.resource.save()
-        >>> assert dump_annotated_text(case) == new_case_html_with_annotations
-
-        TextBlock HTML is sanitized and annotations are updated on save:
-        >>> _, textblock = annotations_factory('TextBlock', html_with_annotations)
-        >>> textblock.resource.content = new_html
-        >>> textblock.resource.save()
-        >>> assert dump_annotated_text(textblock) == new_textblock_html_with_annotations
     """
     class Meta:
         abstract = True
@@ -243,6 +231,7 @@ class AnnotatedModel(EditTrackedModel):
 
     def save(self, *args, **kwargs):
         if self.pk and self.has_changed('content'):
+            logger.debug("Updating annotations for {}".format(type(self).__name__))
             ContentAnnotation.update_annotations(self.related_annotations(), self.original_state['content'], self.content)
         super().save(*args, **kwargs)
 
@@ -285,6 +274,30 @@ class Case(NullableTimestampedModel, AnnotatedModel):
             models.Index(fields=['public']),
             models.Index(fields=['updated_at'])
         ]
+
+    def save(self, *args, **kwargs):
+        r"""
+            Override save to ensure Case HTML is normalized and annotations are
+            repositioned on save.
+
+            Given:
+            >>> annotations_factory, caplog = [getfixture(f) for f in ['annotations_factory', 'caplog']]
+            >>> html_with_annotations =     '<p>\n  <em>[note]Keep foo[/note] [highlight]delete bar[/highlight] [elide]keep baz[/elide] buzz</em>\n</p>'
+            >>> new_html =                  '<p>\n  <em invalid-attr="invalid">Keep foo <invalid>keep baz</invalid> buzz add boo</em>\n</p>'
+            >>> new_case_html_with_annotations = '<p>\n  <em invalid-attr="invalid">[note]Keep foo[/note] <invalid>[elide]keep baz</invalid>[/elide] buzz add boo</em>\n</p>'
+
+            On save, Case HTML is normalized (but not sanitized), and then annotations are updated:
+            >>> _, case = annotations_factory('Case', html_with_annotations)
+            >>> case.resource.content = new_html
+            >>> with caplog.at_level(logging.DEBUG):
+            ...     case.resource.save()
+            >>> assert dump_annotated_text(case) == new_case_html_with_annotations
+            >>> assert len(caplog.record_tuples) == 2
+            >>> assert caplog.record_tuples[0][2] == 'Normalizing Case content'
+            >>> assert caplog.record_tuples[1][2] == 'Updating annotations for Case'
+        """
+        normalize_field(self, 'content')
+        super().save(*args, **kwargs)
 
     def get_name(self):
         return self.name_abbreviation if self.name_abbreviation else self.name
@@ -488,7 +501,7 @@ class ContentNodeQueryset(models.QuerySet):
 class ContentNode(EditTrackedModel, TimestampedModel, BigPkModel):
     title = models.CharField(max_length=10000, blank=True, null=True)
     subtitle = models.CharField(max_length=10000, blank=True, null=True)
-    headnote = SanitizingTextField(blank=True, null=True)
+    headnote = models.TextField(blank=True, null=True)
     raw_headnote = models.TextField(blank=True, null=True)
     copy_of = models.ForeignKey(
         'self',
@@ -582,6 +595,39 @@ class ContentNode(EditTrackedModel, TimestampedModel, BigPkModel):
         else:
             subclass = Resource
         return models.Model.from_db.__func__(subclass, db, field_names, values)
+
+    def save(self, *args, **kwargs):
+        r"""
+            Override save to include the cleanup of user-supplied HTML.
+
+            Given:
+            >>> caplog, _ = [getfixture(i) for i in ['caplog', 'db']]
+            >>> text= "<p>Hello</p>\n<p>world.</p>"
+            >>> node = ContentNode(headnote=text)
+
+            The headnote is first normalized, then sanitized.
+            >>> with caplog.at_level(logging.DEBUG):
+            ...     node.save()
+            >>> assert caplog.record_tuples[0][2] == 'Normalizing ContentNode headnote'
+            >>> assert caplog.record_tuples[1][2] == 'Sanitizing ContentNode headnote'
+            >>> caplog.clear()
+
+            If the headnote hasn't been changed between saves, neither method are run.
+            >>> with caplog.at_level(logging.DEBUG):
+            ...     node.save()
+            >>> assert caplog.record_tuples == []
+            >>> caplog.clear()
+
+            If only line-endings have changed, normalization is run, but sanitization is not.
+            >>> with caplog.at_level(logging.DEBUG):
+            ...     node.headnote = node.headnote.replace("\n", "\r\n")
+            ...     node.save()
+            >>> assert len(caplog.record_tuples) == 1
+            >>> assert caplog.record_tuples[0][2] == 'Normalizing ContentNode headnote'
+        """
+        normalize_field(self, 'headnote')
+        sanitize_field(self, 'headnote')
+        super().save(*args, **kwargs)
 
     ##
     # Methods common to all ContentNodes
@@ -2339,7 +2385,7 @@ class RolesUser(NullableTimestampedModel, BigPkModel):
 class TextBlock(NullableTimestampedModel, AnnotatedModel):
     name = models.CharField(max_length=255)
     description = models.CharField(max_length=5242880, blank=True, null=True)
-    content = SanitizingCharField(max_length=5242880)
+    content = models.CharField(max_length=5242880)
     version = models.IntegerField(default=1)
     public = models.BooleanField(default=True, blank=True, null=True)
     created_via_import = models.BooleanField(default=False)
@@ -2371,6 +2417,31 @@ class TextBlock(NullableTimestampedModel, AnnotatedModel):
             models.Index(fields=['name']),
             models.Index(fields=['updated_at']),
         ]
+
+    def save(self, *args, **kwargs):
+        r"""
+            Override save to include the cleanup of user-supplied HTML and the
+            repositioning of existing annotations when TextBlock content is changed.
+
+            Given:
+            >>> annotations_factory, caplog = [getfixture(f) for f in ['annotations_factory', 'caplog']]
+            >>> html_with_annotations =     '<p>\n  <em>[note]Keep foo[/note] [highlight]delete bar[/highlight] [elide]keep baz[/elide] buzz</em>\n</p>'
+            >>> new_html =                  '<p>\n  <em invalid-attr="invalid">Keep foo <invalid>keep baz</invalid> buzz add boo</em>\n</p>'
+            >>> new_textblock_html_with_annotations = '<p>\n  <em>[note]Keep foo[/note] [elide]keep baz[/elide] buzz add boo</em>\n</p>'
+
+            On save, TextBlock HTML is first normalized and sanitized, and then annotations are updated:
+            >>> _, textblock = annotations_factory('TextBlock', html_with_annotations)
+            >>> textblock.resource.content = new_html
+            >>> with caplog.at_level(logging.DEBUG):
+            ...     textblock.resource.save()
+            >>> assert dump_annotated_text(textblock) == new_textblock_html_with_annotations
+            >>> assert caplog.record_tuples[0][2] == 'Normalizing TextBlock content'
+            >>> assert caplog.record_tuples[1][2] == 'Sanitizing TextBlock content'
+            >>> assert caplog.record_tuples[2][2] == 'Updating annotations for TextBlock'
+        """
+        normalize_field(self, 'content')
+        sanitize_field(self, 'content')
+        super().save(*args, **kwargs)
 
     def related_resources(self):
         return Resource.objects.filter(resource_id=self.id, resource_type='TextBlock')
