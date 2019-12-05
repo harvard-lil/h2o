@@ -149,7 +149,8 @@ CAPAPI_CASE_URL_FSTRING = 'https://api.case.law/v1/cases/{}/'
 CAPAPI_COURT_URL_FSTRING = 'https://api.case.law/v1/courts/?id={}'
 
 CONTACT_EMAIL = 'info@opencasebook.org'
-
+DEFAULT_FROM_EMAIL = 'info@opencasebook.org'
+PROFESSOR_VERIFIER_EMAILS = ['info@opencasebook.org']
 
 # Make these settings available for use in Django's templates.
 # e.g. <a href="mailto:{{ CONTACT_EMAIL }}">Contact Us</a>

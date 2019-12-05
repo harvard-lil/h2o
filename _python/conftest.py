@@ -78,9 +78,11 @@ class UserFactory(factory.DjangoModelFactory):
     class Meta:
         model = User
 
+    email_address = factory.Sequence(lambda n: 'user%s@example.com' % n)
     attribution = factory.Sequence(lambda n: 'Some User %s' % n)
     affiliation = factory.Sequence(lambda n: 'Affiliation %s' % n)
     verified_email = True
+    password_salt = '7'
 
 
 @register_factory

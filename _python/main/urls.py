@@ -28,6 +28,7 @@ urlpatterns = format_suffix_patterns(drf_urlpatterns) + [
     path('', views.index, name='index'),
     path('users/new', views.not_implemented_yet, name='sign_up'),
     path('users/<int:user_id>/', views.dashboard, name='dashboard'),
+    path('users/<int:user_id>/edit/', views.edit_user, name='edit_user'),
     path('user_sessions/new', views.not_implemented_yet, name='login'),
     path('user_sessions/logout/', views.logout, name='logout'),
     path('user_sessions/<id>', views.logout),
