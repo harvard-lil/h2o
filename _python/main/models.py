@@ -30,9 +30,8 @@ from test.test_helpers import dump_casebook_outline, dump_content_tree, dump_ann
 from pytest import raises as assert_raises
 
 from .utils import clone_model_instance, fix_after_rails, fix_before_deploy, parse_html_fragment, \
-    remove_empty_tags, inner_html, block_level_elements, void_elements
+    remove_empty_tags, inner_html, block_level_elements, void_elements, normalize_newlines, strip_trailing_block_level_whitespace
 from .sanitize import sanitize
-from .normalize import normalize
 
 import logging
 logger = logging.getLogger(__name__)
@@ -140,32 +139,70 @@ class EditTrackedModel(models.Model):
         return self.original_state[field_name] != getattr(self, field_name)
 
 
-def normalize_field(model_instance, fieldname):
-    """
-    Standardizes newlines. See ContentNode.save for tests.
+def cleanse_html_field(model_instance, fieldname, sanitize_field=False):
+    r"""
+        Munge HTML so it meets H2O's requirements.
+        Models using this helper should use EditTrackedModel so model_instance.has_changed() works.
 
-    Models using this helper should use EditTrackedModel so model_instance.has_changed() works.
-    """
-    value = getattr(model_instance, fieldname)
-    if value and model_instance.has_changed(fieldname):
-        logger.debug("Normalizing {} {}".format(type(model_instance).__name__, fieldname))
-        value = normalize(value)
-        setattr(model_instance, fieldname, value)
-    return value
+        Given:
+        >>> caplog, _ = [getfixture(i) for i in ['caplog', 'db']]
+        >>> html = '<p>Prepended</p><p>\n  <em>Keep foo keep baz buzz add boo</em>\n</p>'
+        >>> same_after_normalizing = '<p>Prepended</p><p>\r\n  <em>Keep foo keep baz buzz add boo</em>\r\n</p>'
+        >>> same_after_sanitizing = '<p>Prepended</p><p>\n  <em invalid-attr="invalid">Keep foo <invalid>keep baz</invalid> buzz add boo</em>\n</p>'
+        >>> same_after_cleansing = '<p>Prepended</p>\r\n<p>\n  <em invalid-attr="invalid">Keep foo <invalid>keep baz</invalid> buzz add boo</em>\r\n</p>'
+        >>> node = ContentNode(headnote=html)
+        >>> node.save()
 
+        By default, line endings are normalized and whitespace is cleaned up:
+        >>> node.headnote = same_after_cleansing
+        >>> with caplog.at_level(logging.DEBUG):
+        ...     cleanse_html_field(node, 'headnote')
+        >>> assert len(caplog.record_tuples) == 2
+        >>> assert caplog.record_tuples[0][2] == 'Normalizing newlines in ContentNode headnote'
+        >>> assert caplog.record_tuples[1][2] == 'Stripping trailing whitespace in ContentNode headnote'
+        >>> assert node.headnote == same_after_sanitizing
+        >>> caplog.clear()
 
-def sanitize_field(model_instance, fieldname):
-    """
-    Removes dangerous HTML from a TextField before it is saved to the database. See ContentNode.save for tests.
+        Optionally, sanitize the field to remove potentially dangerous HTML before cleaning up whitespace:
+        >>> node.headnote = same_after_cleansing
+        >>> with caplog.at_level(logging.DEBUG):
+        ...     cleanse_html_field(node, 'headnote', True)
+        >>> assert len(caplog.record_tuples) == 3
+        >>> assert caplog.record_tuples[0][2] == 'Normalizing newlines in ContentNode headnote'
+        >>> assert caplog.record_tuples[1][2] == 'Sanitizing ContentNode headnote'
+        >>> assert caplog.record_tuples[2][2] == 'Stripping trailing whitespace in ContentNode headnote'
+        >>> assert node.headnote == html
+        >>> caplog.clear()
 
-    Models using this helper should use EditTrackedModel so model_instance.has_changed() works.
+        If the field is the same after normalizing or sanitizing, stop processing:
+        >>> node.headnote = same_after_normalizing
+        >>> with caplog.at_level(logging.DEBUG):
+        ...     cleanse_html_field(node, 'headnote', True)
+        >>> assert len(caplog.record_tuples) == 1
+        >>> assert caplog.record_tuples[0][2] == 'Normalizing newlines in ContentNode headnote'
+        >>> caplog.clear()
+        >>> node.headnote = same_after_sanitizing
+        >>> with caplog.at_level(logging.DEBUG):
+        ...     cleanse_html_field(node, 'headnote', True)
+        >>> assert len(caplog.record_tuples) == 2
+        >>> assert caplog.record_tuples[0][2] == 'Normalizing newlines in ContentNode headnote'
+        >>> assert caplog.record_tuples[1][2] == 'Sanitizing ContentNode headnote'
+        >>> caplog.clear()
     """
-    value = getattr(model_instance, fieldname)
-    if value and model_instance.has_changed(fieldname):
-        logger.debug("Sanitizing {} {}".format(type(model_instance).__name__, fieldname))
-        value = sanitize(value)
-        setattr(model_instance, fieldname, value)
-    return value
+
+    def run_if_field_changed(func, message):
+        value = getattr(model_instance, fieldname)
+        if value and model_instance.has_changed(fieldname):
+            logger.debug(message)
+            value = func(value)
+            setattr(model_instance, fieldname, value)
+        return value
+
+    run_if_field_changed(normalize_newlines, "Normalizing newlines in {} {}".format(type(model_instance).__name__, fieldname))
+    if sanitize_field:
+        run_if_field_changed(sanitize, "Sanitizing {} {}".format(type(model_instance).__name__, fieldname))
+    run_if_field_changed(strip_trailing_block_level_whitespace, "Stripping trailing whitespace in {} {}".format(type(model_instance).__name__, fieldname))
+
 
 
 # Internal
@@ -277,26 +314,27 @@ class Case(NullableTimestampedModel, AnnotatedModel):
 
     def save(self, *args, **kwargs):
         r"""
-            Override save to ensure Case HTML is normalized and annotations are
+            Override save to ensure Case HTML is cleansed and annotations are
             repositioned on save.
 
             Given:
             >>> annotations_factory, caplog = [getfixture(f) for f in ['annotations_factory', 'caplog']]
-            >>> html_with_annotations =     '<p>\n  <em>[note]Keep foo[/note] [highlight]delete bar[/highlight] [elide]keep baz[/elide] buzz</em>\n</p>'
-            >>> new_html =                  '<p>\n  <em invalid-attr="invalid">Keep foo <invalid>keep baz</invalid> buzz add boo</em>\n</p>'
-            >>> new_case_html_with_annotations = '<p>\n  <em invalid-attr="invalid">[note]Keep foo[/note] <invalid>[elide]keep baz</invalid>[/elide] buzz add boo</em>\n</p>'
+            >>> html_with_annotations =     '<p>\n  <em>[note]Keep foo[/note] [highlight]delete bar[/highlight] [elide]keep baz[/elide] buzz</em>\n</p><p>bam</p>'
+            >>> new_html =                  '<p>Prepended</p>\n\n<p>\n  <em invalid-attr="invalid">Keep foo <invalid>keep baz</invalid> buzz add boo</em>\n</p>'
+            >>> new_case_html_with_annotations = '<p>Prepended</p><p>\n  <em invalid-attr="invalid">[note]Keep foo[/note] <invalid>[elide]keep baz</invalid>[/elide] buzz add boo</em>\n</p>'
 
-            On save, Case HTML is normalized (but not sanitized), and then annotations are updated:
+            On save, Case HTML is cleansed (but not sanitized), and then annotations are updated:
             >>> _, case = annotations_factory('Case', html_with_annotations)
             >>> case.resource.content = new_html
             >>> with caplog.at_level(logging.DEBUG):
             ...     case.resource.save()
             >>> assert dump_annotated_text(case) == new_case_html_with_annotations
-            >>> assert len(caplog.record_tuples) == 2
-            >>> assert caplog.record_tuples[0][2] == 'Normalizing Case content'
-            >>> assert caplog.record_tuples[1][2] == 'Updating annotations for Case'
+            >>> assert len(caplog.record_tuples) == 3
+            >>> assert caplog.record_tuples[0][2] == 'Normalizing newlines in Case content'
+            >>> assert caplog.record_tuples[1][2] == 'Stripping trailing whitespace in Case content'
+            >>> assert caplog.record_tuples[2][2] == 'Updating annotations for Case'
         """
-        normalize_field(self, 'content')
+        cleanse_html_field(self, 'content')
         super().save(*args, **kwargs)
 
     def get_name(self):
@@ -602,31 +640,18 @@ class ContentNode(EditTrackedModel, TimestampedModel, BigPkModel):
 
             Given:
             >>> caplog, _ = [getfixture(i) for i in ['caplog', 'db']]
-            >>> text= "<p>Hello</p>\n<p>world.</p>"
-            >>> node = ContentNode(headnote=text)
+            >>> html = '<p>Prepended</p>\n\n<p>\n  <em invalid-attr="invalid">Keep foo <invalid>keep baz</invalid> buzz add boo</em>\n</p>'
+            >>> cleaned_html = '<p>Prepended</p><p>\n  <em>Keep foo keep baz buzz add boo</em>\n</p>'
 
-            The headnote is first normalized, then sanitized.
+            On save, the headnote is cleansed.
+            >>> node = ContentNode(headnote=html)
             >>> with caplog.at_level(logging.DEBUG):
+            ...     node.headnote = html
             ...     node.save()
-            >>> assert caplog.record_tuples[0][2] == 'Normalizing ContentNode headnote'
-            >>> assert caplog.record_tuples[1][2] == 'Sanitizing ContentNode headnote'
-            >>> caplog.clear()
-
-            If the headnote hasn't been changed between saves, neither method are run.
-            >>> with caplog.at_level(logging.DEBUG):
-            ...     node.save()
-            >>> assert caplog.record_tuples == []
-            >>> caplog.clear()
-
-            If only line-endings have changed, normalization is run, but sanitization is not.
-            >>> with caplog.at_level(logging.DEBUG):
-            ...     node.headnote = node.headnote.replace("\n", "\r\n")
-            ...     node.save()
-            >>> assert len(caplog.record_tuples) == 1
-            >>> assert caplog.record_tuples[0][2] == 'Normalizing ContentNode headnote'
+            >>> node.refresh_from_db()
+            >>> assert node.headnote == cleaned_html
         """
-        normalize_field(self, 'headnote')
-        sanitize_field(self, 'headnote')
+        cleanse_html_field(self, 'headnote', True)
         super().save(*args, **kwargs)
 
     ##
@@ -2426,21 +2451,21 @@ class TextBlock(NullableTimestampedModel, AnnotatedModel):
             Given:
             >>> annotations_factory, caplog = [getfixture(f) for f in ['annotations_factory', 'caplog']]
             >>> html_with_annotations =     '<p>\n  <em>[note]Keep foo[/note] [highlight]delete bar[/highlight] [elide]keep baz[/elide] buzz</em>\n</p>'
-            >>> new_html =                  '<p>\n  <em invalid-attr="invalid">Keep foo <invalid>keep baz</invalid> buzz add boo</em>\n</p>'
-            >>> new_textblock_html_with_annotations = '<p>\n  <em>[note]Keep foo[/note] [elide]keep baz[/elide] buzz add boo</em>\n</p>'
+            >>> new_html =                  '<p>Prepended</p>\n\n<p>\n  <em invalid-attr="invalid">Keep foo <invalid>keep baz</invalid> buzz add boo</em>\n</p>'
+            >>> new_textblock_html_with_annotations = '<p>Prepended</p><p>\n  <em>[note]Keep foo[/note] [elide]keep baz[/elide] buzz add boo</em>\n</p>'
 
-            On save, TextBlock HTML is first normalized and sanitized, and then annotations are updated:
+            On save, TextBlock HTML is cleansed and annotations are updated afterwards:
             >>> _, textblock = annotations_factory('TextBlock', html_with_annotations)
             >>> textblock.resource.content = new_html
             >>> with caplog.at_level(logging.DEBUG):
             ...     textblock.resource.save()
             >>> assert dump_annotated_text(textblock) == new_textblock_html_with_annotations
-            >>> assert caplog.record_tuples[0][2] == 'Normalizing TextBlock content'
+            >>> assert caplog.record_tuples[0][2] == 'Normalizing newlines in TextBlock content'
             >>> assert caplog.record_tuples[1][2] == 'Sanitizing TextBlock content'
-            >>> assert caplog.record_tuples[2][2] == 'Updating annotations for TextBlock'
+            >>> assert caplog.record_tuples[2][2] == 'Stripping trailing whitespace in TextBlock content'
+            >>> assert caplog.record_tuples[3][2] == 'Updating annotations for TextBlock'
         """
-        normalize_field(self, 'content')
-        sanitize_field(self, 'content')
+        cleanse_html_field(self, 'content', True)
         super().save(*args, **kwargs)
 
     def related_resources(self):

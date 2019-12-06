@@ -9,6 +9,8 @@ from urllib.parse import quote
 from django.http import HttpResponse
 from django.conf import settings
 
+from .sanitize import sanitize
+
 
 class CapapiCommunicationException(Exception):
     pass
@@ -103,6 +105,44 @@ def re_split_offsets(pattern, s):
     split_strs = [parts[i] for i in range(1, len(parts), 2)]
     split_offsets = [sum(len(s) for s in strs[:i+1]) for i in range(len(strs)-1)]
     return strs, split_offsets, split_strs
+
+
+def normalize_newlines(html_string):
+    r"""
+        >>> assert normalize_newlines('<p>Hi\r</p>\r\n') == '<p>Hi\n</p>\n'
+
+        We're doing this for a number of reasons.
+
+        1) Consistent line endings make it easier to detect if a string has meaningfully changed.
+
+        2) In our experience, consistent line endings help ensure annotation offsets are handled
+        accurately across libraries and languages. Since Django's admin forms POST \n, but the
+        WYSIWYG CKEditor uses \r\n, it's easy to end up with a mix of both in the DB... and newlines
+        reportedly can be handled differently by different browsers.
+
+        3) Further, the sanitization library "bleach" converts \r to \n, doubling the newlines,
+        and forcing annotation offsets to require updating:
+        >>> assert sanitize('<p>hello\r</p>\r\n\r\n<p>there</p>') == '<p>hello\n</p>\n\n<p>there</p>'
+    """
+    return html_string.replace("\r\n", "\n").replace("\r", "\n")
+
+
+def strip_trailing_block_level_whitespace(html_string):
+    r"""
+        >>> assert strip_trailing_block_level_whitespace("<p>foo</p>  \r\n \n <p>bar</p>  ") == "<p>foo</p><p>bar</p>"
+
+        We're doing this because the whitespace is being handled by our annotation-placing javascript
+        and our css in an undesirable way, resulting in a change to the rendered paragraph numbers
+        and visual anomalies, when the whitespace is within an annotated range.
+
+        fix_after_rails("We'd prefer to take a different approach in the JS and the CSS, instead
+        of removing the whitespace, but leave that rewrite for another time.")
+    """
+    tree = parse_html_fragment(html_string)
+    for el in tree.iterdescendants():
+        if el.tag in block_level_elements and el.tail and re.match(r'\s+$', el.tail):
+            el.tail = ''
+    return inner_html(tree)
 
 
 def parse_html_fragment(html_str):
