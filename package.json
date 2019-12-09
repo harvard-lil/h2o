@@ -35,6 +35,7 @@
     "path-complete-extname": "^0.1.0",
     "query-string": "^4.3.4",
     "rails-erb-loader": "^5.5.2",
+    "serialize-javascript": "2.1.1",
     "set-value": "^2.0.1",
     "vue": "^2.6.6",
     "vue-contenteditable-directive": "^1.2.0",
