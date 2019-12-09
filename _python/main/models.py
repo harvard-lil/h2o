@@ -644,7 +644,6 @@ class ContentNode(EditTrackedModel, TimestampedModel, BigPkModel):
                 '--from', 'html',
                 '--to', 'docx',
                 '--reference-doc', os.path.join(settings.PANDOC_DIR, 'reference.docx'),
-                '--docx-preserve-style',
                 '--output', pandoc_out.name,
                 '--quiet'
             ]
