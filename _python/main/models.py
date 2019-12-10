@@ -30,7 +30,9 @@ from test.test_helpers import dump_casebook_outline, dump_content_tree, dump_ann
 from pytest import raises as assert_raises
 
 from .utils import clone_model_instance, fix_after_rails, fix_before_deploy, parse_html_fragment, \
-    remove_empty_tags, inner_html, block_level_elements, void_elements, normalize_newlines, strip_trailing_block_level_whitespace
+    remove_empty_tags, inner_html, block_level_elements, void_elements, normalize_newlines, \
+    strip_trailing_block_level_whitespace, elements_equal
+
 from .sanitize import sanitize
 
 import logging
@@ -2023,7 +2025,11 @@ class Resource(SectionAndResourceMixin, ContentNode):
             >>> annotations_factory, *_ = [getfixture(f) for f in ['annotations_factory']]
             >>> def assert_match(source_html, expected_html):
             ...     annotated_html = annotations_factory('Case', source_html)[1].annotated_content_for_export()
-            ...     assert annotated_html == expected_html, "Expected:\n%s\nGot:\n%s" % (expected_html, annotated_html)
+            ...     assert elements_equal(
+            ...         parse_html_fragment(annotated_html),
+            ...         parse_html_fragment(expected_html),
+            ...         ignore_trailing_whitespace=True
+            ...     ), "Expected:\n%s\nGot:\n%s" % (expected_html, annotated_html)
 
             Basic format of all annotations:
             >>> input = '''<p>
