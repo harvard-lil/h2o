@@ -427,8 +427,7 @@ class DefaultAdmin(BaseAdmin):
 
 
 class TextBlockAdmin(BaseAdmin):
-    # Content is readonly until we implement the annotation-shifting logic on the python side
-    readonly_fields = ['created_at', 'updated_at', 'user', 'version', 'annotations_count', 'content']
+    readonly_fields = ['created_at', 'updated_at', 'user', 'version', 'annotations_count']
     list_select_related = ['user']
     list_display = ['id', 'name', 'user_link', 'public', 'created_via_import', 'version', 'related_resources', 'annotations_count', 'created_at', 'updated_at']
     list_filter = ['version', 'created_via_import']

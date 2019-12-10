@@ -105,12 +105,6 @@ class TextBlockForm(ModelForm):
     For use along with ResourceForm; see ResourceForm for details.
     """
 
-    # NB: I'm not safe to use yet!! We can't edit TextBlocks until we
-    # implement the annotation-shifting logic on the python side.
-    # I'm committing this for now, since the form itself works, and
-    # then will add protections to prevent accidental edits in the
-    # appropriate spot in another commit.
-
     class Meta:
         model = TextBlock
         fields = ['content']
@@ -123,15 +117,13 @@ class TextBlockForm(ModelForm):
         self.helper = FormHelper()
         self.helper.layout = Layout(
             Div(
-                HTML('<h5 id="content-label">Content (disabled)</h5>'),
+                HTML('<h5 id="content-label">Content</h5>'),
                 Field('content',
                     css_class='ckeditor',
                     aria_labelledby='content-label'
                 ),
             )
         )
-        # Disabled until it's safe to update TextBlocks
-        self.fields['content'].disabled = True
         # Remove the explicit label on the "url" field, since it is
         # labeled using aria-labelledby
         self.fields['content'].label = False

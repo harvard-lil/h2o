@@ -285,18 +285,26 @@ def annotations_factory(db):
         ... ]
     """
     def factory(resource_type, html, casebook=None, ordinals=None):
-        # break apart provided html and get annotation brackets and offsets
-        content = re.sub(r'\[.*?\]', '', html)  # strip brackets
-        html = re.sub(r'<[^>]+?>', '', html)  # strip html tags
-        html_strs, annotation_offsets, annotation_strs = re_split_offsets(r'\[/?.+?\]', html)
 
         # create casebook, resource, resource_target, and annotations
         if not casebook:
             casebook = CasebookFactory()
             SectionFactory(casebook=casebook, ordinals=[1])
             ordinals = [1, 1]
-        resource_target = {'Case': CaseFactory, 'TextBlock': TextBlockFactory}[resource_type](content=content)
+        resource_target = {'Case': CaseFactory, 'TextBlock': TextBlockFactory}[resource_type](content=html)
         resource = ResourceFactory(casebook=casebook, ordinals=ordinals, resource_type=resource_type, resource_id=resource_target.id)
+
+        # retrieve the processed, cleansed html of the saved resource
+        processed_html = resource.resource.content
+
+        # strip html tags, break apart the text, and get annotation brackets and offsets
+        text = re.sub(r'<[^>]+?>', '', processed_html)
+        html_strs, annotation_offsets, annotation_strs = re_split_offsets(r'\[/?.+?\]', text)
+
+        # resave the resource's content with the annotating brackets stripped
+        content = re.sub(r'\[.*?\]', '', processed_html)
+        resource.resource.content = content
+        resource.resource.save()
 
         # create each annotation. to support overlapping annotations, pop off each starting annotation and then find
         # the nearest ending annotation:
