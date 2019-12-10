@@ -30,8 +30,8 @@ RUN mkdir /app/_python
 WORKDIR /app/_python
 
 # Install Pandoc, for export
-RUN wget https://github.com/jgm/pandoc/releases/download/2.8.0.1/pandoc-2.8.0.1-1-amd64.deb \
-    && dpkg -i pandoc-2.8.0.1-1-amd64.deb
+RUN wget https://github.com/jgm/pandoc/releases/download/2.8.1/pandoc-2.8.1-1-amd64.deb \
+    && dpkg -i pandoc-2.8.1-1-amd64.deb
 
 # pip
 COPY _python/requirements.txt /app/_python
