@@ -1,4 +1,5 @@
-from django.urls import path, register_converter
+from django.contrib.auth import views as auth_views
+from django.urls import path, register_converter, include
 from django.views.generic import RedirectView, TemplateView
 from rest_framework.urlpatterns import format_suffix_patterns
 
@@ -6,7 +7,7 @@ from .models import Casebook, Section, Resource, ContentAnnotation
 from .test.test_permissions_helpers import no_perms_test
 from .url_converters import IdSlugConverter, OrdinalSlugConverter, register_model_converter
 from .utils import fix_after_rails
-from . import views
+from . import views, forms
 
 
 register_converter(IdSlugConverter, 'idslug')
@@ -15,7 +16,6 @@ register_model_converter(Casebook)
 register_model_converter(Section)
 register_model_converter(Resource)
 register_model_converter(ContentAnnotation, 'annotation')
-
 
 # these patterns will have optional format suffixes added, like '.json'
 drf_urlpatterns = [
@@ -26,12 +26,17 @@ drf_urlpatterns = [
 
 urlpatterns = format_suffix_patterns(drf_urlpatterns) + [
     path('', views.index, name='index'),
-    path('users/new', views.not_implemented_yet, name='sign_up'),
+
+    # users
     path('users/<int:user_id>/', views.dashboard, name='dashboard'),
-    path('users/<int:user_id>/edit/', views.edit_user, name='edit_user'),
-    path('user_sessions/new', views.not_implemented_yet, name='login'),
-    path('user_sessions/logout/', views.logout, name='logout'),
-    path('user_sessions/<id>', views.logout),
+    path('accounts/new/', views.sign_up, name='sign_up'),
+    path('accounts/edit/', views.edit_user, name='edit_user'),
+
+    # built-in Django auth views for login/logout/password update/password reset, with overrides to replace the form in some views
+    path('accounts/password_reset/', no_perms_test(auth_views.PasswordResetView.as_view(form_class=forms.PasswordResetForm)), name='password_reset'),
+    path('accounts/reset/<uidb64>/<token>/', no_perms_test(auth_views.PasswordResetConfirmView.as_view(form_class=forms.SetPasswordForm)), name='password_reset_confirm'),
+    path('accounts/', include('django.contrib.auth.urls')),
+
     # resources
     path('casebooks/<idslug:casebook_param>/resources/<ordslug:resource_param>/layout/', RedirectView.as_view(pattern_name='resource', permanent=True)),
     path('casebooks/<idslug:casebook_param>/resources/<ordslug:resource_param>/edit/', views.edit_resource, name='edit_resource'),

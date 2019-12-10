@@ -6,6 +6,7 @@ from datetime import datetime
 from distutils.sysconfig import get_python_lib
 import pytest
 import factory
+from django.conf import settings
 
 from django.db import connections
 from django.db.backends.base.base import BaseDatabaseWrapper
@@ -598,3 +599,31 @@ def reset_sequences(django_db_reset_sequences):
     for factory_class in globals().values():
         if inspect.isclass(factory_class) and issubclass(factory_class, factory.Factory):
             factory_class.reset_sequence(force=True)
+
+
+@pytest.fixture
+def client():
+    """
+        A version of the Django test client that allows us to specify a user login for a particular request with an
+        `as_user` parameter, like `client.get(url, as_user=user).
+    """
+    from django.test.client import Client
+    session_key = settings.SESSION_COOKIE_NAME
+    class UserClient(Client):
+        def request(self, *args, **kwargs):
+            as_user = kwargs.pop('as_user', None)
+            if as_user:
+                # If as_user is provided, store the current value of the session cookie, call force_login, and then
+                # reset the current value after the request is over.
+                previous_session = self.cookies.get(session_key)
+                self.force_login(as_user)
+                try:
+                    return super().request(*args, **kwargs)
+                finally:
+                    if previous_session:
+                        self.cookies[session_key] = previous_session
+                    else:
+                        self.cookies.pop(session_key)
+            else:
+                return super().request(*args, **kwargs)
+    return UserClient()

@@ -292,3 +292,11 @@ class StringFileResponse(HttpResponse):
             self['Content-Disposition'] = '{}; {}'.format(disposition, file_expr)
         elif as_attachment:
             self['Content-Disposition'] = 'attachment'
+
+
+def get_ip_address(request):
+    """
+        Get user's IP address from request object.
+        Use Cloudflare CF-Connecting-IP header, falling back to REMOTE_ADDR for dev.
+    """
+    return request.META.get('HTTP_CF_CONNECTING_IP', request.META.get('REMOTE_ADDR'))

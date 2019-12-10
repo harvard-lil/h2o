@@ -7,6 +7,8 @@ from os.path import commonprefix
 from urllib.parse import urlparse
 
 from django.conf import settings
+from django.contrib.auth import user_logged_in
+from django.contrib.auth.base_user import AbstractBaseUser, BaseUserManager
 from django.contrib.auth.models import AnonymousUser
 from django.contrib.postgres.fields import JSONField, ArrayField
 from django.contrib.postgres.indexes import GinIndex
@@ -15,6 +17,7 @@ from django.db.models import Q, Prefetch
 from django.template.defaultfilters import truncatechars
 from django.template.loader import render_to_string
 from django.urls import reverse
+from django.utils import timezone
 from django.utils.crypto import constant_time_compare
 from django.utils.functional import cached_property
 from django.utils.html import format_html
@@ -31,7 +34,7 @@ from pytest import raises as assert_raises
 
 from .utils import clone_model_instance, fix_after_rails, fix_before_deploy, parse_html_fragment, \
     remove_empty_tags, inner_html, block_level_elements, void_elements, normalize_newlines, \
-    strip_trailing_block_level_whitespace, elements_equal
+    strip_trailing_block_level_whitespace, elements_equal, get_ip_address
 
 from .sanitize import sanitize
 
@@ -2538,7 +2541,7 @@ class UnpublishedRevision(TimestampedModel, BigPkModel):
         ]
 
 
-class User(NullableTimestampedModel):
+class User(NullableTimestampedModel, AbstractBaseUser):
     login = models.CharField(max_length=255, blank=True, null=True)
     email_address = models.CharField(max_length=255, blank=True, null=True, unique=True)
     title = models.CharField(max_length=255, blank=True, null=True)
@@ -2553,23 +2556,24 @@ class User(NullableTimestampedModel):
         through=RolesUser
     )
 
-    # calculated
-    login_count = models.IntegerField(default=0)
-    last_request_at = models.DateTimeField(blank=True, null=True)
-    last_login_at = models.DateTimeField(blank=True, null=True)
-    current_login_at = models.DateTimeField(blank=True, null=True)
-    last_login_ip = models.CharField(max_length=255, blank=True, null=True)
-    current_login_ip = models.CharField(max_length=255, blank=True, null=True)
+    # login-tracking fields inherited from Rails authlogic gem
+    last_request_at = models.DateTimeField(blank=True, null=True, help_text="Time of last request from user (to nearest 10 minutes)")
+    login_count = models.IntegerField(default=0, help_text="Number of explicit password logins by user")
+    current_login_at = models.DateTimeField(blank=True, null=True, help_text="Time of most recent password login")
+    last_login_at = models.DateTimeField(blank=True, null=True, help_text="Time of previous password login")
+    current_login_ip = models.CharField(max_length=255, blank=True, null=True, help_text="IP of most recent password login")
+    last_login_ip = models.CharField(max_length=255, blank=True, null=True, help_text="IP of previous password login")
+    last_login = None  # disable the Django login tracking field from AbstractBaseUser
 
     # auth/crypto innards
     crypted_password = models.CharField(max_length=255, blank=True, null=True)
     password_salt = models.CharField(max_length=255, blank=True, null=True)
-    persistence_token = models.CharField(max_length=255)
-    oauth_token = models.CharField(max_length=255, blank=True, null=True)
-    oauth_secret = models.CharField(max_length=255, blank=True, null=True)
-    perishable_token = models.CharField(max_length=255, blank=True, null=True)
 
     # all legacy fields, I believe
+    persistence_token = models.CharField(max_length=255)
+    perishable_token = models.CharField(max_length=255, blank=True, null=True)
+    oauth_token = models.CharField(max_length=255, blank=True, null=True)
+    oauth_secret = models.CharField(max_length=255, blank=True, null=True)
     tz_name = models.CharField(max_length=255, blank=True, null=True)
     url = models.CharField(max_length=255, blank=True, null=True)
     description = models.TextField(blank=True, null=True)
@@ -2597,6 +2601,8 @@ class User(NullableTimestampedModel):
     EMAIL_FIELD = 'email_address'
     USERNAME_FIELD = 'email_address'
     REQUIRED_FIELDS = []  # used by createsuperuser
+
+    objects = BaseUserManager()
 
     class Meta:
         # managed = False
@@ -2699,6 +2705,10 @@ class User(NullableTimestampedModel):
     # functions to adapt Django to Rails stored passwords
     fix_after_rails("Password field should be migrated to django's default key derivation function; let's talk about how to do this")
 
+    @property
+    def password(self):
+        return self.crypted_password
+
     def hash_rails_password(self, password):
         """
              Hash password using the old Rails logic -- append salt and then apply sha512 20 times.
@@ -2720,6 +2730,21 @@ class User(NullableTimestampedModel):
 
 # make AnonymousUser API conform with User API
 AnonymousUser.is_superadmin = False
+
+
+def update_user_login_fields(sender, request, user, **kwargs):
+    """
+        Register signal to record user login details on successful login, following the behavior of the Rails authlogic gem.
+        To fully switch to the Django behavior (which does less user login tracking), we could rename `current_login_at`
+        to `last_login`, drop the other fields, and delete this signal.
+    """
+    user.last_login_at = user.current_login_at
+    user.current_login_at = timezone.now()
+    user.last_login_ip = user.current_login_ip
+    user.current_login_ip = get_ip_address(request)
+    user.login_count += 1
+    user.save(update_fields=['last_login_at', 'current_login_at', 'last_login_ip', 'current_login_ip', 'login_count'])
+user_logged_in.connect(update_user_login_fields)
 
 
 #

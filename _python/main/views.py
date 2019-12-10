@@ -31,7 +31,7 @@ from .utils import parse_cap_decision_date, fix_after_rails, CapapiCommunication
 from .serializers import AnnotationSerializer, NewAnnotationSerializer, UpdateAnnotationSerializer, CaseSerializer, TextBlockSerializer
 from .models import Casebook, Section, Resource, Case, User, CaseCourt, ContentNode, TextBlock, Default, ContentAnnotation
 from .forms import CasebookForm, SectionForm, ResourceForm, LinkForm, TextBlockForm, NewTextBlockForm, UserProfileForm, \
-    PasswordChangeForm
+    SignupForm
 
 
 ### helpers ###
@@ -425,24 +425,43 @@ def dashboard(request, user_id):
     return render(request, 'dashboard.html', {'user': user})
 
 
-@no_perms_test  # not really testable until we migrate to Django auth, at which point it hopefully won't be a custom view anyway
-@require_POST
-def logout(request, id=None):
-    fix_after_rails("id isn't used; just kept for rails compat")
-    response = HttpResponseRedirect(reverse('index'))
-    response.delete_cookie('_h2o_session')
-    response.delete_cookie('user_credentials')
-    response.delete_cookie('csrftoken')
-    return response
+@no_perms_test
+def sign_up(request):
+    r"""
+        Given:
+        >>> _, client, mailoutbox = [getfixture(f) for f in ['db', 'client', 'mailoutbox']]
+
+        Signup flow -- can sign up with a .edu account:
+        >>> check_response(client.get(reverse('sign_up')), content_includes=['Sign up for an account'])
+        >>> check_response(client.post(reverse('sign_up'), {'email_address': 'not_edu@example.com'}), content_includes=['Email address is not .edu.'])
+        >>> check_response(client.post(reverse('sign_up'), {'email_address': 'user@example.edu'}, follow=True), content_includes=['Please check your email for a link'])
+
+        Can confirm the account and set a password with the emailed URL:
+        >>> confirm_url = mailoutbox[0].body.rstrip().split("\n")[-1]
+        >>> check_response(client.get(confirm_url[:-1]+'wrong/'), content_includes=['The password reset link was invalid'])
+        >>> new_password_form_response = client.get(confirm_url, follow=True)
+        >>> check_response(new_password_form_response, content_includes=['Please enter your new password twice'])
+        >>> check_response(client.post(new_password_form_response.redirect_chain[0][0], {'new_password1': 'anewpass', 'new_password2': 'anewpass'}, follow=True), content_includes=['Your password has been updated'])
+
+        Can log in with the new account:
+        >>> check_response(client.post(reverse('login'), {'username': 'user@example.edu', 'password': 'anewpass'}, follow=True), content_includes=['My Casebooks'])
+    """
+    form = SignupForm(request.POST or None, request=request)
+    if request.method == 'POST':
+        if form.is_valid():
+            form.save()
+            messages.success(request, "Thanks! Please check your email for a link that will let you confirm your account and set a password.")
+            return HttpResponseRedirect(reverse('index'))
+    return render(request, 'registration/sign_up.html', {'form': form})
 
 
-@perms_test({'args': ['user.id'], 'results': {200: ['user'], 'login': [None]}})
+@perms_test({'results': {200: ['user'], 'login': [None]}})
 @login_required
-def edit_user(request, user_id):
+def edit_user(request):
     """
         Given:
         >>> user, client, mailoutbox = [getfixture(f) for f in ['user', 'client', 'mailoutbox']]
-        >>> url = reverse('edit_user', args=[user.id])
+        >>> url = reverse('edit_user')
         >>> post_kwargs = {'email_address': user.email_address, 'affiliation': user.affiliation, 'attribution': user.attribution}
 
         Verified professor flow:
@@ -453,40 +472,14 @@ def edit_user(request, user_id):
         >>> check_response(client.get(url, as_user=user), content_includes=['Verified Professor'])
         >>> check_response(client.post(url, post_kwargs, as_user=user), content_includes=['Your changes have been saved'])
         >>> assert len(mailoutbox) == 1  # no emails sent if setting isn't changed
-
-        Change password flow:
-        >>> user.set_password('old_password'); user.save()
-        >>> check_response(
-        ...     client.post(url, {'old_password': 'wrong', 'new_password1': 'password', 'new_password2': 'password'}, as_user=user),
-        ...     content_includes=['Your old password was entered incorrectly.'])
-        >>> check_response(
-        ...     client.post(url, {'old_password': 'old_password', 'new_password1': 'Password2', 'new_password2': 'Password2'}, as_user=user),
-        ...     content_includes=['Your changes have been saved'])
-        >>> user.refresh_from_db()
-        >>> assert user.check_password('Password2')
     """
-    fix_after_rails("there's no reason for this route to include a user_id")
-    password_form = profile_form = None
+    form = UserProfileForm(request.POST or None, instance=request.user, request=request)
     if request.method == 'POST':
-        if 'old_password' in request.POST:
-            form = password_form = PasswordChangeForm(request.user, request.POST)
-        else:
-            form = profile_form = UserProfileForm(request.POST, instance=request.user, request=request)
         if form.is_valid():
             form.save()
             messages.success(request, "Your changes have been saved.")
-
-            # workaround so professor verification checkbox updates
-            if form == profile_form:
-                profile_form = None
-    if not password_form:
-        password_form = PasswordChangeForm(request.user)
-    if not profile_form:
-        profile_form = UserProfileForm(instance=request.user)
-    return render(request, 'user_edit.html', {
-        'profile_form': profile_form,
-        'password_form': password_form,
-    })
+            form = UserProfileForm(instance=request.user)  # workaround so professor verification checkbox updates
+    return render(request, 'user_edit.html', {'form': form})
 
 
 @perms_test({'results': {302: ['user'], 'login': [None]}})
