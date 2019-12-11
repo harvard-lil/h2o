@@ -469,8 +469,8 @@ class RoleAdmin(BaseAdmin):
 class CollaboratorsAdmin(BaseAdmin):
     readonly_fields = ['created_at', 'updated_at', 'user', 'content']
     list_select_related = ['user', 'content']
-    list_display = ['user', 'role']
-    list_filter = ['role']
+    list_display = ['id', 'user', 'role', 'has_attribution', 'content']
+    list_filter = ['role', 'has_attribution']
     ordering = ['role']
     raw_id_fields = ['user', 'content']
 
