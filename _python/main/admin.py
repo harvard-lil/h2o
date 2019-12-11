@@ -430,18 +430,22 @@ class TextBlockAdmin(BaseAdmin):
 
 class UserAdmin(BaseAdmin):
     readonly_fields = ['created_at', 'updated_at', 'display_name', 'last_request_at', 'last_login_at', 'login_count', 'login']
-    list_display = ['id', 'display_name', 'login', 'email_address', 'verified_email', 'professor_verification_requested', 'verified_professor', 'get_roles', 'last_request_at', 'last_login_at', 'login_count', 'created_at', 'updated_at']
+    list_display = ['id', 'casebook_count', 'display_name', 'login', 'email_address', 'verified_email', 'professor_verification_requested', 'verified_professor', 'get_roles', 'last_request_at', 'last_login_at', 'login_count', 'created_at', 'updated_at']
     list_filter = ['verified_email', 'verified_professor', 'professor_verification_requested', RoleNameFilter]
     search_fields = ['attribution', 'title', 'email_address']
     fields = ['title', 'attribution', 'login', 'email_address', 'verified_email', 'professor_verification_requested', 'verified_professor', 'affiliation', 'last_request_at', 'last_login_at', 'login_count', 'created_at', 'updated_at']
     inlines = [RolesUserInline]
 
     def get_queryset(self, request):
-        return super().get_queryset(request).prefetch_related('roles')
+        return super().get_queryset(request).prefetch_related('roles').annotate(casebook_count=Count('casebooks'))
 
     def get_roles(self, obj):
         return ','.join(str(o) for o in set(r.name for r in obj.roles.all())) or None
     get_roles.short_description = 'Roles'
+
+    def casebook_count(self, obj):
+        return obj.casebook_count
+    casebook_count.admin_order_field = 'casebook_count'
 
     def has_add_permission(self, request):
         return super(BaseAdmin, self).has_add_permission(request)
