@@ -1,0 +1,14 @@
+{% extends "admin/change_form.html" %}
+{% load admin_urls %}
+
+{% block after_related_objects %}
+  {{ block.super }}
+  <div class="module aligned">
+    <h2>Casebooks</h2>
+    <div class="form-row">
+      <a href="{% url 'admin:main_casebook_changelist' %}?collaborator-id={{ original.id }}">
+        View {{ original.attribution }}'s Casebooks
+      </a>
+    </div>
+  </div>
+{% endblock %}
