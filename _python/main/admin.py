@@ -4,7 +4,6 @@ from django.contrib import admin
 from django.db.models import Q, Count
 from django.urls import reverse
 from django.utils.html import format_html
-from django.shortcuts import redirect
 from django.utils.safestring import mark_safe
 
 from .utils import fix_after_rails, clone_model_instance
