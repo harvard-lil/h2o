@@ -135,7 +135,6 @@ STATIC_ROOT = os.path.join(BASE_DIR, 'static')
 
 RAILS_SECRET_KEY_BASE = None
 
-LOGIN_URL = '/user_sessions/new'
 LOGIN_REDIRECT_URL = '/'
 LOGOUT_REDIRECT_URL = '/'
 GUIDE_URL = 'https://about.opencasebook.org/'
