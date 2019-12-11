@@ -207,6 +207,11 @@ class RolesUserInline(admin.TabularInline):
     list_select_related = ['user', 'role']
     fields = ['user', 'role']
     raw_id_fields = ['user', 'role']
+    max_num = None
+    can_delete = True
+
+    verbose_name = "Role"
+    verbose_name_plural = "Roles (e.g. superadmin, caseadmin)"
 
 
 #
