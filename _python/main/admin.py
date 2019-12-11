@@ -9,7 +9,7 @@ from django.utils.safestring import mark_safe
 from .utils import fix_after_rails, clone_model_instance
 from .models import Case, CaseCourt, Default, User, Casebook, Section, \
     Resource, ContentCollaborator, ContentAnnotation, TextBlock, \
-    Role, RolesUser, UnpublishedRevision
+    Role, RolesUser
 
 
 
@@ -330,28 +330,6 @@ class AnnotationsAdmin(BaseAdmin):
     resource_id.admin_order_field = 'resource__resource_id'
 
 
-class UnpublishedRevisionAdmin(BaseAdmin):
-    readonly_fields = ['created_at', 'updated_at', 'casebook', 'node', 'node_parent', 'annotation', 'field', 'value']
-    list_select_related = ['casebook', 'node', 'node_parent', 'annotation']
-    list_display = ['id', 'the_draft', 'node', 'parent','field', 'value_preview', 'annotation', 'created_at', 'updated_at']
-    list_filter = [CasebookIdFilter, 'field']
-
-    def the_draft(self, obj):
-        return edit_link(obj.casebook, True)
-    the_draft.admin_order_field = 'casebook'
-
-    def parent(self, obj):
-        return obj.node_parent
-    parent.admin_order_field = 'node_parent'
-    parent.short_description = 'original (published) node'
-
-    def value_preview(self, obj):
-        if len(obj.value) > 50:
-            return obj.value[0:49] + '...'
-        return obj.value
-    value_preview.admin_order_field = 'value'
-    value_preview.short_description = 'value'
-
 ## Resources
 
 class CaseAdmin(BaseAdmin):
@@ -523,7 +501,6 @@ admin_site.register(Casebook, CasebookAdmin)
 admin_site.register(Section, SectionAdmin)
 admin_site.register(Resource, ResourceAdmin)
 admin_site.register(ContentAnnotation, AnnotationsAdmin)
-admin_site.register(UnpublishedRevision, UnpublishedRevisionAdmin)
 admin_site.register(Case, CaseAdmin)
 admin_site.register(Default, DefaultAdmin)
 admin_site.register(TextBlock, TextBlockAdmin)
