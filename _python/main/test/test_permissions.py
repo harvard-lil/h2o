@@ -109,4 +109,4 @@ def test_permissions(
     # check response
     check_response(response, status_code=status_code, content_type=None)
     if should_redirect_to_login:
-        assert response.url.startswith('/user_sessions/new'), "View failed to redirect to login page"
+        assert response.url.startswith(reverse('login')), "View failed to redirect to login page"
