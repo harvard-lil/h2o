@@ -27,6 +27,10 @@ def get_permissions_tests():
         for the test_permissions() test below.
     """
     for path in urlpatterns:
+        # don't run tests on built-in includes
+        if hasattr(path, 'urlconf_module') and path.urlconf_module.__name__.startswith('django.'):
+            continue
+
         view_func = path.callback
 
         # don't run tests on built-in views:
