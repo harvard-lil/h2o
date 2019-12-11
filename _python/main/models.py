@@ -2542,7 +2542,6 @@ class UnpublishedRevision(TimestampedModel, BigPkModel):
 
 
 class User(NullableTimestampedModel, AbstractBaseUser):
-    login = models.CharField(max_length=255, blank=True, null=True)
     email_address = models.CharField(max_length=255, blank=True, null=True, unique=True)
     title = models.CharField(max_length=255, blank=True, null=True)
     attribution = models.CharField(max_length=255, default='Anonymous', verbose_name='Display name')
@@ -2570,6 +2569,7 @@ class User(NullableTimestampedModel, AbstractBaseUser):
     password_salt = models.CharField(max_length=255, blank=True, null=True)
 
     # all legacy fields, I believe
+    login = models.CharField(max_length=255, blank=True, null=True)
     persistence_token = models.CharField(max_length=255)
     perishable_token = models.CharField(max_length=255, blank=True, null=True)
     oauth_token = models.CharField(max_length=255, blank=True, null=True)
