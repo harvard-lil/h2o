@@ -139,6 +139,8 @@ LOGIN_REDIRECT_URL = '/'
 LOGOUT_REDIRECT_URL = '/'
 GUIDE_URL = 'https://about.opencasebook.org/'
 BLOG_URL = 'https://about.opencasebook.org/blog/'
+VIDEO_URL = 'https://about.opencasebook.org/other-resources'
+TWITTER_URL= 'https://twitter.com/opencasebook'
 CAPAPI_CASE_URL_FSTRING = 'https://api.case.law/v1/cases/{}/'
 CAPAPI_COURT_URL_FSTRING = 'https://api.case.law/v1/courts/?id={}'
 
@@ -151,7 +153,9 @@ PROFESSOR_VERIFIER_EMAILS = ['info@opencasebook.org']
 TEMPLATE_VISIBLE_SETTINGS = (
     'CONTACT_EMAIL',
     'GUIDE_URL',
-    'BLOG_URL'
+    'BLOG_URL',
+    'VIDEO_URL',
+    'TWITTER_URL'
 )
 
 LOGGING = {
