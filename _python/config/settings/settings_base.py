@@ -21,14 +21,6 @@ ALLOWED_HOSTS = []
 INSTALLED_APPS = [
     'whitenoise.runserver_nostatic',
 
-    # built-in
-    'main.apps.CustomAdminConfig',
-    'django.contrib.auth',
-    'django.contrib.contenttypes',
-    'django.contrib.sessions',
-    'django.contrib.messages',
-    'django.contrib.staticfiles',
-
     # apps
     'main',
     'search',
@@ -37,25 +29,25 @@ INSTALLED_APPS = [
     'django_extensions',
     'crispy_forms',
     'rest_framework',
+
+    # built-in
+    'main.apps.CustomAdminConfig',
+    'django.contrib.auth',
+    'django.contrib.contenttypes',
+    'django.contrib.sessions',
+    'django.contrib.messages',
+    'django.contrib.staticfiles',
 ]
 
 MIDDLEWARE = [
-    'main.middleware.generated_by_header_middleware',
     'main.middleware.method_override_middleware',
 
     'django.middleware.security.SecurityMiddleware',
     'whitenoise.middleware.WhiteNoiseMiddleware',
-
-    'django.contrib.sessions.middleware.SessionMiddleware',  # sets request.session
-    'main.middleware.rails_session_middleware',  # sets request.rails_session
-
+    'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
-
-    # this gets overridden by rails_auth_middleware, but django admin will complain if it's taken out
-    'django.contrib.auth.middleware.AuthenticationMiddleware',
-    'main.middleware.rails_auth_middleware',
-
+    'main.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 ]
@@ -96,9 +88,10 @@ DATABASES = {
 }
 
 
-# Password validation
-# https://docs.djangoproject.com/en/2.2/ref/settings/#auth-password-validators
+AUTH_USER_MODEL = 'main.User'
 
+
+# Password validation - https://docs.djangoproject.com/en/2.2/ref/settings/#auth-password-validators
 AUTH_PASSWORD_VALIDATORS = [
     {
         'NAME': 'django.contrib.auth.password_validation.UserAttributeSimilarityValidator',
@@ -142,14 +135,16 @@ STATIC_ROOT = os.path.join(BASE_DIR, 'static')
 
 RAILS_SECRET_KEY_BASE = None
 
-LOGIN_URL = '/user_sessions/new'
+LOGIN_REDIRECT_URL = '/'
+LOGOUT_REDIRECT_URL = '/'
 GUIDE_URL = 'https://about.opencasebook.org/'
 BLOG_URL = 'https://about.opencasebook.org/blog/'
 CAPAPI_CASE_URL_FSTRING = 'https://api.case.law/v1/cases/{}/'
 CAPAPI_COURT_URL_FSTRING = 'https://api.case.law/v1/courts/?id={}'
 
 CONTACT_EMAIL = 'info@opencasebook.org'
-
+DEFAULT_FROM_EMAIL = 'info@opencasebook.org'
+PROFESSOR_VERIFIER_EMAILS = ['info@opencasebook.org']
 
 # Make these settings available for use in Django's templates.
 # e.g. <a href="mailto:{{ CONTACT_EMAIL }}">Contact Us</a>
@@ -159,14 +154,24 @@ TEMPLATE_VISIBLE_SETTINGS = (
     'BLOG_URL'
 )
 
-
-AUTH_USER_MODEL = 'main.User'
-
-
 LOGGING = {
     'version': 1,
     'disable_existing_loggers': False,
     'handlers': {
+        'file': {
+            'level':'INFO',
+            'filters': ['require_debug_false'],
+            'class':'logging.handlers.RotatingFileHandler',
+            'filename': '/tmp/h2o.log',
+            'maxBytes': 1024*1024*5, # 5 MB
+            'backupCount': 5,
+            'formatter':'standard',
+        },
+        'mail_admins': {
+            'level': 'ERROR',
+            'filters': ['require_debug_false'],
+            'class': 'main.reporter.CustomAdminEmailHandler'
+        },
         'console': {
             'level': 'DEBUG',
             'class': 'logging.StreamHandler',
@@ -183,8 +188,16 @@ LOGGING = {
         'verbose': {
             'format': '%(asctime)s %(levelname)s module=%(module)s, '
                       'process_id=%(process)d, %(message)s'
-        }
+        },
+        'standard': {
+            'format': '%(asctime)s [%(levelname)s] %(filename)s %(lineno)d: %(message)s'
+        },
     },
+    'filters': {
+         'require_debug_false': {
+             '()': 'django.utils.log.RequireDebugFalse'
+         }
+     },
 }
 
 

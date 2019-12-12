@@ -6,6 +6,7 @@ from datetime import datetime
 from distutils.sysconfig import get_python_lib
 import pytest
 import factory
+from django.conf import settings
 
 from django.db import connections
 from django.db.backends.base.base import BaseDatabaseWrapper
@@ -78,9 +79,11 @@ class UserFactory(factory.DjangoModelFactory):
     class Meta:
         model = User
 
+    email_address = factory.Sequence(lambda n: 'user%s@example.com' % n)
     attribution = factory.Sequence(lambda n: 'Some User %s' % n)
     affiliation = factory.Sequence(lambda n: 'Affiliation %s' % n)
     verified_email = True
+    password_salt = '7'
 
 
 @register_factory
@@ -283,18 +286,26 @@ def annotations_factory(db):
         ... ]
     """
     def factory(resource_type, html, casebook=None, ordinals=None):
-        # break apart provided html and get annotation brackets and offsets
-        content = re.sub(r'\[.*?\]', '', html)  # strip brackets
-        html = re.sub(r'<[^>]+?>', '', html)  # strip html tags
-        html_strs, annotation_offsets, annotation_strs = re_split_offsets(r'\[/?.+?\]', html)
 
         # create casebook, resource, resource_target, and annotations
         if not casebook:
             casebook = CasebookFactory()
             SectionFactory(casebook=casebook, ordinals=[1])
             ordinals = [1, 1]
-        resource_target = {'Case': CaseFactory, 'TextBlock': TextBlockFactory}[resource_type](content=content)
+        resource_target = {'Case': CaseFactory, 'TextBlock': TextBlockFactory}[resource_type](content=html)
         resource = ResourceFactory(casebook=casebook, ordinals=ordinals, resource_type=resource_type, resource_id=resource_target.id)
+
+        # retrieve the processed, cleansed html of the saved resource
+        processed_html = resource.resource.content
+
+        # strip html tags, break apart the text, and get annotation brackets and offsets
+        text = re.sub(r'<[^>]+?>', '', processed_html)
+        html_strs, annotation_offsets, annotation_strs = re_split_offsets(r'\[/?.+?\]', text)
+
+        # resave the resource's content with the annotating brackets stripped
+        content = re.sub(r'\[.*?\]', '', processed_html)
+        resource.resource.content = content
+        resource.resource.save()
 
         # create each annotation. to support overlapping annotations, pop off each starting annotation and then find
         # the nearest ending annotation:
@@ -588,3 +599,31 @@ def reset_sequences(django_db_reset_sequences):
     for factory_class in globals().values():
         if inspect.isclass(factory_class) and issubclass(factory_class, factory.Factory):
             factory_class.reset_sequence(force=True)
+
+
+@pytest.fixture
+def client():
+    """
+        A version of the Django test client that allows us to specify a user login for a particular request with an
+        `as_user` parameter, like `client.get(url, as_user=user).
+    """
+    from django.test.client import Client
+    session_key = settings.SESSION_COOKIE_NAME
+    class UserClient(Client):
+        def request(self, *args, **kwargs):
+            as_user = kwargs.pop('as_user', None)
+            if as_user:
+                # If as_user is provided, store the current value of the session cookie, call force_login, and then
+                # reset the current value after the request is over.
+                previous_session = self.cookies.get(session_key)
+                self.force_login(as_user)
+                try:
+                    return super().request(*args, **kwargs)
+                finally:
+                    if previous_session:
+                        self.cookies[session_key] = previous_session
+                    else:
+                        self.cookies.pop(session_key)
+            else:
+                return super().request(*args, **kwargs)
+    return UserClient()

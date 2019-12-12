@@ -8,6 +8,7 @@ from rest_framework.response import Response
 from rest_framework.views import APIView
 
 from django.conf import settings
+from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.views import redirect_to_login
 from django.core.exceptions import PermissionDenied
@@ -16,6 +17,7 @@ from django.shortcuts import render, get_object_or_404
 from django.utils.text import Truncator
 from django.urls import reverse
 from django.utils.decorators import method_decorator
+from django.utils.html import escape
 from django.views.decorators.csrf import requires_csrf_token
 from django.views.decorators.http import require_POST, require_http_methods
 from django.views import View
@@ -28,7 +30,8 @@ from pytest import raises as assert_raises
 from .utils import parse_cap_decision_date, fix_after_rails, CapapiCommunicationException, StringFileResponse
 from .serializers import AnnotationSerializer, NewAnnotationSerializer, UpdateAnnotationSerializer, CaseSerializer, TextBlockSerializer
 from .models import Casebook, Section, Resource, Case, User, CaseCourt, ContentNode, TextBlock, Default, ContentAnnotation
-from .forms import CasebookForm, SectionForm, ResourceForm, LinkForm, TextBlockForm, NewTextBlockForm
+from .forms import CasebookForm, SectionForm, ResourceForm, LinkForm, TextBlockForm, NewTextBlockForm, UserProfileForm, \
+    SignupForm
 
 
 ### helpers ###
@@ -422,15 +425,61 @@ def dashboard(request, user_id):
     return render(request, 'dashboard.html', {'user': user})
 
 
-@no_perms_test  # not really testable until we migrate to Django auth, at which point it hopefully won't be a custom view anyway
-@require_POST
-def logout(request, id=None):
-    fix_after_rails("id isn't used; just kept for rails compat")
-    response = HttpResponseRedirect(reverse('index'))
-    response.delete_cookie('_h2o_session')
-    response.delete_cookie('user_credentials')
-    response.delete_cookie('csrftoken')
-    return response
+@no_perms_test
+def sign_up(request):
+    r"""
+        Given:
+        >>> _, client, mailoutbox = [getfixture(f) for f in ['db', 'client', 'mailoutbox']]
+
+        Signup flow -- can sign up with a .edu account:
+        >>> check_response(client.get(reverse('sign_up')), content_includes=['Sign up for an account'])
+        >>> check_response(client.post(reverse('sign_up'), {'email_address': 'not_edu@example.com'}), content_includes=['Email address is not .edu.'])
+        >>> check_response(client.post(reverse('sign_up'), {'email_address': 'user@example.edu'}, follow=True), content_includes=['Please check your email for a link'])
+
+        Can confirm the account and set a password with the emailed URL:
+        >>> confirm_url = mailoutbox[0].body.rstrip().split("\n")[-1]
+        >>> check_response(client.get(confirm_url[:-1]+'wrong/'), content_includes=['The password reset link was invalid'])
+        >>> new_password_form_response = client.get(confirm_url, follow=True)
+        >>> check_response(new_password_form_response, content_includes=['Please enter your new password twice'])
+        >>> check_response(client.post(new_password_form_response.redirect_chain[0][0], {'new_password1': 'anewpass', 'new_password2': 'anewpass'}, follow=True), content_includes=['Your password has been updated'])
+
+        Can log in with the new account:
+        >>> check_response(client.post(reverse('login'), {'username': 'user@example.edu', 'password': 'anewpass'}, follow=True), content_includes=['My Casebooks'])
+    """
+    form = SignupForm(request.POST or None, request=request)
+    if request.method == 'POST':
+        if form.is_valid():
+            form.save()
+            messages.success(request, "Thanks! Please check your email for a link that will let you confirm your account and set a password.")
+            return HttpResponseRedirect(reverse('index'))
+    return render(request, 'registration/sign_up.html', {'form': form})
+
+
+@perms_test({'results': {200: ['user'], 'login': [None]}})
+@login_required
+def edit_user(request):
+    """
+        Given:
+        >>> user, client, mailoutbox = [getfixture(f) for f in ['user', 'client', 'mailoutbox']]
+        >>> url = reverse('edit_user')
+        >>> post_kwargs = {'email_address': user.email_address, 'affiliation': user.affiliation, 'attribution': user.attribution}
+
+        Verified professor flow:
+        >>> check_response(client.get(url, as_user=user), content_includes=['Request Professor Verification'])
+        >>> check_response(client.post(url, {'professor_verification_requested': 'on', **post_kwargs}, as_user=user), content_includes=['Your changes have been saved', 'Professor Verification Requested'])
+        >>> assert len(mailoutbox) == 1
+        >>> user.verified_professor = True; user.save()
+        >>> check_response(client.get(url, as_user=user), content_includes=['Verified Professor'])
+        >>> check_response(client.post(url, post_kwargs, as_user=user), content_includes=['Your changes have been saved'])
+        >>> assert len(mailoutbox) == 1  # no emails sent if setting isn't changed
+    """
+    form = UserProfileForm(request.POST or None, instance=request.user, request=request)
+    if request.method == 'POST':
+        if form.is_valid():
+            form.save()
+            messages.success(request, "Your changes have been saved.")
+            form = UserProfileForm(instance=request.user)  # workaround so professor verification checkbox updates
+    return render(request, 'user_edit.html', {'form': form})
 
 
 @perms_test({'results': {302: ['user'], 'login': [None]}})
@@ -1002,15 +1051,14 @@ def edit_resource(request, casebook, resource):
         ...         content_excludes=original_url
         ...     )
 
-        You CANNOT presently edit the text associated with a 'TextBlock' resource, from its edit page,
-        but you can see it (editing is not safe yet):
+        You can edit the text associated with a 'TextBlock' resource, from its edit page:
         >>> for resource in [private_resources['TextBlock'], draft_resources['TextBlock']]:
         ...     original_text = resource.resource.content
         ...     new_text = "<p>I'm new text</p>"
         ...     check_response(
         ...         client.post(resource.get_edit_url(), {'content': new_text}, as_user=resource.owner),
-        ...         content_includes=original_text,
-        ...         content_excludes=new_text
+        ...         content_includes=escape(new_text),
+        ...         content_excludes=escape(original_text)
         ...     )
     """
     # NB: The Rails app does NOT redirect here to a canonical URL; it silently accepts any slug.

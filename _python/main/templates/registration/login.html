@@ -1,0 +1,32 @@
+{% extends 'base.html' %}
+{% load crispy_forms_tags %}
+{% block page_title %}Log in{% endblock %}
+
+{% block mainContent %}
+  <header class="users">
+    <div class="content">
+      <h1>
+        Sign in to your account
+      </h1>
+    </div>
+  </header>
+  <section class="sign-in">
+    <div class="content">
+      <div class="form">
+        <form method="POST">
+          {% crispy form %}
+          <input type="submit" name="submit" value="Sign in" class="btn btn-primary">
+          <p class="help-block">By signing in to your account, you agree to our <a href="{% url "terms-of-service" %}">Terms of Service</a>.</p>
+        </form>
+      </div>
+      <div class="help">
+        <h2>Need help?</h2>
+        <ul>
+          <li>Your account login is your school <code>.edu</code> email address.</li>
+          <li>If you forgot your password, <a href="{% url "password_reset" %}">click here to reset it</a>.</li>
+          <li>If you don't yet have an account, <a href="{% url "sign_up" %}">click here to sign up</a>.</li>
+        </ul>
+      </div>
+    </div>
+  </section>
+{% endblock %}

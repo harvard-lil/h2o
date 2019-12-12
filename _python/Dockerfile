@@ -29,9 +29,9 @@ RUN curl -o nodejs.deb https://deb.nodesource.com/node_11.x/pool/main/n/nodejs/n
 RUN mkdir /app/_python
 WORKDIR /app/_python
 
-# Custom version of Pandoc, for export
-RUN wget https://lilresources.s3.amazonaws.com/h2o/pandoc-889810d -O /usr/bin/pandoc \
-    && chmod +x /usr/bin/pandoc
+# Install Pandoc, for export
+RUN wget https://github.com/jgm/pandoc/releases/download/2.8.1/pandoc-2.8.1-1-amd64.deb \
+    && dpkg -i pandoc-2.8.1-1-amd64.deb
 
 # pip
 COPY _python/requirements.txt /app/_python

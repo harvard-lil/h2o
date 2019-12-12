@@ -1,3 +1,4 @@
+import hashlib
 import os
 import re
 import subprocess
@@ -6,6 +7,8 @@ from os.path import commonprefix
 from urllib.parse import urlparse
 
 from django.conf import settings
+from django.contrib.auth import user_logged_in
+from django.contrib.auth.base_user import AbstractBaseUser, BaseUserManager
 from django.contrib.auth.models import AnonymousUser
 from django.contrib.postgres.fields import JSONField, ArrayField
 from django.contrib.postgres.indexes import GinIndex
@@ -14,6 +17,8 @@ from django.db.models import Q, Prefetch
 from django.template.defaultfilters import truncatechars
 from django.template.loader import render_to_string
 from django.urls import reverse
+from django.utils import timezone
+from django.utils.crypto import constant_time_compare
 from django.utils.functional import cached_property
 from django.utils.html import format_html
 from django.utils.safestring import mark_safe
@@ -27,9 +32,14 @@ from .differ import AnnotationUpdater
 from test.test_helpers import dump_casebook_outline, dump_content_tree, dump_annotated_text, dump_content_tree_children
 from pytest import raises as assert_raises
 
-from .utils import clone_model_instance, fix_after_rails, sanitize, fix_before_deploy, parse_html_fragment, \
-    remove_empty_tags, inner_html, block_level_elements, void_elements
+from .utils import clone_model_instance, fix_after_rails, fix_before_deploy, parse_html_fragment, \
+    remove_empty_tags, inner_html, block_level_elements, void_elements, normalize_newlines, \
+    strip_trailing_block_level_whitespace, elements_equal, get_ip_address
 
+from .sanitize import sanitize
+
+import logging
+logger = logging.getLogger(__name__)
 
 class BigPkModel(models.Model):
     id = models.BigAutoField(primary_key=True)
@@ -134,31 +144,70 @@ class EditTrackedModel(models.Model):
         return self.original_state[field_name] != getattr(self, field_name)
 
 
-class SanitizingMixin(object):
-    """
-    Removes dangerous HTML from a TextField before it is saved to the database.
-    See https://docs.djangoproject.com/en/2.2/howto/custom-model-fields/#preprocessing-values-before-saving
-    and https://docs.djangoproject.com/en/2.2/ref/models/fields/#django.db.models.Field.pre_save
+def cleanse_html_field(model_instance, fieldname, sanitize_field=False):
+    r"""
+        Munge HTML so it meets H2O's requirements.
+        Models using this helper should use EditTrackedModel so model_instance.has_changed() works.
+
+        Given:
+        >>> caplog, _ = [getfixture(i) for i in ['caplog', 'db']]
+        >>> html = '<p>Prepended</p><p>\n  <em>Keep foo keep baz buzz add boo</em>\n</p>'
+        >>> same_after_normalizing = '<p>Prepended</p><p>\r\n  <em>Keep foo keep baz buzz add boo</em>\r\n</p>'
+        >>> same_after_sanitizing = '<p>Prepended</p><p>\n  <em invalid-attr="invalid">Keep foo <invalid>keep baz</invalid> buzz add boo</em>\n</p>'
+        >>> same_after_cleansing = '<p>Prepended</p>\r\n<p>\n  <em invalid-attr="invalid">Keep foo <invalid>keep baz</invalid> buzz add boo</em>\r\n</p>'
+        >>> node = ContentNode(headnote=html)
+        >>> node.save()
+
+        By default, line endings are normalized and whitespace is cleaned up:
+        >>> node.headnote = same_after_cleansing
+        >>> with caplog.at_level(logging.DEBUG):
+        ...     cleanse_html_field(node, 'headnote')
+        >>> assert len(caplog.record_tuples) == 2
+        >>> assert caplog.record_tuples[0][2] == 'Normalizing newlines in ContentNode headnote'
+        >>> assert caplog.record_tuples[1][2] == 'Stripping trailing whitespace in ContentNode headnote'
+        >>> assert node.headnote == same_after_sanitizing
+        >>> caplog.clear()
+
+        Optionally, sanitize the field to remove potentially dangerous HTML before cleaning up whitespace:
+        >>> node.headnote = same_after_cleansing
+        >>> with caplog.at_level(logging.DEBUG):
+        ...     cleanse_html_field(node, 'headnote', True)
+        >>> assert len(caplog.record_tuples) == 3
+        >>> assert caplog.record_tuples[0][2] == 'Normalizing newlines in ContentNode headnote'
+        >>> assert caplog.record_tuples[1][2] == 'Sanitizing ContentNode headnote'
+        >>> assert caplog.record_tuples[2][2] == 'Stripping trailing whitespace in ContentNode headnote'
+        >>> assert node.headnote == html
+        >>> caplog.clear()
+
+        If the field is the same after normalizing or sanitizing, stop processing:
+        >>> node.headnote = same_after_normalizing
+        >>> with caplog.at_level(logging.DEBUG):
+        ...     cleanse_html_field(node, 'headnote', True)
+        >>> assert len(caplog.record_tuples) == 1
+        >>> assert caplog.record_tuples[0][2] == 'Normalizing newlines in ContentNode headnote'
+        >>> caplog.clear()
+        >>> node.headnote = same_after_sanitizing
+        >>> with caplog.at_level(logging.DEBUG):
+        ...     cleanse_html_field(node, 'headnote', True)
+        >>> assert len(caplog.record_tuples) == 2
+        >>> assert caplog.record_tuples[0][2] == 'Normalizing newlines in ContentNode headnote'
+        >>> assert caplog.record_tuples[1][2] == 'Sanitizing ContentNode headnote'
+        >>> caplog.clear()
     """
 
-    def pre_save(self, model_instance, add):
-        # TODO:
-        # Rails checks to see if the value has changed first;
-        # I don't know of a clean and reliable way to do this in Django.
-        # Do we need to avoid sanitizing redundantly? In Django, I believe
-        # this is handled at the Form level; do we need Model level checks too?
-        value = getattr(model_instance, self.attname)
-        if value:
-            value = sanitize(value)
-            setattr(model_instance, self.attname, value)
+    def run_if_field_changed(func, message):
+        value = getattr(model_instance, fieldname)
+        if value and model_instance.has_changed(fieldname):
+            logger.debug(message)
+            value = func(value)
+            setattr(model_instance, fieldname, value)
         return value
 
+    run_if_field_changed(normalize_newlines, "Normalizing newlines in {} {}".format(type(model_instance).__name__, fieldname))
+    if sanitize_field:
+        run_if_field_changed(sanitize, "Sanitizing {} {}".format(type(model_instance).__name__, fieldname))
+    run_if_field_changed(strip_trailing_block_level_whitespace, "Stripping trailing whitespace in {} {}".format(type(model_instance).__name__, fieldname))
 
-class SanitizingCharField(SanitizingMixin, models.TextField):
-    pass
-
-class SanitizingTextField(SanitizingMixin, models.TextField):
-    pass
 
 
 # Internal
@@ -210,22 +259,9 @@ class CaseCourt(NullableTimestampedModel):
 
 
 class AnnotatedModel(EditTrackedModel):
-    r"""
+    """
         Abstract base class for Case and TextBlock resource types, which can be annotated. Ensures that annotation
         offsets will be updated when the text contents of this resource are modified.
-
-        Given:
-        >>> annotations_factory, *_ = [getfixture(f) for f in ['annotations_factory']]
-        >>> html_with_annotations =     '<p>\n  <em>[note]Keep foo[/note] [highlight]delete bar[/highlight] [elide]keep baz[/elide] buzz</em>\n</p>'
-        >>> new_html =                  '<p>\n  <em>Keep foo keep baz buzz add boo</em>\n</p>'
-        >>> new_html_with_annotations = '<p>\n  <em>[note]Keep foo[/note] [elide]keep baz[/elide] buzz add boo</em>\n</p>'
-
-        Case and TextBlock annotations are updated on save:
-        >>> for resource_type in ('Case', 'TextBlock'):
-        ...     casebook, case_or_textblock = annotations_factory(resource_type, html_with_annotations)
-        ...     case_or_textblock.resource.content = new_html
-        ...     case_or_textblock.resource.save()
-        ...     assert dump_annotated_text(case_or_textblock) == new_html_with_annotations
     """
     class Meta:
         abstract = True
@@ -237,6 +273,7 @@ class AnnotatedModel(EditTrackedModel):
 
     def save(self, *args, **kwargs):
         if self.pk and self.has_changed('content'):
+            logger.debug("Updating annotations for {}".format(type(self).__name__))
             ContentAnnotation.update_annotations(self.related_annotations(), self.original_state['content'], self.content)
         super().save(*args, **kwargs)
 
@@ -279,6 +316,31 @@ class Case(NullableTimestampedModel, AnnotatedModel):
             models.Index(fields=['public']),
             models.Index(fields=['updated_at'])
         ]
+
+    def save(self, *args, **kwargs):
+        r"""
+            Override save to ensure Case HTML is cleansed and annotations are
+            repositioned on save.
+
+            Given:
+            >>> annotations_factory, caplog = [getfixture(f) for f in ['annotations_factory', 'caplog']]
+            >>> html_with_annotations =     '<p>\n  <em>[note]Keep foo[/note] [highlight]delete bar[/highlight] [elide]keep baz[/elide] buzz</em>\n</p><p>bam</p>'
+            >>> new_html =                  '<p>Prepended</p>\n\n<p>\n  <em invalid-attr="invalid">Keep foo <invalid>keep baz</invalid> buzz add boo</em>\n</p>'
+            >>> new_case_html_with_annotations = '<p>Prepended</p><p>\n  <em invalid-attr="invalid">[note]Keep foo[/note] <invalid>[elide]keep baz</invalid>[/elide] buzz add boo</em>\n</p>'
+
+            On save, Case HTML is cleansed (but not sanitized), and then annotations are updated:
+            >>> _, case = annotations_factory('Case', html_with_annotations)
+            >>> case.resource.content = new_html
+            >>> with caplog.at_level(logging.DEBUG):
+            ...     case.resource.save()
+            >>> assert dump_annotated_text(case) == new_case_html_with_annotations
+            >>> assert len(caplog.record_tuples) == 3
+            >>> assert caplog.record_tuples[0][2] == 'Normalizing newlines in Case content'
+            >>> assert caplog.record_tuples[1][2] == 'Stripping trailing whitespace in Case content'
+            >>> assert caplog.record_tuples[2][2] == 'Updating annotations for Case'
+        """
+        cleanse_html_field(self, 'content')
+        super().save(*args, **kwargs)
 
     def get_name(self):
         return self.name_abbreviation if self.name_abbreviation else self.name
@@ -479,10 +541,10 @@ class ContentNodeQueryset(models.QuerySet):
         return self.prefetch_related(Prefetch('clones', Casebook.objects.filter(draft_mode_of_published_casebook=True), '_drafts'))
 
 
-class ContentNode(TimestampedModel, BigPkModel):
+class ContentNode(EditTrackedModel, TimestampedModel, BigPkModel):
     title = models.CharField(max_length=10000, blank=True, null=True)
     subtitle = models.CharField(max_length=10000, blank=True, null=True)
-    headnote = SanitizingTextField(blank=True, null=True)
+    headnote = models.TextField(blank=True, null=True)
     raw_headnote = models.TextField(blank=True, null=True)
     copy_of = models.ForeignKey(
         'self',
@@ -539,6 +601,7 @@ class ContentNode(TimestampedModel, BigPkModel):
     slug = models.CharField(max_length=10000, blank=True, null=True)
 
     objects = ContentNodeQueryset.as_manager()
+    tracked_fields = ['headnote']
 
     class Meta:
         # managed = False
@@ -575,6 +638,26 @@ class ContentNode(TimestampedModel, BigPkModel):
         else:
             subclass = Resource
         return models.Model.from_db.__func__(subclass, db, field_names, values)
+
+    def save(self, *args, **kwargs):
+        r"""
+            Override save to include the cleanup of user-supplied HTML.
+
+            Given:
+            >>> caplog, _ = [getfixture(i) for i in ['caplog', 'db']]
+            >>> html = '<p>Prepended</p>\n\n<p>\n  <em invalid-attr="invalid">Keep foo <invalid>keep baz</invalid> buzz add boo</em>\n</p>'
+            >>> cleaned_html = '<p>Prepended</p><p>\n  <em>Keep foo keep baz buzz add boo</em>\n</p>'
+
+            On save, the headnote is cleansed.
+            >>> node = ContentNode(headnote=html)
+            >>> with caplog.at_level(logging.DEBUG):
+            ...     node.headnote = html
+            ...     node.save()
+            >>> node.refresh_from_db()
+            >>> assert node.headnote == cleaned_html
+        """
+        cleanse_html_field(self, 'headnote', True)
+        super().save(*args, **kwargs)
 
     ##
     # Methods common to all ContentNodes
@@ -637,7 +720,6 @@ class ContentNode(TimestampedModel, BigPkModel):
                 '--from', 'html',
                 '--to', 'docx',
                 '--reference-doc', os.path.join(settings.PANDOC_DIR, 'reference.docx'),
-                '--docx-preserve-style',
                 '--output', pandoc_out.name,
                 '--quiet'
             ]
@@ -1546,6 +1628,7 @@ class Casebook(CasebookAndSectionMixin, ContentNode):
             Merge draft back into original:
             >>> draft.title = "New Title"
             >>> draft.save()
+            >>> Section(casebook=draft, ordinals=[3], title="New Section").save()
             >>> with assert_num_queries(delete=8, select=11, update=3):
             ...     new_casebook = draft.merge_draft()
             >>> assert new_casebook == full_casebook
@@ -1564,11 +1647,12 @@ class Casebook(CasebookAndSectionMixin, ContentNode):
             ...     '    ContentAnnotation<8>: replace 0-10',
             ...     '   ContentNode<19> -> Default<4>: Some Link Name 1',
             ...     ' Section<20>: Some Section 9',
+            ...     ' Section<21>: New Section',
             ... ]
             >>> assert dump_casebook_outline(full_casebook) == expected
 
             Assets associated with old published version are gone:
-            >>> assert set(ContentNode.objects.values_list('id', flat=True)) == {1, 12, 13, 14, 15, 16, 17, 18, 19, 20}
+            >>> assert set(ContentNode.objects.values_list('id', flat=True)) == {1, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21}
             >>> assert set(ContentAnnotation.objects.values_list('id', flat=True)) == {5, 6, 7, 8}
             >>> assert set(TextBlock.objects.values_list('id', flat=True)) == {3, 4}
             >>> assert set(Default.objects.values_list('id', flat=True)) == {3, 4}
@@ -1594,9 +1678,11 @@ class Casebook(CasebookAndSectionMixin, ContentNode):
         ContentAnnotation.objects.filter(resource__casebook=parent).delete()
 
         # copy copy_of attribute from old content nodes to new ones
-        nodes_to_update = list(draft.contents.select_related('copy_of'))
-        for node in nodes_to_update:
-            node.copy_of_id = node.copy_of.copy_of_id
+        nodes_to_update = []
+        for node in draft.contents.select_related('copy_of'):
+            if node.copy_of:
+                nodes_to_update.append(node)
+                node.copy_of_id = node.copy_of.copy_of_id
         ContentNode.objects.bulk_update(nodes_to_update, ['copy_of_id'])
 
         # delete old content nodes
@@ -1770,7 +1856,12 @@ class Casebook(CasebookAndSectionMixin, ContentNode):
 
     @property
     def owner(self):
-        return self.owners[0]
+        # All casebooks should have owners, but presently, a small number do not.
+        fix_after_rails("Let's add validation logic, forcing casebooks to have at least one owner.")
+        try:
+            return self.owners[0]
+        except IndexError:
+            return None
 
     def has_collaborator(self, user):
         # filter in the client to allow .prefetch_related('contentcollaborator_set__user') to work:
@@ -1937,7 +2028,11 @@ class Resource(SectionAndResourceMixin, ContentNode):
             >>> annotations_factory, *_ = [getfixture(f) for f in ['annotations_factory']]
             >>> def assert_match(source_html, expected_html):
             ...     annotated_html = annotations_factory('Case', source_html)[1].annotated_content_for_export()
-            ...     assert annotated_html == expected_html, "Expected:\n%s\nGot:\n%s" % (expected_html, annotated_html)
+            ...     assert elements_equal(
+            ...         parse_html_fragment(annotated_html),
+            ...         parse_html_fragment(expected_html),
+            ...         ignore_trailing_whitespace=True
+            ...     ), "Expected:\n%s\nGot:\n%s" % (expected_html, annotated_html)
 
             Basic format of all annotations:
             >>> input = '''<p>
@@ -2007,14 +2102,24 @@ class Resource(SectionAndResourceMixin, ContentNode):
             >>> input = '<p>[highlight]One [elide]two[/highlight] three[/elide]</p>'
             >>> expected = '<p><span class="annotate highlighted" custom-style="Highlighted Text">One <span custom-style="Elision">[ … ]</span></span></p>'
             >>> assert_match(input, expected)
+
+            Annotations with invalid offsets are clamped:
+            >>> input = '<p>[highlight]F[/highlight]oo</p>'
+            >>> expected = '<p><span class="annotate highlighted" custom-style="Highlighted Text">Foo</span></p>'
+            >>> resource = annotations_factory('Case', input)[1]
+            >>> _ = resource.annotations.update(global_end_offset=1000)  # move end offset past end of text
+            >>> assert resource.annotated_content_for_export() == expected
         """
 
         # Start with a sorted list of the start and end insertion points for each annotation.
-        # Each entry in the list is shaped like (annotation_offset, is_start_tag, annotation):
+        # Each entry in the list is shaped like (annotation_offset, is_start_tag, annotation).
+        # Clamp offsets to the max valid value, as we may have legacy invalid values in the database that are too large.
+        source_tree = parse_html_fragment(self.resource.content)
+        max_valid_offset = len(source_tree.text_content())
         annotations = []
         for annotation in self.annotations.all():
-            annotations.append((annotation.global_start_offset, True, annotation))
-            annotations.append((annotation.global_end_offset, False, annotation))
+            annotations.append((min(annotation.global_start_offset, max_valid_offset), True, annotation))
+            annotations.append((min(annotation.global_end_offset, max_valid_offset), False, annotation))
         annotations.sort(key=lambda a: a[:2])  # sort by first two fields, so we're ordered by offset, then we get end tags and then start tags for a given offset
 
         # This SAX ContentHandler does the heavy lifting of stepping through each HTML tag and text string in the
@@ -2182,7 +2287,6 @@ class Resource(SectionAndResourceMixin, ContentNode):
                 return self.out_handler.etree.getroot()
 
         # use AnnotationContentHandler to insert annotations in our content HTML:
-        source_tree = parse_html_fragment(self.resource.content)
         handler = AnnotationContentHandler()
         lxml.sax.saxify(source_tree, handler)
         dest_tree = handler.get_output_tree()
@@ -2315,7 +2419,7 @@ class RolesUser(NullableTimestampedModel, BigPkModel):
 class TextBlock(NullableTimestampedModel, AnnotatedModel):
     name = models.CharField(max_length=255)
     description = models.CharField(max_length=5242880, blank=True, null=True)
-    content = SanitizingCharField(max_length=5242880)
+    content = models.CharField(max_length=5242880)
     version = models.IntegerField(default=1)
     public = models.BooleanField(default=True, blank=True, null=True)
     created_via_import = models.BooleanField(default=False)
@@ -2347,6 +2451,31 @@ class TextBlock(NullableTimestampedModel, AnnotatedModel):
             models.Index(fields=['name']),
             models.Index(fields=['updated_at']),
         ]
+
+    def save(self, *args, **kwargs):
+        r"""
+            Override save to include the cleanup of user-supplied HTML and the
+            repositioning of existing annotations when TextBlock content is changed.
+
+            Given:
+            >>> annotations_factory, caplog = [getfixture(f) for f in ['annotations_factory', 'caplog']]
+            >>> html_with_annotations =     '<p>\n  <em>[note]Keep foo[/note] [highlight]delete bar[/highlight] [elide]keep baz[/elide] buzz</em>\n</p>'
+            >>> new_html =                  '<p>Prepended</p>\n\n<p>\n  <em invalid-attr="invalid">Keep foo <invalid>keep baz</invalid> buzz add boo</em>\n</p>'
+            >>> new_textblock_html_with_annotations = '<p>Prepended</p><p>\n  <em>[note]Keep foo[/note] [elide]keep baz[/elide] buzz add boo</em>\n</p>'
+
+            On save, TextBlock HTML is cleansed and annotations are updated afterwards:
+            >>> _, textblock = annotations_factory('TextBlock', html_with_annotations)
+            >>> textblock.resource.content = new_html
+            >>> with caplog.at_level(logging.DEBUG):
+            ...     textblock.resource.save()
+            >>> assert dump_annotated_text(textblock) == new_textblock_html_with_annotations
+            >>> assert caplog.record_tuples[0][2] == 'Normalizing newlines in TextBlock content'
+            >>> assert caplog.record_tuples[1][2] == 'Sanitizing TextBlock content'
+            >>> assert caplog.record_tuples[2][2] == 'Stripping trailing whitespace in TextBlock content'
+            >>> assert caplog.record_tuples[3][2] == 'Updating annotations for TextBlock'
+        """
+        cleanse_html_field(self, 'content', True)
+        super().save(*args, **kwargs)
 
     def related_resources(self):
         return Resource.objects.filter(resource_id=self.id, resource_type='TextBlock')
@@ -2412,11 +2541,11 @@ class UnpublishedRevision(TimestampedModel, BigPkModel):
         ]
 
 
-class User(NullableTimestampedModel):
+class User(NullableTimestampedModel, AbstractBaseUser):
     login = models.CharField(max_length=255, blank=True, null=True)
     email_address = models.CharField(max_length=255, blank=True, null=True, unique=True)
     title = models.CharField(max_length=255, blank=True, null=True)
-    attribution = models.CharField(max_length=255, default='Anonymous')
+    attribution = models.CharField(max_length=255, default='Anonymous', verbose_name='Display name')
     affiliation = models.CharField(max_length=255, blank=True, null=True)
     verified_email = models.BooleanField(default=False)
     verified_professor = models.BooleanField(default=False)
@@ -2427,23 +2556,24 @@ class User(NullableTimestampedModel):
         through=RolesUser
     )
 
-    # calculated
-    login_count = models.IntegerField(default=0)
-    last_request_at = models.DateTimeField(blank=True, null=True)
-    last_login_at = models.DateTimeField(blank=True, null=True)
-    current_login_at = models.DateTimeField(blank=True, null=True)
-    last_login_ip = models.CharField(max_length=255, blank=True, null=True)
-    current_login_ip = models.CharField(max_length=255, blank=True, null=True)
+    # login-tracking fields inherited from Rails authlogic gem
+    last_request_at = models.DateTimeField(blank=True, null=True, help_text="Time of last request from user (to nearest 10 minutes)")
+    login_count = models.IntegerField(default=0, help_text="Number of explicit password logins by user")
+    current_login_at = models.DateTimeField(blank=True, null=True, help_text="Time of most recent password login")
+    last_login_at = models.DateTimeField(blank=True, null=True, help_text="Time of previous password login")
+    current_login_ip = models.CharField(max_length=255, blank=True, null=True, help_text="IP of most recent password login")
+    last_login_ip = models.CharField(max_length=255, blank=True, null=True, help_text="IP of previous password login")
+    last_login = None  # disable the Django login tracking field from AbstractBaseUser
 
     # auth/crypto innards
     crypted_password = models.CharField(max_length=255, blank=True, null=True)
     password_salt = models.CharField(max_length=255, blank=True, null=True)
-    persistence_token = models.CharField(max_length=255)
-    oauth_token = models.CharField(max_length=255, blank=True, null=True)
-    oauth_secret = models.CharField(max_length=255, blank=True, null=True)
-    perishable_token = models.CharField(max_length=255, blank=True, null=True)
 
     # all legacy fields, I believe
+    persistence_token = models.CharField(max_length=255)
+    perishable_token = models.CharField(max_length=255, blank=True, null=True)
+    oauth_token = models.CharField(max_length=255, blank=True, null=True)
+    oauth_secret = models.CharField(max_length=255, blank=True, null=True)
     tz_name = models.CharField(max_length=255, blank=True, null=True)
     url = models.CharField(max_length=255, blank=True, null=True)
     description = models.TextField(blank=True, null=True)
@@ -2471,6 +2601,8 @@ class User(NullableTimestampedModel):
     EMAIL_FIELD = 'email_address'
     USERNAME_FIELD = 'email_address'
     REQUIRED_FIELDS = []  # used by createsuperuser
+
+    objects = BaseUserManager()
 
     class Meta:
         # managed = False
@@ -2569,9 +2701,50 @@ class User(NullableTimestampedModel):
         # TBD: We probably need some guarantee that drafts aren't public.
         return self.casebooks.filter(contentcollaborator__role='owner', public=True)
 
+    ## password management
+    # functions to adapt Django to Rails stored passwords
+    fix_after_rails("Password field should be migrated to django's default key derivation function; let's talk about how to do this")
+
+    @property
+    def password(self):
+        return self.crypted_password
+
+    def hash_rails_password(self, password):
+        """
+             Hash password using the old Rails logic -- append salt and then apply sha512 20 times.
+
+             >>> User(password_salt='1234').hash_rails_password('password')
+             'e54312aa60dfb7e96f8d5a4cb84ea70caf84d8382a89111aaf95aefdca1e563fb4ff151f7ba0b3ae878f7b236954e15c1fb06f2e461e6e83bb529d4ffd40e2a6'
+        """
+        digest = password + self.password_salt
+        for _ in range(20):
+            digest = hashlib.sha512(digest.encode('utf8')).hexdigest()
+        return digest
+
+    def check_password(self, raw_password):
+        return constant_time_compare(self.hash_rails_password(raw_password), self.crypted_password)
+
+    def set_password(self, raw_password):
+        self.crypted_password = self.hash_rails_password(raw_password)
+
 
 # make AnonymousUser API conform with User API
 AnonymousUser.is_superadmin = False
+
+
+def update_user_login_fields(sender, request, user, **kwargs):
+    """
+        Register signal to record user login details on successful login, following the behavior of the Rails authlogic gem.
+        To fully switch to the Django behavior (which does less user login tracking), we could rename `current_login_at`
+        to `last_login`, drop the other fields, and delete this signal.
+    """
+    user.last_login_at = user.current_login_at
+    user.current_login_at = timezone.now()
+    user.last_login_ip = user.current_login_ip
+    user.current_login_ip = get_ip_address(request)
+    user.login_count += 1
+    user.save(update_fields=['last_login_at', 'current_login_at', 'last_login_ip', 'current_login_ip', 'login_count'])
+user_logged_in.connect(update_user_login_fields)
 
 
 #

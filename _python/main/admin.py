@@ -4,7 +4,6 @@ from django.contrib import admin
 from django.db.models import Q, Count
 from django.urls import reverse
 from django.utils.html import format_html
-from django.shortcuts import redirect
 from django.utils.safestring import mark_safe
 
 from .utils import fix_after_rails, clone_model_instance
@@ -32,24 +31,8 @@ def edit_link(obj, as_str=False):
 # Admin site config
 #
 
-# Until we are integrated with Django's authentication system,
-# point login etc. to the Rails app.
-# https://docs.djangoproject.com/en/2.2/ref/contrib/admin/#django.contrib.admin.AdminSite
-# https://docs.djangoproject.com/en/2.2/ref/contrib/admin/#adding-views-to-admin-sites
 class CustomAdminSite(admin.AdminSite):
     site_header = 'H2O Admin'
-
-    def login(self, *args, **kwargs):
-        return redirect(reverse('login'))
-
-    def logout(self, *args, **kwargs):
-        raise NotImplementedError()
-
-    def password_change(self, *args, **kwargs):
-        raise NotImplementedError()
-
-    def password_change_done(self, *args, **kwargs):
-        raise NotImplementedError()
 
 admin_site = CustomAdminSite(name='h2oadmin')
 
@@ -62,6 +45,46 @@ admin_site = CustomAdminSite(name='h2oadmin')
 admin.TabularInline.extra = 0
 admin.StackedInline.extra = 0
 
+# don't allow inline objects to be deleted or added by default:
+admin.TabularInline.can_delete = False  # use True to allow deleting
+admin.StackedInline.can_delete = False
+admin.TabularInline.max_num = 0  # use max_num = None to allow adding
+admin.StackedInline.max_num = 0
+
+
+class BaseAdmin(admin.ModelAdmin):
+    fix_after_rails("""
+        The LogEntry class tracks additions, changes, and deletions of objects
+        done through the admin interface. It requires the Django app to be
+        fully integrated with the AUTH_USER_MODEL... which we aren't yet. So,
+        for now, disable logging.
+    """)
+    def log_addition(self, request, object, message):
+        pass
+    def log_change(self, request, object, message):
+        pass
+    def log_deletion(self, request, object, object_repr):
+        pass
+
+    actions = None  # use ['delete_selected'] to allow delete action
+
+    def has_add_permission(self, request):
+        """
+            Don't allow objects to be added by default. To override, use this on a subclass:
+
+                def has_add_permission(self, request):
+                    return super(BaseAdmin, self).has_add_permission(request)
+        """
+        return False
+
+    def has_delete_permission(self, request, obj=None):
+        """
+            Don't allow objects to be deleted by default. To override, use this on a subclass:
+
+                def has_delete_permission(self, request, obj=None):
+                    return super(BaseAdmin, self).has_delete_permission(request, obj)
+        """
+        return False
 
 #
 # Filters
@@ -159,6 +182,8 @@ class CollaboratorInline(admin.TabularInline):
     model = ContentCollaborator
     fields = ['role', 'user', 'content', 'has_attribution']
     raw_id_fields = ['user', 'content']
+    max_num = None
+    can_delete = True
 
 
 class AnnotationInline(admin.TabularInline):
@@ -167,6 +192,8 @@ class AnnotationInline(admin.TabularInline):
     fields = ['id', 'resource', ('global_start_offset', 'global_end_offset'), ('start_paragraph', 'end_paragraph'), ('start_offset', 'end_offset'), 'kind', 'content', 'created_at', 'updated_at']
     raw_id_fields = ['resource']
     ordering = ['global_start_offset',  'global_end_offset']
+    max_num = None
+    can_delete = True
 
     def formfield_for_dbfield(self, db_field, **kwargs):
         formfield = super().formfield_for_dbfield(db_field, **kwargs)
@@ -187,26 +214,9 @@ class RolesUserInline(admin.TabularInline):
 #
 
 
-fix_after_rails("""
-    The LogEntry class tracks additions, changes, and deletions of objects
-    done through the admin interface. It requires the Django app to be
-    fully integrated with the AUTH_USER_MODEL... which we aren't yet. So,
-    for now, disable logging.
-""")
-class NonLoggingAdmin(admin.ModelAdmin):
-    def log_addition(self, request, object, message):
-        pass
-
-    def log_change(self, request, object, message):
-        pass
-
-    def log_deletion(self, request, object, object_repr):
-        pass
-
-
 ## Casebooks
 
-class CasebookAdmin(NonLoggingAdmin):
+class CasebookAdmin(BaseAdmin):
     list_display = ['id', 'get_title', 'owner_link', 'public', 'source', 'draft_link', 'root_user', 'created_at', 'updated_at']
     list_filter = [CollaboratorNameFilter, CollaboratorIdFilter, 'public', 'draft_mode_of_published_casebook']
     search_fields = ['title']
@@ -239,12 +249,12 @@ class CasebookAdmin(NonLoggingAdmin):
         return super().get_queryset(request).select_related('root_user', 'copy_of').prefetch_related('contentcollaborator_set__user').prefetch_draft()
 
     def owner_link(self, obj):
-        edit_link(obj.owner, True)
+        return edit_link(obj.owner, True)
     owner_link.short_description = 'owner'
 
     def draft_link(self, obj):
-        edit_link(obj.draft)
-    draft_link.short_description = 'drafts'
+        return edit_link(obj.draft)
+    draft_link.short_description = 'draft'
 
     def source(self, obj):
         if obj.copy_of:
@@ -252,7 +262,7 @@ class CasebookAdmin(NonLoggingAdmin):
     source.short_description = 'source'
 
 
-class SectionAdmin(NonLoggingAdmin):
+class SectionAdmin(BaseAdmin):
     readonly_fields = ['created_at', 'updated_at', 'owner_link', 'casebook_link', 'copy_of', 'ordinals']
     list_select_related = ['casebook', 'copy_of']
     list_display = ['id', 'casebook_link', 'owner_link', 'get_title', 'ordinals', 'created_at', 'updated_at']
@@ -265,15 +275,15 @@ class SectionAdmin(NonLoggingAdmin):
         return super().get_queryset(request).select_related('casebook', 'copy_of').prefetch_related('casebook__contentcollaborator_set__user')
 
     def owner_link(self, obj):
-        edit_link(obj.casebook.owner, True)
+        return edit_link(obj.casebook.owner, True)
     owner_link.short_description = 'owner'
 
     def casebook_link(self, obj):
-        edit_link(obj.casebook, True)
+        return edit_link(obj.casebook, True)
     casebook_link.short_description = 'casebook'
 
 
-class ResourceAdmin(NonLoggingAdmin):
+class ResourceAdmin(BaseAdmin):
     readonly_fields = ['created_at', 'updated_at', 'owner_link', 'casebook_link', 'copy_of', 'resource_id', 'resource_type', 'ordinals']
     list_select_related = ['casebook', 'copy_of']
     list_display = ['id', 'casebook_link', 'owner_link', 'get_title', 'ordinals', 'resource_type', 'resource_id', 'annotation_count', 'created_at', 'updated_at']
@@ -287,18 +297,18 @@ class ResourceAdmin(NonLoggingAdmin):
         return super().get_queryset(request).select_related('casebook', 'copy_of').prefetch_related('casebook__contentcollaborator_set__user').annotate(annotations_count=Count('annotations'))
 
     def owner_link(self, obj):
-        edit_link(obj.casebook.owner, True)
+        return edit_link(obj.casebook.owner, True)
     owner_link.short_description = 'owner'
 
     def casebook_link(self, obj):
-        edit_link(obj.casebook, True)
+        return edit_link(obj.casebook, True)
     casebook_link.short_description = 'casebook'
 
     def annotation_count(self, obj):
         return 'n/a' if obj.resource_type == 'Default' else obj.annotations_count
 
 
-class AnnotationsAdmin(NonLoggingAdmin):
+class AnnotationsAdmin(BaseAdmin):
     readonly_fields = ['created_at', 'updated_at', 'start_paragraph', 'end_paragraph', 'start_offset', 'end_offset', 'kind']
     fields = ['resource', ('global_start_offset', 'global_end_offset'), ('start_paragraph', 'end_paragraph'), ('start_offset', 'end_offset'), 'kind', 'content', 'created_at', 'updated_at']
     list_select_related = ['resource']
@@ -315,14 +325,14 @@ class AnnotationsAdmin(NonLoggingAdmin):
     resource_id.admin_order_field = 'resource__resource_id'
 
 
-class UnpublishedRevisionAdmin(NonLoggingAdmin):
+class UnpublishedRevisionAdmin(BaseAdmin):
     readonly_fields = ['created_at', 'updated_at', 'casebook', 'node', 'node_parent', 'annotation', 'field', 'value']
     list_select_related = ['casebook', 'node', 'node_parent', 'annotation']
     list_display = ['id', 'the_draft', 'node', 'parent','field', 'value_preview', 'annotation', 'created_at', 'updated_at']
     list_filter = [CasebookIdFilter, 'field']
 
     def the_draft(self, obj):
-        edit_link(obj.casebook, True)
+        return edit_link(obj.casebook, True)
     the_draft.admin_order_field = 'casebook'
 
     def parent(self, obj):
@@ -339,7 +349,7 @@ class UnpublishedRevisionAdmin(NonLoggingAdmin):
 
 ## Resources
 
-class CaseAdmin(NonLoggingAdmin):
+class CaseAdmin(BaseAdmin):
     # Content is readonly until we implement the annotation-shifting logic on the python side
     readonly_fields = ['created_at', 'updated_at', 'annotations_count', 'content']
     list_select_related = ['case_court']
@@ -364,7 +374,7 @@ class CaseAdmin(NonLoggingAdmin):
     capapi_link.short_description = 'capapi id'
 
     def court_link(self, obj):
-        edit_link(obj.case_court)
+        return edit_link(obj.case_court)
     court_link.short_description = 'court'
     court_link.admin_order_field = 'case_court'
 
@@ -377,7 +387,7 @@ class CaseAdmin(NonLoggingAdmin):
         )
 
 
-class DefaultAdmin(NonLoggingAdmin):
+class DefaultAdmin(BaseAdmin):
     # reminder that a "Default" is a Link Resource
     readonly_fields = ['created_at', 'updated_at', 'user_link', 'user', 'ancestry']
     list_select_related = ['user']
@@ -387,7 +397,7 @@ class DefaultAdmin(NonLoggingAdmin):
     fields = ['name', 'url', 'description', 'public', 'created_at', 'updated_at', 'content_type', 'user', 'ancestry', 'created_via_import']
 
     def user_link(self, obj):
-        edit_link(obj.user, True)
+        return edit_link(obj.user, True)
     user_link.short_description = 'user'
 
     def related_resources(self, obj):
@@ -399,9 +409,8 @@ class DefaultAdmin(NonLoggingAdmin):
         )
 
 
-class TextBlockAdmin(NonLoggingAdmin):
-    # Content is readonly until we implement the annotation-shifting logic on the python side
-    readonly_fields = ['created_at', 'updated_at', 'user', 'version', 'annotations_count', 'content']
+class TextBlockAdmin(BaseAdmin):
+    readonly_fields = ['created_at', 'updated_at', 'user', 'version', 'annotations_count']
     list_select_related = ['user']
     list_display = ['id', 'name', 'user_link', 'public', 'created_via_import', 'version', 'related_resources', 'annotations_count', 'created_at', 'updated_at']
     list_filter = ['version', 'created_via_import']
@@ -414,7 +423,7 @@ class TextBlockAdmin(NonLoggingAdmin):
         return formfield
 
     def user_link(self, obj):
-        edit_link(obj.user, True)
+        return edit_link(obj.user, True)
     user_link.short_description = 'user'
 
     def related_resources(self, obj):
@@ -427,7 +436,7 @@ class TextBlockAdmin(NonLoggingAdmin):
 
 ## Users
 
-class UserAdmin(NonLoggingAdmin):
+class UserAdmin(BaseAdmin):
     readonly_fields = ['created_at', 'updated_at', 'display_name', 'last_request_at', 'last_login_at', 'login_count']
     list_display = ['id', 'display_name', 'login', 'email_address', 'verified_email', 'professor_verification_requested', 'verified_professor', 'get_roles', 'last_request_at', 'last_login_at', 'login_count', 'created_at', 'updated_at']
     list_filter = ['verified_email', 'verified_professor', 'professor_verification_requested', RoleNameFilter]
@@ -442,8 +451,11 @@ class UserAdmin(NonLoggingAdmin):
         return ','.join(str(o) for o in set(r.name for r in obj.roles.all())) or None
     get_roles.short_description = 'Roles'
 
+    def has_add_permission(self, request):
+        return super(BaseAdmin, self).has_add_permission(request)
 
-class RolesUserAdmin(NonLoggingAdmin):
+
+class RolesUserAdmin(BaseAdmin):
     readonly_fields = ['created_at', 'updated_at', 'role', 'user']
     list_select_related = ['user', 'role']
     list_display = ['id', 'user', 'role', 'created_at', 'updated_at']
@@ -451,14 +463,14 @@ class RolesUserAdmin(NonLoggingAdmin):
     raw_id_fields = ['user', 'role']
 
 
-class RoleAdmin(NonLoggingAdmin):
+class RoleAdmin(BaseAdmin):
     readonly_fields = ['created_at', 'updated_at', 'authorizable_type', 'authorizable_id']
     list_display = ['id', 'name', 'authorizable_type', 'authorizable_id', 'created_at', 'updated_at']
     list_filter = ['name', 'authorizable_type']
     ordering = ['-name']
 
 
-class CollaboratorsAdmin(NonLoggingAdmin):
+class CollaboratorsAdmin(BaseAdmin):
     readonly_fields = ['created_at', 'updated_at', 'user', 'content']
     list_select_related = ['user', 'content']
     list_display = ['user', 'role']
@@ -469,7 +481,7 @@ class CollaboratorsAdmin(NonLoggingAdmin):
 
 ## Courts
 
-class CaseCourtAdmin(NonLoggingAdmin):
+class CaseCourtAdmin(BaseAdmin):
     readonly_fields = ['created_at', 'updated_at', 'capapi_link']
     list_display = ['id', 'name', 'name_abbreviation', 'created_at', 'case_count_link', 'updated_at', 'capapi_link']
     search_fields = ['name_abbreviation', 'name']

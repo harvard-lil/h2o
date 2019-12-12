@@ -10,7 +10,7 @@ services:
     build:
       context: .
       dockerfile: ./docker/Dockerfile
-    image: h2o:0.13
+    image: h2o:0.14
     tty: true
     command: bash
     environment:
@@ -35,7 +35,7 @@ services:
     build:
       context: .
       dockerfile: ./_python/Dockerfile
-    image: h2o-python:0.10
+    image: h2o-python:0.14
     tty: true
     command: bash
     environment:

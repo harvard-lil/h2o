@@ -1,6 +1,6 @@
-import bleach
 from copy import deepcopy
 from datetime import datetime, date
+import difflib
 import html as   python_html
 from lxml import etree, html
 import mimetypes
@@ -10,16 +10,11 @@ from urllib.parse import quote
 from django.http import HttpResponse
 from django.conf import settings
 
+from .sanitize import sanitize
+
 
 class CapapiCommunicationException(Exception):
     pass
-
-
-def sanitize(html):
-    """
-    TODO: read up on this sanitization library
-    """
-    return bleach.clean(html, tags=['p', 'br', 'span', *bleach.sanitizer.ALLOWED_TAGS])
 
 
 def show_debug_toolbar(request):
@@ -113,6 +108,44 @@ def re_split_offsets(pattern, s):
     return strs, split_offsets, split_strs
 
 
+def normalize_newlines(html_string):
+    r"""
+        >>> assert normalize_newlines('<p>Hi\r</p>\r\n') == '<p>Hi\n</p>\n'
+
+        We're doing this for a number of reasons.
+
+        1) Consistent line endings make it easier to detect if a string has meaningfully changed.
+
+        2) In our experience, consistent line endings help ensure annotation offsets are handled
+        accurately across libraries and languages. Since Django's admin forms POST \n, but the
+        WYSIWYG CKEditor uses \r\n, it's easy to end up with a mix of both in the DB... and newlines
+        reportedly can be handled differently by different browsers.
+
+        3) Further, the sanitization library "bleach" converts \r to \n, doubling the newlines,
+        and forcing annotation offsets to require updating:
+        >>> assert sanitize('<p>hello\r</p>\r\n\r\n<p>there</p>') == '<p>hello\n</p>\n\n<p>there</p>'
+    """
+    return html_string.replace("\r\n", "\n").replace("\r", "\n")
+
+
+def strip_trailing_block_level_whitespace(html_string):
+    r"""
+        >>> assert strip_trailing_block_level_whitespace("<p>foo</p>  \r\n \n <p>bar</p>  ") == "<p>foo</p><p>bar</p>"
+
+        We're doing this because the whitespace is being handled by our annotation-placing javascript
+        and our css in an undesirable way, resulting in a change to the rendered paragraph numbers
+        and visual anomalies, when the whitespace is within an annotated range.
+
+        fix_after_rails("We'd prefer to take a different approach in the JS and the CSS, instead
+        of removing the whitespace, but leave that rewrite for another time.")
+    """
+    tree = parse_html_fragment(html_string)
+    for el in tree.iterdescendants():
+        if el.tag in block_level_elements and el.tail and re.match(r'\s+$', el.tail):
+            el.tail = ''
+    return inner_html(tree)
+
+
 def parse_html_fragment(html_str):
     """
         Parse an html fragment (one or more tags with optional surrounding text) into an lxml tree
@@ -139,9 +172,9 @@ block_level_elements = {
     'figure', 'footer', 'form', 'h1', 'h2', 'h3', 'h4', 'h5', 'h6', 'header', 'hgroup', 'hr', 'li', 'main', 'nav', 'ol',
     'p', 'pre', 'section', 'table', 'ul'
 }
+# via https://developer.mozilla.org/en-US/docs/Glossary/empty_element
 void_elements = {
-    'base', 'command', 'event-source', 'link', 'meta', 'hr', 'br', 'img', 'embed', 'param', 'area', 'col', 'input',
-    'source', 'track'
+    'area', 'base', 'br', 'col', 'embed', 'hr', 'img', 'input', 'keygen', 'link', 'meta', 'param', 'source', 'track', 'wbr'
 }
 
 
@@ -178,6 +211,47 @@ def inner_html(tree):
     """ Return inner HTML of lxml element """
     return (python_html.escape(tree.text) if tree.text else '') + \
         ''.join([html.tostring(child, encoding=str) for child in tree.iterchildren()])
+
+
+def elements_equal(e1, e2, ignore={}, ignore_trailing_whitespace=False, tidy_style_attrs=False, exc_class=ValueError):
+    """
+        Recursively compare two lxml Elements.
+        Raise an exception (by default ValueError) if not identical.
+        Optionally, ignore trailing whitespace after block elements.
+        Optionally, munge "style" attributes for easier comparison.
+    """
+    if e1.tag != e2.tag:
+        raise exc_class("e1.tag != e2.tag (%s != %s)" % (e1.tag, e2.tag))
+    if e1.text != e2.text:
+        diff = '\n'.join(difflib.ndiff([e1.text or ''], [e2.text or '']))
+        raise exc_class("e1.text != e2.text:\n%s" % diff)
+    if e1.tail != e2.tail:
+        exc = exc_class("e1.tail != e2.tail (%s != %s)" % (e1.tail, e2.tail))
+        if ignore_trailing_whitespace:
+            if (e1.tail or '').strip() or (e2.tail or '').strip():
+                raise exc
+        else:
+            raise exc
+    ignore_attrs = ignore.get('attrs', set()) | ignore.get('tag_attrs', {}).get(e1.tag.rsplit('}', 1)[-1], set())
+    e1_attrib = {k:v for k,v in e1.attrib.items() if k not in ignore_attrs}
+    e2_attrib = {k:v for k,v in e2.attrib.items() if k not in ignore_attrs}
+    if tidy_style_attrs and e1_attrib.get('style'):
+        # allow easy comparison of sanitized style tags by removing all spaces and final semicolon
+        e1_attrib['style'] = e1_attrib['style'].replace(' ', '').rstrip(';')
+        e2_attrib['style'] = e2_attrib['style'].replace(' ', '').rstrip(';')
+    if e1_attrib != e2_attrib:
+        diff = "\n".join(difflib.Differ().compare(["%s: %s" % i for i in sorted(e1_attrib.items())], ["%s: %s" % i for i in sorted(e2_attrib.items())]))
+        raise exc_class("e1.attrib != e2.attrib:\n%s" % diff)
+    s1 = [i for i in e1 if i.tag.rsplit('}', 1)[-1] not in ignore.get('tags', ())]
+    s2 = [i for i in e2 if i.tag.rsplit('}', 1)[-1] not in ignore.get('tags', ())]
+    if len(s1) != len(s2):
+        diff = "\n".join(difflib.Differ().compare([s.tag for s in s1], [s.tag for s in s2]))
+        raise exc_class("e1 children != e2 children:\n%s" % diff)
+    for c1, c2 in zip(s1, s2):
+        elements_equal(c1, c2, ignore, ignore_trailing_whitespace, tidy_style_attrs, exc_class)
+
+    # If you've gotten this far without an exception, the elements are equal
+    return True
 
 
 class StringFileResponse(HttpResponse):
@@ -218,3 +292,11 @@ class StringFileResponse(HttpResponse):
             self['Content-Disposition'] = '{}; {}'.format(disposition, file_expr)
         elif as_attachment:
             self['Content-Disposition'] = 'attachment'
+
+
+def get_ip_address(request):
+    """
+        Get user's IP address from request object.
+        Use Cloudflare CF-Connecting-IP header, falling back to REMOTE_ADDR for dev.
+    """
+    return request.META.get('HTTP_CF_CONNECTING_IP', request.META.get('REMOTE_ADDR'))

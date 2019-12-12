@@ -1,0 +1,13 @@
+{% extends 'base.html' %}
+
+{% block page_title %}500 Internal Server Error{% endblock %}
+
+{% block mainContent %}
+<div class="content">
+  <div class="pages-content">
+    <h1>Oops!</h1>
+    <p>There’s been an internal server error preparing this page, but don't worry, we'll fix it.</p>
+    <p>Please <a href="mailto:{{ CONTACT_EMAIL }}?subject=Internal%20Server%20Error">contact us</a> and let us know how you found yourself here. Thanks!</p>
+  </div>
+</div>
+{% endblock %}

@@ -50,8 +50,8 @@ export default {
       display: inline; /* yes, p in span is illegal, but we have them */
     }
   }
-  /* section numbers */
-  > * {
+  /* paragraph numbers -- section.casebody handles HTML received from CAP */
+  > :not(section.case-body), > section.casebody h4, > section.casebody p, > section.casebody blockquote {
     position: relative;
     &::before {
       counter-increment: index;
@@ -74,12 +74,22 @@ export default {
     }
   }
 }
-.page-label, .page-number {
+
+.page-number, .page-label {
   font-size: small;
   color: darkgrey;
   vertical-align: super;
   margin: 4px;
 }
+
+// no margin between consecutive blockquotes, only at the end
+blockquote {
+  margin: 0;
+}
+blockquote + :not(blockquote) {
+  margin-top: 20px;
+}
+
 .footnote {
   a {
     float: left;

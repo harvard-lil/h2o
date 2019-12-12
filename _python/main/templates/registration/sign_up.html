@@ -1,0 +1,20 @@
+{% extends 'base.html' %}
+{% load crispy_forms_tags %}
+{% block page_title %}Sign up{% endblock %}
+
+{% block mainContent %}
+  <header class="users">
+    <div class="content">
+      <h1>
+        Sign up for an account
+      </h1>
+    </div>
+  </header>
+  <section class="sign-in">
+    <div class="content">
+      <div class="form">
+        {% crispy form %}
+      </div>
+    </div>
+  </section>
+{% endblock %}

@@ -1,4 +1,5 @@
 import re
+from collections import namedtuple
 from functools import lru_cache
 from pathlib import Path
 
@@ -20,10 +21,11 @@ def path_lookup():
 
         >>> monkeypatch = getfixture('monkeypatch')
         >>> monkeypatch.setattr(Path, 'glob', lambda *args, **kwargs: [
-        ...     settings.WHITENOISE_ROOT+'/css/main-a4a68e68.css',
-        ...     settings.WHITENOISE_ROOT+'/main.css',
-        ...     settings.WHITENOISE_ROOT+'/main-cafe0001.css',
+        ...     Path(settings.WHITENOISE_ROOT+'/css/main-a4a68e68.css'),
+        ...     Path(settings.WHITENOISE_ROOT+'/main.css'),
+        ...     Path(settings.WHITENOISE_ROOT+'/main-cafe0001.css'),
         ... ])
+        >>> monkeypatch.setattr(Path, 'stat', lambda *args: namedtuple('stat', ['st_mtime'])(1))
 
         Return this lookup table:
 
