@@ -12,7 +12,7 @@ from django.utils.encoding import force_bytes
 from django.utils.http import urlsafe_base64_encode
 
 from main.models import ContentNode, Default, TextBlock, User
-from main.utils import fix_after_rails
+from main.utils import fix_after_rails, send_template_email
 
 
 # Monkeypatch FormHelper to *not* include the <form> tag in {% crispy form %} by default.
@@ -265,4 +265,11 @@ class SetPasswordForm(auth_forms.SetPasswordForm):
         if not self.user.verified_email:
             # new-user flow:
             self.user.verified_email = True
+            send_template_email(
+                "Welcome to H2O!",
+                'email/welcome.txt',
+                {},
+                settings.DEFAULT_FROM_EMAIL,
+                [self.user.email_address],
+            )
         return super().save(commit)

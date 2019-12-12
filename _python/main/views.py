@@ -437,6 +437,7 @@ def sign_up(request):
         >>> check_response(client.post(reverse('sign_up'), {'email_address': 'user@example.edu'}, follow=True), content_includes=['Please check your email for a link'])
 
         Can confirm the account and set a password with the emailed URL:
+        >>> assert len(mailoutbox) == 1
         >>> confirm_url = mailoutbox[0].body.rstrip().split("\n")[-1]
         >>> check_response(client.get(confirm_url[:-1]+'wrong/'), content_includes=['The password reset link was invalid'])
         >>> new_password_form_response = client.get(confirm_url, follow=True)
@@ -445,6 +446,11 @@ def sign_up(request):
 
         Can log in with the new account:
         >>> check_response(client.post(reverse('login'), {'username': 'user@example.edu', 'password': 'anewpass'}, follow=True), content_includes=['My Casebooks'])
+
+        Received the welcome email after setting password:
+        >>> assert len(mailoutbox) == 2
+        >>> assert mailoutbox[1].subject == 'Welcome to H2O!'
+        >>> assert "Take a look at our user guide" in mailoutbox[1].body
     """
     form = SignupForm(request.POST or None, request=request)
     if request.method == 'POST':
