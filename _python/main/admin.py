@@ -9,7 +9,7 @@ from django.utils.safestring import mark_safe
 from .utils import fix_after_rails, clone_model_instance
 from .models import Case, CaseCourt, Default, User, Casebook, Section, \
     Resource, ContentCollaborator, ContentAnnotation, TextBlock, \
-    Role, RolesUser, UnpublishedRevision
+    Role, RolesUser
 
 
 
@@ -207,6 +207,11 @@ class RolesUserInline(admin.TabularInline):
     list_select_related = ['user', 'role']
     fields = ['user', 'role']
     raw_id_fields = ['user', 'role']
+    max_num = None
+    can_delete = True
+
+    verbose_name = "Role"
+    verbose_name_plural = "Roles (e.g. superadmin, caseadmin)"
 
 
 #
@@ -325,38 +330,17 @@ class AnnotationsAdmin(BaseAdmin):
     resource_id.admin_order_field = 'resource__resource_id'
 
 
-class UnpublishedRevisionAdmin(BaseAdmin):
-    readonly_fields = ['created_at', 'updated_at', 'casebook', 'node', 'node_parent', 'annotation', 'field', 'value']
-    list_select_related = ['casebook', 'node', 'node_parent', 'annotation']
-    list_display = ['id', 'the_draft', 'node', 'parent','field', 'value_preview', 'annotation', 'created_at', 'updated_at']
-    list_filter = [CasebookIdFilter, 'field']
-
-    def the_draft(self, obj):
-        return edit_link(obj.casebook, True)
-    the_draft.admin_order_field = 'casebook'
-
-    def parent(self, obj):
-        return obj.node_parent
-    parent.admin_order_field = 'node_parent'
-    parent.short_description = 'original (published) node'
-
-    def value_preview(self, obj):
-        if len(obj.value) > 50:
-            return obj.value[0:49] + '...'
-        return obj.value
-    value_preview.admin_order_field = 'value'
-    value_preview.short_description = 'value'
-
 ## Resources
 
 class CaseAdmin(BaseAdmin):
     # Content is readonly until we implement the annotation-shifting logic on the python side
-    readonly_fields = ['created_at', 'updated_at', 'annotations_count', 'content']
+    readonly_fields = ['created_at', 'updated_at', 'content']
     list_select_related = ['case_court']
-    list_display = ['id', 'name_abbreviation', 'public', 'capapi_link', 'created_via_import', 'related_resources', 'annotations_count', 'court_link', 'created_at', 'updated_at']
+    list_display = ['id', 'name_abbreviation', 'public', 'capapi_link', 'created_via_import', 'related_resources', 'live_annotations_count', 'court_link', 'created_at', 'updated_at']
     list_filter = ['public', 'created_via_import', CourtIdFilter]
     search_fields = ['name_abbreviation', 'name']
     raw_id_fields = ['case_court']
+    exclude = ('annotations_count',)
 
     def formfield_for_dbfield(self, db_field, **kwargs):
         formfield = super().formfield_for_dbfield(db_field, **kwargs)
@@ -386,6 +370,10 @@ class CaseAdmin(BaseAdmin):
             obj.related_resources().count()
         )
 
+    def live_annotations_count(self, obj):
+        return obj.related_annotations().count()
+    live_annotations_count.short_description = 'Annotations'
+
 
 class DefaultAdmin(BaseAdmin):
     # reminder that a "Default" is a Link Resource
@@ -410,11 +398,11 @@ class DefaultAdmin(BaseAdmin):
 
 
 class TextBlockAdmin(BaseAdmin):
-    readonly_fields = ['created_at', 'updated_at', 'user', 'version', 'annotations_count']
+    readonly_fields = ['created_at', 'updated_at', 'user', 'version']
     list_select_related = ['user']
-    list_display = ['id', 'name', 'user_link', 'public', 'created_via_import', 'version', 'related_resources', 'annotations_count', 'created_at', 'updated_at']
+    list_display = ['id', 'name', 'user_link', 'public', 'created_via_import', 'version', 'related_resources', 'live_annotations_count', 'created_at', 'updated_at']
     list_filter = ['version', 'created_via_import']
-    fields = ['name', 'description', 'user', 'public', 'created_via_import', 'content', 'version', 'annotations_count', 'created_at', 'updated_at']
+    fields = ['name', 'description', 'user', 'public', 'created_via_import', 'content', 'version', 'created_at', 'updated_at']
 
     def formfield_for_dbfield(self, db_field, **kwargs):
         formfield = super().formfield_for_dbfield(db_field, **kwargs)
@@ -434,22 +422,30 @@ class TextBlockAdmin(BaseAdmin):
             obj.related_resources().count()
         )
 
+    def live_annotations_count(self, obj):
+        return obj.related_annotations().count()
+    live_annotations_count.short_description = 'Annotations'
+
 ## Users
 
 class UserAdmin(BaseAdmin):
-    readonly_fields = ['created_at', 'updated_at', 'display_name', 'last_request_at', 'last_login_at', 'login_count']
-    list_display = ['id', 'display_name', 'login', 'email_address', 'verified_email', 'professor_verification_requested', 'verified_professor', 'get_roles', 'last_request_at', 'last_login_at', 'login_count', 'created_at', 'updated_at']
+    readonly_fields = ['created_at', 'updated_at', 'display_name', 'last_request_at', 'last_login_at', 'login_count', 'login']
+    list_display = ['id', 'casebook_count', 'display_name', 'login', 'email_address', 'verified_email', 'professor_verification_requested', 'verified_professor', 'get_roles', 'last_request_at', 'last_login_at', 'login_count', 'created_at', 'updated_at']
     list_filter = ['verified_email', 'verified_professor', 'professor_verification_requested', RoleNameFilter]
     search_fields = ['attribution', 'title', 'email_address']
     fields = ['title', 'attribution', 'login', 'email_address', 'verified_email', 'professor_verification_requested', 'verified_professor', 'affiliation', 'last_request_at', 'last_login_at', 'login_count', 'created_at', 'updated_at']
     inlines = [RolesUserInline]
 
     def get_queryset(self, request):
-        return super().get_queryset(request).prefetch_related('roles')
+        return super().get_queryset(request).prefetch_related('roles').annotate(casebook_count=Count('casebooks'))
 
     def get_roles(self, obj):
         return ','.join(str(o) for o in set(r.name for r in obj.roles.all())) or None
     get_roles.short_description = 'Roles'
+
+    def casebook_count(self, obj):
+        return obj.casebook_count
+    casebook_count.admin_order_field = 'casebook_count'
 
     def has_add_permission(self, request):
         return super(BaseAdmin, self).has_add_permission(request)
@@ -473,8 +469,8 @@ class RoleAdmin(BaseAdmin):
 class CollaboratorsAdmin(BaseAdmin):
     readonly_fields = ['created_at', 'updated_at', 'user', 'content']
     list_select_related = ['user', 'content']
-    list_display = ['user', 'role']
-    list_filter = ['role']
+    list_display = ['id', 'user', 'role', 'has_attribution', 'content']
+    list_filter = ['role', 'has_attribution']
     ordering = ['role']
     raw_id_fields = ['user', 'content']
 
@@ -518,7 +514,6 @@ admin_site.register(Casebook, CasebookAdmin)
 admin_site.register(Section, SectionAdmin)
 admin_site.register(Resource, ResourceAdmin)
 admin_site.register(ContentAnnotation, AnnotationsAdmin)
-admin_site.register(UnpublishedRevision, UnpublishedRevisionAdmin)
 admin_site.register(Case, CaseAdmin)
 admin_site.register(Default, DefaultAdmin)
 admin_site.register(TextBlock, TextBlockAdmin)

@@ -292,7 +292,6 @@ class Case(NullableTimestampedModel, AnnotatedModel):
     docket_number = models.CharField(max_length=20000, blank=True, null=True)
     header_html = models.CharField(max_length=15360, blank=True, null=True)  # TODO: no longer used? delete?
     content = models.CharField(max_length=5242880)
-    annotations_count = models.IntegerField(default=0, blank=True, null=True)
 
     case_court = models.ForeignKey(
         'CaseCourt',
@@ -303,6 +302,9 @@ class Case(NullableTimestampedModel, AnnotatedModel):
         db_index = False,
         db_constraint=False
     )
+
+    fix_after_rails("We've decided not to cache this any longer: can drop field.")
+    annotations_count = models.IntegerField(default=0, blank=True, null=True)
 
     class Meta:
         # managed = False
@@ -2423,6 +2425,8 @@ class TextBlock(NullableTimestampedModel, AnnotatedModel):
     version = models.IntegerField(default=1)
     public = models.BooleanField(default=True, blank=True, null=True)
     created_via_import = models.BooleanField(default=False)
+
+    fix_after_rails("We've decided not to cache this any longer: can drop field.")
     annotations_count = models.IntegerField(default=0, blank=True, null=True)
 
     # The person who created the TextBlock.
@@ -2542,7 +2546,6 @@ class UnpublishedRevision(TimestampedModel, BigPkModel):
 
 
 class User(NullableTimestampedModel, AbstractBaseUser):
-    login = models.CharField(max_length=255, blank=True, null=True)
     email_address = models.CharField(max_length=255, blank=True, null=True, unique=True)
     title = models.CharField(max_length=255, blank=True, null=True)
     attribution = models.CharField(max_length=255, default='Anonymous', verbose_name='Display name')
@@ -2570,6 +2573,7 @@ class User(NullableTimestampedModel, AbstractBaseUser):
     password_salt = models.CharField(max_length=255, blank=True, null=True)
 
     # all legacy fields, I believe
+    login = models.CharField(max_length=255, blank=True, null=True)
     persistence_token = models.CharField(max_length=255)
     perishable_token = models.CharField(max_length=255, blank=True, null=True)
     oauth_token = models.CharField(max_length=255, blank=True, null=True)
