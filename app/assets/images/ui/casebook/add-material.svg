@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="55px" height="55px" viewBox="0 0 55 55" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+    <!-- Generator: Sketch 56.3 (81716) - https://sketch.com -->
+    <title>add-material</title>
+    <desc>Created with Sketch.</desc>
+    <g id="add-material" stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
+        <ellipse id="Oval-46" stroke="#0DAF02" stroke-width="2" fill="#0DAF02" cx="27.2560386" cy="27.5" rx="26.2560386" ry="26.5"></ellipse>
+        <ellipse id="Oval-46-Copy" stroke="#0DAF02" stroke-width="2" fill="#0DAF02" cx="27.2560386" cy="27.5" rx="26.2560386" ry="26.5"></ellipse>
+        <path d="M27.5,15.5 L27.5,40.5199928" id="Line" stroke="#FFFFFF" stroke-width="3" stroke-linecap="square"></path>
+        <path d="M15,28 L40.0199928,28" id="Line-Copy" stroke="#FFFFFF" stroke-width="3" stroke-linecap="square"></path>
+    </g>
+</svg>
