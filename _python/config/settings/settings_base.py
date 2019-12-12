@@ -127,6 +127,8 @@ USE_TZ = True
 # Let's plan to migrate, once we are fully python.
 USE_TZ = False
 
+# LIL's analytics JS
+USE_ANALYTICS = False
 
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/2.2/howto/static-files/
@@ -149,6 +151,7 @@ PROFESSOR_VERIFIER_EMAILS = ['info@opencasebook.org']
 # Make these settings available for use in Django's templates.
 # e.g. <a href="mailto:{{ CONTACT_EMAIL }}">Contact Us</a>
 TEMPLATE_VISIBLE_SETTINGS = (
+    'USE_ANALYTICS',
     'CONTACT_EMAIL',
     'GUIDE_URL',
     'BLOG_URL'
