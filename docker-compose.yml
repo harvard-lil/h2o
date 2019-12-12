@@ -1,7 +1,7 @@
 version: '3'
 services:
   db:
-    image: postgres:9.5.15
+    image: postgres:9.6.16
     volumes:
       - db_data:/var/lib/postgresql/data:delegated
     ports:
