@@ -51,7 +51,7 @@ export default {
     }
   }
   /* paragraph numbers -- section.casebody handles HTML received from CAP */
-  > :not(section.case-body), > section.casebody h4, > section.casebody p, > section.casebody blockquote {
+  > :not(section), > section.casebody h4, > section.casebody p, > section.casebody blockquote {
     position: relative;
     &::before {
       counter-increment: index;
