@@ -1,18 +1,15 @@
-<% include Rails.application.routes.url_helpers %>
-<% include ActionView::Helpers::JavaScriptHelper %>
-
 import {html, raw} from 'es6-string-html-template';
 import delegate from 'delegate';
-import Component from 'lib/ui/component';
-import {rest_delete} from 'lib/requests';
+import Component from 'legacy/lib/ui/component';
+import {rest_delete} from 'legacy/lib/requests';
 
 delegate(document, '.action-delete', 'click', showDeleteModal);
 
 function section_path(casebookId, sectionId) {
-  return '<%= j section_path('CASEBOOK_ID', 'SECTION_ID') %>'.replace('CASEBOOK_ID', casebookId).replace('SECTION_ID', sectionId);
+  return FRONTEND_URLS.section.replace('CASEBOOK_ID', casebookId).replace('SECTION_ID', sectionId);
 }
 
-let modal = null;
+let modal;  // eslint-disable-line no-unused-vars
 
 function showDeleteModal (e) {
   e.preventDefault();
@@ -26,7 +23,7 @@ class DeleteModal extends Component {
       id: 'delete-modal',
       events: {
         'click #delete-modal': (e) => { if (e.target.id === 'delete-modal') this.destroy()},
-        'click .close': (e) => { this.destroy() },
+        'click .close': () => { this.destroy() },
         'click .cancel': (e) => { 
           e.preventDefault();
           e.stopPropagation();
@@ -62,7 +59,7 @@ class DeleteModal extends Component {
 
   nestedItems () {
     let section = this.deleteForm.closest('.listing-wrapper').nextElementSibling;
-    if (!section || !section.classList.contains('section-wrapper')) { return 0 };
+    if (!section || !section.classList.contains('section-wrapper')) { return 0 }
     return section.querySelectorAll('.listing-wrapper').length;
   }
 
@@ -72,9 +69,9 @@ class DeleteModal extends Component {
 
   warningMessage () {
     if (this.nestedItems() === 0) {
-      return "<%= j(I18n.t 'content.delete-modal.body.html', section_name: '_TITLE')%>".replace('_TITLE', this.sectionTitle());
+      return `Are you sure you want to delete <strong>${this.sectionTitle()}</strong> from this casebook?`;
     } else {
-      return "<%= j(I18n.t 'content.delete-modal.body.nested.html', section_name: '_TITLE', nested_items: '_ITEMS')%>".replace('_TITLE', this.sectionTitle()).replace('_ITEMS', this.nestedItems());
+      return `Are you sure you want to delete <strong>${this.sectionTitle()}</strong> and <strong>%{this.nestedItems()} nested items</strong> from this casebook?`;
     }
   }
 
@@ -84,14 +81,14 @@ class DeleteModal extends Component {
         <div class="modal-content">
           <div class="modal-header">
             <button type="button" class="close"><span>&times;</span></button>
-            <h4 class="modal-title"><%= I18n.t 'content.delete-modal.title' %></h4>
+            <h4 class="modal-title">Confirm Delete</h4>
           </div>
           <div class="modal-body">
             ${raw(this.warningMessage())}
           </div>
           <div class="modal-footer">
-            <a href="" class="modal-button cancel"><%= I18n.t 'content.delete-modal.cancel' %></a>
-            <a href="" class="modal-button confirm"><%= I18n.t 'content.delete-modal.confirm' %></a>
+            <a href="" class="modal-button cancel">Cancel</a>
+            <a href="" class="modal-button confirm">Delete</a>
           </div>
         </div>
       </div>

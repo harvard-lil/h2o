@@ -50,7 +50,7 @@
 <script>
 import AnnotationBase from './AnnotationBase';
 import { createNamespacedHelpers } from 'vuex';
-const { mapGetters } = createNamespacedHelpers('annotations_ui');
+const { _mapGetters } = createNamespacedHelpers('annotations_ui');
 const { mapActions } = createNamespacedHelpers("annotations");
 
 export default {

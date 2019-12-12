@@ -1,8 +1,9 @@
 {% extends 'base.html' %}
-
+{% load render_bundle from webpack_loader %}
 {% load crispy_forms_tags %}
 
 {% block page_title %}Resource {{ resource.ordinal_string }} | {{ resource.casebook.get_title }}{% endblock %}
+{% block extra_foot %}{% render_bundle 'ckeditor' %}{% endblock %}
 
 {% block banner %}
 <div class="casebook-draft banner">

@@ -1,4 +1,6 @@
 import os
+import signal
+import subprocess
 from functools import wraps
 import sys
 from tqdm import tqdm
@@ -33,6 +35,14 @@ def run_django(port=None):
         port = "0.0.0.0:8000" if os.environ.get('DOCKERIZED') else "127.0.0.1:8000"
     local('python manage.py runserver %s' % port)
 
+
+@task
+def run_frontend(port=None):
+    node_proc = subprocess.Popen("npm run serve", shell=True, stdout=sys.stdout, stderr=sys.stderr)
+    try:
+        run_django()
+    finally:
+        os.kill(node_proc.pid, signal.SIGKILL)
 
 ### tasks ###
 

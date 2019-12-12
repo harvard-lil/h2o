@@ -1,5 +1,5 @@
 import Axios from 'axios';
-import {get_csrf_token} from 'lib/helpers';
+import {get_csrf_token} from './helpers';
 
 function destroy_modal(modal) {
   if(modal){

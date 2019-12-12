@@ -1,20 +1,16 @@
 /* eslint no-console:0 */
-// This file is automatically compiled by Webpack, along with any other files
-// present in this directory. You're encouraged to place your actual application logic in
+// This file is compiled by vue-cli as configured by vue.config.js, as are other files in this directory.
+// You're encouraged to place your actual application logic in
 // a relevant structure within app/javascript and only use these pack files to reference
 // that code so it'll be compiled.
-//
-// To reference this file, add <%= javascript_pack_tag 'application' %> to the appropriate
-// layout file, like app/views/layouts/application.html.erb
 
 // NOTE: jquery itself is imported using ProvidePlugin in environment.js
 import 'jquery-ui';
 import 'jquery-ujs';
-import 'polyfills';
-import 'lib/bootstrap/dropdown';
-import 'lib/helpers';
-import 'lib/requests';
-import 'lib/ui/skip-link-focus-fix';
-import 'lib/ui/content';
-import 'lib/ui/filter-selectize';
-import 'lib/ckeditor';
+import 'legacy/polyfills';
+import 'legacy/lib/bootstrap/dropdown';
+import 'legacy/lib/helpers';
+import 'legacy/lib/requests';
+import 'legacy/lib/ui/skip-link-focus-fix';
+import 'legacy/lib/ui/content';
+import 'legacy/lib/ui/filter-selectize';

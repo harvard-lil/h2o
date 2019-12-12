@@ -1,5 +1,11 @@
+import json
+
 from django.conf import settings as django_settings
 from django.core.exceptions import ImproperlyConfigured
+from django.urls import reverse
+from django.utils.safestring import mark_safe
+
+from main.models import Section, Casebook, Resource
 
 
 def settings(request):
@@ -16,3 +22,29 @@ def settings(request):
             m = "TEMPLATE_VISIBLE_SETTINGS: '{0}' does not exist".format(attr)
             raise ImproperlyConfigured(m)
     return new_settings
+
+
+_frontend_urls = None
+def frontend_urls(request):
+    global _frontend_urls
+    if not _frontend_urls:
+        urls_in = {
+            'reorder_section_node': ['reorder_node', [1, "2", "3"], ["1", "2", "3"], ['_CASEBOOK_ID', '_SECTION_ORDINALS', '_CHILD_ORDINALS']],
+            'reorder_casebook_node': ['reorder_node', [1, "2"], ["1", "2"], ['_CASEBOOK_ID', '_CHILD_ORDINALS']],
+            'new_section_or_resource': ['new_section_or_resource', [1], ["1"], ['$CASEBOOK_ID']],
+            'search': ['search', [], [], []],
+            'new_casebook': ['new_casebook', [], [], []],
+            'section': ['section', [1, "2"], ["1", "2"], ['CASEBOOK_ID', 'SECTION_ID']],
+            'casebook': ['casebook', [1], ["1"], ['_ID']],
+            'export_casebook': ['export', [Casebook(id=1), "docx"], ["1", "docx"], ['_ID', '_FORMAT']],
+            'export_section': ['export', [Section(id=1), "docx"], ["1", "docx"], ['_ID', '_FORMAT']],
+            'export_resource': ['export', [Resource(id=1), "docx"], ["1", "docx"], ['_ID', '_FORMAT']],
+        }
+        urls_out = {}
+        for key, [url_name, reverse_args, strings, placeholders] in urls_in.items():
+            url = reverse(url_name, args=reverse_args)
+            for string, placeholder in zip(strings, placeholders):
+                url = url.replace(str(string), placeholder, 1)
+            urls_out[key] = url
+        _frontend_urls = mark_safe(json.dumps(urls_out))
+    return {'frontend_urls': _frontend_urls}

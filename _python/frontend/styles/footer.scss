@@ -23,7 +23,7 @@ body {
       @include make-row();
     }
     .brand {
-      background-image: url('~assets/images/logo-white.png');
+      background-image: url('~static/images/logo-white.png');
       background-position: left;
       height: 26px;
       margin: 10px 0;

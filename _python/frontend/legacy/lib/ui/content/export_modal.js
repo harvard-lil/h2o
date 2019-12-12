@@ -1,10 +1,6 @@
-<% include Rails.application.routes.url_helpers %>
-<% include ActionView::Helpers::JavaScriptHelper %>
-
 import {html} from 'es6-string-html-template';
 import delegate from 'delegate';
-import ModalComponent from 'lib/ui/modal';
-let modal = null;
+import ModalComponent from 'legacy/lib/ui/modal';
 
 delegate(document, 'a.action.export', 'click', (e) => {
   e.preventDefault();
@@ -18,18 +14,18 @@ delegate(document, 'a.action.export', 'click', (e) => {
 });
 
 function resource_export_path(resourceId, format = 'docx') {
-  return '<%= j resource_export_path('_ID', format: '_FORMAT') %>'.replace('_ID', resourceId).replace('_FORMAT', format);
+  return FRONTEND_URLS.export_resource.replace('_ID', resourceId).replace('_FORMAT', format);
 }
 function section_export_path(sectionId, format = 'docx') {
-  return '<%= j section_export_path('_ID', format: '_FORMAT') %>'.replace('_ID', sectionId).replace('_FORMAT', format);
+  return FRONTEND_URLS.export_section.replace('_ID', sectionId).replace('_FORMAT', format);
 }
 function export_casebook_path(casebookId, format = 'docx') {
-  return '<%= j export_casebook_path('_ID', format: '_FORMAT') %>'.replace('_ID', casebookId).replace('_FORMAT', format);
+  return FRONTEND_URLS.export_casebook.replace('_ID', casebookId).replace('_FORMAT', format);
 }
 
 function downloadFile (includeAnnotations) {
   if(typeof includeAnnotations === "undefined"){
-    let includeAnnotations = <%= Rails.application.config.export_annotations_by_default %> ? "true" : "false";
+    includeAnnotations = "true";
   }
   let pageInfo = document.querySelector('main > header').dataset;
   if (pageInfo.resourceId)  {
@@ -66,7 +62,7 @@ class ExportModal extends ModalComponent {
         <div class="modal-content">
           <div class="modal-header">
             <button type="button" class="close" aria-label="Close"><span aria-hidden="true">&times;</span></button>
-            <h4 id="${this.id}-title" class="modal-title export-title"><%= I18n.t 'content.export-modal.title' %></h4>
+            <h4 id="${this.id}-title" class="modal-title export-title">Export Casebook</h4>
           </div>
           <div class="modal-body">
             <div class="export-annotations">

@@ -1,6 +1,6 @@
 import {html} from 'es6-string-html-template';
 import delegate from 'delegate';
-import ModalComponent from 'lib/ui/modal';
+import ModalComponent from 'legacy/lib/ui/modal';
 
 delegate(document, '.clone-casebook', 'click', showCloneModal);
 

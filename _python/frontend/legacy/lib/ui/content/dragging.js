@@ -1,7 +1,4 @@
-<% include Rails.application.routes.url_helpers %>
-<% include ActionView::Helpers::JavaScriptHelper %>
-
-import {patch} from 'lib/requests';
+import {patch} from 'legacy/lib/requests';
 
 let draggingOrdinals = null;
 
@@ -9,10 +6,10 @@ let draggingOrdinals = null;
 function reorder_path(ordinals) {
   if (document.querySelector('header.casebook').dataset.sectionId == ""){
     // when in a casebook
-    return '<%= j reorder_casebook_path('_CASEBOOK_ID', '_CHILD_ORDINALS') %>'.replace('_CASEBOOK_ID', document.querySelector('header.casebook').dataset.casebookId).replace('_CHILD_ORDINALS', ordinals);
+    return FRONTEND_URLS.reorder_casebook_node.replace('_CASEBOOK_ID', document.querySelector('header.casebook').dataset.casebookId).replace('_CHILD_ORDINALS', ordinals);
   } else {
     // when in a section
-    return '<%= j reorder_section_path('_CASEBOOK_ID', '_SECTION_ORDINALS', '_CHILD_ORDINALS') %>'.replace('_CASEBOOK_ID', document.querySelector('header.casebook').dataset.casebookId).replace('_SECTION_ORDINALS', document.querySelector('header.casebook').dataset.sectionOrdinals).replace('_CHILD_ORDINALS', ordinals); 
+    return FRONTEND_URLS.reorder_section_node.replace('_CASEBOOK_ID', document.querySelector('header.casebook').dataset.casebookId).replace('_SECTION_ORDINALS', document.querySelector('header.casebook').dataset.sectionOrdinals).replace('_CHILD_ORDINALS', ordinals);
   }
 }
 

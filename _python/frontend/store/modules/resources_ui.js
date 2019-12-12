@@ -1,5 +1,3 @@
-import Vue from 'vue';
-
 const state = {
   editable: false
 };

@@ -1,7 +1,6 @@
 import { isBlockLevel,
          isElement,
          isText,
-         isBR,
          getLength,
          getAttrsMap } from "../libs/html_helpers";
 
@@ -31,7 +30,7 @@ export const nodeToTuple = (node, prevEnd = 0) =>
 
 export const nodesToTuples = (parentStart) =>
   (tuples, node) => {
-    let [prevNode, prevStart, prevEnd] = last(tuples) ||
+    let [_prevNode, _prevStart, prevEnd] = last(tuples) ||
         [null, null, parentStart];
     return tuples.concat([nodeToTuple(node, prevEnd)]);
   };
@@ -105,7 +104,7 @@ const groupIntoAnnotation = (h, annotations, tuples) =>
 const insertAnnotations = (h, annotations) =>
   (modifiedTuples, tuple, idx, orgTuples) => {
     let [node, start, end] = tuple;
-    let [prevNode, prevStart, prevEnd] = last(modifiedTuples) ||
+    let [_prevNode, _prevStart, prevEnd] = last(modifiedTuples) ||
         [null, null, orgTuples[0][1]];
 
     // If the previous tuple's end offset is greater than the current tuple's

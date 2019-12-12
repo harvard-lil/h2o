@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="55px" height="55px" viewBox="0 0 55 55" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+    <!-- Generator: Sketch 56.3 (81716) - https://sketch.com -->
+    <title>button/cancel</title>
+    <desc>Created with Sketch.</desc>
+    <g id="button/cancel" stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
+        <ellipse id="Oval-46" stroke="#3E72D7" stroke-width="2" fill="#FFFFFF" cx="27.2560386" cy="27.5" rx="26.2560386" ry="26.5"></ellipse>
+        <path d="M27.5,15.5 L27.5,40.5199928" id="Line" stroke="#3E72D7" stroke-width="3" stroke-linecap="square" transform="translate(27.500000, 28.000000) rotate(45.000000) translate(-27.500000, -28.000000) "></path>
+        <path d="M15,28 L40.0199928,28" id="Line-Copy" stroke="#3E72D7" stroke-width="3" stroke-linecap="square" transform="translate(27.509996, 28.500000) rotate(45.000000) translate(-27.509996, -28.500000) "></path>
+    </g>
+</svg>

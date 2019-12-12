@@ -74,7 +74,6 @@ export default {
     }
   }
 }
-
 .page-number, .page-label {
   font-size: small;
   color: darkgrey;
@@ -110,14 +109,14 @@ blockquote + :not(blockquote) {
  * They must live here so that they can change in relation to
  * their parent element.
  */
-p /deep/ {
+p ::v-deep {
   .highlight .selected-text,
   .replacement .selected-text,
   .replacement .replacement-text {
     padding: 0.35em 0;
   }
 }
-h2 /deep/ {
+h2 ::v-deep {
   .highlight .selected-text,
   .replacement .selected-text,
   .replacement .replacement-text {

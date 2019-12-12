@@ -52,8 +52,9 @@ export default {
   components: {
     SideMenu,
     Modal,
-    ContextMenu,
-    LinkInput
+    // are these used?
+    ContextMenu,  // eslint-disable-line vue/no-unused-components
+    LinkInput  // eslint-disable-line vue/no-unused-components
   },
   data: () => ({
     ranges: null,

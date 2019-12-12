@@ -1,15 +1,12 @@
-<% include Rails.application.routes.url_helpers %>
-<% include ActionView::Helpers::JavaScriptHelper %>
-
 import {html} from 'es6-string-html-template';
 import delegate from 'delegate';
-import ModalComponent from 'lib/ui/modal';
-import {patch} from 'lib/requests';
+import ModalComponent from 'legacy/lib/ui/modal';
+import {patch} from 'legacy/lib/requests';
 
 delegate(document, 'button.action.publish', 'click', showPublishModal);
 
-function casebook_path(resourceId, format = 'pdf') {
-  return '<%= j casebook_path('_ID') %>'.replace('_ID', resourceId);
+function casebook_path(resourceId) {
+  return FRONTEND_URLS.casebook.replace('_ID', resourceId);
 }
 
 function showPublishModal (e) {
@@ -26,7 +23,7 @@ function showPublishModal (e) {
   });
 }
 
-function showSpinner (e) {
+function showSpinner () {
   $(".modal-header").hide();
   $(".modal-body").hide();
   $(".modal-footer").hide();
@@ -51,7 +48,7 @@ class PublishModal extends ModalComponent {
         <div class="modal-content">
           <div class="modal-header">
             <button type="button" class="close" aria-label="Close"><span aria-hidden="true">&times;</span></button>
-            <h4 id="${this.id}-title" class="modal-title"><%= I18n.t 'content.publish-modal.title' %></h4>
+            <h4 id="${this.id}-title" class="modal-title">Confirm Publish</h4>
           </div>
           <div class="publish">
             <div class="spinner-group">
@@ -64,11 +61,11 @@ class PublishModal extends ModalComponent {
             </div>
           </div>
           <div class="modal-body">
-            <%= I18n.t 'content.publish-modal.body' %>
+            Are you ready to publish your book?
           </div>
           <div class="modal-footer">
-            <button class="modal-button cancel"><%= I18n.t('content.publish-modal.cancel') %></button>
-            <button class="modal-button confirm"><%= I18n.t('content.publish-modal.confirm') %></button>
+            <button class="modal-button cancel">No</button>
+            <button class="modal-button confirm">Yes</button>
           </div>
         </div>
       </div>

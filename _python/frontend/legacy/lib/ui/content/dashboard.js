@@ -1,8 +1,6 @@
-<% include Rails.application.routes.url_helpers %>
-
 import {html} from 'es6-string-html-template';
 import delegate from 'delegate';
-import ModalComponent from 'lib/ui/modal';
+import ModalComponent from 'legacy/lib/ui/modal';
 
 
 delegate(document, '[data-action="show-casebook-modal"]', 'click', (e) => showCasebookModal(e));
@@ -18,14 +16,14 @@ class NewCasebookModal extends ModalComponent {
         <div class="modal-content">
           <div class="modal-header">
             <button type="button" class="close" aria-label="Close"><span aria-hidden="true">&times;</span></button>
-            <h4 id="${this.id}-title" class="modal-title"><%= I18n.t 'content.dashboard.new-casebook-modal.title' %></h4>
+            <h4 id="${this.id}-title" class="modal-title">Create a Casebook</h4>
           </div>
           <div class="modal-body">
-            <%= I18n.t 'content.dashboard.new-casebook-modal.body' %>
+            Would you like to make a new casebook from scratch or search for a casebook you can copy and customize?
           </div>
           <div class="modal-footer">
-            <a href="<%= new_casebook_path %>" class="modal-button"><%= I18n.t 'content.dashboard.new-casebook-modal.from-scratch' %></a>
-            <a href="<%= search_path %>" class="modal-button"><%= I18n.t 'content.dashboard.new-casebook-modal.adapt-existing' %></a>
+            <a href="${FRONTEND_URLS.new_casebook}" class="modal-button">Make a New Casebook</a>
+            <a href="${FRONTEND_URLS.search}" class="modal-button">Search Casebooks</a>
           </div>
         </div>
       </div>

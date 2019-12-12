@@ -1,6 +1,5 @@
-import Vue from "vue";
 import AxiosConfig from "axios";
-import {get_csrf_token} from 'lib/helpers';
+import {get_csrf_token} from 'legacy/lib/helpers';
 
 let headers = {"Content-Type": "application/json",
                "Accept": "application/json"};

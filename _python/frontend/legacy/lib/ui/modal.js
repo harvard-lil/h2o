@@ -1,4 +1,4 @@
-import Component from 'lib/ui/component';
+import Component from './component';
 
 function restrictFocus (e) {
   if (!this.el.contains(e.target)) {
@@ -12,8 +12,8 @@ export default class ModalComponent extends Component {
     super({
       id: id,
       events: Object.assign(customEvents || {}, {
-        'click .close': (e) => { this.destroy() },
-        'click .cancel': (e) => { this.destroy() },
+        'click .close': () => { this.destroy() },
+        'click .cancel': () => { this.destroy() },
         [`click #${id}`]: (e) => { if (e.target.id === id) this.destroy() },
         [`keydown #${id}`]: (e) => { if (e.key=='Escape'||e.key=='Esc'||e.keyCode==27) this.destroy()}
       })

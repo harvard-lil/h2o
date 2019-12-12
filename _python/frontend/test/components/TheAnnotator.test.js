@@ -1,7 +1,7 @@
 import { parseHTML } from '../test_helpers';
 
 import { mount } from '@vue/test-utils';
-import TheAnnotator from 'components/TheAnnotator';
+import TheAnnotator from '@/components/TheAnnotator';
 
 describe('TheAnnotator', () => {
 

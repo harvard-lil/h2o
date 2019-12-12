@@ -29,6 +29,7 @@ INSTALLED_APPS = [
     'django_extensions',
     'crispy_forms',
     'rest_framework',
+    'webpack_loader',
 
     # built-in
     'main.apps.CustomAdminConfig',
@@ -65,7 +66,8 @@ TEMPLATES = [
                 'django.template.context_processors.request',
                 'django.contrib.auth.context_processors.auth',
                 'django.contrib.messages.context_processors.messages',
-                'config.context_processors.settings'
+                'config.context_processors.settings',
+                'config.context_processors.frontend_urls',
             ],
         },
     },
@@ -200,12 +202,15 @@ LOGGING = {
      },
 }
 
-
-# serve Rails public/ folder at the root, so urls like /robots.txt and /packs/css/main.css will work:
-WHITENOISE_ROOT = os.path.join(os.path.dirname(BASE_DIR), 'public')
-
 # avoid the need for collectstatic in production (see http://whitenoise.evans.io/en/stable/django.html#WHITENOISE_USE_FINDERS )
 WHITENOISE_USE_FINDERS = True
+
+WEBPACK_LOADER = {
+    'DEFAULT': {
+        'BUNDLE_DIR_NAME': 'dist/',
+        'STATS_FILE': os.path.join(BASE_DIR, 'webpack-stats.json'),
+    }
+}
 
 CAPAPI_BASE_URL = 'https://api.case.law/v1/'
 CAPAPI_API_KEY = ''

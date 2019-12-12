@@ -137,32 +137,32 @@ main > header.casebook {
       background-position: 4px center;
     }
     &.add-resource {
-      background-image: url('~assets/images/ui/casebook/add-material.svg');
+      background-image: url('~static/images/ui/casebook/add-material.svg');
     }
     &.add-section {
-      background-image: url('~assets/images/ui/casebook/add-section.svg');
+      background-image: url('~static/images/ui/casebook/add-section.svg');
     }
     &.publish {
-      background-image: url('~assets/images/ui/casebook/publish.svg');
+      background-image: url('~static/images/ui/casebook/publish.svg');
     }
     &.clone-casebook {
-      background-image: url('~assets/images/ui/casebook/clone.svg');
+      background-image: url('~static/images/ui/casebook/clone.svg');
       border: none;
     }
     &.export {
-      background-image: url('~assets/images/ui/casebook/export.svg');
+      background-image: url('~static/images/ui/casebook/export.svg');
     }
     &.more, &.preview {
-      background-image: url('~assets/images/ui/casebook/preview.svg');
+      background-image: url('~static/images/ui/casebook/preview.svg');
     }
     &.edit {
-      background-image: url('~assets/images/ui/casebook/edit-icon.svg');
+      background-image: url('~static/images/ui/casebook/edit-icon.svg');
     }
     &.save {
-      background-image: url('~assets/images/ui/casebook/save-icon.svg');
+      background-image: url('~static/images/ui/casebook/save-icon.svg');
     }
     &.cancel {
-      background-image: url('~assets/images/ui/casebook/cancel-icon.svg');
+      background-image: url('~static/images/ui/casebook/cancel-icon.svg');
     }
   }
 }
@@ -320,7 +320,7 @@ form.edit_content_resource, form.edit_content_section, form.edit_content_caseboo
         vertical-align: middle;
 
         color: transparent;
-        background-image: url('~assets/images/add-icon.png');
+        background-image: url('~static/images/add-icon.png');
         background-size: auto;
       }
       .user {
@@ -332,7 +332,7 @@ form.edit_content_resource, form.edit_content_section, form.edit_content_caseboo
           display: inline-block;
           vertical-align: middle;
           content: '';
-          background: url('~assets/images/ui/verified.png') no-repeat;
+          background: url('~static/images/ui/verified.png') no-repeat;
         }
       }
     }
@@ -374,7 +374,7 @@ form.edit_content_resource, form.edit_content_section, form.edit_content_caseboo
           background-repeat: no-repeat;
           background-size: auto;
           &.action-delete {
-            background-image: url('~assets/images/ui/edit/elide.png');
+            background-image: url('~static/images/ui/edit/elide.png');
             height: 51px;
             width: 35px;
             border-width: 0px;
@@ -388,7 +388,7 @@ form.edit_content_resource, form.edit_content_section, form.edit_content_caseboo
             padding-left: 40px;
             padding-top: 6px;
 
-            background-image: url('~assets/images/ui/edit/add.png');
+            background-image: url('~static/images/ui/edit/add.png');
             &:hover {
               color: $light-blue;
             }
