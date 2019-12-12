@@ -45,7 +45,7 @@ hr.owned {
     display: flex;
     flex-direction: column;
     justify-content: space-between;
-    
+
     .casebook-info, .unpublished-changes, .author-info, .root-attribution {
       padding: 10px;
     }
@@ -97,7 +97,7 @@ hr.owned {
         @include size(15px, 25px);
         @include absolute(-15px, 0);
         content: '';
-        background-image: url('~assets/images/banner-draft-icon.png');
+        background-image: url('~assets/images/banner-draft-icon.svg');
         background-position: -15px 0;
         background-size: 15px;
       }
