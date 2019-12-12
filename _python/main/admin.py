@@ -4,7 +4,6 @@ from django.contrib import admin
 from django.db.models import Q, Count
 from django.urls import reverse
 from django.utils.html import format_html
-from django.shortcuts import redirect
 from django.utils.safestring import mark_safe
 
 from .utils import fix_after_rails, clone_model_instance
@@ -32,24 +31,8 @@ def edit_link(obj, as_str=False):
 # Admin site config
 #
 
-# Until we are integrated with Django's authentication system,
-# point login etc. to the Rails app.
-# https://docs.djangoproject.com/en/2.2/ref/contrib/admin/#django.contrib.admin.AdminSite
-# https://docs.djangoproject.com/en/2.2/ref/contrib/admin/#adding-views-to-admin-sites
 class CustomAdminSite(admin.AdminSite):
     site_header = 'H2O Admin'
-
-    def login(self, *args, **kwargs):
-        return redirect(reverse('login'))
-
-    def logout(self, *args, **kwargs):
-        raise NotImplementedError()
-
-    def password_change(self, *args, **kwargs):
-        raise NotImplementedError()
-
-    def password_change_done(self, *args, **kwargs):
-        raise NotImplementedError()
 
 admin_site = CustomAdminSite(name='h2oadmin')
 
