@@ -105,11 +105,9 @@ class AddResourceModal extends Component {
   }
 
   render () {
-    let instance = CKEDITOR.instances['add_resource_text_content']
-    if (instance) { instance.destroy(true); }
     super.render();
     if (this.activeType === 'text') {
-      CKEDITOR.replace('add_resource_text_content', {toolbar: 'mini'});
+      global.initCkEditor(document.getElementById('add_resource_text_content'));
     }
   }
 
