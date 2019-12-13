@@ -1,0 +1,32 @@
+@import 'variables';
+
+// import bootstrap mixins to build semantic styles
+@import '~bootstrap-sass/assets/stylesheets/bootstrap';
+@import "~bootstrap-sass/assets/stylesheets/bootstrap/scaffolding";
+@import "~bootstrap-sass/assets/stylesheets/bootstrap/normalize";
+
+// shared variables
+@import 'font-vars-and-mixins';
+@import 'font-faces';
+@import 'mixins';
+
+// global styles
+@import 'text';
+@import 'forms';
+@import 'buttons';
+
+// shared semantic styles
+@import 'layout';
+@import 'header';
+@import 'footer';
+@import 'mockups';
+@import 'spinner';
+
+// view semantic styles
+@import 'landing';
+@import 'searches';
+@import 'users';
+@import 'dashboard';
+@import 'casebook';
+@import 'pages';
+@import 'ckeditor_styles';

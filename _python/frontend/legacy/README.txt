@@ -1,0 +1,2 @@
+These files were originally served using an earlier Rails asset pipeline (Sprockets) instead of the later Rails asset
+pipeline (webpacker). They could be better integrated with the other frontend files.

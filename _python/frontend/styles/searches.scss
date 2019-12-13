@@ -1,0 +1,139 @@
+main > section.search-results {
+  background-color: $light-gray;
+
+  .content {
+    padding: 20px 40px;
+    margin-top: 25px;
+    background-color: $white;
+    border: 1px solid $dark-gray;
+  }
+}
+
+header.advanced-search {
+  padding-top: $padding-base-vertical;
+  padding-bottom: $padding-base-vertical;
+}
+
+.narrow-inner, .search-options {
+  @include make-md-column(7.5);
+  float: none !important;
+  margin: auto;
+}
+
+.search-options {
+  display: flex;
+  justify-content: flex-start;
+
+  margin-top: $padding-base-vertical;
+  margin-bottom: $padding-base-vertical;
+
+  .form-group {
+    display: flex;
+    margin-bottom: 0;
+    flex-grow: 1;
+    flex-shrink: 0;
+    max-width: 33%;
+
+    select {
+      display: inline-block;
+      flex-grow: 1;
+      border-radius: 4px;
+      font-size: 12px;
+      height: 28px;
+      padding: 0 2em 0 1em;
+
+      /* replace the browser's ugly arrow with a caret */
+      /* https://stackoverflow.com/questions/1895476/how-to-style-a-select-dropdown-with-css-only-without-javascript#13968900 */
+      background:
+        linear-gradient(45deg, transparent 50%, #333 50%),
+        linear-gradient(135deg, #333 50%, transparent 50%);
+      background-position:
+        calc(100% - 20px) 1em,
+        calc(100% - 15px) 1em;
+      background-size: 3px 5px, 5px 5px;
+      background-repeat: no-repeat;
+      -webkit-appearance: none;
+      -moz-appearance: none;
+      appearance: none;
+      &::-ms-expand {
+          display: none; /* remove default arrow in IE 10 and 11 */
+      }
+    }
+  }
+}
+
+.results-container {
+  padding: 0 50px 0 50px;
+}
+
+.type-tabs {
+  @include make-row();
+  margin-bottom: 20px;
+
+  .type-tab {
+    @include make-md-column(4);
+    @include sans-serif($regular, 18px, 18px);
+    padding-bottom: 10px;
+    text-align: center;
+    color: $black;
+
+    &.active {
+      border-bottom: 4px solid $light-blue;
+      color: $light-blue;
+      font-weight: bold;
+    }
+
+    a:focus {
+      @include generic-focus-styles;
+    }
+  }
+}
+
+.results-list {
+  .results-entry {
+    @include make-row();
+    padding: 10px 0;
+    border-top: 1px solid $dark-gray;
+    display: flex;
+    align-items: center;
+
+    .title {
+      @include make-md-column(7.5);
+      font-weight: bold;
+      font-size: 14px;
+      font-family: $font-family-sans-serif;
+      float: left;
+    }
+    .owner, .casebook-count {
+      @include make-md-column(3);
+    }
+    .owner {
+      font-size: 13px;
+      padding: 0;
+
+      .verified {
+        @include square(13px);
+        display: inline-block;
+        vertical-align: middle;
+        content: '';
+        background: url('~static/images/ui/verified.png') no-repeat;
+      }
+    }
+    .date, .profile-image {
+      @include make-md-column(1);
+    }
+
+    .date {
+      flex-grow: 1;
+      text-align: right;
+    }
+
+    .citation {
+      text-align: right;
+    }
+  }
+}
+
+.no-results {
+  text-align: center;
+}

@@ -1,0 +1,127 @@
+{
+  "name": "h2o",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "serve": "vue-cli-service serve",
+    "build": "vue-cli-service build",
+    "test": "vue-cli-service test:unit --require frontend/test/mocha_setup.js frontend/test/**/*.test.js",
+    "lint": "vue-cli-service lint frontend/"
+  },
+  "dependencies": {
+    "autoprefixer": "^6.7.7",
+    "axios": "^0.19.0",
+    "bluebird": "^3.5.0",
+    "bootstrap-sass": "3.4.1",
+    "ckeditor": "4.11.0",
+    "classlist-polyfill": "^1.2.0",
+    "core-js": "^3.4.3",
+    "debounce": "^1.0.2",
+    "delegate": "^3.1.2",
+    "drag-mock": "^1.4.0",
+    "element-closest": "^2.0.2",
+    "es6-string-html-template": "^1.0.2",
+    "es6-symbol": "^3.1.1",
+    "expect": "^24.8.0",
+    "form-serialize": "^0.7.1",
+    "fstream": "^1.0.12",
+    "glob": "^7.1.1",
+    "htmltidy2": "^0.3.0",
+    "jquery": ">=3.0.0",
+    "jquery-ui": "^1.12.1",
+    "jquery-ujs": "^1.2.2",
+    "js-yaml": "^3.12.1",
+    "jsdom": "^15.1.0",
+    "jsdom-global": "^3.0.2",
+    "lodash": "^4.17.13",
+    "lodash.template": "^4.5.0",
+    "lodash.throttle": "^4.1.1",
+    "mixin-deep": "^1.3.2",
+    "mocha": "^6.1.4",
+    "mocha-webpack": "^2.0.0-beta.0",
+    "moment": "^2.24.0",
+    "morphdom": "^2.3.2",
+    "path-complete-extname": "^0.1.0",
+    "query-string": "^4.3.4",
+    "serialize-javascript": "2.1.1",
+    "set-value": "^2.0.1",
+    "vue": "^2.6.10",
+    "vue-contenteditable-directive": "^1.2.0",
+    "vue-loader": "^15.6.2",
+    "vue-router": "^3.0.6",
+    "vue-scrollto": "^2.13.0",
+    "vuex": "^3.1.0"
+  },
+  "devDependencies": {
+    "@babel/polyfill": "^7.7.0",
+    "@ckeditor/ckeditor5-build-classic": "^16.0.0",
+    "@vue/cli-plugin-babel": "^4.1.0",
+    "@vue/cli-plugin-eslint": "^4.1.0",
+    "@vue/cli-plugin-unit-mocha": "^4.1.1",
+    "@vue/cli-service": "^4.1.0",
+    "@vue/test-utils": "1.0.0-beta.29",
+    "babel-eslint": "^10.0.3",
+    "cache-loader": "^4.1.0",
+    "chai": "^4.1.2",
+    "eslint": "^5.16.0",
+    "eslint-plugin-vue": "^5.0.0",
+    "null-loader": "^3.0.0",
+    "sass": "^1.23.7",
+    "sass-loader": "^8.0.0",
+    "sinon": "^7.3.2",
+    "vue-template-compiler": "^2.6.10",
+    "webpack-bundle-tracker": "^0.4.3",
+    "webpack-dev-server": "^3.3.1",
+    "xhr-mock": "^2.3.1"
+  },
+  "eslintConfig": {
+    "root": true,
+    "env": {
+      "node": true
+    },
+    "extends": [
+      "plugin:vue/essential",
+      "eslint:recommended"
+    ],
+    "rules": {
+      "no-console": "off",
+      "no-cond-assign": "off",
+      "no-unused-vars": [
+        "error",
+        {
+          "args": "none",
+          "ignoreRestSiblings": true,
+          "varsIgnorePattern": "^_"
+        }
+      ],
+      "vue/valid-template-root": "off"
+    },
+    "parserOptions": {
+      "parser": "babel-eslint"
+    },
+    "globals": {
+      "FRONTEND_URLS": true,
+      "$": true,
+      "jQuery": true,
+      "app": true,
+      "CKEDITOR": true
+    },
+    "overrides": [
+      {
+        "files": [
+          "**/*.test.js"
+        ],
+        "env": {
+          "mocha": true
+        },
+        "globals": {
+          "expect": true
+        }
+      }
+    ]
+  },
+  "browserslist": [
+    "> 1%",
+    "last 2 versions"
+  ]
+}

@@ -6,32 +6,19 @@ ENV LANG=C.UTF-8 \
     PIP_DISABLE_PIP_VERSION_CHECK=on \
     PIP_SRC=/usr/local/src
 
-RUN mkdir /app
-WORKDIR /app
-
 RUN apt-get update && apt-get install -y nano postgresql-client
 
-# nodejs
-# write a .yarnrc that will only be found inside the docker guest, and will cause
-# node_modules to be written to /node_modules instead of ./node_modules:
-RUN echo "--modules-folder /node_modules" > /.yarnrc
-COPY package.json /app
-COPY yarn.lock /app
 # pin node version -- see https://github.com/nodesource/distributions/issues/33
-RUN curl -o nodejs.deb https://deb.nodesource.com/node_11.x/pool/main/n/nodejs/nodejs_11.15.0-1nodesource1_amd64.deb \
+RUN curl -o nodejs.deb https://deb.nodesource.com/node_12.x/pool/main/n/nodejs/nodejs_12.13.1-1nodesource1_amd64.deb \
     && dpkg -i ./nodejs.deb \
-    && rm nodejs.deb \
-    && npm install -g yarn@1.16.0 \
-    && yarn install --frozen-lockfile \
-    && rm package.json \
-    && rm yarn.lock
-
-RUN mkdir /app/_python
-WORKDIR /app/_python
+    && rm nodejs.deb
 
 # Install Pandoc, for export
 RUN wget https://github.com/jgm/pandoc/releases/download/2.8.1/pandoc-2.8.1-1-amd64.deb \
     && dpkg -i pandoc-2.8.1-1-amd64.deb
+
+RUN mkdir -p /app/_python
+WORKDIR /app/_python
 
 # pip
 COPY _python/requirements.txt /app/_python

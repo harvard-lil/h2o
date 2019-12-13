@@ -74,6 +74,7 @@ urlpatterns = format_suffix_patterns(drf_urlpatterns) + [
     path('pages/privacy-policy/', TemplateView.as_view(template_name='pages/privacy-policy.html'), name='privacy-policy'),
     path('pages/terms-of-service/', TemplateView.as_view(template_name='pages/terms-of-service.html'), name='terms-of-service'),
     path('pages/faq/', TemplateView.as_view(template_name='pages/faq.html'), name='faq'),
+    path('robots.txt', TemplateView.as_view(template_name='robots.txt'), name='robots_txt'),
     # TODO: remove pages/ from the above URLs and use these redirects
     # path('pages/about/', RedirectView.as_view(pattern_name='about', permanent=True)),
     # path('pages/privacy-policy/', RedirectView.as_view(pattern_name='privacy-policy', permanent=True)),

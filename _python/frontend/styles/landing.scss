@@ -1,0 +1,171 @@
+a.call-to-action {
+  @extend .btn;
+  @extend .btn-primary;
+}
+
+section.hero {
+  padding-bottom: 80px;
+
+  h1 {
+    @include serif-headline($regular, 82px, 78px);
+
+    margin: 40px 0px 35px;
+
+    em {
+      @include serif-headline($regular, 81px, 97px);
+      display: block;
+      font-style: normal;
+      color: $light-blue;
+    }
+  }
+
+  h2 {
+    @include serif-headline($regular, 72px, 86px);
+
+    margin: 0px 0px 35px;
+  }
+
+  @media (max-width: $navbar-breakpoint) {
+    h1 {
+      @include serif-headline($regular, 41px, 39px);
+      margin: 0px 0px 15px;
+
+      em {
+        @include serif-headline($regular, 40px, 48px);
+      }
+    }
+    h2 {
+      @include serif-headline($regular, 36px, 43px);
+    }
+  }
+}
+
+section.preview {
+  padding-top: 30px;
+
+  background-color: $light-blue;
+  color: $white;
+
+  .features {
+    @include make-md-column(5);
+
+    > section {
+      @include make-row();
+      padding-left: 14px;
+      margin: 15px 0 27px;
+    }
+    h2 {
+      @include sans-serif($bold, 24px, 18px);
+      margin: 5px 0;
+    }
+    p {
+      @include sans-serif($regular, 18px, 24px);
+      margin: 10px 0;
+    }
+  }
+  .screenshot {
+    @include make-md-column(7);
+
+    overflow: visible;
+
+    .image-wrapper {
+      width: 100%;
+      overflow: visible;
+      padding-bottom: 12px;
+      img {
+        max-width: 100%;
+        @media (min-width: $screen-md){
+          position: relative;
+          left: 100px;
+          top: 5px;
+        }
+      }
+    }
+    .demo-image {
+      width: 100%;
+      background-size: cover;
+      background-url: url('~static/images/landing-demo.png');
+    }
+  }
+}
+
+section.endorsements {
+  text-align: center;
+
+  border: 4px solid $light-gray;
+  border-width: 4px 0;
+
+  h1 {
+    @include sans-serif($light, 32px, 32px);
+    margin: 35px 0 50px;
+  }
+  .endorser {
+    @include make-md-column(4);
+
+    > .photo {
+      margin-bottom: 18px;
+    }
+    > .name {
+      @include sans-serif($regular, 14px, 14px);
+      margin: 4px 0;
+    }
+    > .institution {
+      @include sans-serif($bold, 14px, 14px);
+      padding: 0 10px;
+    }
+    > .link {
+      margin: 18px 0;
+      > a {
+        @include sans-serif($bold, 14px, 14px);
+        @include link-color($light-blue);
+        &::after {
+          padding-left: 5px;
+          content: "\276f";
+        }
+      }
+    }
+  }
+  .testimonial {
+    margin: 42px 0;
+    @media (min-width: $screen-xs){
+      padding: 0 150px;
+    }
+    .quote {
+      @include sans-serif($light, 32px, 36px);
+      color: $orange;
+      &::before {content: '\201c';}
+      &::after {content: '\201d';}
+    }
+    .source {
+      @include sans-serif($medium, 14px, 14px);
+      margin: 10px;
+    }
+  }
+}
+
+section.schools {
+  text-align: center;
+  margin-top: 15px;
+  padding: 20px 0 35px;
+
+  border: 4px solid $light-gray;
+  border-width: 4px 0 4px;
+
+  h2 {
+    @include sans-serif($bold, 18px, 18px);
+      margin-bottom: 40px;
+  }
+  img {
+    padding: 16px;
+    vertical-align: middle;
+  }
+}
+
+section.stinger {
+  text-align: center;
+  padding-top: 75px;
+  h1 {
+    @include sans-serif($light, 32px, 32px);
+    margin-bottom: 25px;
+  }
+}

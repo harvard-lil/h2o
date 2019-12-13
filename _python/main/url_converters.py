@@ -104,6 +104,8 @@ class OrdinalSlugConverter:
         elif isinstance(value, dict):
             ordinals = value['ordinals']
             slug = value.get('slug')
+        elif isinstance(value, str):
+            return value
         else:
             raise ValueError("Cannot create OrdinalSlug from argument type %s" % type(value))
         return '.'.join(str(i) for i in ordinals) + (("-%s" % slug) if slug else "")

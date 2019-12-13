@@ -1,0 +1,155 @@
+@import '~bootstrap-sass/assets/stylesheets/bootstrap/buttons';
+@import '~bootstrap-sass/assets/stylesheets/bootstrap/navbar';
+
+body {
+  #main-header {
+    @include make-row();
+    background-color: $white;
+    padding-bottom: 20px;
+  }
+  &.view-base-index #main-header > nav {
+    margin-top: 35px;
+  }
+  #main-header > nav {
+    @extend .container;
+    margin-top: 24px;
+    *:focus {
+      @include generic-focus-styles;
+    }
+    > .content {
+      display: flex;
+      align-items: left;
+      flex-direction: column;
+
+      @media (min-width: ($navbar-breakpoint +1)) {
+        flex-direction: row;
+        align-items: center;
+      }
+    }
+    .brand {
+      @extend .navbar-header;
+      .logo {
+        @extend .navbar-brand;
+
+        width: 85px;
+        margin-right: 10px;
+
+        // The text is hidden and is replaced visually by an image
+        background-image: url('~static/images/logo.svg');
+        background-size: initial;
+        color: transparent;
+
+        &:hover {
+          @include generic-focus-styles;
+          color: transparent;
+        }
+      }
+    }
+    a, button {
+      @include btn();
+      @include btn-white();
+      margin-right: 5px;
+      font-size: 14px;
+      &.create-casebook {
+        @extend .btn-default;
+      }
+    }
+    .links {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+
+      @media (max-width: $navbar-breakpoint) {
+        width: 100%;
+        flex-direction: column;
+        align-items: left;
+        margin-top: 6px;
+        a, button {
+          width: 100%;
+          margin-top: 12px;
+          text-align: left;
+        }
+      }
+    }
+    .user {
+      margin-left: auto;
+      @media (max-width: $navbar-breakpoint) {
+        width: 100%;
+        margin-top: 12px;
+        margin-left: 0;
+      }
+
+      .current-user {
+        display: flex;
+        align-items: center;
+        @media (max-width: $navbar-breakpoint) {
+          width: 100%;
+        }
+        .verified {
+          @extend .hidden-xs;
+          display: inline-block;
+          width: 12px;
+          height: 12px;
+          line-height: 5px;
+
+          background-image: url('~static/images/ui/verified.png');
+          color: transparent;
+        }
+        .dropdown {
+          @media (max-width: $navbar-breakpoint) {
+            width: 100%;
+            button {
+              width: 100%;
+              text-align: left;
+            }
+          }
+          display: inline-block;
+          .name {
+            display: inline-block;
+            vertical-align: middle;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            max-width: 250px;
+            @media (min-width: $navbar-breakpoint)
+                   and (max-width: $screen-sm-min) {
+              max-width: 130px;
+            }
+          }
+          &.open {
+            .caret{
+              border-top: none;
+              border-bottom: 4px solid #000000;
+            }
+          }
+        }
+        .user-links {
+          border: none;
+          margin-top: 8px;
+          padding-top: 0;
+          padding-bottom: 0;
+          width: 100%;
+        }
+        .user-link {
+          @include sans-serif($bold, 14px, 14px);
+          padding: 12px 20px;
+          width: 100%;
+          @media (min-width: $navbar-breakpoint) {
+            text-align: right;
+          }
+        }
+      }
+      .sign-up, .sign-in {
+        @media (max-width: $navbar-breakpoint) {
+          display: block;
+          width: 100%;
+          text-align: left;
+          margin-bottom: 12px;
+        }
+      }
+      .sign-up {
+        @extend .btn-default;
+      }
+    }
+  }
+}

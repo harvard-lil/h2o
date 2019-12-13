@@ -1,0 +1,50 @@
+main > section:last-child {
+  padding-bottom: 105px;
+}
+body {
+  #main-footer {
+    @include make-row();
+    padding: 40px 0 50px;
+
+    background-color: $light-blue;
+    color: white;
+
+    a {
+      @include sans-serif($bold, 14px, 20px);
+      @include link-color($white);
+    }
+    .link {
+      display: block;
+    }
+    .content {
+      @extend .container;
+    }
+    .layout {
+      @include make-row();
+    }
+    .brand {
+      background-image: url('~static/images/logo-white.png');
+      background-position: left;
+      height: 26px;
+      margin: 10px 0;
+      color: transparent;
+    }
+    .link-group {
+      &:first-child {
+        @include make-md-column(2);
+      }
+      &:nth-child(2) {
+        @include make-md-column(3);
+      }
+    }
+    .info {
+      @include make-md-column(3);
+      @extend .pull-right;
+      text-align: right;
+      .copyright {
+        margin-top: 15px;
+        @include sans-serif($bold, 10px, 16px);
+      }
+    }
+  }
+}

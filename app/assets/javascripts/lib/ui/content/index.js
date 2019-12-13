@@ -1,9 +1,0 @@
-import 'lib/ui/content/dragging.js.erb';
-import 'lib/ui/content/dashboard.js.erb';
-import 'lib/ui/content/add_content.js.erb';
-import 'lib/ui/content/publish_modal.js.erb';
-import 'lib/ui/content/revise_modal';
-import 'lib/ui/content/clone_modal';
-import 'lib/ui/content/delete_modal.js.erb';
-import 'lib/ui/content/export_modal.js.erb';
-import 'lib/ui/content/save_details';

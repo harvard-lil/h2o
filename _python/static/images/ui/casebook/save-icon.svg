@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="55px" height="55px" viewBox="0 0 55 55" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+    <!-- Generator: Sketch 56.3 (81716) - https://sketch.com -->
+    <title>save-icon</title>
+    <desc>Created with Sketch.</desc>
+    <g id="save-icon" stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
+        <ellipse id="Oval-46" stroke="#3E72D7" stroke-width="2" fill="#FFFFFF" cx="27.2560386" cy="27.5" rx="26.2560386" ry="26.5"></ellipse>
+        <g id="save-24px" transform="translate(16.000000, 16.000000)">
+            <polygon id="Path" points="0 0 24 0 24 24 0 24"></polygon>
+            <path d="M18.1111111,1 L3.44444444,1 C2.08777778,1 1,2.1 1,3.44444444 L1,20.5555556 C1,21.9 2.08777778,23 3.44444444,23 L20.5555556,23 C21.9,23 23,21.9 23,20.5555556 L23,5.88888889 L18.1111111,1 Z M12,20.5555556 C9.97111111,20.5555556 8.33333333,18.9177778 8.33333333,16.8888889 C8.33333333,14.86 9.97111111,13.2222222 12,13.2222222 C14.0288889,13.2222222 15.6666667,14.86 15.6666667,16.8888889 C15.6666667,18.9177778 14.0288889,20.5555556 12,20.5555556 Z M15.6666667,8.33333333 L3.44444444,8.33333333 L3.44444444,3.44444444 L15.6666667,3.44444444 L15.6666667,8.33333333 Z" id="Shape" fill="#3E72D7" fill-rule="nonzero"></path>
+        </g>
+    </g>
+</svg>

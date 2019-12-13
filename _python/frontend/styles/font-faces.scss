@@ -1,0 +1,23 @@
+@font-face {
+  @include load-font($preferred-sans-serif, normal, $bold, '~@/fonts/AtlasGrotesk-Medium');
+}
+
+@font-face {
+  @include load-font($preferred-sans-serif, normal, $regular, '~@/fonts/AtlasGrotesk-Regular');
+}
+
+@font-face {
+  @include load-font($preferred-sans-serif, normal, $light, '~@/fonts/AtlasGrotesk-Light');
+}
+
+
+@font-face {
+  @include load-font($preferred-serif, normal, $regular, '~@/fonts/ChronicleTextG3-Roman');
+}
+
+@font-face {
+  font-family: $preferred-mono;
+  font-style: normal;
+  font-weight: $regular;
+  src: url('~@/fonts/RobotoMono-Bold.ttf') format('ttf');
+}

@@ -1,0 +1,137 @@
+@import 'content/modals';
+
+main > .dashboard .content-inner {
+  @include make-md-column(8.25);
+  @include make-md-column-offset(2);
+}
+
+main > section.dashboard {
+  background-color: $light-gray;
+  padding-bottom: 20px;
+}
+
+main > header.dashboard {
+  margin: 20px 0 53px 0;
+  padding: 0 40px;
+}
+
+h2.casebooks {
+  @include sans-serif($light, 32px, 14px);
+}
+
+
+hr.owned {
+  height: 2px;
+  margin-bottom: 16px;
+  background-color: $light-blue;
+}
+
+.content-browser {
+  clear: both;
+  display: flex;
+  flex-wrap: wrap;
+
+  .content-page, .header-spacer {
+    @include size(225px, 320px);
+    float: left;
+    margin-right: 10px;
+    margin-bottom: 15px;
+  }
+
+  .content-page {
+    position: relative;
+    background-color: white;
+    border-left: 15px solid $gray;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    
+    .casebook-info, .unpublished-changes, .author-info, .root-attribution {
+      padding: 10px;
+    }
+
+    .state {
+      @include sans-serif($medium, 10px, 10px);
+      margin-bottom: 5px;
+      text-transform: uppercase;
+    }
+    .title {
+      @include sans-serif($medium, 20px, 20px);
+      margin-bottom: 10px;
+      @include line-clamp(4, 100px);
+    }
+    .subtitle {
+      @include sans-serif($light, 18px, 18px);
+      @include line-clamp(4, 72px);
+    }
+
+    .unpublished-changes {
+      background-color: $yellow;
+      color: white;
+      font-weight: bold;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+
+      .exclamation {
+        font-size: 36px;
+      }
+
+      .description {
+        padding-left: 10px;
+      }
+    }
+
+    .owner {
+      @include sans-serif($medium, 21px, 21px);
+      @include line-clamp(2, 42px);
+    }
+    &.public {
+      border-left-color: $light-blue;
+      .state { color: $light-blue; }
+      .subtitle { color: $light-blue; }
+    }
+    &.draft {
+      border-left-color: $yellow;
+      &::after {
+        @include size(15px, 25px);
+        @include absolute(-15px, 0);
+        content: '';
+        background-image: url('~static/images/banner-draft-icon.svg');
+        background-position: -15px 0;
+        background-size: 15px;
+      }
+      .state { color: $red; }
+      .subtitle { color: $yellow; }
+    }
+  }
+  .header-spacer {
+    height: 340px;
+
+    h3 {
+      @include sans-serif($medium, 21px, 20px);
+      margin-top: 0px;
+    }
+  }
+
+  .affiliation {
+    color: grey;
+    font-weight: 300;
+    @include line-clamp(2, 40px);
+  }
+
+  .verified {
+    @include square(13px);
+    display: inline-block;
+    vertical-align: middle;
+    content: '';
+    background: url('~static/images/ui/verified.png') no-repeat;
+    margin-left: 3px;
+  }
+
+  .root-attribution {
+    font-size: 10px;
+    color: grey;
+  }
+}
+
