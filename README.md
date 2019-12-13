@@ -12,9 +12,7 @@
 3. [Contributions](#contributions)
 3. [License](#license)
 
-Rails: [![Build Status](https://travis-ci.org/harvard-lil/h2o.svg?branch=master)](https://travis-ci.org/harvard-lil/h2o) [![Coverage Status](https://coveralls.io/repos/harvard-lil/h2o/badge.png?branch=master)](https://coveralls.io/r/harvard-lil/h2o?branch=master)
-
-Django: [![CircleCI](https://circleci.com/gh/harvard-lil/h2o.svg?style=svg)](https://circleci.com/gh/harvard-lil/h2o) [![codecov](https://codecov.io/gh/harvard-lil/h2o/branch/master/graph/badge.svg)](https://codecov.io/gh/harvard-lil/h2o)
+[![CircleCI](https://circleci.com/gh/harvard-lil/h2o.svg?style=svg)](https://circleci.com/gh/harvard-lil/h2o) [![codecov](https://codecov.io/gh/harvard-lil/h2o/branch/master/graph/badge.svg)](https://codecov.io/gh/harvard-lil/h2o)
 
 ## Development: manual setup
 
