@@ -4,7 +4,7 @@ function initCkEditor(element) {
   ClassicEditor
     .create(element, {
       // see https://ckeditor.com/docs/ckeditor5/latest/builds/guides/integration/configuration.html
-      toolbar: ['heading', '|', 'bold', 'italic', 'link', 'bulletedList', 'numberedList', '|', "indent", "outdent", '|', 'blockQuote', 'insertTable', "mediaEmbed", "undo", "redo"],
+      toolbar: ['heading', '|', 'bold', 'italic', 'link', 'bulletedList', 'numberedList', '|', "indent", "outdent", '|', 'blockQuote', 'insertTable', "undo", "redo"],
       // "imageUpload" is currently excluded from the above list, but could be added with server-side support.
       // to add image hotlinking: https://ckeditor.com/docs/ckeditor5/latest/framework/guides/creating-simple-plugin.html#step-4-inserting-a-new-image
     })
