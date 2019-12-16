@@ -38,7 +38,7 @@ let vueConfig = {
 
   pages: {
     application: 'frontend/pages/application.js',
-    ckeditor: 'frontend/pages/ckeditor.js',
+    rich_text_editor: 'frontend/pages/rich_text_editor.js',
     main: 'frontend/pages/main.scss',
     test: 'frontend/pages/test.js',
     vue_app: 'frontend/pages/vue_app.js',

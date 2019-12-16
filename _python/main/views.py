@@ -272,7 +272,7 @@ class AnnotationListView(APIView):
         """
             Return all annotations associated with a Resource node.
         """
-        return Response(AnnotationSerializer(resource.annotations.all(), many=True).data)
+        return Response(AnnotationSerializer(resource.annotations.valid(), many=True).data)
 
     @method_decorator(perms_test(post_directly_editable_resource))
     @method_decorator(user_has_perm('resource', 'directly_editable_by'))

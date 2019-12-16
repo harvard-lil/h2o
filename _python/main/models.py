@@ -269,7 +269,7 @@ class AnnotatedModel(EditTrackedModel):
     tracked_fields = ['content']
 
     def related_annotations(self):
-        return ContentAnnotation.objects.filter(resource__resource_id=self.id, resource__resource_type=self.__class__.__name__, global_start_offset__gte=0)
+        return ContentAnnotation.objects.valid().filter(resource__resource_id=self.id, resource__resource_type=self.__class__.__name__)
 
     def save(self, *args, **kwargs):
         if self.pk and self.has_changed('content'):
@@ -354,6 +354,14 @@ class Case(NullableTimestampedModel, AnnotatedModel):
         return Resource.objects.filter(resource_id=self.id, resource_type='Case')
 
 
+class ContentAnnotationQueryset(models.QuerySet):
+    def valid(self):
+        """
+            Return annotations excluding those that were marked invalid when shifting.
+        """
+        return self.exclude(global_start_offset=-1, global_end_offset=-1)
+
+
 class ContentAnnotation(TimestampedModel, BigPkModel):
     # NOTE: In the Rails app, paragraph-based offsets are always still calculated,
     # to smooth the transition to document-based offsets. We are not recreating that here.
@@ -371,6 +379,8 @@ class ContentAnnotation(TimestampedModel, BigPkModel):
         on_delete=models.CASCADE,
         related_name='annotations',
     )
+
+    objects = ContentAnnotationQueryset.as_manager()
 
     class Meta:
         # managed = False
@@ -2120,6 +2130,9 @@ class Resource(SectionAndResourceMixin, ContentNode):
         max_valid_offset = len(source_tree.text_content())
         annotations = []
         for annotation in self.annotations.all():
+            # equivalent test to self.annotations.valid(), but using all() lets us use prefetched querysets
+            if annotation.global_start_offset < 0 or annotation.global_end_offset < 0:
+                continue
             annotations.append((min(annotation.global_start_offset, max_valid_offset), True, annotation))
             annotations.append((min(annotation.global_end_offset, max_valid_offset), False, annotation))
         annotations.sort(key=lambda a: a[:2])  # sort by first two fields, so we're ordered by offset, then we get end tags and then start tags for a given offset
@@ -2302,7 +2315,7 @@ class Resource(SectionAndResourceMixin, ContentNode):
     def footnote_annotations(self):
         return mark_safe("".join(
             format_html('<span custom-style="Footnote Reference">{}</span> {} ', "*" * (i+1), annotation.content)
-            for i, annotation in enumerate(a for a in self.annotations.all() if a.kind in ('note', 'link'))
+            for i, annotation in enumerate(a for a in self.annotations.all() if a.global_start_offset >= 0 and a.kind in ('note', 'link'))
         ))
 
     @staticmethod

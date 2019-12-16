@@ -107,7 +107,7 @@ class AddResourceModal extends Component {
   render () {
     super.render();
     if (this.activeType === 'text') {
-      global.initCkEditor(document.getElementById('add_resource_text_content'));
+      global.initRichTextEditor(document.getElementById('add_resource_text_content'));
     }
   }
 
