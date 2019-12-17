@@ -39,7 +39,7 @@ class ContentNodeForm(ModelForm):
             Div(
                 HTML('<h5 id="headnote-label">Headnote</h5>'),
                 Field('headnote',
-                    css_class='ckeditor',
+                    css_class='richtext-editor',
                     aria_labelledby='headnote-label',
                     placeholder='Enter any additional context about this casebook or section.'
                 ),
@@ -130,7 +130,7 @@ class TextBlockForm(ModelForm):
             Div(
                 HTML('<h5 id="content-label">Content</h5>'),
                 Field('content',
-                    css_class='ckeditor',
+                    css_class='richtext-editor',
                     aria_labelledby='content-label'
                 ),
             )

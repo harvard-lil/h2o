@@ -24,7 +24,7 @@ function initRichTextEditor(element, code=false) {
   })
 }
 
-for (const textArea of document.querySelectorAll('.ckeditor'))
+for (const textArea of document.querySelectorAll('.richtext-editor'))
   initRichTextEditor(textArea);
 
 for (const textArea of document.querySelectorAll('.richtext-editor-src'))
