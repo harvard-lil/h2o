@@ -1,6 +1,7 @@
 from django import forms
 from django.conf import settings
 from django.contrib import admin
+from django.contrib.auth.admin import UserAdmin as DjangoUserAdmin
 from django.db.models import Q, Count
 from django.urls import reverse
 from django.utils.html import format_html
@@ -445,12 +446,52 @@ class TextBlockAdmin(BaseAdmin):
 
 ## Users
 
-class UserAdmin(BaseAdmin):
-    readonly_fields = ['created_at', 'updated_at', 'display_name', 'last_request_at', 'last_login_at', 'login_count', 'login']
+class UserAddForm(forms.ModelForm):
+    """
+        Override DjangoUserAdmin.add_form so "add user" uses a standard form, except for setting random user password
+        on creation so the recover-password feature will work.
+    """
+    class Meta:
+        model = User
+        fields = '__all__'
+
+    def save(self, commit=True):
+        user = super().save(commit=False)
+        self.instance.set_password(User.objects.make_random_password(length=20))
+        if commit:
+            user.save()
+        return user
+
+
+class UserAdmin(BaseAdmin, DjangoUserAdmin):
+    filter_horizontal = ('roles', 'verified_professor')
+    ordering = ('-created_at',)
+    add_form = UserAddForm
+    add_form_template = None
+    readonly_fields = ['created_at', 'updated_at', 'display_name', 'last_request_at', 'last_login_at', 'login_count']
     list_display = ['id', 'casebook_count', 'display_name', 'login', 'email_address', 'verified_email', 'professor_verification_requested', 'verified_professor', 'get_roles', 'last_request_at', 'last_login_at', 'login_count', 'created_at', 'updated_at']
     list_filter = ['verified_email', 'verified_professor', 'professor_verification_requested', RoleNameFilter]
     search_fields = ['attribution', 'title', 'email_address']
-    fields = ['title', 'attribution', 'login', 'email_address', 'verified_email', 'professor_verification_requested', 'verified_professor', 'affiliation', 'last_request_at', 'last_login_at', 'login_count', 'created_at', 'updated_at']
+    fieldsets = (
+        (None, {'fields': ('email_address', 'password')}),
+        ('Personal info', {'fields': ('title', 'attribution', 'affiliation')}),
+        ('Permissions', {
+            'fields': ('verified_email', 'professor_verification_requested', 'verified_professor'),
+        }),
+        ('User activity', {'fields': (
+            'last_request_at',
+            'login_count',
+            ('current_login_at', 'current_login_ip'),
+            ('last_login_at', 'last_login_ip'),
+            ('created_at', 'updated_at'))}),
+    )
+    add_fieldsets = (
+        (None, {'fields': ('email_address',)}),
+        ('Personal info', {'fields': ('title', 'attribution', 'affiliation')}),
+        ('Permissions', {
+            'fields': ('verified_email', 'professor_verification_requested', 'verified_professor'),
+        }),
+    )
     inlines = [RolesUserInline]
 
     def get_queryset(self, request):
