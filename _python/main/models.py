@@ -2742,6 +2742,7 @@ class User(NullableTimestampedModel, AbstractBaseUser):
         return constant_time_compare(self.hash_rails_password(raw_password), self.crypted_password)
 
     def set_password(self, raw_password):
+        self.password_salt = User.objects.make_random_password(length=20)
         self.crypted_password = self.hash_rails_password(raw_password)
 
 
