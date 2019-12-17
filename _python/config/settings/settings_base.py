@@ -32,7 +32,7 @@ INSTALLED_APPS = [
     'webpack_loader',
 
     # built-in
-    'main.apps.CustomAdminConfig',
+    'django.contrib.admin.apps.SimpleAdminConfig',
     'django.contrib.auth',
     'django.contrib.contenttypes',
     'django.contrib.sessions',

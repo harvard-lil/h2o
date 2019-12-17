@@ -2388,6 +2388,7 @@ class Role(NullableTimestampedModel):
     """
         User roles.
     """
+    fix_after_rails("Could remove a lot of boilerplate by switching to Django's built-in is_staff, is_superuser, and groups features.")
     name = models.CharField(max_length=40, blank=True, null=True)
     authorizable_type = models.CharField(max_length=40, blank=True, null=True)
     authorizable_id = models.IntegerField(blank=True, null=True)
