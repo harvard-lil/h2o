@@ -86,6 +86,18 @@ class BaseAdmin(admin.ModelAdmin):
         """
         return False
 
+    def enable_richeditor_for_field(self, fieldname, db_field, **kwargs):
+        """
+            A helper for enabling the editing of a field using a rich text editor.
+            Models using this helper should adjust their change_form.html to inherit
+            from "admin/change_form_with_richeditor.html"
+        """
+        formfield = super().formfield_for_dbfield(db_field, **kwargs)
+        if db_field.name == fieldname:
+            formfield.widget.attrs['class'] = formfield.widget.attrs['class'] + ' richtext-editor-src'
+            formfield.widget = forms.Textarea(attrs=formfield.widget.attrs)
+        return formfield
+
 #
 # Filters
 #
@@ -253,6 +265,9 @@ class CasebookAdmin(BaseAdmin):
     def get_queryset(self, request):
         return super().get_queryset(request).select_related('root_user', 'copy_of').prefetch_related('contentcollaborator_set__user').prefetch_draft()
 
+    def formfield_for_dbfield(self, db_field, **kwargs):
+        return self.enable_richeditor_for_field('headnote', db_field, **kwargs)
+
     def owner_link(self, obj):
         return edit_link(obj.owner, True)
     owner_link.short_description = 'owner'
@@ -279,6 +294,9 @@ class SectionAdmin(BaseAdmin):
     def get_queryset(self, request):
         return super().get_queryset(request).select_related('casebook', 'copy_of').prefetch_related('casebook__contentcollaborator_set__user')
 
+    def formfield_for_dbfield(self, db_field, **kwargs):
+        return self.enable_richeditor_for_field('headnote', db_field, **kwargs)
+
     def owner_link(self, obj):
         return edit_link(obj.casebook.owner, True)
     owner_link.short_description = 'owner'
@@ -300,6 +318,9 @@ class ResourceAdmin(BaseAdmin):
 
     def get_queryset(self, request):
         return super().get_queryset(request).select_related('casebook', 'copy_of').prefetch_related('casebook__contentcollaborator_set__user').annotate(annotations_count=Count('annotations'))
+
+    def formfield_for_dbfield(self, db_field, **kwargs):
+        return self.enable_richeditor_for_field('headnote', db_field, **kwargs)
 
     def owner_link(self, obj):
         return edit_link(obj.casebook.owner, True)
@@ -333,8 +354,7 @@ class AnnotationsAdmin(BaseAdmin):
 ## Resources
 
 class CaseAdmin(BaseAdmin):
-    # Content is readonly until we implement the annotation-shifting logic on the python side
-    readonly_fields = ['created_at', 'updated_at', 'content']
+    readonly_fields = ['created_at', 'updated_at']
     list_select_related = ['case_court']
     list_display = ['id', 'name_abbreviation', 'public', 'capapi_link', 'created_via_import', 'related_resources', 'live_annotations_count', 'court_link', 'created_at', 'updated_at']
     list_filter = ['public', 'created_via_import', CourtIdFilter]
@@ -343,10 +363,7 @@ class CaseAdmin(BaseAdmin):
     exclude = ('annotations_count',)
 
     def formfield_for_dbfield(self, db_field, **kwargs):
-        formfield = super().formfield_for_dbfield(db_field, **kwargs)
-        if db_field.name == 'content':
-            formfield.widget = forms.Textarea(attrs=formfield.widget.attrs)
-        return formfield
+        return self.enable_richeditor_for_field('content', db_field, **kwargs)
 
     def capapi_link(self, obj):
         if obj.capapi_id:
@@ -405,10 +422,7 @@ class TextBlockAdmin(BaseAdmin):
     fields = ['name', 'description', 'user', 'public', 'created_via_import', 'content', 'version', 'created_at', 'updated_at']
 
     def formfield_for_dbfield(self, db_field, **kwargs):
-        formfield = super().formfield_for_dbfield(db_field, **kwargs)
-        if db_field.name == 'content':
-            formfield.widget = forms.Textarea(attrs=formfield.widget.attrs)
-        return formfield
+        return self.enable_richeditor_for_field('content', db_field, **kwargs)
 
     def user_link(self, obj):
         return edit_link(obj.user, True)

@@ -1,0 +1,8 @@
+{% extends "admin/change_form.html" %}
+{% load render_bundle from webpack_loader %}
+
+{% block footer %}
+  {{ block.super }}
+  {% render_bundle 'chunk-common' %}
+  {% render_bundle 'rich_text_editor' %}
+{% endblock %}
