@@ -226,7 +226,6 @@ class SignupForm(ModelForm):
 
     def save(self, commit=True):
         # save user
-        self.instance.password_salt = User.objects.make_random_password(length=20)
         self.instance.set_password(User.objects.make_random_password(length=20))
         user = ModelForm.save(self, True)
 
