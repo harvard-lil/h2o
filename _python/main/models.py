@@ -32,7 +32,7 @@ from .differ import AnnotationUpdater
 from test.test_helpers import dump_casebook_outline, dump_content_tree, dump_annotated_text, dump_content_tree_children
 from pytest import raises as assert_raises
 
-from .utils import clone_model_instance, fix_after_rails, fix_before_deploy, parse_html_fragment, \
+from .utils import clone_model_instance, fix_after_rails, parse_html_fragment, \
     remove_empty_tags, inner_html, block_level_elements, void_elements, normalize_newlines, \
     strip_trailing_block_level_whitespace, elements_equal, get_ip_address
 
@@ -435,7 +435,6 @@ class ContentAnnotation(TimestampedModel, BigPkModel):
                 continue
 
             # handle deleted annotations
-            fix_before_deploy("Do different annotation types need different handling?")
             if new_start == new_end:
                 new_start = new_end = -1
 

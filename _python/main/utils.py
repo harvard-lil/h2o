@@ -81,12 +81,6 @@ def clone_model_instance(instance, **kwargs):
     return clone
 
 
-def fix_before_deploy(message):
-    """ Use this to document questions that should be answered before a given line of code is allowed to run on production. """
-    if not settings.NOT_ON_PRODUCTION:
-        raise ValueError(message)
-
-
 def fix_after_rails(message):
     """ Use this to document actions that should be taken after the migration to Python is complete. """
     pass
