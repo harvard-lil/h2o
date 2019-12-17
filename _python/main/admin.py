@@ -464,7 +464,7 @@ class UserAddForm(forms.ModelForm):
 
 
 class UserAdmin(BaseAdmin, DjangoUserAdmin):
-    filter_horizontal = ('roles', 'verified_professor')
+    filter_horizontal = ('roles',)
     ordering = ('-created_at',)
     add_form = UserAddForm
     add_form_template = None
