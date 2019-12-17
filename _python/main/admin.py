@@ -362,6 +362,9 @@ class CaseAdmin(BaseAdmin):
     raw_id_fields = ['case_court']
     exclude = ('annotations_count',)
 
+    def has_add_permission(self, request):
+        return super(BaseAdmin, self).has_add_permission(request)
+
     def formfield_for_dbfield(self, db_field, **kwargs):
         return self.enable_richeditor_for_field('content', db_field, **kwargs)
 
