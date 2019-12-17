@@ -53,7 +53,6 @@
   },
   "devDependencies": {
     "@babel/polyfill": "^7.7.0",
-    "@ckeditor/ckeditor5-build-classic": "^16.0.0",
     "@vue/cli-plugin-babel": "^4.1.0",
     "@vue/cli-plugin-eslint": "^4.1.0",
     "@vue/cli-plugin-unit-mocha": "^4.1.1",
