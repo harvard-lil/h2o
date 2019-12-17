@@ -26,7 +26,7 @@ jobs:
       # This block shaves a minute or two off of the test runtime by using cached docker images.
       # Otherwise we could omit this step entirely and let `docker-compose run` build what it needs to.
       - restore_cache:
-          key: docker-images-{{ checksum "docker-compose.yml" }}
+          key: docker-images-{{ checksum "docker-compose.yml" }}-{{ checksum "_python/package-lock.json" }}
       - run:
           name: "Build docker images"
           command: |
@@ -36,10 +36,11 @@ jobs:
             else
               echo "Building new docker images"
               docker-compose build
+              docker-compose run python npm install
               docker save -o ~/docker-cache.tar h2o python
             fi
       - save_cache:
-          key: docker-images-{{ checksum "docker-compose.yml" }}
+          key: docker-images-{{ checksum "docker-compose.yml" }}-{{ checksum "_python/package-lock.json" }}
           paths:
             - "~/docker-cache.tar"
 
@@ -52,6 +53,13 @@ jobs:
             docker-compose run python pytest \
               --junitxml=junit/pytest/test-results.xml       `# write test results so they can be displayed by circleci` \
               --cov --cov-config=setup.cfg --cov-report xml  `# write coverage data to .coverage for upload by codecov`
+
+      - run:
+          name: "Build and test Javascript"
+          command: |
+            docker-compose run python npm run lint
+            docker-compose run python npm run build
+            docker-compose run python npm run test
 
       # Upload test details to circleci
       - store_test_results:
