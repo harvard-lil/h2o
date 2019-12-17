@@ -71,7 +71,7 @@ class DeleteModal extends Component {
     if (this.nestedItems() === 0) {
       return `Are you sure you want to delete <strong>${this.sectionTitle()}</strong> from this casebook?`;
     } else {
-      return `Are you sure you want to delete <strong>${this.sectionTitle()}</strong> and <strong>%{this.nestedItems()} nested items</strong> from this casebook?`;
+      return `Are you sure you want to delete <strong>${this.sectionTitle()}</strong> and <strong>${this.nestedItems()} nested items</strong> from this casebook?`;
     }
   }
 
