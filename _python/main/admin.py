@@ -1,7 +1,10 @@
+from django_json_widget.widgets import JSONEditorWidget
+
 from django import forms
 from django.conf import settings
 from django.contrib import admin
 from django.contrib.auth.admin import UserAdmin as DjangoUserAdmin
+from django.contrib.postgres import fields
 from django.db.models import Q, Count
 from django.urls import reverse
 from django.utils.html import format_html
@@ -68,6 +71,9 @@ class BaseAdmin(admin.ModelAdmin):
         pass
 
     actions = None  # use ['delete_selected'] to allow delete action
+    formfield_overrides = {
+        fields.JSONField: {'widget': JSONEditorWidget},
+    }
 
     def has_add_permission(self, request):
         """

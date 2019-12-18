@@ -30,6 +30,7 @@ INSTALLED_APPS = [
     'crispy_forms',
     'rest_framework',
     'webpack_loader',
+    'django_json_widget',
 
     # built-in
     'django.contrib.admin.apps.SimpleAdminConfig',
