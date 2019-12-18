@@ -53,6 +53,15 @@ jobs:
               --junitxml=junit/pytest/test-results.xml       `# write test results so they can be displayed by circleci` \
               --cov --cov-config=setup.cfg --cov-report xml  `# write coverage data to .coverage for upload by codecov`
 
+      - run:
+          name: "Test Javascript"
+          command: |
+            docker-compose up -d
+            docker-compose exec python npm install
+            docker-compose exec python npm run lint
+            docker-compose exec python npm run build
+            docker-compose exec python npm run test
+
       # Upload test details to circleci
       - store_test_results:
           path: junit
