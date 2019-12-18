@@ -1353,6 +1353,6 @@ def reset_password(request):
         except User.DoesNotExist:
             target_user = None
         if target_user and not target_user.verified_email:
-                send_verification_email(request, target_user)
+            send_verification_email(request, target_user)
 
     return PasswordResetView.as_view(form_class=PasswordResetForm)(request)
