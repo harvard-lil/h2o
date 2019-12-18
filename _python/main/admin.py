@@ -504,7 +504,7 @@ class UserAdmin(BaseAdmin, DjangoUserAdmin):
                 user’s password, but you can change the password using
                 <a href="../password/">this form</a>.
             """
-            formfield.widget.attrs['disabled'] = True
+            formfield.disabled = True
         return formfield
 
     def get_roles(self, obj):
