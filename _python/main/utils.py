@@ -7,10 +7,14 @@ import mimetypes
 import re
 from urllib.parse import quote
 
+from django.contrib.auth.tokens import default_token_generator
 from django.http import HttpResponse
 from django.conf import settings
 from django.core.mail import send_mail
 from django.template import Context, RequestContext, engines
+from django.urls import reverse
+from django.utils.encoding import force_bytes
+from django.utils.http import urlsafe_base64_encode
 
 from .sanitize import sanitize
 
@@ -328,3 +332,21 @@ def send_template_email(subject, template, context, from_address, to_addresses):
         fail_silently=False
     )
     return success_count
+
+
+def send_verification_email(request, user):
+    # Send verify-email-address email.
+    # This uses the forgot-password flow; logic is borrowed from auth_forms.PasswordResetForm.save()
+    verify_link = request.build_absolute_uri(reverse('password_reset_confirm', args=[
+        urlsafe_base64_encode(force_bytes(user.pk)),
+        default_token_generator.make_token(user),
+    ]))
+    message = "To activate your account, please click the link below or copy it to your web browser.  " \
+        "You will need to create a new password.\n\n%s" % verify_link
+    send_mail(
+        "An H2O account has been created for you",
+        message,
+        settings.DEFAULT_FROM_EMAIL,
+        [user.email_address],
+    )
+

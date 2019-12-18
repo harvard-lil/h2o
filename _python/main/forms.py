@@ -3,16 +3,14 @@ from crispy_forms.layout import Layout, Field, Div, HTML, Submit
 
 import django.contrib.auth.forms as auth_forms
 from django.conf import settings
-from django.contrib.auth.tokens import default_token_generator
+
 from django.core.exceptions import ValidationError
 from django.core.mail import send_mail
 from django.forms import ModelForm, Textarea
 from django.urls import reverse
-from django.utils.encoding import force_bytes
-from django.utils.http import urlsafe_base64_encode
 
 from main.models import ContentNode, Default, TextBlock, User
-from main.utils import fix_after_rails, send_template_email
+from main.utils import fix_after_rails, send_template_email, send_verification_email
 
 
 # Monkeypatch FormHelper to *not* include the <form> tag in {% crispy form %} by default.
@@ -228,22 +226,7 @@ class SignupForm(ModelForm):
         # save user
         self.instance.set_password(User.objects.make_random_password(length=20))
         user = ModelForm.save(self, True)
-
-        # Send verify-email-address email.
-        # This uses the forgot-password flow; logic is borrowed from auth_forms.PasswordResetForm.save()
-        verify_link = self.request.build_absolute_uri(reverse('password_reset_confirm', args=[
-            urlsafe_base64_encode(force_bytes(user.pk)),
-            default_token_generator.make_token(user),
-        ]))
-        message = "To activate your account, please click the link below or copy it to your web browser.  " \
-            "You will need to create a new password.\n\n%s" % verify_link
-        send_mail(
-            "An H2O account has been created for you",
-            message,
-            settings.DEFAULT_FROM_EMAIL,
-            [user.email_address],
-        )
-
+        send_verification_email(self.request, user)
         return user
 
 
