@@ -7,7 +7,7 @@
     <form id="send_email" method="POST" action="{% url 'password_reset' %}" onsubmit="event.preventDefault(); fetch(this.action, {method: 'POST', body: new FormData(this)}).then(data => document.getElementById('email_result').textContent = (data.ok ? 'Success!' : 'Error!'));">
       {% csrf_token %}
       <input type="hidden" name="email" value="{{ original.email_address }}">
-      <button class="button" type="submit" value="Upload file and update statuses" style="padding: 7px 15px;">Send {{ original.verified_email|yesno:"Password Reset, Activation"}} Email</button>
+      <button class="button" type="submit" style="padding: 7px 15px;">Send {{ original.verified_email|yesno:"Password Reset, Activation"}} Email</button>
       <div id="email_result" class="help"></p>
     </form>
   </div>
