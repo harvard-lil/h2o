@@ -1330,8 +1330,8 @@ def export(request, node, file_type='docx'):
 
 def reset_password(request):
     """
-        Displays the reset password form. We wrap the default Django view to add a custom redirect
-        if unconfirmed users try to reset their password.
+        Displays the reset password form. We wrap the default Django view to send
+        an email verification email if unconfirmed users try to reset their password.
 
         Given:
         >>> client, user, unconfirmed_user, mailoutbox = [getfixture(i) for i in ['client', 'user', 'unconfirmed_user', 'mailoutbox']]
