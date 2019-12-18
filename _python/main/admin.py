@@ -464,11 +464,11 @@ class UserAddForm(forms.ModelForm):
 
 
 class UserAdmin(BaseAdmin, DjangoUserAdmin):
-    filter_horizontal = ('roles', 'verified_professor')
+    filter_horizontal = ('roles',)
     ordering = ('-created_at',)
     add_form = UserAddForm
     add_form_template = None
-    readonly_fields = ['created_at', 'updated_at', 'display_name', 'last_request_at', 'last_login_at', 'login_count']
+    readonly_fields = ['created_at', 'updated_at', 'display_name', 'last_request_at', 'last_login_at', 'login_count', 'current_login_at', 'current_login_ip', 'last_login_ip']
     list_display = ['id', 'casebook_count', 'display_name', 'login', 'email_address', 'verified_email', 'professor_verification_requested', 'verified_professor', 'get_roles', 'last_request_at', 'last_login_at', 'login_count', 'created_at', 'updated_at']
     list_filter = ['verified_email', 'verified_professor', 'professor_verification_requested', RoleNameFilter]
     search_fields = ['attribution', 'title', 'email_address']
