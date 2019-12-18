@@ -13,7 +13,6 @@ from .models import Case, CaseCourt, Default, User, Casebook, Section, \
     Role, RolesUser
 
 
-
 #
 # Helpers
 #
@@ -473,7 +472,7 @@ class UserAdmin(BaseAdmin, DjangoUserAdmin):
     list_filter = ['verified_email', 'verified_professor', 'professor_verification_requested', RoleNameFilter]
     search_fields = ['attribution', 'title', 'email_address']
     fieldsets = (
-        (None, {'fields': ('email_address', 'password')}),
+        (None, {'fields': ('email_address', 'crypted_password')}),
         ('Personal info', {'fields': ('title', 'attribution', 'affiliation')}),
         ('Permissions', {
             'fields': ('verified_email', 'professor_verification_requested', 'verified_professor'),
@@ -496,6 +495,17 @@ class UserAdmin(BaseAdmin, DjangoUserAdmin):
 
     def get_queryset(self, request):
         return super().get_queryset(request).prefetch_related('roles').annotate(casebook_count=Count('casebooks'))
+
+    def formfield_for_dbfield(self, db_field, **kwargs):
+        formfield = super().formfield_for_dbfield(db_field, **kwargs)
+        if db_field.name == 'crypted_password':
+            formfield.help_text ="""
+                Raw passwords are not stored, so there is no way to see this
+                user’s password, but you can change the password using
+                <a href="../password/">this form</a>.
+            """
+            formfield.widget.attrs['disabled'] = True
+        return formfield
 
     def get_roles(self, obj):
         return ','.join(str(o) for o in set(r.name for r in obj.roles.all())) or None
