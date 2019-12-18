@@ -47,9 +47,10 @@ jobs:
       - run:
           name: "Test Django"
           command: |
-            docker-compose run python ./manage.py collectstatic --noinput   # collect static files
+            docker-compose up -d
+            docker-compose exec python ./manage.py collectstatic --noinput   # collect static files
             mkdir -p junit/pytest                            # storage for circleci test info
-            docker-compose run python pytest \
+            docker-compose exec python pytest \
               --junitxml=junit/pytest/test-results.xml       `# write test results so they can be displayed by circleci` \
               --cov --cov-config=setup.cfg --cov-report xml  `# write coverage data to .coverage for upload by codecov`
 
