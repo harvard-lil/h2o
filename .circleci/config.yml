@@ -57,7 +57,7 @@ jobs:
           name: "Test Javascript"
           command: |
             docker-compose up -d
-            docker-compose exec python npm install
+            docker-compose exec python npm ci
             docker-compose exec python npm run lint
             docker-compose exec python npm run build
             docker-compose exec python npm run test
