@@ -513,9 +513,9 @@ class RolesUserAdmin(BaseAdmin):
 
 
 class RoleAdmin(BaseAdmin):
-    readonly_fields = ['created_at', 'updated_at', 'authorizable_type', 'authorizable_id']
-    list_display = ['id', 'name', 'authorizable_type', 'authorizable_id', 'created_at', 'updated_at']
-    list_filter = ['name', 'authorizable_type']
+    readonly_fields = ['created_at', 'updated_at']
+    list_display = ['id', 'name', 'created_at', 'updated_at']
+    list_filter = ['name']
     ordering = ['-name']
 
 

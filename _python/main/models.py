@@ -2339,21 +2339,15 @@ class Role(NullableTimestampedModel):
     """
     fix_after_rails("Could remove a lot of boilerplate by switching to Django's built-in is_staff, is_superuser, and groups features.")
     name = models.CharField(max_length=40, blank=True, null=True)
-    authorizable_type = models.CharField(max_length=40, blank=True, null=True)
-    authorizable_id = models.IntegerField(blank=True, null=True)
 
     class Meta:
         # managed = False
         db_table = 'roles'
         indexes = [
             models.Index(fields=['name']),
-            models.Index(fields=['authorizable_type']),
-            models.Index(fields=['authorizable_id']),
         ]
 
     def __str__(self):
-        if self.name == 'asker':
-            return "{} ({} {})".format(self.name, self.authorizable_type, self.authorizable_id)
         return self.name
 
 
