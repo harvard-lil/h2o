@@ -2416,7 +2416,6 @@ class TextBlock(NullableTimestampedModel, AnnotatedModel):
 
 class User(NullableTimestampedModel, AbstractBaseUser):
     email_address = models.CharField(max_length=255, blank=True, null=True, unique=True)
-    title = models.CharField(max_length=255, blank=True, null=True)
     attribution = models.CharField(max_length=255, default='Anonymous', verbose_name='Display name')
     affiliation = models.CharField(max_length=255, blank=True, null=True)
     verified_email = models.BooleanField(default=False)
@@ -2456,26 +2455,12 @@ class User(NullableTimestampedModel, AbstractBaseUser):
         ]
 
     @property
-    def email_domain(self):
-        # TODO! In the meantime, return the full address
-        # m = email_address.match /@(.+)$/
-        # m.try(:[], 1) || '?.edu'
-        return self.email_address
-
-    @property
-    def anonymous_name(self):
-        return "{}#{}".format(self.email_domain, self.id)
-
-    @property
     def display_name(self):
         """
             In rails this is also known as "display" and "simple_display"
         """
-        if self.attribution:
-            return self.attribution
-        elif self.title:
-            return self.title
-        return self.anonymous_name
+        return self.attribution
+
 
     # TODO: are all users with verified email addresses active,
     # or is there another category of non-active users?

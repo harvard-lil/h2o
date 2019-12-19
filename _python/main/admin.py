@@ -466,10 +466,10 @@ class UserAdmin(BaseAdmin, DjangoUserAdmin):
     readonly_fields = ['created_at', 'updated_at', 'display_name', 'last_request_at', 'last_login_at', 'login_count', 'current_login_at', 'current_login_ip', 'last_login_ip']
     list_display = ['id', 'casebook_count', 'display_name', 'email_address', 'verified_email', 'professor_verification_requested', 'verified_professor', 'get_roles', 'last_request_at', 'last_login_at', 'login_count', 'created_at', 'updated_at']
     list_filter = ['verified_email', 'verified_professor', 'professor_verification_requested', RoleNameFilter]
-    search_fields = ['attribution', 'title', 'email_address']
+    search_fields = ['attribution', 'email_address']
     fieldsets = (
         (None, {'fields': ('email_address', 'password')}),
-        ('Personal info', {'fields': ('title', 'attribution', 'affiliation')}),
+        ('Personal info', {'fields': ('attribution', 'affiliation')}),
         ('Permissions', {
             'fields': ('verified_email', 'professor_verification_requested', 'verified_professor'),
         }),
@@ -482,7 +482,7 @@ class UserAdmin(BaseAdmin, DjangoUserAdmin):
     )
     add_fieldsets = (
         (None, {'fields': ('email_address',)}),
-        ('Personal info', {'fields': ('title', 'attribution', 'affiliation')}),
+        ('Personal info', {'fields': ('attribution', 'affiliation')}),
         ('Permissions', {
             'fields': ('verified_email', 'professor_verification_requested', 'verified_professor'),
         }),
