@@ -41,7 +41,7 @@ services:
     environment:
     - DOCKERIZED=true
     volumes:
-      - .:/app
+      - .:/app:delegated
     ports:
       - "8001:8000"
       - "8080:8080"
