@@ -14,7 +14,7 @@ def delete_legacy_roles(apps, schema_editor):
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('main', '0016_auto_20191219_1823'),
+        ('main', '0019_auto_20191219_1823'),
     ]
 
     operations = [

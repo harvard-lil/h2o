@@ -15,7 +15,7 @@ def delete_unused_textblocks(apps, schema_editor):
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('main', '0015_auto_20191219_1811'),
+        ('main', '0018_auto_20191219_1811'),
     ]
 
     operations = [

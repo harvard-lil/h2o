@@ -23,7 +23,7 @@ def repair_ownership(apps, schema_editor):
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('main', '0011_remove_default_created_via_import'),
+        ('main', '0014_remove_default_created_via_import'),
     ]
 
     operations = [

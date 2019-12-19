@@ -20,7 +20,7 @@ def still_no_attribution(apps, schema_editor):
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('main', '0019_auto_20191219_2002'),
+        ('main', '0022_auto_20191219_2002'),
     ]
 
     operations = [

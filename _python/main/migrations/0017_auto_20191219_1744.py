@@ -11,7 +11,7 @@ def delete_courts_without_cases(apps, schema_editor):
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('main', '0013_auto_20191219_1734'),
+        ('main', '0016_auto_20191219_1734'),
     ]
 
     operations = [
