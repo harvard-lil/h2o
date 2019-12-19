@@ -138,8 +138,6 @@ USE_ANALYTICS = False
 STATIC_URL = '/static/'
 STATIC_ROOT = os.path.join(BASE_DIR, 'static')
 
-RAILS_SECRET_KEY_BASE = None
-
 LOGIN_REDIRECT_URL = '/'
 LOGOUT_REDIRECT_URL = '/'
 GUIDE_URL = 'https://about.opencasebook.org/'
@@ -237,3 +235,10 @@ REST_FRAMEWORK = {
 }
 
 PANDOC_DIR = os.path.join(os.path.dirname(BASE_DIR), 'lib/pandoc')
+
+PASSWORD_HASHERS = [
+    # this is the standard recommended Django password hasher; first item on this list will be used for all new logins
+    'django.contrib.auth.hashers.PBKDF2PasswordHasher',
+    # legacy password hasher for users who haven't logged in since Rails migration
+    'main.hashers.PBKDF2WrappedRailsPasswordHasher',
+]

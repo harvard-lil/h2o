@@ -18,8 +18,6 @@ if os.environ.get('DOCKERIZED'):
 # avoid test errors when running tests locally, since pytest-django sets DEBUG=False and staticfiles/ doesn't exist
 # STATICFILES_STORAGE = 'pipeline.storage.PipelineStorage'
 
-RAILS_SECRET_KEY_BASE = 'd3a3c86a4791903d56cd6a4d3aa4e18fbda088c4e88655d0b0ed39e540c84030b3f10982c2e1c2cbd973f550d22bca375f59d86b48034827007c9977d76b29e0'
-
 # django-debug-toolbar:
 # ddt can be useful but also be a hassle, so it only runs optionally, if you choose to `pip install django-debug-toolbar`
 # If installed, there will be a sidebar when viewing front-end pages, including useful tools such as a SQL profiler.
