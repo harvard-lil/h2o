@@ -5,6 +5,7 @@ const webpack = require('webpack');
 /*** helpers ***/
 
 const devMode = process.env.NODE_ENV !== 'production';
+const testMode = process.env.NODE_ENV === 'test'
 
 // BundleTracker includes absolute paths, which causes webpack-stats.json to change when it shouldn't.
 // We use this RelativeBundleTracker workaround via https://github.com/owais/webpack-bundle-tracker/issues/25
@@ -46,12 +47,14 @@ let vueConfig = {
 
   configureWebpack: {
     plugins: [
-      new RelativeBundleTracker({filename: './webpack-stats.json'}),  // output location of bundles so they can be found by django
       new webpack.ProvidePlugin({
         $: 'jquery',
         jQuery: 'jquery'
-      }),
-    ],
+      }),].concat(testMode ? [] : [
+        new RelativeBundleTracker({
+          // output location of bundles so they can be found by django
+          filename: './webpack-stats.json'}),
+      ]),
     resolve: {
       alias: {
         '@': path.resolve("frontend"),
@@ -114,7 +117,7 @@ let vueConfig = {
 
     // workaround for "SASS files from NPM modules referencing relative imports won't build [in mocha]"
     // https://github.com/vuejs/vue-cli/issues/4053#issuecomment-544641072
-    if (process.env.NODE_ENV === 'test') {
+    if (testMode) {
       const scssRule = config.module.rule('scss');
       scssRule.uses.clear();
       scssRule
