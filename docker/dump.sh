@@ -50,6 +50,6 @@ if [ ! "$FILE" ]; then
     FILE=h2o_dev-$(date +"%Y%m%d%H%M%S").dump
 fi
 echo "Writing data to $FILE ..."
-docker-compose exec db pg_dump -Fc h2o_dev -h localhost -U postgres -w -f /tmp/data.dump
+docker-compose exec db pg_dump -Fc postgres -h localhost -U postgres -w -f /tmp/data.dump
 docker cp "$(docker-compose ps -q db)":/tmp/data.dump $FILE
 docker-compose exec db rm -f /tmp/data.dump
