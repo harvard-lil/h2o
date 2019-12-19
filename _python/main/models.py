@@ -422,15 +422,10 @@ class ContentCollaborator(TimestampedModel, BigPkModel):
     has_attribution = models.BooleanField(default=False)
     role = models.CharField(
         max_length=255,
-        choices = (('owner', 'owner'), ('editor', 'editor')),
-        blank=True,
-        null=True
+        choices = (('owner', 'owner'), ('editor', 'editor'))
     )
     user = models.ForeignKey('User',
         on_delete=models.CASCADE,
-        blank=True,
-        null=True,
-        db_constraint=False
     )
     # This is marked "on_delete=models.DO_NOTHING" to avoid unnecessary queries when deleting Sections and Resources....
     # We make sure to delete unneeded ContentCollaborator rows in the Casebook.delete method.
@@ -442,7 +437,6 @@ class ContentCollaborator(TimestampedModel, BigPkModel):
     )
 
     class Meta:
-        # managed = False
         db_table = 'content_collaborators'
         unique_together = (('user', 'content'),)
 
