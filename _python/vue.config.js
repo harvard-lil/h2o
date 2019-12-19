@@ -45,8 +45,7 @@ let vueConfig = {
   },
 
   configureWebpack: {
-    plugins: [
-      new RelativeBundleTracker({filename: './webpack-stats.json'}),  // output location of bundles so they can be found by django
+    plugins: devMode ? [] : [new RelativeBundleTracker({filename: './webpack-stats.json'})] + [   // output location of bundles so they can be found by django
       new webpack.ProvidePlugin({
         $: 'jquery',
         jQuery: 'jquery'
