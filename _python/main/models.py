@@ -2357,17 +2357,11 @@ class RolesUser(NullableTimestampedModel, BigPkModel):
     """
     user = models.ForeignKey(
         'User',
-        blank=True,
-        null=True,
         on_delete=models.CASCADE,
-        db_constraint=False
     )
     role = models.ForeignKey(
         Role,
-        blank=True,
-        null=True,
         on_delete=models.CASCADE,
-        db_constraint=False
     )
 
     class Meta:
