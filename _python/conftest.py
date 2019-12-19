@@ -176,14 +176,9 @@ class TextBlockFactory(factory.DjangoModelFactory):
     name = factory.Sequence(lambda n: 'Some TextBlock Name %s' % n)
     description = factory.Sequence(lambda n: 'Some TextBlock Description %s' % n)
     content = factory.Sequence(lambda n: 'Some TextBlock Content %s' % n)
-    version = 1
     public = True
     created_via_import = False
-    annotations_count = 0
     user = factory.SubFactory(UserFactory)
-    enable_feedback = True
-    enable_discussions = True
-    enable_responses = True
 
 
 @register_factory
@@ -205,7 +200,6 @@ class CaseFactory(factory.DjangoModelFactory):
     public = True
     created_via_import = False
     content = factory.Sequence(lambda n: 'Some Case Content %s' % n)
-    annotations_count = 0
     case_court = factory.SubFactory(CaseCourtFactory)
     decision_date = datetime(1900, 1, 1)
     citations = [{'cite': '1 Mass. 1'}, {'cite': '2 Jones 2'}]

@@ -275,9 +275,6 @@ class Case(NullableTimestampedModel, AnnotatedModel):
         db_constraint=False
     )
 
-    fix_after_rails("We've decided not to cache this any longer: can drop field.")
-    annotations_count = models.IntegerField(default=0, blank=True, null=True)
-
     class Meta:
         # managed = False
         db_table = 'cases'
@@ -335,12 +332,6 @@ class ContentAnnotationQueryset(models.QuerySet):
 
 
 class ContentAnnotation(TimestampedModel, BigPkModel):
-    # NOTE: In the Rails app, paragraph-based offsets are always still calculated,
-    # to smooth the transition to document-based offsets. We are not recreating that here.
-    start_paragraph = models.IntegerField(blank=True, null=True)
-    end_paragraph = models.IntegerField(blank=True, null=True)
-    start_offset = models.IntegerField(blank=True, null=True)
-    end_offset = models.IntegerField(blank=True, null=True)
     kind = models.CharField(max_length=255, choices=(('replace', 'replace'), ('highlight', 'highlight'), ('elide', 'elide'), ('note', 'note'), ('link', 'link')))
     content = models.TextField(blank=True, null=True)  #TODO: validation for URLs
     global_start_offset = models.IntegerField(blank=True, null=True)
@@ -353,6 +344,13 @@ class ContentAnnotation(TimestampedModel, BigPkModel):
     )
 
     objects = ContentAnnotationQueryset.as_manager()
+
+    fix_after_rails("Are we ready to delete these legacy fields, containing the"
+    "paragraph-based annotation offsets originally used in the Rails app?")
+    start_paragraph = models.IntegerField(blank=True, null=True)
+    end_paragraph = models.IntegerField(blank=True, null=True)
+    start_offset = models.IntegerField(blank=True, null=True)
+    end_offset = models.IntegerField(blank=True, null=True)
 
     class Meta:
         # managed = False
@@ -578,10 +576,8 @@ class ContentNode(EditTrackedModel, TimestampedModel, BigPkModel):
     resource_type = models.CharField(max_length=255, blank=True, null=True)
     resource_id = models.BigIntegerField(blank=True, null=True)
 
-    # legacy fields, I believe
-    is_alias = models.BooleanField(blank=True, null=True)
+    fix_after_rails("Are we ready to delete playlist_id, a relic of a former version of H2O?")
     playlist_id = models.BigIntegerField(blank=True, null=True)
-    slug = models.CharField(max_length=10000, blank=True, null=True)
 
     objects = ContentNodeQueryset.as_manager()
     tracked_fields = ['headnote']
@@ -2407,12 +2403,8 @@ class TextBlock(NullableTimestampedModel, AnnotatedModel):
     name = models.CharField(max_length=255)
     description = models.CharField(max_length=5242880, blank=True, null=True)
     content = models.CharField(max_length=5242880)
-    version = models.IntegerField(default=1)
     public = models.BooleanField(default=True, blank=True, null=True)
     created_via_import = models.BooleanField(default=False)
-
-    fix_after_rails("We've decided not to cache this any longer: can drop field.")
-    annotations_count = models.IntegerField(default=0, blank=True, null=True)
 
     # The person who created the TextBlock.
     # This field doesn't appear to be populated by Rails at present,
@@ -2426,11 +2418,6 @@ class TextBlock(NullableTimestampedModel, AnnotatedModel):
         db_constraint=False,
         default=0
     )
-
-    # legacy fields, I believe
-    enable_feedback = models.BooleanField(default=True)
-    enable_discussions = models.BooleanField(default=False)
-    enable_responses = models.BooleanField(default=False)
 
     class Meta:
         # managed = False
@@ -2493,35 +2480,6 @@ class User(NullableTimestampedModel, AbstractBaseUser):
     last_login_ip = models.CharField(max_length=255, blank=True, null=True, help_text="IP of previous password login")
     last_login = None  # disable the Django login tracking field from AbstractBaseUser
 
-    # all legacy fields, I believe
-    login = models.CharField(max_length=255, blank=True, null=True)
-    persistence_token = models.CharField(max_length=255)
-    perishable_token = models.CharField(max_length=255, blank=True, null=True)
-    oauth_token = models.CharField(max_length=255, blank=True, null=True)
-    oauth_secret = models.CharField(max_length=255, blank=True, null=True)
-    tz_name = models.CharField(max_length=255, blank=True, null=True)
-    url = models.CharField(max_length=255, blank=True, null=True)
-    description = models.TextField(blank=True, null=True)
-    canvas_id = models.CharField(max_length=255, blank=True, null=True)
-    default_font = models.CharField(max_length=255, blank=True, null=True, default='futura')
-    default_font_size = models.CharField(max_length=255, blank=True, null=True, default=10)
-    print_titles = models.BooleanField(default=True)
-    print_dates_details = models.BooleanField(default=True)
-    print_paragraph_numbers = models.BooleanField(default=True)
-    print_annotations = models.BooleanField(default=False)
-    print_highlights = models.CharField(max_length=255, default='original')
-    print_font_face = models.CharField(max_length=255, default='dagny')
-    print_font_size = models.CharField(max_length=255, default='small')
-    default_show_comments = models.BooleanField(default=False)
-    default_show_paragraph_numbers = models.BooleanField(default=True)
-    hidden_text_display = models.BooleanField(default=False)
-    print_links = models.BooleanField(default=True)
-    toc_levels = models.CharField(max_length=255, default='')
-    print_export_format = models.CharField(max_length=255, default='')
-    image_file_name = models.CharField(max_length=255, blank=True, null=True)
-    image_content_type = models.CharField(max_length=255, blank=True, null=True)
-    image_file_size = models.IntegerField(blank=True, null=True)
-    image_updated_at = models.DateTimeField(blank=True, null=True)
 
     EMAIL_FIELD = 'email_address'
     USERNAME_FIELD = 'email_address'
@@ -2538,10 +2496,6 @@ class User(NullableTimestampedModel, AbstractBaseUser):
             models.Index(fields=['email_address']),
             models.Index(fields=['id']),
             models.Index(fields=['last_request_at']),
-            models.Index(fields=['login']),
-            models.Index(fields=['oauth_token']),
-            models.Index(fields=['persistence_token']),
-            models.Index(fields=['tz_name']),
         ]
 
     @property

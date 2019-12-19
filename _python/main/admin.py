@@ -424,11 +424,11 @@ class DefaultAdmin(BaseAdmin):
 
 
 class TextBlockAdmin(BaseAdmin):
-    readonly_fields = ['created_at', 'updated_at', 'user', 'version']
+    readonly_fields = ['created_at', 'updated_at', 'user']
     list_select_related = ['user']
-    list_display = ['id', 'name', 'user_link', 'public', 'created_via_import', 'version', 'related_resources', 'live_annotations_count', 'created_at', 'updated_at']
-    list_filter = ['version', 'created_via_import']
-    fields = ['name', 'description', 'user', 'public', 'created_via_import', 'content', 'version', 'created_at', 'updated_at']
+    list_display = ['id', 'name', 'user_link', 'public', 'created_via_import', 'related_resources', 'live_annotations_count', 'created_at', 'updated_at']
+    list_filter = ['created_via_import']
+    fields = ['name', 'description', 'user', 'public', 'created_via_import', 'content', 'created_at', 'updated_at']
 
     def formfield_for_dbfield(self, db_field, **kwargs):
         return self.enable_richeditor_for_field('content', db_field, **kwargs)
@@ -474,7 +474,7 @@ class UserAdmin(BaseAdmin, DjangoUserAdmin):
     add_form = UserAddForm
     add_form_template = None
     readonly_fields = ['created_at', 'updated_at', 'display_name', 'last_request_at', 'last_login_at', 'login_count', 'current_login_at', 'current_login_ip', 'last_login_ip']
-    list_display = ['id', 'casebook_count', 'display_name', 'login', 'email_address', 'verified_email', 'professor_verification_requested', 'verified_professor', 'get_roles', 'last_request_at', 'last_login_at', 'login_count', 'created_at', 'updated_at']
+    list_display = ['id', 'casebook_count', 'display_name', 'email_address', 'verified_email', 'professor_verification_requested', 'verified_professor', 'get_roles', 'last_request_at', 'last_login_at', 'login_count', 'created_at', 'updated_at']
     list_filter = ['verified_email', 'verified_professor', 'professor_verification_requested', RoleNameFilter]
     search_fields = ['attribution', 'title', 'email_address']
     fieldsets = (
