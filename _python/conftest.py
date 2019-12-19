@@ -8,7 +8,6 @@ import pytest
 import factory
 
 from django.conf import settings
-from django.contrib.auth.hashers import make_password
 from django.db import connections
 from django.db.backends.base.base import BaseDatabaseWrapper
 from django.test.utils import CaptureQueriesContext
@@ -84,8 +83,6 @@ class UserFactory(factory.DjangoModelFactory):
     attribution = factory.Sequence(lambda n: 'Some User %s' % n)
     affiliation = factory.Sequence(lambda n: 'Affiliation %s' % n)
     verified_email = True
-    password_salt = '7'
-    crypted_password = make_password('somepassword')
 
 
 @register_factory
