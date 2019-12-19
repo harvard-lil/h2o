@@ -32,8 +32,8 @@ urlpatterns = format_suffix_patterns(drf_urlpatterns) + [
     path('accounts/new/', views.sign_up, name='sign_up'),
     path('accounts/edit/', views.edit_user, name='edit_user'),
 
-    # built-in Django auth views for login/logout/password update/password reset, with overrides to replace the form in some views
-    path('accounts/password_reset/', no_perms_test(auth_views.PasswordResetView.as_view(form_class=forms.PasswordResetForm)), name='password_reset'),
+    # built-in Django auth views for login/logout/password update/password reset, with overrides to replace the form or tweak behavior in some views
+    path('accounts/password_reset/', no_perms_test(views.reset_password), name='password_reset'),
     path('accounts/reset/<uidb64>/<token>/', no_perms_test(auth_views.PasswordResetConfirmView.as_view(form_class=forms.SetPasswordForm)), name='password_reset_confirm'),
     path('accounts/', include('django.contrib.auth.urls')),
 

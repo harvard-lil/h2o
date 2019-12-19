@@ -10,7 +10,7 @@ from rest_framework.views import APIView
 from django.conf import settings
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
-from django.contrib.auth.views import redirect_to_login
+from django.contrib.auth.views import redirect_to_login, PasswordResetView
 from django.core.exceptions import PermissionDenied
 from django.http import HttpResponseRedirect, HttpResponseBadRequest, JsonResponse, Http404, HttpResponse
 from django.shortcuts import render, get_object_or_404
@@ -27,11 +27,11 @@ from .test.test_permissions_helpers import perms_test, viewable_section, directl
 from test.test_helpers import check_response, assert_url_equal, dump_content_tree_children
 from pytest import raises as assert_raises
 
-from .utils import parse_cap_decision_date, fix_after_rails, CapapiCommunicationException, StringFileResponse
+from .utils import parse_cap_decision_date, fix_after_rails, CapapiCommunicationException, StringFileResponse, send_verification_email
 from .serializers import AnnotationSerializer, NewAnnotationSerializer, UpdateAnnotationSerializer, CaseSerializer, TextBlockSerializer
 from .models import Casebook, Section, Resource, Case, User, CaseCourt, ContentNode, TextBlock, Default, ContentAnnotation
 from .forms import CasebookForm, SectionForm, ResourceForm, LinkForm, TextBlockForm, NewTextBlockForm, UserProfileForm, \
-    SignupForm
+    SignupForm, PasswordResetForm
 
 
 ### helpers ###
@@ -1326,3 +1326,33 @@ def export(request, node, file_type='docx'):
         '_annotated' if include_annotations else ''
     )
     return StringFileResponse(response_data, as_attachment=True, filename=filename)
+
+
+def reset_password(request):
+    """
+        Displays the reset password form. We wrap the default Django view to send
+        an email verification email if unconfirmed users try to reset their password.
+
+        Given:
+        >>> client, user, unconfirmed_user, mailoutbox = [getfixture(i) for i in ['client', 'user', 'unconfirmed_user', 'mailoutbox']]
+        >>> url = reverse('password_reset')
+
+        Confirmed users receive the password reset email as usual:
+        >>> response = client.post(url, {"email": user.email_address})
+        >>> assert len(mailoutbox) == 1
+        >>> assert 'Password reset' in  mailoutbox[0].subject
+
+        Unconfirmed users receive the verification email:
+        >>> response = client.post(url, {"email": unconfirmed_user.email_address})
+        >>> assert len(mailoutbox) == 2
+        >>> assert 'An H2O account has been created for you' in  mailoutbox[1].subject
+    """
+    if request.method == "POST":
+        try:
+            target_user = User.objects.get(email_address=request.POST.get('email'))
+        except User.DoesNotExist:
+            target_user = None
+        if target_user and not target_user.verified_email:
+            send_verification_email(request, target_user)
+
+    return PasswordResetView.as_view(form_class=PasswordResetForm)(request)
