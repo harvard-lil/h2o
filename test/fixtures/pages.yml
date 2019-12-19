@@ -1,8 +1,0 @@
-footer_page_1:
-  page_title: Footer Page 1
-  slug: footer-page-1
-  footer_link: true
-  footer_sort: 1
-  footer_link_text: Footer Link 1
-  content: >
-    This is a page accessible from the footer.

@@ -1,7 +1,0 @@
-<% content_for :page_title do %><%= @exception.status %> <%= @exception.response.to_s.humanize %><% end %>
-<div class="content">
-  <div class="pages-content">
-   <h1>Oops!</h1>
-   <%= content_tag :div, @exception.description.html_safe %>
-  </div>
-</div>

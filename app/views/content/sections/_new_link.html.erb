@@ -1,7 +1,0 @@
-<%= simple_form_for :link, url: sections_path(@casebook), method: :post do |f| %>
-  <% if @section.present? %>
-    <%= f.input :parent, as: :hidden, input_html: {value: @section.ordinal_string} %>
-  <% end %>
-  <%= f.input :url, as: :string, placeholder: t('simple_form.labels.link.url'), label: false %>
-  <%= f.submit t('simple_form.labels.link.save') %>
-<% end %>
