@@ -2314,17 +2314,6 @@ class Default(NullableTimestampedModel):
     content_type = models.CharField(max_length=255, blank=True, null=True)
     ancestry = models.CharField(max_length=255, blank=True, null=True)
 
-    # the person who created the TextBlock. what's the correct on_delete here?
-    user = models.ForeignKey('User',
-        on_delete=models.PROTECT,
-        related_name='defaults',
-        blank=True,
-        null=True,
-        db_index=False,
-        db_constraint=False,
-        default=0
-    )
-
     class Meta:
         # managed = False
         db_table = 'defaults'
@@ -2398,19 +2387,6 @@ class TextBlock(NullableTimestampedModel, AnnotatedModel):
     content = models.CharField(max_length=5242880)
     public = models.BooleanField(default=True, blank=True, null=True)
     created_via_import = models.BooleanField(default=False)
-
-    # The person who created the TextBlock.
-    # This field doesn't appear to be populated by Rails at present,
-    # when creating new TextBlocks...
-    # What's the correct "on_delete" behavior? Can we.... delete this whole column?
-    user = models.ForeignKey('User',
-        blank=True,
-        null=True,
-        on_delete=models.PROTECT,
-        db_index=False,
-        db_constraint=False,
-        default=0
-    )
 
     class Meta:
         # managed = False

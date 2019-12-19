@@ -403,16 +403,11 @@ class CaseAdmin(BaseAdmin):
 
 class DefaultAdmin(BaseAdmin):
     # reminder that a "Default" is a Link Resource
-    readonly_fields = ['created_at', 'updated_at', 'user_link', 'user', 'ancestry']
-    list_select_related = ['user']
-    list_display = ['id', 'name', 'url', 'public', 'related_resources', 'created_at', 'updated_at', 'content_type', 'user_link', 'ancestry']
+    readonly_fields = ['created_at', 'updated_at', 'ancestry']
+    list_display = ['id', 'name', 'url', 'public', 'related_resources', 'created_at', 'updated_at', 'content_type', 'ancestry']
     list_filter = ['public', 'content_type']
     search_fields = ['name', 'url']
-    fields = ['name', 'url', 'description', 'public', 'created_at', 'updated_at', 'content_type', 'user', 'ancestry']
-
-    def user_link(self, obj):
-        return edit_link(obj.user, True)
-    user_link.short_description = 'user'
+    fields = ['name', 'url', 'description', 'public', 'created_at', 'updated_at', 'content_type', 'ancestry']
 
     def related_resources(self, obj):
         return format_html(
@@ -424,18 +419,13 @@ class DefaultAdmin(BaseAdmin):
 
 
 class TextBlockAdmin(BaseAdmin):
-    readonly_fields = ['created_at', 'updated_at', 'user']
-    list_select_related = ['user']
-    list_display = ['id', 'name', 'user_link', 'public', 'created_via_import', 'related_resources', 'live_annotations_count', 'created_at', 'updated_at']
+    readonly_fields = ['created_at', 'updated_at']
+    list_display = ['id', 'name', 'public', 'created_via_import', 'related_resources', 'live_annotations_count', 'created_at', 'updated_at']
     list_filter = ['created_via_import']
     fields = ['name', 'description', 'user', 'public', 'created_via_import', 'content', 'created_at', 'updated_at']
 
     def formfield_for_dbfield(self, db_field, **kwargs):
         return self.enable_richeditor_for_field('content', db_field, **kwargs)
-
-    def user_link(self, obj):
-        return edit_link(obj.user, True)
-    user_link.short_description = 'user'
 
     def related_resources(self, obj):
         return format_html(
