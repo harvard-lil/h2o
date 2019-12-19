@@ -164,7 +164,6 @@ class DefaultFactory(factory.DjangoModelFactory):
     description = factory.Sequence(lambda n: 'Some Link Description %s' % n)
     url = factory.Sequence(lambda n: 'https://example.com/%s' % n)
     public = True
-    created_via_import = False
     user = factory.SubFactory(UserFactory)
 
 

@@ -405,10 +405,10 @@ class DefaultAdmin(BaseAdmin):
     # reminder that a "Default" is a Link Resource
     readonly_fields = ['created_at', 'updated_at', 'user_link', 'user', 'ancestry']
     list_select_related = ['user']
-    list_display = ['id', 'name', 'url', 'public', 'related_resources', 'created_at', 'updated_at', 'content_type', 'user_link', 'ancestry', 'created_via_import']
-    list_filter = ['public', 'content_type', 'created_via_import']
+    list_display = ['id', 'name', 'url', 'public', 'related_resources', 'created_at', 'updated_at', 'content_type', 'user_link', 'ancestry']
+    list_filter = ['public', 'content_type']
     search_fields = ['name', 'url']
-    fields = ['name', 'url', 'description', 'public', 'created_at', 'updated_at', 'content_type', 'user', 'ancestry', 'created_via_import']
+    fields = ['name', 'url', 'description', 'public', 'created_at', 'updated_at', 'content_type', 'user', 'ancestry']
 
     def user_link(self, obj):
         return edit_link(obj.user, True)

@@ -2319,7 +2319,6 @@ class Default(NullableTimestampedModel):
     public = models.BooleanField(null=True, default=True)
     content_type = models.CharField(max_length=255, blank=True, null=True)
     ancestry = models.CharField(max_length=255, blank=True, null=True)
-    created_via_import = models.BooleanField(default=False)
 
     # the person who created the TextBlock. what's the correct on_delete here?
     user = models.ForeignKey('User',
