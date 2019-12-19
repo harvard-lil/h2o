@@ -19,8 +19,8 @@ jobs:
           name: "Flake8"
           command: |
             export PYENV_VERSION=3.5.2  # use the version of python3 installed on circleci
-            pip install `egrep -o 'flake8==\S+' _python/requirements.txt`  # install our version of flake8
-            flake8 _python/
+            pip install `egrep -o 'flake8==\S+' web/requirements.txt`  # install our version of flake8
+            flake8 web/
 
       # Docker image building and caching
       # This block shaves a minute or two off of the test runtime by using cached docker images.
@@ -36,7 +36,7 @@ jobs:
             else
               echo "Building new docker images"
               docker-compose build
-              docker save -o ~/docker-cache.tar h2o python
+              docker save -o ~/docker-cache.tar h2o-python
             fi
       - save_cache:
           key: docker-images-{{ checksum "docker-compose.yml" }}
@@ -48,9 +48,9 @@ jobs:
           name: "Test Django"
           command: |
             docker-compose up -d
-            docker-compose exec python ./manage.py collectstatic --noinput   # collect static files
+            docker-compose exec web ./manage.py collectstatic --noinput   # collect static files
             mkdir -p junit/pytest                            # storage for circleci test info
-            docker-compose exec python pytest \
+            docker-compose exec web pytest \
               --junitxml=junit/pytest/test-results.xml       `# write test results so they can be displayed by circleci` \
               --cov --cov-config=setup.cfg --cov-report xml  `# write coverage data to .coverage for upload by codecov`
 
@@ -58,10 +58,10 @@ jobs:
           name: "Test Javascript"
           command: |
             docker-compose up -d
-            docker-compose exec python npm ci
-            docker-compose exec python npm run lint
-            docker-compose exec python npm run build
-            docker-compose exec python npm run test
+            docker-compose exec web npm ci
+            docker-compose exec web npm run lint
+            docker-compose exec web npm run build
+            docker-compose exec web npm run test
 
       # Upload test details to circleci
       - store_test_results:
@@ -81,10 +81,10 @@ jobs:
           name: "Deploy"
           command: |
             if [[ "$CIRCLE_PULL_REQUEST" == "" && "$CIRCLE_BRANCH" == "develop" ]] ; then
-                if [[ `git status _python/static/dist/ _python/webpack-stats.json --porcelain` ]] ; then
+                if [[ `git status web/static/dist/ web/webpack-stats.json --porcelain` ]] ; then
                     git config user.email "lil@law.harvard.edu"
                     git config user.name "Circle CI"
-                    git add _python/static/dist/ _python/webpack-stats.json
+                    git add web/static/dist/ web/webpack-stats.json
                     git commit -m 'Add built JS [skip ci]'
                     git push origin develop || exit 1
                 fi
