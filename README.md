@@ -28,7 +28,7 @@ Finally, initialize an empty database...
 
 Then log into the main Docker container:
 
-    $ docker-compose exec python bash
+    $ docker-compose exec web bash
     #
 
 (Commands from here on out that start with `#` are being run in Docker.)
