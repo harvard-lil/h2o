@@ -234,7 +234,7 @@ REST_FRAMEWORK = {
     ),
 }
 
-PANDOC_DIR = os.path.join(os.path.dirname(BASE_DIR), 'lib/pandoc')
+PANDOC_DIR = os.path.join(os.path.dirname(BASE_DIR), 'services/pandoc')
 
 PASSWORD_HASHERS = [
     # this is the standard recommended Django password hasher; first item on this list will be used for all new logins
