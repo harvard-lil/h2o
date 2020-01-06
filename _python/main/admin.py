@@ -403,16 +403,11 @@ class CaseAdmin(BaseAdmin):
 
 class DefaultAdmin(BaseAdmin):
     # reminder that a "Default" is a Link Resource
-    readonly_fields = ['created_at', 'updated_at', 'user_link', 'user', 'ancestry']
-    list_select_related = ['user']
-    list_display = ['id', 'name', 'url', 'public', 'related_resources', 'created_at', 'updated_at', 'content_type', 'user_link', 'ancestry', 'created_via_import']
-    list_filter = ['public', 'content_type', 'created_via_import']
+    readonly_fields = ['created_at', 'updated_at', 'ancestry']
+    list_display = ['id', 'name', 'url', 'public', 'related_resources', 'created_at', 'updated_at', 'content_type', 'ancestry']
+    list_filter = ['public', 'content_type']
     search_fields = ['name', 'url']
-    fields = ['name', 'url', 'description', 'public', 'created_at', 'updated_at', 'content_type', 'user', 'ancestry', 'created_via_import']
-
-    def user_link(self, obj):
-        return edit_link(obj.user, True)
-    user_link.short_description = 'user'
+    fields = ['name', 'url', 'description', 'public', 'created_at', 'updated_at', 'content_type', 'ancestry']
 
     def related_resources(self, obj):
         return format_html(
@@ -424,18 +419,13 @@ class DefaultAdmin(BaseAdmin):
 
 
 class TextBlockAdmin(BaseAdmin):
-    readonly_fields = ['created_at', 'updated_at', 'user', 'version']
-    list_select_related = ['user']
-    list_display = ['id', 'name', 'user_link', 'public', 'created_via_import', 'version', 'related_resources', 'live_annotations_count', 'created_at', 'updated_at']
-    list_filter = ['version', 'created_via_import']
-    fields = ['name', 'description', 'user', 'public', 'created_via_import', 'content', 'version', 'created_at', 'updated_at']
+    readonly_fields = ['created_at', 'updated_at']
+    list_display = ['id', 'name', 'public', 'created_via_import', 'related_resources', 'live_annotations_count', 'created_at', 'updated_at']
+    list_filter = ['created_via_import']
+    fields = ['name', 'description', 'user', 'public', 'created_via_import', 'content', 'created_at', 'updated_at']
 
     def formfield_for_dbfield(self, db_field, **kwargs):
         return self.enable_richeditor_for_field('content', db_field, **kwargs)
-
-    def user_link(self, obj):
-        return edit_link(obj.user, True)
-    user_link.short_description = 'user'
 
     def related_resources(self, obj):
         return format_html(
@@ -474,12 +464,12 @@ class UserAdmin(BaseAdmin, DjangoUserAdmin):
     add_form = UserAddForm
     add_form_template = None
     readonly_fields = ['created_at', 'updated_at', 'display_name', 'last_request_at', 'last_login_at', 'login_count', 'current_login_at', 'current_login_ip', 'last_login_ip']
-    list_display = ['id', 'casebook_count', 'display_name', 'login', 'email_address', 'verified_email', 'professor_verification_requested', 'verified_professor', 'get_roles', 'last_request_at', 'last_login_at', 'login_count', 'created_at', 'updated_at']
+    list_display = ['id', 'casebook_count', 'display_name', 'email_address', 'verified_email', 'professor_verification_requested', 'verified_professor', 'get_roles', 'last_request_at', 'last_login_at', 'login_count', 'created_at', 'updated_at']
     list_filter = ['verified_email', 'verified_professor', 'professor_verification_requested', RoleNameFilter]
-    search_fields = ['attribution', 'title', 'email_address']
+    search_fields = ['attribution', 'email_address']
     fieldsets = (
         (None, {'fields': ('email_address', 'password')}),
-        ('Personal info', {'fields': ('title', 'attribution', 'affiliation')}),
+        ('Personal info', {'fields': ('attribution', 'affiliation')}),
         ('Permissions', {
             'fields': ('verified_email', 'professor_verification_requested', 'verified_professor'),
         }),
@@ -492,7 +482,7 @@ class UserAdmin(BaseAdmin, DjangoUserAdmin):
     )
     add_fieldsets = (
         (None, {'fields': ('email_address',)}),
-        ('Personal info', {'fields': ('title', 'attribution', 'affiliation')}),
+        ('Personal info', {'fields': ('attribution', 'affiliation')}),
         ('Permissions', {
             'fields': ('verified_email', 'professor_verification_requested', 'verified_professor'),
         }),
@@ -523,9 +513,9 @@ class RolesUserAdmin(BaseAdmin):
 
 
 class RoleAdmin(BaseAdmin):
-    readonly_fields = ['created_at', 'updated_at', 'authorizable_type', 'authorizable_id']
-    list_display = ['id', 'name', 'authorizable_type', 'authorizable_id', 'created_at', 'updated_at']
-    list_filter = ['name', 'authorizable_type']
+    readonly_fields = ['created_at', 'updated_at']
+    list_display = ['id', 'name', 'created_at', 'updated_at']
+    list_filter = ['name']
     ordering = ['-name']
 
 

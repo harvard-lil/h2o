@@ -164,8 +164,6 @@ class DefaultFactory(factory.DjangoModelFactory):
     description = factory.Sequence(lambda n: 'Some Link Description %s' % n)
     url = factory.Sequence(lambda n: 'https://example.com/%s' % n)
     public = True
-    created_via_import = False
-    user = factory.SubFactory(UserFactory)
 
 
 @register_factory
@@ -176,14 +174,8 @@ class TextBlockFactory(factory.DjangoModelFactory):
     name = factory.Sequence(lambda n: 'Some TextBlock Name %s' % n)
     description = factory.Sequence(lambda n: 'Some TextBlock Description %s' % n)
     content = factory.Sequence(lambda n: 'Some TextBlock Content %s' % n)
-    version = 1
     public = True
     created_via_import = False
-    annotations_count = 0
-    user = factory.SubFactory(UserFactory)
-    enable_feedback = True
-    enable_discussions = True
-    enable_responses = True
 
 
 @register_factory
@@ -205,7 +197,6 @@ class CaseFactory(factory.DjangoModelFactory):
     public = True
     created_via_import = False
     content = factory.Sequence(lambda n: 'Some Case Content %s' % n)
-    annotations_count = 0
     case_court = factory.SubFactory(CaseCourtFactory)
     decision_date = datetime(1900, 1, 1)
     citations = [{'cite': '1 Mass. 1'}, {'cite': '2 Jones 2'}]
@@ -353,17 +344,17 @@ def full_casebook_parts_factory(db):
         user = UserFactory()
         casebook = CasebookFactory(contentcollaborator_set__user=user, public=public)
         s_1 = SectionFactory(casebook=casebook, ordinals=[1])
-        r_1_1 = ResourceFactory(casebook=casebook, ordinals=[1, 1], resource_type='TextBlock', resource_id=TextBlockFactory(user=user).id)
+        r_1_1 = ResourceFactory(casebook=casebook, ordinals=[1, 1], resource_type='TextBlock', resource_id=TextBlockFactory().id)
         r_1_2 = case_resource = ResourceFactory(casebook=casebook, ordinals=[1, 2], resource_type='Case', resource_id=CaseFactory().id)
         ContentAnnotationFactory(resource=case_resource)
         ContentAnnotationFactory(resource=case_resource, kind='elide')
-        r_1_3 = ResourceFactory(casebook=casebook, ordinals=[1, 3], resource_type='Default', resource_id=DefaultFactory(user=user).id)
+        r_1_3 = ResourceFactory(casebook=casebook, ordinals=[1, 3], resource_type='Default', resource_id=DefaultFactory().id)
         s_1_4 = SectionFactory(casebook=casebook,  ordinals=[1, 4])
-        r_1_4_1 = ResourceFactory(casebook=casebook, ordinals=[1, 4, 1], resource_type='TextBlock', resource_id=TextBlockFactory(user=user).id)
+        r_1_4_1 = ResourceFactory(casebook=casebook, ordinals=[1, 4, 1], resource_type='TextBlock', resource_id=TextBlockFactory().id)
         r_1_4_2 = case_resource = ResourceFactory(casebook=casebook, ordinals=[1, 4, 2], resource_type='Case', resource_id=CaseFactory().id)
         ContentAnnotationFactory(resource=case_resource, kind='note')
         ContentAnnotationFactory(resource=case_resource, kind='replace')
-        r_1_4_3 = ResourceFactory(casebook=casebook, ordinals=[1, 4, 3], resource_type='Default', resource_id=DefaultFactory(user=user).id)
+        r_1_4_3 = ResourceFactory(casebook=casebook, ordinals=[1, 4, 3], resource_type='Default', resource_id=DefaultFactory().id)
         s_2 = SectionFactory(casebook=casebook, ordinals=[2])
         return [casebook, s_1, r_1_1, r_1_2, r_1_3, s_1_4, r_1_4_1, r_1_4_2, r_1_4_3, s_2]
     return factory

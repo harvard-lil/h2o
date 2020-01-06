@@ -39,6 +39,11 @@ from .sanitize import sanitize
 import logging
 logger = logging.getLogger(__name__)
 
+
+#
+# Helpers
+#
+
 class BigPkModel(models.Model):
     id = models.BigAutoField(primary_key=True)
 
@@ -207,55 +212,6 @@ def cleanse_html_field(model_instance, fieldname, sanitize_field=False):
     run_if_field_changed(strip_trailing_block_level_whitespace, "Stripping trailing whitespace in {} {}".format(type(model_instance).__name__, fieldname))
 
 
-
-# Internal
-
-class ArInternalMetadata(TimestampedModel):
-    key = models.CharField(primary_key=True, max_length=255)
-    value = models.CharField(max_length=255, blank=True, null=True)
-
-    class Meta:
-        # managed = False
-        db_table = 'ar_internal_metadata'
-
-
-class SchemaMigration(models.Model):
-    version = models.CharField(primary_key=True, max_length=255)
-
-    class Meta:
-        # managed = False
-        db_table = 'schema_migrations'
-
-
-class Session(NullableTimestampedModel):
-    session_id = models.CharField(max_length=255)
-    data = models.TextField(blank=True, null=True)
-
-    class Meta:
-        # managed = False
-        db_table = 'sessions'
-        indexes = [
-            models.Index(fields=['session_id']),
-            models.Index(fields=['updated_at'])
-        ]
-
-
-# Application
-
-class CaseCourt(NullableTimestampedModel):
-    name_abbreviation = models.CharField(max_length=150, blank=True, null=True)
-    name = models.CharField(max_length=500, blank=True, null=True)
-    capapi_id = models.IntegerField(blank=True, null=True)
-
-    class Meta:
-        # managed = False
-        db_table = 'case_courts'
-        indexes = [
-            models.Index(fields=['name']),
-            models.Index(fields=['name_abbreviation'])
-        ]
-
-
 class AnnotatedModel(EditTrackedModel):
     """
         Abstract base class for Case and TextBlock resource types, which can be annotated. Ensures that annotation
@@ -274,6 +230,24 @@ class AnnotatedModel(EditTrackedModel):
             logger.debug("Updating annotations for {}".format(type(self).__name__))
             ContentAnnotation.update_annotations(self.related_annotations(), self.original_state['content'], self.content)
         super().save(*args, **kwargs)
+
+
+#
+# Models
+#
+
+class CaseCourt(NullableTimestampedModel):
+    name_abbreviation = models.CharField(max_length=150, blank=True, null=True)
+    name = models.CharField(max_length=500, blank=True, null=True)
+    capapi_id = models.IntegerField(blank=True, null=True)
+
+    class Meta:
+        # managed = False
+        db_table = 'case_courts'
+        indexes = [
+            models.Index(fields=['name']),
+            models.Index(fields=['name_abbreviation'])
+        ]
 
 
 class Case(NullableTimestampedModel, AnnotatedModel):
@@ -300,9 +274,6 @@ class Case(NullableTimestampedModel, AnnotatedModel):
         db_index = False,
         db_constraint=False
     )
-
-    fix_after_rails("We've decided not to cache this any longer: can drop field.")
-    annotations_count = models.IntegerField(default=0, blank=True, null=True)
 
     class Meta:
         # managed = False
@@ -361,12 +332,6 @@ class ContentAnnotationQueryset(models.QuerySet):
 
 
 class ContentAnnotation(TimestampedModel, BigPkModel):
-    # NOTE: In the Rails app, paragraph-based offsets are always still calculated,
-    # to smooth the transition to document-based offsets. We are not recreating that here.
-    start_paragraph = models.IntegerField(blank=True, null=True)
-    end_paragraph = models.IntegerField(blank=True, null=True)
-    start_offset = models.IntegerField(blank=True, null=True)
-    end_offset = models.IntegerField(blank=True, null=True)
     kind = models.CharField(max_length=255, choices=(('replace', 'replace'), ('highlight', 'highlight'), ('elide', 'elide'), ('note', 'note'), ('link', 'link')))
     content = models.TextField(blank=True, null=True)  #TODO: validation for URLs
     global_start_offset = models.IntegerField(blank=True, null=True)
@@ -379,6 +344,13 @@ class ContentAnnotation(TimestampedModel, BigPkModel):
     )
 
     objects = ContentAnnotationQueryset.as_manager()
+
+    fix_after_rails("Are we ready to delete these legacy fields, containing the"
+    "paragraph-based annotation offsets originally used in the Rails app?")
+    start_paragraph = models.IntegerField(blank=True, null=True)
+    end_paragraph = models.IntegerField(blank=True, null=True)
+    start_offset = models.IntegerField(blank=True, null=True)
+    end_offset = models.IntegerField(blank=True, null=True)
 
     class Meta:
         # managed = False
@@ -450,15 +422,10 @@ class ContentCollaborator(TimestampedModel, BigPkModel):
     has_attribution = models.BooleanField(default=False)
     role = models.CharField(
         max_length=255,
-        choices = (('owner', 'owner'), ('editor', 'editor')),
-        blank=True,
-        null=True
+        choices = (('owner', 'owner'), ('editor', 'editor'))
     )
     user = models.ForeignKey('User',
         on_delete=models.CASCADE,
-        blank=True,
-        null=True,
-        db_constraint=False
     )
     # This is marked "on_delete=models.DO_NOTHING" to avoid unnecessary queries when deleting Sections and Resources....
     # We make sure to delete unneeded ContentCollaborator rows in the Casebook.delete method.
@@ -470,7 +437,6 @@ class ContentCollaborator(TimestampedModel, BigPkModel):
     )
 
     class Meta:
-        # managed = False
         db_table = 'content_collaborators'
         unique_together = (('user', 'content'),)
 
@@ -604,10 +570,8 @@ class ContentNode(EditTrackedModel, TimestampedModel, BigPkModel):
     resource_type = models.CharField(max_length=255, blank=True, null=True)
     resource_id = models.BigIntegerField(blank=True, null=True)
 
-    # legacy fields, I believe
-    is_alias = models.BooleanField(blank=True, null=True)
+    fix_after_rails("Are we ready to delete playlist_id, a relic of a former version of H2O?")
     playlist_id = models.BigIntegerField(blank=True, null=True)
-    slug = models.CharField(max_length=10000, blank=True, null=True)
 
     objects = ContentNodeQueryset.as_manager()
     tracked_fields = ['headnote']
@@ -2392,18 +2356,6 @@ class Default(NullableTimestampedModel):
     public = models.BooleanField(null=True, default=True)
     content_type = models.CharField(max_length=255, blank=True, null=True)
     ancestry = models.CharField(max_length=255, blank=True, null=True)
-    created_via_import = models.BooleanField(default=False)
-
-    # the person who created the TextBlock. what's the correct on_delete here?
-    user = models.ForeignKey('User',
-        on_delete=models.PROTECT,
-        related_name='defaults',
-        blank=True,
-        null=True,
-        db_index=False,
-        db_constraint=False,
-        default=0
-    )
 
     class Meta:
         # managed = False
@@ -2430,21 +2382,15 @@ class Role(NullableTimestampedModel):
     """
     fix_after_rails("Could remove a lot of boilerplate by switching to Django's built-in is_staff, is_superuser, and groups features.")
     name = models.CharField(max_length=40, blank=True, null=True)
-    authorizable_type = models.CharField(max_length=40, blank=True, null=True)
-    authorizable_id = models.IntegerField(blank=True, null=True)
 
     class Meta:
         # managed = False
         db_table = 'roles'
         indexes = [
             models.Index(fields=['name']),
-            models.Index(fields=['authorizable_type']),
-            models.Index(fields=['authorizable_id']),
         ]
 
     def __str__(self):
-        if self.name == 'asker':
-            return "{} ({} {})".format(self.name, self.authorizable_type, self.authorizable_id)
         return self.name
 
 
@@ -2454,17 +2400,11 @@ class RolesUser(NullableTimestampedModel, BigPkModel):
     """
     user = models.ForeignKey(
         'User',
-        blank=True,
-        null=True,
         on_delete=models.CASCADE,
-        db_constraint=False
     )
     role = models.ForeignKey(
         Role,
-        blank=True,
-        null=True,
         on_delete=models.CASCADE,
-        db_constraint=False
     )
 
     class Meta:
@@ -2476,30 +2416,8 @@ class TextBlock(NullableTimestampedModel, AnnotatedModel):
     name = models.CharField(max_length=255)
     description = models.CharField(max_length=5242880, blank=True, null=True)
     content = models.CharField(max_length=5242880)
-    version = models.IntegerField(default=1)
     public = models.BooleanField(default=True, blank=True, null=True)
     created_via_import = models.BooleanField(default=False)
-
-    fix_after_rails("We've decided not to cache this any longer: can drop field.")
-    annotations_count = models.IntegerField(default=0, blank=True, null=True)
-
-    # The person who created the TextBlock.
-    # This field doesn't appear to be populated by Rails at present,
-    # when creating new TextBlocks...
-    # What's the correct "on_delete" behavior? Can we.... delete this whole column?
-    user = models.ForeignKey('User',
-        blank=True,
-        null=True,
-        on_delete=models.PROTECT,
-        db_index=False,
-        db_constraint=False,
-        default=0
-    )
-
-    # legacy fields, I believe
-    enable_feedback = models.BooleanField(default=True)
-    enable_discussions = models.BooleanField(default=False)
-    enable_responses = models.BooleanField(default=False)
 
     class Meta:
         # managed = False
@@ -2539,69 +2457,8 @@ class TextBlock(NullableTimestampedModel, AnnotatedModel):
         return Resource.objects.filter(resource_id=self.id, resource_type='TextBlock')
 
 
-class UnpublishedRevision(TimestampedModel, BigPkModel):
-    field = models.CharField(max_length=255)
-    value = models.CharField(max_length=50000, blank=True, null=True)
-
-    # N.B. in the prod database, these relationships are tracked in Int fields,
-    # rather than a BigInt fields, even though these models' primary keys are
-    # BigInts. We should consider migrating soon to reconcile this.
-
-    # These foreign keys are marked "on_delete=models.DO_NOTHING" to avoid unnecessary queries when deleting Sections and Resources.
-    # This table is not used by the Django application; we will drop it soon.
-
-    node = models.ForeignKey(
-        'ContentNode',
-        on_delete=models.DO_NOTHING,
-        related_name='revisions',
-        help_text='Node in the draft.',
-        blank=True,
-        null=True,
-        db_constraint=False,
-        db_index=False
-    )
-    node_parent = models.ForeignKey(
-        'ContentNode',
-        on_delete=models.DO_NOTHING,
-        related_name='draft_revisions',
-        help_text='Corresponding node in the original, published casebook.',
-        blank=True,
-        null=True,
-        db_constraint=False,
-        db_index=False
-    )
-    # I'm not sure why this is stored separately; redundant with node?
-    casebook = models.ForeignKey(
-        'Casebook',
-        on_delete=models.DO_NOTHING,
-        related_name='casebook_revisions',
-        help_text='The draft casebook.',
-        blank=True,
-        null=True,
-        db_constraint=False,
-        db_index=False
-    )
-    # I'm not sure that this field is in use, presently.
-    annotation = models.ForeignKey(
-        'ContentAnnotation',
-        blank=True,
-        null=True,
-        on_delete=models.DO_NOTHING,
-        db_constraint=False,
-        db_index=False
-    )
-
-    class Meta:
-        # managed = False
-        db_table = 'unpublished_revisions'
-        indexes = [
-            models.Index(fields=['node', 'field'])
-        ]
-
-
 class User(NullableTimestampedModel, AbstractBaseUser):
     email_address = models.CharField(max_length=255, blank=True, null=True, unique=True)
-    title = models.CharField(max_length=255, blank=True, null=True)
     attribution = models.CharField(max_length=255, default='Anonymous', verbose_name='Display name')
     affiliation = models.CharField(max_length=255, blank=True, null=True)
     verified_email = models.BooleanField(default=False)
@@ -2622,35 +2479,6 @@ class User(NullableTimestampedModel, AbstractBaseUser):
     last_login_ip = models.CharField(max_length=255, blank=True, null=True, help_text="IP of previous password login")
     last_login = None  # disable the Django login tracking field from AbstractBaseUser
 
-    # all legacy fields, I believe
-    login = models.CharField(max_length=255, blank=True, null=True)
-    persistence_token = models.CharField(max_length=255)
-    perishable_token = models.CharField(max_length=255, blank=True, null=True)
-    oauth_token = models.CharField(max_length=255, blank=True, null=True)
-    oauth_secret = models.CharField(max_length=255, blank=True, null=True)
-    tz_name = models.CharField(max_length=255, blank=True, null=True)
-    url = models.CharField(max_length=255, blank=True, null=True)
-    description = models.TextField(blank=True, null=True)
-    canvas_id = models.CharField(max_length=255, blank=True, null=True)
-    default_font = models.CharField(max_length=255, blank=True, null=True, default='futura')
-    default_font_size = models.CharField(max_length=255, blank=True, null=True, default=10)
-    print_titles = models.BooleanField(default=True)
-    print_dates_details = models.BooleanField(default=True)
-    print_paragraph_numbers = models.BooleanField(default=True)
-    print_annotations = models.BooleanField(default=False)
-    print_highlights = models.CharField(max_length=255, default='original')
-    print_font_face = models.CharField(max_length=255, default='dagny')
-    print_font_size = models.CharField(max_length=255, default='small')
-    default_show_comments = models.BooleanField(default=False)
-    default_show_paragraph_numbers = models.BooleanField(default=True)
-    hidden_text_display = models.BooleanField(default=False)
-    print_links = models.BooleanField(default=True)
-    toc_levels = models.CharField(max_length=255, default='')
-    print_export_format = models.CharField(max_length=255, default='')
-    image_file_name = models.CharField(max_length=255, blank=True, null=True)
-    image_content_type = models.CharField(max_length=255, blank=True, null=True)
-    image_file_size = models.IntegerField(blank=True, null=True)
-    image_updated_at = models.DateTimeField(blank=True, null=True)
 
     EMAIL_FIELD = 'email_address'
     USERNAME_FIELD = 'email_address'
@@ -2667,33 +2495,15 @@ class User(NullableTimestampedModel, AbstractBaseUser):
             models.Index(fields=['email_address']),
             models.Index(fields=['id']),
             models.Index(fields=['last_request_at']),
-            models.Index(fields=['login']),
-            models.Index(fields=['oauth_token']),
-            models.Index(fields=['persistence_token']),
-            models.Index(fields=['tz_name']),
         ]
-
-    @property
-    def email_domain(self):
-        # TODO! In the meantime, return the full address
-        # m = email_address.match /@(.+)$/
-        # m.try(:[], 1) || '?.edu'
-        return self.email_address
-
-    @property
-    def anonymous_name(self):
-        return "{}#{}".format(self.email_domain, self.id)
 
     @property
     def display_name(self):
         """
             In rails this is also known as "display" and "simple_display"
         """
-        if self.attribution:
-            return self.attribution
-        elif self.title:
-            return self.title
-        return self.anonymous_name
+        return self.attribution
+
 
     # TODO: are all users with verified email addresses active,
     # or is there another category of non-active users?
@@ -2776,88 +2586,10 @@ user_logged_in.connect(update_user_login_fields)
 
 
 #
-# Legacy Tables
+# Legacy Tables: do these contain images and other assets that are referenced
+# in casebooks, that COULD be displayed if we migrate properly? Keeping them
+# pending study.
 #
-
-class UserCollection(models.Model):
-    user_id = models.IntegerField(blank=True, null=True)
-    name = models.CharField(max_length=255, blank=True, null=True)
-    description = models.CharField(max_length=255, blank=True, null=True)
-    created_at = models.DateTimeField(blank=True, null=True)
-    updated_at = models.DateTimeField(blank=True, null=True)
-
-    class Meta:
-        db_table = 'user_collections'
-
-
-class UserCollectionsUser(models.Model):
-    # NB: This table does not have a primary key in production,
-    # which Django can't deal with, and cannot recreate when instantiating the table
-    user_id = models.IntegerField(blank=True, null=True)
-    user_collection_id = models.IntegerField(blank=True, null=True)
-
-    class Meta:
-        db_table = 'user_collections_users'
-
-
-class Annotation(models.Model):
-    collage_id = models.IntegerField(blank=True, null=True)
-    annotation = models.CharField(max_length=10240, blank=True, null=True)
-    created_at = models.DateTimeField(blank=True, null=True)
-    updated_at = models.DateTimeField(blank=True, null=True)
-    cloned = models.BooleanField(default=False)
-    xpath_start = models.CharField(max_length=255, blank=True, null=True)
-    xpath_end = models.CharField(max_length=255, blank=True, null=True)
-    start_offset = models.IntegerField(default=0)
-    end_offset = models.IntegerField(default=0)
-    link = models.CharField(max_length=255, blank=True, null=True)
-    hidden = models.BooleanField(default=False)
-    highlight_only = models.CharField(max_length=255, blank=True, null=True)
-    annotated_item_id = models.IntegerField(default=0)
-    annotated_item_type = models.CharField(max_length=255, default="Collage")
-    error = models.BooleanField(default=False)
-    feedback = models.BooleanField(default=False)
-    discussion = models.BooleanField(default=False)
-    user_id = models.IntegerField(blank=True, null=True)
-
-    class Meta:
-        db_table = 'annotations'
-
-
-class Collage(models.Model):
-    annotatable_type = models.CharField(max_length=255, blank=True, null=True)
-    annotatable_id = models.IntegerField(blank=True, null=True)
-    name = models.CharField(max_length=250)
-    description = models.CharField(max_length=5120, blank=True, null=True)
-    created_at = models.DateTimeField(blank=True, null=True)
-    updated_at = models.DateTimeField(blank=True, null=True)
-    word_count = models.IntegerField(blank=True, null=True)
-    ancestry = models.CharField(max_length=255, blank=True, null=True)
-    public = models.BooleanField(blank=True, null=True, default=True)
-    readable_state = models.CharField(max_length=5242880, blank=True, null=True)
-    words_shown = models.IntegerField(blank=True, null=True)
-    user_id = models.IntegerField(default=0)
-    annotator_version = models.IntegerField(default=2)
-    featured = models.BooleanField(default=False)
-    created_via_import = models.BooleanField(default=False)
-    version = models.IntegerField(default=1)
-    enable_feedback = models.BooleanField(default=True)
-    enable_discussions = models.BooleanField(default=False)
-    enable_responses = models.BooleanField(default=False)
-
-    class Meta:
-        db_table = 'collages'
-        indexes = [
-            models.Index(fields=['ancestry']),
-            models.Index(fields=['annotatable_id']),
-            models.Index(fields=['annotatable_type']),
-            models.Index(fields=['created_at']),
-            models.Index(fields=['name']),
-            models.Index(fields=['public']),
-            models.Index(fields=['updated_at']),
-            models.Index(fields=['word_count'])
-        ]
-
 
 class CkeditorAsset(models.Model):
     data_file_name = models.CharField(max_length=255)
@@ -2893,38 +2625,6 @@ class ContentImage(models.Model):
         db_table = 'content_images'
 
 
-class DelayedJob(models.Model):
-    priority = models.IntegerField(blank=True, null=True, default=0)
-    attempts = models.IntegerField(blank=True, null=True, default=0)
-    handler = models.TextField(blank=True, null=True)
-    last_error = models.TextField(blank=True, null=True)
-    run_at = models.DateTimeField(blank=True, null=True)
-    locked_at = models.DateTimeField(blank=True, null=True)
-    failed_at = models.DateTimeField(blank=True, null=True)
-    locked_by = models.CharField(max_length=255, blank=True, null=True)
-    created_at = models.DateTimeField(blank=True, null=True)
-    updated_at = models.DateTimeField(blank=True, null=True)
-    queue = models.CharField(max_length=255, blank=True, null=True)
-
-    class Meta:
-        db_table = 'delayed_jobs'
-        indexes = [
-            models.Index(fields=['priority', 'run_at']),
-        ]
-
-
-class FrozenItem(models.Model):
-    content = models.TextField(blank=True, null=True)
-    version = models.IntegerField()
-    item_id = models.IntegerField()
-    item_type = models.CharField(max_length=255)
-    created_at = models.DateTimeField(blank=True, null=True)
-    updated_at = models.DateTimeField(blank=True, null=True)
-
-    class Meta:
-        db_table = 'frozen_items'
-
-
 class MediaType(models.Model):
     label = models.CharField(max_length=255, blank=True, null=True)
     slug = models.CharField(max_length=255, blank=True, null=True)
@@ -2948,158 +2648,3 @@ class Media(models.Model):
 
     class Meta:
         db_table = 'medias'
-
-
-class Metadata(models.Model):
-    contributor = models.CharField(max_length=255, blank=True, null=True)
-    coverage = models.CharField(max_length=255, blank=True, null=True)
-    creator = models.CharField(max_length=255, blank=True, null=True)
-    date = models.DateField(blank=True, null=True)
-    description = models.CharField(max_length=5242880, blank=True, null=True)
-    format = models.CharField(max_length=255, blank=True, null=True)
-    identifier = models.CharField(max_length=255, blank=True, null=True)
-    language = models.CharField(max_length=255, blank=True, null=True, default='en')
-    publisher = models.CharField(max_length=255, blank=True, null=True)
-    relation = models.CharField(max_length=255, blank=True, null=True)
-    rights = models.CharField(max_length=255, blank=True, null=True)
-    source = models.CharField(max_length=255, blank=True, null=True)
-    subject = models.CharField(max_length=255, blank=True, null=True)
-    title = models.CharField(max_length=255, blank=True, null=True)
-    dc_type = models.CharField(max_length=255, blank=True, null=True, default='Text')
-    classifiable_type = models.CharField(max_length=255, blank=True, null=True)
-    classifiable_id = models.IntegerField(blank=True, null=True)
-    created_at = models.DateTimeField(blank=True, null=True)
-    updated_at = models.DateTimeField(blank=True, null=True)
-
-    class Meta:
-        db_table = 'metadata'
-        indexes = [
-            models.Index(fields=['classifiable_id']),
-            models.Index(fields=['classifiable_type']),
-        ]
-
-
-class Page(models.Model):
-    page_title = models.CharField(max_length=255)
-    slug = models.CharField(max_length=255)
-    content = models.TextField(blank=True, null=True)
-    created_at = models.DateTimeField(blank=True, null=True)
-    updated_at = models.DateTimeField(blank=True, null=True)
-    footer_link = models.BooleanField(default=False)
-    footer_link_text = models.CharField(max_length=255, blank=True, null=True)
-    footer_sort = models.IntegerField(default=1000)
-    is_user_guide = models.BooleanField(default=False)
-    user_guide_sort = models.IntegerField(default=1000)
-    user_guide_link_text = models.CharField(max_length=255, blank=True, null=True)
-
-    class Meta:
-        db_table = 'pages'
-
-
-class PermissionAssignment(models.Model):
-    user_collection_id = models.IntegerField(blank=True, null=True)
-    user_id = models.IntegerField(blank=True, null=True)
-    permission_id = models.IntegerField(blank=True, null=True)
-    created_at = models.DateTimeField(blank=True, null=True)
-    updated_at = models.DateTimeField(blank=True, null=True)
-
-    class Meta:
-        db_table = 'permission_assignments'
-
-
-class Permission(models.Model):
-    key = models.CharField(max_length=255, blank=True, null=True)
-    label = models.CharField(max_length=255, blank=True, null=True)
-    created_at = models.DateTimeField(blank=True, null=True)
-    updated_at = models.DateTimeField(blank=True, null=True)
-    permission_type = models.CharField(max_length=255, blank=True, null=True)
-
-    class Meta:
-        db_table = 'permissions'
-
-
-class PlaylistItem(models.Model):
-    playlist_id = models.IntegerField(blank=True, null=True)
-    position = models.IntegerField(blank=True, null=True)
-    created_at = models.DateTimeField(blank=True, null=True)
-    updated_at = models.DateTimeField(blank=True, null=True)
-    notes = models.TextField(blank=True, null=True)
-    public_notes = models.BooleanField(default=True)
-    actual_object_type = models.CharField(max_length=255, blank=True, null=True)
-    actual_object_id = models.IntegerField(blank=True, null=True)
-
-    class Meta:
-        db_table = 'playlist_items'
-        indexes = [
-            models.Index(fields=['position'])
-        ]
-
-
-class Playlist(models.Model):
-    name = models.CharField(max_length=1024, blank=True, null=True)
-    description = models.TextField(blank=True, null=True)
-    created_at = models.DateTimeField(blank=True, null=True)
-    updated_at = models.DateTimeField(blank=True, null=True)
-    public = models.BooleanField(blank=True, null=True, default=True)
-    ancestry = models.CharField(max_length=255, blank=True, null=True)
-    position = models.IntegerField(blank=True, null=True)
-    counter_start = models.IntegerField(default=1)
-    location_id = models.IntegerField(blank=True, null=True)
-    when_taught = models.CharField(max_length=255, blank=True, null=True)
-    user_id = models.IntegerField(default=0)
-    primary = models.BooleanField(default=False)
-    featured = models.BooleanField(default=False)
-    created_via_import = models.BooleanField(default=False)
-
-    class Meta:
-        db_table = 'playlists'
-        indexes = [
-            models.Index(fields=['ancestry']),
-            models.Index(fields=['position']),
-        ]
-
-
-class PlaylistsUserCollection(models.Model):
-    # NB: This table does not have a primary key in production,
-    # which Django can't deal with, and cannot recreate when instantiating the table
-    playlist_id = models.IntegerField(blank=True, null=True)
-    user_collection_id = models.IntegerField(blank=True, null=True)
-
-    class Meta:
-        db_table = 'playlists_user_collections'
-
-
-class Tagging(models.Model):
-    tag_id = models.IntegerField(blank=True, null=True)
-    taggable_id = models.IntegerField(blank=True, null=True)
-    tagger_id = models.IntegerField(blank=True, null=True)
-    tagger_type = models.CharField(max_length=255, blank=True, null=True)
-    taggable_type = models.CharField(max_length=255, blank=True, null=True)
-    context = models.CharField(max_length=255, blank=True, null=True)
-    created_at = models.DateTimeField(blank=True, null=True)
-
-    class Meta:
-        db_table = 'taggings'
-        unique_together = (('tag_id', 'taggable_id', 'taggable_type', 'context', 'tagger_id', 'tagger_type'),)
-        indexes = [
-            models.Index(fields=['context']),
-            models.Index(fields=['tag_id']),
-            models.Index(fields=['taggable_id', 'taggable_type', 'context']),
-            models.Index(fields=['taggable_id', 'taggable_type', 'tagger_id', 'context']),
-            models.Index(fields=['taggable_id']),
-            models.Index(fields=['taggable_type']),
-            models.Index(fields=['tagger_id', 'tagger_type']),
-            models.Index(fields=['tagger_id']),
-            models.Index(fields=['tagger_type'])
-        ]
-
-
-class Tag(models.Model):
-    name = models.CharField(max_length=255, blank=True, null=True)
-    taggings_count = models.IntegerField(blank=True, null=True, default=0)
-
-    class Meta:
-        db_table = 'tags'
-        indexes = [
-            models.Index(fields=['taggings_count'])
-        ]
