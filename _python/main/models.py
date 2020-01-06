@@ -1490,6 +1490,39 @@ class SectionAndResourceMixin(models.Model):
         """
         return self.casebook.owner
 
+    def clone_to(self, new_casebook):
+        """
+            Clone a section or resource from its current casebook to a new casebook.
+
+            This is currently called only manually, for extraordinary customer service situations, but would ideally
+            be exposed through the frontend.
+
+            Given:
+            >>> reset_sequences, full_casebook_parts_factory = [getfixture(i) for i in ['reset_sequences', 'full_casebook_parts_factory']]
+            >>> from_casebook = full_casebook_parts_factory()[0]
+            >>> to_casebook = full_casebook_parts_factory()[0]
+            >>> section = from_casebook.sections[1]
+            >>> resource = from_casebook.resources[0]
+
+            Can append a section or a resource to the end of to_casebook:
+            >>> section.clone_to(to_casebook)
+            >>> resource.clone_to(to_casebook)
+            >>> assert dump_casebook_outline(to_casebook)[-7:] == [
+            ...     ' Section<21>: Some Section 5',
+            ...     '  ContentNode<22> -> TextBlock<5>: Some TextBlock Name 1',
+            ...     '  ContentNode<23> -> Case<2>: Foo Foo1 vs. Bar Bar1',
+            ...     '   ContentAnnotation<9>: note 0-10',
+            ...     '   ContentAnnotation<10>: replace 0-10',
+            ...     '  ContentNode<24> -> Default<5>: Some Link Name 1',
+            ...     ' ContentNode<25> -> TextBlock<6>: Some TextBlock Name 0',
+            ... ]
+
+            Ordinals are properly updated:
+            >>> assert [node.ordinals for node in list(to_casebook.contents.all())[-5:]] == [[3], [3, 1], [3, 2], [3, 3], [4]]
+        """
+        contents = list(self.contents) if type(self) is Section else []
+        new_casebook.clone_nodes([self] + contents, append=True)
+
 
 class CasebookManager(models.Manager.from_queryset(ContentNodeQueryset)):
     def get_queryset(self):
@@ -1776,24 +1809,26 @@ class Casebook(CasebookAndSectionMixin, ContentNode):
             ContentCollaborator.objects.bulk_create(roles)
             owner = next(role.user for role in roles if role.role == 'owner')
 
+        cloned_casebook.clone_nodes(old_casebook.contents.prefetch_resources().prefetch_related('annotations'), owner=owner)
+
+        return cloned_casebook
+
+    @transaction.atomic
+    def clone_nodes(self, nodes, owner=None, append=False):
+        """
+            Helper method to copy a set of nodes and their associated assets to this casebook. See callers for tests.
+            If append=True, ordinals will be edited so the new nodes appear after any existing nodes.
+        """
+        if not owner:
+            owner = self.owner
+
         # clone contents
         cloned_resources = {TextBlock: [], Default: []}  # collect new TextBlocks and Defaults for bulk_create
         cloned_content_nodes = []  # collect new ContentNodes for bulk_create
         cloned_annotations = []  # collect new ContentAnnotations for bulk_create
-        for old_content_node in old_casebook.contents.prefetch_resources().prefetch_related('annotations'):
+        for old_content_node in nodes:
             # clone content_node
-            cloned_content_node = clone_model_instance(old_content_node, copy_of=old_content_node, casebook=cloned_casebook, is_alias=False)
-            # TODO: On rails is_alias is set to True by CloneCasebook.clone_resources (in raw sql), and then set to False
-            # TODO: again by CloneCasebook.clone_annotations. I think the field is unused in any application logic.
-            # TODO: Prod data has about equal parts True, False, and null in this column.
-            # TODO: There doesn't seem to be any rhyme or reason about how it's set.
-            # TODO: No casebooks are True. I think we can delete the column, but in the meantime, let's set to False.
-            # >>> set(node.type for node in ContentNode.objects.filter(is_alias=True))
-            # {'resource', 'section'}
-            # >>> set(node.type for node in ContentNode.objects.filter(is_alias=False))
-            # {'resource'}
-            # >>> set(node.type for node in ContentNode.objects.filter(is_alias=None))
-            # {'resource', 'casebook', 'section'}
+            cloned_content_node = clone_model_instance(old_content_node, copy_of=old_content_node, casebook=self)
             cloned_content_nodes.append(cloned_content_node)
 
             # clone annotations
@@ -1815,14 +1850,22 @@ class Casebook(CasebookAndSectionMixin, ContentNode):
                 cloned_content_node.resource_id = cloned_resource.id
 
         # save ContentNodes
+        if append:
+            # offset cloned nodes so they go at the end of the current tree.
+            # "offset" is the count of existing top-level content_tree nodes:
+            offset = (ContentNode.objects.filter(casebook_id=self).aggregate(models.Max('ordinals'))['ordinals__max'] or [0])[0] + 1
+            for node in cloned_content_nodes:
+                node.ordinals[0] += offset
         ContentNode.objects.bulk_create(cloned_content_nodes)
+        if append:
+            # if we offset the ordinals to push the new nodes to the end, then they will be in the right order
+            # but might be non-consecutive or overly nested; call _repair to clean them up
+            self.content_tree__repair()
 
         # save ContentAnnotations (first update cloned_annotations to point to the new content_node IDs)
         for cloned_annotation, cloned_content_node in cloned_annotations:
             cloned_annotation.resource = cloned_content_node
         ContentAnnotation.objects.bulk_create(r[0] for r in cloned_annotations)
-
-        return cloned_casebook
 
     # Collaborators
 
