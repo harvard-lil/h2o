@@ -13,8 +13,6 @@ django-webpack-loader   # serving frontend assets
 psycopg2            # postgres connector
 
 bleach              # html sanitization
-rubymarshal         # read ruby session cookies
-cryptography        # read ruby session cookies
 diff-match-patch    # update annotations when underlying text changes
 django-json-widget  # fancy editor for Case JSON fields in the Django admin
 
