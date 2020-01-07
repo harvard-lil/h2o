@@ -1,9 +1,0 @@
-<% if resource.resource.is_a?(Case) || resource.resource.is_a?(TextBlock) %>
-<the-resource :resource="<%= resource.resource.to_json %>"
-              :editable="<%= editable || false %>"></the-resource>
-<% elsif resource.resource.is_a? Default %>
-<section class="resource link-resource">
-  <%= t 'content.link.follow-link' %>
-  <%= link_to resource.resource.display_name, resource.resource.url, target: '_blank' %>
-</section>
-<% end %>

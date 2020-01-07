@@ -1,9 +1,0 @@
-<% @decorated_content.action_buttons.each do |action| %>
-  <% if action[:link_to] %>
-    <%= link_to action[:text], action[:path], class: action[:class], method: (action[:method] || :get ), type: action[:type], role: "button", data: (action[:data] || { disable_with: action[:text]}) %>
-  <% elsif action[:button_to] %>
-    <%= button_to action[:text], action[:path], class: action[:class], method: action[:method], form: action[:form], data: { disable_with: action[:text]} %>
-  <% elsif action[:button_tag] %>
-    <%= button_tag( action[:text], { name: action[:name], type: action[:type], class: action[:class] }) %>
-  <% end %> 
-<% end %> 

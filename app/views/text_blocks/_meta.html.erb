@@ -1,8 +1,0 @@
-<p>
-  <label>Last Updated:</label>
-  <%= text_block.updated_at.strftime("%B %d, %Y") %>
-</p>
-
-<% if text_block.metadatum -%>
-<%= render :partial => "shared/objects/metadatum", :object => text_block.metadatum %>
-<% end -%>
