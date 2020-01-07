@@ -41,7 +41,7 @@ def assert_html_equal(bytes_a, bytes_b):
     assert elements_equal(tree_a, tree_b, ignore_trailing_whitespace=True, exc_class=AssertionError)
 
 
-def test_export(request, casebook_factory, section_factory, annotations_factory, resource_factory, default_factory):
+def test_export(request, casebook_factory, section_factory, annotations_factory, resource_factory, link_factory):
     """
         This test generates the contents of all exported files in test/files/export/ and compares them to the versions
         on disk.
@@ -77,7 +77,7 @@ def test_export(request, casebook_factory, section_factory, annotations_factory,
     section = section_factory(casebook=casebook, ordinals=[1], title="Ampersand & Ampersand; a fish drawing ><>", subtitle="Section subtitle", headnote="<p>Section headnote</p>")
     resource = annotations_factory('Case', case_template, casebook=casebook, ordinals=[1, 1])[1]
     annotations_factory('TextBlock', '<p>A textblock with a [highlight]highlight[/highlight].</p>', casebook=casebook, ordinals=[1, 2])
-    resource_factory(casebook=casebook, ordinals=[1, 3], resource_type='Default', resource_id=default_factory().id)
+    resource_factory(casebook=casebook, ordinals=[1, 3], resource_type='Link', resource_id=link_factory().id)
 
     # export each node and compare with saved results on disk
     for node in [casebook, section, resource]:

@@ -11,7 +11,7 @@ from django.utils.html import format_html
 from django.utils.safestring import mark_safe
 
 from .utils import fix_after_rails, clone_model_instance
-from .models import Case, CaseCourt, Default, User, Casebook, Section, \
+from .models import Case, CaseCourt, Link, User, Casebook, Section, \
     Resource, ContentCollaborator, ContentAnnotation, TextBlock, \
     Role, RolesUser
 
@@ -337,7 +337,7 @@ class ResourceAdmin(BaseAdmin):
     casebook_link.short_description = 'casebook'
 
     def annotation_count(self, obj):
-        return 'n/a' if obj.resource_type == 'Default' else obj.annotations_count
+        return 'n/a' if obj.resource_type == 'Link' else obj.annotations_count
 
 
 class AnnotationsAdmin(BaseAdmin):
@@ -401,8 +401,7 @@ class CaseAdmin(BaseAdmin):
     live_annotations_count.short_description = 'Annotations'
 
 
-class DefaultAdmin(BaseAdmin):
-    # reminder that a "Default" is a Link Resource
+class LinkAdmin(BaseAdmin):
     readonly_fields = ['created_at', 'updated_at', 'ancestry']
     list_display = ['id', 'name', 'url', 'public', 'related_resources', 'created_at', 'updated_at', 'content_type', 'ancestry']
     list_filter = ['public', 'content_type']
@@ -411,7 +410,7 @@ class DefaultAdmin(BaseAdmin):
 
     def related_resources(self, obj):
         return format_html(
-            '<a href="{}?resource_type=Default&resource-id={}">{}</a>',
+            '<a href="{}?resource_type=Link&resource-id={}">{}</a>',
             reverse('admin:main_resource_changelist'),
             obj.id,
             obj.related_resources().count()
@@ -568,7 +567,7 @@ admin_site.register(Section, SectionAdmin)
 admin_site.register(Resource, ResourceAdmin)
 admin_site.register(ContentAnnotation, AnnotationsAdmin)
 admin_site.register(Case, CaseAdmin)
-admin_site.register(Default, DefaultAdmin)
+admin_site.register(Link, LinkAdmin)
 admin_site.register(TextBlock, TextBlockAdmin)
 admin_site.register(User, UserAdmin)
 admin_site.register(RolesUser, RolesUserAdmin)

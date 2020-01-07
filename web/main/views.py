@@ -29,7 +29,7 @@ from pytest import raises as assert_raises
 
 from .utils import parse_cap_decision_date, fix_after_rails, CapapiCommunicationException, StringFileResponse, send_verification_email
 from .serializers import AnnotationSerializer, NewAnnotationSerializer, UpdateAnnotationSerializer, CaseSerializer, TextBlockSerializer
-from .models import Casebook, Section, Resource, Case, User, CaseCourt, ContentNode, TextBlock, Default, ContentAnnotation
+from .models import Casebook, Section, Resource, Case, User, CaseCourt, ContentNode, TextBlock, Link, ContentAnnotation
 from .forms import CasebookForm, SectionForm, ResourceForm, LinkForm, TextBlockForm, NewTextBlockForm, UserProfileForm, \
     SignupForm, PasswordResetForm
 
@@ -771,7 +771,7 @@ def new_section_or_resource(request, casebook):
         >>> r_1_7 = s_1.contents.last()
         >>> assert isinstance(r_1_7, Resource)
         >>> assert r_1_7.ordinals == [1,7]
-        >>> assert all([isinstance(r_1_7.resource, Default), r_1_7.resource.url == data['link']['url']])
+        >>> assert all([isinstance(r_1_7.resource, Link), r_1_7.resource.url == data['link']['url']])
         >>> assert dump_content_tree_children(s_1) == [r_1_1, r_1_2, r_1_3, s_1_4, s_1_5, r_1_6, r_1_7]
         >>> assert_url_equal(response, r_1_7.get_edit_or_absolute_url(editing=True))
     """
@@ -1030,8 +1030,8 @@ def edit_resource(request, casebook, resource):
         Given:
         >>> private, with_draft, client = [getfixture(f) for f in ['full_private_casebook', 'full_casebook_with_draft', 'client']]
         >>> draft = with_draft.draft
-        >>> private_resources = {'TextBlock': private.contents.all()[1], 'Case': private.contents.all()[2], 'Default': private.contents.all()[3]}
-        >>> draft_resources = {'TextBlock': draft.contents.all()[1], 'Case': draft.contents.all()[2], 'Default': draft.contents.all()[3]}
+        >>> private_resources = {'TextBlock': private.contents.all()[1], 'Case': private.contents.all()[2], 'Link': private.contents.all()[3]}
+        >>> draft_resources = {'TextBlock': draft.contents.all()[1], 'Case': draft.contents.all()[2], 'Link': draft.contents.all()[3]}
 
         Users can edit resources in their unpublished and draft casebooks:
         >>> for resource in [*private_resources.values(), *draft_resources.values()]:
@@ -1047,8 +1047,8 @@ def edit_resource(request, casebook, resource):
         ...         content_excludes=original_title
         ...     )
 
-        You can edit the URL associated with a 'Default/Link' resource, from its edit page:
-        >>> for resource in [private_resources['Default'], draft_resources['Default']]:
+        You can edit the URL associated with a 'Link' resource, from its edit page:
+        >>> for resource in [private_resources['Link'], draft_resources['Link']]:
         ...     original_url = resource.resource.url
         ...     new_url = "http://new-test-url.com"
         ...     check_response(
@@ -1086,7 +1086,7 @@ def edit_resource(request, casebook, resource):
 
     # Let users edit Link and TextBlock resources directly from this page
     embedded_resource_form = None
-    if resource.resource_type == 'Default':
+    if resource.resource_type == 'Link':
         embedded_resource_form = LinkForm(request.POST or None, instance=resource.resource)
     elif resource.resource_type == 'TextBlock':
         embedded_resource_form = TextBlockForm(request.POST or None, instance=resource.resource)

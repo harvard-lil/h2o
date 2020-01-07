@@ -9,7 +9,7 @@ from django.core.mail import send_mail
 from django.forms import ModelForm, Textarea
 from django.urls import reverse
 
-from main.models import ContentNode, Default, TextBlock, User
+from main.models import ContentNode, Link, TextBlock, User
 from main.utils import fix_after_rails, send_template_email, send_verification_email
 
 
@@ -66,7 +66,7 @@ class ResourceForm(ContentNodeForm):
     """
     The forms for editing a "Resource" ContentNode should, in some cases,
     include inputs for editing attributes of their related resource:
-    Resource ContentNodes associated with Links/Defaults should have an editable
+    Resource ContentNodes associated with Links should have an editable
     "url" field, and Resource ContentNodes associated with TextBlocks should have
     an editable "content" field.
 
@@ -89,7 +89,7 @@ class LinkForm(ModelForm):
     """
 
     class Meta:
-        model = Default
+        model = Link
         fields = ['url']
 
     def __init__(self, *args, **kwargs):

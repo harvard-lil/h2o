@@ -17,7 +17,7 @@
     <div class="ResourceHeadnote" data-custom-style="Resource Headnote">{{ node.headnote_for_export }}</div>
   {% endif %}
 
-  {% if node.resource_type == 'Default' %}
+  {% if node.resource_type == 'Link' %}
     <div data-custom-style="Resource Link">
       <a href="{{ node.resource.url }}" target="_blank">{{ node.resource.url }}</a>
     </div>
