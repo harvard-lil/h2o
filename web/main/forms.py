@@ -218,7 +218,7 @@ class SignupForm(ModelForm):
 
     def clean_email_address(self):
         email = self.cleaned_data['email_address']
-        if not email.endswith(".edu"):
+        if email and not email.endswith(".edu"):
             raise ValidationError("Email address is not .edu.")
         return email
 
