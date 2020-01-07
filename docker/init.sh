@@ -45,7 +45,5 @@ fi
 
 echo "Loading data from $FILE ..."
 docker cp "$FILE" "$(docker-compose ps -q db)":/tmp/data.dump
-docker-compose exec db bash -c "pg_restore -l /tmp/data.dump | grep -v schema_migrations | grep -v ar_internal_metadata > /tmp/restore.list"
-docker-compose exec db pg_restore -L /tmp/restore.list --disable-triggers --username=postgres --verbose --no-owner -h localhost -d postgres /tmp/data.dump
-docker-compose exec db rm -f /tmp/data.dump /tmp/restore.list
-
+docker-compose exec db pg_restore --username=postgres --verbose --no-owner -h localhost -d postgres /tmp/data.dump
+docker-compose exec db rm -f /tmp/data.dump
