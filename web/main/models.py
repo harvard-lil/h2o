@@ -2458,7 +2458,7 @@ class TextBlock(NullableTimestampedModel, AnnotatedModel):
 
 
 class User(NullableTimestampedModel, AbstractBaseUser):
-    email_address = models.CharField(max_length=255, blank=True, null=True, unique=True)
+    email_address = models.CharField(max_length=255, unique=True)
     attribution = models.CharField(max_length=255, default='Anonymous', verbose_name='Display name')
     affiliation = models.CharField(max_length=255, blank=True, null=True)
     verified_email = models.BooleanField(default=False)
