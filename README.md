@@ -18,18 +18,13 @@ The first time this runs it will build the Docker images, which
 may take several minutes. (After the first time, it should only take
 1-3 seconds.)
 
-Finally, initialize an empty database...
-
-    $ bash docker/init.sh
-
-...or a database seeded with data from a pg_dump file:
+If the H2O team has provided you with a pg_dump file, seed the database with data:
 
     $ bash docker/init.sh -f ~/database.dump
 
 Then log into the main Docker container:
 
     $ docker-compose exec web bash
-    #
 
 (Commands from here on out that start with `#` are being run in Docker.)
 
