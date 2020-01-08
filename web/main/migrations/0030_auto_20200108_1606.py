@@ -7,10 +7,14 @@ def admin_status_in_user_field(apps, schema_editor):
     superadmins = User.objects.filter(roles__name='superadmin')
     superadmins.update(is_staff=True, is_superuser=True)
 
-def revert_admin(apps, schema_editor):
+def admin_status_via_role_relationship(apps, schema_editor):
     User = apps.get_model('main', 'User')
-    superadmins = User.objects.filter(roles__name='superadmin')
-    superadmins.update(is_staff=False, is_superuser=False)
+    Role = apps.get_model('main', 'Role')
+    role, _created = Role.objects.get_or_create(name='superadmin')
+
+    superadmins = User.objects.filter(is_staff=True, is_superuser=True)
+    for admin in superadmins:
+        admin.roles.add(role)
 
 
 class Migration(migrations.Migration):
@@ -20,5 +24,5 @@ class Migration(migrations.Migration):
     ]
 
     operations = [
-        migrations.RunPython(admin_status_in_user_field, revert_admin),
+        migrations.RunPython(admin_status_in_user_field, admin_status_via_role_relationship),
     ]
