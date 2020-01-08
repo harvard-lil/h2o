@@ -2411,10 +2411,6 @@ class User(NullableTimestampedModel, PermissionsMixin, AbstractBaseUser):
     is_staff = models.BooleanField(default=False)
     is_active = models.BooleanField(default=False)
 
-    # differentiate between real User model and AnonymousUser model:
-    is_authenticated = True
-    is_anonymous = False
-
     # login-tracking fields inherited from Rails authlogic gem
     last_request_at = models.DateTimeField(blank=True, null=True, help_text="Time of last request from user (to nearest 10 minutes)")
     login_count = models.IntegerField(default=0, help_text="Number of explicit password logins by user")
