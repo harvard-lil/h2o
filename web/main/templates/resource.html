@@ -42,7 +42,7 @@
         <section class="resource">
           {% if resource.resource_type == 'Case' or resource.resource_type == 'TextBlock'  %}
             <the-resource :editable="false" :resource="{{ resource.json }}"></the-resource>
-          {% elif resource.resource_type == 'Default' %}
+          {% elif resource.resource_type == 'Link' %}
             <section class="resource link-resource">
               Click here to view this linked resource off-site:
               <a href="{{ resource.resource.url }}" target="_blank">{{ resource.get_title }}</a>

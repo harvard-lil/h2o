@@ -455,11 +455,11 @@ class ContentNodeQueryset(models.QuerySet):
         >>> with assert_num_queries(select=7):
         ...     resources = [c.resource for c in section.contents.all() if isinstance(c, Resource)]
 
-        We can reduce to a constant number of queries -- 1 each to fetch Case, TextBlock, and Default items:
+        We can reduce to a constant number of queries -- 1 each to fetch Case, TextBlock, and Link items:
         >>> with assert_num_queries(select=4):
         ...     resources = [c.resource for c in section.contents.prefetch_resources() if isinstance(c, Resource)]
 
-        Custom querysets for the Case, TextBlock, and Default items can be provided to further reduce queries:
+        Custom querysets for the Case, TextBlock, and Link items can be provided to further reduce queries:
         >>> with assert_num_queries(select=4):
         ...     resources = [c.resource for c in section.contents.prefetch_resources(case_query=Case.objects.select_related('case_court')) if isinstance(c, Resource)]
         ...     courts = [c.case_court for c in resources if type(c) == Case]
@@ -487,7 +487,7 @@ class ContentNodeQueryset(models.QuerySet):
 
     def _fetch_all(self):
         """
-            Do the actual work: get IDs for all items in _result_cache, prefetch related Case/TextBlock/Default objects,
+            Do the actual work: get IDs for all items in _result_cache, prefetch related Case/TextBlock/Link objects,
             and store them in each item's _resource attribute.
         """
         super()._fetch_all()
@@ -501,9 +501,9 @@ class ContentNodeQueryset(models.QuerySet):
             if textblock_query is None:
                 textblock_query = TextBlock.objects.all()
             if link_query is None:
-                link_query = Default.objects.all()
+                link_query = Link.objects.all()
             resources = {}
-            for resource_type, query in (('Case', case_query), ('TextBlock', textblock_query), ('Default', link_query)):
+            for resource_type, query in (('Case', case_query), ('TextBlock', textblock_query), ('Link', link_query)):
                 for obj in query.filter(id__in=[obj.resource_id for obj in self._result_cache if obj.resource_type == resource_type]):
                     resources[(resource_type, obj.id)] = obj
             for content_node in self._result_cache:
@@ -565,7 +565,7 @@ class ContentNode(EditTrackedModel, TimestampedModel, BigPkModel):
     )
 
     # resources only
-    # These fields define a relationship with a Case, Default, or Textblock
+    # These fields define a relationship with a Case, Link, or Textblock
     # not yet described/available via the Django ORM
     resource_type = models.CharField(max_length=255, blank=True, null=True)
     resource_id = models.BigIntegerField(blank=True, null=True)
@@ -669,7 +669,7 @@ class ContentNode(EditTrackedModel, TimestampedModel, BigPkModel):
             Given:
             >>> full_casebook, assert_num_queries = [getfixture(f) for f in ['full_casebook', 'assert_num_queries']]
 
-            Export uses 5 queries: selecting descendent nodes, and prefetching ContentAnnotation, Case, TextBlock, and Default.
+            Export uses 5 queries: selecting descendent nodes, and prefetching ContentAnnotation, Case, TextBlock, and Link.
             >>> with assert_num_queries(select=5):
             ...     file_data = full_casebook.export(include_annotations=True)
         """
@@ -1247,9 +1247,9 @@ class CasebookAndSectionMixin(models.Model):
         """
             A private utility for efficiently deleting associated Link and TextBlock objects.
         """
-        to_delete = {Default: [], TextBlock: []}
+        to_delete = {Link: [], TextBlock: []}
         for resource in self.contents.prefetch_resources():
-            if resource.resource_id and resource.resource_type in ('Default', 'TextBlock'):
+            if resource.resource_id and resource.resource_type in ('Link', 'TextBlock'):
                 to_delete[type(resource.resource)].append(resource.resource_id)
         for cls, ids in to_delete.items():
             cls.objects.filter(id__in=ids).delete()
@@ -1265,7 +1265,7 @@ class SectionAndResourceMixin(models.Model):
     def delete(self, *args, **kwargs):
         """
             Override delete, to ensure the tree is re-ordered afterwards,
-            and to clean up now-unused TextBlock and Default/Link resources.
+            and to clean up now-unused TextBlock and Link resources.
 
             Given:
             >>> full_casebook_parts_factory, assert_num_queries = [getfixture(i) for i in ['full_casebook_parts_factory','assert_num_queries']]
@@ -1378,7 +1378,7 @@ class SectionAndResourceMixin(models.Model):
         if type(self) is Section:
             self._delete_related_links_and_text_blocks()
             self.contents.delete()
-        elif self.resource_type in ['TextBlock', 'Default']:
+        elif self.resource_type in ['TextBlock', 'Link']:
             self.resource.delete()
 
         # Delete this node
@@ -1477,7 +1477,7 @@ class SectionAndResourceMixin(models.Model):
             ...     '  ContentNode<23> -> Case<2>: Foo Foo1 vs. Bar Bar1',
             ...     '   ContentAnnotation<9>: note 0-10',
             ...     '   ContentAnnotation<10>: replace 0-10',
-            ...     '  ContentNode<24> -> Default<5>: Some Link Name 1',
+            ...     '  ContentNode<24> -> Link<5>: Some Link Name 1',
             ...     ' ContentNode<25> -> TextBlock<6>: Some TextBlock Name 0',
             ... ]
 
@@ -1508,9 +1508,9 @@ class Casebook(CasebookAndSectionMixin, ContentNode):
             behavior during the deletion of all ContentNode objects, only of Casebooks,
             we have to take care of it manually.
 
-            Similarly, the manual deletion of related Links/Defaults and TextBlocks is due to
+            Similarly, the manual deletion of related Links and TextBlocks is due to
             limitations in our current data model, where Resource objects are not
-            tied to their related Case/TextBlock/Default objects via foreign keys.
+            tied to their related Case/TextBlock/Link objects via foreign keys.
 
             Given:
             >>> assert_num_queries = getfixture('assert_num_queries')
@@ -1645,13 +1645,13 @@ class Casebook(CasebookAndSectionMixin, ContentNode):
             ...     '  ContentNode<14> -> Case<1>: Foo Foo0 vs. Bar Bar0',
             ...     '   ContentAnnotation<5>: highlight 0-10',
             ...     '   ContentAnnotation<6>: elide 0-10',
-            ...     '  ContentNode<15> -> Default<3>: Some Link Name 0',
+            ...     '  ContentNode<15> -> Link<3>: Some Link Name 0',
             ...     '  Section<16>: Some Section 5',
             ...     '   ContentNode<17> -> TextBlock<4>: Some TextBlock Name 1',
             ...     '   ContentNode<18> -> Case<2>: Foo Foo1 vs. Bar Bar1',
             ...     '    ContentAnnotation<7>: note 0-10',
             ...     '    ContentAnnotation<8>: replace 0-10',
-            ...     '   ContentNode<19> -> Default<4>: Some Link Name 1',
+            ...     '   ContentNode<19> -> Link<4>: Some Link Name 1',
             ...     ' Section<20>: Some Section 9',
             ...     ' Section<21>: New Section',
             ... ]
@@ -1661,7 +1661,7 @@ class Casebook(CasebookAndSectionMixin, ContentNode):
             >>> assert set(ContentNode.objects.values_list('id', flat=True)) == {1, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21}
             >>> assert set(ContentAnnotation.objects.values_list('id', flat=True)) == {5, 6, 7, 8}
             >>> assert set(TextBlock.objects.values_list('id', flat=True)) == {3, 4}
-            >>> assert set(Default.objects.values_list('id', flat=True)) == {3, 4}
+            >>> assert set(Link.objects.values_list('id', flat=True)) == {3, 4}
 
             The original copy_of attributes from the published version are preserved:
             >>> assert ContentNode.objects.get(id=12).copy_of_id == 1
@@ -1717,13 +1717,13 @@ class Casebook(CasebookAndSectionMixin, ContentNode):
             ...     '  ContentNode<4> -> Case<1>: Foo Foo0 vs. Bar Bar0',
             ...     '   ContentAnnotation<1>: highlight 0-10',
             ...     '   ContentAnnotation<2>: elide 0-10',
-            ...     '  ContentNode<5> -> Default<1>: Some Link Name 0',
+            ...     '  ContentNode<5> -> Link<1>: Some Link Name 0',
             ...     '  Section<6>: Some Section 5',
             ...     '   ContentNode<7> -> TextBlock<2>: Some TextBlock Name 1',
             ...     '   ContentNode<8> -> Case<2>: Foo Foo1 vs. Bar Bar1',
             ...     '    ContentAnnotation<3>: note 0-10',
             ...     '    ContentAnnotation<4>: replace 0-10',
-            ...     '   ContentNode<9> -> Default<2>: Some Link Name 1',
+            ...     '   ContentNode<9> -> Link<2>: Some Link Name 1',
             ...     ' Section<10>: Some Section 9',
             ... ]
             >>> assert dump_casebook_outline(full_casebook) == expected
@@ -1739,13 +1739,13 @@ class Casebook(CasebookAndSectionMixin, ContentNode):
             ...     '  ContentNode<14> -> Case<1>: Foo Foo0 vs. Bar Bar0',
             ...     '   ContentAnnotation<5>: highlight 0-10',
             ...     '   ContentAnnotation<6>: elide 0-10',
-            ...     '  ContentNode<15> -> Default<3>: Some Link Name 0',
+            ...     '  ContentNode<15> -> Link<3>: Some Link Name 0',
             ...     '  Section<16>: Some Section 5',
             ...     '   ContentNode<17> -> TextBlock<4>: Some TextBlock Name 1',
             ...     '   ContentNode<18> -> Case<2>: Foo Foo1 vs. Bar Bar1',
             ...     '    ContentAnnotation<7>: note 0-10',
             ...     '    ContentAnnotation<8>: replace 0-10',
-            ...     '   ContentNode<19> -> Default<4>: Some Link Name 1',
+            ...     '   ContentNode<19> -> Link<4>: Some Link Name 1',
             ...     ' Section<20>: Some Section 9',
             ... ]
             >>> assert dump_casebook_outline(clone) == expected
@@ -1787,7 +1787,7 @@ class Casebook(CasebookAndSectionMixin, ContentNode):
             owner = self.owner
 
         # clone contents
-        cloned_resources = {TextBlock: [], Default: []}  # collect new TextBlocks and Defaults for bulk_create
+        cloned_resources = {TextBlock: [], Link: []}  # collect new TextBlocks and Links for bulk_create
         cloned_content_nodes = []  # collect new ContentNodes for bulk_create
         cloned_annotations = []  # collect new ContentAnnotations for bulk_create
         for old_content_node in nodes:
@@ -1806,7 +1806,7 @@ class Casebook(CasebookAndSectionMixin, ContentNode):
                 cloned_resource.user = owner
                 cloned_resources[type(cloned_resource)].append((cloned_resource, cloned_content_node))
 
-        # save TextBlocks and Defaults
+        # save TextBlocks and Links
         for resource_class, resources in cloned_resources.items():
             resource_class.objects.bulk_create(r[0] for r in resources)
             # after saving, update the associated cloned_content_nodes to point to the new resource_ids
@@ -1964,7 +1964,7 @@ class Resource(SectionAndResourceMixin, ContentNode):
         """See ContentNode.get_title"""
         if self.title:
             return self.title
-        elif self.resource_type == 'Default':
+        elif self.resource_type == 'Link':
             if self.resource.name:
                 return self.resource.name
             else:
@@ -1999,7 +1999,7 @@ class Resource(SectionAndResourceMixin, ContentNode):
         if not self._resource_prefetched:
             if not self.resource_id:
                 return None
-            if self.resource_type in ['Case', 'TextBlock', 'Default']:
+            if self.resource_type in ['Case', 'TextBlock', 'Link']:
                 # so fancy...
                 self._resource = globals()[self.resource_type].objects.get(id=self.resource_id)
                 self._resource_prefetched = True
@@ -2346,10 +2346,7 @@ class Resource(SectionAndResourceMixin, ContentNode):
 # End ContentNode Proxies
 #
 
-class Default(NullableTimestampedModel):
-    """
-    These are actually Link Resource
-    """
+class Link(NullableTimestampedModel):
     name = models.CharField(max_length=1024, blank=True, null=True)
     description = models.CharField(max_length=5242880, blank=True, null=True)
     url = models.URLField(max_length=1024)
@@ -2362,7 +2359,7 @@ class Default(NullableTimestampedModel):
         db_table = 'defaults'
 
     def related_resources(self):
-        return Resource.objects.filter(resource_id=self.id, resource_type='Default')
+        return Resource.objects.filter(resource_id=self.id, resource_type='Link')
 
 
 class RawContent(TimestampedModel, BigPkModel):

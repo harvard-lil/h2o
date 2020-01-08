@@ -63,13 +63,13 @@ def dump_casebook_outline(casebook):
         ...     '  ContentNode<4> -> Case<1>: Foo Foo0 vs. Bar Bar0',
         ...     '   ContentAnnotation<1>: highlight 0-10',
         ...     '   ContentAnnotation<2>: elide 0-10',
-        ...     '  ContentNode<5> -> Default<1>: Some Link Name 0',
+        ...     '  ContentNode<5> -> Link<1>: Some Link Name 0',
         ...     '  Section<6>: Some Section 5',
         ...     '   ContentNode<7> -> TextBlock<2>: Some TextBlock Name 1',
         ...     '   ContentNode<8> -> Case<2>: Foo Foo1 vs. Bar Bar1',
         ...     '    ContentAnnotation<3>: note 0-10',
         ...     '    ContentAnnotation<4>: replace 0-10',
-        ...     '   ContentNode<9> -> Default<2>: Some Link Name 1',
+        ...     '   ContentNode<9> -> Link<2>: Some Link Name 1',
         ...     ' Section<10>: Some Section 9',
         ... ]
     """
