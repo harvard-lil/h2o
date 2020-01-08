@@ -242,8 +242,6 @@ class CaseCourt(NullableTimestampedModel):
     capapi_id = models.IntegerField(blank=True, null=True)
 
     class Meta:
-        # managed = False
-        db_table = 'case_courts'
         indexes = [
             models.Index(fields=['name']),
             models.Index(fields=['name_abbreviation'])
@@ -276,8 +274,6 @@ class Case(NullableTimestampedModel, AnnotatedModel):
     )
 
     class Meta:
-        # managed = False
-        db_table = 'cases'
         indexes = [
             models.Index(fields=['case_court']),
             GinIndex(fields=['citations']),
@@ -353,8 +349,6 @@ class ContentAnnotation(TimestampedModel, BigPkModel):
     end_offset = models.IntegerField(blank=True, null=True)
 
     class Meta:
-        # managed = False
-        db_table = 'content_annotations'
         indexes = [
             models.Index(fields=['resource', 'start_paragraph'])
         ]
@@ -437,7 +431,6 @@ class ContentCollaborator(TimestampedModel, BigPkModel):
     )
 
     class Meta:
-        db_table = 'content_collaborators'
         unique_together = (('user', 'content'),)
 
 
@@ -577,8 +570,6 @@ class ContentNode(EditTrackedModel, TimestampedModel, BigPkModel):
     tracked_fields = ['headnote']
 
     class Meta:
-        # managed = False
-        db_table = 'content_nodes'
         indexes = [
             models.Index(fields=['ancestry']),
             models.Index(fields=['casebook', 'ordinals']),
@@ -2354,10 +2345,6 @@ class Link(NullableTimestampedModel):
     content_type = models.CharField(max_length=255, blank=True, null=True)
     ancestry = models.CharField(max_length=255, blank=True, null=True)
 
-    class Meta:
-        # managed = False
-        db_table = 'defaults'
-
     def related_resources(self):
         return Resource.objects.filter(resource_id=self.id, resource_type='Link')
 
@@ -2368,8 +2355,6 @@ class RawContent(TimestampedModel, BigPkModel):
     source_id = models.BigIntegerField(blank=True, null=True)
 
     class Meta:
-        # managed = False
-        db_table = 'raw_contents'
         unique_together = (('source_type', 'source_id'),)
 
 
@@ -2381,8 +2366,6 @@ class Role(NullableTimestampedModel):
     name = models.CharField(max_length=40, blank=True, null=True)
 
     class Meta:
-        # managed = False
-        db_table = 'roles'
         indexes = [
             models.Index(fields=['name']),
         ]
@@ -2404,10 +2387,6 @@ class RolesUser(NullableTimestampedModel, BigPkModel):
         on_delete=models.CASCADE,
     )
 
-    class Meta:
-        # managed = False
-        db_table = 'roles_users'
-
 
 class TextBlock(NullableTimestampedModel, AnnotatedModel):
     name = models.CharField(max_length=255)
@@ -2417,8 +2396,6 @@ class TextBlock(NullableTimestampedModel, AnnotatedModel):
     created_via_import = models.BooleanField(default=False)
 
     class Meta:
-        # managed = False
-        db_table = 'text_blocks'
         indexes = [
             models.Index(fields=['created_at']),
             models.Index(fields=['name']),
@@ -2484,8 +2461,6 @@ class User(NullableTimestampedModel, AbstractBaseUser):
     objects = BaseUserManager()
 
     class Meta:
-        # managed = False
-        db_table = 'users'
         indexes = [
             models.Index(fields=['affiliation']),
             models.Index(fields=['attribution']),
