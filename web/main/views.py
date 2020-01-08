@@ -30,8 +30,7 @@ from pytest import raises as assert_raises
 from .utils import parse_cap_decision_date, fix_after_rails, CapapiCommunicationException, StringFileResponse, send_verification_email
 from .serializers import AnnotationSerializer, NewAnnotationSerializer, UpdateAnnotationSerializer, CaseSerializer, TextBlockSerializer
 from .models import Casebook, Section, Resource, Case, User, CaseCourt, ContentNode, TextBlock, Link, ContentAnnotation
-from .forms import CasebookForm, SectionForm, ResourceForm, LinkForm, TextBlockForm, NewTextBlockForm, UserProfileForm, \
-    SignupForm, PasswordResetForm
+from .forms import CasebookForm, SectionForm, ResourceForm, LinkForm, TextBlockForm, NewTextBlockForm, UserProfileForm, SignupForm
 
 
 ### helpers ###
@@ -1352,7 +1351,7 @@ def reset_password(request):
             target_user = User.objects.get(email_address=request.POST.get('email'))
         except User.DoesNotExist:
             target_user = None
-        if target_user and not target_user.verified_email:
+        if target_user and not target_user.is_active:
             send_verification_email(request, target_user)
 
-    return PasswordResetView.as_view(form_class=PasswordResetForm)(request)
+    return PasswordResetView.as_view()(request)

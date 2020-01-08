@@ -12,8 +12,7 @@ from django.utils.safestring import mark_safe
 
 from .utils import fix_after_rails, clone_model_instance
 from .models import Case, CaseCourt, Link, User, Casebook, Section, \
-    Resource, ContentCollaborator, ContentAnnotation, TextBlock, \
-    Role, RolesUser
+    Resource, ContentCollaborator, ContentAnnotation, TextBlock
 
 
 #
@@ -182,16 +181,6 @@ class ResourceIdFilter(InputFilter):
             return queryset.filter(resource_id=value)
 
 
-class RoleNameFilter(InputFilter):
-    parameter_name = 'role'
-    title = 'Role'
-
-    def queryset(self, request, queryset):
-        value = self.value()
-        if value is not None:
-            return queryset.filter(roles__name__icontains=value)
-
-
 #
 # Inlines
 #
@@ -218,18 +207,6 @@ class AnnotationInline(admin.TabularInline):
         if db_field.name == 'content':
             formfield.widget = forms.TextInput(attrs=formfield.widget.attrs)
         return formfield
-
-
-class RolesUserInline(admin.TabularInline):
-    model = RolesUser
-    list_select_related = ['user', 'role']
-    fields = ['user', 'role']
-    raw_id_fields = ['user', 'role']
-    max_num = None
-    can_delete = True
-
-    verbose_name = "Role"
-    verbose_name_plural = "Roles (e.g. superadmin, caseadmin)"
 
 
 #
@@ -458,19 +435,18 @@ class UserAddForm(forms.ModelForm):
 
 
 class UserAdmin(BaseAdmin, DjangoUserAdmin):
-    filter_horizontal = ('roles',)
     ordering = ('-created_at',)
     add_form = UserAddForm
     add_form_template = None
     readonly_fields = ['created_at', 'updated_at', 'display_name', 'last_request_at', 'last_login_at', 'login_count', 'current_login_at', 'current_login_ip', 'last_login_ip']
-    list_display = ['id', 'casebook_count', 'display_name', 'email_address', 'verified_email', 'professor_verification_requested', 'verified_professor', 'get_roles', 'last_request_at', 'last_login_at', 'login_count', 'created_at', 'updated_at']
-    list_filter = ['verified_email', 'verified_professor', 'professor_verification_requested', RoleNameFilter]
+    list_display = ['id', 'casebook_count', 'display_name', 'email_address', 'is_active', 'professor_verification_requested', 'verified_professor', 'is_staff', 'is_superuser', 'last_request_at', 'last_login_at', 'login_count', 'created_at', 'updated_at']
+    list_filter = ['is_active', 'verified_professor', 'professor_verification_requested', 'is_staff', 'is_superuser']
     search_fields = ['attribution', 'email_address']
     fieldsets = (
         (None, {'fields': ('email_address', 'password')}),
         ('Personal info', {'fields': ('attribution', 'affiliation')}),
         ('Permissions', {
-            'fields': ('verified_email', 'professor_verification_requested', 'verified_professor'),
+            'fields': ('is_active', 'professor_verification_requested', 'verified_professor', 'is_staff', 'is_superuser'),
         }),
         ('User activity', {'fields': (
             'last_request_at',
@@ -483,17 +459,12 @@ class UserAdmin(BaseAdmin, DjangoUserAdmin):
         (None, {'fields': ('email_address',)}),
         ('Personal info', {'fields': ('attribution', 'affiliation')}),
         ('Permissions', {
-            'fields': ('verified_email', 'professor_verification_requested', 'verified_professor'),
+            'fields': ('is_active', 'professor_verification_requested', 'verified_professor'),
         }),
     )
-    inlines = [RolesUserInline]
 
     def get_queryset(self, request):
-        return super().get_queryset(request).prefetch_related('roles').annotate(casebook_count=Count('casebooks'))
-
-    def get_roles(self, obj):
-        return ','.join(str(o) for o in set(r.name for r in obj.roles.all())) or None
-    get_roles.short_description = 'Roles'
+        return super().get_queryset(request).annotate(casebook_count=Count('casebooks'))
 
     def casebook_count(self, obj):
         return obj.casebook_count
@@ -501,21 +472,6 @@ class UserAdmin(BaseAdmin, DjangoUserAdmin):
 
     def has_add_permission(self, request):
         return super(BaseAdmin, self).has_add_permission(request)
-
-
-class RolesUserAdmin(BaseAdmin):
-    readonly_fields = ['created_at', 'updated_at', 'role', 'user']
-    list_select_related = ['user', 'role']
-    list_display = ['id', 'user', 'role', 'created_at', 'updated_at']
-    list_filter = ['role__name']
-    raw_id_fields = ['user', 'role']
-
-
-class RoleAdmin(BaseAdmin):
-    readonly_fields = ['created_at', 'updated_at']
-    list_display = ['id', 'name', 'created_at', 'updated_at']
-    list_filter = ['name']
-    ordering = ['-name']
 
 
 class CollaboratorsAdmin(BaseAdmin):
@@ -570,7 +526,5 @@ admin_site.register(Case, CaseAdmin)
 admin_site.register(Link, LinkAdmin)
 admin_site.register(TextBlock, TextBlockAdmin)
 admin_site.register(User, UserAdmin)
-admin_site.register(RolesUser, RolesUserAdmin)
-admin_site.register(Role, RoleAdmin)
 admin_site.register(ContentCollaborator, CollaboratorsAdmin)
 admin_site.register(CaseCourt, CaseCourtAdmin)

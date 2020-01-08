@@ -230,23 +230,15 @@ class SignupForm(ModelForm):
         return user
 
 
-class PasswordResetForm(auth_forms.PasswordResetForm):
-    def get_users(self, email):
-        """ Override get_users() to use verified_email field instead of is_active field. """
-        fix_after_rails("consider renaming verified_email to is_active and dropping this custom form")
-        active_users = User.objects.filter(email_address=email, verified_email=True)
-        return (u for u in active_users if u.has_usable_password())
-
-
 class SetPasswordForm(auth_forms.SetPasswordForm):
     def save(self, commit=True):
         """
             When allowing user to set their password via an email link, we may be in a new-user flow with
-            verified_email=False, or a forgot-password flow with verified_email=True.
+            is_active=False, or a forgot-password flow with is_active=True.
         """
-        if not self.user.verified_email:
+        if not self.user.is_active:
             # new-user flow:
-            self.user.verified_email = True
+            self.user.is_active = True
             send_template_email(
                 "Welcome to H2O!",
                 'email/welcome.txt',
