@@ -14,7 +14,7 @@ from django.test.utils import CaptureQueriesContext
 from django.utils import timezone
 from django.db.backends import utils as django_db_utils
 
-from main.models import ContentNode, User, Casebook, Section, Resource, ContentCollaborator, Role, Link, TextBlock, \
+from main.models import ContentNode, User, Casebook, Section, Resource, ContentCollaborator, Link, TextBlock, \
     Case, CaseCourt, ContentAnnotation
 from main.utils import re_split_offsets
 
@@ -82,12 +82,17 @@ class UserFactory(factory.DjangoModelFactory):
     email_address = factory.Sequence(lambda n: 'user%s@example.com' % n)
     attribution = factory.Sequence(lambda n: 'Some User %s' % n)
     affiliation = factory.Sequence(lambda n: 'Affiliation %s' % n)
-    verified_email = True
-
+    is_active = True
 
 @register_factory
 class UnconfirmedUserFactory(UserFactory):
-    verified_email = False
+    is_active = False
+
+@register_factory
+class AdminUserFactory(UserFactory):
+    attribution='Admin'
+    is_staff = True
+    is_superuser = True
 
 
 @register_factory
@@ -250,17 +255,6 @@ def casebook_tree(casebook_factory):
     c_1_1 = casebook_factory(ancestry="%s/%s" % (c_1.ancestry, c_1.id))
     c_1_2 = casebook_factory(ancestry="%s/%s" % (c_1.ancestry, c_1.id))
     return [root, c_1, c_2, c_1_1, c_1_2]
-
-
-@pytest.fixture
-def admin_user(user_factory):
-    # This could be implemented via a subclass of UserFactory...
-    # keeping this way for now for simplicity
-    # https://factoryboy.readthedocs.io/en/latest/recipes.html#many-to-many-relation-with-a-through
-    user = user_factory(attribution='Admin')
-    role, created = Role.objects.get_or_create(name='superadmin')
-    user.roles.add(role)
-    return user
 
 
 @pytest.fixture

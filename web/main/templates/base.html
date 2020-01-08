@@ -32,7 +32,7 @@
       </header>
       <main>
         {% block custom_skip_target %}<p id="main" tabindex="-1" class="sr-only">Main Content</p>{% endblock %}
-        {% if request.user.is_superadmin %}
+        {% if request.user.is_superuser %}
           <section id="flash">
             <div class="content">
               <div class="flash-error flash-message">

@@ -14,7 +14,7 @@
     {% else %}
       <h2 class="casebooks">{{ user.display_name }}'s Casebooks</h2>
       <hr class="owned"/>
-      {% if request.user.is_superadmin %}
+      {% if request.user.is_superuser %}
         {% include "includes/content_browser.html" with content=user.non_draft_casebooks %}
       {% else %}
         {% include "includes/content_browser.html" with content=user.published_casebooks %}

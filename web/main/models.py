@@ -7,6 +7,7 @@ from urllib.parse import urlparse
 
 from django.conf import settings
 from django.contrib.auth import user_logged_in
+from django.contrib.auth.models import PermissionsMixin
 from django.contrib.auth.base_user import AbstractBaseUser, BaseUserManager
 from django.contrib.auth.models import AnonymousUser
 from django.contrib.postgres.fields import JSONField, ArrayField
@@ -21,6 +22,7 @@ from django.utils.functional import cached_property
 from django.utils.html import format_html
 from django.utils.safestring import mark_safe
 from django.utils.text import slugify
+from django.utils.translation import gettext_lazy as _
 import lxml.etree
 import lxml.sax
 from pyquery import PyQuery
@@ -1562,7 +1564,7 @@ class Casebook(CasebookAndSectionMixin, ContentNode):
 
     def editable_by(self, user):
         """See ContentNode.editable_by"""
-        return user.is_authenticated and (self.has_collaborator(user) or user.is_superadmin)
+        return user.is_authenticated and (self.has_collaborator(user) or user.is_superuser)
 
     @property
     def permits_cloning(self):
@@ -2358,36 +2360,6 @@ class RawContent(TimestampedModel, BigPkModel):
         unique_together = (('source_type', 'source_id'),)
 
 
-class Role(NullableTimestampedModel):
-    """
-        User roles.
-    """
-    fix_after_rails("Could remove a lot of boilerplate by switching to Django's built-in is_staff, is_superuser, and groups features.")
-    name = models.CharField(max_length=40, blank=True, null=True)
-
-    class Meta:
-        indexes = [
-            models.Index(fields=['name']),
-        ]
-
-    def __str__(self):
-        return self.name
-
-
-class RolesUser(NullableTimestampedModel, BigPkModel):
-    """
-        Join table for User and Role.
-    """
-    user = models.ForeignKey(
-        'User',
-        on_delete=models.CASCADE,
-    )
-    role = models.ForeignKey(
-        Role,
-        on_delete=models.CASCADE,
-    )
-
-
 class TextBlock(NullableTimestampedModel, AnnotatedModel):
     name = models.CharField(max_length=255)
     description = models.CharField(max_length=5242880, blank=True, null=True)
@@ -2431,18 +2403,19 @@ class TextBlock(NullableTimestampedModel, AnnotatedModel):
         return Resource.objects.filter(resource_id=self.id, resource_type='TextBlock')
 
 
-class User(NullableTimestampedModel, AbstractBaseUser):
+class User(NullableTimestampedModel, PermissionsMixin, AbstractBaseUser):
     email_address = models.CharField(max_length=255, unique=True)
     attribution = models.CharField(max_length=255, default='Anonymous', verbose_name='Display name')
     affiliation = models.CharField(max_length=255, blank=True, null=True)
-    verified_email = models.BooleanField(default=False)
     verified_professor = models.BooleanField(default=False)
     professor_verification_requested = models.BooleanField(default=False)
 
-    # used to assign super_admin or case_admin status
-    roles = models.ManyToManyField(Role,
-        through=RolesUser
-    )
+    is_staff = models.BooleanField(default=False)
+    is_active = models.BooleanField(default=False)
+
+    # differentiate between real User model and AnonymousUser model:
+    is_authenticated = True
+    is_anonymous = False
 
     # login-tracking fields inherited from Rails authlogic gem
     last_request_at = models.DateTimeField(blank=True, null=True, help_text="Time of last request from user (to nearest 10 minutes)")
@@ -2476,42 +2449,6 @@ class User(NullableTimestampedModel, AbstractBaseUser):
         """
         return self.attribution
 
-
-    # TODO: are all users with verified email addresses active,
-    # or is there another category of non-active users?
-    @property
-    def is_active(self):
-        return self.verified_email
-
-    def has_role(self, role):
-        return self.roles.filter(name=role).exists()
-
-    @cached_property
-    def is_superadmin(self):
-        return self.has_role('superadmin')
-
-    @property
-    def is_staff(self):
-        return self.is_superadmin
-
-    # methods replicating Django's PermissionsMixin,
-    # necessary for the Django admin to work
-    # https://docs.djangoproject.com/en/2.2/topics/auth/customizing/#custom-users-and-permissions
-
-    @property
-    def is_superuser(self):
-        return self.is_superadmin
-
-    def has_perm(self, perm, obj=None):
-        return self.is_superuser
-
-    def has_module_perms(self, app_label):
-        return self.is_superuser
-
-    # differentiate between real User model and AnonymousUser model:
-    is_authenticated = True
-    is_anonymous = False
-
     def __str__(self):
         return self.display_name
 
@@ -2536,10 +2473,6 @@ class User(NullableTimestampedModel, AbstractBaseUser):
         # return self.casebooks.filter(contentcollaborator__has_attribution=True, public=True)
         # TBD: We probably need some guarantee that drafts aren't public.
         return self.casebooks.filter(contentcollaborator__role='owner', public=True)
-
-
-# make AnonymousUser API conform with User API
-AnonymousUser.is_superadmin = False
 
 
 def update_user_login_fields(sender, request, user, **kwargs):
