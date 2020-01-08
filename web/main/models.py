@@ -9,7 +9,6 @@ from django.conf import settings
 from django.contrib.auth import user_logged_in
 from django.contrib.auth.models import PermissionsMixin
 from django.contrib.auth.base_user import AbstractBaseUser, BaseUserManager
-from django.contrib.auth.models import AnonymousUser
 from django.contrib.postgres.fields import JSONField, ArrayField
 from django.contrib.postgres.indexes import GinIndex
 from django.db import models, transaction
@@ -22,7 +21,6 @@ from django.utils.functional import cached_property
 from django.utils.html import format_html
 from django.utils.safestring import mark_safe
 from django.utils.text import slugify
-from django.utils.translation import gettext_lazy as _
 import lxml.etree
 import lxml.sax
 from pyquery import PyQuery
