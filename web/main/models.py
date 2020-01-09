@@ -524,7 +524,6 @@ class ContentNode(EditTrackedModel, TimestampedModel, BigPkModel):
 
     # casebooks only
     public = models.BooleanField(default=False)
-    cloneable = models.BooleanField(default=True)
     draft_mode_of_published_casebook = models.BooleanField(blank=True, null=True, help_text='Unknown (None) or True; never False')
     ancestry = models.CharField(max_length=255, blank=True, null=True, help_text="List of parent IDs in tree, separated by slashes.")
     # Root user is sometimes used to calculate the "original author" of a book
@@ -1089,10 +1088,7 @@ class ContentNode(EditTrackedModel, TimestampedModel, BigPkModel):
     @property
     def permits_cloning(self):
         """
-        Presently, the `cloneable` database field is not in use on the
-        Rails side (always True), but according to business logic, not
-        all nodes are cloneable. This method is a stop gap, as we decide
-        how we'd like to move forward with the database field.
+        Allow a user to clone this node.
 
         This method should be implemented by all children.
         """
