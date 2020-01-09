@@ -1,6 +1,6 @@
 {% extends 'base.html' %}
 
-{% block page_title %}Section {{ section.ordinal_string }} | {{ section.casebook.get_title }}{% endblock %}
+{% block page_title %}Section {{ section.ordinal_string }} | {{ section.casebook.title }}{% endblock %}
 
 {% block banner %}
 {% if section.is_or_belongs_to_draft or section.is_private %}
@@ -30,12 +30,12 @@
         <div class="top-strip"></div>
         <header class="casebook-header">
           <div class="casebook-title">
-            {{ section.casebook.get_title }}
+            {{ section.casebook.title }}
           </div>
         </header>
         <header class="content">
           {% include 'includes/breadcrumbs.html' with content=section %}
-          <h1 class="title">{{ section.get_title }}</h1>
+          <h1 class="title">{{ section.title }}</h1>
         </header>
         {% include 'includes/action_buttons.html' with content=section %}
         {% include 'includes/headnote.html' with content=section %}

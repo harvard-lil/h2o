@@ -217,7 +217,7 @@ class AnnotationInline(admin.TabularInline):
 ## Casebooks
 
 class CasebookAdmin(BaseAdmin):
-    list_display = ['id', 'get_title', 'owner_link', 'public', 'source', 'draft_link', 'root_user', 'created_at', 'updated_at']
+    list_display = ['id', 'title', 'owner_link', 'public', 'source', 'draft_link', 'root_user', 'created_at', 'updated_at']
     list_filter = [CollaboratorNameFilter, CollaboratorIdFilter, 'public', 'draft_mode_of_published_casebook']
     search_fields = ['title']
 
@@ -268,7 +268,7 @@ class CasebookAdmin(BaseAdmin):
 class SectionAdmin(BaseAdmin):
     readonly_fields = ['created_at', 'updated_at', 'owner_link', 'casebook_link', 'copy_of', 'ordinals']
     list_select_related = ['casebook', 'copy_of']
-    list_display = ['id', 'casebook_link', 'owner_link', 'get_title', 'ordinals', 'created_at', 'updated_at']
+    list_display = ['id', 'casebook_link', 'owner_link', 'title', 'ordinals', 'created_at', 'updated_at']
     list_filter = [CasebookIdFilter]
     search_fields = ['title', 'casebook__title']
     fields = ['casebook', 'ordinals', 'title', 'subtitle', 'copy_of', 'headnote', 'created_at', 'updated_at']
@@ -292,7 +292,7 @@ class SectionAdmin(BaseAdmin):
 class ResourceAdmin(BaseAdmin):
     readonly_fields = ['created_at', 'updated_at', 'owner_link', 'casebook_link', 'copy_of', 'resource_id', 'resource_type', 'ordinals']
     list_select_related = ['casebook', 'copy_of']
-    list_display = ['id', 'casebook_link', 'owner_link', 'get_title', 'ordinals', 'resource_type', 'resource_id', 'annotation_count', 'created_at', 'updated_at']
+    list_display = ['id', 'casebook_link', 'owner_link', 'title', 'ordinals', 'resource_type', 'resource_id', 'annotation_count', 'created_at', 'updated_at']
     list_filter = [CasebookIdFilter, 'resource_type', ResourceIdFilter]
     search_fields = ['title', 'casebook__title']
     fields = ['casebook', 'ordinals', 'title', 'subtitle', 'copy_of', 'headnote', 'created_at', 'updated_at']

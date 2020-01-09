@@ -6,7 +6,7 @@
       <div class="content-page {% if casebook.public %}public{% else %}draft{% endif %}">
         <div class="casebook-info">
           <div class="state">{% if casebook.public %}Published{% else %}Draft{% endif %}</div>
-          <div class="title">{{ casebook.get_title }}</div>
+          <div class="title">{{ casebook.title }}</div>
           <div class="subtitle">{{ casebook.subtitle|default:"" }}</div>
         </div>
         {% if casebook.draft and user_can_edit %}

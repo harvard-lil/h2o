@@ -138,14 +138,7 @@ class SectionFactory(ContentNodeFactory):
     title = factory.Sequence(lambda n: 'Some Section %s' % n)
 
 
-@register_factory
-class ResourceFactory(ContentNodeFactory):
-    class Meta:
-        model = Resource
 
-    casebook = factory.SubFactory(CasebookFactory)
-    resource_type = 'Case'
-    resource_id = factory.LazyFunction(lambda: CaseFactory().id)
 
 
 @register_factory
@@ -161,7 +154,6 @@ class ContentCollaboratorFactory(factory.DjangoModelFactory):
 
 @register_factory
 class LinkFactory(factory.DjangoModelFactory):
-    # actually Link
     class Meta:
         model = Link
 
@@ -210,6 +202,28 @@ class CaseFactory(factory.DjangoModelFactory):
 @register_factory
 class PrivateCaseFactory(CaseFactory):
     public = False
+
+
+@register_factory
+class ResourceFactory(ContentNodeFactory):
+    class Meta:
+        model = Resource
+        exclude = ('resource',)
+
+    casebook = factory.SubFactory(CasebookFactory)
+    resource_type = 'Case'
+
+    @factory.lazy_attribute
+    def resource(self):
+        if self.resource_type == 'Case':
+            return CaseFactory()
+        elif self.resource_type == 'Link':
+            return LinkFactory()
+        else:
+            return TextBlockFactory()
+
+    resource_id = factory.SelfAttribute('resource.id')
+    title = factory.LazyAttribute(lambda o: o.resource.get_name())
 
 
 @register_factory
@@ -282,7 +296,7 @@ def annotations_factory(db):
             SectionFactory(casebook=casebook, ordinals=[1])
             ordinals = [1, 1]
         resource_target = {'Case': CaseFactory, 'TextBlock': TextBlockFactory}[resource_type](content=html)
-        resource = ResourceFactory(casebook=casebook, ordinals=ordinals, resource_type=resource_type, resource_id=resource_target.id)
+        resource = ResourceFactory(casebook=casebook, ordinals=ordinals, resource_type=resource_type, resource=resource_target)
 
         # retrieve the processed, cleansed html of the saved resource
         processed_html = resource.resource.content
@@ -338,17 +352,17 @@ def full_casebook_parts_factory(db):
         user = UserFactory()
         casebook = CasebookFactory(contentcollaborator_set__user=user, public=public)
         s_1 = SectionFactory(casebook=casebook, ordinals=[1])
-        r_1_1 = ResourceFactory(casebook=casebook, ordinals=[1, 1], resource_type='TextBlock', resource_id=TextBlockFactory().id)
-        r_1_2 = case_resource = ResourceFactory(casebook=casebook, ordinals=[1, 2], resource_type='Case', resource_id=CaseFactory().id)
+        r_1_1 = ResourceFactory(casebook=casebook, ordinals=[1, 1], resource_type='TextBlock')
+        r_1_2 = case_resource = ResourceFactory(casebook=casebook, ordinals=[1, 2], resource_type='Case')
         ContentAnnotationFactory(resource=case_resource)
         ContentAnnotationFactory(resource=case_resource, kind='elide')
-        r_1_3 = ResourceFactory(casebook=casebook, ordinals=[1, 3], resource_type='Link', resource_id=LinkFactory().id)
+        r_1_3 = ResourceFactory(casebook=casebook, ordinals=[1, 3], resource_type='Link')
         s_1_4 = SectionFactory(casebook=casebook,  ordinals=[1, 4])
-        r_1_4_1 = ResourceFactory(casebook=casebook, ordinals=[1, 4, 1], resource_type='TextBlock', resource_id=TextBlockFactory().id)
-        r_1_4_2 = case_resource = ResourceFactory(casebook=casebook, ordinals=[1, 4, 2], resource_type='Case', resource_id=CaseFactory().id)
+        r_1_4_1 = ResourceFactory(casebook=casebook, ordinals=[1, 4, 1], resource_type='TextBlock')
+        r_1_4_2 = case_resource = ResourceFactory(casebook=casebook, ordinals=[1, 4, 2], resource_type='Case')
         ContentAnnotationFactory(resource=case_resource, kind='note')
         ContentAnnotationFactory(resource=case_resource, kind='replace')
-        r_1_4_3 = ResourceFactory(casebook=casebook, ordinals=[1, 4, 3], resource_type='Link', resource_id=LinkFactory().id)
+        r_1_4_3 = ResourceFactory(casebook=casebook, ordinals=[1, 4, 3], resource_type='Link')
         s_2 = SectionFactory(casebook=casebook, ordinals=[2])
         return [casebook, s_1, r_1_1, r_1_2, r_1_3, s_1_4, r_1_4_1, r_1_4_2, r_1_4_3, s_2]
     return factory
