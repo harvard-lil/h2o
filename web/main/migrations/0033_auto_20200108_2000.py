@@ -39,7 +39,7 @@ def name_all_text_resources(apps, schema_editor):
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('main', '0031_auto_20200108_1740'),
+        ('main', '0032_remove_contentnode_cloneable'),
     ]
 
     operations = [
