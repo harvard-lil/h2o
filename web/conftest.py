@@ -101,7 +101,6 @@ class ContentNodeFactory(factory.DjangoModelFactory):
         model = ContentNode
 
     public = True
-    cloneable = True
     created_at = timezone.now()
     ordinals=[]
 
