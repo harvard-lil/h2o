@@ -26,6 +26,7 @@ export function request (url, method, data = {}, options = {scroll: true}) {
       if (response.status != 200) {
         // The user should be notified here; we don't have a mechanism
         // for doing that yet, and I don't want to use alert();
+        // https://github.com/harvard-lil/h2o/issues/1049
         console.error(`AJAX request failed with ${response.status}.`)
 
         destroy_modal(options["modal"])
@@ -43,6 +44,7 @@ export function request (url, method, data = {}, options = {scroll: true}) {
       // Let's have a think on how we might redesign this in the future.
       // Probably a mix of more Vue, and switching from AJAX to standard
       // form submissions.
+      // https://github.com/harvard-lil/h2o/issues/1050
       let html = response.data;
       let location = response.request.responseURL;
 

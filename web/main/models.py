@@ -256,11 +256,11 @@ class Case(NullableTimestampedModel, AnnotatedModel):
     created_via_import = models.BooleanField(default=False)
     capapi_id = models.IntegerField(blank=True, null=True)
     attorneys = JSONField(blank=True, null=True)
-    parties = JSONField(blank=True, null=True)  # TODO: this should be deleted. It's just the `name` field with uncorrected typos.
+    parties = JSONField(blank=True, null=True)
     opinions = JSONField(blank=True, null=True)
     citations = JSONField(blank=True, null=True)
     docket_number = models.CharField(max_length=20000, blank=True, null=True)
-    header_html = models.CharField(max_length=15360, blank=True, null=True)  # TODO: no longer used? delete?
+    header_html = models.CharField(max_length=15360, blank=True, null=True)
     content = models.CharField(max_length=5242880)
 
     case_court = models.ForeignKey(
@@ -329,7 +329,7 @@ class ContentAnnotationQueryset(models.QuerySet):
 
 class ContentAnnotation(TimestampedModel, BigPkModel):
     kind = models.CharField(max_length=255, choices=(('replace', 'replace'), ('highlight', 'highlight'), ('elide', 'elide'), ('note', 'note'), ('link', 'link')))
-    content = models.TextField(blank=True, null=True)  #TODO: validation for URLs
+    content = models.TextField(blank=True, null=True)
     global_start_offset = models.IntegerField(blank=True, null=True)
     global_end_offset = models.IntegerField(blank=True, null=True)
 
@@ -341,8 +341,8 @@ class ContentAnnotation(TimestampedModel, BigPkModel):
 
     objects = ContentAnnotationQueryset.as_manager()
 
-    fix_after_rails("Are we ready to delete these legacy fields, containing the"
-    "paragraph-based annotation offsets originally used in the Rails app?")
+    # legacy fields, from an era when annotation offsets were paragraph-based, rather than document-based
+    # https://github.com/harvard-lil/h2o/issues/1044
     start_paragraph = models.IntegerField(blank=True, null=True)
     end_paragraph = models.IntegerField(blank=True, null=True)
     start_offset = models.IntegerField(blank=True, null=True)
@@ -513,6 +513,7 @@ class ContentNode(EditTrackedModel, TimestampedModel, BigPkModel):
     title = models.CharField(max_length=10000, default="Untitled")
     subtitle = models.CharField(max_length=10000, blank=True, null=True)
     headnote = models.TextField(blank=True, null=True)
+    # legacy field: https://github.com/harvard-lil/h2o/issues/1044
     raw_headnote = models.TextField(blank=True, null=True)
     copy_of = models.ForeignKey(
         'self',
@@ -522,14 +523,14 @@ class ContentNode(EditTrackedModel, TimestampedModel, BigPkModel):
         related_name='clones',
     )
 
+    # Some fields are only used by certain subsets of ContentNodes
+    # https://github.com/harvard-lil/h2o/issues/1035
+
     # casebooks only
     public = models.BooleanField(default=False)
     draft_mode_of_published_casebook = models.BooleanField(blank=True, null=True, help_text='Unknown (None) or True; never False')
+    # see https://github.com/harvard-lil/h2o/issues/1032 for a discussion of ancestry, root_user, and collaborators
     ancestry = models.CharField(max_length=255, blank=True, null=True, help_text="List of parent IDs in tree, separated by slashes.")
-    # Root user is sometimes used to calculate the "original author" of a book
-    # However, it appears that in the modern application, it is not populated when creating new clones.
-    # Can we migrate this data so that ancestry + collaborator lookups can always be used instead?
-    # Or, shall we always populate this, for the ease in looking up?
     root_user = models.ForeignKey(
         'User',
         blank=True,
@@ -559,6 +560,7 @@ class ContentNode(EditTrackedModel, TimestampedModel, BigPkModel):
     # resources only
     # These fields define a relationship with a Case, Link, or Textblock
     # not yet described/available via the Django ORM
+    # https://github.com/harvard-lil/h2o/issues/1035
     resource_type = models.CharField(max_length=255, blank=True, null=True)
     resource_id = models.BigIntegerField(blank=True, null=True)
 
@@ -727,6 +729,7 @@ class ContentNode(EditTrackedModel, TimestampedModel, BigPkModel):
     ##
 
     fix_after_rails("The hand-rolled database trees should be replaced with a Django tree library")
+    # https://github.com/harvard-lil/h2o/issues/1035
 
     ##
     # Content tree methods
@@ -1068,6 +1071,7 @@ class ContentNode(EditTrackedModel, TimestampedModel, BigPkModel):
         the field is `True` for all Sections and Resources.
         This method is a stop gap, as we decide how we'd like to move
         forward with the database field.
+        https://github.com/harvard-lil/h2o/issues/1036
 
         This method should be implemented by all children.
         """
@@ -1806,9 +1810,7 @@ class Casebook(CasebookAndSectionMixin, ContentNode):
         """
         Returns the "original author" of a Casebook, when that Casebook
         is a clone, or a clone of a clone, etc.
-
-        TODO: when we can run migrations, we should be able to simplify
-        this, so that there is only one technique for all casebooks.
+        https://github.com/harvard-lil/h2o/issues/1032
         """
         if self.root_user_id:
             return self.root_user
@@ -1822,17 +1824,15 @@ class Casebook(CasebookAndSectionMixin, ContentNode):
     @property
     def attributors(self):
         """
-        Users whose authorship should be attributed (to permit the decoupling of attribution and permission levels).
-
-        TODO: should all owners have attribution?
-        TODO: should any editors have attribution?
+            Users whose authorship should be attributed.
+            https://github.com/harvard-lil/h2o/issues/1033
         """
         # filter in the client to allow .prefetch_related('contentcollaborator_set__user') to work:
         return [c.user for c in sorted((c for c in self.contentcollaborator_set.all() if c.has_attribution), key=lambda c: 1 if c.role == 'owner' else 2)]
 
     @property
     def editors(self):
-        # TODO: how are editors and owners different?
+        """https://github.com/harvard-lil/h2o/issues/1033"""
         return self.users_with_role('editor')
 
     @property
@@ -1841,7 +1841,6 @@ class Casebook(CasebookAndSectionMixin, ContentNode):
 
     @property
     def owner(self):
-        # All casebooks should have owners, but presently, a small number do not.
         fix_after_rails("Let's add validation logic, forcing casebooks to have at least one owner.")
         try:
             return self.owners[0]
@@ -2314,6 +2313,7 @@ class Link(NullableTimestampedModel):
 
 
 class RawContent(TimestampedModel, BigPkModel):
+    """Legacy table: https://github.com/harvard-lil/h2o/issues/1044"""
     content = models.TextField(blank=True, null=True)
     source_type = models.CharField(max_length=50, blank=True, null=True)
     source_id = models.BigIntegerField(blank=True, null=True)
@@ -2430,10 +2430,10 @@ class User(NullableTimestampedModel, PermissionsMixin, AbstractBaseUser):
             Equivalent of Rails "user.owned.published"
 
             Currently only includes casebooks the user owns.
+            https://github.com/harvard-lil/h2o/issues/1033
         """
-        # TBD: This probably wants to be:
+        # This probably wants to be:
         # return self.casebooks.filter(contentcollaborator__has_attribution=True, public=True)
-        # TBD: We probably need some guarantee that drafts aren't public.
         return self.casebooks.filter(contentcollaborator__role='owner', public=True)
 
 
@@ -2456,6 +2456,7 @@ user_logged_in.connect(update_user_login_fields)
 # Legacy Tables: do these contain images and other assets that are referenced
 # in casebooks, that COULD be displayed if we migrate properly? Keeping them
 # pending study.
+# https://github.com/harvard-lil/h2o/issues/1039
 #
 
 class CkeditorAsset(models.Model):
