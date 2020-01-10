@@ -659,7 +659,7 @@ class ContentNode(EditTrackedModel, TimestampedModel, BigPkModel):
             Given:
             >>> full_casebook, assert_num_queries = [getfixture(f) for f in ['full_casebook', 'assert_num_queries']]
 
-            Export uses 5 queries: selecting descendent nodes, and prefetching ContentAnnotation, Case, TextBlock, and Link.
+            Export uses 5 queries: selecting descendant nodes, and prefetching ContentAnnotation, Case, TextBlock, and Link.
             >>> with assert_num_queries(select=5):
             ...     file_data = full_casebook.export(include_annotations=True)
         """
@@ -809,7 +809,7 @@ class ContentNode(EditTrackedModel, TimestampedModel, BigPkModel):
             ...     casebook.content_tree__move_to([2])
             >>> with raises(ValueError, match='Cannot move node to root'):
             ...     s_1.content_tree__move_to([])
-            >>> with raises(ValueError, match='Cannot add descendent of Resource'):
+            >>> with raises(ValueError, match='Cannot add descendant of Resource'):
             ...     r_1_4_2.content_tree__move_to([1, 1, 1])
             >>> with raises(ValueError, match='Cannot move a node inside itself'):
             ...     s_1.content_tree__move_to([1, 1, 1])
@@ -833,15 +833,15 @@ class ContentNode(EditTrackedModel, TimestampedModel, BigPkModel):
         # find new parent
         # (do this before the move so the ordinal for the parent hasn't changed)
         try:
-            new_parent = common_parent_node.content_tree__get_descendent(new_ordinals[:-1])
+            new_parent = common_parent_node.content_tree__get_descendant(new_ordinals[:-1])
         except IndexError:
             raise ValueError("Invalid new ordinals; parent does not exist: %s" % new_ordinals)
         if type(new_parent) == Resource:
-            raise ValueError('Cannot add descendent of Resource')
+            raise ValueError('Cannot add descendant of Resource')
 
         # remove node from existing location
         # (look up the location, instead of using self, so we have the copy where content_tree is populated)
-        moved_node = common_parent_node.content_tree__get_descendent(old_ordinals)
+        moved_node = common_parent_node.content_tree__get_descendant(old_ordinals)
         if moved_node != self:
             raise ValueError("Unexpected element found at ordinal %s" % old_ordinals)
         moved_node.content_tree__parent.content_tree__children.remove(moved_node)
@@ -887,7 +887,7 @@ class ContentNode(EditTrackedModel, TimestampedModel, BigPkModel):
 
     def content_tree__load(self):
         """
-            Fetch all descendents of this node and populate their content_tree__parent and content_tree__children
+            Fetch all descendants of this node and populate their content_tree__parent and content_tree__children
             values. The one value that will *not* work after this call is self.content_tree__parent; only the sub-tree is fetched.
 
             Given:
@@ -933,11 +933,11 @@ class ContentNode(EditTrackedModel, TimestampedModel, BigPkModel):
         parents = []
         parent = last_child = None
         for node in [self] + list(self.contents.all()):
-            if last_child and node.content_tree__is_descendent_of(last_child):
+            if last_child and node.content_tree__is_descendant_of(last_child):
                 parents.append(parent)
                 parent = last_child
             elif parent:
-                while not node.content_tree__is_descendent_of(parent):
+                while not node.content_tree__is_descendant_of(parent):
                     parent = parents.pop()
             node._content_tree__parent = parent
             node._content_tree__children = []
@@ -958,14 +958,14 @@ class ContentNode(EditTrackedModel, TimestampedModel, BigPkModel):
 
     def content_tree__update_ordinals(self):
         """
-            Recursively fix ordinals for all descendents that have been moved in the content tree, based on their
-            current position in content_tree__children. Return an iterator of all descendents that have been updated.
+            Recursively fix ordinals for all descendants that have been moved in the content tree, based on their
+            current position in content_tree__children. Return an iterator of all descendants that have been updated.
 
             Given:
             >>> casebook, s_1, r_1_1, r_1_2, r_1_3, s_1_4, r_1_4_1, r_1_4_2, r_1_4_3, s_2 = getfixture('full_casebook_parts')
             >>> casebook.content_tree__load()
-            >>> s_1 = casebook.content_tree__get_descendent([1])
-            >>> s_2 = casebook.content_tree__get_descendent([2])
+            >>> s_1 = casebook.content_tree__get_descendant([1])
+            >>> s_2 = casebook.content_tree__get_descendant([2])
 
             When we move a node, return only nodes with changed ordinals:
             >>> s_2.content_tree__children.insert(0, s_1.content_tree__children.pop(2))  # move r_1_3 from s_1 to beginning of s_2
@@ -981,13 +981,13 @@ class ContentNode(EditTrackedModel, TimestampedModel, BigPkModel):
 
     ## content tree: helper functions
 
-    def content_tree__is_descendent_of(self, parent):
+    def content_tree__is_descendant_of(self, parent):
         """
-            True if ordinals make self a content_tree descendent of parent.
+            True if ordinals make self a content_tree descendant of parent.
             (This assumes we already know that the nodes are part of the same tree.)
-            >>> assert Section(ordinals=[1,1]).content_tree__is_descendent_of(Section(ordinals=[1]))
-            >>> assert Resource(ordinals=[1,2,3]).content_tree__is_descendent_of(Section(ordinals=[1]))
-            >>> assert not Casebook().content_tree__is_descendent_of(Section(ordinals=[1]))
+            >>> assert Section(ordinals=[1,1]).content_tree__is_descendant_of(Section(ordinals=[1]))
+            >>> assert Resource(ordinals=[1,2,3]).content_tree__is_descendant_of(Section(ordinals=[1]))
+            >>> assert not Casebook().content_tree__is_descendant_of(Section(ordinals=[1]))
         """
         return False if type(self) is Casebook else self.ordinals[:len(parent.ordinals)] == parent.ordinals
 
@@ -996,12 +996,12 @@ class ContentNode(EditTrackedModel, TimestampedModel, BigPkModel):
         casebook_id = self.id if type(self) == Casebook else self.casebook_id
         return ContentNode.objects.get(ordinals=ordinals, casebook_id=casebook_id) if ordinals else Casebook.objects.get(id=casebook_id)
 
-    def content_tree__get_descendent(self, ordinals):
+    def content_tree__get_descendant(self, ordinals):
         """
             Fetch a node from content_tree__children with the given ordinals.
         """
         if ordinals[:len(self.ordinals)] != self.ordinals:
-            raise ValueError("Ordinal value is not a descendent of self")
+            raise ValueError("Ordinal value is not a descendant of self")
         node = self
         ordinals = ordinals[len(self.ordinals):]
         while ordinals:
