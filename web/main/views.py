@@ -1287,12 +1287,6 @@ def from_capapi(request):
     return JsonResponse({'id': case.id})
 
 
-@no_perms_test
-def not_implemented_yet(request):
-    """ Used for routes we want to be able to reverse(), but that aren't implemented yet. """
-    raise Http404
-
-
 @method_decorator(perms_test(
     {'args': ['casebook', '"docx"'], 'results': {200: [None, 'other_user', 'casebook.owner']}},
     {'args': ['private_casebook', '"docx"'], 'results': {200: ['private_casebook.owner'], 'login': [None], 403: ['other_user']}},
