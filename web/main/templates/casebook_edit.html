@@ -2,7 +2,7 @@
 {% load render_bundle from webpack_loader %}
 {% load crispy_forms_tags %}
 
-{% block page_title %}Edit | {{ casebook.get_title }}{% endblock %}
+{% block page_title %}Edit | {{ casebook.title }}{% endblock %}
 {% block extra_foot %}{% render_bundle 'rich_text_editor' %}{% endblock %}
 
 {% block banner %}

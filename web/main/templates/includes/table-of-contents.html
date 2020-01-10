@@ -25,7 +25,7 @@
                   {% if content.resource_type == 'Case' %}
                     <div class="resource-container">
                       <div class="section-title case-section-title">
-                        {{ content.get_title }}
+                        {{ content.title }}
                       </div>
                       <div class="case-metadata-container">
                         <div class="resource-case">{{ content.resource.citations.0.cite }}</div>
@@ -40,7 +40,7 @@
                   {% elif content.resource_type == 'TextBlock' %}
                     <div class="resource-container">
                       <div class="section-title">
-                        {{ content.get_title }}
+                        {{ content.title }}
                       </div>
                     </div>
                     <div class="resource-type-container">
@@ -51,7 +51,7 @@
                   {% elif content.resource_type == 'Link' %}
                     <div class="resource-container">
                       <div class="section-title">
-                        {{ content.get_title }}
+                        {{ content.title }}
                       </div>
                     </div>
                     <div class="resource-type-container">
@@ -67,7 +67,7 @@
             <div class="listing-wrapper" {% if editing %}draggable="true" data-ordinals="{{ content.ordinal_string }}"{% endif %}>
               <a class="listing section" href="{{ url }}" {% if editing %}draggable="true" data-ordinals="{{ content.ordinal_string }}" data-editable=""{% endif %}>
                 <div class="section-number">{{ content.ordinal_string }}</div>
-                <div class="section-title">{{ content.get_title }}</div>
+                <div class="section-title">{{ content.title }}</div>
               </a>
               {% if editing %}<div class="actions"><button class="action-delete"></button></div>{% endif %}
             </div>

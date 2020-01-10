@@ -1,6 +1,6 @@
 {% extends 'base.html' %}
 
-{% block page_title %}Resource {{ resource.ordinal_string }} | {{ resource.casebook.get_title }}{% endblock %}
+{% block page_title %}Resource {{ resource.ordinal_string }} | {{ resource.casebook.title }}{% endblock %}
 
 {% block banner %}
 {% if resource.is_or_belongs_to_draft or resource.is_private %}
@@ -30,12 +30,12 @@
         <div class="top-strip"></div>
         <header class="casebook-header">
           <div class="casebook-title">
-            {{ resource.casebook.get_title }}
+            {{ resource.casebook.title }}
           </div>
         </header>
         <header class="content">
           {% include 'includes/breadcrumbs.html' with content=resource %}
-          <h1 class="title">{{ resource.get_title }}</h1>
+          <h1 class="title">{{ resource.title }}</h1>
         </header>
         {% include 'includes/action_buttons.html' with content=resource %}
         {% include 'includes/headnote.html' with content=resource %}
@@ -45,7 +45,7 @@
           {% elif resource.resource_type == 'Link' %}
             <section class="resource link-resource">
               Click here to view this linked resource off-site:
-              <a href="{{ resource.resource.url }}" target="_blank">{{ resource.get_title }}</a>
+              <a href="{{ resource.resource.url }}" target="_blank">{{ resource.title }}</a>
             </section>
           {% endif %}
         </section>

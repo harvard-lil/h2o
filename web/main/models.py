@@ -510,7 +510,7 @@ class ContentNodeQueryset(models.QuerySet):
 
 
 class ContentNode(EditTrackedModel, TimestampedModel, BigPkModel):
-    title = models.CharField(max_length=10000, blank=True, null=True)
+    title = models.CharField(max_length=10000, default="Untitled")
     subtitle = models.CharField(max_length=10000, blank=True, null=True)
     headnote = models.TextField(blank=True, null=True)
     raw_headnote = models.TextField(blank=True, null=True)
@@ -627,7 +627,7 @@ class ContentNode(EditTrackedModel, TimestampedModel, BigPkModel):
     ##
 
     def get_slug(self):
-        return slugify(self.get_title())
+        return slugify(self.title)
 
     @property
     def is_private(self):
@@ -645,7 +645,7 @@ class ContentNode(EditTrackedModel, TimestampedModel, BigPkModel):
         return self.is_private and self.editable_by(user)
 
     def __str__(self):
-        return "{} ({})".format(self.get_title(), self.id)
+        return "{} ({})".format(self.title, self.id)
 
     @property
     def type(self):
@@ -1060,18 +1060,6 @@ class ContentNode(EditTrackedModel, TimestampedModel, BigPkModel):
     ##
     # Methods specialized by children
     ##
-
-    def get_title(self):
-        """
-        Presently, the logic for "What do we call this ContentNode?"
-        is pretty complex. We should be able to simplify going forward:
-        surely, we can have a single, mandatory DB field, with default
-        values supplied via the models. This method is a stop gap, until
-        we are free to run migrations on the database.
-
-        This method should be implemented by all children.
-        """
-        raise NotImplementedError
 
     @property
     def is_public(self):
@@ -1545,12 +1533,6 @@ class Casebook(CasebookAndSectionMixin, ContentNode):
         """See ContentNode.get_edit_url"""
         return reverse('edit_casebook', args=[self])
 
-    def get_title(self):
-        """See ContentNode.get_title"""
-        return self.title or "Untitled casebook"
-        # Proposed: I dislike the ID number here
-        # return self.title or "Untitled casebook #%s" % self.pk
-
     @property
     def is_public(self):
         """See ContentNode.is_public"""
@@ -1893,10 +1875,6 @@ class Section(CasebookAndSectionMixin, SectionAndResourceMixin, ContentNode):
         """See ContentNode.get_edit_url"""
         return reverse('edit_section', args=[self.casebook, self])
 
-    def get_title(self):
-        """See ContentNode.get_title"""
-        return self.title if self.title else "Untitled section"
-
     @property
     def contents(self):
         """
@@ -1946,22 +1924,6 @@ class Resource(SectionAndResourceMixin, ContentNode):
                 return self.get_annotate_url()
             return self.get_edit_url()
         return self.get_absolute_url()
-
-    def get_title(self):
-        """See ContentNode.get_title"""
-        if self.title:
-            return self.title
-        elif self.resource_type == 'Link':
-            if self.resource.name:
-                return self.resource.name
-            else:
-                return "Link to {}".format(urlparse(self.resource.url).netloc)
-        elif self.resource_type == 'TextBlock':
-            return self.resource.name
-        elif self.resource_type == 'Case':
-            return self.resource.get_name()
-        else:
-            raise NotImplementedError
 
     def is_annotated(self):
         """See ContentNode.is_annotated"""
@@ -2341,6 +2303,12 @@ class Link(NullableTimestampedModel):
     content_type = models.CharField(max_length=255, blank=True, null=True)
     ancestry = models.CharField(max_length=255, blank=True, null=True)
 
+    def get_name(self):
+        return self.name if self.name else "Link to {}".format(urlparse(self.url).netloc)
+
+    def __str__(self):
+        return self.get_name()
+
     def related_resources(self):
         return Resource.objects.filter(resource_id=self.id, resource_type='Link')
 
@@ -2367,6 +2335,10 @@ class TextBlock(NullableTimestampedModel, AnnotatedModel):
             models.Index(fields=['name']),
             models.Index(fields=['updated_at']),
         ]
+
+    def get_name(self):
+        """For consistency, expose name via this method, which is exposed by Link and Case objects"""
+        return self.name
 
     def save(self, *args, **kwargs):
         r"""

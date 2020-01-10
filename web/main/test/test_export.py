@@ -77,7 +77,7 @@ def test_export(request, casebook_factory, section_factory, annotations_factory,
     section = section_factory(casebook=casebook, ordinals=[1], title="Ampersand & Ampersand; a fish drawing ><>", subtitle="Section subtitle", headnote="<p>Section headnote</p>")
     resource = annotations_factory('Case', case_template, casebook=casebook, ordinals=[1, 1])[1]
     annotations_factory('TextBlock', '<p>A textblock with a [highlight]highlight[/highlight].</p>', casebook=casebook, ordinals=[1, 2])
-    resource_factory(casebook=casebook, ordinals=[1, 3], resource_type='Link', resource_id=link_factory().id)
+    resource_factory(casebook=casebook, ordinals=[1, 3], resource_type='Link')
 
     # export each node and compare with saved results on disk
     for node in [casebook, section, resource]:

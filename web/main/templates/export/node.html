@@ -1,6 +1,6 @@
 {% if node.type == 'section' %}
   <div class="SectionNumber" data-custom-style="Section Number" data-toc-idx="{{ index }}">{{ node.ordinal_string }}</div>
-  <div class="SectionTitle" data-custom-style="Section Title">{{ node.get_title }}</div>
+  <div class="SectionTitle" data-custom-style="Section Title">{{ node.title }}</div>
   {% if node.subtitle %}
     <div class="SectionSubtitle" data-custom-style="Section Subtitle">{{ node.subtitle }}</div>
   {% endif %}
@@ -9,7 +9,7 @@
   {% endif %}
 {% elif node.type == 'resource' %}
   <div class="ResourceNumber" data-custom-style="Resource Number" data-toc-idx="{{ index }}">{{ node.ordinal_string }}</div>
-  <div class="ResourceTitle" data-custom-style="Resource Title">{{ node.get_title }}</div>
+  <div class="ResourceTitle" data-custom-style="Resource Title">{{ node.title }}</div>
   {% if node.subtitle %}
     <div class="ResourceSubtitle" data-custom-style="Resource Subtitle">{{ node.subtitle }}</div>
   {% endif %}

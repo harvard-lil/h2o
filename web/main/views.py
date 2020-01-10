@@ -723,6 +723,7 @@ def new_section_or_resource(request, casebook):
         >>> s_3 = casebook.contents.last()
         >>> assert isinstance(s_3, Section)
         >>> assert s_3.ordinals == [3]
+        >>> assert s_3.title == 'Untitled'
         >>> assert dump_content_tree_children(casebook) == [s_1, s_2, s_3]
         >>> assert_url_equal(response, s_3.get_edit_url())
 
@@ -732,6 +733,7 @@ def new_section_or_resource(request, casebook):
         >>> s_1_5 = s_1.contents.last()
         >>> assert isinstance(s_1_5, Section)
         >>> assert s_1_5.ordinals == [1,5]
+        >>> assert s_1_5.title == 'Untitled'
         >>> assert dump_content_tree_children(casebook) == [s_1, s_2, s_3]
         >>> assert dump_content_tree_children(s_1) == [r_1_1, r_1_2, r_1_3, s_1_4, s_1_5]
         >>> assert_url_equal(response, s_1_5.get_edit_url())
@@ -747,6 +749,7 @@ def new_section_or_resource(request, casebook):
         >>> assert isinstance(r_4, Resource)
         >>> assert r_4.ordinals == [4]
         >>> assert r_4.resource == case
+        >>> assert r_4.title == case.get_name()
         >>> assert dump_content_tree_children(casebook) == [s_1, s_2, s_3, r_4]
         >>> assert_url_equal(response, r_4.get_edit_or_absolute_url(editing=True))
 
@@ -759,6 +762,7 @@ def new_section_or_resource(request, casebook):
         >>> assert isinstance(r_1_6, Resource)
         >>> assert r_1_6.ordinals == [1,6]
         >>> assert all([isinstance(r_1_6.resource, TextBlock), r_1_6.resource.name == data['text']['title'], r_1_6.resource.content == data['text']['content']])
+        >>> assert r_1_6.title == r_1_6.resource.get_name()
         >>> assert dump_content_tree_children(s_1) == [r_1_1, r_1_2, r_1_3, s_1_4, s_1_5, r_1_6]
         >>> assert_url_equal(response, r_1_6.get_edit_or_absolute_url(editing=True))
 
@@ -771,6 +775,7 @@ def new_section_or_resource(request, casebook):
         >>> assert isinstance(r_1_7, Resource)
         >>> assert r_1_7.ordinals == [1,7]
         >>> assert all([isinstance(r_1_7.resource, Link), r_1_7.resource.url == data['link']['url']])
+        >>> assert r_1_7.title == r_1_7.resource.get_name()
         >>> assert dump_content_tree_children(s_1) == [r_1_1, r_1_2, r_1_3, s_1_4, s_1_5, r_1_6, r_1_7]
         >>> assert_url_equal(response, r_1_7.get_edit_or_absolute_url(editing=True))
     """
@@ -838,8 +843,10 @@ def new_section_or_resource(request, casebook):
         casebook=casebook,
         ordinals=parent.content_tree__get_next_available_child_ordinals(),
         resource_id=related_resource.id if related_resource else None,
-        resource_type=type(related_resource).__name__ if related_resource else None
+        resource_type=type(related_resource).__name__ if related_resource else None,
     )
+    if related_resource:
+        new_node.title = related_resource.get_name()
     new_node.save()
     return HttpResponseRedirect(new_node.get_edit_or_absolute_url(editing=True))
 
@@ -971,7 +978,7 @@ class ResourceView(View):
             Users can see resources in their own non-public casebooks in preview mode:
             >>> check_response(
             ...     client.get(private_resource.get_absolute_url(), as_user=private_resource.owner),
-            ...     content_includes=[private_resource.get_title(), "You are viewing a preview"],
+            ...     content_includes=[private_resource.title, "You are viewing a preview"],
             ... )
 
             Owners see the "preview mode" of resources in draft casebooks:
@@ -1034,11 +1041,11 @@ def edit_resource(request, casebook, resource):
 
         Users can edit resources in their unpublished and draft casebooks:
         >>> for resource in [*private_resources.values(), *draft_resources.values()]:
-        ...     original_title = resource.get_title()
+        ...     original_title = resource.title
         ...     new_title = 'owner-edited title'
         ...     check_response(
         ...         client.get(resource.get_edit_url(), as_user=resource.owner),
-        ...         content_includes=[resource.get_title(), "This casebook is a draft"],
+        ...         content_includes=[resource.title, "This casebook is a draft"],
         ...     )
         ...     check_response(
         ...         client.post(resource.get_edit_url(), {'title': new_title}, as_user=resource.owner),
@@ -1071,16 +1078,6 @@ def edit_resource(request, casebook, resource):
     # TBD: The appearance, validation, and "flash" behavior of this route is not identical
     # to the Rails app, but the functionality is equivalent; I'm hoping we're content with it.
 
-    # Name calculation for Resources is particularly complex right now.
-    # We need the "title" field of the form to display the return value of
-    # resource.get_title(). If a user submits the edit form, this will cause
-    # resource.title to be populated with the value of resource.get_title()
-    # While this does not, I believe, reproduce the behavior of the Rails
-    # application, I think it is a step in the right direction, a world where
-    # the names of ContentNodes are reliably represented in a DB field, not
-    # calculated on the fly.
-    if not resource.title:
-        resource.title = resource.get_title()
     form = ResourceForm(request.POST or None, instance=resource)
 
     # Let users edit Link and TextBlock resources directly from this page
@@ -1321,7 +1318,7 @@ def export(request, node, file_type='docx'):
 
     # return docx
     filename = "%s%s.docx" % (
-        Truncator(node.get_title()).words(45, truncate='-'),
+        Truncator(node.title).words(45, truncate='-'),
         '_annotated' if include_annotations else ''
     )
     return StringFileResponse(response_data, as_attachment=True, filename=filename)
