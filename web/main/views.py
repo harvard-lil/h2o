@@ -37,13 +37,6 @@ from .forms import CasebookForm, SectionForm, ResourceForm, LinkForm, TextBlockF
 
 def login_required_response(request):
     if request.user.is_authenticated:
-        # In the Rails application, this usually (always?) forwards
-        # a user to their own dashboard and flashes a message about
-        # insufficient permissions instead. Per discussion, we've
-        # decided not to implement that for now: the experience
-        # should be rare, and it's not obvious that the redirection
-        # provides a superior user experience. We can readdress if
-        # this turns out to matter to users.
         raise PermissionDenied
     else:
         return redirect_to_login(request.build_absolute_uri())
@@ -488,6 +481,7 @@ def edit_user(request):
 
 
 @perms_test({'results': {302: ['user'], 'login': [None]}})
+# https://github.com/harvard-lil/h2o/issues/1046
 # @require_POST
 @login_required
 def new_casebook(request):
@@ -504,10 +498,6 @@ def new_casebook(request):
         >>> assert user.casebooks.count() == 1
         >>> assert_url_equal(response, user.casebooks.first().get_edit_url())
     """
-    # NB: in the Rails app, drafts are created via GET rather than POST
-    # I'm recreating that here for now, to avoid complicating the javascript
-    # that generates the "new casebook" modal (see dashboard.js).
-    # We should switch to POST as soon as we are free to do so.
     casebook = Casebook()
     casebook.save()
     casebook.add_collaborator(user=request.user, role='owner', has_attribution=True)
@@ -565,6 +555,7 @@ class CasebookView(View):
     def patch(self, request, casebook):
         """
             Publish a casebook.
+            https://github.com/harvard-lil/h2o/issues/1047
 
             Given:
             >>> casebook, casebook_factory, client, admin_user, user_factory = [getfixture(f) for f in ['casebook', 'casebook_factory', 'client', 'admin_user', 'user_factory']]
@@ -597,10 +588,6 @@ class CasebookView(View):
             >>> assert_url_equal(response, casebook.get_absolute_url())
             >>> assert casebook.is_public
         """
-        # TODO: let's consider moving this functionality to a /publish route, as with /export.
-        # I don't think it's particularly helpful for this logic to live in this view.
-        # Since other kinds of Casebook edits aren't handled here, it isn't particularly RESTful.
-
         # check permissions
         if casebook.is_public:
             raise PermissionDenied("Only private casebooks may be published.")
@@ -613,6 +600,7 @@ class CasebookView(View):
 
         # The javascript that makes these PATCH requests expects a redirect
         # to the published casebook.
+        # https://github.com/harvard-lil/h2o/issues/1050
         return HttpResponseRedirect(reverse('casebook', args=[casebook]))
 
 
@@ -646,11 +634,6 @@ def create_draft(request, casebook):
     """
         Create a draft of a casebook and redirect to its edit page.
     """
-    # NB: in the Rails app, drafts are created via GET rather than POST
-    # Started GET "/casebooks/128853-constitutional-law/resources/1.2.1-marbury-v-madison/create_draft" for 172.18.0.1 at 2019-10-22 18:00:49 +0000
-    # Processing by Content::ResourcesController#create_draft as HTML
-    # Let's not recreate that.
-    # TODO: figure out if this complicates our roll out strategy.
     clone = casebook.make_draft()
     return HttpResponseRedirect(reverse('edit_casebook', args=[clone]))
 
@@ -1075,9 +1058,6 @@ def edit_resource(request, casebook, resource):
     """
     # NB: The Rails app does NOT redirect here to a canonical URL; it silently accepts any slug.
     # Duplicating that here.
-    # TBD: The appearance, validation, and "flash" behavior of this route is not identical
-    # to the Rails app, but the functionality is equivalent; I'm hoping we're content with it.
-
     form = ResourceForm(request.POST or None, instance=resource)
 
     # Let users edit Link and TextBlock resources directly from this page
@@ -1160,6 +1140,7 @@ def reorder_node(request, casebook, section=None, node=None):
     # TODO: having separate endpoints for casebook and section pages is only necessary to enable the change-and-redirect
     # behavior of the current javascript. When the casebook edit page is rendered with Vue, this endpoint can just
     # return success or failure, and the same endpoint will work for both casebook and section pages.
+    # https://github.com/harvard-lil/h2o/issues/1050
 
     # parse request:
     try:
@@ -1248,6 +1229,7 @@ def from_capapi(request):
         cap_case = response.json()
         # get or create local CaseCourt object:
         # (don't use get_or_create() because current data may have duplicates; we get the first one by id)
+        # https://github.com/harvard-lil/h2o/issues/1037
         court_args = {
             "capapi_id": cap_case['court']['id'],
             "name": cap_case['court']['name'],
@@ -1280,6 +1262,7 @@ def from_capapi(request):
             content=cap_case['casebody']['data'],
             attorneys=[el.text() for el in parsed('.attorneys').items()],
             # TODO: copying a Rails bug. Using a dict here is incorrect, as the same data-type can appear more than once:
+            # https://github.com/harvard-lil/h2o/issues/1041
             opinions={el.attr('data-type'): el('.author').text() for el in parsed('.opinion').items()},
         )
         case.save()
