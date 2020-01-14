@@ -45,3 +45,4 @@ yarn-debug.log*
 # IntelliJ IDEA
 *.iml
 .vscode
+.mypy_cache
