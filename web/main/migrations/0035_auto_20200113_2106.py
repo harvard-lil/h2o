@@ -11,14 +11,11 @@ def copy_common_resources(apps, schema_editor):
         for cn in ContentNode.objects.filter(resource_type=resource_type):
             if cn.resource_id:
                 if cn.resource_id in seen:
-                    duplicate = clone_model_instance(resource_class.objects.filter(id=cn.resource_id).first())
+                    duplicate = clone_model_instance(resource_class.objects.filter(id=cn.resource_id).get())
                     duplicate.save()
                     cn.resource_id = duplicate.id
                     cn.save()
                 seen.add(cn.resource_id)
-
-def cannot_reverse():
-    pass
 
 class Migration(migrations.Migration):
 
@@ -27,5 +24,5 @@ class Migration(migrations.Migration):
     ]
 
     operations = [
-        migrations.RunPython(copy_common_resources, cannot_reverse)
+        migrations.RunPython(copy_common_resources, migrations.operations.RunPython.noop)
     ]
