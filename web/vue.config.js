@@ -43,6 +43,7 @@ let vueConfig = {
     main: 'frontend/pages/main.scss',
     test: 'frontend/pages/test.js',
     vue_app: 'frontend/pages/vue_app.js',
+    table_of_contents: 'frontend/pages/table_of_contents.js',
   },
 
   configureWebpack: {
