@@ -2,36 +2,39 @@
 <div class="table-of-contents" v-bind:class="{'editable':editing}">
   <vue-nestable v-model="toc" :hooks="{'beforeMove':canMove}" v-on:change="moveSubsection" v-if="dataReady">
     <vue-nestable-handle slot-scope="{ item }" :item="item" class="collapsed" v-if="editing">
-      <div v-bind:class="{'listing-wrapper':true, 'delete-confirm': item.confirmDelete}">
-        <a class="listing resource" v-if="item.resource_type !== null" :href="item.edit_url" >
+      <div v-bind:class="{'listing-wrapper':true, 'delete-confirm': promptForDelete({id:item.id})}">
+        <div class="listing resource" v-if="item.resource_type !== null"  >
           <div class="section-number"></div>
           <div class="resource-container" v-if="item.resource_type==='Case'">
-            <div class="section-title case-section-title">{{ item.title }}</div>
+            <a :href="item.edit_url" class="section-title case-section-title">{{ item.title }}</a>
             <div class="case-metadata-container">
               <div class="resource-case">{{ item.citation }}</div>
               <div class="resource-date">{{ item.decision_date }}</div>
             </div>
           </div>
           <div class="resource-container" v-else-if="item.resource_type === 'TextBlock'">
-            <div class="section-title">{{ item.title }}</div>
+            <a :href="item.edit_url" class="section-title">{{ item.title }}</a>
           </div>
           <div class="resource-container" v-else-if="item.resource_type === 'Link'">
-            <div class="section-title">{{ item.title }}</div>
+            <a :href="item.edit_url" class="section-title">{{ item.title }}</a>
           </div>
           <div class="resource-type-container">
             <div class="resource-type">
               {{ item.resource_type === 'TextBlock' ? 'Text' : item.resource_type }}
             </div>
           </div>
-        </a>
-        <a class="listing section" v-else :href="item.edit_url">
+        </div>
+        <div class="listing section" v-else>
+          <div v-on:click="toggleSectionExpanded({id:item.id})" class="action-expand">
+            <collapse-triangle :collapsed="isCollapsed({id:item.id})" />
+          </div>
           <div class="section-number"></div>
           <div class="section-title">
-            <div class="section-title">{{ item.title }}</div>
+            <a :href="item.edit_url" class="section-title">{{ item.title }}</a>
           </div>
-        </a>
+        </div>
         <div class="actions">
-          <button class="action-delete" v-on:click="markForDeletion({id:item.id})" v-if="!item.confirmDelete"></button>
+          <button class="action-delete" v-on:click="markForDeletion({id:item.id})" v-if="!promptForDelete({id:item.id})"></button>
           <div class="action-confirmation" v-else>
             <div class="action-align">
               <button class="action-confirm-delete" v-on:click="confirmDeletion({id:item.id})">Delete</button>
@@ -41,60 +44,81 @@
         </div>
       </div>
     </vue-nestable-handle>
-    <div v-else>
-      <a class="listing resource" v-if="item.resource_type !== null" :href="item.url" >
+    <div class="listing-wrapper" v-else>
+      <div class="listing resource" v-if="item.resource_type !== null"  >
         <div class="section-number"></div>
         <div class="resource-container" v-if="item.resource_type==='Case'">
-          <div class="section-title case-section-title">{{ item.title }}</div>
+          <a :href="item.edit_url" class="section-title case-section-title">{{ item.title }}</a>
           <div class="case-metadata-container">
             <div class="resource-case">{{ item.citation }}</div>
             <div class="resource-date">{{ item.decision_date }}</div>
           </div>
         </div>
         <div class="resource-container" v-else-if="item.resource_type === 'TextBlock'">
-          <div class="section-title">{{ item.title }}</div>
+          <a :href="item.edit_url" class="section-title">{{ item.title }}</a>
         </div>
         <div class="resource-container" v-else-if="item.resource_type === 'Link'">
-          <div class="section-title">{{ item.title }}</div>
+          <a :href="item.edit_url" class="section-title">{{ item.title }}</a>
         </div>
         <div class="resource-type-container">
           <div class="resource-type">
             {{ item.resource_type === 'TextBlock' ? 'Text' : item.resource_type }}
           </div>
         </div>
-      </a>
-      <a class="listing section" v-else :href="item.url">
+      </div>
+      <div class="listing section" v-else>
+        <div v-on:click="toggleSectionExpanded({id:item.id})" class="action-expand">
+          <collapse-triangle :collapsed="isCollapsed({id:item.id})" />
+        </div>
         <div class="section-number"></div>
         <div class="section-title">
-          <div class="section-title">{{ item.title }}</div>
-        </div>
-      </a>
+          <a :href="item.edit_url" class="section-title">{{ item.title }}</a>
+      </div>
     </div>
-  </vue-nestable>
+</div>
+</vue-nestable>
 </div>
 </template>
                                 
 <script>
+import Vue from "vue";
 import { VueNestable, VueNestableHandle } from "vue-nestable";
+import CollapseTriangle from "./CollapseTriangle";
 import { createNamespacedHelpers } from "vuex";
 const { mapActions,mapMutations } = createNamespacedHelpers("table_of_contents");
 
 export default {
 components: {
 VueNestable,
-VueNestableHandle
+VueNestableHandle,
+CollapseTriangle
 },
+data: () => ({
+needsDeleteConfirmation: {},
+collapsedSections:{}
+}),
 computed: {
-target_id: function () {
+targetId: function () {
 return this.rootId || this.casebook;
 },
 toc: {
 get: function () {
-const candidate = this.$store.getters['table_of_contents/getNode'](this.target_id);
-return candidate && candidate.children
+const candidate = this.$store.getters['table_of_contents/getNode'](this.targetId);
+const omit = this.collapsedSections;
+function disownChildren(node) {
+if (!node) {return node;}
+let {children, id} = node;
+if (id in omit) {
+return {...node, children: []}
+} else {
+return {...node, children: children.map(disownChildren)};
+}
+}
+let list = disownChildren(candidate)
+return list && list.children;
 },
 set: function (newVal) {
-this.shuffle({id:this.target_id, children:newVal})
+this.shuffle({id:this.targetId, children:newVal})
 }
 },
 dataReady: function() {
@@ -114,7 +138,7 @@ let ii = path.splice(0,1)[0];
 let curr = this.toc[ii];
 while(path.length > 0) {
 res_path.push({ii,t:curr.resoure_type});
-if(curr.resource_type !== null) {
+if(curr.resource_type !== null || curr.id in this.collapsedSections) {
 return false;
 }
 ii = path.splice(0,1)[0];
@@ -122,11 +146,14 @@ curr = curr.children[ii];
 }
 return true;
 },
+promptForDelete: function({id}) {
+return id in this.needsDeleteConfirmation;
+},
 markForDeletion: function({id}) {
-this.$store.commit('table_of_contents/markForDeletion', {casebook: this.casebook, targetId: id})
+Vue.set(this.needsDeleteConfirmation,id,true);
 },
 cancelDeletion: function({id}) {
-this.$store.commit('table_of_contents/cancelDeletion', {casebook: this.casebook, targetId: id})
+Vue.delete(this.needsDeleteConfirmation,id);
 },
 confirmDeletion: function({id}) {
 console.log(`Trying to delete ${id}`)
@@ -135,6 +162,16 @@ this.deleteNode({casebook:this.casebook, targetId: id});
 moveSubsection: function({id}, {pathTo}) {
 console.log(`id(${id}) -> [${pathTo}]`);
 this.moveNode({casebook:this.casebook, targetId:id, pathTo});
+},
+isCollapsed: function({id}) {
+return id in this.collapsedSections;
+},
+toggleSectionExpanded: function({id}) {
+if (id in this.collapsedSections) {
+Vue.delete(this.collapsedSections, id);
+} else {
+Vue.set(this.collapsedSections, id, true);
+}
 }
 },
 props: ["rootId", "casebook", "editing"],
@@ -245,6 +282,7 @@ this.fetch({ casebook: this.casebook, subsection: this.rootId });
             }
             
             .section-title {
+                display: inline;
                 font-weight: $medium;
             }
             .section-number,
@@ -265,8 +303,7 @@ this.fetch({ casebook: this.casebook, subsection: this.rootId });
             }
             
             .section-title {
-                display: flex;
-                align-items: center;
+                display: inline;
             }
             
             .case-section-title {

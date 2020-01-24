@@ -41,14 +41,6 @@ const mutations = {
     overwrite: (state, payload) => {
         Vue.set(state.toc,payload.id,payload);
     },
-    markForDeletion: (state, {casebook, targetId}) => {
-        let node = helpers.findNode(state.toc, casebook, targetId);
-        if (node !== null) Vue.set(node, 'confirmDelete', true);
-    },
-    cancelDeletion: (state, {casebook, targetId}) => {
-        let node = helpers.findNode(state.toc, casebook, targetId);
-        if (node !== null) Vue.delete(node, 'confirmDelete');
-    },
     delete: (state, payload) => {
         function deleteRecursive(node, id) {
             for (let ii = 0; ii < node.children.length; ii++) {
@@ -67,15 +59,6 @@ const mutations = {
     },
     shuffle: (state, {id, children}) => {
         Vue.set(state.toc[id], 'children', children);
-    },
-
-    showChildren: (state, {id}) => {
-        let target = helpers.findNode(state.toc, id);
-        Vue.delete(target, 'collapsed');
-    },
-    hideChildren: (state, {id}) => {
-        let target = helpers.findNode(state.toc, id);
-        Vue.set(target, 'collapsed', true);
     }
 };
 
