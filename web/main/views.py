@@ -28,10 +28,12 @@ from test.test_helpers import check_response, assert_url_equal, dump_content_tre
 from pytest import raises as assert_raises
 
 from .utils import parse_cap_decision_date, fix_after_rails, CapapiCommunicationException, StringFileResponse, send_verification_email
-from .serializers import AnnotationSerializer, NewAnnotationSerializer, UpdateAnnotationSerializer, CaseSerializer, TextBlockSerializer
+from .serializers import AnnotationSerializer, NewAnnotationSerializer, UpdateAnnotationSerializer, CaseSerializer, TextBlockSerializer, SectionOutlineSerializer
 from .models import Casebook, Section, Resource, Case, User, CaseCourt, ContentNode, TextBlock, Link, ContentAnnotation
 from .forms import CasebookForm, SectionForm, ResourceForm, LinkForm, TextBlockForm, NewTextBlockForm, UserProfileForm, SignupForm
 
+import logging
+logger = logging.getLogger('django')
 
 ### helpers ###
 
@@ -251,6 +253,62 @@ def render_with_actions(request, template_name, context=None, content_type=None,
 
 
 ### views ###
+
+
+def find_subsection(subsection, target_id):
+    if not target_id or target_id == subsection['id']:
+        return subsection
+    candidate = filter(lambda x:x,map(lambda x: find_subsection(x,target_id), subsection['children']))
+    if len(candidate) == 1:
+        return candidate[0]
+    return None
+
+class SectionTOCView(APIView):
+    """
+    This presents a Toc in a heirarchical form.
+    """
+
+    def get_target(self, casebook, target_id, format):
+        target_node = ContentNode.objects.filter(casebook_id=casebook['id'], id=target_id).get()
+        return Response(SectionOutlineSerializer(target_node).data)
+
+    def get_all(self, casebook, format):
+        hydrated = Casebook.objects.filter(id=casebook['id']).get()
+        res = hydrated.children
+        data = {
+            'id':str(hydrated.id) + "-" + hydrated.get_slug(),
+            'children': SectionOutlineSerializer(res, many=True).data
+        }
+        return Response(data)
+
+    def get(self, request, casebook,target_id=None, format=None):
+        if target_id:
+            return self.get_target(casebook, target_id, format)
+        else:
+            return self.get_all(casebook, format)
+
+    def delete(self, request, casebook, target_id=None, format=None):
+        target_node = ContentNode.objects.filter(casebook_id=casebook['id'], id=target_id).get()
+        target_node.delete()
+        return Response(None)
+
+    def patch(self, request, casebook, target_id, format=None):
+        try:
+            target_node = ContentNode.objects.filter(casebook_id=casebook['id'], id=target_id).get()
+        except Exception:
+            return HttpResponseBadRequest(b"Section/Resource/Casebook does not exist")
+        try:
+            data = json.loads(request.body.decode("utf-8"))
+            new_ordinals = [int(i)+1 for i in data['newLocation']]
+        except Exception:
+            return HttpResponseBadRequest(b"Request Body should match: {newLocation: [i j k]}")
+
+        try:
+            target_node.content_tree__move_to(new_ordinals)
+        except ValueError as e:
+            return HttpResponseBadRequest(b"Invalid ordinals: %s" % e.args[0].encode('utf8'))
+
+        return self.get_all(casebook, format)
 
 
 class AnnotationListView(APIView):
@@ -932,6 +990,7 @@ def edit_section(request, casebook, section):
         form.save()
     contents = section.contents.prefetch_resources()
     return render_with_actions(request, 'section_edit.html', {
+        'casebook': casebook,
         'section': section,
         'contents': contents,
         'editing': True,

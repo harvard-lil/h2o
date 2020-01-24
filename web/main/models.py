@@ -1523,6 +1523,10 @@ class Casebook(CasebookAndSectionMixin, ContentNode):
     def resources(self):
         return Resource.objects.filter(casebook=self)
 
+    @property
+    def children(self):
+        return ContentNode.objects.filter(casebook=self, ordinals__len=1)
+
     def get_absolute_url(self):
         """See ContentNode.get_absolute_url"""
         return reverse('casebook', args=[self])
@@ -1889,6 +1893,15 @@ class Section(CasebookAndSectionMixin, SectionAndResourceMixin, ContentNode):
             "casebook_id": self.casebook_id,
             first_ordinals: self.ordinals,
             "ordinals__len__gte": len(self.ordinals) + 1
+        })
+
+    @property
+    def children(self):
+        first_ordinals = "ordinals__0_{}".format(len(self.ordinals))
+        return ContentNode.objects.filter(**{
+            "casebook_id": self.casebook_id,
+            first_ordinals: self.ordinals,
+            "ordinals__len": len(self.ordinals) + 1
         })
 
 
