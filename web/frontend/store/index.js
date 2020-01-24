@@ -7,7 +7,6 @@ import resources_ui from "./modules/resources_ui";
 import table_of_contents from "./modules/table_of_contents";
 import createLogger from "vuex/dist/logger";
 
-
 Vue.use(Vuex);
 
 const debug = process.env.NODE_ENV == "development";

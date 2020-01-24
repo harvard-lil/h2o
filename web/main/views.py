@@ -32,9 +32,6 @@ from .serializers import AnnotationSerializer, NewAnnotationSerializer, UpdateAn
 from .models import Casebook, Section, Resource, Case, User, CaseCourt, ContentNode, TextBlock, Link, ContentAnnotation
 from .forms import CasebookForm, SectionForm, ResourceForm, LinkForm, TextBlockForm, NewTextBlockForm, UserProfileForm, SignupForm
 
-import logging
-logger = logging.getLogger('django')
-
 ### helpers ###
 
 def login_required_response(request):
@@ -253,15 +250,6 @@ def render_with_actions(request, template_name, context=None, content_type=None,
 
 
 ### views ###
-
-
-def find_subsection(subsection, target_id):
-    if not target_id or target_id == subsection['id']:
-        return subsection
-    candidate = filter(lambda x:x,map(lambda x: find_subsection(x,target_id), subsection['children']))
-    if len(candidate) == 1:
-        return candidate[0]
-    return None
 
 class SectionTOCView(APIView):
     """

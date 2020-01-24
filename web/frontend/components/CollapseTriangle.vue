@@ -6,29 +6,28 @@
 
 <script>
 export default {
-name: 'collapse-triangle',
-props: ['collapsed']
-  }
+  name: "collapse-triangle",
+  props: ["collapsed"]
+};
 </script>
 
 <style lang="scss" scoped>
 @import "../styles/vars-and-mixins";
 polygon {
-    fill: $light-gray;
-    stroke: $black;
-    stroke-width: 1;    
+  fill: $light-gray;
+  stroke: $black;
+  stroke-width: 1;
 }
 polygon:hover {
-    stroke-width: 2;
-    stroke: $white;
+  stroke-width: 2;
+  stroke: $white;
 }
 .open {
-    transform:rotate(90deg);
-    transform-origin:30% 50%;
+  transform: rotate(90deg);
+  transform-origin: 30% 50%;
 }
 .collapsed {
-    transform:rotate(0deg);
-    transform-origin:30% 50%;
+  transform: rotate(0deg);
+  transform-origin: 30% 50%;
 }
-
 </style>
