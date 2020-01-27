@@ -1897,12 +1897,13 @@ class Section(CasebookAndSectionMixin, SectionAndResourceMixin, ContentNode):
 
     @property
     def children(self):
-        first_ordinals = "ordinals__0_{}".format(len(self.ordinals))
-        return ContentNode.objects.filter(**{
-            "casebook_id": self.casebook_id,
-            first_ordinals: self.ordinals,
-            "ordinals__len": len(self.ordinals) + 1
-        })
+        return self._content_tree__children
+        # first_ordinals = "ordinals__0_{}".format(len(self.ordinals))
+        # return ContentNode.objects.filter(**{
+        #     "casebook_id": self.casebook_id,
+        #     first_ordinals: self.ordinals,
+        #     "ordinals__len": len(self.ordinals) + 1
+        # })
 
 
 class ResourceManager(models.Manager):

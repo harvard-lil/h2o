@@ -293,12 +293,15 @@ class CasebookTOCView(APIView):
     @method_decorator(hydrate_params)
     @method_decorator(user_has_perm('casebook', 'viewable_by'))
     def get(self, request, casebook, format=None):
-        res = casebook.children
-        data = {
+        return Response(self.format_casebook(casebook), status=200)
+
+    @staticmethod
+    def format_casebook(casebook):
+        casebook.content_tree__load()
+        return {
             'id':str(casebook.id) + "-" + casebook.get_slug(),
-            'children': SectionOutlineSerializer(res, many=True).data
+            'children': SectionOutlineSerializer(casebook._content_tree__children, many=True).data
         }
-        return Response(data, status=200)
 
 class SectionTOCView(APIView):
     """
@@ -311,6 +314,7 @@ class SectionTOCView(APIView):
     @method_decorator(user_has_perm('casebook', 'viewable_by'))
     @method_decorator(user_has_perm('section', 'viewable_by'))
     def get(self, request, casebook,section, format=None):
+        section.content_tree__load()
         return Response(SectionOutlineSerializer(section).data)
 
 
@@ -347,7 +351,7 @@ class SectionTOCView(APIView):
         except ValueError as e:
             return HttpResponseBadRequest(b"Invalid ordinals: %s" % e.args[0].encode('utf8'))
 
-        return self.get_all(casebook, format)
+        return Response(CasebookTOCView.format_casebook(casebook),status=200)
 
 
 class AnnotationListView(APIView):
