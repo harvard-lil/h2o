@@ -153,7 +153,7 @@ export default {
       let curr = this.toc[ii];
       while (path.length > 0) {
         res_path.push({ ii, t: curr.resoure_type });
-        if (curr.resource_type !== null || curr.id in this.collapsedSections) {
+        if (curr.resource_type !== null || curr.id in this.collapsedSections || curr.id === dragItem.id) {
           return false;
         }
         ii = path.splice(0, 1)[0];
