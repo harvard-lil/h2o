@@ -22,6 +22,8 @@ drf_urlpatterns = [
     # annotations
     path('resources/<resource:resource>/annotations/<annotation:annotation>', views.AnnotationDetailView.as_view(), name='annotation_detail'),
     path('resources/<resource:resource>/annotations', views.AnnotationListView.as_view(), name='annotation_list'),
+    path('casebook/<idslug:casebook_param>/toc/<idslug:section_id>', views.SectionTOCView.as_view(), name='toc_list'),
+    path('casebook/<idslug:casebook_param>/toc', views.CasebookTOCView.as_view(), name='casebook_toc_list'),
 ]
 
 urlpatterns = format_suffix_patterns(drf_urlpatterns) + [

@@ -1,36 +1,49 @@
-from collections import OrderedDict
 import json
+from collections import OrderedDict
 from functools import wraps
-from pyquery import PyQuery
+from test.test_helpers import (assert_url_equal, check_response,
+                               dump_content_tree_children)
+
 import requests
+from django.conf import settings
+from django.contrib import messages
+from django.contrib.auth.decorators import login_required
+from django.contrib.auth.views import PasswordResetView, redirect_to_login
+from django.core.exceptions import PermissionDenied
+from django.http import (Http404, HttpResponse, HttpResponseBadRequest,
+                         HttpResponseRedirect, JsonResponse)
+from django.shortcuts import get_object_or_404, render
+from django.urls import reverse
+from django.utils.decorators import method_decorator
+from django.utils.html import escape
+from django.utils.text import Truncator
+from django.views import View
+from django.views.decorators.csrf import requires_csrf_token
+from django.views.decorators.http import require_http_methods, require_POST
+from pyquery import PyQuery
+from pytest import raises as assert_raises
 from rest_framework import status
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
-from django.conf import settings
-from django.contrib import messages
-from django.contrib.auth.decorators import login_required
-from django.contrib.auth.views import redirect_to_login, PasswordResetView
-from django.core.exceptions import PermissionDenied
-from django.http import HttpResponseRedirect, HttpResponseBadRequest, JsonResponse, Http404, HttpResponse
-from django.shortcuts import render, get_object_or_404
-from django.utils.text import Truncator
-from django.urls import reverse
-from django.utils.decorators import method_decorator
-from django.utils.html import escape
-from django.views.decorators.csrf import requires_csrf_token
-from django.views.decorators.http import require_POST, require_http_methods
-from django.views import View
-
-from .test.test_permissions_helpers import perms_test, viewable_section, directly_editable_section, viewable_resource, \
-    directly_editable_resource, post_directly_editable_resource, patch_directly_editable_resource, no_perms_test
-from test.test_helpers import check_response, assert_url_equal, dump_content_tree_children
-from pytest import raises as assert_raises
-
-from .utils import parse_cap_decision_date, fix_after_rails, CapapiCommunicationException, StringFileResponse, send_verification_email
-from .serializers import AnnotationSerializer, NewAnnotationSerializer, UpdateAnnotationSerializer, CaseSerializer, TextBlockSerializer
-from .models import Casebook, Section, Resource, Case, User, CaseCourt, ContentNode, TextBlock, Link, ContentAnnotation
-from .forms import CasebookForm, SectionForm, ResourceForm, LinkForm, TextBlockForm, NewTextBlockForm, UserProfileForm, SignupForm
+from .forms import (CasebookForm, LinkForm, NewTextBlockForm, ResourceForm,
+                    SectionForm, SignupForm, TextBlockForm, UserProfileForm)
+from .models import (Case, Casebook, CaseCourt, ContentAnnotation, ContentNode,
+                     Link, Resource, Section, TextBlock, User)
+from .serializers import (AnnotationSerializer, CaseSerializer,
+                          NewAnnotationSerializer, SectionOutlineSerializer,
+                          TextBlockSerializer, UpdateAnnotationSerializer)
+from .test.test_permissions_helpers import (directly_editable_resource,
+                                            directly_editable_section,
+                                            no_perms_test,
+                                            patch_directly_editable_resource,
+                                            perms_test,
+                                            post_directly_editable_resource,
+                                            viewable_resource,
+                                            viewable_section)
+from .utils import (CapapiCommunicationException, StringFileResponse,
+                    fix_after_rails, parse_cap_decision_date,
+                    send_verification_email)
 
 
 ### helpers ###
@@ -40,6 +53,7 @@ def login_required_response(request):
         raise PermissionDenied
     else:
         return redirect_to_login(request.build_absolute_uri())
+
 
 
 def hydrate_params(func):
@@ -65,13 +79,21 @@ def hydrate_params(func):
     @wraps(func)
     def wrapper(request, *args, **kwargs):
         casebook_param = kwargs.pop('casebook_param')
-        for param in ('section_param', 'resource_param', 'node_param'):
+        for param in ('section_param', 'section_id', 'resource_param', 'resource_id', 'node_param', 'node_id'):
             param_value = kwargs.pop(param, None)
             if not param_value:
                 continue
-            key = param.split('_', 1)[0]
-            kwargs[key] = get_object_or_404(ContentNode.objects.select_related('casebook'), casebook=casebook_param['id'], ordinals=param_value['ordinals'])
-            kwargs['casebook'] = kwargs[key].casebook
+            key,search_key = param.split('_', 1)
+            if search_key == 'param':
+                kwargs[key] = get_object_or_404(ContentNode.objects.select_related('casebook'),
+                                            casebook=casebook_param['id'],
+                                            ordinals=param_value['ordinals'])
+                kwargs['casebook'] = kwargs[key].casebook
+            else:
+                kwargs[key] = get_object_or_404(ContentNode.objects.select_related('casebook'),
+                                                casebook=casebook_param['id'],
+                                                id=param_value['id'])
+                kwargs['casebook'] = kwargs[key].casebook
         if 'casebook' not in kwargs:
             kwargs['casebook'] = get_object_or_404(Casebook, id=casebook_param['id'])
         return func(request, *args, **kwargs)
@@ -250,7 +272,86 @@ def render_with_actions(request, template_name, context=None, content_type=None,
     }, content_type, status, using)
 
 
+
+
 ### views ###
+
+class CasebookTOCView(APIView):
+    @method_decorator(requires_csrf_token)
+    @method_decorator(perms_test([
+    {'args': ['full_casebook'],
+     'results': {200: [None, 'other_user', 'full_casebook.owner']}},
+    {'args': ['full_private_casebook'],
+     'results': {200: ['full_private_casebook.owner'],
+                 'login': [None],
+                 403: ['other_user']}},
+    {'args': ['full_casebook_with_draft.draft'],
+     'results': {200: ['full_casebook_with_draft.draft.owner'],
+                 'login': [None],
+                 403: ['other_user']}},
+]))
+    @method_decorator(hydrate_params)
+    @method_decorator(user_has_perm('casebook', 'viewable_by'))
+    def get(self, request, casebook, format=None):
+        return Response(self.format_casebook(casebook), status=200)
+
+    @staticmethod
+    def format_casebook(casebook):
+        casebook.content_tree__load()
+        return {
+            'id':str(casebook.id) + "-" + casebook.get_slug(),
+            'children': SectionOutlineSerializer(casebook._content_tree__children, many=True).data
+        }
+
+class SectionTOCView(APIView):
+    """
+    This presents a Toc in a heirarchical form.
+    """
+
+    @method_decorator(requires_csrf_token)
+    @method_decorator(perms_test(viewable_section))
+    @method_decorator(hydrate_params)
+    @method_decorator(user_has_perm('casebook', 'viewable_by'))
+    @method_decorator(user_has_perm('section', 'viewable_by'))
+    def get(self, request, casebook,section, format=None):
+        section.content_tree__load()
+        return Response(SectionOutlineSerializer(section).data)
+
+
+    @method_decorator(requires_csrf_token)
+    @method_decorator(perms_test(directly_editable_section))
+    @method_decorator(hydrate_params)
+    @method_decorator(user_has_perm('casebook', 'directly_editable_by'))
+    @method_decorator(user_has_perm('section', 'directly_editable_by'))
+    def delete(self, request, casebook, section, format=None):
+        section.delete()
+        return Response(status=200)
+
+
+    @method_decorator(requires_csrf_token)
+    @method_decorator(perms_test([
+        {'args': ['full_casebook', 'full_casebook.sections.first'],
+         'results': {403: ['other_user', 'full_casebook.owner'], 'login': [None]}},
+        {'args': ['full_private_casebook', 'full_private_casebook.sections.first'],
+         'results': {400: ['full_private_casebook.owner'], 'login': [None], 403: ['other_user']}},
+        {'args': ['full_casebook_with_draft.draft', 'full_casebook_with_draft.draft.sections.first'],
+         'results': {400: ['full_casebook_with_draft.draft.owner'], 'login': [None], 403: ['other_user']}}]))
+    @method_decorator(hydrate_params)
+    @method_decorator(user_has_perm('casebook', 'directly_editable_by'))
+    @method_decorator(user_has_perm('section', 'directly_editable_by'))
+    def patch(self, request, casebook, section, format=None):
+        try:
+            data = json.loads(request.body.decode("utf-8"))
+            new_ordinals = [int(i)+1 for i in data['newLocation']]
+        except Exception:
+            return HttpResponseBadRequest(b"Request Body should match: {newLocation: [i j k]}")
+
+        try:
+            section.content_tree__move_to(new_ordinals)
+        except ValueError as e:
+            return HttpResponseBadRequest(b"Invalid ordinals: %s" % e.args[0].encode('utf8'))
+
+        return Response(CasebookTOCView.format_casebook(casebook),status=200)
 
 
 class AnnotationListView(APIView):
@@ -932,6 +1033,7 @@ def edit_section(request, casebook, section):
         form.save()
     contents = section.contents.prefetch_resources()
     return render_with_actions(request, 'section_edit.html', {
+        'casebook': casebook,
         'section': section,
         'contents': contents,
         'editing': True,
