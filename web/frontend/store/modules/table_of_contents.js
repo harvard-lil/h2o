@@ -75,7 +75,7 @@ const actions = {
                 commit('overwrite',resp.data);
             }, console.error);
     },
-    deleteNode: ({ commit, state }, {casebook, targetId}) => {
+    deleteNode: ({ commit, state, dispatch }, {casebook, targetId}) => {
         if (!targetId || targetId === "") {
             return false;
         }
@@ -86,17 +86,20 @@ const actions = {
         return Axios.delete(helpers.resourcePath(casebook, targetId))
             .then(() => {
                 commit('delete', {casebook, id:targetId});
-            }, console.error);
+            }, () => {
+                dispatch('fetch', {casebook});
+            });
     },
-    moveNode: ({commit, state}, {casebook, targetId, pathTo}) => {
+    moveNode: ({commit, state, dispatch}, {casebook, targetId, pathTo}) => {
         return Axios.patch(helpers.resourcePath(casebook, targetId), {newLocation:pathTo})
             .then(resp => {
                 if (!resp.data.id) {
                     resp.data.id = casebook;
                 }
                 commit('overwrite', resp.data);
-            },
-            console.error);
+            }, () => {
+                dispatch('fetch', {casebook});
+            });
     }
 };
 
