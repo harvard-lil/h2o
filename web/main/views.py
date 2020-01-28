@@ -44,6 +44,7 @@ from .test.test_permissions_helpers import (directly_editable_resource,
 from .utils import (CapapiCommunicationException, StringFileResponse,
                     fix_after_rails, parse_cap_decision_date,
                     send_verification_email)
+from django.views.decorators.cache import never_cache
 
 
 ### helpers ###
@@ -277,6 +278,7 @@ def render_with_actions(request, template_name, context=None, content_type=None,
 ### views ###
 
 class CasebookTOCView(APIView):
+    @never_cache
     @method_decorator(requires_csrf_token)
     @method_decorator(perms_test([
     {'args': ['full_casebook'],
@@ -307,7 +309,7 @@ class SectionTOCView(APIView):
     """
     This presents a Toc in a heirarchical form.
     """
-
+    @never_cache
     @method_decorator(requires_csrf_token)
     @method_decorator(perms_test(viewable_section))
     @method_decorator(hydrate_params)
@@ -342,7 +344,13 @@ class SectionTOCView(APIView):
     def patch(self, request, casebook, section, format=None):
         try:
             data = json.loads(request.body.decode("utf-8"))
-            new_ordinals = [int(i)+1 for i in data['newLocation']]
+            if 'within' in data:
+                within = data['within']
+                subsection = Section.objects.filter(id=within).get()
+                start_ordinals = subsection.ordinals
+            else:
+                start_ordinals = []
+            new_ordinals = start_ordinals + [int(i)+1 for i in data['newLocation']]
         except Exception:
             return HttpResponseBadRequest(b"Request Body should match: {newLocation: [i j k]}")
 
@@ -970,6 +978,7 @@ class SectionView(View):
 
         contents = section.contents.prefetch_resources()
         return render_with_actions(request, 'section.html', {
+            'casebook': casebook,
             'section': section,
             'contents': contents
         })
