@@ -23,10 +23,12 @@ polygon:hover {
   stroke: $white;
 }
 .open {
+  transition: transform 0.25s;
   transform: rotate(90deg);
   transform-origin: 30% 50%;
 }
 .collapsed {
+  transition: transform 0.25s;
   transform: rotate(0deg);
   transform-origin: 30% 50%;
 }
