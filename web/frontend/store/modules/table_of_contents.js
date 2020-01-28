@@ -75,30 +75,40 @@ const actions = {
                 commit('overwrite',resp.data);
             }, console.error);
     },
-    deleteNode: ({ commit, state, dispatch }, {casebook, targetId}) => {
+    deleteNode: ({ commit, state, dispatch }, {casebook, rootNode, targetId}) => {
         if (!targetId || targetId === "") {
             return false;
         }
-        let node = helpers.findNode(state.toc, casebook,  targetId);
+        let node = helpers.findNode(state.toc, rootNode,  targetId);
         if (node === null) {
             return false;
         }
         return Axios.delete(helpers.resourcePath(casebook, targetId))
             .then(() => {
-                commit('delete', {casebook, id:targetId});
+                commit('delete', {casebook:rootNode, id:targetId});
             }, () => {
-                dispatch('fetch', {casebook});
+                dispatch('fetch', {rootNode});
             });
     },
-    moveNode: ({commit, state, dispatch}, {casebook, targetId, pathTo}) => {
-        return Axios.patch(helpers.resourcePath(casebook, targetId), {newLocation:pathTo})
+    moveNode: ({commit, state, dispatch}, {casebook, rootNode, targetId, pathTo}) => {
+        let data = {newLocation: pathTo};
+        if (rootNode != casebook) {
+            data['within'] = rootNode;
+        }
+        return Axios.patch(helpers.resourcePath(casebook, targetId), data)
             .then(resp => {
                 if (!resp.data.id) {
                     resp.data.id = casebook;
                 }
                 commit('overwrite', resp.data);
             }, () => {
-                dispatch('fetch', {casebook});
+                if (rootNode !== casebook) {
+                    dispatch('fetch', {casebook, subsection: rootNode});
+                } else {
+                    dispatch('fetch', {casebook});
+                }
+
+
             });
     }
 };

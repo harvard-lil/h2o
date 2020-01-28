@@ -29,7 +29,11 @@
             </div>
           </div>
           <div class="listing section" v-else>
-            <div v-on:click="toggleSectionExpanded({id:item.id})" class="action-expand">
+            <div tabindex="0"
+                 v-on:keyup.enter="toggleSectionExpanded({id:item.id})"
+                 v-on:click="toggleSectionExpanded({id:item.id})"
+                 class="action-expand"
+                 v-if="item.children.length > 0 || isCollapsed({id:item.id})">
               <collapse-triangle :collapsed="isCollapsed({id:item.id})" />
             </div>
             <div class="section-number"></div>
@@ -39,6 +43,7 @@
           </div>
           <div class="actions">
             <button
+              :aria-label="'Delete ' +item.title"
               class="action-delete"
               v-on:click="markForDeletion({id:item.id})"
               v-if="!promptForDelete({id:item.id})"
@@ -47,8 +52,9 @@
               <div class="action-align">
                 <button
                   class="action-confirm-delete"
-                  v-on:click="confirmDeletion({id:item.id})"
-                >Delete</button>
+                  v-on:click="confirmDeletion({id:item.id})">
+                  Delete
+                </button>
                 <button class="action-cancel-delete" v-on:click="cancelDeletion({id:item.id})">Keep</button>
               </div>
             </div>
@@ -59,29 +65,33 @@
         <div class="listing resource" v-if="item.resource_type !== null">
           <div class="section-number"></div>
           <div class="resource-container" v-if="item.resource_type==='Case'">
-            <a :href="item.edit_url" class="section-title case-section-title">{{ item.title }}</a>
+            <a :href="item.url" class="section-title case-section-title">{{ item.title }}</a>
             <div class="case-metadata-container">
               <div class="resource-case">{{ item.citation }}</div>
               <div class="resource-date">{{ item.decision_date }}</div>
             </div>
           </div>
           <div class="resource-container" v-else-if="item.resource_type === 'TextBlock'">
-            <a :href="item.edit_url" class="section-title">{{ item.title }}</a>
+            <a :href="item.url" class="section-title">{{ item.title }}</a>
           </div>
           <div class="resource-container" v-else-if="item.resource_type === 'Link'">
-            <a :href="item.edit_url" class="section-title">{{ item.title }}</a>
+            <a :href="item.url" class="section-title">{{ item.title }}</a>
           </div>
           <div class="resource-type-container">
             <div class="resource-type">{{ item.resource_type === 'TextBlock' ? 'Text' : item.resource_type }}</div>
           </div>
         </div>
         <div class="listing section" v-else>
-          <div v-on:click="toggleSectionExpanded({id:item.id})" class="action-expand">
+          <div tabindex="0"
+               v-on:keyup.enter="toggleSectionExpanded({id:item.id})"
+               v-on:click="toggleSectionExpanded({id:item.id})"
+               class="action-expand"
+               v-if="item.children.length > 0 || isCollapsed({id:item.id})">
             <collapse-triangle :collapsed="isCollapsed({id:item.id})" />
           </div>
           <div class="section-number"></div>
           <div class="section-title">
-            <a :href="item.edit_url" class="section-title">{{ item.title }}</a>
+            <a :href="item.url" class="section-title">{{ item.title }}</a>
           </div>
         </div>
       </div>
@@ -109,13 +119,13 @@ export default {
     collapsedSections: {}
   }),
   computed: {
-    targetId: function() {
+    rootNode: function() {
       return this.rootId || this.casebook;
     },
     toc: {
       get: function() {
         const candidate = this.$store.getters["table_of_contents/getNode"](
-          this.targetId
+          this.rootNode
         );
         const omit = this.collapsedSections;
         function disownChildren(node) {
@@ -133,7 +143,7 @@ export default {
         return list && list.children;
       },
       set: function(newVal) {
-        this.shuffle({ id: this.targetId, children: newVal });
+        this.shuffle({ id: this.rootNode, children: newVal });
       }
     },
     dataReady: function() {
@@ -171,10 +181,10 @@ export default {
       Vue.delete(this.needsDeleteConfirmation, id);
     },
     confirmDeletion: function({ id }) {
-      this.deleteNode({ casebook: this.casebook, targetId: id });
+      this.deleteNode({ casebook: this.casebook, rootNode: this.rootNode, targetId: id });
     },
     moveSubsection: function({ id }, { pathTo }) {
-      this.moveNode({ casebook: this.casebook, targetId: id, pathTo });
+      this.moveNode({ casebook: this.casebook, rootNode: this.rootNode, targetId: id, pathTo });
     },
     isCollapsed: function({ id }) {
       return id in this.collapsedSections;
