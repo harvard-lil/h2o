@@ -29,13 +29,15 @@
             </div>
           </div>
           <div class="listing section" v-else>
-            <div tabindex="0"
-                 v-on:keyup.enter="toggleSectionExpanded({id:item.id})"
+            <button
+              aria-role="heading"
+              :aria-expanded="!isCollapsed({id:item.id}) ? 'true' : 'false'"
+                 :aria-label="isCollapsed({id:item.id}) ? 'expand ' + item.title : 'collapse ' + item.title"
                  v-on:click="toggleSectionExpanded({id:item.id})"
                  class="action-expand"
                  v-if="item.children.length > 0 || isCollapsed({id:item.id})">
               <collapse-triangle :collapsed="isCollapsed({id:item.id})" />
-            </div>
+            </button>
             <div class="section-number"></div>
             <div class="section-title">
               <a :href="item.edit_url" class="section-title">{{ item.title }}</a>
@@ -82,13 +84,14 @@
           </div>
         </div>
         <div class="listing section" v-else>
-          <div tabindex="0"
-               v-on:keyup.enter="toggleSectionExpanded({id:item.id})"
-               v-on:click="toggleSectionExpanded({id:item.id})"
-               class="action-expand"
-               v-if="item.children.length > 0 || isCollapsed({id:item.id})">
+          <button aria-role="heading"
+                  :aria-expanded="!isCollapsed({id:item.id}) ? 'true' : 'false'"
+                  :aria-label="isCollapsed({id:item.id}) ? 'expand ' + item.title : 'collapse ' + item.title"
+                  v-on:click="toggleSectionExpanded({id:item.id})"
+                  class="action-expand"
+                  v-if="item.children.length > 0 || isCollapsed({id:item.id})">
             <collapse-triangle :collapsed="isCollapsed({id:item.id})" />
-          </div>
+          </button>
           <div class="section-number"></div>
           <div class="section-title">
             <a :href="item.url" class="section-title">{{ item.title }}</a>
@@ -215,6 +218,10 @@ export default {
     counter-increment: item;
     display: block;
   }
+  button.action-expand {
+    border: 0 solid transparent;
+    background: transparent;
+  }
   .nestable-item {
     position: relative;
     .actions {
@@ -264,14 +271,16 @@ export default {
     margin-bottom: 8px;
     .listing {
       margin-top: 0px;
-      &.section:hover {
+      &.section:hover,
+      &.section:focus-within {
         background-color: $black;
         .section-number,
         .section-title {
           color: $white;
         }
       }
-      &.resource:hover {
+      &.resource:hover,
+      &.resource:focus-within {
         background-color: $white;
         .resource-case,
         .resource-date,
@@ -378,13 +387,20 @@ export default {
     }
     &.section:hover,
     &.section:focus,
+    &.section:focus-within,
     &.resource:hover,
-    &.resource:focus {
+    &.resource:focus,
+    &.resource:focus-within {
+      outline: 2px solid $white;
       background-color: $light-blue;
       border-color: $light-blue;
       * {
         color: $white;
         border-color: $white;
+      }
+      *:focus {
+        outline: 2px solid $white;
+        outline-offset: 2px;
       }
     }
     @media (max-width: $screen-xs) {
