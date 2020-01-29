@@ -8,7 +8,7 @@
       <vue-nestable-handle slot-scope="{ item }" :item="item" class="collapsed" v-if="editing">
         <div v-bind:class="{'listing-wrapper':true, 'delete-confirm': promptForDelete({id:item.id})}">
           <div class="listing resource" v-if="item.resource_type !== null">
-            <div class="section-number"></div>
+            <div class="section-number">{{rootOrdinals}}</div>
             <div class="resource-container" v-if="item.resource_type==='Case'">
               <a :href="item.edit_url" class="section-title case-section-title">{{ item.title }}</a>
               <div class="case-metadata-container">
@@ -38,7 +38,8 @@
                  v-if="item.children.length > 0 || isCollapsed({id:item.id})">
               <collapse-triangle :collapsed="isCollapsed({id:item.id})" />
             </button>
-            <div class="section-number"></div>
+            <div class="no-collapse-padded" v-else></div>
+            <div class="section-number">{{rootOrdinals}}</div>
             <div class="section-title">
               <a :href="item.edit_url" class="section-title">{{ item.title }}</a>
             </div>
@@ -65,7 +66,7 @@
       </vue-nestable-handle>
       <div class="listing-wrapper" v-else>
         <div class="listing resource" v-if="item.resource_type !== null">
-          <div class="section-number"></div>
+          <div class="section-number">{{rootOrdinals}}</div>
           <div class="resource-container" v-if="item.resource_type==='Case'">
             <a :href="item.url" class="section-title case-section-title">{{ item.title }}</a>
             <div class="case-metadata-container">
@@ -92,6 +93,7 @@
                   v-if="item.children.length > 0 || isCollapsed({id:item.id})">
             <collapse-triangle :collapsed="isCollapsed({id:item.id})" />
           </button>
+          <div class="no-collapse-padded" v-else></div>
           <div class="section-number"></div>
           <div class="section-title">
             <a :href="item.url" class="section-title">{{ item.title }}</a>
@@ -229,9 +231,12 @@ export default {
       }
     }
   },
-  props: ["rootId", "casebook", "editing"],
+  props: ["rootId", "casebook", "editing","rootOrdinals"],
   created: function() {
     this.fetch({ casebook: this.casebook, subsection: this.rootId });
+    if (this.rootOrdinals !== "") {
+      this.rootOrdinals += ".";
+    }
   }
 };
 </script>
@@ -240,254 +245,262 @@ export default {
 @import "../styles/vars-and-mixins";
 
 #table-of-contents {
-  ol {
-    counter-reset: item;
-  }
-  li {
-    counter-increment: item;
-    display: block;
-  }
-  button.action-expand {
-    border: 0 solid transparent;
-    background: transparent;
-  }
-  .nestable-item {
-    position: relative;
-    .actions {
-      position: absolute;
-      top: -6px;
-      right: 0;
-      height: 100%;
-      margin-top: 6px;
-      display: flex;
-      flex-direction: column;
-      align-content: center;
-      justify-content: center;
+    ol {
+        counter-reset: item;
     }
-  }
-  .action-confirmation {
-    display: flex;
-    flex-direction: row;
-    justify-content: space-between;
-    padding-right: 10px;
-    button {
-      width: unset;
-      height: unset;
-      color: unset;
-      background-color: unset;
-      display: unset;
-      margin: unset;
-      background-position: unset;
-      background-repeat: unset;
-      background-size: unset;
-      font-weight: 400;
-      margin: 2px;
-      padding: 6px 16px;
+    li {
+        counter-increment: item;
+        display: block;
     }
-    .action-confirm-delete {
-      background-color: $light-blue;
-      color: $white;
+    button.action-expand {
+        border: 0 solid transparent;
+        background: transparent;
     }
-    .action-cancel-delete {
-      background-color: $white;
-      color: $black;
+    .no-collapse-padded {
+        width: 32px;
+        height: 32px;
+        margin: 4px 7px;
     }
-  }
-  li.nestable-item.is-dragging {
-    border: 4px dashed grey;
-    border-radius: 8px;
-    margin-top: 8px;
-    margin-bottom: 8px;
+    .nestable-item {
+        position: relative;
+        .actions {
+            position: absolute;
+            top: -6px;
+            right: 0;
+            height: 100%;
+            margin-top: 6px;
+            display: flex;
+            flex-direction: column;
+            align-content: center;
+            justify-content: center;
+        }
+    }
+    .action-confirmation {
+        display: flex;
+        flex-direction: row;
+        justify-content: space-between;
+        padding-right: 10px;
+        button {
+            width: unset;
+            height: unset;
+            color: unset;
+            background-color: unset;
+            display: unset;
+            margin: unset;
+            background-position: unset;
+            background-repeat: unset;
+            background-size: unset;
+            font-weight: 400;
+            margin: 2px;
+            padding: 6px 16px;
+        }
+        .action-confirm-delete {
+            background-color: $light-blue;
+            color: $white;
+        }
+        .action-cancel-delete {
+            background-color: $white;
+            color: $black;
+        }
+    }
+    li.nestable-item.is-dragging {
+        border: 4px dashed grey;
+        border-radius: 8px;
+        margin-top: 8px;
+        margin-bottom: 8px;
+        .listing {
+            margin-top: 0px;
+            &.section:hover,
+            &.section:focus-within {
+                background-color: $black;
+                .section-number,
+                .section-title {
+                    color: $white;
+                }
+            }
+            &.resource:hover,
+            &.resource:focus-within {
+                background-color: $white;
+                .resource-case,
+                .resource-date,
+                .section-number,
+                .section-title {
+                    color: $black;
+                }
+            }
+        }
+    }
+    .listing-wrapper.delete-confirm .listing {
+        padding-right: 168px;
+    }
     .listing {
-      margin-top: 0px;
-      &.section:hover,
-      &.section:focus-within {
-        background-color: $black;
-        .section-number,
-        .section-title {
-          color: $white;
+        display: block;
+        width: 100%;
+        padding: 12px 16px;
+        padding-right: 42px;
+        margin-top: 6px;
+        border: 1px solid $black;
+        
+        &.section {
+            display: flex;
+            flex-direction: column;
+            align-items: left;
+            background-color: $black;
+            
+            @media (max-width: $screen-xs) {
+                flex-direction: row;
+            }
+            
+            .section-title {
+                display: inline;
+                font-weight: $medium;
+            }
+            .section-number,
+            .section-title {
+                color: $white;
+                margin-right: 10px;
+            }
         }
-      }
-      &.resource:hover,
-      &.resource:focus-within {
-        background-color: $white;
-        .resource-case,
-        .resource-date,
-        .section-number,
-        .section-title {
-          color: $black;
+        &.resource {
+            background-color: $white;
+            display: grid;
+            grid-template-columns: auto 1fr 15%;
+            
+            @media (max-width: $screen-xs) {
+                .resource-container {
+                    margin: 0 9px;
+                }
+            }
+            
+            .section-title {
+                display: inline;
+            }
+            
+            .case-section-title {
+                margin-bottom: 4px;
+            }
+            
+            .section-number,
+            .section-title {
+                color: $black;
+            }
+            
+            .case-metadata-container {
+                display: flex;
+                align-items: center;
+                
+                @media (max-width: $screen-xxs) {
+                    flex-direction: column;
+                    align-items: flex-start;
+                }
+                
+                .resource-case:empty {
+                    display: none;
+                }
+                
+                .resource-case {
+                    margin-right: 9px;
+                }
+            }
+            
+            .resource-type-container {
+                display: flex;
+                align-items: center;
+                justify-content: flex-end;
+                
+                @media (max-width: $screen-xs) {
+                    margin-right: -4px;
+                    
+                    .resource-type {
+                        padding: 2px 7px;
+                    }
+                }
+            }
         }
-      }
-    }
-  }
-  .listing-wrapper.delete-confirm .listing {
-    padding-right: 168px;
-  }
-  .listing {
-    display: block;
-    width: 100%;
-    padding: 12px 16px;
-    padding-right: 42px;
-    margin-top: 6px;
-    border: 1px solid $black;
-
-    &.section {
-      display: flex;
-      flex-direction: column;
-      align-items: left;
-      background-color: $black;
-
-      @media (max-width: $screen-xs) {
-        flex-direction: row;
-      }
-
-      .section-title {
-        display: inline;
-        font-weight: $medium;
-      }
-      .section-number,
-      .section-title {
-        color: $white;
-        margin-right: 10px;
-      }
-    }
-    &.resource {
-      background-color: $white;
-      display: grid;
-      grid-template-columns: auto 1fr 15%;
-
-      @media (max-width: $screen-xs) {
-        .resource-container {
-          margin: 0 9px;
+        &.empty {
+            border: 1px dashed $gray;
+            text-align: center;
+            color: $dark-gray;
+            background: transparent;
+            padding: 60px;
         }
-      }
-
-      .section-title {
-        display: inline;
-      }
-
-      .case-section-title {
-        margin-bottom: 4px;
-      }
-
-      .section-number,
-      .section-title {
-        color: $black;
-      }
-
-      .case-metadata-container {
-        display: flex;
-        align-items: center;
-
-        @media (max-width: $screen-xxs) {
-          flex-direction: column;
-          align-items: flex-start;
+        &.section:hover,
+        &.section:focus,
+        &.section:focus-within,
+        &.resource:hover,
+        &.resource:focus,
+        &.resource:focus-within {
+            outline: 2px solid $white;
+            background-color: $light-blue;
+            border-color: $light-blue;
+            * {
+                color: $white;
+                border-color: $white;
+            }
+            *:focus {
+                outline: 2px solid $white;
+                outline-offset: 2px;
+            }
         }
-
-        .resource-case:empty {
-          display: none;
-        }
-
-        .resource-case {
-          margin-right: 9px;
-        }
-      }
-
-      .resource-type-container {
-        display: flex;
-        align-items: center;
-        justify-content: flex-end;
-
         @media (max-width: $screen-xs) {
-          margin-right: -4px;
-
-          .resource-type {
-            padding: 2px 7px;
-          }
+            &.section,
+            &.resource {
+                div {
+                    margin: 4px 0;
+                    padding-left: 0;
+                    text-align: left;
+                }
+            }
         }
-      }
-    }
-    &.empty {
-      border: 1px dashed $gray;
-      text-align: center;
-      color: $dark-gray;
-      background: transparent;
-      padding: 60px;
-    }
-    &.section:hover,
-    &.section:focus,
-    &.section:focus-within,
-    &.resource:hover,
-    &.resource:focus,
-    &.resource:focus-within {
-      outline: 2px solid $white;
-      background-color: $light-blue;
-      border-color: $light-blue;
-      * {
-        color: $white;
-        border-color: $white;
-      }
-      *:focus {
-        outline: 2px solid $white;
-        outline-offset: 2px;
-      }
-    }
-    @media (max-width: $screen-xs) {
-      &.section,
-      &.resource {
-        div {
-          margin: 4px 0;
-          padding-left: 0;
-          text-align: left;
+        @media (min-width: $screen-xs) {
+            &.section {
+                flex-direction: row;
+                align-items: center;
+            }
         }
-      }
+        
+        .section-number,
+        .section-number:after{
+            font-size: 12px;
+            display: flex;
+            align-items: center;
+            margin-right: 10px;
+        }
+        .section-number:after {
+            content: counters(item, ".") " ";
+        }
+        .section-title {
+            @include sans-serif($bold, 14px, 14px);
+            display: inline-block;
+        }
+        .resource-type,
+        .resource-case,
+        .resource-date {
+            @include sans-serif($light, 14px, 14px);
+            display: inline-block;
+            
+            text-align: left;
+            color: $black;
+        }
+        
+        .resource-type {
+            border: 1px solid $light-blue;
+            color: $light-blue;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 12px;
+            font-weight: bold;
+            height: 20px;
+            width: 72px;
+        }
     }
-    @media (min-width: $screen-xs) {
-      &.section {
-        flex-direction: row;
-        align-items: center;
-      }
+    &.confirm-delete {
+        margin-right: 160px;
     }
-
-    .section-number:before {
-      content: counters(item, ".") " ";
-      font-size: 12px;
-      display: flex;
-      align-items: center;
-      margin-right: 10px;
+    ol.nestable-list.nestable-group {
+        padding-left: 0px;
     }
-    .section-title {
-      @include sans-serif($bold, 14px, 14px);
-      display: inline-block;
-    }
-    .resource-type,
-    .resource-case,
-    .resource-date {
-      @include sans-serif($light, 14px, 14px);
-      display: inline-block;
-
-      text-align: left;
-      color: $black;
-    }
-
-    .resource-type {
-      border: 1px solid $light-blue;
-      color: $light-blue;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      font-size: 12px;
-      font-weight: bold;
-      height: 20px;
-      width: 72px;
-    }
-  }
-  &.confirm-delete {
-    margin-right: 160px;
-  }
-  ol.nestable-list.nestable-group {
-    padding-left: 0px;
-  }
   .nestable-list {
     .nestable-list {
       border-left: 8px solid $light-blue;
