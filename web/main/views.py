@@ -344,15 +344,15 @@ class SectionTOCView(APIView):
     def patch(self, request, casebook, section, format=None):
         try:
             data = json.loads(request.body.decode("utf-8"))
-            if 'within' in data:
-                within = data['within']
-                subsection = Section.objects.filter(id=within).get()
+            if 'parent' in data and data['parent']:
+                parent_id = data['parent']
+                subsection = Section.objects.filter(id=parent_id).get()
                 start_ordinals = subsection.ordinals
             else:
                 start_ordinals = []
-            new_ordinals = start_ordinals + [int(i)+1 for i in data['newLocation']]
+            new_ordinals = start_ordinals +  [data['index']+1]
         except Exception:
-            return HttpResponseBadRequest(b"Request Body should match: {newLocation: [i j k]}")
+            return HttpResponseBadRequest(b"Request Body should match: {parent: id, index: Number}")
 
         try:
             section.content_tree__move_to(new_ordinals)

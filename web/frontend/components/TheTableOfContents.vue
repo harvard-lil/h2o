@@ -55,9 +55,9 @@
                 <button
                   class="action-confirm-delete"
                   v-on:click="confirmDeletion({id:item.id})">
-                  Delete
+                  Delete {{item.resource_type !== null ? '' : 'section and all contents'}}
                 </button>
-                <button class="action-cancel-delete" v-on:click="cancelDeletion({id:item.id})">Keep</button>
+                <button class="action-cancel-delete" v-on:click="cancelDeletion({id:item.id})" v-focus>Keep</button>
               </div>
             </div>
           </div>
@@ -103,6 +103,7 @@
 </template>
                                 
 <script>
+import _ from 'lodash'
 import Vue from "vue";
 import { VueNestable, VueNestableHandle } from "vue-nestable";
 import CollapseTriangle from "./CollapseTriangle";
@@ -121,6 +122,13 @@ export default {
     needsDeleteConfirmation: {},
     collapsedSections: {}
   }),
+  directives: {
+    focus: {
+      inserted: function (el) {
+        el.focus()
+      }
+    }
+  },
   computed: {
     rootNode: function() {
       return this.rootId || this.casebook;
@@ -162,6 +170,16 @@ export default {
       }
       let res_path = [];
       let path = pathTo.slice(0);
+      // The pathTo potentially restructures the tree in a way that can affect lookup.
+      // we need to do a small adjustment to the lookup path to account for that
+      let lastFromIndex = pathFrom.pop()
+      let pathToStart = path.slice(0,pathFrom.length)
+      if (_.isEqual(pathToStart, pathFrom)
+         && path.length > pathFrom.length
+         && path[pathFrom.length] >= lastFromIndex) {
+          path[pathFrom.length] += 1;
+      }
+
       let ii = path.splice(0, 1)[0];
       let curr = this.toc[ii];
       while (path.length > 0) {
@@ -186,8 +204,19 @@ export default {
     confirmDeletion: function({ id }) {
       this.deleteNode({ casebook: this.casebook, rootNode: this.rootNode, targetId: id });
     },
-    moveSubsection: function({ id }, { pathTo }) {
-      this.moveNode({ casebook: this.casebook, rootNode: this.rootNode, targetId: id, pathTo });
+    moveSubsection: function({ id }, { items, pathTo }) {
+      function findIn(tree, id) {
+        let candidates = tree.children
+                             .map((x,index) => {
+                                  if (x.id === id) {
+                                    return { parent: tree.id, index };
+                                  } else {
+                                    return findIn(x, id);
+                                  }}).filter(x => x !== null)
+        return candidates.length === 1 ? candidates[0] : null;
+      }
+      let {parent, index } = findIn({id: null,children:items},id);
+      this.moveNode({ casebook: this.casebook, rootNode: this.rootNode, moverId: id, parent, index });
     },
     isCollapsed: function({ id }) {
       return id in this.collapsedSections;
