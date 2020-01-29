@@ -245,6 +245,16 @@ export default {
 @import "../styles/vars-and-mixins";
 
 #table-of-contents {
+    > .table-of-contents > .nestable > ol {
+        > li.nestable-item > .nestable-item-content {
+            > .listing-wrapper > .listing.resource {
+                padding-left: 60px;
+            }
+            > div > .listing-wrapper > .listing.resource {
+                padding-left: 60px;
+            }
+        }
+    }
     ol {
         counter-reset: item;
     }
@@ -501,26 +511,28 @@ export default {
     ol.nestable-list.nestable-group {
         padding-left: 0px;
     }
-  .nestable-list {
     .nestable-list {
-      border-left: 8px solid $light-blue;
-      padding-left: 16px;
+        .nestable-list {
+            border-left: 8px solid $light-blue;
+            padding-left: 16px;
+            margin-left: 30px;
+        }
     }
-  }
-  div.editable .nestable-list .nestable-list {
-    border-left: 8px solid $yellow;
-    padding-left: 16px;
-  }
-  .nestable-drag-layer {
-    opacity: 0.7;
-    position: fixed;
-    top: 0;
-    left: 0;
-    z-index: 100;
-    pointer-events: none;
-    .listing {
-      .section-number:before {
-        content: "-";
+    div.editable .nestable-list .nestable-list {
+        border-left: 8px solid $yellow;
+        padding-left: 16px;
+        margin-left: 30px;
+    }
+    .nestable-drag-layer {
+        opacity: 0.7;
+        position: fixed;
+        top: 0;
+        left: 0;
+        z-index: 100;
+        pointer-events: none;
+        .listing {
+            .section-number:before {
+                content: "-";
       }
     }
   }
