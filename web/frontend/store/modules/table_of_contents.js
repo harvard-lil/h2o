@@ -90,12 +90,12 @@ const actions = {
                 dispatch('fetch', {rootNode});
             });
     },
-    moveNode: ({commit, state, dispatch}, {casebook, rootNode, targetId, pathTo}) => {
-        let data = {newLocation: pathTo};
-        if (rootNode != casebook) {
-            data['within'] = rootNode;
+    moveNode: ({commit, state, dispatch}, {casebook, rootNode, moverId, parent, index}) => {
+        let data = {parent , index};
+        if (parent === null && rootNode != casebook) {
+            data['parent'] = rootNode;
         }
-        return Axios.patch(helpers.resourcePath(casebook, targetId), data)
+        return Axios.patch(helpers.resourcePath(casebook, moverId), data)
             .then(resp => {
                 if (!resp.data.id) {
                     resp.data.id = casebook;
