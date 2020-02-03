@@ -1,4 +1,4 @@
-FROM python:3.5-stretch
+FROM python:3.7-buster
 ENV LANG=C.UTF-8 \
     LC_ALL=C.UTF-8 \
     PYTHONUNBUFFERED=1 \
