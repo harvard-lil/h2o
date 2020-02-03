@@ -34,7 +34,8 @@ export default {
     ...mapGetters(["collapsible"]),
 
     resourceId() {
-      return document.querySelector("header.casebook").dataset.resourceId;
+      const el = document.querySelector("header.casebook")
+      return el && el.dataset && el.dataset.resourceId;
     }
   },
   methods: {
