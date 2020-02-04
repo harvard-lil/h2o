@@ -1,55 +1,30 @@
-.case-text {
-    .otherdate,
-    .seealso,
-    .decisiondate,
-    .attorneys,
-    .docketnumber,
+.casebook-header {
+    .title,
     .citation,
-    .parties,
-    .page-label,
-    .author,
-    .judges,
-    .disposition,
+    .decisiondate,
+    .docketnumber,
     .court {
         text-align:center;
-        font-size:1.5rem;
+        letter-spacing:1px;
+        padding: 4px;
     }
-
-    /* Should be slightly larger */
-    .parties {
-        font-size: 2.25rem;
-    }
-
     .court {
-        font-size: 2rem;
+        font-size:24px;
     }
-
-    /* dates */
-    .decisiondate,.otherdate {
-        font-style: italic;;
+    .citation,
+    .decisiondate,
+    .docketnumber {
+        font-size: 18px;
     }
-
-    .disposition {
-        font-size:1.75rem;
-        font-weight:500;
-    }
-
-    /* Included for completeness. No current special styling, but present in  */
-    .footnotemark {}
-    .headnotes {}
-    .blockquote {}
-    .summary {}
-    .bracketnum {}
-    .headnote_anchor {}
-    .history {}
-    .syllabus {}
-
 }
 
-h1.title {
-    font-size: 4rem;
-    text-align: center;
-    font-weight: 500;
+.case-text {
+    .decisiondate,
+    .docketnumber,
+    .citation,
+    .syllabus,
+    .synopsis,
+    .court {
+        display:none;
+    }
 }
-
-
