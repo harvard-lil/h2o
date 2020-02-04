@@ -7,9 +7,7 @@
     <div class="content">
       <div class="casebook-inner">
         <div class="top-strip"></div>
-        <header class="casebook-header">
-          <h1 class="title">{{ case.get_name }}</h1>
-        </header>
+        {% include 'case_header.html' %}
         <section class="resource">
           <the-resource :editable="false" :resource="{{ case.json }}"></the-resource>
         </section>

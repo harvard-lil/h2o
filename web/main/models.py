@@ -318,6 +318,17 @@ class Case(NullableTimestampedModel, AnnotatedModel):
     def related_resources(self):
         return Resource.objects.filter(resource_id=self.id, resource_type='Case')
 
+    @property
+    def prefer_meta_header(self):
+        """
+        When we think that a case has come from CAP, we try to show the verified metadata (name, citations, decision date, court) that has been cleaned.
+        """
+        return self.created_via_import
+
+    @property
+    def cite_string(self):
+        return ", ".join([x['cite'] for x in self.citations if 'cite' in x])
+
 
 class ContentAnnotationQueryset(models.QuerySet):
     def valid(self):
