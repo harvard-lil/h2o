@@ -1,11 +1,11 @@
-<header class="casebook-header">
+<header class="case-header">
     {% if case.prefer_meta_header %}
     {% if case.case_court.name %} <div class="court"> {{ case.case_court.name }}</div> {% endif %}
-        <h1 class="casebook-title">{% firstof case.get_name resource.title %}</h1>
+        <h1 class="title">{% firstof case.get_name resource.title %}</h1>
     {% if case.citations %}<div class="citation"> {{case.cite_string}} </div> {% endif %}
     {% if case.docket_number %}<div class="docketnumber">{{ case.docket_number }}</div>{% endif %}
     {% if case.decision_date %}<div class="decisiondate">{{ case.decision_date }}</div>{% endif %}
     {% else %}
-    <h1 class="casebook-title">{% firstof case.get_name resource.title %}</h1>
+    <h1 class="title">{% firstof case.get_name resource.title %}</h1>
     {% endif %}
 </header>
