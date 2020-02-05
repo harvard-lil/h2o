@@ -49,6 +49,24 @@ export default {
 <style lang="scss" scoped>
 @import '../styles/vars-and-mixins';
 
+.case-text {
+    > :not(section), > section.casebody h4, > section.casebody p, > section.casebody blockquote {
+        &.fully-elided {
+            span.selected-text:before {
+                content: counter(index);
+                user-select: none;
+                @include sans-serif($regular, 12px, 12px);
+                position: fixed;
+                width: 100px;
+                left: -92px;
+                text-align: right;
+                line-height: 30px;
+                color: $light-blue;
+            }
+        }
+    }
+}
+
 .selected-text {
   padding: 0.35em;
   display: inline;
