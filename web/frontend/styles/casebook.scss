@@ -4,6 +4,13 @@
 
 main > .casebook .casebook-inner {
   @include centered-md-column(9);
+  /*
+    The following line is CSS voodoo.
+    It allows the paragraph numbers to be aligned along the left border.
+    For how this works, see
+    https://meyerweb.com/eric/thoughts/2011/09/12/un-fixing-fixed-elements-with-css-transforms/
+  */
+  transform:rotate(0deg)
 }
 
 main > section.casebook {
