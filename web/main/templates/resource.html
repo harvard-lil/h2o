@@ -41,9 +41,7 @@
         {% include 'includes/headnote.html' with content=resource %}
         <section class="resource">
             {% if resource.resource_type == 'Case' %}
-            {% with case=resource.case %}
-            {% include 'case_header.html' %}
-            {% endwith %}
+            {% include 'includes/case_header.html' with case=resource.resource %}
             <the-resource :editable="false" :resource="{{ resource.json }}"></the-resource>
             {% elif resource.resource_type == 'TextBlock'  %}
             <the-resource :editable="false" :resource="{{ resource.json }}"></the-resource>

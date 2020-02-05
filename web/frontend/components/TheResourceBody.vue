@@ -41,38 +41,33 @@ export default {
 @import '../styles/vars-and-mixins';
 
 .case-text {
-  position: relative;
-  counter-reset: index;
-  @include serif-text($regular, 18px, 31px);
-  /* hacks for misbehaving blockquotes */
-  blockquote {
-    span p {
-      display: inline; /* yes, p in span is illegal, but we have them */
-    }
-  }
-  /* paragraph numbers -- section.casebody handles HTML received from CAP */
-  > :not(section), > section.casebody h4, > section.casebody p, > section.casebody blockquote {
     position: relative;
-    &::before {
-      counter-increment: index;
-      content: counter(index);
-      user-select: none;
-      @include sans-serif($regular, 12px, 12px);
-
-      /* these two styles, coupled with position: relative on the parent,
-       enable page numbers to be hidden when the full paragraph is elided */
-      overflow: hidden;
-      height: 100%;
-
-      position: absolute;
-      width: 100px;
-      left: -145px;
-      text-align: right;
-
-      line-height: 30px;
-      color: $light-blue;
+    counter-reset: index;
+    @include serif-text($regular, 18px, 31px);
+    /* hacks for misbehaving blockquotes */
+    blockquote {
+        span p {
+            display: inline; /* yes, p in span is illegal, but we have them */
+        }
     }
-  }
+    /* paragraph numbers -- section.casebody handles HTML received from CAP */
+    > :not(section), > section.casebody h4, > section.casebody p, > section.casebody blockquote {
+        position: relative;
+        &:not(.elision):not(.fully-elided) {
+            &::before {
+                content: counter(index);
+                user-select: none;
+                @include sans-serif($regular, 12px, 12px);
+                position: fixed;
+                width: 100px;
+                left: -92px;
+                text-align: right;
+                line-height: 30px;
+                color: $light-blue;
+            }
+        }
+        counter-increment: index;
+    }
 }
 .page-number, .page-label {
   font-size: small;

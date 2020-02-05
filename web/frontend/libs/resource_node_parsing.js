@@ -3,6 +3,7 @@ import { isBlockLevel,
          isText,
          getLength,
          getAttrsMap } from "../libs/html_helpers";
+import _ from 'lodash';
 
 /////////////
 // Helpers //
@@ -159,6 +160,24 @@ export const splitNodeList = (annotations, nodeList, start, end) => {
     ), []);
 };
 
+
+const isFullyElided = (node) => {
+    if (_.isString(node)) {
+        return false;
+    } else {
+        if (node.tag && _.endsWith(node.tag,'elision-annotation')) {
+            return true;
+        }
+        if (node.classList && node.classList.indexOf("fully-elided") > -1){
+            return true;
+        }
+        if (node.data && node.data.class && node.data.class['fully-elided']) {
+            return true;
+        }
+        return false;
+    }
+}
+
 // Vue component children arrays must contain either VNodes or
 // Strings (which get converted to VNodes automatically)
 export const tupleToVNode = (h, annotations) =>
@@ -180,6 +199,9 @@ export const tupleToVNode = (h, annotations) =>
                       endOffset: end};
         break;
       }
+        if (_.every(children,isFullyElided)) {
+            data.class = {'fully-elided': true};
+        }
       return h(tag, data, children);
     } else {
       return node;
