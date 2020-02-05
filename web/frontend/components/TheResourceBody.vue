@@ -68,6 +68,10 @@ export default {
         }
         counter-increment: index;
     }
+
+    blockquote.fully-elided {
+        padding:0px;
+    }
 }
 .page-number, .page-label {
   font-size: small;
