@@ -33,13 +33,13 @@
         </header>
         <header class="content">
           {% include 'includes/breadcrumbs.html' with content=resource %}
-          <h1 class="title">{{ resource.title }}</h1>
+            <h1 class="title">{{ resource.title }}</h1>
         </header>
+        {% include 'includes/action_buttons.html' with content=resource %}
+        {% include 'includes/headnote.html' with content=resource %}
         {% if resource.resource_type == 'Case' %}
         {% include 'includes/case_header.html' with case=resource.resource %}
         {% endif %}
-        {% include 'includes/action_buttons.html' with content=resource %}
-        {% include 'includes/headnote.html' with content=resource %}
         <section class="resource">
           <the-resource :editable="true" :resource="{{ resource.json }}"></the-resource>
         </section>
