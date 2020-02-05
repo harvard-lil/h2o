@@ -1,5 +1,5 @@
 .casebook-header {
-    .title,
+    .casebook-title,
     .citation,
     .decisiondate,
     .docketnumber,
@@ -19,6 +19,7 @@
 }
 
 .case-text {
+    .parties,
     .decisiondate,
     .docketnumber,
     .citation,

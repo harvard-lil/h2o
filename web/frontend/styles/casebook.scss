@@ -204,7 +204,8 @@ form.edit_content_resource, form.edit_content_section, form.edit_content_caseboo
     background-color: $white;
 
     .casebook-title {
-      @include sans-serif($bold, 14px, 18px);
+        @include serif-text($bold, 14px, 18px);
+        font-size:36px;
     }
   }
   header.content {
