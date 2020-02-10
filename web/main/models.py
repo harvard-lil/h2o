@@ -515,11 +515,6 @@ class ContentNodeQueryset(models.QuerySet):
                     content_node._resource = resources.get((content_node.resource_type, content_node.resource_id))
                     content_node._resource_prefetched = True
 
-    def prefetch_draft(self):
-        """ Populate the _drafts queryset so it can be read by casebook.draft """
-        return self.prefetch_related(Prefetch('clones', Casebook.objects.filter(draft_mode_of_published_casebook=True), '_drafts'))
-
-
 class ContentNode(EditTrackedModel, TimestampedModel, BigPkModel):
     title = models.CharField(max_length=10000, default="Untitled")
     subtitle = models.CharField(max_length=10000, blank=True, null=True)
@@ -542,6 +537,7 @@ class ContentNode(EditTrackedModel, TimestampedModel, BigPkModel):
     draft_mode_of_published_casebook = models.BooleanField(blank=True, null=True, help_text='Unknown (None) or True; never False')
     # see https://github.com/harvard-lil/h2o/issues/1032 for a discussion of ancestry, root_user, and collaborators
     ancestry = models.CharField(max_length=255, blank=True, null=True, help_text="List of parent IDs in tree, separated by slashes.")
+    provenance = ArrayField(models.BigIntegerField(), default=list, blank=False)
     root_user = models.ForeignKey(
         'User',
         blank=True,
@@ -1037,8 +1033,7 @@ class ContentNode(EditTrackedModel, TimestampedModel, BigPkModel):
             >>> assert set(c_1.version_tree__descendants()) == {c_1_1, c_1_2}
             >>> assert set(c_2.version_tree__descendants()) == set()
         """
-        child_ancestry = "%s/%s" % (self.ancestry, self.pk) if self.ancestry else str(self.pk)
-        return type(self).objects.filter(Q(ancestry=child_ancestry) | Q(ancestry__startswith=child_ancestry+"/"))
+        return type(self).objects.filter(provenance__contains=[self.id])
 
     def version_tree__root(self):
         """
@@ -1051,9 +1046,9 @@ class ContentNode(EditTrackedModel, TimestampedModel, BigPkModel):
             >>> assert c_1.version_tree__root() == root
             >>> assert c_1_1.version_tree__root() == root
         """
-        if not self.ancestry:
+        if not self.provenance:
             return None
-        return type(self).objects.get(pk=self.ancestry.split("/")[0])
+        return Casebook.objects.filter(id=self.provenance[0]).get()
 
     def version_tree__parent(self):
         """
@@ -1067,9 +1062,9 @@ class ContentNode(EditTrackedModel, TimestampedModel, BigPkModel):
             >>> assert c_1_1.version_tree__parent() == c_1
             >>> assert c_2.version_tree__parent() == root
         """
-        if not self.ancestry:
+        if not self.provenance:
             return None
-        return type(self).objects.get(pk=self.ancestry.split("/")[-1])
+        return type(self).objects.get(pk=self.provenance[-1])
 
     ##
     # Methods specialized by children
@@ -1569,7 +1564,8 @@ class Casebook(CasebookAndSectionMixin, ContentNode):
     @property
     def has_draft(self):
         """See ContentNode.has_draft"""
-        return self.clones.filter(draft_mode_of_published_casebook=True).exists()
+        search_provenance = self.provenance + [self.id]
+        return Casebook.objects.filter(provenance=search_provenance, draft_mode_of_published_casebook=True).exists()
 
     @property
     def is_or_belongs_to_draft(self):
@@ -1586,12 +1582,13 @@ class Casebook(CasebookAndSectionMixin, ContentNode):
         if hasattr(self, '_drafts'):
             # populated by Casebook.objects.prefetch_draft()
             return self._drafts[0] if self._drafts else None
-        return self.clones.filter(draft_mode_of_published_casebook=True).first()
+        search_provenance = self.provenance + [self.id]
+        return Casebook.objects.filter(provenance=search_provenance, draft_mode_of_published_casebook=True).first()
 
     @cached_property
     def draft_of(self):
         """ Return the casebook for which this is a draft, if this is a draft, or else None. """
-        return self.copy_of if self.draft_mode_of_published_casebook else None
+        return Casebook.objects.filter(id=self.provenance[-1]).get() if self.draft_mode_of_published_casebook else None
 
     def make_draft(self):
         """
@@ -1617,13 +1614,13 @@ class Casebook(CasebookAndSectionMixin, ContentNode):
             Given:
             >>> reset_sequences, full_casebook, assert_num_queries = [getfixture(i) for i in ['reset_sequences', 'full_casebook', 'assert_num_queries']]
             >>> draft = full_casebook.make_draft()
-            >>> _ = ContentNode.objects.filter(id=2).update(copy_of_id=1)  # mark node 2 as copy_of node 1
+            >>> # _ = ContentNode.objects.filter(id=2).update(provenance=[1])  # mark node 2 as copy_of node 1
 
             Merge draft back into original:
             >>> draft.title = "New Title"
             >>> draft.save()
             >>> Section(casebook=draft, ordinals=[3], title="New Section").save()
-            >>> with assert_num_queries(delete=8, select=11, update=3):
+            >>> with assert_num_queries(delete=8, select=12, update=3):
             ...     new_casebook = draft.merge_draft()
             >>> assert new_casebook == full_casebook
             >>> expected = [
@@ -1642,8 +1639,8 @@ class Casebook(CasebookAndSectionMixin, ContentNode):
             ...     '   ContentNode<19> -> Link<4>: Some Link Name 1',
             ...     ' Section<20>: Some Section 9',
             ...     ' Section<21>: New Section',
-            ... ]
-            >>> assert dump_casebook_outline(full_casebook) == expected
+            ...     ]
+            >>> assert dump_casebook_outline(new_casebook) == expected
 
             Assets associated with old published version are gone:
             >>> assert set(ContentNode.objects.values_list('id', flat=True)) == {1, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21}
@@ -1652,11 +1649,11 @@ class Casebook(CasebookAndSectionMixin, ContentNode):
             >>> assert set(Link.objects.values_list('id', flat=True)) == {3, 4}
 
             The original copy_of attributes from the published version are preserved:
-            >>> assert ContentNode.objects.get(id=12).copy_of_id == 1
+            >>> assert ContentNode.objects.get(id=12).provenance == []
         """
         # set up variables
         draft = self
-        parent = self.copy_of
+        parent = Casebook.objects.filter(id=self.provenance[-1]).get()
         if not self.draft_mode_of_published_casebook:
             raise ValueError("Only draft casebooks may be merged")
 
@@ -1671,13 +1668,13 @@ class Casebook(CasebookAndSectionMixin, ContentNode):
         # delete old annotations
         ContentAnnotation.objects.filter(resource__casebook=parent).delete()
 
-        # copy copy_of attribute from old content nodes to new ones
+        # The last parent can be removed from the provenance, as it is a node that's deleted in a few lines
         nodes_to_update = []
-        for node in draft.contents.select_related('copy_of'):
-            if node.copy_of:
+        for node in draft.contents.all():
+            if node.provenance:
                 nodes_to_update.append(node)
-                node.copy_of_id = node.copy_of.copy_of_id
-        ContentNode.objects.bulk_update(nodes_to_update, ['copy_of_id'])
+                node.provenance = node.provenance[:-1]
+        ContentNode.objects.bulk_update(nodes_to_update, ['provenance'])
 
         # delete old content nodes
         parent.contents.all().delete()
@@ -1738,19 +1735,15 @@ class Casebook(CasebookAndSectionMixin, ContentNode):
             ... ]
             >>> assert dump_casebook_outline(clone) == expected
             >>> assert clone.owner == user
-            >>> assert clone.ancestry == str(full_casebook.id)
+            >>> assert clone.provenance == [full_casebook.id]
             >>> clone_of_clone = clone.clone(owner=user)
-            >>> assert clone_of_clone.ancestry == "{}/{}".format(full_casebook.id, clone.id)
+            >>> assert clone_of_clone.provenance == [full_casebook.id, clone.id]
             >>> clone3 = clone_of_clone.clone(owner=user)
-            >>> assert clone3.ancestry == "{}/{}/{}".format(full_casebook.id, clone.id, clone_of_clone.id)
+            >>> assert clone3.provenance == [full_casebook.id, clone.id, clone_of_clone.id]
         """
         # clone casebook
         old_casebook = self
-        cloned_casebook = clone_model_instance(old_casebook, copy_of=old_casebook, public=False, draft_mode_of_published_casebook=(draft_mode or None))
-        if old_casebook.ancestry:
-            cloned_casebook.ancestry = "{}/{}".format(old_casebook.ancestry, old_casebook.id)
-        else:
-            cloned_casebook.ancestry = str(old_casebook.id)
+        cloned_casebook = clone_model_instance(old_casebook, provenance=old_casebook.provenance+[old_casebook.id], public=False, draft_mode_of_published_casebook=(draft_mode or None))
         cloned_casebook.save()
 
         # clone or replace collaborators
@@ -1762,7 +1755,6 @@ class Casebook(CasebookAndSectionMixin, ContentNode):
             owner = next(role.user for role in roles if role.role == 'owner')
 
         cloned_casebook.clone_nodes(old_casebook.contents.prefetch_resources().prefetch_related('annotations'), owner=owner)
-
         return cloned_casebook
 
     @transaction.atomic
@@ -1780,7 +1772,7 @@ class Casebook(CasebookAndSectionMixin, ContentNode):
         cloned_annotations = []  # collect new ContentAnnotations for bulk_create
         for old_content_node in nodes:
             # clone content_node
-            cloned_content_node = clone_model_instance(old_content_node, copy_of=old_content_node, casebook=self)
+            cloned_content_node = clone_model_instance(old_content_node, provenance=old_content_node.provenance+[old_content_node.id], casebook=self)
             cloned_content_nodes.append(cloned_content_node)
 
             # clone annotations
@@ -1829,7 +1821,7 @@ class Casebook(CasebookAndSectionMixin, ContentNode):
         """
         if self.root_user_id:
             return self.root_user
-        elif self.ancestry:
+        elif self.provenance:
             return self.version_tree__root().owner
 
     def users_with_role(self, role):
