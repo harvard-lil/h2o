@@ -39,9 +39,19 @@
        * @returns {object|null}
        */
       style () {
-        return this.show
-          ? { top: `${this.top}px`, left: `${this.left}px` }
-          : null;
+        if (this.show && this.left) {
+          let offsetParent  =  this.$el.parentElement;
+          while (!offsetParent.classList.contains('casebook-inner') && offsetParent.parentElement) {
+            offsetParent = offsetParent.parentElement;
+          }
+          const _parentLeft = offsetParent.offsetLeft;
+          const _parentTop = offsetParent.offsetTop;
+          const _theTop = this.top + _parentTop;
+          const _theLeft = this.left - _parentLeft;
+          return  {left: `${this.left - _parentLeft}px`, top:`${this.$el.parentElement.offsetTop - this.$el.parentElement.offsetHeight}px`};
+        } else {
+          return null;
+        }
       }
     },
     data () {
@@ -168,7 +178,7 @@
     display: block;
     margin: 0;
     padding: 0;
-    position: fixed;
+    position: absolute;
     z-index: 99999;
     @include sans-serif($regular, 12px, 14px);
     ul, form {
