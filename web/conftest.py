@@ -110,7 +110,7 @@ class CasebookFactory(ContentNodeFactory):
     class Meta:
         model = Casebook
 
-    contentcollaborator_set = factory.RelatedFactory('conftest.ContentCollaboratorFactory', 'content')
+    contentcollaborator_set = factory.RelatedFactory('conftest.ContentCollaboratorFactory', 'content', can_edit=True)
     title = factory.Sequence(lambda n: 'Some Title %s' % n)
     public = True
     provenance = []
@@ -119,6 +119,7 @@ class CasebookFactory(ContentNodeFactory):
 @register_factory
 class PrivateCasebookFactory(CasebookFactory):
     public = False
+    contentcollaborator_set = factory.RelatedFactory('conftest.ContentCollaboratorFactory', 'content', can_edit=True)
 
 
 @register_factory
@@ -126,6 +127,8 @@ class DraftCasebookFactory(CasebookFactory):
     public = False
     draft_mode_of_published_casebook=True
     provenance = factory.LazyAttribute(lambda _: [CasebookFactory.create().id])
+    contentcollaborator_set = factory.RelatedFactory('conftest.ContentCollaboratorFactory', 'content', can_edit=True)
+
 
 
 @register_factory
@@ -148,8 +151,8 @@ class ContentCollaboratorFactory(factory.DjangoModelFactory):
 
     user = factory.SubFactory(UserFactory, verified_professor=True)
     content = factory.SubFactory(CasebookFactory)
-    role = 'owner'
     has_attribution = True
+    can_edit = True
 
 
 @register_factory
