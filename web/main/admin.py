@@ -221,8 +221,8 @@ class CasebookAdmin(BaseAdmin):
     list_filter = [CollaboratorNameFilter, CollaboratorIdFilter, 'public', 'draft_mode_of_published_casebook']
     search_fields = ['title']
 
-    fields = ['title', 'subtitle', 'public', 'draft_mode_of_published_casebook', 'source', 'draft_link', 'ancestry', 'provenance', 'headnote', 'playlist_id', 'created_at', 'updated_at']
-    readonly_fields = ['created_at', 'updated_at', 'source', 'draft_link', 'ancestry', 'provenance', 'playlist_id']
+    fields = ['title', 'subtitle', 'public', 'draft_mode_of_published_casebook', 'source', 'draft_link', 'provenance', 'headnote', 'playlist_id', 'created_at', 'updated_at']
+    readonly_fields = ['created_at', 'updated_at', 'source', 'draft_link', 'provenance', 'playlist_id']
     raw_id_fields = ['collaborators', 'casebook']
     inlines = [CollaboratorInline]
 
@@ -368,11 +368,11 @@ class CaseAdmin(BaseAdmin):
 
 
 class LinkAdmin(BaseAdmin):
-    readonly_fields = ['created_at', 'updated_at', 'ancestry']
-    list_display = ['id', 'name', 'url', 'public', 'related_resources', 'created_at', 'updated_at', 'content_type', 'ancestry']
+    readonly_fields = ['created_at', 'updated_at']
+    list_display = ['id', 'name', 'url', 'public', 'related_resources', 'created_at', 'updated_at', 'content_type']
     list_filter = ['public', 'content_type']
     search_fields = ['name', 'url']
-    fields = ['name', 'url', 'description', 'public', 'created_at', 'updated_at', 'content_type', 'ancestry']
+    fields = ['name', 'url', 'description', 'public', 'created_at', 'updated_at', 'content_type']
 
     def related_resources(self, obj):
         return format_html(

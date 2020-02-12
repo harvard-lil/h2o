@@ -36,6 +36,7 @@ from .utils import clone_model_instance, fix_after_rails, parse_html_fragment, \
 from .sanitize import sanitize
 
 import logging
+
 logger = logging.getLogger(__name__)
 
 
@@ -84,6 +85,7 @@ class EditTrackedModel(models.Model):
             (a) deferred fields are populated via refresh_from_db(), and
             (b) populated field values will be added to instance.__dict__
     """
+
     class Meta:
         abstract = True
 
@@ -94,9 +96,11 @@ class EditTrackedModel(models.Model):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.reset_original_state()
+
     def save(self, *args, **kwargs):
         super().save(*args, **kwargs)
         self.reset_original_state()
+
     def refresh_from_db(self, *args, **kwargs):
         super().refresh_from_db(*args, **kwargs)
         self.reset_original_state()
@@ -205,10 +209,12 @@ def cleanse_html_field(model_instance, fieldname, sanitize_field=False):
             setattr(model_instance, fieldname, value)
         return value
 
-    run_if_field_changed(normalize_newlines, "Normalizing newlines in {} {}".format(type(model_instance).__name__, fieldname))
+    run_if_field_changed(normalize_newlines,
+                         "Normalizing newlines in {} {}".format(type(model_instance).__name__, fieldname))
     if sanitize_field:
         run_if_field_changed(sanitize, "Sanitizing {} {}".format(type(model_instance).__name__, fieldname))
-    run_if_field_changed(strip_trailing_block_level_whitespace, "Stripping trailing whitespace in {} {}".format(type(model_instance).__name__, fieldname))
+    run_if_field_changed(strip_trailing_block_level_whitespace,
+                         "Stripping trailing whitespace in {} {}".format(type(model_instance).__name__, fieldname))
 
 
 class AnnotatedModel(EditTrackedModel):
@@ -216,18 +222,21 @@ class AnnotatedModel(EditTrackedModel):
         Abstract base class for Case and TextBlock resource types, which can be annotated. Ensures that annotation
         offsets will be updated when the text contents of this resource are modified.
     """
+
     class Meta:
         abstract = True
 
     tracked_fields = ['content']
 
     def related_annotations(self):
-        return ContentAnnotation.objects.valid().filter(resource__resource_id=self.id, resource__resource_type=self.__class__.__name__)
+        return ContentAnnotation.objects.valid().filter(resource__resource_id=self.id,
+                                                        resource__resource_type=self.__class__.__name__)
 
     def save(self, *args, **kwargs):
         if self.pk and self.has_changed('content'):
             logger.debug("Updating annotations for {}".format(type(self).__name__))
-            ContentAnnotation.update_annotations(self.related_annotations(), self.original_state['content'], self.content)
+            ContentAnnotation.update_annotations(self.related_annotations(), self.original_state['content'],
+                                                 self.content)
         super().save(*args, **kwargs)
 
 
@@ -268,7 +277,7 @@ class Case(NullableTimestampedModel, AnnotatedModel):
         related_name='cases',
         blank=True,
         null=True,
-        db_index = False,
+        db_index=False,
         db_constraint=False
     )
 
@@ -338,7 +347,8 @@ class ContentAnnotationQueryset(models.QuerySet):
 
 
 class ContentAnnotation(TimestampedModel, BigPkModel):
-    kind = models.CharField(max_length=255, choices=(('replace', 'replace'), ('highlight', 'highlight'), ('elide', 'elide'), ('note', 'note'), ('link', 'link')))
+    kind = models.CharField(max_length=255, choices=(
+    ('replace', 'replace'), ('highlight', 'highlight'), ('elide', 'elide'), ('note', 'note'), ('link', 'link')))
     content = models.TextField(blank=True, null=True)
     global_start_offset = models.IntegerField(blank=True, null=True)
     global_end_offset = models.IntegerField(blank=True, null=True)
@@ -366,7 +376,8 @@ class ContentAnnotation(TimestampedModel, BigPkModel):
         ordering = ['global_start_offset', 'id']
 
     def __str__(self):
-        return "%s %s-%s%s" % (self.kind, self.global_start_offset, self.global_end_offset, " with %s" % truncatechars(self.content, 20) if self.content else "")
+        return "%s %s-%s%s" % (self.kind, self.global_start_offset, self.global_end_offset,
+                               " with %s" % truncatechars(self.content, 20) if self.content else "")
 
     @staticmethod
     def text_from_html(html):
@@ -426,8 +437,8 @@ class ContentCollaborator(TimestampedModel, BigPkModel):
     has_attribution = models.BooleanField(default=False)
     can_edit = models.BooleanField(default=False)
     user = models.ForeignKey('User',
-        on_delete=models.CASCADE,
-    )
+                             on_delete=models.CASCADE,
+                             )
     # This is marked "on_delete=models.DO_NOTHING" to avoid unnecessary queries when deleting Sections and Resources....
     # We make sure to delete unneeded ContentCollaborator rows in the Casebook.delete method.
     content = models.ForeignKey(
@@ -436,6 +447,9 @@ class ContentCollaborator(TimestampedModel, BigPkModel):
         blank=True,
         null=True
     )
+
+    def save(self, *args, **kwargs):
+        super().save(*args, **kwargs)
 
     class Meta:
         unique_together = (('user', 'content'),)
@@ -504,12 +518,14 @@ class ContentNodeQueryset(models.QuerySet):
                 link_query = Link.objects.all()
             resources = {}
             for resource_type, query in (('Case', case_query), ('TextBlock', textblock_query), ('Link', link_query)):
-                for obj in query.filter(id__in=[obj.resource_id for obj in self._result_cache if obj.resource_type == resource_type]):
+                for obj in query.filter(
+                        id__in=[obj.resource_id for obj in self._result_cache if obj.resource_type == resource_type]):
                     resources[(resource_type, obj.id)] = obj
             for content_node in self._result_cache:
                 if content_node.resource_id:
                     content_node._resource = resources.get((content_node.resource_type, content_node.resource_id))
                     content_node._resource_prefetched = True
+
 
 class ContentNode(EditTrackedModel, TimestampedModel, BigPkModel):
     title = models.CharField(max_length=10000, default="Untitled")
@@ -530,23 +546,13 @@ class ContentNode(EditTrackedModel, TimestampedModel, BigPkModel):
 
     # casebooks only
     public = models.BooleanField(default=False)
-    draft_mode_of_published_casebook = models.BooleanField(blank=True, null=True, help_text='Unknown (None) or True; never False')
-    # see https://github.com/harvard-lil/h2o/issues/1032 for a discussion of ancestry, root_user, and collaborators
-    ancestry = models.CharField(max_length=255, blank=True, null=True, help_text="List of parent IDs in tree, separated by slashes.")
+    draft_mode_of_published_casebook = models.BooleanField(blank=True, null=True,
+                                                           help_text='Unknown (None) or True; never False')
     provenance = ArrayField(models.BigIntegerField(), default=list, blank=False)
-    root_user = models.ForeignKey(
-        'User',
-        blank=True,
-        null=True,
-        on_delete=models.PROTECT,
-        related_name='casebooks_and_clones',
-        db_index=False,
-        db_constraint=False
-    )
     collaborators = models.ManyToManyField('User',
-        through='ContentCollaborator',
-        related_name='casebooks'
-    )
+                                           through='ContentCollaborator',
+                                           related_name='casebooks'
+                                           )
 
     # sections and resources only
     ordinals = ArrayField(models.IntegerField(), default=list)
@@ -575,7 +581,6 @@ class ContentNode(EditTrackedModel, TimestampedModel, BigPkModel):
 
     class Meta:
         indexes = [
-            models.Index(fields=['ancestry']),
             models.Index(fields=['casebook', 'ordinals']),
             models.Index(fields=['resource_type', 'resource_id'])
         ]
@@ -669,10 +674,12 @@ class ContentNode(EditTrackedModel, TimestampedModel, BigPkModel):
             ...     file_data = full_casebook.export(include_annotations=True)
         """
         # prefetch all child nodes and related data
-        children = list(self.contents.prefetch_resources().prefetch_related('annotations')) if type(self) is not Resource else None
+        children = list(self.contents.prefetch_resources().prefetch_related('annotations')) if type(
+            self) is not Resource else None
 
         # render html
-        template_name = {Casebook: 'export/casebook.html', Section: 'export/section.html', Resource: 'export/node.html'}[type(self)]
+        template_name = \
+        {Casebook: 'export/casebook.html', Section: 'export/section.html', Resource: 'export/node.html'}[type(self)]
         html = render_to_string(template_name, {
             'node': self,
             'children': children,
@@ -694,7 +701,8 @@ class ContentNode(EditTrackedModel, TimestampedModel, BigPkModel):
             if type(self) is Casebook:
                 command.extend(['--lua-filter', os.path.join(settings.PANDOC_DIR, 'table_of_contents.lua')])
             try:
-                response = subprocess.run(command, input=html.encode('utf8'), stderr=subprocess.PIPE, stdout=subprocess.PIPE)
+                response = subprocess.run(command, input=html.encode('utf8'), stderr=subprocess.PIPE,
+                                          stdout=subprocess.PIPE)
             except subprocess.CalledProcessError as e:
                 raise Exception("Pandoc command failed: %s" % e.stderr[:100])
             if response.stderr:
@@ -721,8 +729,8 @@ class ContentNode(EditTrackedModel, TimestampedModel, BigPkModel):
     # The content tree is stored in the `ordinals` field as a postgres array of 1-indexed integers. The root is `[]`,
     # the first child is `[1]`, the first sub-child is `[1,1]` and so on.
     #
-    # The version tree is stored in the `ancestry` field as a slash-separated string of IDs. The root is "", the first
-    # child is "<parent.id>", the first sub-child is "<parent.id>/<sub_parent.id>", and so on.
+    # The version tree is stored in the `provenance` field as an array of IDs. The root is [], the first
+    # child is [<parent.id>], the first sub-child is [<parent.id>,<sub_parent.id>], and so on.
     # This is a partial port of https://github.com/stefankroes/ancestry/blob/master/lib/ancestry/materialized_path.rb
     #
     # Because it is confusing to have two database trees with different formats as well as a hierarchy of proxy models,
@@ -732,6 +740,7 @@ class ContentNode(EditTrackedModel, TimestampedModel, BigPkModel):
     ##
 
     fix_after_rails("The hand-rolled database trees should be replaced with a Django tree library")
+
     # https://github.com/harvard-lil/h2o/issues/1035
 
     ##
@@ -978,7 +987,7 @@ class ContentNode(EditTrackedModel, TimestampedModel, BigPkModel):
             >>> assert set(casebook.content_tree__update_ordinals()) == {r_1_3, s_1_4, r_1_4_2, r_1_4_3, r_1_4_1}
         """
         for i, node in enumerate(self.content_tree__children):
-            correct_ordinals = self.ordinals + [i+1]
+            correct_ordinals = self.ordinals + [i + 1]
             if node.ordinals != correct_ordinals:
                 node.ordinals = correct_ordinals
                 yield node
@@ -1000,7 +1009,8 @@ class ContentNode(EditTrackedModel, TimestampedModel, BigPkModel):
     def content_tree__get_same_tree_node_from_ordinals(self, ordinals):
         """ Fetch a node from the database, with the given ordinals, that is part of the same tree as self. """
         casebook_id = self.id if type(self) == Casebook else self.casebook_id
-        return ContentNode.objects.get(ordinals=ordinals, casebook_id=casebook_id) if ordinals else Casebook.objects.get(id=casebook_id)
+        return ContentNode.objects.get(ordinals=ordinals,
+                                       casebook_id=casebook_id) if ordinals else Casebook.objects.get(id=casebook_id)
 
     def content_tree__get_descendant(self, ordinals):
         """
@@ -1021,7 +1031,7 @@ class ContentNode(EditTrackedModel, TimestampedModel, BigPkModel):
     def version_tree__descendants(self):
         """
             Return all descendants of this node.
-            (Used to track the ancestry of casebooks; not used to describe the
+            (Used to track the provenance of casebooks; not used to describe the
             contents of a given casebook.)
 
             >>> root, c_1, c_2, c_1_1, c_1_2 = getfixture('casebook_tree')
@@ -1034,7 +1044,7 @@ class ContentNode(EditTrackedModel, TimestampedModel, BigPkModel):
     def version_tree__root(self):
         """
             Return root node for this node, or None if no ancestors.
-            (Used to track the ancestry of casebooks; not used to describe the
+            (Used to track the provenance of casebooks; not used to describe the
             contents of a given casebook.)
 
             >>> root, c_1, c_2, c_1_1, c_1_2 = getfixture('casebook_tree')
@@ -1049,7 +1059,7 @@ class ContentNode(EditTrackedModel, TimestampedModel, BigPkModel):
     def version_tree__parent(self):
         """
             Return parent node for this node, or None if no ancestors.
-            (Used to track the ancestry of casebooks; not used to describe the
+            (Used to track the provenance of casebooks; not used to describe the
             contents of a given casebook.)
 
             >>> root, c_1, c_2, c_1_1, c_1_2 = getfixture('casebook_tree')
@@ -1215,6 +1225,7 @@ class CasebookAndSectionMixin(models.Model):
     """
     Methods shared by Casebooks and Sections
     """
+
     class Meta:
         abstract = True
 
@@ -1244,6 +1255,7 @@ class SectionAndResourceMixin(models.Model):
     """
     Methods shared by Sections and Resources
     """
+
     class Meta:
         abstract = True
 
@@ -1708,7 +1720,7 @@ class Casebook(CasebookAndSectionMixin, ContentNode):
             >>> assert user not in set(full_casebook.attributed_authors)
 
             Return a cloned casebook like this:
-            >>> with assert_num_queries(select=7, insert=7):
+            >>> with assert_num_queries(select=8, insert=6):
             ...     clone = full_casebook.clone(current_user=user)
             >>> expected = [
             ...     'Casebook<11>: Some Title 0',
@@ -1733,28 +1745,52 @@ class Casebook(CasebookAndSectionMixin, ContentNode):
             >>> assert clone_of_clone.provenance == [full_casebook.id, clone.id]
             >>> clone3 = clone_of_clone.clone(current_user=user)
             >>> assert clone3.provenance == [full_casebook.id, clone.id, clone_of_clone.id]
+
+            Attribution and cloning
+            >>> casebook = getfixture('full_casebook')
+            >>> sonya, elena, john = [User(attribution=name, email_address="{}@scotus.gov".format(name)) for name in ['Sonya', 'Elena', 'John']]
+            >>> sonya.save(); elena.save(); john.save()
+            >>> casebook.add_collaborator(sonya, has_attribution=True)
+            >>> casebook.save()
+            >>> first_clone = casebook.clone(current_user=elena)
+            >>> first_clone.save()
+            >>> first_clone.refresh_from_db()
+            >>> assert sonya in first_clone.attributed_authors
+            >>> assert elena in first_clone.attributed_authors
+            >>> assert elena not in casebook.attributed_authors
+            >>> second_clone = first_clone.clone(current_user=elena)
+            >>> assert sonya in second_clone.originating_authors
+            >>> assert elena in second_clone.primary_authors
+            >>> assert second_clone.editable_by(elena)
+            >>> assert not second_clone.editable_by(sonya)
+            >>> casebook.add_collaborator(john, has_attribution=True)
+            >>> assert john in casebook.attributed_authors
+            >>> assert john in first_clone.attributed_authors
+            >>> assert john in second_clone.originating_authors
         """
         # clone casebook
         old_casebook = self
-        cloned_casebook = clone_model_instance(old_casebook, provenance=old_casebook.provenance+[old_casebook.id], public=False, draft_mode_of_published_casebook=(draft_mode or None))
+        cloned_casebook = clone_model_instance(old_casebook, provenance=old_casebook.provenance + [old_casebook.id],
+                                               public=False, draft_mode_of_published_casebook=(draft_mode or None))
         cloned_casebook.save()
 
-        # Give attribution to prior collaborators
+        # If this is a draft, collaborators stay the same,
+        # Otherwise, we just add one collaborator (the current_user)
+        if draft_mode:
+            collaborators = [clone_model_instance(c, content=cloned_casebook, can_edit=c.can_edit) for c in
+                             self.contentcollaborator_set.all()]
+            ContentCollaborator.objects.bulk_create(collaborators)
+        elif current_user:
+            cloned_casebook.add_collaborator(user=current_user, has_attribution=True, can_edit=True)
 
-        collaborators = [clone_model_instance(c, content=cloned_casebook, can_edit=c.can_edit if draft_mode else False) for c in self.contentcollaborator_set.all()]
-        if current_user:
-            matches = [c for c in collaborators if c.user.id == current_user.id]
-            if len(matches) == 1:
-                matches[0].can_edit = True
-            else:
-                cloned_casebook.add_collaborator(user=current_user, has_attribution=True, can_edit=True)
-        ContentCollaborator.objects.bulk_create(collaborators)
-
-        cloned_casebook.clone_nodes(old_casebook.contents.prefetch_resources().prefetch_related('annotations'), current_user=current_user)
+        cloned_casebook.clone_nodes(old_casebook.contents.prefetch_resources().prefetch_related('annotations')
+                                    .select_related('casebook')
+                                    .prefetch_related('contentcollaborator_set'),
+                                    draft_mode=draft_mode)
         return cloned_casebook
 
     @transaction.atomic
-    def clone_nodes(self, nodes, current_user=None, append=False):
+    def clone_nodes(self, nodes, draft_mode=False, append=False):
         """
             Helper method to copy a set of nodes and their associated assets to this casebook. See callers for tests.
             If append=True, ordinals will be edited so the new nodes appear after any existing nodes.
@@ -1763,9 +1799,12 @@ class Casebook(CasebookAndSectionMixin, ContentNode):
         cloned_resources = {TextBlock: [], Link: []}  # collect new TextBlocks and Links for bulk_create
         cloned_content_nodes = []  # collect new ContentNodes for bulk_create
         cloned_annotations = []  # collect new ContentAnnotations for bulk_create
+
         for old_content_node in nodes:
             # clone content_node
-            cloned_content_node = clone_model_instance(old_content_node, provenance=old_content_node.provenance+[old_content_node.id], casebook=self)
+            cloned_content_node = clone_model_instance(old_content_node,
+                                                       provenance=old_content_node.provenance + [old_content_node.id],
+                                                       casebook=self)
             cloned_content_nodes.append(cloned_content_node)
 
             # clone annotations
@@ -1789,7 +1828,9 @@ class Casebook(CasebookAndSectionMixin, ContentNode):
         if append:
             # offset cloned nodes so they go at the end of the current tree.
             # "offset" is the count of existing top-level content_tree nodes:
-            offset = (ContentNode.objects.filter(casebook_id=self).aggregate(models.Max('ordinals'))['ordinals__max'] or [0])[0] + 1
+            offset = \
+            (ContentNode.objects.filter(casebook_id=self).aggregate(models.Max('ordinals'))['ordinals__max'] or [0])[
+                0] + 1
             for node in cloned_content_nodes:
                 node.ordinals[0] += offset
         ContentNode.objects.bulk_create(cloned_content_nodes)
@@ -1803,18 +1844,46 @@ class Casebook(CasebookAndSectionMixin, ContentNode):
             cloned_annotation.resource = cloned_content_node
         ContentAnnotation.objects.bulk_create(r[0] for r in cloned_annotations)
 
+
     # Collaborators
     @property
     def attributed_authors(self):
-        content_attributions = [c.user for n in self.contents.prefetch_related('contentcollaborator_set__user').all() for c in n.collaborators.all() if c.has_attribution]
-        return [c.user for c in self.contentcollaborator_set.all() if c.has_attribution] + content_attributions
+        return self.primary_authors.union(self.originating_authors)
+
+    @property
+    def primary_authors(self):
+        return set([c.user for c in self.contentcollaborator_set.all() if c.has_attribution and c.user.attribution != 'Anonymous'])
+
+    @property
+    def originating_authors(self):
+        """
+        Every attributed author for any ancestor of a contentnode contained in the casebook
+        """
+        originating_node = set([cloned_node for child_content in self.contents.all() for cloned_node in child_content.provenance])
+        users = [collaborator.user for cn in
+                    ContentNode.objects.filter(id__in=originating_node)
+                        .select_related('casebook')
+                        .prefetch_related('casebook__contentcollaborator_set__user')
+                        .all()
+                    for collaborator in cn.casebook.contentcollaborator_set.all() if collaborator.has_attribution and collaborator.user.attribution != 'Anonymous']
+        return set(users)
 
     def has_collaborator(self, user):
         # filter in the client to allow .prefetch_related('contentcollaborator_set__user') to work:
         return any(c.user_id == user.id for c in self.contentcollaborator_set.all() if c.can_edit)
 
     def add_collaborator(self, user, **collaborator_kwargs):
-        ContentCollaborator.objects.create(user=user, content=self, **collaborator_kwargs)
+        collaborators_to_add = [ContentCollaborator(user=user, content_id=self.id, **collaborator_kwargs)]
+        if collaborator_kwargs.get('has_attribution', False):
+            content_ids = [x.id for x in self.contents.all()]
+            collaborator_kwargs['can_edit'] = False
+            collaborators_to_add += [ContentCollaborator(user=user, content_id=x.id, **collaborator_kwargs) for x in
+                                     ContentNode.objects.filter(provenance__overlap=content_ids).all()]
+        ContentCollaborator.objects.bulk_create(collaborators_to_add)
+
+    @property
+    def casebook(self):
+        return self
 
     @property
     def testing_editor(self):
@@ -1909,6 +1978,7 @@ class Resource(SectionAndResourceMixin, ContentNode):
 
     _resource_prefetched = False
     _resource = None
+
     @property
     def resource(self):
         """
@@ -2066,8 +2136,8 @@ class Resource(SectionAndResourceMixin, ContentNode):
                 continue
             annotations.append((min(annotation.global_start_offset, max_valid_offset), True, annotation))
             annotations.append((min(annotation.global_end_offset, max_valid_offset), False, annotation))
-        annotations.sort(key=lambda a: a[:2])  # sort by first two fields, so we're ordered by offset, then we get end tags and then start tags for a given offset
-
+        # sort by first two fields, so we're ordered by offset, then we get end tags and then start tags for a given offset
+        annotations.sort(key=lambda a: a[:2])
         # This SAX ContentHandler does the heavy lifting of stepping through each HTML tag and text string in the
         # source HTML and building a list of destination tags and text, inserting annotation tags or deleting text
         # as appropriate:
@@ -2103,7 +2173,8 @@ class Resource(SectionAndResourceMixin, ContentNode):
                         # ... we have annotation spans open
                         self.wrap_after_tags and
                         # ... previous tag was closing a block-level element
-                        self.prev_tag and self.prev_tag[0] == self.out_handler.endElement and self.prev_tag[1] in block_level_elements and
+                        self.prev_tag and self.prev_tag[0] == self.out_handler.endElement and self.prev_tag[
+                    1] in block_level_elements and
                         # ... text after tag is whitespace
                         re.match(r'\s*$', data) and
                         # ... the text is not annotated
@@ -2118,12 +2189,13 @@ class Resource(SectionAndResourceMixin, ContentNode):
                 # Include end annotations that come after the final character of the string, but NOT start annotations,
                 # so that annotations tend to go inside block tags -- start annotations go to the right of tags
                 # and end annotations go to the left.
-                while annotations and (end_offset > annotations[0][0] or (end_offset == annotations[0][0] and not annotations[0][1])):
+                while annotations and (
+                        end_offset > annotations[0][0] or (end_offset == annotations[0][0] and not annotations[0][1])):
                     annotation_offset, is_start_tag, annotation = annotations.pop(0)
 
                     # consume and emit the text that comes before this annotation:
                     if annotation_offset > start_offset:
-                        split = annotation_offset-start_offset
+                        split = annotation_offset - start_offset
                         if not self.elide:
                             self.addText(data[:split])
                         data = data[split:]
@@ -2137,12 +2209,13 @@ class Resource(SectionAndResourceMixin, ContentNode):
                         # and decrement when closing. Use a counter for elide instead of a boolean so we handle
                         # overlapping elision ranges correctly (though those shouldn't happen in practice).
                         if is_start_tag:
-                            self.out_ops.append((self.out_handler.startElement, 'span', {'custom-style': 'Elision' if kind == 'elide' else 'Replacement Text'}))
+                            self.out_ops.append((self.out_handler.startElement, 'span', {
+                                'custom-style': 'Elision' if kind == 'elide' else 'Replacement Text'}))
                             self.addText(annotation.content or '' if kind == 'replace' else '[ … ]')
                             self.out_ops.append((self.out_handler.endElement, 'span'))
                             self.elide += 1
                         else:
-                            self.elide = max(self.elide-1, 0)  # decrement, but no lower than zero
+                            self.elide = max(self.elide - 1, 0)  # decrement, but no lower than zero
 
                     else:  # kind == 'link' or 'note' or 'highlight'
                         # link/note/highlight tags require wrapping all subsequent text in <span> tags.
@@ -2152,13 +2225,15 @@ class Resource(SectionAndResourceMixin, ContentNode):
                         if is_start_tag:
                             # get correct open and close tags for this annotation:
                             if kind == 'link':
-                                open_tag = (self.out_handler.startElement, 'a', {'href': annotation.content, 'class': 'annotate'})
+                                open_tag = (
+                                self.out_handler.startElement, 'a', {'href': annotation.content, 'class': 'annotate'})
                                 close_tag = (self.out_handler.endElement, 'a')
                             elif kind == 'note':
                                 open_tag = (self.out_handler.startElement, 'span', {'class': 'annotate'})
                                 close_tag = (self.out_handler.endElement, 'span')
                             elif kind == 'highlight':
-                                open_tag = (self.out_handler.startElement, 'span', {'class': 'annotate highlighted', 'custom-style': 'Highlighted Text'})
+                                open_tag = (self.out_handler.startElement, 'span',
+                                            {'class': 'annotate highlighted', 'custom-style': 'Highlighted Text'})
                                 close_tag = (self.out_handler.endElement, 'span')
                             else:
                                 raise ValueError("Unknown annotation kind '%s'" % kind)
@@ -2175,13 +2250,14 @@ class Resource(SectionAndResourceMixin, ContentNode):
                             # close the annotation tag:
                             # to handle overlapping annotations, close all tags including this one, and then re-open all tags except this one:
                             self.wrap_after_tags.remove(annotation.open_tag)
-                            self.out_ops.extend(self.wrap_before_tags+self.wrap_after_tags)
+                            self.out_ops.extend(self.wrap_before_tags + self.wrap_after_tags)
                             self.wrap_before_tags.remove(annotation.close_tag)
 
                             # emit the footnote marker:
                             if kind == 'note' or kind == 'link':
                                 self.footnote_index += 1
-                                self.out_ops.append((self.out_handler.startElement, 'span', {'custom-style': 'Footnote Reference'}))
+                                self.out_ops.append(
+                                    (self.out_handler.startElement, 'span', {'custom-style': 'Footnote Reference'}))
                                 self.addText('*' * self.footnote_index)
                                 self.out_ops.append((self.out_handler.endElement, 'span'))
 
@@ -2239,14 +2315,15 @@ class Resource(SectionAndResourceMixin, ContentNode):
 
         # clean up the output tree:
         remove_empty_tags(dest_tree)  # tree may contain empty tags from elide/replace annotations
-        self.update_tree_for_export(dest_tree)  # apply general rules that are the same for annotated or un-annotated trees
-
+        # apply general rules that are the same for annotated or un-annotated trees
+        self.update_tree_for_export(dest_tree)
         return mark_safe(inner_html(dest_tree))
 
     def footnote_annotations(self):
         return mark_safe("".join(
-            format_html('<span custom-style="Footnote Reference">{}</span> {} ', "*" * (i+1), annotation.content)
-            for i, annotation in enumerate(a for a in self.annotations.all() if a.global_start_offset >= 0 and a.kind in ('note', 'link'))
+            format_html('<span custom-style="Footnote Reference">{}</span> {} ', "*" * (i + 1), annotation.content)
+            for i, annotation in
+            enumerate(a for a in self.annotations.all() if a.global_start_offset >= 0 and a.kind in ('note', 'link'))
         ))
 
     @staticmethod
@@ -2279,7 +2356,6 @@ class Link(NullableTimestampedModel):
     url = models.URLField(max_length=1024)
     public = models.BooleanField(null=True, default=True)
     content_type = models.CharField(max_length=255, blank=True, null=True)
-    ancestry = models.CharField(max_length=255, blank=True, null=True)
 
     def get_name(self):
         return self.name if self.name else "Link to {}".format(urlparse(self.url).netloc)
@@ -2359,14 +2435,15 @@ class User(NullableTimestampedModel, PermissionsMixin, AbstractBaseUser):
     is_active = models.BooleanField(default=False)
 
     # login-tracking fields inherited from Rails authlogic gem
-    last_request_at = models.DateTimeField(blank=True, null=True, help_text="Time of last request from user (to nearest 10 minutes)")
+    last_request_at = models.DateTimeField(blank=True, null=True,
+                                           help_text="Time of last request from user (to nearest 10 minutes)")
     login_count = models.IntegerField(default=0, help_text="Number of explicit password logins by user")
     current_login_at = models.DateTimeField(blank=True, null=True, help_text="Time of most recent password login")
     last_login_at = models.DateTimeField(blank=True, null=True, help_text="Time of previous password login")
-    current_login_ip = models.CharField(max_length=255, blank=True, null=True, help_text="IP of most recent password login")
+    current_login_ip = models.CharField(max_length=255, blank=True, null=True,
+                                        help_text="IP of most recent password login")
     last_login_ip = models.CharField(max_length=255, blank=True, null=True, help_text="IP of previous password login")
     last_login = None  # disable the Django login tracking field from AbstractBaseUser
-
 
     EMAIL_FIELD = 'email_address'
     USERNAME_FIELD = 'email_address'
@@ -2428,6 +2505,8 @@ def update_user_login_fields(sender, request, user, **kwargs):
     user.current_login_ip = get_ip_address(request)
     user.login_count += 1
     user.save(update_fields=['last_login_at', 'current_login_at', 'last_login_ip', 'current_login_ip', 'login_count'])
+
+
 user_logged_in.connect(update_user_login_fields)
 
 

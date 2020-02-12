@@ -19,19 +19,19 @@
         {% endif %}
         <div class="author-info">
           <div class="owner">
-            {{ casebook.owner }}
-            {% if casebook.owner.verified_professor %}
+           <ul>
+               {% for author in casebook.attributed_authors %}
+            <li>{{ author.attribution }}
+            {% if author.verified_professor %}
               <span class="verified"></span>
             {% endif %}
+            </li>
+           {% endfor %}
+           </ul>
           </div>
           <div class="affiliation">
             {{ casebook.owner.affiliation|default:"" }}
           </div>
-        </div>
-        <div class="root-attribution">
-          {% if casebook.ancestry %}
-            Original author: {{ casebook.root_owner }}
-          {% endif %}
         </div>
       </div>
     </a>

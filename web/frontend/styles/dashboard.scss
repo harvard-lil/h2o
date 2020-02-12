@@ -50,6 +50,30 @@ hr.owned {
       padding: 10px;
     }
 
+    .author-info {
+      .owner {
+        display:block;
+        text-overflow: ellipsis;
+        text-align: right;
+      }
+      ul {
+        list-style: none;
+        font-size: 80%;
+        padding-inline-start: 10px;
+        padding-inline-end: 20px;
+        li {
+          white-space: nowrap;
+          .verified {
+            position: relative;
+            margin-top: 6px;
+            float: right;
+            margin-left: -20px;
+            left: 16px;
+          }
+        }
+      }
+    }
+
     .state {
       @include sans-serif($medium, 10px, 10px);
       margin-bottom: 5px;
