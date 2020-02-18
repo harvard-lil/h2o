@@ -248,6 +248,7 @@ class CasebookAdmin(BaseAdmin):
     def get_queryset(self, request):
         return super().get_queryset(request).prefetch_related('contentcollaborator_set__user')
 
+
     def formfield_for_dbfield(self, db_field, **kwargs):
         return self.enable_richeditor_for_field('headnote', db_field, **kwargs)
 

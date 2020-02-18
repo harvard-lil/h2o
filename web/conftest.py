@@ -130,7 +130,6 @@ class DraftCasebookFactory(CasebookFactory):
     contentcollaborator_set = factory.RelatedFactory('conftest.ContentCollaboratorFactory', 'content', can_edit=True)
 
 
-
 @register_factory
 class SectionFactory(ContentNodeFactory):
     class Meta:
