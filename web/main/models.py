@@ -1890,6 +1890,13 @@ class Casebook(CasebookAndSectionMixin, ContentNode):
         """
         return ContentCollaborator.objects.filter(can_edit=True, content=self).prefetch_related('user').first().user
 
+    @property
+    def testing_editor(self):
+        """
+        Used for testing purposes, return a user that can edit this casebook.
+        """
+        return ContentCollaborator.objects.filter(can_edit=True, content=self).prefetch_related('user').first().user
+
 
 class SectionManager(models.Manager):
     def get_queryset(self):
