@@ -273,7 +273,7 @@ class SectionAdmin(BaseAdmin):
     list_filter = [CasebookIdFilter]
     search_fields = ['title', 'casebook__title']
     fields = ['casebook', 'ordinals', 'title', 'subtitle', 'provenance', 'headnote', 'created_at', 'updated_at']
-    raw_id_fields = ['collaborators', 'provenance', 'root_user', 'casebook']
+    raw_id_fields = ['collaborators', 'root_user', 'casebook']
 
     def get_queryset(self, request):
         return super().get_queryset(request).select_related('casebook').prefetch_related('casebook__contentcollaborator_set__user')
