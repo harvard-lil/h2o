@@ -526,7 +526,6 @@ class ContentNodeQueryset(models.QuerySet):
                     content_node._resource = resources.get((content_node.resource_type, content_node.resource_id))
                     content_node._resource_prefetched = True
 
-
 class ContentNode(EditTrackedModel, TimestampedModel, BigPkModel):
     title = models.CharField(max_length=10000, default="Untitled")
     subtitle = models.CharField(max_length=10000, blank=True, null=True)
@@ -1844,7 +1843,6 @@ class Casebook(CasebookAndSectionMixin, ContentNode):
             cloned_annotation.resource = cloned_content_node
         ContentAnnotation.objects.bulk_create(r[0] for r in cloned_annotations)
 
-
     # Collaborators
     @property
     def attributed_authors(self):
@@ -1884,6 +1882,13 @@ class Casebook(CasebookAndSectionMixin, ContentNode):
     @property
     def casebook(self):
         return self
+
+    @property
+    def testing_editor(self):
+        """
+        Used for testing purposes, return a user that can edit this casebook.
+        """
+        return ContentCollaborator.objects.filter(can_edit=True, content=self).prefetch_related('user').first().user
 
     @property
     def testing_editor(self):
