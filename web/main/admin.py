@@ -221,9 +221,9 @@ class CasebookAdmin(BaseAdmin):
     list_filter = [CollaboratorNameFilter, CollaboratorIdFilter, 'public', 'draft_mode_of_published_casebook']
     search_fields = ['title']
 
-    fields = ['title', 'subtitle', 'public', 'draft_mode_of_published_casebook', 'source', 'draft_link', 'ancestry', 'root_user', 'headnote', 'playlist_id', 'created_at', 'updated_at']
-    readonly_fields = ['created_at', 'updated_at', 'owner_link', 'source', 'draft_link', 'ancestry', 'root_user', 'playlist_id']
-    raw_id_fields = ['collaborators', 'copy_of', 'root_user', 'casebook']
+    fields = ['title', 'subtitle', 'public', 'draft_mode_of_published_casebook', 'source', 'draft_link', 'ancestry', 'provenance', 'root_user', 'headnote', 'playlist_id', 'created_at', 'updated_at']
+    readonly_fields = ['created_at', 'updated_at', 'owner_link', 'source', 'draft_link', 'ancestry', 'provenance','root_user', 'playlist_id']
+    raw_id_fields = ['collaborators', 'root_user', 'casebook']
     inlines = [CollaboratorInline]
 
     def save_model(self, request, obj, form, change):
@@ -246,7 +246,7 @@ class CasebookAdmin(BaseAdmin):
             ContentCollaborator.objects.bulk_create(clone_model_instance(c, content=other_casebook) for c in roles)
 
     def get_queryset(self, request):
-        return super().get_queryset(request).select_related('root_user', 'copy_of').prefetch_related('contentcollaborator_set__user').prefetch_draft()
+        return super().get_queryset(request).select_related('root_user').prefetch_related('contentcollaborator_set__user')
 
     def formfield_for_dbfield(self, db_field, **kwargs):
         return self.enable_richeditor_for_field('headnote', db_field, **kwargs)
@@ -260,22 +260,23 @@ class CasebookAdmin(BaseAdmin):
     draft_link.short_description = 'draft'
 
     def source(self, obj):
-        if obj.copy_of:
-            return mark_safe('draft&nbsp;of' if obj.draft_mode_of_published_casebook else 'copy&nbsp;of') + edit_link(obj.copy_of)
+        if obj.provenance:
+            copied_from = Casebook.objects.filter(id=obj.provenance[-1]).get()
+            return mark_safe('draft&nbsp;of' if obj.draft_mode_of_published_casebook else 'copy&nbsp;of') + edit_link(copied_from)
     source.short_description = 'source'
 
 
 class SectionAdmin(BaseAdmin):
-    readonly_fields = ['created_at', 'updated_at', 'owner_link', 'casebook_link', 'copy_of', 'ordinals']
-    list_select_related = ['casebook', 'copy_of']
+    readonly_fields = ['created_at', 'updated_at', 'owner_link', 'casebook_link', 'provenance', 'ordinals']
+    list_select_related = ['casebook']
     list_display = ['id', 'casebook_link', 'owner_link', 'title', 'ordinals', 'created_at', 'updated_at']
     list_filter = [CasebookIdFilter]
     search_fields = ['title', 'casebook__title']
-    fields = ['casebook', 'ordinals', 'title', 'subtitle', 'copy_of', 'headnote', 'created_at', 'updated_at']
-    raw_id_fields = ['collaborators', 'copy_of', 'root_user', 'casebook']
+    fields = ['casebook', 'ordinals', 'title', 'subtitle', 'provenance', 'headnote', 'created_at', 'updated_at']
+    raw_id_fields = ['collaborators', 'provenance', 'root_user', 'casebook']
 
     def get_queryset(self, request):
-        return super().get_queryset(request).select_related('casebook', 'copy_of').prefetch_related('casebook__contentcollaborator_set__user')
+        return super().get_queryset(request).select_related('casebook').prefetch_related('casebook__contentcollaborator_set__user')
 
     def formfield_for_dbfield(self, db_field, **kwargs):
         return self.enable_richeditor_for_field('headnote', db_field, **kwargs)
@@ -290,17 +291,17 @@ class SectionAdmin(BaseAdmin):
 
 
 class ResourceAdmin(BaseAdmin):
-    readonly_fields = ['created_at', 'updated_at', 'owner_link', 'casebook_link', 'copy_of', 'resource_id', 'resource_type', 'ordinals']
-    list_select_related = ['casebook', 'copy_of']
+    readonly_fields = ['created_at', 'updated_at', 'owner_link', 'casebook_link', 'provenance', 'resource_id', 'resource_type', 'ordinals']
+    list_select_related = ['casebook']
     list_display = ['id', 'casebook_link', 'owner_link', 'title', 'ordinals', 'resource_type', 'resource_id', 'annotation_count', 'created_at', 'updated_at']
     list_filter = [CasebookIdFilter, 'resource_type', ResourceIdFilter]
     search_fields = ['title', 'casebook__title']
-    fields = ['casebook', 'ordinals', 'title', 'subtitle', 'copy_of', 'headnote', 'created_at', 'updated_at']
-    raw_id_fields = ['collaborators', 'copy_of', 'root_user', 'casebook']
+    fields = ['casebook', 'ordinals', 'title', 'subtitle', 'provenance', 'headnote', 'created_at', 'updated_at']
+    raw_id_fields = ['collaborators', 'root_user', 'casebook']
     inlines = [AnnotationInline]
 
     def get_queryset(self, request):
-        return super().get_queryset(request).select_related('casebook', 'copy_of').prefetch_related('casebook__contentcollaborator_set__user').annotate(annotations_count=Count('annotations'))
+        return super().get_queryset(request).select_related('casebook').prefetch_related('casebook__contentcollaborator_set__user').annotate(annotations_count=Count('annotations'))
 
     def formfield_for_dbfield(self, db_field, **kwargs):
         return self.enable_richeditor_for_field('headnote', db_field, **kwargs)

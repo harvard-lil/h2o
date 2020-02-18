@@ -493,7 +493,7 @@ def dashboard(request, user_id):
         >>> user = casebook.collaborators.first()
         >>> non_collaborating_user = user_factory()
         >>> private_casebook = casebook_factory(contentcollaborator_set__user=user, public=False)
-        >>> draft_casebook = casebook_factory(contentcollaborator_set__user=user, public=False, draft_mode_of_published_casebook=True, copy_of=casebook)
+        >>> draft_casebook = casebook_factory(contentcollaborator_set__user=user, public=False, draft_mode_of_published_casebook=True, provenance=[casebook.id])
         >>> url = reverse('dashboard', args=[user.id])
 
         All users can see public casebooks:
@@ -632,7 +632,7 @@ class CasebookView(View):
             >>> user = casebook.collaborators.first()
             >>> non_collaborating_user = user_factory()
             >>> private_casebook = casebook_factory(contentcollaborator_set__user=user, public=False)
-            >>> draft_casebook = casebook_factory(contentcollaborator_set__user=user, public=False, draft_mode_of_published_casebook=True, copy_of=casebook)
+            >>> draft_casebook = casebook_factory(contentcollaborator_set__user=user, public=False, draft_mode_of_published_casebook=True, provenance=[casebook.id])
 
             All users can see public casebooks:
             >>> check_response(client.get(casebook.get_absolute_url(), content_includes=casebook.title))
@@ -671,7 +671,7 @@ class CasebookView(View):
             >>> user = casebook.collaborators.first()
             >>> non_collaborating_user = user_factory()
             >>> private_casebook = casebook_factory(contentcollaborator_set__user=user, public=False)
-            >>> draft_casebook = casebook_factory(contentcollaborator_set__user=user, public=False, draft_mode_of_published_casebook=True, copy_of=casebook)
+            >>> draft_casebook = casebook_factory(contentcollaborator_set__user=user, public=False, draft_mode_of_published_casebook=True, provenance=[casebook.id])
 
             Newly-composed (private, never-published) casebooks, when published, become public.
             >>> response = client.patch(private_casebook.get_absolute_url(), as_user=user, follow=True)
@@ -734,7 +734,6 @@ def clone_casebook(request, casebook):
     {'method': 'post', 'args': ['casebook'], 'results': {302: ['casebook.owner'], 403: ['other_user'], 'login': [None]}},  # casebook owner can make drafts
     {'method': 'post', 'args': ['private_casebook'], 'results': {403: ['private_casebook.owner', 'other_user'], 'login': [None]}},  # no drafts of private casebooks
     {'method': 'post', 'args': ['draft_casebook'], 'results': {403: ['draft_casebook.owner', 'other_user'], 'login': [None]}},  # no drafts of draft casebooks
-    {'method': 'post', 'args': ['draft_casebook.copy_of'], 'results': {403: ['draft_casebook.copy_of.owner', 'other_user'], 'login': [None]}},  # no drafts of casebooks with drafts
 )
 @require_POST
 @hydrate_params
