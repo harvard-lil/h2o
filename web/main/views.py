@@ -149,7 +149,7 @@ def actions(request, context):
         any of that casebook's sections or resources:
         >>> for o in [published, published_section, published_resource]:
         ...     check_response(
-        ...         client.get(o.get_absolute_url(), as_user=published.owner),
+        ...         client.get(o.get_absolute_url(), as_user=published.testing_editor),
         ...         content_includes='actions="exportable,cloneable,can_create_draft"'
         ...     )
 
@@ -157,7 +157,7 @@ def actions(request, context):
         any of that casebook's sections or resources:
         >>> for o in [with_draft, with_draft_section, with_draft_resource]:
         ...     check_response(
-        ...         client.get(o.get_absolute_url(), as_user=with_draft.owner),
+        ...         client.get(o.get_absolute_url(), as_user=with_draft.testing_editor),
         ...         content_includes='actions="exportable,cloneable,can_view_existing_draft"'
         ...     )
 
@@ -165,7 +165,7 @@ def actions(request, context):
         the preview pages of any of that casebook's sections or resources:
         >>> for o in [private, private_section, private_resource]:
         ...     check_response(
-        ...         client.get(o.get_absolute_url(), as_user=private.owner),
+        ...         client.get(o.get_absolute_url(), as_user=private.testing_editor),
         ...         content_includes='actions="exportable,cloneable,publishable,can_be_directly_edited"'
         ...     )
 
@@ -173,7 +173,7 @@ def actions(request, context):
         the preview pages of any of that casebook's sections or resources:
         >>> for o in [draft, draft_section, draft_resource]:
         ...     check_response(
-        ...         client.get(o.get_absolute_url(), as_user=draft.owner),
+        ...         client.get(o.get_absolute_url(), as_user=draft.testing_editor),
         ...         content_includes='actions="exportable,publishable,can_be_directly_edited"'
         ...     )
 
@@ -185,13 +185,13 @@ def actions(request, context):
 
         When a collaborator views the "edit" page of a private, never-published casebook
         >>> check_response(
-        ...    client.get(private.get_edit_url(), as_user=private.owner),
+        ...    client.get(private.get_edit_url(), as_user=private.testing_editor),
         ...    content_includes='actions="exportable,cloneable,previewable,publishable,can_save_nodes,can_add_nodes"'
         ... )
 
         When a collaborator views the "edit" page of a draft of an already-published casebook
         >>> check_response(
-        ...    client.get(draft.get_edit_url(), as_user=draft.owner),
+        ...    client.get(draft.get_edit_url(), as_user=draft.testing_editor),
         ...    content_includes='actions="exportable,previewable,publishable,can_save_nodes,can_add_nodes"'
         ... )
 
@@ -199,13 +199,13 @@ def actions(request, context):
 
         When a collaborator views the "edit" page of a section in a private, never-published casebook
         >>> check_response(
-        ...     client.get(private_section.get_edit_url(), as_user=private.owner),
+        ...     client.get(private_section.get_edit_url(), as_user=private.testing_editor),
         ...     content_includes='actions="exportable,previewable,can_save_nodes,can_add_nodes"'
         ... )
 
         When a collaborator views the "edit" page of a section in draft of an already-published casebook
         >>> check_response(
-        ...     client.get(draft_section.get_edit_url(), as_user=draft.owner),
+        ...     client.get(draft_section.get_edit_url(), as_user=draft.testing_editor),
         ...     content_includes='actions="exportable,previewable,publishable,can_save_nodes,can_add_nodes"'
         ... )
 
@@ -213,25 +213,25 @@ def actions(request, context):
 
         When a collaborator views the "edit" page of a resource in a private, never-published casebook
         >>> check_response(
-        ...     client.get(private_resource.get_edit_url(), as_user=private.owner),
+        ...     client.get(private_resource.get_edit_url(), as_user=private.testing_editor),
         ...     content_includes='actions="exportable,previewable,can_save_nodes"'
         ... )
 
         When a collaborator views the "edit" page of a resource in draft of an already-published casebook
         >>> check_response(
-        ...     client.get(draft_resource.get_edit_url(), as_user=draft.owner),
+        ...     client.get(draft_resource.get_edit_url(), as_user=draft.testing_editor),
         ...     content_includes='actions="exportable,previewable,publishable,can_save_nodes"'
         ... )
 
         When a collaborator views the "annotate" page of a resource in a private, never-published casebook
         >>> check_response(
-        ...     client.get(private_resource.get_annotate_url(), as_user=private.owner),
+        ...     client.get(private_resource.get_annotate_url(), as_user=private.testing_editor),
         ...     content_includes='actions="exportable,previewable"'
         ... )
 
         When a collaborator views the "annotate" page of a resource in draft of an already-published casebook
         >>> check_response(
-        ...     client.get(draft_resource.get_annotate_url(), as_user=draft.owner),
+        ...     client.get(draft_resource.get_annotate_url(), as_user=draft.testing_editor),
         ...     content_includes='actions="exportable,previewable,publishable"'
         ... )
 
@@ -282,13 +282,13 @@ class CasebookTOCView(APIView):
     @method_decorator(requires_csrf_token)
     @method_decorator(perms_test([
     {'args': ['full_casebook'],
-     'results': {200: [None, 'other_user', 'full_casebook.owner']}},
+     'results': {200: [None, 'other_user', 'full_casebook.testing_editor']}},
     {'args': ['full_private_casebook'],
-     'results': {200: ['full_private_casebook.owner'],
+     'results': {200: ['full_private_casebook.testing_editor'],
                  'login': [None],
                  403: ['other_user']}},
     {'args': ['full_casebook_with_draft.draft'],
-     'results': {200: ['full_casebook_with_draft.draft.owner'],
+     'results': {200: ['full_casebook_with_draft.draft.testing_editor'],
                  'login': [None],
                  403: ['other_user']}},
 ]))
@@ -333,11 +333,11 @@ class SectionTOCView(APIView):
     @method_decorator(requires_csrf_token)
     @method_decorator(perms_test([
         {'args': ['full_casebook', 'full_casebook.sections.first'],
-         'results': {403: ['other_user', 'full_casebook.owner'], 'login': [None]}},
+         'results': {403: ['other_user', 'full_casebook.testing_editor'], 'login': [None]}},
         {'args': ['full_private_casebook', 'full_private_casebook.sections.first'],
-         'results': {400: ['full_private_casebook.owner'], 'login': [None], 403: ['other_user']}},
+         'results': {400: ['full_private_casebook.testing_editor'], 'login': [None], 403: ['other_user']}},
         {'args': ['full_casebook_with_draft.draft', 'full_casebook_with_draft.draft.sections.first'],
-         'results': {400: ['full_casebook_with_draft.draft.owner'], 'login': [None], 403: ['other_user']}}]))
+         'results': {400: ['full_casebook_with_draft.draft.testing_editor'], 'login': [None], 403: ['other_user']}}]))
     @method_decorator(hydrate_params)
     @method_decorator(user_has_perm('casebook', 'directly_editable_by'))
     @method_decorator(user_has_perm('section', 'directly_editable_by'))
@@ -365,8 +365,8 @@ class SectionTOCView(APIView):
 class AnnotationListView(APIView):
 
     @method_decorator(perms_test(
-        {'args': ['resource'], 'results': {200: ['resource.casebook.owner', 'other_user', 'admin_user', None]}},
-        {'args': ['full_casebook_with_draft.draft.resources.first'], 'results': {200: ['full_casebook_with_draft.draft.owner', 'admin_user'], 403: ['other_user'], 'login': [None]}},
+        {'args': ['resource'], 'results': {200: ['resource.casebook.testing_editor', 'other_user', 'admin_user', None]}},
+        {'args': ['full_casebook_with_draft.draft.resources.first'], 'results': {200: ['full_casebook_with_draft.draft.testing_editor', 'admin_user'], 403: ['other_user'], 'login': [None]}},
     ))
     @method_decorator(user_has_perm('resource', 'viewable_by'))
     def get(self, request, resource, format=None):
@@ -390,7 +390,7 @@ class AnnotationListView(APIView):
 
             Post the required data as JSON to create a new annotation:
             >>> url = reverse('annotation_list', args=[resource])
-            >>> response = client.post(url, payload, content_type="application/json", as_user=resource.owner)
+            >>> response = client.post(url, payload, content_type="application/json", as_user=resource.testing_editor)
             >>> check_response(response, status_code=201)
             >>> resource.refresh_from_db()
             >>> assert resource.annotations.count() == 1
@@ -400,7 +400,7 @@ class AnnotationListView(APIView):
             (If you omit any required data, an annotation is not created)
             >>> for key in ['kind', 'content', 'start_offset', 'end_offset']:
             ...     payload = json.dumps({k:v for k,v in data.items() if k != key})
-            ...     check_response(client.post(url, payload, content_type="application/json", as_user=resource.owner), status_code=400)
+            ...     check_response(client.post(url, payload, content_type="application/json", as_user=resource.testing_editor), status_code=400)
         """
         serializer = NewAnnotationSerializer(data=request.data.get('annotation'))
         if serializer.is_valid():
@@ -418,8 +418,8 @@ class AnnotationDetailView(APIView):
         return super().initial(request, *args, **kwargs)
 
     @method_decorator(perms_test([
-        {'args': ['published_annotation.resource', 'published_annotation'], 'results': {403: ['published_annotation.resource.owner', 'other_user'], 'login': [None]}},
-        {'args': ['private_annotation.resource', 'private_annotation'], 'results': {400: ['private_annotation.resource.owner'], 403: ['other_user'], 'login': [None]}},
+        {'args': ['published_annotation.resource', 'published_annotation'], 'results': {403: ['published_annotation.resource.testing_editor', 'other_user'], 'login': [None]}},
+        {'args': ['private_annotation.resource', 'private_annotation'], 'results': {400: ['private_annotation.resource.testing_editor'], 403: ['other_user'], 'login': [None]}},
     ]))
     @method_decorator(user_has_perm('resource', 'directly_editable_by'))
     def patch(self, request, resource, annotation, format=json):
@@ -434,18 +434,18 @@ class AnnotationDetailView(APIView):
 
             Alter the content of an annotation:
             >>> url = reverse('annotation_detail', args=[annotation.resource, annotation])
-            >>> response = client.patch(url, payload, content_type="application/json", as_user=annotation.resource.owner)
+            >>> response = client.patch(url, payload, content_type="application/json", as_user=annotation.resource.testing_editor)
             >>> check_response(response)
             >>> annotation.refresh_from_db()
             >>> assert annotation.content == new_content
 
             (At present, you may not alter anything else.)
             >>> payload = json.dumps({'annotation': {'id': annotation.id, 'kind': 'highlight'}})
-            >>> check_response(client.patch(url, payload, status_code=400, content_type="application/json", as_user=annotation.resource.owner))
+            >>> check_response(client.patch(url, payload, status_code=400, content_type="application/json", as_user=annotation.resource.testing_editor))
             >>> payload = json.dumps({'annotation': {'id': annotation.id, 'start_offset': 1000}})
-            >>> check_response(client.patch(url, payload, status_code=400, content_type="application/json", as_user=annotation.resource.owner))
+            >>> check_response(client.patch(url, payload, status_code=400, content_type="application/json", as_user=annotation.resource.testing_editor))
             >>> payload = json.dumps({'annotation': {'id': annotation.id, 'end_offset': 1000}})
-            >>> check_response(client.patch(url, payload, status_code=400, content_type="application/json", as_user=annotation.resource.owner))
+            >>> check_response(client.patch(url, payload, status_code=400, content_type="application/json", as_user=annotation.resource.testing_editor))
         """
         serializer = UpdateAnnotationSerializer(annotation, data=request.data.get('annotation'), partial=True)
         if serializer.is_valid():
@@ -454,8 +454,8 @@ class AnnotationDetailView(APIView):
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
     @method_decorator(perms_test([
-        {'args': ['published_annotation.resource', 'published_annotation'], 'results': {403: ['published_annotation.resource.owner', 'other_user'], 'login': [None]}},
-        {'args': ['private_annotation.resource', 'private_annotation'], 'results': {204: ['private_annotation.resource.owner'], 403: ['other_user'], 'login': [None]}},
+        {'args': ['published_annotation.resource', 'published_annotation'], 'results': {403: ['published_annotation.resource.testing_editor', 'other_user'], 'login': [None]}},
+        {'args': ['private_annotation.resource', 'private_annotation'], 'results': {204: ['private_annotation.resource.testing_editor'], 403: ['other_user'], 'login': [None]}},
     ]))
     @method_decorator(user_has_perm('resource', 'directly_editable_by'))
     def delete(self, request, resource, annotation, format=None):
@@ -467,7 +467,7 @@ class AnnotationDetailView(APIView):
 
             Delete the annotation:
             >>> url = reverse('annotation_detail', args=[annotation.resource, annotation])
-            >>> check_response(client.delete(url, as_user=annotation.resource.owner), status_code=204)
+            >>> check_response(client.delete(url, as_user=annotation.resource.testing_editor), status_code=204)
             >>> with assert_raises(ContentAnnotation.DoesNotExist):
             ...     annotation.refresh_from_db()
         """
@@ -493,7 +493,7 @@ def dashboard(request, user_id):
         >>> user = casebook.collaborators.first()
         >>> non_collaborating_user = user_factory()
         >>> private_casebook = casebook_factory(contentcollaborator_set__user=user, public=False)
-        >>> draft_casebook = casebook_factory(contentcollaborator_set__user=user, public=False, draft_mode_of_published_casebook=True, copy_of=casebook)
+        >>> draft_casebook = casebook_factory(contentcollaborator_set__user=user, public=False, draft_mode_of_published_casebook=True, provenance=[casebook.id])
         >>> url = reverse('dashboard', args=[user.id])
 
         All users can see public casebooks:
@@ -609,16 +609,16 @@ def new_casebook(request):
     """
     casebook = Casebook()
     casebook.save()
-    casebook.add_collaborator(user=request.user, role='owner', has_attribution=True)
+    casebook.add_collaborator(user=request.user, has_attribution=True, can_edit=True)
     return HttpResponseRedirect(casebook.get_edit_url())
 
 
 class CasebookView(View):
 
     @method_decorator(perms_test(
-        {'args': ['casebook'], 'results': {200: [None, 'other_user', 'casebook.owner']}},
-        {'args': ['private_casebook'], 'results': {200: ['private_casebook.owner'], 'login': [None], 403: ['other_user']}},
-        {'args': ['draft_casebook'], 'results': {200: ['draft_casebook.owner'], 'login': [None], 403: ['other_user']}},
+        {'args': ['casebook'], 'results': {200: [None, 'other_user', 'casebook.testing_editor']}},
+        {'args': ['private_casebook'], 'results': {200: ['private_casebook.testing_editor'], 'login': [None], 403: ['other_user']}},
+        {'args': ['draft_casebook'], 'results': {200: ['draft_casebook.testing_editor'], 'login': [None], 403: ['other_user']}},
     ))
     @method_decorator(requires_csrf_token)
     @method_decorator(hydrate_params)
@@ -632,7 +632,7 @@ class CasebookView(View):
             >>> user = casebook.collaborators.first()
             >>> non_collaborating_user = user_factory()
             >>> private_casebook = casebook_factory(contentcollaborator_set__user=user, public=False)
-            >>> draft_casebook = casebook_factory(contentcollaborator_set__user=user, public=False, draft_mode_of_published_casebook=True, copy_of=casebook)
+            >>> draft_casebook = casebook_factory(contentcollaborator_set__user=user, public=False, draft_mode_of_published_casebook=True, provenance=[casebook.id])
 
             All users can see public casebooks:
             >>> check_response(client.get(casebook.get_absolute_url(), content_includes=casebook.title))
@@ -655,9 +655,9 @@ class CasebookView(View):
         })
 
     @method_decorator(perms_test(
-        {'args': ['private_casebook'], 'results': {302: ['private_casebook.owner'], 'login': [None], 403: ['other_user']}},
-        {'args': ['draft_casebook'], 'results': {302: ['draft_casebook.owner'], 'login': [None], 403: ['other_user']}},
-        {'args': ['casebook'], 'results': {403: ['casebook.owner']}},
+        {'args': ['private_casebook'], 'results': {302: ['private_casebook.testing_editor'], 'login': [None], 403: ['other_user']}},
+        {'args': ['draft_casebook'], 'results': {302: ['draft_casebook.testing_editor'], 'login': [None], 403: ['other_user']}},
+        {'args': ['casebook'], 'results': {403: ['casebook.testing_editor']}},
     ))
     @method_decorator(hydrate_params)
     @method_decorator(user_has_perm('casebook', 'editable_by'))
@@ -671,7 +671,7 @@ class CasebookView(View):
             >>> user = casebook.collaborators.first()
             >>> non_collaborating_user = user_factory()
             >>> private_casebook = casebook_factory(contentcollaborator_set__user=user, public=False)
-            >>> draft_casebook = casebook_factory(contentcollaborator_set__user=user, public=False, draft_mode_of_published_casebook=True, copy_of=casebook)
+            >>> draft_casebook = casebook_factory(contentcollaborator_set__user=user, public=False, draft_mode_of_published_casebook=True, provenance=[casebook.id])
 
             Newly-composed (private, never-published) casebooks, when published, become public.
             >>> response = client.patch(private_casebook.get_absolute_url(), as_user=user, follow=True)
@@ -714,8 +714,8 @@ class CasebookView(View):
 
 
 @perms_test(
-    {'method': 'post', 'args': ['casebook'], 'results': {302: ['casebook.owner', 'other_user'], 'login': [None]}},
-    {'method': 'post', 'args': ['draft_casebook'], 'results': {403: ['casebook.owner', 'other_user'], 'login': [None]}},
+    {'method': 'post', 'args': ['casebook'], 'results': {302: ['casebook.testing_editor', 'other_user'], 'login': [None]}},
+    {'method': 'post', 'args': ['draft_casebook'], 'results': {403: ['casebook.testing_editor', 'other_user'], 'login': [None]}},
 )
 @require_POST
 @login_required
@@ -731,10 +731,9 @@ def clone_casebook(request, casebook):
 
 
 @perms_test(
-    {'method': 'post', 'args': ['casebook'], 'results': {302: ['casebook.owner'], 403: ['other_user'], 'login': [None]}},  # casebook owner can make drafts
-    {'method': 'post', 'args': ['private_casebook'], 'results': {403: ['private_casebook.owner', 'other_user'], 'login': [None]}},  # no drafts of private casebooks
-    {'method': 'post', 'args': ['draft_casebook'], 'results': {403: ['draft_casebook.owner', 'other_user'], 'login': [None]}},  # no drafts of draft casebooks
-    {'method': 'post', 'args': ['draft_casebook.copy_of'], 'results': {403: ['draft_casebook.copy_of.owner', 'other_user'], 'login': [None]}},  # no drafts of casebooks with drafts
+    {'method': 'post', 'args': ['casebook'], 'results': {302: ['casebook.testing_editor'], 403: ['other_user'], 'login': [None]}},  # casebook owner can make drafts
+    {'method': 'post', 'args': ['private_casebook'], 'results': {403: ['private_casebook.testing_editor', 'other_user'], 'login': [None]}},  # no drafts of private casebooks
+    {'method': 'post', 'args': ['draft_casebook'], 'results': {403: ['draft_casebook.testing_editor', 'other_user'], 'login': [None]}},  # no drafts of draft casebooks
 )
 @require_POST
 @hydrate_params
@@ -748,9 +747,9 @@ def create_draft(request, casebook):
 
 
 @perms_test(
-    {'method': 'post', 'args': ['casebook'], 'results': {403: ['casebook.owner', 'other_user'], 'login': [None]}},
-    {'method': 'post', 'args': ['draft_casebook'], 'results': {200: ['draft_casebook.owner'], 403: ['other_user'], 'login': [None]}},
-    {'method': 'post', 'args': ['private_casebook'], 'results': {200: ['private_casebook.owner'], 403: ['other_user'], 'login': [None]}},
+    {'method': 'post', 'args': ['casebook'], 'results': {403: ['casebook.testing_editor', 'other_user'], 'login': [None]}},
+    {'method': 'post', 'args': ['draft_casebook'], 'results': {200: ['draft_casebook.testing_editor'], 403: ['other_user'], 'login': [None]}},
+    {'method': 'post', 'args': ['private_casebook'], 'results': {200: ['private_casebook.testing_editor'], 403: ['other_user'], 'login': [None]}},
 )
 @require_http_methods(["GET", "POST"])
 @requires_csrf_token
@@ -766,11 +765,11 @@ def edit_casebook(request, casebook):
         >>> for book in [private, draft]:
         ...     new_title = 'owner-edited title'
         ...     check_response(
-        ...         client.get(book.get_edit_url(), as_user=book.owner),
+        ...         client.get(book.get_edit_url(), as_user=book.testing_editor),
         ...         content_includes=[book.title, "This casebook is a draft"],
         ...     )
         ...     check_response(
-        ...         client.post(book.get_edit_url(), {'title': new_title}, as_user=book.owner),
+        ...         client.post(book.get_edit_url(), {'title': new_title}, as_user=book.testing_editor),
         ...         content_includes=new_title,
         ...         content_excludes=book.title
         ...     )
@@ -790,9 +789,9 @@ def edit_casebook(request, casebook):
 
 
 @perms_test(
-    {'method': 'post', 'args': ['casebook'], 'results': {403: ['casebook.owner', 'other_user'], 'login': [None]}},
-    {'method': 'post', 'args': ['draft_casebook'], 'results': {302: ['draft_casebook.owner'], 403: ['other_user'], 'login': [None]}},
-    {'method': 'post', 'args': ['private_casebook'], 'results': {302: ['private_casebook.owner'], 403: ['other_user'], 'login': [None]}},
+    {'method': 'post', 'args': ['casebook'], 'results': {403: ['casebook.testing_editor', 'other_user'], 'login': [None]}},
+    {'method': 'post', 'args': ['draft_casebook'], 'results': {302: ['draft_casebook.testing_editor'], 403: ['other_user'], 'login': [None]}},
+    {'method': 'post', 'args': ['private_casebook'], 'results': {302: ['private_casebook.testing_editor'], 403: ['other_user'], 'login': [None]}},
 )
 @require_http_methods(["POST"])
 @hydrate_params
@@ -810,7 +809,7 @@ def new_section_or_resource(request, casebook):
 
         A simple POST adds a new section to the end of the casebook.
         >>> url = reverse('new_section_or_resource', args=[casebook])
-        >>> response = client.post(url, as_user=casebook.owner, follow=True)
+        >>> response = client.post(url, as_user=casebook.testing_editor, follow=True)
         >>> check_response(response)
         >>> s_3 = casebook.contents.last()
         >>> assert isinstance(s_3, Section)
@@ -820,7 +819,7 @@ def new_section_or_resource(request, casebook):
         >>> assert_url_equal(response, s_3.get_edit_url())
 
         Include the ID of a section as a GET param to nest the new section inside it.
-        >>> response = client.post(reverse('new_section_or_resource', args=[casebook]) + "?parent={}".format(s_1.id), as_user=casebook.owner, follow=True)
+        >>> response = client.post(reverse('new_section_or_resource', args=[casebook]) + "?parent={}".format(s_1.id), as_user=casebook.testing_editor, follow=True)
         >>> check_response(response)
         >>> s_1_5 = s_1.contents.last()
         >>> assert isinstance(s_1_5, Section)
@@ -835,7 +834,7 @@ def new_section_or_resource(request, casebook):
         For cases: a case ID and optional parent section ID (omitted here)
         >>> url = reverse('new_section_or_resource', args=[casebook])
         >>> data = {'resource_id': case.id}
-        >>> response = client.post(url, data, content_type='application/json', as_user=casebook.owner, follow=True)
+        >>> response = client.post(url, data, content_type='application/json', as_user=casebook.testing_editor, follow=True)
         >>> check_response(response)
         >>> r_4 = casebook.contents.last()
         >>> assert isinstance(r_4, Resource)
@@ -848,7 +847,7 @@ def new_section_or_resource(request, casebook):
         For text blocks: a title, content, and optional parent section ID (included here)
         >>> url = reverse('new_section_or_resource', args=[casebook])
         >>> data = {'text': {'title': 'Eureka!', 'content': '<em>Eureka</em>'}, 'parent': s_1.id}
-        >>> response = client.post(url, data, content_type='application/json', as_user=casebook.owner, follow=True)
+        >>> response = client.post(url, data, content_type='application/json', as_user=casebook.testing_editor, follow=True)
         >>> check_response(response)
         >>> r_1_6 = s_1.contents.last()
         >>> assert isinstance(r_1_6, Resource)
@@ -861,7 +860,7 @@ def new_section_or_resource(request, casebook):
         For links: a URL and optional parent section ID (included here)
         >>> url = reverse('new_section_or_resource', args=[casebook])
         >>> data = {'link': {'url': 'http://example.com'}, 'parent': s_1.id}
-        >>> response = client.post(url, data, content_type='application/json', as_user=casebook.owner, follow=True)
+        >>> response = client.post(url, data, content_type='application/json', as_user=casebook.testing_editor, follow=True)
         >>> check_response(response)
         >>> r_1_7 = s_1.contents.last()
         >>> assert isinstance(r_1_7, Resource)
@@ -964,12 +963,12 @@ class SectionView(View):
 
             Users can see sections in their own non-public casebooks in preview mode:
             >>> check_response(
-            ...     client.get(private_section.get_absolute_url(), as_user=private_section.owner),
+            ...     client.get(private_section.get_absolute_url(), as_user=private_section.testing_editor),
             ...     content_includes=[private_section.title, "You are viewing a preview"],
             ... )
 
             Owners see the "preview mode" of sections in draft casebooks:
-            >>> check_response(client.get(draft_section.get_absolute_url(), as_user=draft_section.owner), content_includes="You are viewing a preview")
+            >>> check_response(client.get(draft_section.get_absolute_url(), as_user=draft_section.testing_editor), content_includes="You are viewing a preview")
         """
         # canonical redirect
         canonical = section.get_absolute_url()
@@ -997,7 +996,7 @@ class SectionView(View):
 
             Users can delete sections in their unpublished and draft casebooks:
             >>> for section in [private_section, draft_section]:
-            ...     owner = section.owner
+            ...     owner = section.testing_editor
             ...     url = reverse('section', args=[section.casebook, section])
             ...     check_response(client.delete(url, as_user=owner))
             ...     with assert_raises(Section.DoesNotExist):
@@ -1026,11 +1025,11 @@ def edit_section(request, casebook, section):
         >>> for section in [private_section, draft_section]:
         ...     new_title = 'owner-edited title'
         ...     check_response(
-        ...         client.get(section.get_edit_url(), as_user=section.owner),
+        ...         client.get(section.get_edit_url(), as_user=section.testing_editor),
         ...         content_includes=[section.title, "This casebook is a draft"],
         ...     )
         ...     check_response(
-        ...         client.post(section.get_edit_url(), {'title': new_title}, as_user=section.owner),
+        ...         client.post(section.get_edit_url(), {'title': new_title}, as_user=section.testing_editor),
         ...         content_includes=new_title,
         ...         content_excludes=section.title
         ...     )
@@ -1071,12 +1070,12 @@ class ResourceView(View):
 
             Users can see resources in their own non-public casebooks in preview mode:
             >>> check_response(
-            ...     client.get(private_resource.get_absolute_url(), as_user=private_resource.owner),
+            ...     client.get(private_resource.get_absolute_url(), as_user=private_resource.testing_editor),
             ...     content_includes=[private_resource.title, "You are viewing a preview"],
             ... )
 
             Owners see the "preview mode" of resources in draft casebooks:
-            >>> check_response(client.get(draft_resource.get_absolute_url(), as_user=draft_resource.owner), content_includes="You are viewing a preview")
+            >>> check_response(client.get(draft_resource.get_absolute_url(), as_user=draft_resource.testing_editor), content_includes="You are viewing a preview")
         """
         # canonical redirect
         canonical = resource.get_absolute_url()
@@ -1107,7 +1106,7 @@ class ResourceView(View):
 
             Users can delete resources in their unpublished and draft casebooks:
             >>> for resource in [private_resource, draft_resource]:
-            ...     owner = resource.owner
+            ...     owner = resource.testing_editor
             ...     url = reverse('resource', args=[resource.casebook, resource])
             ...     check_response(client.delete(url, as_user=owner))
             ...     with assert_raises(Resource.DoesNotExist):
@@ -1138,11 +1137,11 @@ def edit_resource(request, casebook, resource):
         ...     original_title = resource.title
         ...     new_title = 'owner-edited title'
         ...     check_response(
-        ...         client.get(resource.get_edit_url(), as_user=resource.owner),
+        ...         client.get(resource.get_edit_url(), as_user=resource.testing_editor),
         ...         content_includes=[resource.title, "This casebook is a draft"],
         ...     )
         ...     check_response(
-        ...         client.post(resource.get_edit_url(), {'title': new_title}, as_user=resource.owner),
+        ...         client.post(resource.get_edit_url(), {'title': new_title}, as_user=resource.testing_editor),
         ...         content_includes=new_title,
         ...         content_excludes=original_title
         ...     )
@@ -1152,7 +1151,7 @@ def edit_resource(request, casebook, resource):
         ...     original_url = resource.resource.url
         ...     new_url = "http://new-test-url.com"
         ...     check_response(
-        ...         client.post(resource.get_edit_url(), {'url': new_url}, as_user=resource.owner),
+        ...         client.post(resource.get_edit_url(), {'url': new_url}, as_user=resource.testing_editor),
         ...         content_includes=new_url,
         ...         content_excludes=original_url
         ...     )
@@ -1162,7 +1161,7 @@ def edit_resource(request, casebook, resource):
         ...     original_text = resource.resource.content
         ...     new_text = "<p>I'm new text</p>"
         ...     check_response(
-        ...         client.post(resource.get_edit_url(), {'content': new_text}, as_user=resource.owner),
+        ...         client.post(resource.get_edit_url(), {'content': new_text}, as_user=resource.testing_editor),
         ...         content_includes=escape(new_text),
         ...         content_excludes=escape(original_text)
         ...     )
@@ -1235,7 +1234,7 @@ def reorder_node(request, casebook, section=None, node=None):
 
         Can reorder nodes on the casebook page:
         >>> url = reverse('reorder_node', args=[casebook, r_1_4_1])
-        >>> response = client.patch(url, payload, content_type="application/json", as_user=casebook.owner, follow=True)
+        >>> response = client.patch(url, payload, content_type="application/json", as_user=casebook.testing_editor, follow=True)
         >>> check_response(response)
         >>> assert dump_content_tree_children(s_1_4) == [r_1_4_2, r_1_4_3, r_1_4_1]
         >>> assert_url_equal(response, casebook.get_edit_url())
@@ -1243,7 +1242,7 @@ def reorder_node(request, casebook, section=None, node=None):
         Can reorder nodes on the section page:
         >>> r_1_4_2.refresh_from_db()
         >>> url = reverse('reorder_node', args=[casebook, s_1, r_1_4_2])
-        >>> response = client.patch(url, payload, content_type="application/json", as_user=casebook.owner, follow=True)
+        >>> response = client.patch(url, payload, content_type="application/json", as_user=casebook.testing_editor, follow=True)
         >>> check_response(response)
         >>> assert dump_content_tree_children(s_1_4) == [r_1_4_3, r_1_4_1, r_1_4_2]
         >>> assert_url_equal(response, s_1.get_edit_url())
@@ -1382,9 +1381,9 @@ def from_capapi(request):
 
 
 @method_decorator(perms_test(
-    {'args': ['casebook', '"docx"'], 'results': {200: [None, 'other_user', 'casebook.owner']}},
-    {'args': ['private_casebook', '"docx"'], 'results': {200: ['private_casebook.owner'], 'login': [None], 403: ['other_user']}},
-    {'args': ['draft_casebook', '"docx"'], 'results': {200: ['draft_casebook.owner'], 'login': [None], 403: ['other_user']}},
+    {'args': ['casebook', '"docx"'], 'results': {200: [None, 'other_user', 'casebook.testing_editor']}},
+    {'args': ['private_casebook', '"docx"'], 'results': {200: ['private_casebook.testing_editor'], 'login': [None], 403: ['other_user']}},
+    {'args': ['draft_casebook', '"docx"'], 'results': {200: ['draft_casebook.testing_editor'], 'login': [None], 403: ['other_user']}},
 ))
 @user_has_perm('node', 'viewable_by')
 def export(request, node, file_type='docx'):

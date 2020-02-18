@@ -101,7 +101,7 @@ class ContentNodeFactory(factory.DjangoModelFactory):
         model = ContentNode
 
     public = True
-    created_at = timezone.now()
+    created_at = factory.LazyFunction(timezone.now)
     ordinals=[]
 
 
@@ -110,21 +110,24 @@ class CasebookFactory(ContentNodeFactory):
     class Meta:
         model = Casebook
 
-    contentcollaborator_set = factory.RelatedFactory('conftest.ContentCollaboratorFactory', 'content')
+    contentcollaborator_set = factory.RelatedFactory('conftest.ContentCollaboratorFactory', 'content', can_edit=True)
     title = factory.Sequence(lambda n: 'Some Title %s' % n)
     public = True
+    provenance = []
 
 
 @register_factory
 class PrivateCasebookFactory(CasebookFactory):
     public = False
+    contentcollaborator_set = factory.RelatedFactory('conftest.ContentCollaboratorFactory', 'content', can_edit=True)
 
 
 @register_factory
 class DraftCasebookFactory(CasebookFactory):
     public = False
     draft_mode_of_published_casebook=True
-    copy_of = factory.SubFactory(CasebookFactory)
+    provenance = factory.LazyAttribute(lambda _: [CasebookFactory.create().id])
+    contentcollaborator_set = factory.RelatedFactory('conftest.ContentCollaboratorFactory', 'content', can_edit=True)
 
 
 @register_factory
@@ -147,8 +150,8 @@ class ContentCollaboratorFactory(factory.DjangoModelFactory):
 
     user = factory.SubFactory(UserFactory, verified_professor=True)
     content = factory.SubFactory(CasebookFactory)
-    role = 'owner'
     has_attribution = True
+    can_edit = True
 
 
 @register_factory
@@ -263,10 +266,10 @@ def casebook_tree(casebook_factory):
                 - c_2
     """
     root = casebook_factory()
-    c_1 = casebook_factory(ancestry=str(root.id))
-    c_2 = casebook_factory(ancestry=str(root.id))
-    c_1_1 = casebook_factory(ancestry="%s/%s" % (c_1.ancestry, c_1.id))
-    c_1_2 = casebook_factory(ancestry="%s/%s" % (c_1.ancestry, c_1.id))
+    c_1 = casebook_factory(provenance=[root.id])
+    c_2 = casebook_factory(provenance=[root.id])
+    c_1_1 = casebook_factory(provenance=c_1.provenance + [c_1.id])
+    c_1_2 = casebook_factory(provenance=c_1.provenance + [c_1.id])
     return [root, c_1, c_2, c_1_1, c_1_2]
 
 
@@ -395,7 +398,8 @@ def full_casebook_parts_with_draft(full_casebook_parts_factory):
         The same as full_casebook, except has an in-progress draft
 
         >>> has_draft, draftless = [getfixture(f) for f in ['full_casebook_with_draft', 'full_casebook']]
-        >>> assert has_draft.has_draft and not draftless.has_draft
+        >>> assert has_draft.has_draft
+        >>> assert not draftless.has_draft
         >>> assert all(node.has_draft for node in has_draft.contents.all())
         >>> assert has_draft.is_public
         >>> assert has_draft.draft.is_private

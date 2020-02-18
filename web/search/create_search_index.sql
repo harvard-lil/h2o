@@ -48,7 +48,7 @@ UNION ALL
         'casebook'::text AS category
     FROM
         main_contentnode c
-        LEFT JOIN main_contentcollaborator cc ON cc.content_id = c.id AND cc.role = 'owner' AND cc.has_attribution = true
+        LEFT JOIN main_contentcollaborator cc ON cc.content_id = c.id AND cc.has_attribution = true
         LEFT JOIN main_user u ON cc.user_id = u.id
     WHERE
         casebook_id IS NULL AND
@@ -71,7 +71,7 @@ UNION ALL
            'user'::text AS category
     FROM
         main_user u
-        INNER JOIN main_contentcollaborator cc ON cc.user_id = u.id AND cc.role = 'owner'
+        INNER JOIN main_contentcollaborator cc ON cc.user_id = u.id
         INNER JOIN main_contentnode cn ON cc.content_id = cn.id AND cn.public = TRUE
     WHERE
           u.verified_professor = true AND
