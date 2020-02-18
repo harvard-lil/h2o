@@ -424,10 +424,7 @@ class ContentAnnotation(TimestampedModel, BigPkModel):
 
 class ContentCollaborator(TimestampedModel, BigPkModel):
     has_attribution = models.BooleanField(default=False)
-    role = models.CharField(
-        max_length=255,
-        choices = (('owner', 'owner'), ('editor', 'editor'))
-    )
+    can_edit = models.BooleanField(default=False)
     user = models.ForeignKey('User',
         on_delete=models.CASCADE,
     )
@@ -1205,6 +1202,10 @@ class ContentNode(EditTrackedModel, TimestampedModel, BigPkModel):
         """
         raise NotImplementedError
 
+    @property
+    def testing_editor(self):
+        return self.casebook.testing_editor
+
 
 #
 # Start ContentNode Proxies
@@ -1431,13 +1432,6 @@ class SectionAndResourceMixin(models.Model):
             })
         return return_value
 
-    @property
-    def owner(self):
-        """
-        This is a convenience method for tests
-        """
-        return self.casebook.owner
-
     def clone_to(self, new_casebook):
         """
             Clone a section or resource from its current casebook to a new casebook.
@@ -1595,13 +1589,13 @@ class Casebook(CasebookAndSectionMixin, ContentNode):
 
             Given:
             >>> full_casebook, user = [getfixture(i) for i in ['full_casebook', 'user']]
-            >>> full_casebook.add_collaborator(user, role='editor')
+            >>> full_casebook.add_collaborator(user)
             >>> draft = full_casebook.make_draft()
 
             `draft` will be in draft mode and will have the same collaborators as the original:
             >>> assert draft.draft_mode_of_published_casebook is True
-            >>> assert (set((c.user, c.role) for c in full_casebook.contentcollaborator_set.all()) ==
-            ...         set((c.user, c.role) for c in draft.contentcollaborator_set.all()))
+            >>> assert (set((c.user) for c in full_casebook.contentcollaborator_set.all()) ==
+            ...         set((c.user) for c in draft.contentcollaborator_set.all()))
         """
         return self.clone(draft_mode=True)
 
@@ -1687,9 +1681,9 @@ class Casebook(CasebookAndSectionMixin, ContentNode):
         return parent
 
     @transaction.atomic
-    def clone(self, owner=None, draft_mode=False):
+    def clone(self, current_user=None, draft_mode=False):
         """
-            Clone casebook with all of its assets. If User object `owner` is provided, that user will replace the
+            Clone casebook with all of its assets. If User object `current_user` is provided, that user will replace the
             existing users. If draft_mode=True, clone will be marked as a draft.
 
             Given an initial casebook like this:
@@ -1711,11 +1705,11 @@ class Casebook(CasebookAndSectionMixin, ContentNode):
             ...     ' Section<10>: Some Section 9',
             ... ]
             >>> assert dump_casebook_outline(full_casebook) == expected
-            >>> assert full_casebook.owner != user
+            >>> assert user not in set(full_casebook.attributed_authors)
 
             Return a cloned casebook like this:
-            >>> with assert_num_queries(select=5, insert=6):
-            ...     clone = full_casebook.clone(owner=user)
+            >>> with assert_num_queries(select=7, insert=7):
+            ...     clone = full_casebook.clone(current_user=user)
             >>> expected = [
             ...     'Casebook<11>: Some Title 0',
             ...     ' Section<12>: Some Section 1',
@@ -1733,11 +1727,11 @@ class Casebook(CasebookAndSectionMixin, ContentNode):
             ...     ' Section<20>: Some Section 9',
             ... ]
             >>> assert dump_casebook_outline(clone) == expected
-            >>> assert clone.owner == user
+            >>> assert user in set(clone.attributed_authors)
             >>> assert clone.provenance == [full_casebook.id]
-            >>> clone_of_clone = clone.clone(owner=user)
+            >>> clone_of_clone = clone.clone(current_user=user)
             >>> assert clone_of_clone.provenance == [full_casebook.id, clone.id]
-            >>> clone3 = clone_of_clone.clone(owner=user)
+            >>> clone3 = clone_of_clone.clone(current_user=user)
             >>> assert clone3.provenance == [full_casebook.id, clone.id, clone_of_clone.id]
         """
         # clone casebook
@@ -1745,26 +1739,26 @@ class Casebook(CasebookAndSectionMixin, ContentNode):
         cloned_casebook = clone_model_instance(old_casebook, provenance=old_casebook.provenance+[old_casebook.id], public=False, draft_mode_of_published_casebook=(draft_mode or None))
         cloned_casebook.save()
 
-        # clone or replace collaborators
-        if owner:
-            cloned_casebook.add_collaborator(user=owner, role='owner', has_attribution=True)
-        else:
-            roles = [clone_model_instance(c, content=cloned_casebook) for c in self.contentcollaborator_set.all()]
-            ContentCollaborator.objects.bulk_create(roles)
-            owner = next(role.user for role in roles if role.role == 'owner')
+        # Give attribution to prior collaborators
 
-        cloned_casebook.clone_nodes(old_casebook.contents.prefetch_resources().prefetch_related('annotations'), owner=owner)
+        collaborators = [clone_model_instance(c, content=cloned_casebook, can_edit=c.can_edit if draft_mode else False) for c in self.contentcollaborator_set.all()]
+        if current_user:
+            matches = [c for c in collaborators if c.user.id == current_user.id]
+            if len(matches) == 1:
+                matches[0].can_edit = True
+            else:
+                cloned_casebook.add_collaborator(user=current_user, has_attribution=True, can_edit=True)
+        ContentCollaborator.objects.bulk_create(collaborators)
+
+        cloned_casebook.clone_nodes(old_casebook.contents.prefetch_resources().prefetch_related('annotations'), current_user=current_user)
         return cloned_casebook
 
     @transaction.atomic
-    def clone_nodes(self, nodes, owner=None, append=False):
+    def clone_nodes(self, nodes, current_user=None, append=False):
         """
             Helper method to copy a set of nodes and their associated assets to this casebook. See callers for tests.
             If append=True, ordinals will be edited so the new nodes appear after any existing nodes.
         """
-        if not owner:
-            owner = self.owner
-
         # clone contents
         cloned_resources = {TextBlock: [], Link: []}  # collect new TextBlocks and Links for bulk_create
         cloned_content_nodes = []  # collect new ContentNodes for bulk_create
@@ -1782,7 +1776,6 @@ class Casebook(CasebookAndSectionMixin, ContentNode):
             # clone resources
             if old_content_node.resource_id and old_content_node.resource_type != 'Case':
                 cloned_resource = clone_model_instance(old_content_node.resource)
-                cloned_resource.user = owner
                 cloned_resources[type(cloned_resource)].append((cloned_resource, cloned_content_node))
 
         # save TextBlocks and Links
@@ -1811,54 +1804,24 @@ class Casebook(CasebookAndSectionMixin, ContentNode):
         ContentAnnotation.objects.bulk_create(r[0] for r in cloned_annotations)
 
     # Collaborators
-
-    def root_owner(self):
-        """
-        Returns the "original author" of a Casebook, when that Casebook
-        is a clone, or a clone of a clone, etc.
-        https://github.com/harvard-lil/h2o/issues/1032
-        """
-        if self.root_user_id:
-            return self.root_user
-        elif self.provenance:
-            return self.version_tree__root().owner
-
-    def users_with_role(self, role):
-        # filter in the client to allow .prefetch_related('contentcollaborator_set__user') to work:
-        return [c.user for c in self.contentcollaborator_set.all() if c.role == role]
-
     @property
-    def attributors(self):
-        """
-            Users whose authorship should be attributed.
-            https://github.com/harvard-lil/h2o/issues/1033
-        """
-        # filter in the client to allow .prefetch_related('contentcollaborator_set__user') to work:
-        return [c.user for c in sorted((c for c in self.contentcollaborator_set.all() if c.has_attribution), key=lambda c: 1 if c.role == 'owner' else 2)]
-
-    @property
-    def editors(self):
-        """https://github.com/harvard-lil/h2o/issues/1033"""
-        return self.users_with_role('editor')
-
-    @property
-    def owners(self):
-        return self.users_with_role('owner')
-
-    @property
-    def owner(self):
-        fix_after_rails("Let's add validation logic, forcing casebooks to have at least one owner.")
-        try:
-            return self.owners[0]
-        except IndexError:
-            return None
+    def attributed_authors(self):
+        content_attributions = [c.user for n in self.contents.prefetch_related('contentcollaborator_set__user').all() for c in n.collaborators.all() if c.has_attribution]
+        return [c.user for c in self.contentcollaborator_set.all() if c.has_attribution] + content_attributions
 
     def has_collaborator(self, user):
         # filter in the client to allow .prefetch_related('contentcollaborator_set__user') to work:
-        return any(c.user_id == user.id for c in self.contentcollaborator_set.all())
+        return any(c.user_id == user.id for c in self.contentcollaborator_set.all() if c.can_edit)
 
     def add_collaborator(self, user, **collaborator_kwargs):
         ContentCollaborator.objects.create(user=user, content=self, **collaborator_kwargs)
+
+    @property
+    def testing_editor(self):
+        """
+        Used for testing purposes, return a user that can edit this casebook.
+        """
+        return ContentCollaborator.objects.filter(can_edit=True, content=self).prefetch_related('user').first().user
 
 
 class SectionManager(models.Manager):
@@ -2436,7 +2399,7 @@ class User(NullableTimestampedModel, PermissionsMixin, AbstractBaseUser):
             Drafts of published casebooks should not show up on their own, but inline with the published casebook.
             Equivalent of Rails "owned_casebook_compacted"
 
-            Includes all casebooks the user is a collaborator on, regardless of role.
+            Includes all casebooks the user is a collaborator on.
         """
         return self.casebooks.filter(draft_mode_of_published_casebook=None)
 
@@ -2450,7 +2413,7 @@ class User(NullableTimestampedModel, PermissionsMixin, AbstractBaseUser):
         """
         # This probably wants to be:
         # return self.casebooks.filter(contentcollaborator__has_attribution=True, public=True)
-        return self.casebooks.filter(contentcollaborator__role='owner', public=True)
+        return self.casebooks.filter(public=True)
 
 
 def update_user_login_fields(sender, request, user, **kwargs):
