@@ -11,7 +11,7 @@ from django.urls import reverse
 
 from main.models import ContentNode, Link, TextBlock, User
 from main.utils import fix_after_rails, send_template_email, send_verification_email
-
+from main.whitelisted_email_domains import whitelisted_email_domains
 
 # Monkeypatch FormHelper to *not* include the <form> tag in {% crispy form %} by default.
 # Forms can opt back in with self.helper.form_tag = True. This is a more useful default
@@ -218,8 +218,10 @@ class SignupForm(ModelForm):
 
     def clean_email_address(self):
         email = self.cleaned_data['email_address']
-        if email and not email.endswith(".edu"):
-            raise ValidationError("Email address is not .edu.")
+        if email:
+            domain = email.split("@")[-1]
+            if domain not in whitelisted_email_domains and not email.endswith(".edu"):
+                raise ValidationError("Email address is not .edu.")
         return email
 
     def save(self, commit=True):
