@@ -65,7 +65,7 @@ class SearchIndex(models.Model):
         Given:
         >>> _, case_factory, casebook_factory = [getfixture(i) for i in ['reset_sequences', 'case_factory', 'casebook_factory']]
         >>> casebooks = [casebook_factory() for i in range(3)]
-        >>> users = [c.owner for c in casebooks]
+        >>> users = [cc.user for cb in casebooks for cc in cb.contentcollaborator_set.all() ]
         >>> cases = [case_factory() for i in range(3)]
         >>> SearchIndex().create_search_index()
 

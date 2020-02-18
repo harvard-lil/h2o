@@ -12,10 +12,10 @@ from test.test_helpers import check_response
     This file applies the tests that are attached to each view via the @perms_test decorator.
     A particular test looks like this:
     
-        @perms_test({'method': 'post', 'args': ['casebook'], 'results': {302: ['casebook.owner', 'admin_user'], 403: ['other_user'], 'login': [None]}})
+        @perms_test({'method': 'post', 'args': ['casebook'], 'results': {302: ['casebook.testing_editor', 'admin_user'], 403: ['other_user'], 'login': [None]}})
         def some_view(request, casebook): ...
     
-    This means the test should POST to `reverse(some_view, args=[casebook])`, and that casebook.owner and admin_user
+    This means the test should POST to `reverse(some_view, args=[casebook])`, and that casebook.testing_editor and admin_user
     should receive a 302 response; other_user should receive a 403; and non-auth requests should redirect to the login
     form. 
 """
@@ -77,7 +77,7 @@ def test_permissions(
             "View function or method for path %s is missing a @perms_test decorator. "
             "Use @no_perms_test if you are sure your view doesn't need tests." % path)
 
-    # Helper method to fetch and return a particular fixture, like 'casebook' or 'casebook.owner'.
+    # Helper method to fetch and return a particular fixture, like 'casebook' or 'casebook.testing_editor'.
     # Values are also stored in the `context` dictionary so they can be reused instead of recreated.
     # The part of `path` before the first period is treated as a pytest fixture, and the remainder is
     # resolved using the Django template language (so lookups like 'casebook.resources.1.some_func'

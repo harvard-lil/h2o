@@ -187,7 +187,7 @@ class ResourceIdFilter(InputFilter):
 
 class CollaboratorInline(admin.TabularInline):
     model = ContentCollaborator
-    fields = ['role', 'user', 'content', 'has_attribution']
+    fields = ['user', 'content', 'has_attribution']
     raw_id_fields = ['user', 'content']
     max_num = None
     can_delete = True
@@ -217,13 +217,13 @@ class AnnotationInline(admin.TabularInline):
 ## Casebooks
 
 class CasebookAdmin(BaseAdmin):
-    list_display = ['id', 'title', 'owner_link', 'public', 'source', 'draft_link', 'root_user', 'created_at', 'updated_at']
+    list_display = ['id', 'title', 'public', 'source', 'draft_link', 'created_at', 'updated_at']
     list_filter = [CollaboratorNameFilter, CollaboratorIdFilter, 'public', 'draft_mode_of_published_casebook']
     search_fields = ['title']
 
-    fields = ['title', 'subtitle', 'public', 'draft_mode_of_published_casebook', 'source', 'draft_link', 'ancestry', 'provenance', 'root_user', 'headnote', 'playlist_id', 'created_at', 'updated_at']
-    readonly_fields = ['created_at', 'updated_at', 'owner_link', 'source', 'draft_link', 'ancestry', 'provenance','root_user', 'playlist_id']
-    raw_id_fields = ['collaborators', 'root_user', 'casebook']
+    fields = ['title', 'subtitle', 'public', 'draft_mode_of_published_casebook', 'source', 'draft_link', 'ancestry', 'provenance', 'headnote', 'playlist_id', 'created_at', 'updated_at']
+    readonly_fields = ['created_at', 'updated_at', 'source', 'draft_link', 'ancestry', 'provenance', 'playlist_id']
+    raw_id_fields = ['collaborators', 'casebook']
     inlines = [CollaboratorInline]
 
     def save_model(self, request, obj, form, change):
@@ -242,18 +242,15 @@ class CasebookAdmin(BaseAdmin):
         other_casebook = saved_obj.draft or saved_obj.draft_of
         if other_casebook:
             other_casebook.contentcollaborator_set.all().delete()
-            roles = saved_obj.contentcollaborator_set.prefetch_related(None)  # prefetch_related cancels out an earlier prefetch so we see fresh results
-            ContentCollaborator.objects.bulk_create(clone_model_instance(c, content=other_casebook) for c in roles)
+            collaborators = saved_obj.contentcollaborator_set.prefetch_related(None)  # prefetch_related cancels out an earlier prefetch so we see fresh results
+            ContentCollaborator.objects.bulk_create(clone_model_instance(c, content=other_casebook) for c in collaborators)
 
     def get_queryset(self, request):
-        return super().get_queryset(request).select_related('root_user').prefetch_related('contentcollaborator_set__user')
+        return super().get_queryset(request).prefetch_related('contentcollaborator_set__user')
+
 
     def formfield_for_dbfield(self, db_field, **kwargs):
         return self.enable_richeditor_for_field('headnote', db_field, **kwargs)
-
-    def owner_link(self, obj):
-        return edit_link(obj.owner, True)
-    owner_link.short_description = 'owner'
 
     def draft_link(self, obj):
         return edit_link(obj.draft)
@@ -267,13 +264,13 @@ class CasebookAdmin(BaseAdmin):
 
 
 class SectionAdmin(BaseAdmin):
-    readonly_fields = ['created_at', 'updated_at', 'owner_link', 'casebook_link', 'provenance', 'ordinals']
+    readonly_fields = ['created_at', 'updated_at', 'casebook_link', 'provenance', 'ordinals']
     list_select_related = ['casebook']
-    list_display = ['id', 'casebook_link', 'owner_link', 'title', 'ordinals', 'created_at', 'updated_at']
+    list_display = ['id', 'casebook_link', 'title', 'ordinals', 'created_at', 'updated_at']
     list_filter = [CasebookIdFilter]
     search_fields = ['title', 'casebook__title']
     fields = ['casebook', 'ordinals', 'title', 'subtitle', 'provenance', 'headnote', 'created_at', 'updated_at']
-    raw_id_fields = ['collaborators', 'provenance', 'root_user', 'casebook']
+    raw_id_fields = ['collaborators', 'provenance', 'casebook']
 
     def get_queryset(self, request):
         return super().get_queryset(request).select_related('casebook').prefetch_related('casebook__contentcollaborator_set__user')
@@ -281,23 +278,19 @@ class SectionAdmin(BaseAdmin):
     def formfield_for_dbfield(self, db_field, **kwargs):
         return self.enable_richeditor_for_field('headnote', db_field, **kwargs)
 
-    def owner_link(self, obj):
-        return edit_link(obj.casebook.owner, True)
-    owner_link.short_description = 'owner'
-
     def casebook_link(self, obj):
         return edit_link(obj.casebook, True)
     casebook_link.short_description = 'casebook'
 
 
 class ResourceAdmin(BaseAdmin):
-    readonly_fields = ['created_at', 'updated_at', 'owner_link', 'casebook_link', 'provenance', 'resource_id', 'resource_type', 'ordinals']
+    readonly_fields = ['created_at', 'updated_at', 'casebook_link', 'provenance', 'resource_id', 'resource_type', 'ordinals']
     list_select_related = ['casebook']
-    list_display = ['id', 'casebook_link', 'owner_link', 'title', 'ordinals', 'resource_type', 'resource_id', 'annotation_count', 'created_at', 'updated_at']
+    list_display = ['id', 'casebook_link', 'title', 'ordinals', 'resource_type', 'resource_id', 'annotation_count', 'created_at', 'updated_at']
     list_filter = [CasebookIdFilter, 'resource_type', ResourceIdFilter]
     search_fields = ['title', 'casebook__title']
     fields = ['casebook', 'ordinals', 'title', 'subtitle', 'provenance', 'headnote', 'created_at', 'updated_at']
-    raw_id_fields = ['collaborators', 'root_user', 'casebook']
+    raw_id_fields = ['collaborators', 'casebook']
     inlines = [AnnotationInline]
 
     def get_queryset(self, request):
@@ -305,10 +298,6 @@ class ResourceAdmin(BaseAdmin):
 
     def formfield_for_dbfield(self, db_field, **kwargs):
         return self.enable_richeditor_for_field('headnote', db_field, **kwargs)
-
-    def owner_link(self, obj):
-        return edit_link(obj.casebook.owner, True)
-    owner_link.short_description = 'owner'
 
     def casebook_link(self, obj):
         return edit_link(obj.casebook, True)
@@ -478,9 +467,9 @@ class UserAdmin(BaseAdmin, DjangoUserAdmin):
 class CollaboratorsAdmin(BaseAdmin):
     readonly_fields = ['created_at', 'updated_at', 'user', 'content']
     list_select_related = ['user', 'content']
-    list_display = ['id', 'user', 'role', 'has_attribution', 'content']
-    list_filter = ['role', 'has_attribution']
-    ordering = ['role']
+    list_display = ['id', 'user', 'has_attribution', 'can_edit', 'content']
+    list_filter = ['has_attribution']
+    ordering = []
     raw_id_fields = ['user', 'content']
 
 
