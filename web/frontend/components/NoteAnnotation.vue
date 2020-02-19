@@ -18,7 +18,7 @@
           ref="noteForm"
           class="form note-content"
           :id= "`${annotation.id}`"
-          @focusout="focusOut">
+          v-click-outside="dismissNote">
       <textarea ref="noteInput"
                 id="note-textarea"
                 required="true"
@@ -48,10 +48,14 @@
 </template>
 
 <script>
+import Vue from 'vue'
 import AnnotationBase from './AnnotationBase';
+import vClickOutside from 'v-click-outside'
 import { createNamespacedHelpers } from 'vuex';
 const { _mapGetters } = createNamespacedHelpers('annotations_ui');
 const { mapActions } = createNamespacedHelpers("annotations");
+
+Vue.use(vClickOutside)
 
 export default {
   extends: AnnotationBase,
@@ -73,11 +77,9 @@ export default {
         {obj: annotation, vals: {content: content}}
       );
     },
-    focusOut(e){
-      if (Math.sign(this.annotation.id) === -1 && e.relatedTarget == null || e.relatedTarget !== null && ["save-note", "note-textarea"].includes(e.relatedTarget.id) == false){     
+    dismissNote(){
         this.$store.commit('annotations/destroy', this.annotation);
         this.$store.commit('annotations_ui/destroy', this.uiState);
-      }
     }
   },
   mounted() {
