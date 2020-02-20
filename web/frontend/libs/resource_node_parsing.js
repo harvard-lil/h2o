@@ -165,7 +165,7 @@ const isFullyElided = (node) => {
     if (_.isString(node)) {
         return false;
     } else {
-        if (node.tag && _.endsWith(node.tag,'elision-annotation')) {
+        if (node.tag && (_.endsWith(node.tag,'elision-annotation') || _.endsWith(node.tag,'replacement-annotation'))) {
             return true;
         }
         if (node.classList && node.classList.indexOf("fully-elided") > -1){
