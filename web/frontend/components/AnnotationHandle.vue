@@ -68,6 +68,8 @@ $size: 28px;
 .annotation-handle {
   font-size: 1.65rem;
   font-style: normal;
+  clear: both;
+  float: right;
 }
 
 .annotation-button {
