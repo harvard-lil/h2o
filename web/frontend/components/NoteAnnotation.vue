@@ -6,6 +6,9 @@
      @click.prevent="handleClick"><slot></slot></a>
   <AnnotationHandle v-if="hasHandle"
                     :ui-state="uiState">
+   <li>
+      <a @click="editNote(annotation)">Edit Note</a>
+    </li>
     <li>
       <a @click="destroy(annotation)">Remove note</a>
     </li>
@@ -13,7 +16,7 @@
   <span v-if="isHead"
         class="note-content-wrapper"
         data-exclude-from-offset-calcs="true">
-    <form v-if="isNew"
+    <form v-if="isEditing"
           @submit.prevent="submit('note', content)"
           ref="noteForm"
           class="form note-content"
@@ -31,6 +34,7 @@
              id="save-note"
              class="button">
     </form>
+
     <template v-else>
       <a class="note-icon"
          :href="`#${annotation.id}-head`"
@@ -62,20 +66,31 @@ export default {
   props: ["tempId"],
   data: () => ({
     content: "",
+    isEditing: false
   }),
   methods: {
-    ...mapActions(['createAndUpdate']),
+    ...mapActions(['createAndUpdate', 'update']),
 
     handleClick(e) {
       document.getElementById(e.currentTarget.getAttribute("href").slice(1)).focus({preventScroll: true});
     },
-    submit(kind, content = null){
+    editNote() {
+      this.isEditing = true;
+      this.content = this.annotation.content;
+    },
+    submit(kind, input = null){
+      if (this.isNew) {
       let id = this.$refs.noteForm.id;
       let annotation = this.$store.getters['annotations/getById'](parseInt(id));
 
       this.createAndUpdate(
-        {obj: annotation, vals: {content: content}}
+        {obj: annotation, vals: {content: input}}
       );
+      } else {
+        this.update({obj: this.annotation, vals:{content: input}})
+        this.isEditing = false;
+      }
+      this.content = input;
     },
     dismissNote(){
         this.$store.commit('annotations/destroy', this.annotation);
@@ -85,6 +100,7 @@ export default {
   mounted() {
     this.$nextTick(function () {
       if (Math.sign(this.annotation.id) == -1){
+        this.isEditing = true;
         this.$refs.noteInput.focus()
       }
     })
