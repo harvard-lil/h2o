@@ -39,6 +39,10 @@ export default {
 @import '../styles/vars-and-mixins';
 
 .toggle {
+  font-family: Chronicle Text G3, Georgia, Times New Roman, Times, serif;
+  font-weight: 400;
+  font-size: 18px;
+  line-height:31px;
   background-color: $translucent-light-gray;
   color: $light-blue;
   padding: 0.35em;
