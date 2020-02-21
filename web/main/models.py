@@ -1617,6 +1617,12 @@ class Casebook(CasebookAndSectionMixin, ContentNode):
 
             Given:
             >>> reset_sequences, full_casebook, assert_num_queries = [getfixture(i) for i in ['reset_sequences', 'full_casebook', 'assert_num_queries']]
+            >>> original_assets = set(ContentNode.objects.values_list('id', flat=True))
+            >>> elena, john =  [User(attribution=name, email_address="{}@scotus.gov".format(name)) for name in ['Elena', 'John']]
+            >>> elena.save()
+            >>> john.save()
+            >>> full_casebook.add_collaborator(elena, has_attribution=True)
+            >>> second_casebook = full_casebook.clone(current_user=john)
             >>> draft = full_casebook.make_draft()
             >>> # _ = ContentNode.objects.filter(id=2).update(provenance=[1])  # mark node 2 as copy_of node 1
 
@@ -1624,36 +1630,39 @@ class Casebook(CasebookAndSectionMixin, ContentNode):
             >>> draft.title = "New Title"
             >>> draft.save()
             >>> Section(casebook=draft, ordinals=[3], title="New Section").save()
-            >>> with assert_num_queries(delete=8, select=12, update=3):
+            >>> with assert_num_queries(delete=8, select=13, update=3):
             ...     new_casebook = draft.merge_draft()
             >>> assert new_casebook == full_casebook
             >>> expected = [
             ...     'Casebook<1>: New Title',
-            ...     ' Section<12>: Some Section 1',
-            ...     '  ContentNode<13> -> TextBlock<3>: Some TextBlock Name 0',
-            ...     '  ContentNode<14> -> Case<1>: Foo Foo0 vs. Bar Bar0',
-            ...     '   ContentAnnotation<5>: highlight 0-10',
-            ...     '   ContentAnnotation<6>: elide 0-10',
-            ...     '  ContentNode<15> -> Link<3>: Some Link Name 0',
-            ...     '  Section<16>: Some Section 5',
-            ...     '   ContentNode<17> -> TextBlock<4>: Some TextBlock Name 1',
-            ...     '   ContentNode<18> -> Case<2>: Foo Foo1 vs. Bar Bar1',
-            ...     '    ContentAnnotation<7>: note 0-10',
-            ...     '    ContentAnnotation<8>: replace 0-10',
-            ...     '   ContentNode<19> -> Link<4>: Some Link Name 1',
-            ...     ' Section<20>: Some Section 9',
-            ...     ' Section<21>: New Section',
+            ...     ' Section<22>: Some Section 1',
+            ...     '  ContentNode<23> -> TextBlock<5>: Some TextBlock Name 0',
+            ...     '  ContentNode<24> -> Case<1>: Foo Foo0 vs. Bar Bar0',
+            ...     '   ContentAnnotation<9>: highlight 0-10',
+            ...     '   ContentAnnotation<10>: elide 0-10',
+            ...     '  ContentNode<25> -> Link<5>: Some Link Name 0',
+            ...     '  Section<26>: Some Section 5',
+            ...     '   ContentNode<27> -> TextBlock<6>: Some TextBlock Name 1',
+            ...     '   ContentNode<28> -> Case<2>: Foo Foo1 vs. Bar Bar1',
+            ...     '    ContentAnnotation<11>: note 0-10',
+            ...     '    ContentAnnotation<12>: replace 0-10',
+            ...     '   ContentNode<29> -> Link<6>: Some Link Name 1',
+            ...     ' Section<30>: Some Section 9',
+            ...     ' Section<31>: New Section',
             ...     ]
             >>> assert dump_casebook_outline(new_casebook) == expected
 
             Assets associated with old published version are gone:
-            >>> assert set(ContentNode.objects.values_list('id', flat=True)) == {1, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21}
-            >>> assert set(ContentAnnotation.objects.values_list('id', flat=True)) == {5, 6, 7, 8}
-            >>> assert set(TextBlock.objects.values_list('id', flat=True)) == {3, 4}
-            >>> assert set(Link.objects.values_list('id', flat=True)) == {3, 4}
+            >>> assert set(ContentNode.objects.values_list('id', flat=True)).intersection(original_assets) == {1}
+            >>> assert set(ContentAnnotation.objects.values_list('id', flat=True)) == {5, 6, 7, 8, 9, 10, 11, 12}
+            >>> assert set(TextBlock.objects.values_list('id', flat=True)) == {3,4,5, 6}
+            >>> assert set(Link.objects.values_list('id', flat=True)) == {3,4,5, 6}
 
             The original copy_of attributes from the published version are preserved:
-            >>> assert ContentNode.objects.get(id=12).provenance == []
+            >>> assert ContentNode.objects.get(id=12).provenance == [22]
+
+            Clones of the original casebook have proper attribution
+            >>> assert elena in second_casebook.attributed_authors
         """
         # set up variables
         draft = self
@@ -1673,12 +1682,22 @@ class Casebook(CasebookAndSectionMixin, ContentNode):
         ContentAnnotation.objects.filter(resource__casebook=parent).delete()
 
         # The last parent can be removed from the provenance, as it is a node that's deleted in a few lines
-        nodes_to_update = []
+        nodes_to_update = set([])
+        provenance_to_remap = {}
         for node in draft.contents.all():
             if node.provenance:
-                nodes_to_update.append(node)
+                provenance_to_remap[node.provenance[-1]] = node.id
+                nodes_to_update.add(node)
                 node.provenance = node.provenance[:-1]
-        ContentNode.objects.bulk_update(nodes_to_update, ['provenance'])
+
+        # Remap descendant references
+        clones_to_remap = [x for x in ContentNode.objects.filter(provenance__overlap=[x for x in provenance_to_remap.keys()]) if x not in nodes_to_update]
+        for clone in clones_to_remap:
+            clone.provenance = [provenance_to_remap.get(x,x) for x in clone.provenance]
+
+        provenance_updates = list(nodes_to_update) + clones_to_remap
+        ContentNode.objects.bulk_update(provenance_updates, ['provenance'])
+
 
         # delete old content nodes
         parent.contents.all().delete()
