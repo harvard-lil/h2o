@@ -187,7 +187,7 @@ class ResourceIdFilter(InputFilter):
 
 class CollaboratorInline(admin.TabularInline):
     model = ContentCollaborator
-    fields = ['user', 'content', 'has_attribution']
+    fields = ['user', 'content', 'has_attribution', 'can_edit']
     raw_id_fields = ['user', 'content']
     max_num = None
     can_delete = True
