@@ -1,0 +1,57 @@
+<section class="credits">
+    <div>
+        {% if contributing_casebooks %}
+        <h3>Content from the following sources has been used in the creation of this {{type}}:</h3>
+        <ul class="casebook-list">
+            {% for row in contributing_casebooks %}
+            <li>
+                <div class="casebook-credit-header">
+                    <a href="{{row.casebook.get_absolute_url}}"><h4> {{ row.casebook.title }} </h4></a>
+                    <div class="author-list">
+                        <span>Authors: </span>
+                        <ul class="immediate-author-list">
+                            {% for user in row.immediate_authors %}
+                            <li class="user {% if user.verified_professor %} verified{% endif %}">
+                                <a href="{% url 'dashboard' user.id %}">{{ user.display_name }}</a>
+                            </li>
+                            {% endfor %}
+                        </ul>
+                        {% if row.incidental_authors %}
+                        <span> with additional contributions by:</span>
+                        <ul class="incidental-author-list">
+                            {% for user in row.incidental_authors %}
+                            <li class="user {% if user.verified_professor %} verified{% endif %}">
+                                <a href="{% url 'dashboard' user.id %}">{{ user.display_name }}</a>
+                            </li>
+                            {% endfor %}
+                        </ul>
+                        {% endif %}
+                    </div>
+                </div>
+                <div class="casebook-credit-nodes">
+                    <ul class="cloned-content-list">
+                        {% for node,prior,nesting_depth in row.nodes %}
+                        <li class="nesting-depth-{{nesting_depth}}">
+                            <span class="section-title">{{ node.ordinal_string }}: {{ node.title }} </span> <a class="og-node-link" href="{{ prior.get_absolute_url }}">original</a>
+                        </li>
+                        {% endfor %}
+                    </ul>
+                </div>
+            </li>
+            {% endfor %}
+        </ul>
+        {% else %}
+        <h3>The material in this book has been created by</h3>
+        <div class="author-list">
+        <ul>
+        {% for user in casebook.primary_authors %}
+            <li class="user {% if user.verified_professor %} verified{% endif %}">
+                <a href="{% url 'dashboard' user.id %}">{{ user.display_name }}</a>
+            </li>
+            {% endfor %}
+        </ul>
+        </div>
+        <p class="author-rider">except where otherwise attributed.</p>
+        {% endif %}
+    </div>
+</section>

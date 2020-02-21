@@ -1,0 +1,39 @@
+{% extends 'base.html' %}
+
+{% block page_title %}{{ casebook.title }}{% endblock %}
+
+{% block banner %}
+{% if casebook.is_or_belongs_to_draft or casebook.is_private %}
+  <div class="casebook-preview banner">
+    {# TBD: Draft wording is proposed. #}
+    <div class="banner-inner">
+      You are viewing a preview of {{ casebook.is_or_belongs_to_draft|yesno:"your changes,a private casebook"}}.
+    </div>
+  </div>
+{% endif %}
+{% endblock %}
+
+{% block mainContent %}
+  <header class="casebook-public casebook" data-casebook-id="{{ casebook.id }}">
+    <div class="content">
+      <div class="casebook-inner">
+          <div class="tabs">
+              {% if edit_mode %}
+              <a class="tab" href="{{ casebook.get_edit_url }}">Casebook</a>
+              {% else %}
+              <a class="tab" href="{{ casebook.get_absolute_url }}">Casebook</a>
+              {% endif %}
+            <span class="tab active disabled">Credits</span>
+          </div>
+      </div>
+    </div>
+  </header>
+  <section id="credits" class="casebook-public casebook">
+    <div class="content">
+      <div class="casebook-inner">
+        <div class="top-strip"></div>
+        {% include 'includes/credits.html' %}
+      </div>
+    </div>
+  </section>
+{% endblock %}

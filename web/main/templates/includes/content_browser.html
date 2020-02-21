@@ -20,7 +20,7 @@
         <div class="author-info">
           <div class="owner">
            <ul>
-               {% for author in casebook.attributed_authors %}
+               {% for author in casebook.primary_authors %}
             <li>{{ author.attribution }}
             {% if author.verified_professor %}
               <span class="verified"></span>

@@ -1,0 +1,27 @@
+
+{% extends 'base.html' %}
+
+{% block page_title %}Resource {{ resource.ordinal_string }} | {{ resource.casebook.title }}{% endblock %}
+
+{% block banner %}
+{% if resource.is_or_belongs_to_draft or resource.is_private %}
+  <div class="casebook-preview banner">
+    {# TBD: Draft wording is proposed. #}
+    <div class="banner-inner">
+      You are viewing a preview of {{ resource.is_or_belongs_to_draft|yesno:"your changes,a private casebook"}}.
+    </div>
+  </div>
+{% endif %}
+{% endblock %}
+
+{% block mainContent %}
+  {% include 'includes/resource_tabs.html' with credits_tab=True %}
+  <section id="credits" class="casebook-public casebook">
+    <div class="content">
+      <div class="casebook-inner">
+        <div class="top-strip"></div>
+        {% include 'includes/credits.html' %}
+      </div>
+    </div>
+  </section>
+{% endblock %}

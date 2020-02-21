@@ -571,3 +571,98 @@ form.edit_content_resource, form.edit_content_section, form.edit_content_caseboo
     }
   }
 }
+
+#credits {
+    section.credits {
+        background-color:$white;
+        border-top: 1px solid $light-gray;
+        padding: 2rem 2rem 4rem 2rem;
+        .author-rider {
+            margin-top: 1rem;
+        }
+        .author-list {
+            display:inline;
+            list-style: none;
+            padding-left: 2rem;
+
+            li {
+                display:inline;
+                white-space: nowrap;
+                &:after {
+                    content: ","
+                }
+                &:last-child:after {
+                    content: ""
+                }
+            }
+            li.verified::before {
+                @include square(13px);
+                display: inline-block;
+                vertical-align: middle;
+                content: '';
+                background: url('~static/images/ui/verified.png') no-repeat;
+            }
+
+            display: inline;
+            padding-left:4px;
+
+
+            ul {
+                display:inline;
+                list-style:none;
+                padding:0;
+            }
+            .immediate-author-list {
+                padding-right: 0.5rem;
+            }
+        }
+
+        ul.casebook-list {
+            list-style: none;
+            display:flex;
+            flex-direction: column;
+            padding: 8px;
+            >li {
+                padding-bottom:3rem;
+                border-bottom: 1px solid black;
+                margin-bottom:3rem;
+                &:last-child {
+                    border-bottom:none;
+                    padding-bottom:0rem;
+                    margin-bottom: 0;
+                }
+            }
+            .casebook-credit-header {
+                padding: 1rem 1rem 0 1rem;
+
+            }
+            .cloned-content-list {
+                list-style:none;
+                padding-left:16px;
+                display:flex;
+                flex-direction:column;
+                flex-wrap: wrap;
+                li {
+                    padding-top:6px;
+                    @for $depth from 1 to 16 {
+                        &.nesting-depth-#{$depth} {
+                            padding-left: #{(2*$depth)}rem
+                        }
+                    }
+                    .section-title {
+                        padding-right:0.5rem;
+                    }
+                    .og-node-link {
+                        &:before {
+                            content: "(";
+                        }
+                        &:after {
+                            content: ")"
+                        }
+                    }
+                }
+            }
+
+        }
+    }
+}
