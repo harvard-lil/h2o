@@ -56,7 +56,6 @@ def login_required_response(request):
         return redirect_to_login(request.build_absolute_uri())
 
 
-
 def hydrate_params(func):
     """
         Fetch casebook specified by the casebook_param URL parameter, as well as
@@ -77,6 +76,7 @@ def hydrate_params(func):
         ...     node_param={'ordinals': r_1_2.ordinals},
         ... )
     """
+
     @wraps(func)
     def wrapper(request, *args, **kwargs):
         casebook_param = kwargs.pop('casebook_param')
@@ -84,11 +84,11 @@ def hydrate_params(func):
             param_value = kwargs.pop(param, None)
             if not param_value:
                 continue
-            key,search_key = param.split('_', 1)
+            key, search_key = param.split('_', 1)
             if search_key == 'param':
                 kwargs[key] = get_object_or_404(ContentNode.objects.select_related('casebook'),
-                                            casebook=casebook_param['id'],
-                                            ordinals=param_value['ordinals'])
+                                                casebook=casebook_param['id'],
+                                                ordinals=param_value['ordinals'])
                 kwargs['casebook'] = kwargs[key].casebook
             else:
                 kwargs[key] = get_object_or_404(ContentNode.objects.select_related('casebook'),
@@ -98,6 +98,7 @@ def hydrate_params(func):
         if 'casebook' not in kwargs:
             kwargs['casebook'] = get_object_or_404(Casebook, id=casebook_param['id'])
         return func(request, *args, **kwargs)
+
     return wrapper
 
 
@@ -105,13 +106,16 @@ def user_has_perm(kwarg, method):
     """
         Raise permission denied unless view_kwargs[kwarg].method(request.user) returns True.
     """
+
     def decorator(func):
         @wraps(func)
         def wrapper(request, *args, **kwargs):
             if not getattr(kwargs[kwarg], method)(request.user):
                 return login_required_response(request)
             return func(request, *args, **kwargs)
+
         return wrapper
+
     return decorator
 
 
@@ -244,8 +248,8 @@ def actions(request, context):
                 node.permits_cloning
 
     publishable = view == 'edit_casebook' or \
-                 (node.is_private and view in ['casebook', 'section', 'resource']) or \
-                 node.is_or_belongs_to_draft
+                  (node.is_private and view in ['casebook', 'section', 'resource']) or \
+                  node.is_or_belongs_to_draft
 
     actions = OrderedDict([
         ('exportable', True),
@@ -254,9 +258,12 @@ def actions(request, context):
         ('publishable', publishable),
         ('can_save_nodes', view in ['edit_casebook', 'edit_section', 'edit_resource']),
         ('can_add_nodes', view in ['edit_casebook', 'edit_section']),
-        ('can_be_directly_edited', view in ['casebook', 'resource', 'section'] and node.directly_editable_by(request.user)),
-        ('can_create_draft', view in ['casebook', 'resource', 'section'] and node.allows_draft_creation_by(request.user)),
-        ('can_view_existing_draft', view in ['casebook', 'resource', 'section'] and node.has_draft and node.editable_by(request.user))
+        ('can_be_directly_edited',
+         view in ['casebook', 'resource', 'section'] and node.directly_editable_by(request.user)),
+        ('can_create_draft',
+         view in ['casebook', 'resource', 'section'] and node.allows_draft_creation_by(request.user)),
+        ('can_view_existing_draft',
+         view in ['casebook', 'resource', 'section'] and node.has_draft and node.editable_by(request.user))
     ])
     # for ease of testing, include a list of truthy actions
     actions['action_list'] = ','.join([a for a in actions if actions[a]])
@@ -273,25 +280,23 @@ def render_with_actions(request, template_name, context=None, content_type=None,
     }, content_type, status, using)
 
 
-
-
 ### views ###
 
 class CasebookTOCView(APIView):
     @never_cache
     @method_decorator(requires_csrf_token)
     @method_decorator(perms_test([
-    {'args': ['full_casebook'],
-     'results': {200: [None, 'other_user', 'full_casebook.testing_editor']}},
-    {'args': ['full_private_casebook'],
-     'results': {200: ['full_private_casebook.testing_editor'],
-                 'login': [None],
-                 403: ['other_user']}},
-    {'args': ['full_casebook_with_draft.draft'],
-     'results': {200: ['full_casebook_with_draft.draft.testing_editor'],
-                 'login': [None],
-                 403: ['other_user']}},
-]))
+        {'args': ['full_casebook'],
+         'results': {200: [None, 'other_user', 'full_casebook.testing_editor']}},
+        {'args': ['full_private_casebook'],
+         'results': {200: ['full_private_casebook.testing_editor'],
+                     'login': [None],
+                     403: ['other_user']}},
+        {'args': ['full_casebook_with_draft.draft'],
+         'results': {200: ['full_casebook_with_draft.draft.testing_editor'],
+                     'login': [None],
+                     403: ['other_user']}},
+    ]))
     @method_decorator(hydrate_params)
     @method_decorator(user_has_perm('casebook', 'viewable_by'))
     def get(self, request, casebook, format=None):
@@ -301,24 +306,25 @@ class CasebookTOCView(APIView):
     def format_casebook(casebook):
         casebook.content_tree__load()
         return {
-            'id':str(casebook.id) + "-" + casebook.get_slug(),
+            'id': str(casebook.id) + "-" + casebook.get_slug(),
             'children': SectionOutlineSerializer(casebook._content_tree__children, many=True).data
         }
+
 
 class SectionTOCView(APIView):
     """
     This presents a Toc in a heirarchical form.
     """
+
     @never_cache
     @method_decorator(requires_csrf_token)
     @method_decorator(perms_test(viewable_section))
     @method_decorator(hydrate_params)
     @method_decorator(user_has_perm('casebook', 'viewable_by'))
     @method_decorator(user_has_perm('section', 'viewable_by'))
-    def get(self, request, casebook,section, format=None):
+    def get(self, request, casebook, section, format=None):
         section.content_tree__load()
         return Response(SectionOutlineSerializer(section).data)
-
 
     @method_decorator(requires_csrf_token)
     @method_decorator(perms_test(directly_editable_section))
@@ -328,7 +334,6 @@ class SectionTOCView(APIView):
     def delete(self, request, casebook, section, format=None):
         section.delete()
         return Response(status=200)
-
 
     @method_decorator(requires_csrf_token)
     @method_decorator(perms_test([
@@ -350,7 +355,7 @@ class SectionTOCView(APIView):
                 start_ordinals = subsection.ordinals
             else:
                 start_ordinals = []
-            new_ordinals = start_ordinals +  [data['index']+1]
+            new_ordinals = start_ordinals + [data['index'] + 1]
         except Exception:
             return HttpResponseBadRequest(b"Request Body should match: {parent: id, index: Number}")
 
@@ -359,14 +364,17 @@ class SectionTOCView(APIView):
         except ValueError as e:
             return HttpResponseBadRequest(b"Invalid ordinals: %s" % e.args[0].encode('utf8'))
 
-        return Response(CasebookTOCView.format_casebook(casebook),status=200)
+        return Response(CasebookTOCView.format_casebook(casebook), status=200)
 
 
 class AnnotationListView(APIView):
 
     @method_decorator(perms_test(
-        {'args': ['resource'], 'results': {200: ['resource.casebook.testing_editor', 'other_user', 'admin_user', None]}},
-        {'args': ['full_casebook_with_draft.draft.resources.first'], 'results': {200: ['full_casebook_with_draft.draft.testing_editor', 'admin_user'], 403: ['other_user'], 'login': [None]}},
+        {'args': ['resource'],
+         'results': {200: ['resource.casebook.testing_editor', 'other_user', 'admin_user', None]}},
+        {'args': ['full_casebook_with_draft.draft.resources.first'],
+         'results': {200: ['full_casebook_with_draft.draft.testing_editor', 'admin_user'], 403: ['other_user'],
+                     'login': [None]}},
     ))
     @method_decorator(user_has_perm('resource', 'viewable_by'))
     def get(self, request, resource, format=None):
@@ -412,14 +420,17 @@ class AnnotationListView(APIView):
 class AnnotationDetailView(APIView):
 
     def initial(self, request, *args, **kwargs):
-        fix_after_rails("Let's not use resource in these URLs; let's just use annotation, and load resource as needed from there.")
+        fix_after_rails(
+            "Let's not use resource in these URLs; let's just use annotation, and load resource as needed from there.")
         if kwargs.get('annotation').resource != kwargs.get('resource'):
             return Response(status=status.HTTP_404_NOT_FOUND)
         return super().initial(request, *args, **kwargs)
 
     @method_decorator(perms_test([
-        {'args': ['published_annotation.resource', 'published_annotation'], 'results': {403: ['published_annotation.resource.testing_editor', 'other_user'], 'login': [None]}},
-        {'args': ['private_annotation.resource', 'private_annotation'], 'results': {400: ['private_annotation.resource.testing_editor'], 403: ['other_user'], 'login': [None]}},
+        {'args': ['published_annotation.resource', 'published_annotation'],
+         'results': {403: ['published_annotation.resource.testing_editor', 'other_user'], 'login': [None]}},
+        {'args': ['private_annotation.resource', 'private_annotation'],
+         'results': {400: ['private_annotation.resource.testing_editor'], 403: ['other_user'], 'login': [None]}},
     ]))
     @method_decorator(user_has_perm('resource', 'directly_editable_by'))
     def patch(self, request, resource, annotation, format=json):
@@ -454,8 +465,10 @@ class AnnotationDetailView(APIView):
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
     @method_decorator(perms_test([
-        {'args': ['published_annotation.resource', 'published_annotation'], 'results': {403: ['published_annotation.resource.testing_editor', 'other_user'], 'login': [None]}},
-        {'args': ['private_annotation.resource', 'private_annotation'], 'results': {204: ['private_annotation.resource.testing_editor'], 403: ['other_user'], 'login': [None]}},
+        {'args': ['published_annotation.resource', 'published_annotation'],
+         'results': {403: ['published_annotation.resource.testing_editor', 'other_user'], 'login': [None]}},
+        {'args': ['private_annotation.resource', 'private_annotation'],
+         'results': {204: ['private_annotation.resource.testing_editor'], 403: ['other_user'], 'login': [None]}},
     ]))
     @method_decorator(user_has_perm('resource', 'directly_editable_by'))
     def delete(self, request, resource, annotation, format=None):
@@ -557,7 +570,8 @@ def sign_up(request):
     if request.method == 'POST':
         if form.is_valid():
             form.save()
-            messages.success(request, "Thanks! Please check your email for a link that will let you confirm your account and set a password.")
+            messages.success(request,
+                             "Thanks! Please check your email for a link that will let you confirm your account and set a password.")
             return HttpResponseRedirect(reverse('index'))
     return render(request, 'registration/sign_up.html', {'form': form})
 
@@ -613,12 +627,79 @@ def new_casebook(request):
     return HttpResponseRedirect(casebook.get_edit_url())
 
 
+@perms_test(
+    {'args': ['casebook'], 'results': {200: [None, 'other_user', 'casebook.testing_editor']}},
+    {'args': ['private_casebook'],
+     'results': {200: ['private_casebook.testing_editor'], 'login': [None], 403: ['other_user']}},
+    {'args': ['draft_casebook'],
+     'results': {200: ['draft_casebook.testing_editor'], 'login': [None], 403: ['other_user']}},
+    *viewable_resource,
+    *viewable_section
+)
+@requires_csrf_token
+@hydrate_params
+@user_has_perm('casebook', 'viewable_by')
+def show_credits(request, casebook, section=None):
+    if section:
+        contents = [x for x in section.contents.all()] + [section]
+    else:
+        contents = [x for x in casebook.contents.all()]
+
+    contents.sort(key= lambda x: x.ordinals)
+    originating_node = set(
+        [cloned_node for child_content in contents for cloned_node in child_content.provenance])
+    prior_art = {x.id: x for x in ContentNode.objects.filter(id__in=originating_node)
+        .select_related('casebook')
+        .prefetch_related('casebook__contentcollaborator_set__user')
+        .all()}
+    casebook_mapping = {}
+    cloned_sections = {}
+    for node in contents:
+        if not node.provenance:
+            continue
+        known_priors = [prior_art[p] for p in node.provenance if p in prior_art]
+        known_clones = [p.casebook for p in known_priors]
+        immediate_clone = known_clones[-1]
+        incidental_clones = known_clones[:-1]
+        cs_set = cloned_sections.get(immediate_clone.id,set())
+        cs_set.add(".".join(map(str,node.ordinals)))
+        cloned_sections[immediate_clone.id] = cs_set
+        nesting_depth = sum(map(lambda x: x in cs_set, [".".join(map(str,node.ordinals[:y])) for y in range(len(node.ordinals))]))
+        if immediate_clone.id not in casebook_mapping:
+            casebook_mapping[immediate_clone.id] = {'casebook':immediate_clone,
+                                                   'immediate_authors': {c.user for c in immediate_clone.contentcollaborator_set.all() if c.has_attribution},
+                                                   'incidental_authors': set(),
+                                                   'nodes':[]}
+        casebook_mapping[immediate_clone.id]['incidental_authors'] |= {c.user for clone in incidental_clones for c in clone.contentcollaborator_set.all() if c.has_attribution and c.user not in casebook_mapping[immediate_clone.id]['immediate_authors']}
+        casebook_mapping[immediate_clone.id]['nodes'].append((node, known_priors[-1],nesting_depth))
+
+    params = {'contributing_casebooks': [v for v in casebook_mapping.values()],
+              'casebook':casebook,
+              'edit_mode': casebook.directly_editable_by(request.user)}
+    if not section:
+        template = 'casebook_credits.html'
+        params['type'] = 'casebook'
+    elif section.type == 'resource':
+        template = 'resource_credits.html'
+        params['resource'] = section
+        params['type'] = 'resource'
+    else:
+        template = 'section_credits.html'
+        params['section'] = section
+        params['type'] = 'section'
+    return render(request, template, params)
+
+
+
+
 class CasebookView(View):
 
     @method_decorator(perms_test(
         {'args': ['casebook'], 'results': {200: [None, 'other_user', 'casebook.testing_editor']}},
-        {'args': ['private_casebook'], 'results': {200: ['private_casebook.testing_editor'], 'login': [None], 403: ['other_user']}},
-        {'args': ['draft_casebook'], 'results': {200: ['draft_casebook.testing_editor'], 'login': [None], 403: ['other_user']}},
+        {'args': ['private_casebook'],
+         'results': {200: ['private_casebook.testing_editor'], 'login': [None], 403: ['other_user']}},
+        {'args': ['draft_casebook'],
+         'results': {200: ['draft_casebook.testing_editor'], 'login': [None], 403: ['other_user']}},
     ))
     @method_decorator(requires_csrf_token)
     @method_decorator(hydrate_params)
@@ -655,8 +736,10 @@ class CasebookView(View):
         })
 
     @method_decorator(perms_test(
-        {'args': ['private_casebook'], 'results': {302: ['private_casebook.testing_editor'], 'login': [None], 403: ['other_user']}},
-        {'args': ['draft_casebook'], 'results': {302: ['draft_casebook.testing_editor'], 'login': [None], 403: ['other_user']}},
+        {'args': ['private_casebook'],
+         'results': {302: ['private_casebook.testing_editor'], 'login': [None], 403: ['other_user']}},
+        {'args': ['draft_casebook'],
+         'results': {302: ['draft_casebook.testing_editor'], 'login': [None], 403: ['other_user']}},
         {'args': ['casebook'], 'results': {403: ['casebook.testing_editor']}},
     ))
     @method_decorator(hydrate_params)
@@ -714,8 +797,10 @@ class CasebookView(View):
 
 
 @perms_test(
-    {'method': 'post', 'args': ['casebook'], 'results': {302: ['casebook.testing_editor', 'other_user'], 'login': [None]}},
-    {'method': 'post', 'args': ['draft_casebook'], 'results': {403: ['casebook.testing_editor', 'other_user'], 'login': [None]}},
+    {'method': 'post', 'args': ['casebook'],
+     'results': {302: ['casebook.testing_editor', 'other_user'], 'login': [None]}},
+    {'method': 'post', 'args': ['draft_casebook'],
+     'results': {403: ['casebook.testing_editor', 'other_user'], 'login': [None]}},
 )
 @require_POST
 @login_required
@@ -731,9 +816,15 @@ def clone_casebook(request, casebook):
 
 
 @perms_test(
-    {'method': 'post', 'args': ['casebook'], 'results': {302: ['casebook.testing_editor'], 403: ['other_user'], 'login': [None]}},  # casebook owner can make drafts
-    {'method': 'post', 'args': ['private_casebook'], 'results': {403: ['private_casebook.testing_editor', 'other_user'], 'login': [None]}},  # no drafts of private casebooks
-    {'method': 'post', 'args': ['draft_casebook'], 'results': {403: ['draft_casebook.testing_editor', 'other_user'], 'login': [None]}},  # no drafts of draft casebooks
+    {'method': 'post', 'args': ['casebook'],
+     'results': {302: ['casebook.testing_editor'], 403: ['other_user'], 'login': [None]}},
+    # casebook owner can make drafts
+    {'method': 'post', 'args': ['private_casebook'],
+     'results': {403: ['private_casebook.testing_editor', 'other_user'], 'login': [None]}},
+    # no drafts of private casebooks
+    {'method': 'post', 'args': ['draft_casebook'],
+     'results': {403: ['draft_casebook.testing_editor', 'other_user'], 'login': [None]}},
+    # no drafts of draft casebooks
 )
 @require_POST
 @hydrate_params
@@ -747,9 +838,12 @@ def create_draft(request, casebook):
 
 
 @perms_test(
-    {'method': 'post', 'args': ['casebook'], 'results': {403: ['casebook.testing_editor', 'other_user'], 'login': [None]}},
-    {'method': 'post', 'args': ['draft_casebook'], 'results': {200: ['draft_casebook.testing_editor'], 403: ['other_user'], 'login': [None]}},
-    {'method': 'post', 'args': ['private_casebook'], 'results': {200: ['private_casebook.testing_editor'], 403: ['other_user'], 'login': [None]}},
+    {'method': 'post', 'args': ['casebook'],
+     'results': {403: ['casebook.testing_editor', 'other_user'], 'login': [None]}},
+    {'method': 'post', 'args': ['draft_casebook'],
+     'results': {200: ['draft_casebook.testing_editor'], 403: ['other_user'], 'login': [None]}},
+    {'method': 'post', 'args': ['private_casebook'],
+     'results': {200: ['private_casebook.testing_editor'], 403: ['other_user'], 'login': [None]}},
 )
 @require_http_methods(["GET", "POST"])
 @requires_csrf_token
@@ -789,9 +883,12 @@ def edit_casebook(request, casebook):
 
 
 @perms_test(
-    {'method': 'post', 'args': ['casebook'], 'results': {403: ['casebook.testing_editor', 'other_user'], 'login': [None]}},
-    {'method': 'post', 'args': ['draft_casebook'], 'results': {302: ['draft_casebook.testing_editor'], 403: ['other_user'], 'login': [None]}},
-    {'method': 'post', 'args': ['private_casebook'], 'results': {302: ['private_casebook.testing_editor'], 403: ['other_user'], 'login': [None]}},
+    {'method': 'post', 'args': ['casebook'],
+     'results': {403: ['casebook.testing_editor', 'other_user'], 'login': [None]}},
+    {'method': 'post', 'args': ['draft_casebook'],
+     'results': {302: ['draft_casebook.testing_editor'], 403: ['other_user'], 'login': [None]}},
+    {'method': 'post', 'args': ['private_casebook'],
+     'results': {302: ['private_casebook.testing_editor'], 403: ['other_user'], 'login': [None]}},
 )
 @require_http_methods(["POST"])
 @hydrate_params
@@ -979,7 +1076,8 @@ class SectionView(View):
         return render_with_actions(request, 'section.html', {
             'casebook': casebook,
             'section': section,
-            'contents': contents
+            'contents': contents,
+            'edit_mode': casebook.directly_editable_by(request.user)
         })
 
     @method_decorator(perms_test(directly_editable_section))
@@ -1045,6 +1143,7 @@ def edit_section(request, casebook, section):
         'section': section,
         'contents': contents,
         'editing': True,
+        'edit_mode': True,
         'form': form
     })
 
@@ -1089,7 +1188,8 @@ class ResourceView(View):
 
         return render_with_actions(request, 'resource.html', {
             'resource': resource,
-            'include_vuejs': resource.annotatable
+            'include_vuejs': resource.annotatable,
+            'edit_mode': resource.directly_editable_by(request.user)
         })
 
     @method_decorator(perms_test(directly_editable_resource))
@@ -1191,7 +1291,8 @@ def edit_resource(request, casebook, resource):
         'resource': resource,
         'editing': True,
         'form': form,
-        'embedded_resource_form': embedded_resource_form
+        'embedded_resource_form': embedded_resource_form,
+        'edit_mode':True
     })
 
 
@@ -1215,7 +1316,8 @@ def annotate_resource(request, casebook, resource):
     return render_with_actions(request, 'resource_annotate.html', {
         'resource': resource,
         'include_vuejs': resource.resource_type in ['Case', 'TextBlock'],
-        'editing': True
+        'editing': True,
+        'edit_mode':True
     })
 
 
@@ -1257,7 +1359,8 @@ def reorder_node(request, casebook, section=None, node=None):
         data = json.loads(request.body.decode("utf-8"))
         new_ordinals = [int(i) for i in data['child']['ordinals']]
     except Exception:
-        return HttpResponseBadRequest(b"Request body should match data['child']['ordinals'] == [&lsaquo;list of ints&rsaquo']")
+        return HttpResponseBadRequest(
+            b"Request body should match data['child']['ordinals'] == [&lsaquo;list of ints&rsaquo']")
 
     # update ordinals
     try:
@@ -1327,7 +1430,7 @@ def from_capapi(request):
             raise CapapiCommunicationException('To interact with CAP, CAPAPI_API_KEY must be set.')
         try:
             response = requests.get(
-                settings.CAPAPI_BASE_URL+"cases/%s/" % cap_id,
+                settings.CAPAPI_BASE_URL + "cases/%s/" % cap_id,
                 {"full_case": "true", "body_format": "html"},
                 headers={'Authorization': 'Token %s' % settings.CAPAPI_API_KEY},
             )
@@ -1382,8 +1485,10 @@ def from_capapi(request):
 
 @method_decorator(perms_test(
     {'args': ['casebook', '"docx"'], 'results': {200: [None, 'other_user', 'casebook.testing_editor']}},
-    {'args': ['private_casebook', '"docx"'], 'results': {200: ['private_casebook.testing_editor'], 'login': [None], 403: ['other_user']}},
-    {'args': ['draft_casebook', '"docx"'], 'results': {200: ['draft_casebook.testing_editor'], 'login': [None], 403: ['other_user']}},
+    {'args': ['private_casebook', '"docx"'],
+     'results': {200: ['private_casebook.testing_editor'], 'login': [None], 403: ['other_user']}},
+    {'args': ['draft_casebook', '"docx"'],
+     'results': {200: ['draft_casebook.testing_editor'], 'login': [None], 403: ['other_user']}},
 ))
 @user_has_perm('node', 'viewable_by')
 def export(request, node, file_type='docx'):

@@ -12,18 +12,8 @@
   </div>
 {% endif %}
 {% endblock %}
-
 {% block mainContent %}
-  <header class="casebook-public casebook" data-section-id="{{ section.id }}">
-    <div class="content">
-      <div class="casebook-inner">
-        <div class="tabs">
-          <a class="tab" href="{{ section.casebook.get_absolute_url }}">Casebook</a>
-          <span class="tab disabled active">Read</span>
-        </div>
-      </div>
-    </div>
-  </header>
+  {% include 'includes/section_tabs.html' with read_tab=True %}
   <section class="casebook-public casebook">
     <div class="content">
       <div class="casebook-inner">

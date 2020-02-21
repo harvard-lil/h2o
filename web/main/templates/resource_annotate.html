@@ -11,17 +11,7 @@
 {% endblock %}
 
 {% block mainContent %}
-  <header class="casebook-draft casebook" data-editable="true" data-casebook-id="{{ resource.casebook.id }}" data-resource-id="{{ resource.id }}">
-    <div class="content">
-      <div class="casebook-inner">
-        <div class="tabs">
-          <a class="tab" href="{% url 'edit_casebook' resource.casebook %}">Casebook</a>
-          <span class="tab disabled active">Annotate</span>
-          <a class="tab" href="{% url 'edit_resource' resource.casebook resource %}">Resource Details</a>
-        </div>
-      </div>
-    </div>
-  </header>
+{% include 'includes/resource_tabs.html' with annotate_tab=True %}
   <section class="casebook-draft casebook">
     <div class="content">
       <div class="casebook-inner">

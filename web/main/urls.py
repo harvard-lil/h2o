@@ -52,6 +52,7 @@ urlpatterns = format_suffix_patterns(drf_urlpatterns) + [
     path('casebooks/<idslug:casebook_param>/sections/<ordslug:section_param>', no_perms_test(views.SectionView.as_view())),
     # sections and resources
     path('casebooks/<idslug:casebook_param>/sections', views.new_section_or_resource, name='new_section_or_resource'),
+    path('casebooks/<idslug:casebook_param>/sections/<ordslug:section_param>/credits/', views.show_credits, name='show_resource_credits'),
     # reordering nodes
     path('casebooks/<idslug:casebook_param>/sections/<ordslug:section_param>/reorder/<ordslug:node_param>', views.reorder_node, name='reorder_node'),
     path('casebooks/<idslug:casebook_param>/reorder/<ordslug:node_param>', views.reorder_node, name='reorder_node'),
@@ -60,6 +61,7 @@ urlpatterns = format_suffix_patterns(drf_urlpatterns) + [
     path('casebooks/<idslug:casebook_param>/edit/', RedirectView.as_view(pattern_name='edit_casebook', permanent=True)),
     path('casebooks/<idslug:casebook_param>/clone/', views.clone_casebook, name='clone'),
     path('casebooks/<idslug:casebook_param>/create_draft/', views.create_draft, name='create_draft'),
+    path('casebooks/<idslug:casebook_param>/credits/', views.show_credits, name='show_credits'),
     # TODO: we temporarily need to list with and without trailing slash, to handle POSTs without slashes
     path('casebooks/<idslug:casebook_param>/', views.CasebookView.as_view(), name='casebook'),
     path('casebooks/<idslug:casebook_param>', no_perms_test(views.CasebookView.as_view())),

@@ -22,7 +22,10 @@
     <div class="content">
       <div class="casebook-inner">
           <div class="tabs">
-            <span class="tab active disabled">Casebook</span>
+              <span class="tab active disabled">Casebook</span>
+              {% if casebook.has_non_current_authors %}
+              <a class="tab" href="{% url 'show_credits' casebook.id %}">Credits</a>
+              {% endif %}
           </div>
       </div>
     </div>

@@ -1249,6 +1249,33 @@ class CasebookAndSectionMixin(models.Model):
         for cls, ids in to_delete.items():
             cls.objects.filter(id__in=ids).delete()
 
+    @property
+    def attributed_authors(self):
+        return self.primary_authors.union(self.originating_authors)
+
+    @property
+    def originating_authors(self):
+        """
+        Every attributed author for any ancestor of a contentnode contained in the casebook
+        """
+        originating_node = set([cloned_node for child_content in self.contents.all() for cloned_node in child_content.provenance])
+        users = [collaborator.user for cn in
+                    ContentNode.objects.filter(id__in=originating_node)
+                        .select_related('casebook')
+                        .prefetch_related('casebook__contentcollaborator_set__user')
+                        .all()
+                    for collaborator in cn.casebook.contentcollaborator_set.all() if collaborator.has_attribution and collaborator.user.attribution != 'Anonymous']
+        return set(users)
+
+    @property
+    def has_non_current_authors(self):
+        return len(self.non_current_authors) > 0
+
+    @property
+    def non_current_authors(self):
+        ogs = self.originating_authors
+        cgs = self.primary_authors
+        return ogs.difference(cgs)
 
 class SectionAndResourceMixin(models.Model):
     """
@@ -1845,26 +1872,8 @@ class Casebook(CasebookAndSectionMixin, ContentNode):
 
     # Collaborators
     @property
-    def attributed_authors(self):
-        return self.primary_authors.union(self.originating_authors)
-
-    @property
     def primary_authors(self):
         return set([c.user for c in self.contentcollaborator_set.all() if c.has_attribution and c.user.attribution != 'Anonymous'])
-
-    @property
-    def originating_authors(self):
-        """
-        Every attributed author for any ancestor of a contentnode contained in the casebook
-        """
-        originating_node = set([cloned_node for child_content in self.contents.all() for cloned_node in child_content.provenance])
-        users = [collaborator.user for cn in
-                    ContentNode.objects.filter(id__in=originating_node)
-                        .select_related('casebook')
-                        .prefetch_related('casebook__contentcollaborator_set__user')
-                        .all()
-                    for collaborator in cn.casebook.contentcollaborator_set.all() if collaborator.has_attribution and collaborator.user.attribution != 'Anonymous']
-        return set(users)
 
     def has_collaborator(self, user):
         # filter in the client to allow .prefetch_related('contentcollaborator_set__user') to work:
@@ -1936,6 +1945,9 @@ class Section(CasebookAndSectionMixin, SectionAndResourceMixin, ContentNode):
         #     "ordinals__len": len(self.ordinals) + 1
         # })
 
+    @property
+    def primary_authors(self):
+        return self.casebook.primary_authors
 
 class ResourceManager(models.Manager):
     def get_queryset(self):
@@ -2342,6 +2354,37 @@ class Resource(SectionAndResourceMixin, ContentNode):
 
         return tree
 
+    @property
+    def originating_authors(self):
+        if not self.provenance:
+            return set()
+        originating_node = set(self.provenance)
+        users = [collaborator.user for cn in
+                    ContentNode.objects.filter(id__in=originating_node)
+                        .select_related('casebook')
+                        .prefetch_related('casebook__contentcollaborator_set__user')
+                        .all()
+                    for collaborator in cn.casebook.contentcollaborator_set.all() if collaborator.has_attribution and collaborator.user.attribution != 'Anonymous']
+        return set(users)
+
+    @property
+    def primary_authors(self):
+        return self.casebook.primary_authors
+
+    @property
+    def attributed_authors(self):
+        return self.primary_authors.union(self.originating_authors)
+
+    @property
+    def has_non_current_authors(self):
+        return len(self.non_current_authors) > 0
+
+    @property
+    def non_current_authors(self):
+        ogs = self.originating_authors
+        cgs = self.primary_authors
+        return ogs.difference(cgs)
+
 
 #
 # End ContentNode Proxies
@@ -2462,7 +2505,7 @@ class User(NullableTimestampedModel, PermissionsMixin, AbstractBaseUser):
         """
             In rails this is also known as "display" and "simple_display"
         """
-        return self.attribution
+        return self.attribution or "Anonymous"
 
     def __str__(self):
         return self.display_name

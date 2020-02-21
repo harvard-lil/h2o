@@ -14,16 +14,7 @@
 {% endblock %}
 
 {% block mainContent %}
-  <header class="casebook-public casebook" data-editable="" data-casebook-id="{{ resource.casebook.id }}" data-resource-id="{{ resource.id }}">
-    <div class="content">
-      <div class="casebook-inner">
-        <div class="tabs">
-          <a class="tab" href="{{ resource.casebook.get_absolute_url }}">Casebook</a>
-          <span class="tab disabled active">Read</span>
-        </div>
-      </div>
-    </div>
-  </header>
+  {% include 'includes/resource_tabs.html' with read_tab=True %}
   <section class="casebook-public casebook">
     <div class="content">
       <div class="casebook-inner">
