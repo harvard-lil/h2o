@@ -8,7 +8,7 @@ CREATE MATERIALIZED VIEW search_view AS
                 setweight(to_tsvector(coalesce(c.name, '')), 'A') ||
                 setweight(to_tsvector(coalesce(c.name_abbreviation, '')), 'D') ||
                 setweight(to_tsvector(coalesce(docket_number, '')), 'D') ||
-                setweight(to_tsvector(string_agg(cite, ', ')), 'A') ||
+                setweight(to_tsvector(coalesce(string_agg(cite, ', '),'')), 'A') ||
                 setweight(to_tsvector(coalesce(min(main_casecourt.name), '')), 'D')
             )  AS document,
            jsonb_build_object(
