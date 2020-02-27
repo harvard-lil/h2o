@@ -15,6 +15,7 @@
   </AnnotationHandle>
   <span v-if="isHead"
         class="note-content-wrapper"
+        v-bind:class="{top: isEditing}"
         data-exclude-from-offset-calcs="true">
     <form v-if="isEditing"
           @submit.prevent="submit('note', content)"
@@ -93,8 +94,12 @@ export default {
       this.content = input;
     },
     dismissNote(){
+      if (this.isNew) {
         this.$store.commit('annotations/destroy', this.annotation);
         this.$store.commit('annotations_ui/destroy', this.uiState);
+      } else {
+        this.isEditing = false;
+      }
     }
   },
   mounted() {
@@ -160,5 +165,8 @@ a:active {
   padding: 10px;
   background-color: $white;
   color: $black;
+}
+.top {
+  z-index: 10;
 }
 </style>
