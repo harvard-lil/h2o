@@ -130,13 +130,14 @@ a:active {
 .note-content-wrapper {
   display: block;
   width: 0;
-  position: absolute;
-  right: -50px;
-  top: 45px;
   /* counteract styles that might come from the enclosing section */
   font-style: normal;
   text-align: left;
-
+  float:right;
+  clear:both;
+  position:relative;
+  left:60px;
+  top: 40px;
   .form {
     display: flex;
     flex-direction: column;

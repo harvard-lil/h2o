@@ -84,5 +84,6 @@ $size: 28px;
   color: $light-blue;
   border: 2px solid $white;
   background: $light-gray;
+  font-family: "Chronicle Text G3", Georgia, "Times New Roman", Times, serif;
 }
 </style>
