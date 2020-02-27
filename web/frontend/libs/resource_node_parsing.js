@@ -195,12 +195,15 @@ export const tupleToVNode = (h, annotations) =>
           children = annotateAndConvertToVNodes(h, annotations, splitNodeList(annotations, node.childNodes, start, end));
       switch(tag) {
       case "footnote-link":
-        data.props = {startOffset: start,
+          data.props = {startOffset: start,
                       endOffset: end};
-        break;
+          break;
       }
-        if (_.every(children,isFullyElided)) {
-            data.class = {'fully-elided': true};
+        if (_.some(children,isFullyElided)) {
+            const presentChildren = children.filter(x => !isFullyElided(x));
+            if (_.every(presentChildren, x => _.isString(x) && x.trim() === "")) {
+                data.class = {'fully-elided': true};
+            }
         }
       return h(tag, data, children);
     } else {

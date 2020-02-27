@@ -68,9 +68,22 @@ export default {
         }
         counter-increment: index;
     }
-
     blockquote.fully-elided {
         padding:0px;
+    }
+    pre.fully-elided {
+        padding:0;
+        margin:0;
+        border:none;
+    }
+    p.fully-elided {
+        margin:0;
+    }
+    pre {
+        overflow: initial;
+        word-break: break-word;
+        overflow-wrap: break-word;
+        white-space: pre-wrap;
     }
 }
 .page-number, .page-label {
