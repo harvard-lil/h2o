@@ -45,10 +45,13 @@
             offsetParent = offsetParent.parentElement;
           }
           const _parentLeft = offsetParent.offsetLeft;
-          const _parentTop = offsetParent.offsetTop;
-          const _theTop = this.top + _parentTop;
-          const _theLeft = this.left - _parentLeft;
-          return  {left: `${this.left - _parentLeft}px`, top:`${this.$el.parentElement.offsetTop - this.$el.parentElement.offsetHeight}px`};
+          let leftSib = this.$el.previousElementSibling;
+          let leftPadding = 0;
+          while (leftSib) {
+              leftPadding += leftSib.offsetWidth;
+              leftSib = leftSib.previousElementSibling;
+          }
+          return  {left: `${this.left - _parentLeft - leftPadding}px`, top:`${this.$el.parentElement.offsetTop - this.$el.parentElement.offsetHeight}px`};
         } else {
           return null;
         }
