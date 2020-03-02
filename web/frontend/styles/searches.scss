@@ -90,6 +90,12 @@ header.advanced-search {
 }
 
 .results-list {
+    .wrapper:focus {
+        outline:none;
+        .results-entry {
+            @include generic-focus-styles;
+        }
+    }
   .results-entry {
     @include make-row();
     padding: 10px 0;
