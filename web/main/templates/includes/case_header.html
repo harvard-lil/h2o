@@ -1,6 +1,6 @@
 <header class="case-header">
     {% if case.prefer_meta_header %}
-    {% if case.case_court.name %} <div class="court"> {{ case.case_court.name }}</div> {% endif %}
+    {% if case.court_name %} <div class="court"> {{ case.court_name }}</div> {% endif %}
         <h1 class="title">{% firstof case.get_name resource.title %}</h1>
     {% if case.citations %}<div class="citation"> {{case.cite_string}} </div> {% endif %}
     {% if case.docket_number %}<div class="docketnumber">{{ case.docket_number }}</div>{% endif %}
