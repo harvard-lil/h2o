@@ -28,7 +28,7 @@ from rest_framework.views import APIView
 
 from .forms import (CasebookForm, LinkForm, NewTextBlockForm, ResourceForm,
                     SectionForm, SignupForm, TextBlockForm, UserProfileForm)
-from .models import (Case, Casebook, CaseCourt, ContentAnnotation, ContentNode,
+from .models import (Case, Casebook, ContentAnnotation, ContentNode,
                      Link, Resource, Section, TextBlock, User)
 from .serializers import (AnnotationSerializer, CaseSerializer,
                           NewAnnotationSerializer, SectionOutlineSerializer,
@@ -1440,18 +1440,6 @@ def from_capapi(request):
             raise CapapiCommunicationException(msg)
 
         cap_case = response.json()
-        # get or create local CaseCourt object:
-        # (don't use get_or_create() because current data may have duplicates; we get the first one by id)
-        # https://github.com/harvard-lil/h2o/issues/1037
-        court_args = {
-            "capapi_id": cap_case['court']['id'],
-            "name": cap_case['court']['name'],
-            "name_abbreviation": cap_case['court']['name_abbreviation'],
-        }
-        court = CaseCourt.objects.filter(**court_args).order_by('id').first()
-        if not court:
-            court = CaseCourt(**court_args)
-            court.save()
 
         # parse html:
         parsed = PyQuery(cap_case['casebody']['data'])
@@ -1464,7 +1452,7 @@ def from_capapi(request):
             capapi_id=cap_id,
 
             # cap case metadata
-            case_court=court,
+            court_name=cap_case['court']['name'],
             name_abbreviation=cap_case['name_abbreviation'],
             name=cap_case['name'],
             docket_number=cap_case['docket_number'],

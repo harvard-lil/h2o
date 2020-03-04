@@ -11,7 +11,7 @@ from django.utils.html import format_html
 from django.utils.safestring import mark_safe
 
 from .utils import fix_after_rails, clone_model_instance
-from .models import Case, CaseCourt, Link, User, Casebook, Section, \
+from .models import Case, Link, User, Casebook, Section, \
     Resource, ContentCollaborator, ContentAnnotation, TextBlock
 
 
@@ -474,38 +474,6 @@ class CollaboratorsAdmin(BaseAdmin):
 
 ## Courts
 
-class CaseCourtAdmin(BaseAdmin):
-    readonly_fields = ['created_at', 'updated_at', 'capapi_link']
-    list_display = ['id', 'name', 'name_abbreviation', 'created_at', 'case_count_link', 'updated_at', 'capapi_link']
-    search_fields = ['name_abbreviation', 'name']
-
-    def get_queryset(self, request):
-        return super().get_queryset(request).annotate(case_count=Count('cases'))
-
-    def case_count(self, obj):
-        return obj.case_count
-    case_count.admin_order_field = 'case_count'
-
-    def case_count_link(self, obj):
-        return format_html(
-            '<a href="{}?court-id={}">{}</a>',
-            reverse('admin:main_case_changelist'),
-            obj.id,
-            obj.case_count
-        )
-    case_count_link.short_description = 'cases'
-    case_count_link.admin_order_field = 'case_count'
-
-    def capapi_link(self, obj):
-        if obj.capapi_id:
-            return  format_html(
-                '<a target="_blank" href="{}">{}</a>',
-                settings.CAPAPI_COURT_URL_FSTRING.format(obj.capapi_id),
-                obj.capapi_id
-            )
-    capapi_link.short_description = 'capapi id'
-
-
 # Register models on our CustomAdmin instance.
 admin_site.register(Casebook, CasebookAdmin)
 admin_site.register(Section, SectionAdmin)
@@ -516,4 +484,3 @@ admin_site.register(Link, LinkAdmin)
 admin_site.register(TextBlock, TextBlockAdmin)
 admin_site.register(User, UserAdmin)
 admin_site.register(ContentCollaborator, CollaboratorsAdmin)
-admin_site.register(CaseCourt, CaseCourtAdmin)
