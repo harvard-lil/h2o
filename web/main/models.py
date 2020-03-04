@@ -270,6 +270,7 @@ class Case(NullableTimestampedModel, AnnotatedModel):
     docket_number = models.CharField(max_length=20000, blank=True, null=True)
     header_html = models.CharField(max_length=15360, blank=True, null=True)
     content = models.CharField(max_length=5242880)
+    court_name = models.CharField(max_length=1024, blank=True, null=True)
 
     case_court = models.ForeignKey(
         'CaseCourt',
