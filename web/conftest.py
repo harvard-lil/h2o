@@ -15,7 +15,7 @@ from django.utils import timezone
 from django.db.backends import utils as django_db_utils
 
 from main.models import ContentNode, User, Casebook, Section, Resource, ContentCollaborator, Link, TextBlock, \
-    Case, CaseCourt, ContentAnnotation
+    Case, ContentAnnotation
 from main.utils import re_split_offsets
 
 from test.test_helpers import dump_casebook_outline
@@ -178,15 +178,6 @@ class TextBlockFactory(factory.DjangoModelFactory):
 
 
 @register_factory
-class CaseCourtFactory(factory.DjangoModelFactory):
-    class Meta:
-        model = CaseCourt
-
-    name_abbreviation = factory.Sequence(lambda n: 'Sm. Ct. Name Abbrev. %s' % n)
-    name = factory.Sequence(lambda n: 'Some Court Name %s' % n)
-
-
-@register_factory
 class CaseFactory(factory.DjangoModelFactory):
     class Meta:
         model = Case
@@ -196,7 +187,6 @@ class CaseFactory(factory.DjangoModelFactory):
     public = True
     created_via_import = False
     content = factory.Sequence(lambda n: 'Some Case Content %s' % n)
-    case_court = factory.SubFactory(CaseCourtFactory)
     decision_date = datetime(1900, 1, 1)
     citations = [{'cite': '1 Mass. 1'}, {'cite': '2 Jones 2'}]
 

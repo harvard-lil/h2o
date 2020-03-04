@@ -244,18 +244,6 @@ class AnnotatedModel(EditTrackedModel):
 # Models
 #
 
-class CaseCourt(NullableTimestampedModel):
-    name_abbreviation = models.CharField(max_length=150, blank=True, null=True)
-    name = models.CharField(max_length=500, blank=True, null=True)
-    capapi_id = models.IntegerField(blank=True, null=True)
-
-    class Meta:
-        indexes = [
-            models.Index(fields=['name']),
-            models.Index(fields=['name_abbreviation'])
-        ]
-
-
 class Case(NullableTimestampedModel, AnnotatedModel):
     name_abbreviation = models.CharField(max_length=150)
     name = models.CharField(max_length=10000, blank=True, null=True)
@@ -272,19 +260,8 @@ class Case(NullableTimestampedModel, AnnotatedModel):
     content = models.CharField(max_length=5242880)
     court_name = models.CharField(max_length=1024, blank=True, null=True)
 
-    case_court = models.ForeignKey(
-        'CaseCourt',
-        models.PROTECT,
-        related_name='cases',
-        blank=True,
-        null=True,
-        db_index=False,
-        db_constraint=False
-    )
-
     class Meta:
         indexes = [
-            models.Index(fields=['case_court']),
             GinIndex(fields=['citations']),
             models.Index(fields=['created_at']),
             models.Index(fields=['decision_date']),
@@ -476,8 +453,8 @@ class ContentNodeQueryset(models.QuerySet):
 
         Custom querysets for the Case, TextBlock, and Link items can be provided to further reduce queries:
         >>> with assert_num_queries(select=4):
-        ...     resources = [c.resource for c in section.contents.prefetch_resources(case_query=Case.objects.select_related('case_court')) if isinstance(c, Resource)]
-        ...     courts = [c.case_court for c in resources if type(c) == Case]
+        ...     resources = [c.resource for c in section.contents.prefetch_resources(case_query=Case.objects) if isinstance(c, Resource)]
+        ...     courts = [c.court_name for c in resources if type(c) == Case]
     """
 
     # keep track of input values from prefetch_resources()

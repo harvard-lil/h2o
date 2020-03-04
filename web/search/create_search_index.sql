@@ -9,7 +9,7 @@ CREATE MATERIALIZED VIEW search_view AS
                 setweight(to_tsvector(coalesce(c.name_abbreviation, '')), 'D') ||
                 setweight(to_tsvector(coalesce(docket_number, '')), 'D') ||
                 setweight(to_tsvector(coalesce(string_agg(cite, ', '),'')), 'A') ||
-                setweight(to_tsvector(coalesce(min(main_casecourt.name), '')), 'D')
+                setweight(to_tsvector(coalesce(min(c.court_name), '')), 'D')
             )  AS document,
            jsonb_build_object(
                'display_name', coalesce(c.name_abbreviation, c.name),
@@ -23,7 +23,6 @@ CREATE MATERIALIZED VIEW search_view AS
         LEFT JOIN (
             select id as case_id, jsonb_array_elements(citations) ->> 'cite' as cite from main_case
         ) as citations on citations.case_id = c.id
-        LEFT JOIN main_casecourt ON c.case_court_id = main_casecourt.id
     WHERE
         c.public = true
     GROUP BY c.id
