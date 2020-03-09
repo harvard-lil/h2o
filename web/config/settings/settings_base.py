@@ -31,6 +31,7 @@ INSTALLED_APPS = [
     'rest_framework',
     'webpack_loader',
     'django_json_widget',
+    'simple_history',
 
     # built-in
     'django.contrib.admin.apps.SimpleAdminConfig',
@@ -52,6 +53,7 @@ MIDDLEWARE = [
     'main.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    'simple_history.middleware.HistoryRequestMiddleware',
 ]
 
 ROOT_URLCONF = 'config.urls'

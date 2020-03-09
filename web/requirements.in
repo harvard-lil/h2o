@@ -15,6 +15,7 @@ psycopg2            # postgres connector
 bleach              # html sanitization
 diff-match-patch    # update annotations when underlying text changes
 django-json-widget  # fancy editor for Case JSON fields in the Django admin
+django-simple-history # history preservation for contents
 
 # Testing
 pytest
