@@ -20,6 +20,8 @@ from django.utils.functional import cached_property
 from django.utils.html import format_html
 from django.utils.safestring import mark_safe
 from django.utils.text import slugify
+from simple_history.models import HistoricalRecords
+
 import lxml.etree
 import lxml.sax
 from pyquery import PyQuery
@@ -259,6 +261,7 @@ class Case(NullableTimestampedModel, AnnotatedModel):
     header_html = models.CharField(max_length=15360, blank=True, null=True)
     content = models.CharField(max_length=5242880)
     court_name = models.CharField(max_length=1024, blank=True, null=True)
+    history = HistoricalRecords()
 
     class Meta:
         indexes = [

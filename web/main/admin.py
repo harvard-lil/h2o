@@ -9,7 +9,7 @@ from django.db.models import Q, Count
 from django.urls import reverse
 from django.utils.html import format_html
 from django.utils.safestring import mark_safe
-
+from simple_history.admin import SimpleHistoryAdmin
 from .utils import fix_after_rails, clone_model_instance
 from .models import Case, Link, User, Casebook, Section, \
     Resource, ContentCollaborator, ContentAnnotation, TextBlock
@@ -159,16 +159,6 @@ class CollaboratorIdFilter(InputFilter):
         if value is not None:
             users = User.objects.filter(id=value)
             return queryset.filter(collaborators__in=users)
-
-
-class CourtIdFilter(InputFilter):
-    parameter_name = 'court-id'
-    title = 'Court (by id)'
-
-    def queryset(self, request, queryset):
-        value = self.value()
-        if value is not None:
-            return queryset.filter(case_court=value)
 
 
 class ResourceIdFilter(InputFilter):
@@ -325,13 +315,13 @@ class AnnotationsAdmin(BaseAdmin):
 
 ## Resources
 
-class CaseAdmin(BaseAdmin):
+class CaseAdmin(BaseAdmin, SimpleHistoryAdmin):
     readonly_fields = ['created_at', 'updated_at']
-    list_select_related = ['case_court']
-    list_display = ['id', 'name_abbreviation', 'public', 'capapi_link', 'created_via_import', 'related_resources', 'live_annotations_count', 'court_link', 'created_at', 'updated_at']
-    list_filter = ['public', 'created_via_import', CourtIdFilter]
+    list_select_related = []
+    list_display = ['id', 'name_abbreviation', 'public', 'capapi_link', 'created_via_import', 'related_resources', 'live_annotations_count', 'created_at', 'updated_at']
+    list_filter = ['public', 'created_via_import']
     search_fields = ['name_abbreviation', 'name']
-    raw_id_fields = ['case_court']
+    raw_id_fields = []
     exclude = ('annotations_count',)
 
     def has_add_permission(self, request):
@@ -348,11 +338,6 @@ class CaseAdmin(BaseAdmin):
                 obj.capapi_id
             )
     capapi_link.short_description = 'capapi id'
-
-    def court_link(self, obj):
-        return edit_link(obj.case_court)
-    court_link.short_description = 'court'
-    court_link.admin_order_field = 'case_court'
 
     def related_resources(self, obj):
         return format_html(
