@@ -1,16 +1,9 @@
 {% extends 'base.html' %}
 
-{% block page_title %}Section {{ section.ordinal_string }} | {{ section.casebook.title }}{% endblock %}
+{% block page_title %}Section {{ section.ordinal_string }} | {{ section.new_casebook.title }}{% endblock %}
 
 {% block banner %}
-{% if section.is_or_belongs_to_draft or section.is_private %}
-  <div class="casebook-preview banner">
-     {# TBD: Draft wording is proposed. #}
-    <div class="banner-inner">
-      You are viewing a preview of {{ section.is_or_belongs_to_draft|yesno:"your changes,a private casebook"}}.
-    </div>
-  </div>
-{% endif %}
+{% include 'includes/preview_banner.html' with casebook=section.new_casebook %}
 {% endblock %}
 {% block mainContent %}
   {% include 'includes/section_tabs.html' with read_tab=True %}
@@ -20,7 +13,7 @@
         <div class="top-strip"></div>
         <header class="casebook-header">
           <div class="casebook-title">
-            {{ section.casebook.title }}
+            {{ section.new_casebook.title }}
           </div>
         </header>
         <header class="content">

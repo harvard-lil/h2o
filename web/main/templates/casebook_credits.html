@@ -3,14 +3,7 @@
 {% block page_title %}{{ casebook.title }}{% endblock %}
 
 {% block banner %}
-{% if casebook.is_or_belongs_to_draft or casebook.is_private %}
-  <div class="casebook-preview banner">
-    {# TBD: Draft wording is proposed. #}
-    <div class="banner-inner">
-      You are viewing a preview of {{ casebook.is_or_belongs_to_draft|yesno:"your changes,a private casebook"}}.
-    </div>
-  </div>
-{% endif %}
+{% include 'includes/preview_banner.html' %}
 {% endblock %}
 
 {% block mainContent %}

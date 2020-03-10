@@ -1,0 +1,16 @@
+{% if casebook.is_draft %}
+<div class="casebook-preview banner">
+    {# TBD: Draft wording is proposed. #}
+    <div class="banner-inner">
+        You are viewing a preview of your changes.
+    </div>
+</div>
+{% elif casebook.is_private %}
+<div class="casebook-preview banner">
+    {# TBD: Draft wording is proposed. #}
+    <div class="banner-inner">
+        You are viewing a private casebook.
+    </div>
+</div>
+{% endif %}
+

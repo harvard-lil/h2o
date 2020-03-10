@@ -2,7 +2,7 @@
 {% load render_bundle from webpack_loader %}
 {% load crispy_forms_tags %}
 
-{% block page_title %}Resource {{ resource.ordinal_string }} | {{ resource.casebook.title }}{% endblock %}
+{% block page_title %}Resource {{ resource.ordinal_string }} | {{ resource.new_casebook.title }}{% endblock %}
 {% block extra_foot %}{% render_bundle 'rich_text_editor' %}{% endblock %}
 
 {% block banner %}
@@ -22,7 +22,7 @@
         {# NB: The casebook header is not included in the Rails app, edit page, only the preview page, but I think it should always be present. #}
         <header class="casebook-header">
           <div class="casebook-title">
-            {{ resource.casebook.title }}
+            {{ resource.new_casebook.title }}
           </div>
         </header>
         <header class="content">

@@ -3,7 +3,7 @@ from django.urls import path, register_converter, include
 from django.views.generic import RedirectView, TemplateView
 from rest_framework.urlpatterns import format_suffix_patterns
 
-from .models import Casebook, Section, Resource, ContentAnnotation
+from .models import Casebook, Section, ContentNode, ContentAnnotation
 from .test.test_permissions_helpers import no_perms_test
 from .url_converters import IdSlugConverter, OrdinalSlugConverter, register_model_converter
 from .utils import fix_after_rails
@@ -14,7 +14,7 @@ register_converter(IdSlugConverter, 'idslug')
 register_converter(OrdinalSlugConverter, 'ordslug')
 register_model_converter(Casebook)
 register_model_converter(Section)
-register_model_converter(Resource)
+register_model_converter(ContentNode, 'resource')
 register_model_converter(ContentAnnotation, 'annotation')
 
 # these patterns will have optional format suffixes added, like '.json'

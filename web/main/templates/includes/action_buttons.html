@@ -1,20 +1,20 @@
 <aside class="casebook-actions" data-actions="{{ action_list }}">
   {% if publishable %}
-    <button type="button" class="action publish one-line">Publish{% if content.is_or_belongs_to_draft %} Changes{% endif %}</button>
+    <button type="button" class="action publish one-line">Publish{% if content.is_draft %} Changes{% endif %}</button>
   {% endif %}
   {% if previewable %}
     <a class="action one-line preview" href="{{ content.get_absolute_url }}">Preview</a>
   {% endif %}
   {% if can_be_directly_edited %}
       {# TBD: in Rails, this always points to the casebook's top-level edit page; linking straight to the section/resource makes more sense to me. #}
-      <a class="action edit one-line" data-disable-with="Revise" href="{{ content.get_edit_url }}">{% if content.is_or_belongs_to_draft %}Continue Revising{% else %}Revise{% endif %}</a>
+      <a class="action edit one-line" data-disable-with="Revise" href="{{ content.get_edit_url }}">{% if content.is_draft %}Continue Revising{% else %}Revise{% endif %}</a>
   {% endif %}
   {% if can_view_existing_draft %}
       {# NB: in Rails "return to draft" also refers to a link from a draft's previews to its edit pages. For clarity, the Django app is only using "return to draft" as a link from the original to the draft, and uses "revise" or "continue revising" for links to edit pages. #}
       <a class="action edit one-line" data-disable-with="Return to Draft" href="{{ content.get_draft_url }}">Return to Draft</a>
   {% endif %}
   {% if can_create_draft %}
-    <form class="button_to" method="post" action="{% if casebook %}{% url 'create_draft' casebook %}{% else %}{% url 'create_draft' content.casebook %}{% endif %}">
+    <form class="button_to" method="post" action="{% if casebook %}{% url 'create_draft' casebook %}{% else %}{% url 'create_draft' content.new_casebook %}{% endif %}">
       <input class="action edit one-line create-draft" data-disable-with="Revise" type="submit" value="Revise">
       {% csrf_token %}
     </form>
@@ -23,7 +23,7 @@
   {% if can_add_nodes %}
     {# TODO: actual "add resource" functionality #}
     <button class="action one-line add-resource">Add Resource</button>
-    <form class="button_to" method="post" action="{% if section %}{% url 'new_section_or_resource' section.casebook %}?parent={{ section.id }}{% else %}{% url 'new_section_or_resource' casebook %}{% endif %}">
+    <form class="button_to" method="post" action="{% if section %}{% url 'new_section_or_resource' section.new_casebook %}?parent={{ section.id }}{% else %}{% url 'new_section_or_resource' casebook %}{% endif %}">
       <input class="action add-section" data-disable-with="Add Section" type="submit" value="Add Section">
       {% csrf_token %}
     </form>
@@ -34,7 +34,7 @@
       <button class="action one-line cancel cancel-{{ content.type }}-details" data-disable-with="Cancel">Cancel</button>
   {% endif %}
   {% if cloneable %}
-    <form class="clone_casebook" method="post" action="{% if casebook %}{% url 'clone' casebook %}{% else %}{% url 'clone' content.casebook %}{% endif %}">
+    <form class="clone_casebook" method="post" action="{% if casebook %}{% url 'clone' casebook %}{% else %}{% url 'clone' content.new_casebook %}{% endif %}">
       <button class="action clone-casebook" data-disable-with="Clone" type="submit">Clone</button>
       {% csrf_token %}
       {# TODO: see if disable functionality works #}
