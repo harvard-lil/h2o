@@ -207,14 +207,14 @@ class AnnotationInline(admin.TabularInline):
 ## Casebooks
 
 class CasebookAdmin(BaseAdmin):
-    list_display = ['id', 'title', 'public', 'source', 'draft_link', 'created_at', 'updated_at']
-    list_filter = [CollaboratorNameFilter, CollaboratorIdFilter, 'public', 'draft_mode_of_published_casebook']
+    list_display = ['id', 'title', 'source', 'draft_link', 'created_at', 'updated_at']
+    list_filter = [CollaboratorNameFilter, CollaboratorIdFilter]
     search_fields = ['title']
 
-    fields = ['title', 'subtitle', 'public', 'draft_mode_of_published_casebook', 'source', 'draft_link', 'provenance', 'headnote', 'playlist_id', 'created_at', 'updated_at']
-    readonly_fields = ['created_at', 'updated_at', 'source', 'draft_link', 'provenance', 'playlist_id']
-    raw_id_fields = ['collaborators', 'casebook']
-    inlines = [CollaboratorInline]
+    fields = ['title', 'subtitle', 'public', 'source', 'draft_link', 'provenance', 'headnote', 'playlist_id', 'created_at', 'updated_at']
+    readonly_fields = ['created_at', 'updated_at', 'source']
+    # raw_id_fields = ['collaborators', 'draft']
+    inlines = []
 
     def save_model(self, request, obj, form, change):
         # Workaround -- we need to make some changes after save_related, but save_related can't access the object being
@@ -248,7 +248,7 @@ class CasebookAdmin(BaseAdmin):
     def source(self, obj):
         if obj.provenance:
             copied_from = Casebook.objects.filter(id=obj.provenance[-1]).get()
-            return mark_safe('draft&nbsp;of' if obj.draft_mode_of_published_casebook else 'copy&nbsp;of') + edit_link(copied_from)
+            return mark_safe('draft&nbsp;of' if obj.is_draft else 'copy&nbsp;of') + edit_link(copied_from)
     source.short_description = 'source'
 
 

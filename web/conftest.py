@@ -14,7 +14,7 @@ from django.test.utils import CaptureQueriesContext
 from django.utils import timezone
 from django.db.backends import utils as django_db_utils
 
-from main.models import ContentNode, User, Casebook, Section, Resource, ContentCollaborator, Link, TextBlock, \
+from main.models import ContentNode, User, Casebook, Section, Resource, TempCollaborator, Link, TextBlock, \
     Case, ContentAnnotation
 from main.utils import re_split_offsets
 
@@ -100,34 +100,33 @@ class ContentNodeFactory(factory.DjangoModelFactory):
     class Meta:
         model = ContentNode
 
-    public = True
     created_at = factory.LazyFunction(timezone.now)
     ordinals=[]
+    provenance=[]
 
 
 @register_factory
-class CasebookFactory(ContentNodeFactory):
+class CasebookFactory(factory.DjangoModelFactory):
     class Meta:
         model = Casebook
 
-    contentcollaborator_set = factory.RelatedFactory('conftest.ContentCollaboratorFactory', 'content', can_edit=True)
+    created_at = factory.LazyFunction(timezone.now)
+    tempcollaborator_set = factory.RelatedFactory('conftest.TempCollaboratorFactory', 'casebook', can_edit=True)
     title = factory.Sequence(lambda n: 'Some Title %s' % n)
-    public = True
-    provenance = []
+    state = Casebook.LifeCycle.PUBLISHED.value
 
 
 @register_factory
 class PrivateCasebookFactory(CasebookFactory):
-    public = False
-    contentcollaborator_set = factory.RelatedFactory('conftest.ContentCollaboratorFactory', 'content', can_edit=True)
+    state = Casebook.LifeCycle.NEWLY_CREATED.value
+    tempcollaborator_set = factory.RelatedFactory('conftest.TempCollaboratorFactory', 'casebook', can_edit=True)
 
 
 @register_factory
 class DraftCasebookFactory(CasebookFactory):
-    public = False
-    draft_mode_of_published_casebook=True
+    state = Casebook.LifeCycle.DRAFT.value
     provenance = factory.LazyAttribute(lambda _: [CasebookFactory.create().id])
-    contentcollaborator_set = factory.RelatedFactory('conftest.ContentCollaboratorFactory', 'content', can_edit=True)
+    tempcollaborator_set = factory.RelatedFactory('conftest.TempCollaboratorFactory', 'casebook', can_edit=True)
 
 
 @register_factory
@@ -135,24 +134,19 @@ class SectionFactory(ContentNodeFactory):
     class Meta:
         model = Section
 
-    casebook = factory.SubFactory(CasebookFactory)
+    new_casebook = factory.SubFactory(CasebookFactory)
     ordinals = [1]
     title = factory.Sequence(lambda n: 'Some Section %s' % n)
 
-
-
-
-
 @register_factory
-class ContentCollaboratorFactory(factory.DjangoModelFactory):
+class TempCollaboratorFactory(factory.DjangoModelFactory):
     class Meta:
-        model = ContentCollaborator
+        model = TempCollaborator
 
     user = factory.SubFactory(UserFactory, verified_professor=True)
-    content = factory.SubFactory(CasebookFactory)
+    casebook = factory.SubFactory(CasebookFactory)
     has_attribution = True
     can_edit = True
-
 
 @register_factory
 class LinkFactory(factory.DjangoModelFactory):
@@ -202,7 +196,7 @@ class ResourceFactory(ContentNodeFactory):
         model = Resource
         exclude = ('resource',)
 
-    casebook = factory.SubFactory(CasebookFactory)
+    new_casebook = factory.SubFactory(CasebookFactory)
     resource_type = 'Case'
 
     @factory.lazy_attribute
@@ -238,7 +232,7 @@ class PublishedAnnotationFactory(ContentAnnotationFactory):
 
 @register_factory
 class PrivateAnnotationFactory(ContentAnnotationFactory):
-    resource=factory.SubFactory(ResourceFactory, casebook=factory.SubFactory(PrivateCasebookFactory))
+    resource=factory.SubFactory(ResourceFactory, new_casebook=factory.SubFactory(PrivateCasebookFactory))
 
 
 ### fixture functions ###
@@ -271,24 +265,25 @@ def annotations_factory(db):
         >>> _, annotations_factory = [getfixture(f) for f in ['reset_sequences', 'annotations_factory']]
         >>> casebook, resource = annotations_factory('Case', '<p>[replace]This[/replace] [highlight]is[/highlight] [elide]a[/elide] [note]case[/note].</p>')
         >>> assert dump_casebook_outline(casebook) == [
-        ...     'Casebook<1>: Some Title 0',
-        ...     ' Section<2>: Some Section 1',
-        ...     '  ContentNode<3> -> Case<1>: Foo Foo0 vs. Bar Bar0',
-        ...     '   ContentAnnotation<1>: replace 0-4',
-        ...     '   ContentAnnotation<2>: highlight 5-7',
-        ...     '   ContentAnnotation<3>: elide 8-9',
-        ...     '   ContentAnnotation<4>: note 10-14',
+        ...       'Casebook<1>: Some Title 0',
+        ...       ' Section<1>: Some Section 0',
+        ...       '  ContentNode<2> -> Case<1>: Foo Foo0 vs. Bar Bar0',
+        ...       '   ContentAnnotation<1>: replace 0-4',
+        ...       '   ContentAnnotation<2>: highlight 5-7',
+        ...       '   ContentAnnotation<3>: elide 8-9',
+        ...       '   ContentAnnotation<4>: note 10-14'
         ... ]
     """
-    def factory(resource_type, html, casebook=None, ordinals=None):
+    def factory(resource_type, html, new_casebook=None, ordinals=None):
 
         # create casebook, resource, resource_target, and annotations
-        if not casebook:
-            casebook = CasebookFactory()
-            SectionFactory(casebook=casebook, ordinals=[1])
+        if not new_casebook:
+            new_casebook = CasebookFactory()
+            SectionFactory(new_casebook=new_casebook, ordinals=[1])
             ordinals = [1, 1]
         resource_target = {'Case': CaseFactory, 'TextBlock': TextBlockFactory}[resource_type](content=html)
-        resource = ResourceFactory(casebook=casebook, ordinals=ordinals, resource_type=resource_type, resource=resource_target)
+        resource_type = resource_type
+        resource = ResourceFactory(new_casebook=new_casebook, ordinals=ordinals, resource_type=resource_type, resource=resource_target)
 
         # retrieve the processed, cleansed html of the saved resource
         processed_html = resource.resource.content
@@ -316,7 +311,7 @@ def annotations_factory(db):
             _, closing_annotation_offset = annotations.pop(closing_index)
             ContentAnnotationFactory(resource=resource, kind=kind, content=content, global_start_offset=annotation_offset, global_end_offset=closing_annotation_offset)
 
-        return casebook, resource
+        return new_casebook, resource
     return factory
 
 
@@ -340,23 +335,23 @@ def full_casebook_parts_factory(db):
                          - resource -> link
                 - section
     """
-    def factory(public=True):
+    def factory(state=Casebook.LifeCycle.PUBLISHED.value):
         user = UserFactory()
-        casebook = CasebookFactory(contentcollaborator_set__user=user, public=public)
-        s_1 = SectionFactory(casebook=casebook, ordinals=[1])
-        r_1_1 = ResourceFactory(casebook=casebook, ordinals=[1, 1], resource_type='TextBlock')
-        r_1_2 = case_resource = ResourceFactory(casebook=casebook, ordinals=[1, 2], resource_type='Case')
+        new_casebook = CasebookFactory(tempcollaborator_set__user=user, state=state)
+        s_1 = SectionFactory(new_casebook=new_casebook, ordinals=[1])
+        r_1_1 = ResourceFactory(new_casebook=new_casebook, ordinals=[1, 1], resource_type='TextBlock')
+        r_1_2 = case_resource = ResourceFactory(new_casebook=new_casebook, ordinals=[1, 2], resource_type='Case')
         ContentAnnotationFactory(resource=case_resource)
         ContentAnnotationFactory(resource=case_resource, kind='elide')
-        r_1_3 = ResourceFactory(casebook=casebook, ordinals=[1, 3], resource_type='Link')
-        s_1_4 = SectionFactory(casebook=casebook,  ordinals=[1, 4])
-        r_1_4_1 = ResourceFactory(casebook=casebook, ordinals=[1, 4, 1], resource_type='TextBlock')
-        r_1_4_2 = case_resource = ResourceFactory(casebook=casebook, ordinals=[1, 4, 2], resource_type='Case')
+        r_1_3 = ResourceFactory(new_casebook=new_casebook, ordinals=[1, 3], resource_type='Link')
+        s_1_4 = SectionFactory(new_casebook=new_casebook,  ordinals=[1, 4])
+        r_1_4_1 = ResourceFactory(new_casebook=new_casebook, ordinals=[1, 4, 1], resource_type='TextBlock')
+        r_1_4_2 = case_resource = ResourceFactory(new_casebook=new_casebook, ordinals=[1, 4, 2], resource_type='Case')
         ContentAnnotationFactory(resource=case_resource, kind='note')
         ContentAnnotationFactory(resource=case_resource, kind='replace')
-        r_1_4_3 = ResourceFactory(casebook=casebook, ordinals=[1, 4, 3], resource_type='Link')
-        s_2 = SectionFactory(casebook=casebook, ordinals=[2])
-        return [casebook, s_1, r_1_1, r_1_2, r_1_3, s_1_4, r_1_4_1, r_1_4_2, r_1_4_3, s_2]
+        r_1_4_3 = ResourceFactory(new_casebook=new_casebook, ordinals=[1, 4, 3], resource_type='Link')
+        s_2 = SectionFactory(new_casebook=new_casebook, ordinals=[2])
+        return [new_casebook, s_1, r_1_1, r_1_2, r_1_3, s_1_4, r_1_4_1, r_1_4_2, r_1_4_3, s_2]
     return factory
 
 
@@ -379,7 +374,7 @@ def full_private_casebook(full_casebook_parts_factory):
         >>> assert private.is_private and not published.is_private
         >>> assert all(node.is_private for node in private.contents.all())
     """
-    return full_casebook_parts_factory(public=False)[0]
+    return full_casebook_parts_factory(state=Casebook.LifeCycle.NEWLY_CREATED.value)[0]
 
 
 @pytest.fixture
@@ -413,11 +408,11 @@ def casebook_sections_factory(casebook_factory, section_factory):
         Factory that returns a casebook plus a set of sections with the given ordinals.
     """
     def factory(*ords):
-        casebook = casebook_factory()
+        new_casebook = casebook_factory()
         sections_by_ordinal = {}
         for ord in ords:
-            sections_by_ordinal[ord] = section_factory(casebook=casebook, ordinals=ord)
-        return casebook, sections_by_ordinal
+            sections_by_ordinal[ord] = section_factory(new_casebook=new_casebook, ordinals=ord)
+        return new_casebook, sections_by_ordinal
     return factory
 
 

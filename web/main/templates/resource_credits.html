@@ -1,17 +1,10 @@
 
 {% extends 'base.html' %}
 
-{% block page_title %}Resource {{ resource.ordinal_string }} | {{ resource.casebook.title }}{% endblock %}
+{% block page_title %}Resource {{ resource.ordinal_string }} | {{ resource.new_casebook.title }}{% endblock %}
 
 {% block banner %}
-{% if resource.is_or_belongs_to_draft or resource.is_private %}
-  <div class="casebook-preview banner">
-    {# TBD: Draft wording is proposed. #}
-    <div class="banner-inner">
-      You are viewing a preview of {{ resource.is_or_belongs_to_draft|yesno:"your changes,a private casebook"}}.
-    </div>
-  </div>
-{% endif %}
+{% include 'includes/preview_banner.html' with casebook=resource.new_casebook %}
 {% endblock %}
 
 {% block mainContent %}

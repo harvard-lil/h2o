@@ -86,15 +86,15 @@ def hydrate_params(func):
                 continue
             key, search_key = param.split('_', 1)
             if search_key == 'param':
-                kwargs[key] = get_object_or_404(ContentNode.objects.select_related('casebook'),
-                                                casebook=casebook_param['id'],
+                kwargs[key] = get_object_or_404(ContentNode.objects.select_related('new_casebook'),
+                                                new_casebook=casebook_param['id'],
                                                 ordinals=param_value['ordinals'])
-                kwargs['casebook'] = kwargs[key].casebook
+                kwargs['casebook'] = kwargs[key].new_casebook
             else:
-                kwargs[key] = get_object_or_404(ContentNode.objects.select_related('casebook'),
-                                                casebook=casebook_param['id'],
+                kwargs[key] = get_object_or_404(ContentNode.objects.select_related('new_casebook'),
+                                                new_casebook=casebook_param['id'],
                                                 id=param_value['id'])
-                kwargs['casebook'] = kwargs[key].casebook
+                kwargs['casebook'] = kwargs[key].new_casebook
         if 'casebook' not in kwargs:
             kwargs['casebook'] = get_object_or_404(Casebook, id=casebook_param['id'])
         return func(request, *args, **kwargs)
@@ -110,6 +110,7 @@ def user_has_perm(kwarg, method):
     def decorator(func):
         @wraps(func)
         def wrapper(request, *args, **kwargs):
+            # Temporary Resource kludge
             if not getattr(kwargs[kwarg], method)(request.user):
                 return login_required_response(request)
             return func(request, *args, **kwargs)
@@ -249,7 +250,7 @@ def actions(request, context):
 
     publishable = view == 'edit_casebook' or \
                   (node.is_private and view in ['casebook', 'section', 'resource']) or \
-                  node.is_or_belongs_to_draft
+                  node.is_draft
 
     actions = OrderedDict([
         ('exportable', True),
@@ -305,9 +306,10 @@ class CasebookTOCView(APIView):
     @staticmethod
     def format_casebook(casebook):
         casebook.content_tree__load()
+        toc = casebook.content_tree__children
         return {
             'id': str(casebook.id) + "-" + casebook.get_slug(),
-            'children': SectionOutlineSerializer(casebook._content_tree__children, many=True).data
+            'children': SectionOutlineSerializer(toc, many=True).data
         }
 
 
@@ -371,7 +373,7 @@ class AnnotationListView(APIView):
 
     @method_decorator(perms_test(
         {'args': ['resource'],
-         'results': {200: ['resource.casebook.testing_editor', 'other_user', 'admin_user', None]}},
+         'results': {200: ['resource.new_casebook.testing_editor', 'other_user', 'admin_user', None]}},
         {'args': ['full_casebook_with_draft.draft.resources.first'],
          'results': {200: ['full_casebook_with_draft.draft.testing_editor', 'admin_user'], 403: ['other_user'],
                      'login': [None]}},
@@ -505,8 +507,10 @@ def dashboard(request, user_id):
         >>> casebook, casebook_factory, client, admin_user, user_factory = [getfixture(f) for f in ['casebook', 'casebook_factory', 'client', 'admin_user', 'user_factory']]
         >>> user = casebook.collaborators.first()
         >>> non_collaborating_user = user_factory()
-        >>> private_casebook = casebook_factory(contentcollaborator_set__user=user, public=False)
-        >>> draft_casebook = casebook_factory(contentcollaborator_set__user=user, public=False, draft_mode_of_published_casebook=True, provenance=[casebook.id])
+        >>> private_casebook = casebook_factory(tempcollaborator_set__user=user, state=Casebook.LifeCycle.NEWLY_CREATED.value)
+        >>> draft_casebook = casebook_factory(tempcollaborator_set__user=user, state=Casebook.LifeCycle.DRAFT.value, provenance=[casebook.id])
+        >>> casebook.draft = draft_casebook
+        >>> casebook.save()
         >>> url = reverse('dashboard', args=[user.id])
 
         All users can see public casebooks:
@@ -650,7 +654,7 @@ def show_credits(request, casebook, section=None):
         [cloned_node for child_content in contents for cloned_node in child_content.provenance])
     prior_art = {x.id: x for x in ContentNode.objects.filter(id__in=originating_node)
         .select_related('casebook')
-        .prefetch_related('casebook__contentcollaborator_set__user')
+        .prefetch_related('casebook__tempcollaborator_set__user')
         .all()}
     casebook_mapping = {}
     cloned_sections = {}
@@ -658,7 +662,7 @@ def show_credits(request, casebook, section=None):
         if not node.provenance:
             continue
         known_priors = [prior_art[p] for p in node.provenance if p in prior_art]
-        known_clones = [p.casebook for p in known_priors]
+        known_clones = [p.new_casebook for p in known_priors]
         immediate_clone = known_clones[-1]
         incidental_clones = known_clones[:-1]
         cs_set = cloned_sections.get(immediate_clone.id,set())
@@ -667,10 +671,10 @@ def show_credits(request, casebook, section=None):
         nesting_depth = sum(map(lambda x: x in cs_set, [".".join(map(str,node.ordinals[:y])) for y in range(len(node.ordinals))]))
         if immediate_clone.id not in casebook_mapping:
             casebook_mapping[immediate_clone.id] = {'casebook':immediate_clone,
-                                                   'immediate_authors': {c.user for c in immediate_clone.contentcollaborator_set.all() if c.has_attribution},
+                                                   'immediate_authors': {c.user for c in immediate_clone.tempcollaborator_set.all() if c.has_attribution},
                                                    'incidental_authors': set(),
                                                    'nodes':[]}
-        casebook_mapping[immediate_clone.id]['incidental_authors'] |= {c.user for clone in incidental_clones for c in clone.contentcollaborator_set.all() if c.has_attribution and c.user not in casebook_mapping[immediate_clone.id]['immediate_authors']}
+        casebook_mapping[immediate_clone.id]['incidental_authors'] |= {c.user for clone in incidental_clones for c in clone.tempcollaborator_set.all() if c.has_attribution and c.user not in casebook_mapping[immediate_clone.id]['immediate_authors']}
         casebook_mapping[immediate_clone.id]['nodes'].append((node, known_priors[-1],nesting_depth))
 
     params = {'contributing_casebooks': [v for v in casebook_mapping.values()],
@@ -712,14 +716,14 @@ class CasebookView(View):
             >>> casebook, casebook_factory, client, admin_user, user_factory = [getfixture(f) for f in ['casebook', 'casebook_factory', 'client', 'admin_user', 'user_factory']]
             >>> user = casebook.collaborators.first()
             >>> non_collaborating_user = user_factory()
-            >>> private_casebook = casebook_factory(contentcollaborator_set__user=user, public=False)
-            >>> draft_casebook = casebook_factory(contentcollaborator_set__user=user, public=False, draft_mode_of_published_casebook=True, provenance=[casebook.id])
+            >>> private_casebook = casebook_factory(tempcollaborator_set__user=user, state=Casebook.LifeCycle.NEWLY_CREATED.value)
+            >>> draft_casebook = casebook_factory(tempcollaborator_set__user=user, state=Casebook.LifeCycle.DRAFT.value, provenance=[casebook.id])
 
             All users can see public casebooks:
             >>> check_response(client.get(casebook.get_absolute_url(), content_includes=casebook.title))
 
             Users can see their own non-public casebooks in preview mode:
-            >>> check_response(client.get(private_casebook.get_absolute_url(), as_user=user), content_includes=[private_casebook.title, "You are viewing a preview"])
+            >>> check_response(client.get(private_casebook.get_absolute_url(), as_user=user), content_includes=[private_casebook.title, "You are viewing a private casebook"])
 
             Owners see the "preview mode" of draft casebooks:
             >>> check_response(client.get(draft_casebook.get_absolute_url(), as_user=user), content_includes="You are viewing a preview")
@@ -753,8 +757,8 @@ class CasebookView(View):
             >>> casebook, casebook_factory, client, admin_user, user_factory = [getfixture(f) for f in ['casebook', 'casebook_factory', 'client', 'admin_user', 'user_factory']]
             >>> user = casebook.collaborators.first()
             >>> non_collaborating_user = user_factory()
-            >>> private_casebook = casebook_factory(contentcollaborator_set__user=user, public=False)
-            >>> draft_casebook = casebook_factory(contentcollaborator_set__user=user, public=False, draft_mode_of_published_casebook=True, provenance=[casebook.id])
+            >>> private_casebook = casebook_factory(tempcollaborator_set__user=user, state=Casebook.LifeCycle.NEWLY_CREATED.value)
+            >>> draft_casebook = casebook_factory(tempcollaborator_set__user=user, state=Casebook.LifeCycle.DRAFT.value, provenance=[casebook.id])
 
             Newly-composed (private, never-published) casebooks, when published, become public.
             >>> response = client.patch(private_casebook.get_absolute_url(), as_user=user, follow=True)
@@ -784,10 +788,10 @@ class CasebookView(View):
         if casebook.is_public:
             raise PermissionDenied("Only private casebooks may be published.")
 
-        if casebook.draft_mode_of_published_casebook:
+        if casebook.is_draft:
             casebook = casebook.merge_draft()
         else:
-            casebook.public = True
+            casebook.state = Casebook.LifeCycle.PUBLISHED.value
             casebook.save()
 
         # The javascript that makes these PATCH requests expects a redirect
@@ -901,7 +905,7 @@ def new_section_or_resource(request, casebook):
         >>> client, case_factory = [getfixture(i) for i in ['client', 'case_factory']]
         >>> case = case_factory()
         >>> casebook, s_1, r_1_1, r_1_2, r_1_3, s_1_4, r_1_4_1, r_1_4_2, r_1_4_3, s_2 = getfixture('full_casebook_parts')
-        >>> casebook.public = False
+        >>> casebook.state = Casebook.LifeCycle.NEWLY_CREATED.value
         >>> casebook.save()
 
         A simple POST adds a new section to the end of the casebook.
@@ -909,7 +913,7 @@ def new_section_or_resource(request, casebook):
         >>> response = client.post(url, as_user=casebook.testing_editor, follow=True)
         >>> check_response(response)
         >>> s_3 = casebook.contents.last()
-        >>> assert isinstance(s_3, Section)
+        >>> assert not s_3.resource
         >>> assert s_3.ordinals == [3]
         >>> assert s_3.title == 'Untitled'
         >>> assert dump_content_tree_children(casebook) == [s_1, s_2, s_3]
@@ -919,7 +923,7 @@ def new_section_or_resource(request, casebook):
         >>> response = client.post(reverse('new_section_or_resource', args=[casebook]) + "?parent={}".format(s_1.id), as_user=casebook.testing_editor, follow=True)
         >>> check_response(response)
         >>> s_1_5 = s_1.contents.last()
-        >>> assert isinstance(s_1_5, Section)
+        >>> assert not s_1_5.resource
         >>> assert s_1_5.ordinals == [1,5]
         >>> assert s_1_5.title == 'Untitled'
         >>> assert dump_content_tree_children(casebook) == [s_1, s_2, s_3]
@@ -934,7 +938,7 @@ def new_section_or_resource(request, casebook):
         >>> response = client.post(url, data, content_type='application/json', as_user=casebook.testing_editor, follow=True)
         >>> check_response(response)
         >>> r_4 = casebook.contents.last()
-        >>> assert isinstance(r_4, Resource)
+        >>> assert r_4.resource
         >>> assert r_4.ordinals == [4]
         >>> assert r_4.resource == case
         >>> assert r_4.title == case.get_name()
@@ -947,7 +951,7 @@ def new_section_or_resource(request, casebook):
         >>> response = client.post(url, data, content_type='application/json', as_user=casebook.testing_editor, follow=True)
         >>> check_response(response)
         >>> r_1_6 = s_1.contents.last()
-        >>> assert isinstance(r_1_6, Resource)
+        >>> assert r_1_6.resource
         >>> assert r_1_6.ordinals == [1,6]
         >>> assert all([isinstance(r_1_6.resource, TextBlock), r_1_6.resource.name == data['text']['title'], r_1_6.resource.content == data['text']['content']])
         >>> assert r_1_6.title == r_1_6.resource.get_name()
@@ -960,7 +964,7 @@ def new_section_or_resource(request, casebook):
         >>> response = client.post(url, data, content_type='application/json', as_user=casebook.testing_editor, follow=True)
         >>> check_response(response)
         >>> r_1_7 = s_1.contents.last()
-        >>> assert isinstance(r_1_7, Resource)
+        >>> assert r_1_7.resource
         >>> assert r_1_7.ordinals == [1,7]
         >>> assert all([isinstance(r_1_7.resource, Link), r_1_7.resource.url == data['link']['url']])
         >>> assert r_1_7.title == r_1_7.resource.get_name()
@@ -1022,13 +1026,13 @@ def new_section_or_resource(request, casebook):
     # Retrieve the parent of the new node
     if data.get('parent'):
         msg = 'Parent must be the ID (not ordinals) of a section in the current casebook'
-        parent = retrieve_data(lambda: Section.objects.get(casebook=casebook, id=int(data['parent'])), msg)
+        parent = retrieve_data(lambda: Section.objects.get(new_casebook=casebook, id=int(data['parent'])), msg)
     else:
         parent = casebook
 
     # Create the new node, and redirect to its edit/annotate page
     new_node = node_class(
-        casebook=casebook,
+        new_casebook=casebook,
         ordinals=parent.content_tree__get_next_available_child_ordinals(),
         resource_id=related_resource.id if related_resource else None,
         resource_type=type(related_resource).__name__ if related_resource else None,
@@ -1061,7 +1065,7 @@ class SectionView(View):
             Users can see sections in their own non-public casebooks in preview mode:
             >>> check_response(
             ...     client.get(private_section.get_absolute_url(), as_user=private_section.testing_editor),
-            ...     content_includes=[private_section.title, "You are viewing a preview"],
+            ...     content_includes=[private_section.title, "You are viewing a private"],
             ... )
 
             Owners see the "preview mode" of sections in draft casebooks:
@@ -1095,9 +1099,9 @@ class SectionView(View):
             Users can delete sections in their unpublished and draft casebooks:
             >>> for section in [private_section, draft_section]:
             ...     owner = section.testing_editor
-            ...     url = reverse('section', args=[section.casebook, section])
+            ...     url = reverse('section', args=[section.new_casebook, section])
             ...     check_response(client.delete(url, as_user=owner))
-            ...     with assert_raises(Section.DoesNotExist):
+            ...     with assert_raises(ContentNode.DoesNotExist):
             ...         section.refresh_from_db()
         """
         fix_after_rails("Let's return 204 instead of 200.")
@@ -1170,7 +1174,7 @@ class ResourceView(View):
             Users can see resources in their own non-public casebooks in preview mode:
             >>> check_response(
             ...     client.get(private_resource.get_absolute_url(), as_user=private_resource.testing_editor),
-            ...     content_includes=[private_resource.title, "You are viewing a preview"],
+            ...     content_includes=[private_resource.title, "You are viewing a private"],
             ... )
 
             Owners see the "preview mode" of resources in draft casebooks:
@@ -1207,9 +1211,9 @@ class ResourceView(View):
             Users can delete resources in their unpublished and draft casebooks:
             >>> for resource in [private_resource, draft_resource]:
             ...     owner = resource.testing_editor
-            ...     url = reverse('resource', args=[resource.casebook, resource])
+            ...     url = reverse('resource', args=[resource.new_casebook, resource])
             ...     check_response(client.delete(url, as_user=owner))
-            ...     with assert_raises(Resource.DoesNotExist):
+            ...     with assert_raises(ContentNode.DoesNotExist):
             ...         resource.refresh_from_db()
         """
         fix_after_rails("Let's return 204 instead of 200.")
@@ -1330,7 +1334,7 @@ def reorder_node(request, casebook, section=None, node=None):
         Given:
         >>> client, *_ = [getfixture(f) for f in ['client']]
         >>> casebook, s_1, r_1_1, r_1_2, r_1_3, s_1_4, r_1_4_1, r_1_4_2, r_1_4_3, s_2 = getfixture('full_casebook_parts')
-        >>> casebook.public = False
+        >>> casebook.state = Casebook.LifeCycle.NEWLY_CREATED.value
         >>> casebook.save()
         >>> payload = json.dumps({'child': {'ordinals': [1, 4, 3]}})
 

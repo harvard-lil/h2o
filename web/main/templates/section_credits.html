@@ -3,11 +3,11 @@
 {% load render_bundle from webpack_loader %}
 {% load crispy_forms_tags %}
 
-{% block page_title %}Section {{ section.ordinal_string }} | {{ section.casebook.title }}{% endblock %}
+{% block page_title %}Section {{ section.ordinal_string }} | {{ section.new_casebook.title }}{% endblock %}
 {% block extra_foot %}{% render_bundle 'rich_text_editor' %}{% endblock %}
 
 {% block banner %}
-{% if section.is_or_belongs_to_draft or section.is_private %}
+{% if section.is_draft or section.is_private %}
 <div class="casebook-preview banner">
   <div class="banner-inner">
     This casebook is a preview and is visible only to collaborators.

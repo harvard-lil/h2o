@@ -58,20 +58,19 @@ def dump_casebook_outline(casebook):
         >>> reset_sequences, full_casebook = [getfixture(i) for i in ['reset_sequences', 'full_casebook']]
         >>> assert dump_casebook_outline(full_casebook) == [
         ...     'Casebook<1>: Some Title 0',
-        ...     ' Section<2>: Some Section 1',
-        ...     '  ContentNode<3> -> TextBlock<1>: Some TextBlock Name 0',
-        ...     '  ContentNode<4> -> Case<1>: Foo Foo0 vs. Bar Bar0',
+        ...     ' Section<1>: Some Section 0',
+        ...     '  ContentNode<2> -> TextBlock<1>: Some TextBlock Name 0',
+        ...     '  ContentNode<3> -> Case<1>: Foo Foo0 vs. Bar Bar0',
         ...     '   ContentAnnotation<1>: highlight 0-10',
         ...     '   ContentAnnotation<2>: elide 0-10',
-        ...     '  ContentNode<5> -> Link<1>: Some Link Name 0',
-        ...     '  Section<6>: Some Section 5',
-        ...     '   ContentNode<7> -> TextBlock<2>: Some TextBlock Name 1',
-        ...     '   ContentNode<8> -> Case<2>: Foo Foo1 vs. Bar Bar1',
+        ...     '  ContentNode<4> -> Link<1>: Some Link Name 0',
+        ...     '  Section<5>: Some Section 4',
+        ...     '   ContentNode<6> -> TextBlock<2>: Some TextBlock Name 1',
+        ...     '   ContentNode<7> -> Case<2>: Foo Foo1 vs. Bar Bar1',
         ...     '    ContentAnnotation<3>: note 0-10',
         ...     '    ContentAnnotation<4>: replace 0-10',
-        ...     '   ContentNode<9> -> Link<2>: Some Link Name 1',
-        ...     ' Section<10>: Some Section 9',
-        ... ]
+        ...     '   ContentNode<8> -> Link<2>: Some Link Name 1',
+        ...     ' Section<9>: Some Section 8']
     """
     out = []
     out.append("Casebook<%s>: %s" % (casebook.id, casebook.title))
@@ -81,7 +80,7 @@ def dump_casebook_outline(casebook):
         if node_type == 'section':
             out.append("%sSection<%s>: %s" % (indent, node.id, node.title))
         elif node_type == 'resource':
-            resource = node.resource
+            resource = node._resource
             out.append("%sContentNode<%s> -> %s<%s>: %s" % (indent, node.id, type(resource).__name__, resource.id, resource.name))
             for annotation in node.annotations.order_by('global_start_offset', 'id'):
                 out.append("%s ContentAnnotation<%s>: %s %s-%s" % (indent, annotation.id, annotation.kind, annotation.global_start_offset, annotation.global_end_offset))

@@ -2,6 +2,7 @@ import os
 import re
 import subprocess
 import tempfile
+from enum import Enum
 from os.path import commonprefix
 from urllib.parse import urlparse
 
@@ -16,7 +17,6 @@ from django.template.defaultfilters import truncatechars
 from django.template.loader import render_to_string
 from django.urls import reverse
 from django.utils import timezone
-from django.utils.functional import cached_property
 from django.utils.html import format_html
 from django.utils.safestring import mark_safe
 from django.utils.text import slugify
@@ -31,7 +31,7 @@ from .differ import AnnotationUpdater
 from test.test_helpers import dump_casebook_outline, dump_content_tree, dump_annotated_text, dump_content_tree_children
 from pytest import raises as assert_raises
 
-from .utils import clone_model_instance, fix_after_rails, parse_html_fragment, \
+from .utils import clone_model_instance, parse_html_fragment, \
     remove_empty_tags, inner_html, block_level_elements, void_elements, normalize_newlines, \
     strip_trailing_block_level_whitespace, elements_equal, get_ip_address
 
@@ -41,10 +41,10 @@ import logging
 
 logger = logging.getLogger(__name__)
 
-
 #
 # Helpers
 #
+
 
 class BigPkModel(models.Model):
     id = models.BigAutoField(primary_key=True)
@@ -413,6 +413,27 @@ class ContentAnnotation(TimestampedModel, BigPkModel):
         if to_update:
             ContentAnnotation.objects.bulk_update(to_update, ['global_start_offset', 'global_end_offset'])
 
+class TempCollaborator(TimestampedModel, BigPkModel):
+    has_attribution = models.BooleanField(default=False)
+    can_edit = models.BooleanField(default=False)
+    user = models.ForeignKey('User',
+                             on_delete=models.CASCADE,
+                             )
+    # This is marked "on_delete=models.DO_NOTHING" to avoid unnecessary queries when deleting Sections and Resources....
+    # We make sure to delete unneeded ContentCollaborator rows in the Casebook.delete method.
+    casebook = models.ForeignKey(
+        'Casebook',
+        on_delete=models.DO_NOTHING,
+        blank=True,
+        null=True
+    )
+
+    def save(self, *args, **kwargs):
+        super().save(*args, **kwargs)
+
+    class Meta:
+        unique_together = (('user', 'casebook'),)
+
 
 class ContentCollaborator(TimestampedModel, BigPkModel):
     has_attribution = models.BooleanField(default=False)
@@ -444,20 +465,9 @@ class ContentNodeQueryset(models.QuerySet):
 
         Given:
         >>> full_casebook, assert_num_queries = [getfixture(f) for f in ['full_casebook', 'assert_num_queries']]
-        >>> section = Section.objects.filter(casebook=full_casebook).first()
+        >>> section = ContentNode.objects.filter(new_casebook=full_casebook).first()
 
         Fetching all resources normally will take a linear number of queries -- each c.resource hits the DB:
-        >>> with assert_num_queries(select=7):
-        ...     resources = [c.resource for c in section.contents.all() if isinstance(c, Resource)]
-
-        We can reduce to a constant number of queries -- 1 each to fetch Case, TextBlock, and Link items:
-        >>> with assert_num_queries(select=4):
-        ...     resources = [c.resource for c in section.contents.prefetch_resources() if isinstance(c, Resource)]
-
-        Custom querysets for the Case, TextBlock, and Link items can be provided to further reduce queries:
-        >>> with assert_num_queries(select=4):
-        ...     resources = [c.resource for c in section.contents.prefetch_resources(case_query=Case.objects) if isinstance(c, Resource)]
-        ...     courts = [c.court_name for c in resources if type(c) == Case]
     """
 
     # keep track of input values from prefetch_resources()
@@ -507,221 +517,10 @@ class ContentNodeQueryset(models.QuerySet):
                     content_node._resource = resources.get((content_node.resource_type, content_node.resource_id))
                     content_node._resource_prefetched = True
 
-class ContentNode(EditTrackedModel, TimestampedModel, BigPkModel):
-    title = models.CharField(max_length=10000, default="Untitled")
-    subtitle = models.CharField(max_length=10000, blank=True, null=True)
-    headnote = models.TextField(blank=True, null=True)
-    # legacy field: https://github.com/harvard-lil/h2o/issues/1044
-    raw_headnote = models.TextField(blank=True, null=True)
-    copy_of = models.ForeignKey(
-        'self',
-        on_delete=models.SET_NULL,
-        blank=True,
-        null=True,
-        related_name='clones',
-    )
-
-    # Some fields are only used by certain subsets of ContentNodes
-    # https://github.com/harvard-lil/h2o/issues/1035
-
-    # casebooks only
-    public = models.BooleanField(default=False)
-    draft_mode_of_published_casebook = models.BooleanField(blank=True, null=True,
-                                                           help_text='Unknown (None) or True; never False')
-    provenance = ArrayField(models.BigIntegerField(), default=list, blank=False)
-    collaborators = models.ManyToManyField('User',
-                                           through='ContentCollaborator',
-                                           related_name='casebooks'
-                                           )
-
-    # sections and resources only
-    ordinals = ArrayField(models.IntegerField(), default=list)
-    # This is marked "on_delete=models.DO_NOTHING" to avoid unnecessary queries when deleting Sections and Resources....
-    # We make sure to delete Casebook contents in the Casebook.delete method.
-    casebook = models.ForeignKey(
-        'Casebook',
-        on_delete=models.DO_NOTHING,
-        blank=True,
-        null=True,
-        related_name='contents'
-    )
-
-    # resources only
-    # These fields define a relationship with a Case, Link, or Textblock
-    # not yet described/available via the Django ORM
-    # https://github.com/harvard-lil/h2o/issues/1035
-    resource_type = models.CharField(max_length=255, blank=True, null=True)
-    resource_id = models.BigIntegerField(blank=True, null=True)
-
-    fix_after_rails("Are we ready to delete playlist_id, a relic of a former version of H2O?")
-    playlist_id = models.BigIntegerField(blank=True, null=True)
-
-    objects = ContentNodeQueryset.as_manager()
-    tracked_fields = ['headnote']
-
+class MaterializedPathTreeMixin(models.Model):
     class Meta:
-        indexes = [
-            models.Index(fields=['casebook', 'ordinals']),
-            models.Index(fields=['resource_type', 'resource_id'])
-        ]
-        ordering = ['ordinals']
-
-    @classmethod
-    def from_db(cls, db, field_names, values):
-        """
-            Return Casebooks, Sections, and Resources instead of ContentNodes,
-            for more intuitive resolution of relationships and for tidiness.
-            Directly contradicts the docs:
-            https://docs.djangoproject.com/en/2.2/topics/db/models/#querysets-still-return-the-model-that-was-requested
-
-            Given:
-            >>> casebook, section, resource_factory, case_factory = [getfixture(i) for i in ['casebook', 'section', 'resource_factory', 'case_factory']]
-            >>> resource = resource_factory(casebook=casebook, resource_type='Case', resource_id=case_factory().id)
-
-            ContentNode queries return the appropriate proxy models:
-            >>> assert type(ContentNode.objects.get(id=casebook.id)) is Casebook
-            >>> assert type(ContentNode.objects.get(id=section.id)) is Section
-            >>> assert type(ContentNode.objects.get(id=resource.id)) is Resource
-        """
-        values_dict = dict(zip(field_names, values))
-        if not values_dict['casebook_id']:
-            subclass = Casebook
-        elif not values_dict['resource_id']:
-            subclass = Section
-        else:
-            subclass = Resource
-        return models.Model.from_db.__func__(subclass, db, field_names, values)
-
-    def save(self, *args, **kwargs):
-        r"""
-            Override save to include the cleanup of user-supplied HTML.
-
-            Given:
-            >>> caplog, _ = [getfixture(i) for i in ['caplog', 'db']]
-            >>> html = '<p>Prepended</p>\n\n<p>\n  <em invalid-attr="invalid">Keep foo <invalid>keep baz</invalid> buzz add boo</em>\n</p>'
-            >>> cleaned_html = '<p>Prepended</p><p>\n  <em>Keep foo keep baz buzz add boo</em>\n</p>'
-
-            On save, the headnote is cleansed.
-            >>> node = ContentNode(headnote=html)
-            >>> with caplog.at_level(logging.DEBUG):
-            ...     node.headnote = html
-            ...     node.save()
-            >>> node.refresh_from_db()
-            >>> assert node.headnote == cleaned_html
-        """
-        cleanse_html_field(self, 'headnote', True)
-        super().save(*args, **kwargs)
-
-    ##
-    # Methods common to all ContentNodes
-    ##
-
-    def get_slug(self):
-        return slugify(self.title)
-
-    @property
-    def is_private(self):
-        return not self.is_public
-
-    def viewable_by(self, user):
-        return self.is_public or self.editable_by(user)
-
-    def directly_editable_by(self, user):
-        """
-        Allow a user to make real-time changes (e.g., via edit view),
-        rather than requiring them to make changes via the draft mechanism.
-        (See allows_draft_creation_by for more discussion of editing and drafts.)
-        """
-        return self.is_private and self.editable_by(user)
-
-    def __str__(self):
-        return "{} ({})".format(self.title, self.id)
-
-    @property
-    def type(self):
-        # TODO: In use in templates and tests; shouldn't be necessary. Consider refactoring.
-        return type(self).__name__.lower()
-
-    def export(self, include_annotations, file_type='docx'):
-        """
-            Export this node and children as docx, or as html for conversion by pandoc.
-
-            Given:
-            >>> full_casebook, assert_num_queries = [getfixture(f) for f in ['full_casebook', 'assert_num_queries']]
-
-            Export uses 5 queries: selecting descendant nodes, and prefetching ContentAnnotation, Case, TextBlock, and Link.
-            >>> with assert_num_queries(select=5):
-            ...     file_data = full_casebook.export(include_annotations=True)
-        """
-        # prefetch all child nodes and related data
-        children = list(self.contents.prefetch_resources().prefetch_related('annotations')) if type(
-            self) is not Resource else None
-
-        # render html
-        template_name = \
-        {Casebook: 'export/casebook.html', Section: 'export/section.html', Resource: 'export/node.html'}[type(self)]
-        html = render_to_string(template_name, {
-            'node': self,
-            'children': children,
-            'include_annotations': include_annotations,
-        })
-        if file_type == 'html':
-            return html
-
-        # convert to docx with pandoc
-        with tempfile.NamedTemporaryFile(suffix='.docx') as pandoc_out:
-            command = [
-                'pandoc',
-                '--from', 'html',
-                '--to', 'docx',
-                '--reference-doc', os.path.join(settings.PANDOC_DIR, 'reference.docx'),
-                '--output', pandoc_out.name,
-                '--quiet'
-            ]
-            if type(self) is Casebook:
-                command.extend(['--lua-filter', os.path.join(settings.PANDOC_DIR, 'table_of_contents.lua')])
-            try:
-                response = subprocess.run(command, input=html.encode('utf8'), stderr=subprocess.PIPE,
-                                          stdout=subprocess.PIPE)
-            except subprocess.CalledProcessError as e:
-                raise Exception("Pandoc command failed: %s" % e.stderr[:100])
-            if response.stderr:
-                raise Exception("Pandoc reported error: %s" % response.stderr[:100])
-            return pandoc_out.read()
-
-    def headnote_for_export(self):
-        r"""
-            Return headnote HTML prepared for pandoc export.
-
-            >>> assert Resource(headnote='<p>An image <img src=""></p>').headnote_for_export() == '<p>An image </p>'
-        """
-        if not self.headnote:
-            return ''
-        tree = parse_html_fragment(self.headnote)
-        PyQuery(tree).remove('img')
-        return mark_safe(inner_html(tree))
-
-    ##
-    # About ContentNode Trees:
-    # ContentNodes are part of two separate trees: the "content tree", indicating where the node is in the table of
-    # contents, and the "version tree", indicating the node's lineage in other casebooks (clones and drafts).
-    #
-    # The content tree is stored in the `ordinals` field as a postgres array of 1-indexed integers. The root is `[]`,
-    # the first child is `[1]`, the first sub-child is `[1,1]` and so on.
-    #
-    # The version tree is stored in the `provenance` field as an array of IDs. The root is [], the first
-    # child is [<parent.id>], the first sub-child is [<parent.id>,<sub_parent.id>], and so on.
-    # This is a partial port of https://github.com/stefankroes/ancestry/blob/master/lib/ancestry/materialized_path.rb
-    #
-    # Because it is confusing to have two database trees with different formats as well as a hierarchy of proxy models,
-    # we make two stylistic choices:
-    #  (1) All tree methods should be prefixed with "content_tree__" or "version_tree__"
-    #  (2) All tree methods should be in a single block in ContentNode instead of on Casebook/Session/Resource subclasses.
-    ##
-
-    fix_after_rails("The hand-rolled database trees should be replaced with a Django tree library")
-
-    # https://github.com/harvard-lil/h2o/issues/1035
+        abstract = True
+    ordinals = ArrayField(models.IntegerField(), default=list)
 
     ##
     # Content tree methods
@@ -771,6 +570,8 @@ class ContentNode(EditTrackedModel, TimestampedModel, BigPkModel):
             ...     ]
 
             Move node forward within the same level:
+            >>> casebook.refresh_from_db()
+            >>> s_1_4.refresh_from_db()
             >>> r_1_4_2.refresh_from_db()
             >>> r_1_4_2.content_tree__move_to([1, 4, 2])
             >>> assert dump_content_tree_children(s_1_4) == [r_1_4_3, r_1_4_2]
@@ -831,14 +632,14 @@ class ContentNode(EditTrackedModel, TimestampedModel, BigPkModel):
             new_parent = common_parent_node.content_tree__get_descendant(new_ordinals[:-1])
         except IndexError:
             raise ValueError("Invalid new ordinals; parent does not exist: %s" % new_ordinals)
-        if type(new_parent) == Resource:
+        if new_parent.is_resource:
             raise ValueError('Cannot add descendant of Resource')
 
         # remove node from existing location
         # (look up the location, instead of using self, so we have the copy where content_tree is populated)
         moved_node = common_parent_node.content_tree__get_descendant(old_ordinals)
         if moved_node != self:
-            raise ValueError("Unexpected element found at ordinal %s" % old_ordinals)
+            raise ValueError("Unexpected element found at ordinal {}: {}".format(old_ordinals, moved_node))
         moved_node.content_tree__parent.content_tree__children.remove(moved_node)
 
         # add node to new location
@@ -854,7 +655,7 @@ class ContentNode(EditTrackedModel, TimestampedModel, BigPkModel):
 
             >>> assert_num_queries, casebook = [getfixture(f) for f in ['assert_num_queries', 'full_casebook']]
 
-            >>> with assert_num_queries(select=1, update=1):
+            >>> with assert_num_queries(select=1):
             ...     casebook.content_tree__repair()
         """
         self.content_tree__load()
@@ -927,7 +728,7 @@ class ContentNode(EditTrackedModel, TimestampedModel, BigPkModel):
         """
         parents = []
         parent = last_child = None
-        for node in [self] + list(self.contents.all()):
+        for node in [self] + list(self.sub_sections.all()):
             if last_child and node.content_tree__is_descendant_of(last_child):
                 parents.append(parent)
                 parent = last_child
@@ -982,15 +783,14 @@ class ContentNode(EditTrackedModel, TimestampedModel, BigPkModel):
             (This assumes we already know that the nodes are part of the same tree.)
             >>> assert Section(ordinals=[1,1]).content_tree__is_descendant_of(Section(ordinals=[1]))
             >>> assert Resource(ordinals=[1,2,3]).content_tree__is_descendant_of(Section(ordinals=[1]))
-            >>> assert not Casebook().content_tree__is_descendant_of(Section(ordinals=[1]))
         """
         return False if type(self) is Casebook else self.ordinals[:len(parent.ordinals)] == parent.ordinals
 
     def content_tree__get_same_tree_node_from_ordinals(self, ordinals):
         """ Fetch a node from the database, with the given ordinals, that is part of the same tree as self. """
-        casebook_id = self.id if type(self) == Casebook else self.casebook_id
+        casebook_id = self.id if type(self) == Casebook else self.new_casebook_id
         return ContentNode.objects.get(ordinals=ordinals,
-                                       casebook_id=casebook_id) if ordinals else Casebook.objects.get(id=casebook_id)
+                                       new_casebook_id=casebook_id) if ordinals else Casebook.objects.get(id=casebook_id)
 
     def content_tree__get_descendant(self, ordinals):
         """
@@ -1003,6 +803,43 @@ class ContentNode(EditTrackedModel, TimestampedModel, BigPkModel):
         while ordinals:
             node = node.content_tree__children[ordinals.pop(0) - 1]
         return node
+
+
+    ###
+    #  Display helpers
+    ###
+
+    def ordinal_string(self):
+        """
+        A human-friendly rendering of the "ordinals" field.
+        Might be more appropriate as a templatetag.
+        """
+        return '.'.join(str(o) for o in self.ordinals)
+
+    def ordinals_with_urls(self, editing=False):
+        """
+        A helper method for assembling Sections' and Resources' breadcrumb links.
+        Might be more appropriate as a templatetag.
+        """
+        return_value = []
+        ordinals = []
+        for o in self.ordinals:
+            ordinals.append(o)
+            return_value.append({
+                'ordinal': o,
+                'ordinals': [*ordinals],
+                'url': ContentNode.objects.get(
+                    new_casebook_id=self.new_casebook_id,
+                    ordinals=ordinals
+                ).get_edit_or_absolute_url(editing)
+            })
+        return return_value
+
+class TrackedCloneable(models.Model):
+    class Meta:
+        abstract = True
+
+    provenance = ArrayField(models.BigIntegerField(), default=list, blank=False)
 
     ##
     # Version tree methods
@@ -1034,7 +871,7 @@ class ContentNode(EditTrackedModel, TimestampedModel, BigPkModel):
         """
         if not self.provenance:
             return None
-        return Casebook.objects.filter(id=self.provenance[0]).get()
+        return type(self).objects.filter(id=self.provenance[0]).get().new_casebook
 
     def version_tree__parent(self):
         """
@@ -1052,941 +889,91 @@ class ContentNode(EditTrackedModel, TimestampedModel, BigPkModel):
             return None
         return type(self).objects.get(pk=self.provenance[-1])
 
-    ##
-    # Methods specialized by children
-    ##
 
-    @property
-    def is_public(self):
-        """
-        Presently, the `public` field is only accurate on Casebooks:
-        the field is `True` for all Sections and Resources.
-        This method is a stop gap, as we decide how we'd like to move
-        forward with the database field.
-        https://github.com/harvard-lil/h2o/issues/1036
+class ContentNode(EditTrackedModel, TimestampedModel, BigPkModel, MaterializedPathTreeMixin, TrackedCloneable):
+    title = models.CharField(max_length=10000, default="Untitled")
+    subtitle = models.CharField(max_length=10000, blank=True, null=True)
+    headnote = models.TextField(blank=True, null=True)
+    # legacy field: https://github.com/harvard-lil/h2o/issues/1044
+    raw_headnote = models.TextField(blank=True, null=True)
+    copy_of = models.ForeignKey(
+        'self',
+        on_delete=models.SET_NULL,
+        blank=True,
+        null=True,
+        related_name='clones',
+    )
 
-        This method should be implemented by all children.
-        """
-        raise NotImplementedError()
+    # Some fields are only used by certain subsets of ContentNodes
+    # https://github.com/harvard-lil/h2o/issues/1035
 
-    @property
-    def permits_cloning(self):
-        """
-        Allow a user to clone this node.
+    # casebooks only
+    public = models.BooleanField(default=False)
+    draft_mode_of_published_casebook = models.BooleanField(blank=True, null=True,
+                                                           help_text='Unknown (None) or True; never False')
+    collaborators = models.ManyToManyField('User',
+                                           through='ContentCollaborator',
+                                           related_name='old_casebooks'
+                                           )
 
-        This method should be implemented by all children.
-        """
-        raise NotImplementedError()
+    # sections and resources only
+    # This is marked "on_delete=models.DO_NOTHING" to avoid unnecessary queries when deleting Sections and Resources....
+    # We make sure to delete Casebook contents in the Casebook.delete method.
+    casebook = models.ForeignKey(
+        'ContentNode',
+        on_delete=models.DO_NOTHING,
+        blank=True,
+        null=True,
+        related_name='contents'
+    )
 
-    def editable_by(self, user):
-        """
-        Allow a user to alter this node, either directly or via the
-        draft mechanism. (See allows_draft_creation_by for more
-        discussion of editing and drafts.)
+    new_casebook = models.ForeignKey(
+        'Casebook',
+        on_delete=models.DO_NOTHING,
+        blank=True,
+        null=True,
+        related_name='contents'
+    )
+    # resources only
+    # These fields define a relationship with a Case, Link, or Textblock
+    # not yet described/available via the Django ORM
+    # https://github.com/harvard-lil/h2o/issues/1035
+    resource_type = models.CharField(max_length=255, blank=True, null=True)
+    resource_id = models.BigIntegerField(blank=True, null=True)
 
-        This method should be implemented by all children.
-        """
-        raise NotImplementedError()
-
-    @property
-    def has_draft(self):
-        """
-        This node is, or belongs to, a Casebook with a draft. (See
-        allows_draft_creation_by for more discussion of drafts.)
-
-        This method should be implemented by all children.
-        """
-        raise NotImplementedError()
-
-    @property
-    def is_or_belongs_to_draft(self):
-        """
-        This node is, or belongs to, a Casebook that is a draft
-        of an already-published Casebook. (See allows_draft_creation_by
-        for more discussion of drafts.)
-
-        This method should be implemented by all children.
-        """
-        raise NotImplementedError()
-
-    def allows_draft_creation_by(self, user):
-        """
-        Sometimes authors wish to alter a Casebook "in real time", so that
-        changes are immediately evident to readers.
-
-        Other times, they prefer to work on a set of edits over time,
-        releasing those changes all at once, once they are ready.
-
-        To make this possible, H2O has a mechanism for creating a "draft"
-        of a published casebook. In the UI, "private", never-published
-        casebooks are often referred to as "drafts"; this is something
-        different: a clone of an already-published casebook, private to
-        the author, which can be edited at the author's leisure. When the
-        author chooses to "publish change", the draft replaces the original.
-
-        You can only have a single draft of a casebook at a time, and you
-        can't make drafts of private, never-published casebooks. There's
-        no need: you can edit them in real time without affecting readers.)
-
-        This method enforces that logic.
-
-        While drafts are created for entire Casebooks at once, not piecemeal
-        for particular Sections or Resources, it proves convenient to have
-        access to this method from all ContentNodes.
-
-        This method should be implemented by all children.
-        """
-        raise NotImplementedError
-
-    def is_annotated(self):
-        """
-        While only Resources can be annotated, it is useful to know if a
-        Casebook or Section contains Resources that have been annotated,
-        and it is useful to have a single interface for finding Casebooks,
-        Sections, and Resources associated with annotations.
-
-        This method should be implemented by all children.
-        """
-        raise NotImplementedError
-
-    # URLs
-
-    def get_absolute_url(self):
-        """
-        Since Casebooks, Sections, and Resources can all be accessed
-        from URLs that include slugs AND from urls that omit slugs,
-        instruct Django how to calculate the canonical URL for each object.
-        https://docs.djangoproject.com/en/2.2/ref/models/instances/#get-absolute-url
-
-        This method should be implemented by all children.
-        """
-        raise NotImplementedError
-
-    def get_edit_url(self):
-        """
-        A convenience method, for retrieving the edit URL of a Casebook,
-        Section, or Resource without having to specify the view name,
-        which is useful in shared templates.
-
-        This method should be implemented by all children.
-        """
-        raise NotImplementedError
-
-    def get_draft_url(self):
-        """
-        If this node is or belongs to a Casebook that has a draft, return
-        the URL of the draft's "edit" page. Otherwise, return a ValueError.
-
-        This method should be implemented by all children.
-        """
-        raise NotImplementedError
-
-    def get_edit_or_absolute_url(self, editing=False):
-        """
-        This is a convenience method, currently used only when building
-        the Table of Contents. It probably will no longer be helpful,
-        when the editable Table of Contents is rendered via Vue. But
-        for now...
-
-        This method should be implemented by all children.
-        """
-        raise NotImplementedError
-
-    @property
-    def testing_editor(self):
-        return self.casebook.testing_editor
-
-
-#
-# Start ContentNode Proxies
-#
-
-class CasebookAndSectionMixin(models.Model):
-    """
-    Methods shared by Casebooks and Sections
-    """
+    objects = ContentNodeQueryset.as_manager()
+    tracked_fields = ['headnote']
 
     class Meta:
-        abstract = True
+        indexes = [
+            models.Index(fields=['casebook', 'ordinals']),
+            models.Index(fields=['resource_type', 'resource_id'])
+        ]
+        ordering = ['ordinals']
 
-    def is_annotated(self):
-        """See ContentNode.is_annotated"""
-        return any(node.annotations for node in self.contents.prefetch_related('annotations'))
-
-    def get_edit_or_absolute_url(self, editing=False):
-        """See ContentNode.get_edit_or_absolute_url"""
-        if editing:
-            return self.get_edit_url()
-        return self.get_absolute_url()
-
-    def _delete_related_links_and_text_blocks(self):
+    @classmethod
+    def from_db(cls, db, field_names, values):
         """
-            A private utility for efficiently deleting associated Link and TextBlock objects.
-        """
-        to_delete = {Link: [], TextBlock: []}
-        for resource in self.contents.prefetch_resources():
-            if resource.resource_id and resource.resource_type in ('Link', 'TextBlock'):
-                to_delete[type(resource.resource)].append(resource.resource_id)
-        for cls, ids in to_delete.items():
-            cls.objects.filter(id__in=ids).delete()
-
-    @property
-    def attributed_authors(self):
-        return self.primary_authors.union(self.originating_authors)
-
-    @property
-    def originating_authors(self):
-        """
-        Every attributed author for any ancestor of a contentnode contained in the casebook
-        """
-        originating_node = set([cloned_node for child_content in self.contents.all() for cloned_node in child_content.provenance])
-        users = [collaborator.user for cn in
-                    ContentNode.objects.filter(id__in=originating_node)
-                        .select_related('casebook')
-                        .prefetch_related('casebook__contentcollaborator_set__user')
-                        .all()
-                    for collaborator in cn.casebook.contentcollaborator_set.all() if collaborator.has_attribution and collaborator.user.attribution != 'Anonymous']
-        return set(users)
-
-    @property
-    def has_non_current_authors(self):
-        return len(self.non_current_authors) > 0
-
-    @property
-    def non_current_authors(self):
-        ogs = self.originating_authors
-        cgs = self.primary_authors
-        return ogs.difference(cgs)
-
-class SectionAndResourceMixin(models.Model):
-    """
-    Methods shared by Sections and Resources
-    """
-
-    class Meta:
-        abstract = True
-
-    def delete(self, *args, **kwargs):
-        """
-            Override delete, to ensure the tree is re-ordered afterwards,
-            and to clean up now-unused TextBlock and Link resources.
+            Return Casebooks, Sections, and Resources instead of ContentNodes,
+            for more intuitive resolution of relationships and for tidiness.
+            Directly contradicts the docs:
+            https://docs.djangoproject.com/en/2.2/topics/db/models/#querysets-still-return-the-model-that-was-requested
 
             Given:
-            >>> full_casebook_parts_factory, assert_num_queries = [getfixture(i) for i in ['full_casebook_parts_factory','assert_num_queries']]
+            >>> casebook, section, resource_factory, case_factory = [getfixture(i) for i in ['casebook', 'section', 'resource_factory', 'case_factory']]
+            >>> resource = resource_factory(new_casebook=casebook, resource_type='Case', resource_id=case_factory().id)
 
-            # Sections
-            >>> casebook, s_1, r_1_1, r_1_2, r_1_3, s_1_4, r_1_4_1, r_1_4_2, r_1_4_3, s_2 = full_casebook_parts_factory()
-
-            Delete a section in a section (and children, including one case, one text block, and one link/default), no reordering required:
-            >>> with assert_num_queries(delete=6, select=9, update=1):
-            ...     deleted = s_1_4.delete()
-            >>> assert deleted == (1, {'main.ContentAnnotation': 0, 'main.Section': 1})
-            >>> assert dump_content_tree(casebook) == [
-            ...         [s_1, casebook, [
-            ...             [r_1_1, s_1, []],
-            ...             [r_1_2, s_1, []],
-            ...             [r_1_3, s_1, []],
-            ...         ]],
-            ...         [s_2, casebook, []],
-            ... ]
-            >>> for node in [s_1_4, r_1_4_1, r_1_4_2, r_1_4_3]:
-            ...     with assert_raises(ContentNode.DoesNotExist):
-            ...         node.refresh_from_db()
-
-            Delete the first section in the book (and children, including one case, one text block, and one link/default), triggering reordering:
-            >>> with assert_num_queries(delete=6, select=8, update=1):
-            ...     deleted = s_1.delete()
-            >>> assert deleted == (1, {'main.ContentAnnotation': 0, 'main.Section': 1})
-            >>> assert dump_content_tree(casebook) == [
-            ...         [s_2, casebook, []],
-            ... ]
-            >>> for node in [s_1, r_1_1, r_1_2, r_1_3]:
-            ...     with assert_raises(ContentNode.DoesNotExist):
-            ...         node.refresh_from_db()
-            >>> s_2.refresh_from_db()
-            >>> assert s_2.ordinals == [1]
-
-            # Resources
-            >>> casebook, s_1, r_1_1, r_1_2, r_1_3, s_1_4, r_1_4_1, r_1_4_2, r_1_4_3, s_2 = getfixture('full_casebook_parts')
-
-            Delete a case resource in the middle of a section:
-            >>> with assert_num_queries(delete=2, select=3, update=1):
-            ...     deleted = r_1_2.delete()
-            >>> assert deleted == (3, {'main.Resource': 1, 'main.ContentAnnotation': 2})
-            >>> assert dump_content_tree(casebook) == [
-            ...     [s_1, casebook, [
-            ...         [r_1_1, s_1, []],
-            ...         [r_1_3, s_1, []],
-            ...         [s_1_4, s_1, [
-            ...             [r_1_4_1, s_1_4, []],
-            ...             [r_1_4_2, s_1_4, []],
-            ...             [r_1_4_3, s_1_4, []],
-            ...         ]],
-            ...     ]],
-            ...     [s_2, casebook, []],
-            ... ]
-            >>> with assert_raises(Resource.DoesNotExist):
-            ...     r_1_2.refresh_from_db()
-            >>> r_1_3.refresh_from_db()
-            >>> s_1_4.refresh_from_db()
-            >>> assert all([r_1_1.ordinals == [1,1], r_1_3.ordinals == [1,2], s_1_4.ordinals == [1,3]])
-
-            Delete a text resource at the beginning of a section:
-            >>> r_1_4_1.refresh_from_db()
-            >>> with assert_num_queries(delete=3, select=5, update=1):
-            ...     deleted = r_1_4_1.delete()
-            >>> assert deleted == (1, {'main.Resource': 1, 'main.ContentAnnotation': 0})
-            >>> assert dump_content_tree(casebook) == [
-            ...     [s_1, casebook, [
-            ...         [r_1_1, s_1, []],
-            ...         [r_1_3, s_1, []],
-            ...         [s_1_4, s_1, [
-            ...             [r_1_4_2, s_1_4, []],
-            ...             [r_1_4_3, s_1_4, []],
-            ...         ]],
-            ...     ]],
-            ...     [s_2, casebook, []],
-            ... ]
-            >>> with assert_raises(Resource.DoesNotExist):
-            ...     r_1_4_1.refresh_from_db()
-
-            Delete a link/default resource at the end of a section:
-            >>> r_1_4_3.refresh_from_db()
-            >>> with assert_num_queries(delete=3, select=5, update=1):
-            ...     deleted = r_1_4_3.delete()
-            >>> assert deleted == (1, {'main.Resource': 1, 'main.ContentAnnotation': 0})
-            >>> assert dump_content_tree(casebook) == [
-            ...     [s_1, casebook, [
-            ...         [r_1_1, s_1, []],
-            ...         [r_1_3, s_1, []],
-            ...         [s_1_4, s_1, [
-            ...             [r_1_4_2, s_1_4, []],
-            ...         ]],
-            ...     ]],
-            ...     [s_2, casebook, []],
-            ... ]
-            >>> with assert_raises(Resource.DoesNotExist):
-            ...     r_1_4_3.refresh_from_db()
-
+            ContentNode queries return the appropriate proxy models:
         """
-        # Find this nodes's parent
-        ordinals_of_parent = self.ordinals[:-1]
-        if ordinals_of_parent:
-            parent = ContentNode.objects.get(casebook=self.casebook, ordinals=ordinals_of_parent)
+        values_dict = dict(zip(field_names, values))
+        if not values_dict['casebook_id']:
+            # subclass = Casebook
+            subclass = ContentNode
+        elif not values_dict['resource_id']:
+            subclass = Section
         else:
-            parent = self.casebook
-
-        # Delete this nodes's children, and any related links and textblocks,
-        # without recursively calling our custom Section.delete and Resource.delete methods
-        # https://docs.djangoproject.com/en/2.2/topics/db/queries/#deleting-objects
-        if type(self) is Section:
-            self._delete_related_links_and_text_blocks()
-            self.contents.delete()
-        elif self.resource_type in ['TextBlock', 'Link']:
-            self.resource.delete()
-
-        # Delete this node
-        return_value = super().delete(*args, **kwargs)
-
-        # Update the ordinals of the content tree
-        parent.content_tree__repair()
-
-        return return_value
-
-    @property
-    def is_public(self):
-        """See ContentNode.is_public"""
-        return self.casebook.public
-
-    def editable_by(self, user):
-        """See ContentNode.editable_by"""
-        return self.casebook.editable_by(user)
-
-    @property
-    def permits_cloning(self):
-        """See ContentNode.permits_cloning"""
-        return not self.casebook.draft_mode_of_published_casebook
-
-    @property
-    def has_draft(self):
-        """See ContentNode.has_draft"""
-        return self.casebook.has_draft
-
-    @property
-    def is_or_belongs_to_draft(self):
-        """See ContentNode.is_or_belongs_to_draft"""
-        return self.casebook.is_or_belongs_to_draft
-
-    def allows_draft_creation_by(self, user):
-        """See ContentNode.allows_draft_creation_by"""
-        return self.casebook.allows_draft_creation_by(user)
-
-    def get_draft_url(self):
-        """See ContentNode.get_draft_url"""
-        return self.casebook.get_draft_url()
-
-    def ordinal_string(self):
-        """
-        A human-friendly rendering of the "ordinals" field.
-        Might be more appropriate as a templatetag.
-        """
-        return '.'.join(str(o) for o in self.ordinals)
-
-    def ordinals_with_urls(self, editing=False):
-        """
-        A helper method for assembling Sections' and Resources' breadcrumb links.
-        Might be more appropriate as a templatetag.
-        """
-        return_value = []
-        ordinals = []
-        for o in self.ordinals:
-            ordinals.append(o)
-            return_value.append({
-                'ordinal': o,
-                'ordinals': [*ordinals],
-                'url': ContentNode.objects.get(
-                    casebook_id=self.casebook_id,
-                    ordinals=ordinals
-                ).get_edit_or_absolute_url(editing)
-            })
-        return return_value
-
-    def clone_to(self, new_casebook):
-        """
-            Clone a section or resource from its current casebook to a new casebook.
-
-            This is currently called only manually, for extraordinary customer service situations, but would ideally
-            be exposed through the frontend.
-
-            Given:
-            >>> reset_sequences, full_casebook_parts_factory = [getfixture(i) for i in ['reset_sequences', 'full_casebook_parts_factory']]
-            >>> from_casebook = full_casebook_parts_factory()[0]
-            >>> to_casebook = full_casebook_parts_factory()[0]
-            >>> section = from_casebook.sections[1]
-            >>> resource = from_casebook.resources[0]
-
-            Can append a section or a resource to the end of to_casebook:
-            >>> section.clone_to(to_casebook)
-            >>> resource.clone_to(to_casebook)
-            >>> assert dump_casebook_outline(to_casebook)[-7:] == [
-            ...     ' Section<21>: Some Section 5',
-            ...     '  ContentNode<22> -> TextBlock<5>: Some TextBlock Name 1',
-            ...     '  ContentNode<23> -> Case<2>: Foo Foo1 vs. Bar Bar1',
-            ...     '   ContentAnnotation<9>: note 0-10',
-            ...     '   ContentAnnotation<10>: replace 0-10',
-            ...     '  ContentNode<24> -> Link<5>: Some Link Name 1',
-            ...     ' ContentNode<25> -> TextBlock<6>: Some TextBlock Name 0',
-            ... ]
-
-            Ordinals are properly updated:
-            >>> assert [node.ordinals for node in list(to_casebook.contents.all())[-5:]] == [[3], [3, 1], [3, 2], [3, 3], [4]]
-        """
-        contents = list(self.contents) if type(self) is Section else []
-        new_casebook.clone_nodes([self] + contents, append=True)
-
-
-class CasebookManager(models.Manager.from_queryset(ContentNodeQueryset)):
-    def get_queryset(self):
-        return super().get_queryset().filter(casebook__isnull=True)
-
-
-class Casebook(CasebookAndSectionMixin, ContentNode):
-    class Meta:
-        proxy = True
-
-    objects = CasebookManager()
-
-    def delete(self, *args, **kwargs):
-        """
-            Override delete, to ensure that a Casebook is deleted in its entirety.
-
-            Casebook contents and ContentCollaborators would normally be deleted by setting
-            Django's `on_delete` attribute to CASCADE, but since we don't want this
-            behavior during the deletion of all ContentNode objects, only of Casebooks,
-            we have to take care of it manually.
-
-            Similarly, the manual deletion of related Links and TextBlocks is due to
-            limitations in our current data model, where Resource objects are not
-            tied to their related Case/TextBlock/Link objects via foreign keys.
-
-            Given:
-            >>> assert_num_queries = getfixture('assert_num_queries')
-            >>> nodes = getfixture('full_casebook_parts_with_draft')
-            >>> casebook, s_1, r_1_1, r_1_2, r_1_3, s_1_4, r_1_4_1, r_1_4_2, r_1_4_3, s_2 = nodes
-            >>> draft = casebook.draft
-            >>> assert casebook.contentcollaborator_set.count() == 1
-
-            >>> with assert_num_queries(delete=14, select=15):
-            ...     deleted = casebook.delete()
-            >>> assert deleted == (1, {'main.ContentAnnotation': 0, 'main.Casebook': 1})
-            >>> assert casebook.contentcollaborator_set.count() == 0
-            >>> for node in nodes:
-            ...     with assert_raises(ContentNode.DoesNotExist):
-            ...         node.refresh_from_db()
-            >>> with assert_raises(Casebook.DoesNotExist):
-            ...     draft.refresh_from_db()
-        """
-        if self.draft:
-            self.draft.delete()
-        self._delete_related_links_and_text_blocks()
-        self.contents.all().delete()
-        self.contentcollaborator_set.all().delete()
-        return super().delete(*args, **kwargs)
-
-    @property
-    def sections(self):
-        return Section.objects.filter(casebook=self)
-
-    @property
-    def resources(self):
-        return Resource.objects.filter(casebook=self)
-
-    @property
-    def children(self):
-        return ContentNode.objects.filter(casebook=self, ordinals__len=1)
-
-    def get_absolute_url(self):
-        """See ContentNode.get_absolute_url"""
-        return reverse('casebook', args=[self])
-
-    def get_draft_url(self):
-        """See ContentNode.get_draft_url"""
-        if self.draft:
-            return reverse('edit_casebook', args=[self.draft])
-        raise ValueError("This casebook doesn't have a draft.")
-
-    def get_edit_url(self):
-        """See ContentNode.get_edit_url"""
-        return reverse('edit_casebook', args=[self])
-
-    @property
-    def is_public(self):
-        """See ContentNode.is_public"""
-        return self.public
-
-    def editable_by(self, user):
-        """See ContentNode.editable_by"""
-        return user.is_authenticated and (self.has_collaborator(user) or user.is_superuser)
-
-    @property
-    def permits_cloning(self):
-        """See ContentNode.permits_cloning"""
-        return not self.draft_mode_of_published_casebook
-
-    @property
-    def has_draft(self):
-        """See ContentNode.has_draft"""
-        search_provenance = self.provenance + [self.id]
-        return Casebook.objects.filter(provenance=search_provenance, draft_mode_of_published_casebook=True).exists()
-
-    @property
-    def is_or_belongs_to_draft(self):
-        """See ContentNode.is_or_belongs_to_draft"""
-        return self.draft_mode_of_published_casebook
-
-    def allows_draft_creation_by(self, user):
-        """See ContentNode.allows_draft_creation_by"""
-        return self.is_public and not self.has_draft and self.editable_by(user)
-
-    @cached_property
-    def draft(self):
-        """ Return the draft copy of this casebook, if it exists, or else None. """
-        if hasattr(self, '_drafts'):
-            # populated by Casebook.objects.prefetch_draft()
-            return self._drafts[0] if self._drafts else None
-        search_provenance = self.provenance + [self.id]
-        return Casebook.objects.filter(provenance=search_provenance, draft_mode_of_published_casebook=True).first()
-
-    @cached_property
-    def draft_of(self):
-        """ Return the casebook for which this is a draft, if this is a draft, or else None. """
-        return Casebook.objects.filter(id=self.provenance[-1]).get() if self.draft_mode_of_published_casebook else None
-
-    def make_draft(self):
-        """
-            Clone casebook in draft mode, copying existing collaborators.
-
-            Given:
-            >>> full_casebook, user = [getfixture(i) for i in ['full_casebook', 'user']]
-            >>> full_casebook.add_collaborator(user)
-            >>> draft = full_casebook.make_draft()
-
-            `draft` will be in draft mode and will have the same collaborators as the original:
-            >>> assert draft.draft_mode_of_published_casebook is True
-            >>> assert (set((c.user) for c in full_casebook.contentcollaborator_set.all()) ==
-            ...         set((c.user) for c in draft.contentcollaborator_set.all()))
-        """
-        return self.clone(draft_mode=True)
-
-    @transaction.atomic
-    def merge_draft(self):
-        """
-            Merge draft casebook back into parent, and delete draft.
-
-            Given:
-            >>> reset_sequences, full_casebook, assert_num_queries = [getfixture(i) for i in ['reset_sequences', 'full_casebook', 'assert_num_queries']]
-            >>> original_assets = set(ContentNode.objects.values_list('id', flat=True))
-            >>> elena, john =  [User(attribution=name, email_address="{}@scotus.gov".format(name)) for name in ['Elena', 'John']]
-            >>> elena.save()
-            >>> john.save()
-            >>> full_casebook.add_collaborator(elena, has_attribution=True)
-            >>> second_casebook = full_casebook.clone(current_user=john)
-            >>> draft = full_casebook.make_draft()
-            >>> # _ = ContentNode.objects.filter(id=2).update(provenance=[1])  # mark node 2 as copy_of node 1
-
-            Merge draft back into original:
-            >>> draft.title = "New Title"
-            >>> draft.save()
-            >>> Section(casebook=draft, ordinals=[3], title="New Section").save()
-            >>> with assert_num_queries(delete=8, select=13, update=3):
-            ...     new_casebook = draft.merge_draft()
-            >>> assert new_casebook == full_casebook
-            >>> expected = [
-            ...     'Casebook<1>: New Title',
-            ...     ' Section<22>: Some Section 1',
-            ...     '  ContentNode<23> -> TextBlock<5>: Some TextBlock Name 0',
-            ...     '  ContentNode<24> -> Case<1>: Foo Foo0 vs. Bar Bar0',
-            ...     '   ContentAnnotation<9>: highlight 0-10',
-            ...     '   ContentAnnotation<10>: elide 0-10',
-            ...     '  ContentNode<25> -> Link<5>: Some Link Name 0',
-            ...     '  Section<26>: Some Section 5',
-            ...     '   ContentNode<27> -> TextBlock<6>: Some TextBlock Name 1',
-            ...     '   ContentNode<28> -> Case<2>: Foo Foo1 vs. Bar Bar1',
-            ...     '    ContentAnnotation<11>: note 0-10',
-            ...     '    ContentAnnotation<12>: replace 0-10',
-            ...     '   ContentNode<29> -> Link<6>: Some Link Name 1',
-            ...     ' Section<30>: Some Section 9',
-            ...     ' Section<31>: New Section',
-            ...     ]
-            >>> assert dump_casebook_outline(new_casebook) == expected
-
-            Assets associated with old published version are gone:
-            >>> assert set(ContentNode.objects.values_list('id', flat=True)).intersection(original_assets) == {1}
-            >>> assert set(ContentAnnotation.objects.values_list('id', flat=True)) == {5, 6, 7, 8, 9, 10, 11, 12}
-            >>> assert set(TextBlock.objects.values_list('id', flat=True)) == {3,4,5, 6}
-            >>> assert set(Link.objects.values_list('id', flat=True)) == {3,4,5, 6}
-
-            The original copy_of attributes from the published version are preserved:
-            >>> assert ContentNode.objects.get(id=12).provenance == [22]
-
-            Clones of the original casebook have proper attribution
-            >>> assert elena in second_casebook.attributed_authors
-        """
-        # set up variables
-        draft = self
-        parent = Casebook.objects.filter(id=self.provenance[-1]).get()
-        if not self.draft_mode_of_published_casebook:
-            raise ValueError("Only draft casebooks may be merged")
-
-        # update casebook attributes
-        for attr in ('headnote', 'title', 'subtitle'):
-            setattr(parent, attr, getattr(draft, attr))
-        parent.save()
-
-        # delete old links and textblocks
-        parent._delete_related_links_and_text_blocks()
-
-        # delete old annotations
-        ContentAnnotation.objects.filter(resource__casebook=parent).delete()
-
-        # The last parent can be removed from the provenance, as it is a node that's deleted in a few lines
-        nodes_to_update = set([])
-        provenance_to_remap = {}
-        for node in draft.contents.all():
-            if node.provenance:
-                provenance_to_remap[node.provenance[-1]] = node.id
-                nodes_to_update.add(node)
-                node.provenance = node.provenance[:-1]
-
-        # Remap descendant references
-        clones_to_remap = [x for x in ContentNode.objects.filter(provenance__overlap=[x for x in provenance_to_remap.keys()]) if x not in nodes_to_update]
-        for clone in clones_to_remap:
-            clone.provenance = [provenance_to_remap.get(x,x) for x in clone.provenance]
-
-        provenance_updates = list(nodes_to_update) + clones_to_remap
-        ContentNode.objects.bulk_update(provenance_updates, ['provenance'])
-
-
-        # delete old content nodes
-        parent.contents.all().delete()
-
-        # move new content nodes
-        draft.contents.update(casebook=parent)
-
-        # delete draft
-        draft.delete()
-
-        return parent
-
-    @transaction.atomic
-    def clone(self, current_user=None, draft_mode=False):
-        """
-            Clone casebook with all of its assets. If User object `current_user` is provided, that user will replace the
-            existing users. If draft_mode=True, clone will be marked as a draft.
-
-            Given an initial casebook like this:
-            >>> reset_sequences, full_casebook, user, assert_num_queries = [getfixture(i) for i in ['reset_sequences', 'full_casebook', 'user', 'assert_num_queries']]
-            >>> expected = [
-            ...     'Casebook<1>: Some Title 0',
-            ...     ' Section<2>: Some Section 1',
-            ...     '  ContentNode<3> -> TextBlock<1>: Some TextBlock Name 0',
-            ...     '  ContentNode<4> -> Case<1>: Foo Foo0 vs. Bar Bar0',
-            ...     '   ContentAnnotation<1>: highlight 0-10',
-            ...     '   ContentAnnotation<2>: elide 0-10',
-            ...     '  ContentNode<5> -> Link<1>: Some Link Name 0',
-            ...     '  Section<6>: Some Section 5',
-            ...     '   ContentNode<7> -> TextBlock<2>: Some TextBlock Name 1',
-            ...     '   ContentNode<8> -> Case<2>: Foo Foo1 vs. Bar Bar1',
-            ...     '    ContentAnnotation<3>: note 0-10',
-            ...     '    ContentAnnotation<4>: replace 0-10',
-            ...     '   ContentNode<9> -> Link<2>: Some Link Name 1',
-            ...     ' Section<10>: Some Section 9',
-            ... ]
-            >>> assert dump_casebook_outline(full_casebook) == expected
-            >>> assert user not in set(full_casebook.attributed_authors)
-
-            Return a cloned casebook like this:
-            >>> with assert_num_queries(select=8, insert=6):
-            ...     clone = full_casebook.clone(current_user=user)
-            >>> expected = [
-            ...     'Casebook<11>: Some Title 0',
-            ...     ' Section<12>: Some Section 1',
-            ...     '  ContentNode<13> -> TextBlock<3>: Some TextBlock Name 0',
-            ...     '  ContentNode<14> -> Case<1>: Foo Foo0 vs. Bar Bar0',
-            ...     '   ContentAnnotation<5>: highlight 0-10',
-            ...     '   ContentAnnotation<6>: elide 0-10',
-            ...     '  ContentNode<15> -> Link<3>: Some Link Name 0',
-            ...     '  Section<16>: Some Section 5',
-            ...     '   ContentNode<17> -> TextBlock<4>: Some TextBlock Name 1',
-            ...     '   ContentNode<18> -> Case<2>: Foo Foo1 vs. Bar Bar1',
-            ...     '    ContentAnnotation<7>: note 0-10',
-            ...     '    ContentAnnotation<8>: replace 0-10',
-            ...     '   ContentNode<19> -> Link<4>: Some Link Name 1',
-            ...     ' Section<20>: Some Section 9',
-            ... ]
-            >>> assert dump_casebook_outline(clone) == expected
-            >>> assert user in set(clone.attributed_authors)
-            >>> assert clone.provenance == [full_casebook.id]
-            >>> clone_of_clone = clone.clone(current_user=user)
-            >>> assert clone_of_clone.provenance == [full_casebook.id, clone.id]
-            >>> clone3 = clone_of_clone.clone(current_user=user)
-            >>> assert clone3.provenance == [full_casebook.id, clone.id, clone_of_clone.id]
-
-            Attribution and cloning
-            >>> casebook = getfixture('full_casebook')
-            >>> sonya, elena, john = [User(attribution=name, email_address="{}@scotus.gov".format(name)) for name in ['Sonya', 'Elena', 'John']]
-            >>> sonya.save(); elena.save(); john.save()
-            >>> casebook.add_collaborator(sonya, has_attribution=True)
-            >>> casebook.save()
-            >>> first_clone = casebook.clone(current_user=elena)
-            >>> first_clone.save()
-            >>> first_clone.refresh_from_db()
-            >>> assert sonya in first_clone.attributed_authors
-            >>> assert elena in first_clone.attributed_authors
-            >>> assert elena not in casebook.attributed_authors
-            >>> second_clone = first_clone.clone(current_user=elena)
-            >>> assert sonya in second_clone.originating_authors
-            >>> assert elena in second_clone.primary_authors
-            >>> assert second_clone.editable_by(elena)
-            >>> assert not second_clone.editable_by(sonya)
-            >>> casebook.add_collaborator(john, has_attribution=True)
-            >>> assert john in casebook.attributed_authors
-            >>> assert john in first_clone.attributed_authors
-            >>> assert john in second_clone.originating_authors
-        """
-        # clone casebook
-        old_casebook = self
-        cloned_casebook = clone_model_instance(old_casebook, provenance=old_casebook.provenance + [old_casebook.id],
-                                               public=False, draft_mode_of_published_casebook=(draft_mode or None))
-        cloned_casebook.save()
-
-        # If this is a draft, collaborators stay the same,
-        # Otherwise, we just add one collaborator (the current_user)
-        if draft_mode:
-            collaborators = [clone_model_instance(c, content=cloned_casebook, can_edit=c.can_edit) for c in
-                             self.contentcollaborator_set.all()]
-            ContentCollaborator.objects.bulk_create(collaborators)
-        elif current_user:
-            cloned_casebook.add_collaborator(user=current_user, has_attribution=True, can_edit=True)
-
-        cloned_casebook.clone_nodes(old_casebook.contents.prefetch_resources().prefetch_related('annotations')
-                                    .select_related('casebook')
-                                    .prefetch_related('contentcollaborator_set'),
-                                    draft_mode=draft_mode)
-        return cloned_casebook
-
-    @transaction.atomic
-    def clone_nodes(self, nodes, draft_mode=False, append=False):
-        """
-            Helper method to copy a set of nodes and their associated assets to this casebook. See callers for tests.
-            If append=True, ordinals will be edited so the new nodes appear after any existing nodes.
-        """
-        # clone contents
-        cloned_resources = {TextBlock: [], Link: []}  # collect new TextBlocks and Links for bulk_create
-        cloned_content_nodes = []  # collect new ContentNodes for bulk_create
-        cloned_annotations = []  # collect new ContentAnnotations for bulk_create
-
-        for old_content_node in nodes:
-            # clone content_node
-            cloned_content_node = clone_model_instance(old_content_node,
-                                                       provenance=old_content_node.provenance + [old_content_node.id],
-                                                       casebook=self)
-            cloned_content_nodes.append(cloned_content_node)
-
-            # clone annotations
-            for old_annotation in old_content_node.annotations.all():
-                cloned_annotation = clone_model_instance(old_annotation)
-                cloned_annotations.append((cloned_annotation, cloned_content_node))
-
-            # clone resources
-            if old_content_node.resource_id and old_content_node.resource_type != 'Case':
-                cloned_resource = clone_model_instance(old_content_node.resource)
-                cloned_resources[type(cloned_resource)].append((cloned_resource, cloned_content_node))
-
-        # save TextBlocks and Links
-        for resource_class, resources in cloned_resources.items():
-            resource_class.objects.bulk_create(r[0] for r in resources)
-            # after saving, update the associated cloned_content_nodes to point to the new resource_ids
-            for cloned_resource, cloned_content_node in resources:
-                cloned_content_node.resource_id = cloned_resource.id
-
-        # save ContentNodes
-        if append:
-            # offset cloned nodes so they go at the end of the current tree.
-            # "offset" is the count of existing top-level content_tree nodes:
-            offset = \
-            (ContentNode.objects.filter(casebook_id=self).aggregate(models.Max('ordinals'))['ordinals__max'] or [0])[
-                0] + 1
-            for node in cloned_content_nodes:
-                node.ordinals[0] += offset
-        ContentNode.objects.bulk_create(cloned_content_nodes)
-        if append:
-            # if we offset the ordinals to push the new nodes to the end, then they will be in the right order
-            # but might be non-consecutive or overly nested; call _repair to clean them up
-            self.content_tree__repair()
-
-        # save ContentAnnotations (first update cloned_annotations to point to the new content_node IDs)
-        for cloned_annotation, cloned_content_node in cloned_annotations:
-            cloned_annotation.resource = cloned_content_node
-        ContentAnnotation.objects.bulk_create(r[0] for r in cloned_annotations)
-
-    # Collaborators
-    @property
-    def primary_authors(self):
-        return set([c.user for c in self.contentcollaborator_set.all() if c.has_attribution and c.user.attribution != 'Anonymous'])
-
-    def has_collaborator(self, user):
-        # filter in the client to allow .prefetch_related('contentcollaborator_set__user') to work:
-        return any(c.user_id == user.id for c in self.contentcollaborator_set.all() if c.can_edit)
-
-    def add_collaborator(self, user, **collaborator_kwargs):
-        collaborators_to_add = [ContentCollaborator(user=user, content_id=self.id, **collaborator_kwargs)]
-        if collaborator_kwargs.get('has_attribution', False):
-            content_ids = [x.id for x in self.contents.all()]
-            collaborator_kwargs['can_edit'] = False
-            collaborators_to_add += [ContentCollaborator(user=user, content_id=x.id, **collaborator_kwargs) for x in
-                                     ContentNode.objects.filter(provenance__overlap=content_ids).all()]
-        ContentCollaborator.objects.bulk_create(collaborators_to_add)
-
-    @property
-    def casebook(self):
-        return self
-
-    @property
-    def testing_editor(self):
-        """
-        Used for testing purposes, return a user that can edit this casebook.
-        """
-        return ContentCollaborator.objects.filter(can_edit=True, content=self).prefetch_related('user').first().user
-
-class SectionManager(models.Manager):
-    def get_queryset(self):
-        return super().get_queryset().filter(casebook__isnull=False, resource_id__isnull=True)
-
-
-class Section(CasebookAndSectionMixin, SectionAndResourceMixin, ContentNode):
-    class Meta:
-        proxy = True
-
-    objects = SectionManager()
-
-    def get_absolute_url(self):
-        """See ContentNode.get_absolute_url"""
-        return reverse('section', args=[self.casebook, self])
-
-    def get_edit_url(self):
-        """See ContentNode.get_edit_url"""
-        return reverse('edit_section', args=[self.casebook, self])
-
-    @property
-    def contents(self):
-        """
-        See https://github.com/harvard-lil/h2o/blob/master/app/models/content/concerns/has_children.rb#L5
-        """
-        # Django syntax for inspecting a slice of an array field
-        # https://docs.djangoproject.com/en/2.2/ref/contrib/postgres/fields/#slice-transforms
-        # We want only nodes whose first ordinals match this section's.
-        # That is, if this is section [2, 2], we want [2, 2, 1], [2, 2, 2, 7], etc.,
-        # but not [2, 1, 1], [1,1], etc.
-        first_ordinals = "ordinals__0_{}".format(len(self.ordinals))
-        return ContentNode.objects.filter(**{
-            "casebook_id": self.casebook_id,
-            first_ordinals: self.ordinals,
-            "ordinals__len__gte": len(self.ordinals) + 1
-        })
-
-    @property
-    def children(self):
-        return self._content_tree__children
-        # first_ordinals = "ordinals__0_{}".format(len(self.ordinals))
-        # return ContentNode.objects.filter(**{
-        #     "casebook_id": self.casebook_id,
-        #     first_ordinals: self.ordinals,
-        #     "ordinals__len": len(self.ordinals) + 1
-        # })
-
-    @property
-    def primary_authors(self):
-        return self.casebook.primary_authors
-
-class ResourceManager(models.Manager):
-    def get_queryset(self):
-        return super().get_queryset().filter(casebook__isnull=False, resource_id__isnull=False)
-
-
-class Resource(SectionAndResourceMixin, ContentNode):
-    class Meta:
-        proxy = True
-
-    objects = ResourceManager()
-
-    def get_absolute_url(self):
-        """See ContentNode.get_absolute_url"""
-        return reverse('resource', args=[self.casebook, self])
-
-    def get_edit_url(self):
-        """See ContentNode.get_edit_url"""
-        return reverse('edit_resource', args=[self.casebook, self])
-
-    def get_edit_or_absolute_url(self, editing=False):
-        """
-        See ContentNode.get_edit_or_absolute_url
-        In the Rails app, when editing a casebook/section/resource,
-        breadcrumbs and TOC entries generally point to the "annotate" view,
-        when available. Recreate that here.
-        """
-        if editing:
-            if self.annotatable:
-                return self.get_annotate_url()
-            return self.get_edit_url()
-        return self.get_absolute_url()
-
-    def is_annotated(self):
-        """See ContentNode.is_annotated"""
-        return bool(self.annotations)
-
-    _resource_prefetched = False
-    _resource = None
+            subclass = Resource
+        return models.Model.from_db.__func__(subclass, db, field_names, values)
 
     @property
     def resource(self):
@@ -2002,7 +989,7 @@ class Resource(SectionAndResourceMixin, ContentNode):
         foreign keys (not possible on the Django side, without altering the
         database so as to support generic foreign keys or polymorphic models).
         """
-        if not self._resource_prefetched:
+        if not hasattr(self,'_resource_prefetched'):
             if not self.resource_id:
                 return None
             if self.resource_type in ['Case', 'TextBlock', 'Link']:
@@ -2012,6 +999,70 @@ class Resource(SectionAndResourceMixin, ContentNode):
             else:
                 raise NotImplementedError
         return self._resource
+
+
+    def save(self, *args, **kwargs):
+        r"""
+            Override save to include the cleanup of user-supplied HTML.
+
+            Given:
+            >>> caplog, _ = [getfixture(i) for i in ['caplog', 'db']]
+            >>> html = '<p>Prepended</p>\n\n<p>\n  <em invalid-attr="invalid">Keep foo <invalid>keep baz</invalid> buzz add boo</em>\n</p>'
+            >>> cleaned_html = '<p>Prepended</p><p>\n  <em>Keep foo keep baz buzz add boo</em>\n</p>'
+
+            On save, the headnote is cleansed.
+            >>> node = ContentNode(headnote=html)
+            >>> with caplog.at_level(logging.DEBUG):
+            ...     node.headnote = html
+            ...     node.save()
+            >>> node.refresh_from_db()
+            >>> assert node.headnote == cleaned_html
+        """
+        cleanse_html_field(self, 'headnote', True)
+        super().save(*args, **kwargs)
+
+    ##
+    # Methods common to all ContentNodes
+    ##
+
+    def get_slug(self):
+        return slugify(self.title)
+
+    def viewable_by(self, user):
+        return self.new_casebook.is_public or self.new_casebook.editable_by(user)
+
+    def directly_editable_by(self, user):
+        """
+        Allow a user to make real-time changes (e.g., via edit view),
+        rather than requiring them to make changes via the draft mechanism.
+        (See allows_draft_creation_by for more discussion of editing and drafts.)
+        """
+        return self.new_casebook.is_private and self.new_casebook.editable_by(user)
+
+    def __str__(self):
+        return "{} ({})".format(self.title, self.id)
+
+    @property
+    def is_resource(self):
+        return self.resource_id is not None
+
+
+    @property
+    def sub_sections(self):
+        """
+        See https://github.com/harvard-lil/h2o/blob/master/app/models/content/concerns/has_children.rb#L5
+        """
+        # Django syntax for inspecting a slice of an array field
+        # https://docs.djangoproject.com/en/2.2/ref/contrib/postgres/fields/#slice-transforms
+        # We want only nodes whose first ordinals match this section's.
+        # That is, if this is section [2, 2], we want [2, 2, 1], [2, 2, 2, 7], etc.,
+        # but not [2, 1, 1], [1,1], etc.
+        first_ordinals = "ordinals__0_{}".format(len(self.ordinals))
+        filter_map = {
+            "new_casebook_id": self.new_casebook_id,
+            first_ordinals: self.ordinals
+        }
+        return ContentNode.objects.filter(**filter_map).exclude(id=self.id)
 
     @property
     def annotatable(self):
@@ -2026,8 +1077,98 @@ class Resource(SectionAndResourceMixin, ContentNode):
         uses to make annotations. Otherwise, returns a ValueError.
         """
         if self.annotatable:
-            return reverse('annotate_resource', args=[self.casebook, self])
+            return reverse('annotate_resource', args=[self.new_casebook, self])
         raise ValueError('Only Resources (Case and TextBlock) can be annotated.')
+
+
+    @property
+    def type(self):
+        # TODO: In use in templates and tests; shouldn't be necessary. Consider refactoring.
+        if not self.resource_type:
+            return 'section'
+        else:
+            return 'resource'
+
+    def export(self, include_annotations, file_type='docx'):
+        """
+            Export this node and children as docx, or as html for conversion by pandoc.
+
+            Given:
+            >>> full_casebook, assert_num_queries = [getfixture(f) for f in ['full_casebook', 'assert_num_queries']]
+
+            Export uses 5 queries: selecting descendant nodes, and prefetching ContentAnnotation, Case, TextBlock, and Link.
+            >>> with assert_num_queries(select=5):
+            ...     file_data = full_casebook.export(include_annotations=True)
+        """
+        # prefetch all child nodes and related data
+        children = list(self.contents.prefetch_resources().prefetch_related('annotations')) if type(
+            self) is not Resource else None
+
+        # render html
+        if self.resource_type:
+            template_name = 'export/node.html'
+        else:
+            template_name = 'export/section.html'
+        html = render_to_string(template_name, {
+            'is_export': True,
+            'node': self,
+            'children': children,
+            'include_annotations': include_annotations,
+        })
+        if file_type == 'html':
+            return html
+
+        # convert to docx with pandoc
+        with tempfile.NamedTemporaryFile(suffix='.docx') as pandoc_out:
+            command = [
+                'pandoc',
+                '--from', 'html',
+                '--to', 'docx',
+                '--reference-doc', os.path.join(settings.PANDOC_DIR, 'reference.docx'),
+                '--output', pandoc_out.name,
+                '--quiet'
+            ]
+            if type(self) is Casebook:
+                command.extend(['--lua-filter', os.path.join(settings.PANDOC_DIR, 'table_of_contents.lua')])
+            try:
+                response = subprocess.run(command, input=html.encode('utf8'), stderr=subprocess.PIPE,
+                                          stdout=subprocess.PIPE)
+            except subprocess.CalledProcessError as e:
+                raise Exception("Pandoc command failed: %s" % e.stderr[:100])
+            if response.stderr:
+                raise Exception("Pandoc reported error: %s" % response.stderr[:100])
+            return pandoc_out.read()
+
+    def headnote_for_export(self):
+        r"""
+            Return headnote HTML prepared for pandoc export.
+
+            >>> assert Resource(headnote='<p>An image <img src=""></p>').headnote_for_export() == '<p>An image </p>'
+        """
+        if not self.headnote:
+            return ''
+        tree = parse_html_fragment(self.headnote)
+        PyQuery(tree).remove('img')
+        return mark_safe(inner_html(tree))
+
+    @staticmethod
+    def update_tree_for_export(tree):
+        """
+            Prepare an lxml tree (annotated or un-annotated) for export.
+        """
+        tree = PyQuery(tree)
+
+        # remove images
+        tree.remove('img')
+
+        # Case Header styling
+        for pq in tree('section.head-matter p, center, p[style="text-align:center"], p[align="center"]').items():
+            pq.wrap("<div data-custom-style='Case Header'></div>")
+        for el in tree('section.head-matter h4, center h2, h2[style="text-align:center"], h2[align="center"]'):
+            el.tag = 'div'
+            el.attrib['data-custom-style'] = 'Case Header'
+
+        return tree
 
     def content_for_export(self):
         r"""
@@ -2132,7 +1273,6 @@ class Resource(SectionAndResourceMixin, ContentNode):
             >>> _ = resource.annotations.update(global_end_offset=1000)  # move end offset past end of text
             >>> assert resource.annotated_content_for_export() == expected
         """
-
         # Start with a sorted list of the start and end insertion points for each annotation.
         # Each entry in the list is shaped like (annotation_offset, is_start_tag, annotation).
         # Clamp offsets to the max valid value, as we may have legacy invalid values in the database that are too large.
@@ -2335,24 +1475,1128 @@ class Resource(SectionAndResourceMixin, ContentNode):
             enumerate(a for a in self.annotations.all() if a.global_start_offset >= 0 and a.kind in ('note', 'link'))
         ))
 
-    @staticmethod
-    def update_tree_for_export(tree):
+
+    ##
+    # Methods specialized by children
+    ##
+
+    @property
+    def is_public(self):
+        return self.new_casebook.is_public
+
+    @property
+    def is_private(self):
+        return not self.is_public
+
+    @property
+    def permits_cloning(self):
         """
-            Prepare an lxml tree (annotated or un-annotated) for export.
+        Allow a user to clone this node.
+
+        This method should be implemented by all children.
         """
-        tree = PyQuery(tree)
+        return self.new_casebook.permits_cloning
 
-        # remove images
-        tree.remove('img')
+    def editable_by(self, user):
+        return self.new_casebook.editable_by(user)
 
-        # Case Header styling
-        for pq in tree('section.head-matter p, center, p[style="text-align:center"], p[align="center"]').items():
-            pq.wrap("<div data-custom-style='Case Header'></div>")
-        for el in tree('section.head-matter h4, center h2, h2[style="text-align:center"], h2[align="center"]'):
-            el.tag = 'div'
-            el.attrib['data-custom-style'] = 'Case Header'
+    @property
+    def has_draft(self):
+        return self.new_casebook.has_draft
 
-        return tree
+    @property
+    def is_draft(self):
+        return self.new_casebook.is_draft
+
+    def allows_draft_creation_by(self, user):
+        return self.new_casebook.allows_draft_creation_by(user)
+
+    def is_annotated(self):
+        """
+        While only Resources can be annotated, it is useful to know if a
+        Casebook or Section contains Resources that have been annotated,
+        and it is useful to have a single interface for finding Casebooks,
+        Sections, and Resources associated with annotations.
+
+        This method should be implemented by all children.
+        """
+        if self.resource_id:
+            return bool(self.annotations)
+        else:
+            return any(node.annotations for node in self.contents.prefetch_related('annotations'))
+
+    # URLs
+
+    def get_absolute_url(self):
+        """
+        Since Casebooks, Sections, and Resources can all be accessed
+        from URLs that include slugs AND from urls that omit slugs,
+        instruct Django how to calculate the canonical URL for each object.
+        https://docs.djangoproject.com/en/2.2/ref/models/instances/#get-absolute-url
+
+        This method should be implemented by all children.
+        """
+        if self.resource_id:
+            return reverse('resource', args=[self.new_casebook, self])
+        else:
+            return reverse('section', args=[self.new_casebook, self])
+
+    def get_edit_url(self):
+        """
+        A convenience method, for retrieving the edit URL of a Casebook,
+        Section, or Resource without having to specify the view name,
+        which is useful in shared templates.
+
+        This method should be implemented by all children.
+        """
+        if self.resource_id:
+            return reverse('edit_resource', args=[self.new_casebook, self])
+        else:
+            return reverse('edit_section', args=[self.new_casebook, self])
+
+    def get_draft_url(self):
+        """
+        If this node is or belongs to a Casebook that has a draft, return
+        the URL of the draft's "edit" page. Otherwise, return a ValueError.
+
+        This method should be implemented by all children.
+        """
+        return self.new_casebook.get_draft_url
+
+    def get_edit_or_absolute_url(self, editing=False):
+        """
+        This is a convenience method, currently used only when building
+        the Table of Contents. It probably will no longer be helpful,
+        when the editable Table of Contents is rendered via Vue. But
+        for now...
+
+        This method should be implemented by all children.
+        """
+        if self.resource_id:
+            if editing:
+                if self.annotatable:
+                    return self.get_annotate_url()
+                return self.get_edit_url()
+            return self.get_absolute_url()
+        else:
+            if editing:
+                return self.get_edit_url()
+            return self.get_absolute_url()
+
+    @property
+    def testing_editor(self):
+        return self.new_casebook.testing_editor
+
+    def clone_to(self, new_casebook):
+        """
+            Clone a section or resource from its current casebook to a new casebook.
+
+            This is currently called only manually, for extraordinary customer service situations, but would ideally
+            be exposed through the frontend.
+
+            Given:
+            >>> reset_sequences, full_casebook_parts_factory = [getfixture(i) for i in ['reset_sequences', 'full_casebook_parts_factory']]
+            >>> from_casebook = full_casebook_parts_factory()[0]
+            >>> to_casebook = full_casebook_parts_factory()[0]
+            >>> section = from_casebook.sections[1]
+            >>> resource = from_casebook.resources[0]
+
+            Can append a section or a resource to the end of to_casebook:
+            >>> section.clone_to(to_casebook)
+            >>> resource.clone_to(to_casebook)
+            >>> assert dump_casebook_outline(to_casebook)[-7:] == [
+            ...   '   ContentNode<16> -> Case<4>: Foo Foo3 vs. Bar Bar3',
+            ...   '    ContentAnnotation<7>: note 0-10',
+            ...   '    ContentAnnotation<8>: replace 0-10',
+            ...   '   ContentNode<17> -> Link<4>: Some Link Name 3',
+            ...   ' Section<18>: Some Section 17',
+            ...   ' ContentNode<19> -> Link<5>: Some Link Name 1',
+            ...   ' ContentNode<20> -> TextBlock<5>: Some TextBlock Name 0'
+            ... ]
+
+            Ordinals are properly updated:
+            >>> assert [node.ordinals for node in list(to_casebook.contents.all())] == [node.ordinals for node in list(from_casebook.contents.all())] + [[3], [4]]
+        """
+        contents = list(self.contents) if type(self) is Section or type(self) is Casebook else []
+        new_casebook.clone_nodes(([self] if type(self) is not Casebook else []) + contents, append=True)
+
+
+#
+# Start ContentNode Proxies
+#
+
+class CasebookAndSectionMixin(models.Model):
+    """
+    Methods shared by Casebooks and Sections
+    """
+
+    class Meta:
+        abstract = True
+
+    def is_annotated(self):
+        """See ContentNode.is_annotated"""
+        return any(node.annotations for node in self.contents.prefetch_related('annotations'))
+
+    def get_edit_or_absolute_url(self, editing=False):
+        """See ContentNode.get_edit_or_absolute_url"""
+        if editing:
+            return self.get_edit_url()
+        return self.get_absolute_url()
+
+    def _delete_related_links_and_text_blocks(self):
+        """
+            A private utility for efficiently deleting associated Link and TextBlock objects.
+        """
+        to_delete = {Link: [], TextBlock: []}
+        for resource in self.contents.prefetch_resources():
+            if resource.resource_id and resource.resource_type in ('Link', 'TextBlock'):
+                to_delete[type(resource._resource)].append(resource.resource_id)
+        for cls, ids in to_delete.items():
+            cls.objects.filter(id__in=ids).delete()
+
+    @property
+    def attributed_authors(self):
+        return self.primary_authors.union(self.originating_authors)
+
+    @property
+    def originating_authors(self):
+        """
+        Every attributed author for any ancestor of a contentnode contained in the casebook
+        """
+        originating_node = set([cloned_node for child_content in self.contents.all() for cloned_node in child_content.provenance])
+        users = [collaborator.user for cn in
+                    ContentNode.objects.filter(id__in=originating_node)
+                        .select_related('casebook')
+                        .prefetch_related('casebook__contentcollaborator_set__user')
+                        .all()
+                    for collaborator in cn.new_casebook.tempcollaborator_set.all() if collaborator.has_attribution and collaborator.user.attribution != 'Anonymous']
+        return set(users)
+
+    @property
+    def has_non_current_authors(self):
+        return len(self.non_current_authors) > 0
+
+    @property
+    def non_current_authors(self):
+        ogs = self.originating_authors
+        cgs = self.primary_authors
+        return ogs.difference(cgs)
+
+class SectionAndResourceMixin(models.Model):
+    """
+    Methods shared by Sections and Resources
+    """
+
+    class Meta:
+        abstract = True
+
+    def delete(self, *args, **kwargs):
+        """
+            Override delete, to ensure the tree is re-ordered afterwards,
+            and to clean up now-unused TextBlock and Link resources.
+
+            Given:
+            >>> full_casebook_parts_factory, assert_num_queries = [getfixture(i) for i in ['full_casebook_parts_factory','assert_num_queries']]
+
+            # Sections
+            >>> casebook, s_1, r_1_1, r_1_2, r_1_3, s_1_4, r_1_4_1, r_1_4_2, r_1_4_3, s_2 = full_casebook_parts_factory()
+
+            Delete a section in a section (and children, including one case, one text block, and one link/default), no reordering required:
+            >>> with assert_num_queries(delete=6, select=9, update=1):
+            ...     deleted = s_1_4.delete()
+            >>> assert deleted == (1, {'main.ContentAnnotation': 0, 'main.Section': 1})
+            >>> assert dump_content_tree(casebook) == [
+            ...         [s_1, casebook, [
+            ...             [r_1_1, s_1, []],
+            ...             [r_1_2, s_1, []],
+            ...             [r_1_3, s_1, []],
+            ...         ]],
+            ...         [s_2, casebook, []],
+            ... ]
+            >>> for node in [s_1_4, r_1_4_1, r_1_4_2, r_1_4_3]:
+            ...     with assert_raises(ContentNode.DoesNotExist):
+            ...         node.refresh_from_db()
+
+            Delete the first section in the book (and children, including one case, one text block, and one link/default), triggering reordering:
+            >>> with assert_num_queries(delete=6, select=8, update=1):
+            ...     deleted = s_1.delete()
+            >>> assert deleted == (1, {'main.ContentAnnotation': 0, 'main.Section': 1})
+            >>> assert dump_content_tree(casebook) == [
+            ...         [s_2, casebook, []],
+            ... ]
+            >>> for node in [s_1, r_1_1, r_1_2, r_1_3]:
+            ...     with assert_raises(ContentNode.DoesNotExist):
+            ...         node.refresh_from_db()
+            >>> s_2.refresh_from_db()
+            >>> assert s_2.ordinals == [1]
+
+            # Resources
+            >>> casebook, s_1, r_1_1, r_1_2, r_1_3, s_1_4, r_1_4_1, r_1_4_2, r_1_4_3, s_2 = getfixture('full_casebook_parts')
+
+            Delete a case resource in the middle of a section:
+            >>> with assert_num_queries(delete=2, select=3, update=1):
+            ...     deleted = r_1_2.delete()
+            >>> assert deleted == (3, {'main.Resource': 1, 'main.ContentAnnotation': 2})
+            >>> assert dump_content_tree(casebook) == [
+            ...     [s_1, casebook, [
+            ...         [r_1_1, s_1, []],
+            ...         [r_1_3, s_1, []],
+            ...         [s_1_4, s_1, [
+            ...             [r_1_4_1, s_1_4, []],
+            ...             [r_1_4_2, s_1_4, []],
+            ...             [r_1_4_3, s_1_4, []],
+            ...         ]],
+            ...     ]],
+            ...     [s_2, casebook, []],
+            ... ]
+            >>> with assert_raises(Resource.DoesNotExist):
+            ...     r_1_2.refresh_from_db()
+            >>> r_1_3.refresh_from_db()
+            >>> s_1_4.refresh_from_db()
+            >>> assert all([r_1_1.ordinals == [1,1], r_1_3.ordinals == [1,2], s_1_4.ordinals == [1,3]])
+
+            Delete a text resource at the beginning of a section:
+            >>> r_1_4_1.refresh_from_db()
+            >>> with assert_num_queries(delete=3, select=5, update=1):
+            ...     deleted = r_1_4_1.delete()
+            >>> assert deleted == (1, {'main.Resource': 1, 'main.ContentAnnotation': 0})
+            >>> assert dump_content_tree(casebook) == [
+            ...     [s_1, casebook, [
+            ...         [r_1_1, s_1, []],
+            ...         [r_1_3, s_1, []],
+            ...         [s_1_4, s_1, [
+            ...             [r_1_4_2, s_1_4, []],
+            ...             [r_1_4_3, s_1_4, []],
+            ...         ]],
+            ...     ]],
+            ...     [s_2, casebook, []],
+            ... ]
+            >>> with assert_raises(Resource.DoesNotExist):
+            ...     r_1_4_1.refresh_from_db()
+
+            Delete a link/default resource at the end of a section:
+            >>> r_1_4_3.refresh_from_db()
+            >>> with assert_num_queries(delete=3, select=5, update=1):
+            ...     deleted = r_1_4_3.delete()
+            >>> assert deleted == (1, {'main.Resource': 1, 'main.ContentAnnotation': 0})
+            >>> assert dump_content_tree(casebook) == [
+            ...     [s_1, casebook, [
+            ...         [r_1_1, s_1, []],
+            ...         [r_1_3, s_1, []],
+            ...         [s_1_4, s_1, [
+            ...             [r_1_4_2, s_1_4, []],
+            ...         ]],
+            ...     ]],
+            ...     [s_2, casebook, []],
+            ... ]
+            >>> with assert_raises(Resource.DoesNotExist):
+            ...     r_1_4_3.refresh_from_db()
+
+        """
+        # Find this nodes's parent
+        ordinals_of_parent = self.ordinals[:-1]
+        if ordinals_of_parent:
+            parent = ContentNode.objects.get(new_casebook=self.new_casebook, ordinals=ordinals_of_parent)
+        else:
+            parent = self.new_casebook
+
+        # Delete this nodes's children, and any related links and textblocks,
+        # without recursively calling our custom Section.delete and Resource.delete methods
+        # https://docs.djangoproject.com/en/2.2/topics/db/queries/#deleting-objects
+        if type(self) is Section:
+            self._delete_related_links_and_text_blocks()
+            self.contents.delete()
+        elif self.resource_type in ['TextBlock', 'Link']:
+            self.resource.delete()
+
+        # Delete this node
+        return_value = super().delete(*args, **kwargs)
+
+        # Update the ordinals of the content tree
+        parent.content_tree__repair()
+
+        return return_value
+
+    @property
+    def is_public(self):
+        """See ContentNode.is_public"""
+        return self.new_casebook.is_public
+
+    def editable_by(self, user):
+        """See ContentNode.editable_by"""
+        return self.new_casebook.editable_by(user)
+
+    @property
+    def permits_cloning(self):
+        """See ContentNode.permits_cloning"""
+        return self.new_casebook.permits_cloning
+
+    @property
+    def has_draft(self):
+        """See ContentNode.has_draft"""
+        return self.new_casebook.has_draft
+
+    def allows_draft_creation_by(self, user):
+        """See ContentNode.allows_draft_creation_by"""
+        return self.new_casebook.allows_draft_creation_by(user)
+
+    def get_draft_url(self):
+        """See ContentNode.get_draft_url"""
+        return self.new_casebook.get_draft_url()
+
+
+
+class Casebook(EditTrackedModel, TimestampedModel, BigPkModel, CasebookAndSectionMixin, TrackedCloneable):
+    old_casebook = models.ForeignKey('ContentNode', on_delete=models.DO_NOTHING,blank=True,null=True,related_name='replacement_casebook')
+    title = models.CharField(max_length=10000, default="Untitled")
+    subtitle = models.CharField(max_length=10000, blank=True, null=True)
+    headnote = models.TextField(blank=True, null=True)
+
+    collaborators = models.ManyToManyField('User',
+                                           through='TempCollaborator',
+                                           related_name='casebooks'
+                                           )
+    @property
+    def contentcollaborator_set(self):
+        return self.tempcollaborator_set
+
+    class LifeCycle(Enum):
+        NEWLY_CREATED = 'Fresh' # There is no public version of this casebook
+        NEWLY_CLONED = 'Clone' # There is no public version of this casebook
+        DRAFT = 'Draft' # This version is private, but a public version exists
+        PUBLISHED = 'Public' # This version is public
+        ARCHIVED = 'Archived' # This is retired, and is no longer public
+
+    state = models.CharField(
+      max_length=10,
+      choices=[(tag, tag.value) for tag in LifeCycle]
+    )
+    draft = models.ForeignKey(
+        'self',
+        on_delete=models.DO_NOTHING,
+        blank=True,
+        null=True,
+        related_name='draft_of'
+    )
+
+    tracked_fields = ['headnote']
+
+    class Meta:
+        managed = True
+
+    def save(self, *args, **kwargs):
+        r"""
+            Override save to include the cleanup of user-supplied HTML.
+
+            Given:
+            >>> caplog, _ = [getfixture(i) for i in ['caplog', 'db']]
+            >>> html = '<p>Prepended</p>\n\n<p>\n  <em invalid-attr="invalid">Keep foo <invalid>keep baz</invalid> buzz add boo</em>\n</p>'
+            >>> cleaned_html = '<p>Prepended</p><p>\n  <em>Keep foo keep baz buzz add boo</em>\n</p>'
+
+            On save, the headnote is cleansed.
+            >>> node = ContentNode(headnote=html)
+            >>> with caplog.at_level(logging.DEBUG):
+            ...     node.headnote = html
+            ...     node.save()
+            >>> node.refresh_from_db()
+            >>> assert node.headnote == cleaned_html
+        """
+        cleanse_html_field(self, 'headnote', True)
+        super().save(*args, **kwargs)
+
+    def get_slug(self):
+        return slugify(self.title)
+
+    def viewable_by(self, user):
+        return self.is_public or self.editable_by(user)
+
+    def directly_editable_by(self, user):
+        """
+        Allow a user to make real-time changes (e.g., via edit view),
+        rather than requiring them to make changes via the draft mechanism.
+        (See allows_draft_creation_by for more discussion of editing and drafts.)
+        """
+        return self.is_private and self.editable_by(user)
+
+    def __str__(self):
+        return "{} ({})".format(self.title, self.id)
+
+    @property
+    def type(self):
+        # TODO: In use in templates and tests; shouldn't be necessary. Consider refactoring.
+        return type(self).__name__.lower()
+
+    def headnote_for_export(self):
+        r"""
+            Return headnote HTML prepared for pandoc export.
+
+            >>> assert Resource(headnote='<p>An image <img src=""></p>').headnote_for_export() == '<p>An image </p>'
+        """
+        if not self.headnote:
+            return ''
+        tree = parse_html_fragment(self.headnote)
+        PyQuery(tree).remove('img')
+        return mark_safe(inner_html(tree))
+
+    @property
+    def is_public(self):
+        return self.state == Casebook.LifeCycle.PUBLISHED.value
+
+    @property
+    def is_private(self):
+        return not self.is_public
+
+    def get_edit_or_absolute_url(self, editing=False):
+        """See ContentNode.get_edit_or_absolute_url"""
+        if editing:
+            return self.get_edit_url()
+        return self.get_absolute_url()
+
+
+    def delete(self, *args, **kwargs):
+        """
+            Override delete, to ensure that a Casebook is deleted in its entirety.
+
+            Casebook contents and ContentCollaborators would normally be deleted by setting
+            Django's `on_delete` attribute to CASCADE, but since we don't want this
+            behavior during the deletion of all ContentNode objects, only of Casebooks,
+            we have to take care of it manually.
+
+            Similarly, the manual deletion of related Links and TextBlocks is due to
+            limitations in our current data model, where Resource objects are not
+            tied to their related Case/TextBlock/Link objects via foreign keys.
+
+            Given:
+            >>> assert_num_queries = getfixture('assert_num_queries')
+            >>> nodes = getfixture('full_casebook_parts_with_draft')
+            >>> casebook, s_1, r_1_1, r_1_2, r_1_3, s_1_4, r_1_4_1, r_1_4_2, r_1_4_3, s_2 = nodes
+            >>> draft = casebook.draft
+            >>> assert casebook.contentcollaborator_set.count() == 1
+
+            >>> assert Casebook.objects.exists()
+            >>> assert ContentNode.objects.exists()
+            >>> assert ContentAnnotation.objects.exists()
+            >>> with assert_num_queries(delete=12, select=12):
+            ...     deleted = casebook.delete()
+            >>> assert not Casebook.objects.exists()
+            >>> assert not ContentNode.objects.exists()
+            >>> assert not ContentAnnotation.objects.exists()
+            >>> assert casebook.tempcollaborator_set.count() == 0
+        """
+        if self.draft:
+            self.draft.delete()
+        self._delete_related_links_and_text_blocks()
+        self.contents.all().delete()
+        self.contentcollaborator_set.all().delete()
+        return super().delete(*args, **kwargs)
+
+    @property
+    def sections(self):
+        return Section.objects.filter(new_casebook=self)
+
+    @property
+    def resources(self):
+        return ContentNode.objects.filter(new_casebook=self,resource_id__isnull=False)
+
+    @property
+    def children(self):
+        return ContentNode.objects.filter(new_casebook=self, ordinals__len=1)
+
+    def get_absolute_url(self):
+        """See ContentNode.get_absolute_url"""
+        return reverse('casebook', args=[self])
+
+    def get_draft_url(self):
+        """See ContentNode.get_draft_url"""
+        if self.draft:
+            return reverse('edit_casebook', args=[self.draft])
+        raise ValueError("This casebook doesn't have a draft.")
+
+    def get_edit_url(self):
+        """See ContentNode.get_edit_url"""
+        return reverse('edit_casebook', args=[self])
+
+    def editable_by(self, user):
+        """See ContentNode.editable_by"""
+        if not user.is_authenticated:
+            return False
+        collabs = self.tempcollaborator_set.filter(user=user).first()
+        return user.is_superuser or (collabs and collabs.can_edit)
+
+    @property
+    def permits_cloning(self):
+        """See ContentNode.permits_cloning"""
+        return self.state not in {Casebook.LifeCycle.DRAFT.value, Casebook.LifeCycle.ARCHIVED.value}
+
+    @property
+    def has_draft(self):
+        """See ContentNode.has_draft"""
+        return bool(self.draft)
+
+    @property
+    def is_draft(self):
+        return self.state == Casebook.LifeCycle.DRAFT.value
+
+    def allows_draft_creation_by(self, user):
+        """See ContentNode.allows_draft_creation_by"""
+        return self.is_public and self.editable_by(user) and not self.has_draft 
+
+    def make_draft(self):
+        """
+            Clone casebook in draft mode, copying existing collaborators.
+
+            Given:
+            >>> full_casebook, user = [getfixture(i) for i in ['full_casebook', 'user']]
+            >>> full_casebook.add_collaborator(user)
+            >>> draft = full_casebook.make_draft()
+
+            `draft` will be in draft mode and will have the same collaborators as the original:
+            >>> assert draft.is_draft is True
+            >>> assert (set((c.user) for c in full_casebook.contentcollaborator_set.all()) ==
+            ...         set((c.user) for c in draft.contentcollaborator_set.all()))
+        """
+        return self.clone(draft_mode=True)
+
+    @transaction.atomic
+    def merge_draft(self):
+        """
+            Merge draft casebook back into parent, and delete draft.
+
+            Given:
+            >>> reset_sequences, full_casebook, assert_num_queries = [getfixture(i) for i in ['reset_sequences', 'full_casebook', 'assert_num_queries']]
+            >>> original_assets = set(ContentNode.objects.values_list('id', flat=True))
+            >>> elena, john =  [User(attribution=name, email_address="{}@scotus.gov".format(name)) for name in ['Elena', 'John']]
+            >>> elena.save()
+            >>> john.save()
+            >>> full_casebook.add_collaborator(elena, has_attribution=True)
+            >>> second_casebook = full_casebook.clone(current_user=john)
+            >>> draft = full_casebook.make_draft()
+            >>> # _ = ContentNode.objects.filter(id=2).update(provenance=[1])  # mark node 2 as copy_of node 1
+
+            Merge draft back into original:
+            >>> draft.title = "New Title"
+            >>> draft.save()
+            >>> Section(new_casebook=draft, ordinals=[3], title="New Section").save()
+            >>> with assert_num_queries(delete=7, select=11, update=3):
+            ...     new_casebook = draft.merge_draft()
+            >>> assert new_casebook == full_casebook
+            >>> expected = [
+            ...       'Casebook<1>: New Title',
+            ...       ' Section<19>: Some Section 0',
+            ...       '  ContentNode<20> -> TextBlock<5>: Some TextBlock Name 0',
+            ...       '  ContentNode<21> -> Case<1>: Foo Foo0 vs. Bar Bar0',
+            ...       '   ContentAnnotation<9>: highlight 0-10',
+            ...       '   ContentAnnotation<10>: elide 0-10',
+            ...       '  ContentNode<22> -> Link<5>: Some Link Name 0',
+            ...       '  Section<23>: Some Section 4',
+            ...       '   ContentNode<24> -> TextBlock<6>: Some TextBlock Name 1',
+            ...       '   ContentNode<25> -> Case<2>: Foo Foo1 vs. Bar Bar1',
+            ...       '    ContentAnnotation<11>: note 0-10',
+            ...       '    ContentAnnotation<12>: replace 0-10',
+            ...       '   ContentNode<26> -> Link<6>: Some Link Name 1',
+            ...       ' Section<27>: Some Section 8',
+            ...       ' Section<28>: New Section'
+            ... ]
+            >>> assert dump_casebook_outline(new_casebook) == expected
+
+            Assets associated with old published version are gone:
+            >>> assert set(ContentNode.objects.values_list('id', flat=True)).intersection(original_assets) == set()
+            >>> assert set(ContentAnnotation.objects.values_list('id', flat=True)) == {5, 6, 7, 8, 9, 10, 11, 12}
+            >>> assert set(TextBlock.objects.values_list('id', flat=True)) == {3,4,5, 6}
+            >>> assert set(Link.objects.values_list('id', flat=True)) == {3,4,5, 6}
+
+            The original copy_of attributes from the published version are preserved:
+            >>> assert ContentNode.objects.get(id=12).provenance == [21]
+
+            Clones of the original casebook have proper attribution
+            >>> assert elena in second_casebook.attributed_authors
+        """
+        # set up variables
+        draft = self
+        parent = Casebook.objects.filter(id=self.provenance[-1]).get()
+        if not self.is_draft:
+            raise ValueError("Only draft casebooks may be merged")
+
+        # update casebook attributes
+        for attr in ('headnote', 'title', 'subtitle'):
+            setattr(parent, attr, getattr(draft, attr))
+        parent.draft = None
+        parent.save()
+
+        # delete old links and textblocks
+        parent._delete_related_links_and_text_blocks()
+
+        # delete old annotations
+        ContentAnnotation.objects.filter(resource__new_casebook=parent).delete()
+
+        # The last parent can be removed from the provenance, as it is a node that's deleted in a few lines
+        nodes_to_update = set([])
+        provenance_to_remap = {}
+        for node in draft.contents.all():
+            if node.provenance:
+                provenance_to_remap[node.provenance[-1]] = node.id
+                nodes_to_update.add(node)
+                node.provenance = node.provenance[:-1]
+
+        # Remap descendant references
+        clones_to_remap = [x for x in ContentNode.objects.filter(provenance__overlap=[x for x in provenance_to_remap.keys()]) if x not in nodes_to_update]
+        for clone in clones_to_remap:
+            clone.provenance = [provenance_to_remap.get(x,x) for x in clone.provenance]
+
+        provenance_updates = list(nodes_to_update) + clones_to_remap
+        ContentNode.objects.bulk_update(provenance_updates, ['provenance'])
+
+
+        # delete old content nodes
+        parent.contents.all().delete()
+
+        # move new content nodes
+        draft.contents.update(new_casebook=parent)
+
+        # delete draft
+        draft.delete()
+
+
+        return parent
+
+    @transaction.atomic
+    def clone(self, current_user=None, draft_mode=False):
+        """
+            Clone casebook with all of its assets. If User object `current_user` is provided, that user will replace the
+            existing users. If draft_mode=True, clone will be marked as a draft.
+
+            Given an initial casebook like this:
+            >>> reset_sequences, full_casebook, user, assert_num_queries = [getfixture(i) for i in ['reset_sequences', 'full_casebook', 'user', 'assert_num_queries']]
+            >>> expected = [
+            ...   'Casebook<1>: Some Title 0',
+            ...   ' Section<1>: Some Section 0',
+            ...   '  ContentNode<2> -> TextBlock<1>: Some TextBlock Name 0',
+            ...   '  ContentNode<3> -> Case<1>: Foo Foo0 vs. Bar Bar0',
+            ...   '   ContentAnnotation<1>: highlight 0-10',
+            ...   '   ContentAnnotation<2>: elide 0-10',
+            ...   '  ContentNode<4> -> Link<1>: Some Link Name 0',
+            ...   '  Section<5>: Some Section 4',
+            ...   '   ContentNode<6> -> TextBlock<2>: Some TextBlock Name 1',
+            ...   '   ContentNode<7> -> Case<2>: Foo Foo1 vs. Bar Bar1',
+            ...   '    ContentAnnotation<3>: note 0-10',
+            ...   '    ContentAnnotation<4>: replace 0-10',
+            ...   '   ContentNode<8> -> Link<2>: Some Link Name 1',
+            ...   ' Section<9>: Some Section 8'
+            ... ]
+
+            >>> assert dump_casebook_outline(full_casebook) == expected
+            >>> assert user not in set(full_casebook.attributed_authors)
+
+            Return a cloned casebook like this:
+            >>> with assert_num_queries(select=6, insert=6):
+            ...     clone = full_casebook.clone(current_user=user)
+            >>> expected = [
+            ...      'Casebook<2>: Some Title 0',
+            ...      ' Section<10>: Some Section 0',
+            ...      '  ContentNode<11> -> TextBlock<3>: Some TextBlock Name 0',
+            ...      '  ContentNode<12> -> Case<1>: Foo Foo0 vs. Bar Bar0',
+            ...      '   ContentAnnotation<5>: highlight 0-10',
+            ...      '   ContentAnnotation<6>: elide 0-10',
+            ...      '  ContentNode<13> -> Link<3>: Some Link Name 0',
+            ...      '  Section<14>: Some Section 4',
+            ...      '   ContentNode<15> -> TextBlock<4>: Some TextBlock Name 1',
+            ...      '   ContentNode<16> -> Case<2>: Foo Foo1 vs. Bar Bar1',
+            ...      '    ContentAnnotation<7>: note 0-10',
+            ...      '    ContentAnnotation<8>: replace 0-10',
+            ...      '   ContentNode<17> -> Link<4>: Some Link Name 1',
+            ...      ' Section<18>: Some Section 8'
+            ... ]
+            >>> assert dump_casebook_outline(clone) == expected
+            >>> assert user in set(clone.attributed_authors)
+            >>> assert clone.provenance == [full_casebook.id]
+            >>> assert clone.state == Casebook.LifeCycle.NEWLY_CLONED.value
+            >>> clone_of_clone = clone.clone(current_user=user)
+            >>> assert clone_of_clone.provenance == [full_casebook.id, clone.id]
+            >>> clone3 = clone_of_clone.clone(current_user=user)
+            >>> assert clone3.provenance == [full_casebook.id, clone.id, clone_of_clone.id]
+
+            Attribution and cloning
+            >>> casebook = getfixture('full_casebook')
+            >>> sonya, elena, john = [User(attribution=name, email_address="{}@scotus.gov".format(name)) for name in ['Sonya', 'Elena', 'John']]
+            >>> sonya.save(); elena.save(); john.save()
+            >>> casebook.add_collaborator(sonya, has_attribution=True)
+            >>> casebook.save()
+            >>> first_clone = casebook.clone(current_user=elena)
+            >>> first_clone.save()
+            >>> first_clone.refresh_from_db()
+            >>> assert sonya in first_clone.attributed_authors
+            >>> assert elena in first_clone.attributed_authors
+            >>> assert elena not in casebook.attributed_authors
+            >>> second_clone = first_clone.clone(current_user=elena)
+            >>> assert sonya in second_clone.originating_authors
+            >>> assert elena in second_clone.primary_authors
+            >>> assert second_clone.editable_by(elena)
+            >>> assert not second_clone.editable_by(sonya)
+            >>> casebook.add_collaborator(john, has_attribution=True)
+            >>> assert john in casebook.attributed_authors
+            >>> assert john in first_clone.attributed_authors
+            >>> assert john in second_clone.originating_authors
+        """
+        # clone casebook
+        old_casebook = self
+        cloned_casebook = clone_model_instance(old_casebook, public=False,
+                                               provenance=self.provenance + [self.id],
+                                               state=(Casebook.LifeCycle.DRAFT.value if draft_mode else Casebook.LifeCycle.NEWLY_CLONED.value))
+        cloned_casebook.save()
+
+        # If this is a draft, collaborators stay the same,
+        # Otherwise, we just add one collaborator (the current_user)
+        if draft_mode:
+            collaborators = [clone_model_instance(c, casebook=cloned_casebook, can_edit=c.can_edit) for c in
+                             self.contentcollaborator_set.all()]
+            TempCollaborator.objects.bulk_create(collaborators)
+            self.draft = cloned_casebook
+            self.save()
+        elif current_user:
+            cloned_casebook.add_collaborator(user=current_user, has_attribution=True, can_edit=True)
+
+        cloned_casebook.clone_nodes(old_casebook.contents.prefetch_resources().prefetch_related('annotations')
+                                    .select_related('new_casebook')
+                                    .prefetch_related('new_casebook__tempcollaborator_set'),
+                                    draft_mode=draft_mode)
+        return cloned_casebook
+
+    @transaction.atomic
+    def clone_nodes(self, nodes, draft_mode=False, append=False):
+        """
+            Helper method to copy a set of nodes and their associated assets to this casebook. See callers for tests.
+            If append=True, ordinals will be edited so the new nodes appear after any existing nodes.
+        """
+        # clone contents
+        cloned_resources = {TextBlock: [], Link: []}  # collect new TextBlocks and Links for bulk_create
+        cloned_content_nodes = []  # collect new ContentNodes for bulk_create
+        cloned_annotations = []  # collect new ContentAnnotations for bulk_create
+
+        for old_content_node in nodes:
+            # clone content_node
+            cloned_content_node = clone_model_instance(old_content_node,
+                                                       provenance=old_content_node.provenance + [old_content_node.id],
+                                                       new_casebook=self)
+            cloned_content_nodes.append(cloned_content_node)
+
+            # clone annotations
+            for old_annotation in old_content_node.annotations.all():
+                cloned_annotation = clone_model_instance(old_annotation)
+                cloned_annotations.append((cloned_annotation, cloned_content_node))
+
+            # clone resources
+            if old_content_node.resource_id and old_content_node.resource_type != 'Case':
+                resource = old_content_node.resource
+                cloned_resource = clone_model_instance(resource)
+                cloned_resources[type(cloned_resource)].append((cloned_resource, cloned_content_node))
+
+        # save TextBlocks and Links
+        for resource_class, resources in cloned_resources.items():
+            resource_class.objects.bulk_create(r[0] for r in resources)
+            # after saving, update the associated cloned_content_nodes to point to the new resource_ids
+            for cloned_resource, cloned_content_node in resources:
+                cloned_content_node.resource_id = cloned_resource.id
+
+        # save ContentNodes
+        if append:
+            # offset cloned nodes so they go at the end of the current tree.
+            # "offset" is the count of existing top-level content_tree nodes:
+            offset = \
+            (ContentNode.objects.filter(new_casebook_id=self).aggregate(models.Max('ordinals'))['ordinals__max'] or [0])[
+                0] + 1
+            for node in cloned_content_nodes:
+                node.ordinals[0] += offset
+        ContentNode.objects.bulk_create(cloned_content_nodes)
+        if append:
+            # if we offset the ordinals to push the new nodes to the end, then they will be in the right order
+            # but might be non-consecutive or overly nested; call _repair to clean them up
+            self.content_tree__repair()
+
+        # save ContentAnnotations (first update cloned_annotations to point to the new content_node IDs)
+        for cloned_annotation, cloned_content_node in cloned_annotations:
+            cloned_annotation.resource = cloned_content_node
+        ContentAnnotation.objects.bulk_create(r[0] for r in cloned_annotations)
+
+    # Collaborators
+    @property
+    def primary_authors(self):
+        return set([c.user for c in self.contentcollaborator_set.all() if c.has_attribution and c.user.attribution != 'Anonymous'])
+
+    def has_collaborator(self, user):
+        # filter in the client to allow .prefetch_related('contentcollaborator_set__user') to work:
+        return any(c.user_id == user.id for c in self.tempcollaborator_set.all() if c.can_edit)
+
+    def add_collaborator(self, user, **collaborator_kwargs):
+        collaborator_to_add = TempCollaborator(user=user, casebook_id=self.id, **collaborator_kwargs)
+        collaborator_to_add.save()
+
+    def export(self, include_annotations, file_type='docx'):
+        """
+            Export this node and children as docx, or as html for conversion by pandoc.
+
+            Given:
+            >>> full_casebook, assert_num_queries = [getfixture(f) for f in ['full_casebook', 'assert_num_queries']]
+
+            Export uses 5 queries: selecting descendant nodes, and prefetching ContentAnnotation, Case, TextBlock, and Link.
+            >>> with assert_num_queries(select=5):
+            ...     file_data = full_casebook.export(include_annotations=True)
+        """
+        # prefetch all child nodes and related data
+        children = list(self.contents.prefetch_resources().prefetch_related('annotations')) if type(
+            self) is not Resource else None
+
+        # render html
+        template_name = 'export/casebook.html'
+        html = render_to_string(template_name, {
+            'is_export': True,
+            'node': self,
+            'children': children,
+            'include_annotations': include_annotations,
+        })
+        if file_type == 'html':
+            return html
+
+        # convert to docx with pandoc
+        with tempfile.NamedTemporaryFile(suffix='.docx') as pandoc_out:
+            command = [
+                'pandoc',
+                '--from', 'html',
+                '--to', 'docx',
+                '--reference-doc', os.path.join(settings.PANDOC_DIR, 'reference.docx'),
+                '--output', pandoc_out.name,
+                '--quiet'
+            ]
+            if type(self) is Casebook:
+                command.extend(['--lua-filter', os.path.join(settings.PANDOC_DIR, 'table_of_contents.lua')])
+            try:
+                response = subprocess.run(command, input=html.encode('utf8'), stderr=subprocess.PIPE,
+                                          stdout=subprocess.PIPE)
+            except subprocess.CalledProcessError as e:
+                raise Exception("Pandoc command failed: %s" % e.stderr[:100])
+            if response.stderr:
+                raise Exception("Pandoc reported error: %s" % response.stderr[:100])
+            return pandoc_out.read()
+
+    @property
+    def testing_editor(self):
+        """
+        Used for testing purposes, return a user that can edit this casebook.
+        """
+        return TempCollaborator.objects.filter(can_edit=True, casebook=self).prefetch_related('user').first().user
+
+    @property
+    def new_casebook(self):
+        return self
+
+    def content_tree__load(self):
+        ordinal_to_node_map = {}
+        top_level_children = []
+        for content_node in self.contents.order_by('ordinals').all():
+            content_node._content_tree__children = []
+            ordinal_to_node_map[content_node.ordinal_string()] = content_node
+            parent_ords = [o for o in content_node.ordinals[:-1]]
+            parent_key = '.'.join(map(str,parent_ords))
+            while parent_key and parent_key not in ordinal_to_node_map:
+                parent_ords.pop()
+                parent_key = '.'.join(map(str,parent_ords))
+            if parent_key:
+                parent = ordinal_to_node_map[parent_key]
+                # new_ords = parent_ords + [len(parent._content_tree__children)]
+                # content_node.ordinals = new_ords
+                content_node._content_tree__parent = parent
+                parent._content_tree__children.append(content_node)
+            else:
+                content_node._content_tree__parent = self
+                top_level_children.append(content_node)
+        self.content_tree__children = top_level_children
+
+    def content_tree__get_descendant(self, ordinals):
+        """
+            Fetch a node from content_tree__children with the given ordinals.
+        """
+        node = self
+        ordinals = ordinals
+        while ordinals:
+            node = node.content_tree__children[ordinals.pop(0) - 1]
+        return node
+
+    def content_tree__get_next_available_child_ordinals(self):
+        """
+            If we add a new section or resource as a child to this node,
+            what should that node's ordinals be?
+        """
+        self.content_tree__load()
+        return [len(self.content_tree__children) + 1]
+
+    def content_tree__store(self):
+        contents = [x for x in self.content_tree__update_ordinals()]
+        """
+            Update ordinals in the database for any that need to change, based on nodes that have been moved within
+            content_tree__children. It is not valid to add nodes from outside, as their tree values will not be populated.
+        """
+        ContentNode.objects.bulk_update(contents, ['ordinals'])
+
+    def content_tree__repair(self):
+        self.content_tree__load()
+        self.content_tree__store()
+
+    def content_tree__update_ordinals(self):
+        """
+            Recursively fix ordinals for all descendants that have been moved in the content tree, based on their
+            current position in content_tree__children. Return an iterator of all descendants that have been updated.
+
+            Given:
+            >>> casebook, s_1, r_1_1, r_1_2, r_1_3, s_1_4, r_1_4_1, r_1_4_2, r_1_4_3, s_2 = getfixture('full_casebook_parts')
+            >>> casebook.content_tree__load()
+            >>> s_1 = casebook.content_tree__get_descendant([1])
+            >>> s_2 = casebook.content_tree__get_descendant([2])
+
+            When we move a node, return only nodes with changed ordinals:
+            >>> s_2.content_tree__children.insert(0, s_1.content_tree__children.pop(2))  # move r_1_3 from s_1 to beginning of s_2
+            >>> assert set(casebook.content_tree__update_ordinals()) == {r_1_3, s_1_4, r_1_4_2, r_1_4_3, r_1_4_1}
+        """
+        for i, node in enumerate(self.content_tree__children):
+            correct_ordinals = [i + 1]
+            if node.ordinals != correct_ordinals:
+                node.ordinals = correct_ordinals
+                yield node
+            if node.content_tree__children:
+                yield from node.content_tree__update_ordinals()
+
+    def content_tree__move_to(self,arg):
+        raise ValueError('Cannot move casebook node')
+
+
+
+class SectionManager(models.Manager):
+    def get_queryset(self):
+        return super().get_queryset()
+
+class Section(CasebookAndSectionMixin, SectionAndResourceMixin, ContentNode):
+    class Meta:
+        proxy = True
+
+    objects = SectionManager()
+
+    def get_absolute_url(self):
+        """See ContentNode.get_absolute_url"""
+        return reverse('section', args=[self.new_casebook, self])
+
+    def get_edit_url(self):
+        """See ContentNode.get_edit_url"""
+        return reverse('edit_section', args=[self.new_casebook, self])
+
+    @property
+    def children(self):
+        return self._content_tree__children
+        # first_ordinals = "ordinals__0_{}".format(len(self.ordinals))
+        # return ContentNode.objects.filter(**{
+        #     "casebook_id": self.casebook_id,
+        #     first_ordinals: self.ordinals,
+        #     "ordinals__len": len(self.ordinals) + 1
+        # })
+
+    @property
+    def primary_authors(self):
+        return self.new_casebook.primary_authors
+
+    @property
+    def contents(self):
+        """
+        See https://github.com/harvard-lil/h2o/blob/master/app/models/content/concerns/has_children.rb#L5
+        """
+        # Django syntax for inspecting a slice of an array field
+        # https://docs.djangoproject.com/en/2.2/ref/contrib/postgres/fields/#slice-transforms
+        # We want only nodes whose first ordinals match this section's.
+        # That is, if this is section [2, 2], we want [2, 2, 1], [2, 2, 2, 7], etc.,
+        # but not [2, 1, 1], [1,1], etc.
+        first_ordinals = "ordinals__0_{}".format(len(self.ordinals))
+        filter_map = {
+            "new_casebook_id": self.new_casebook_id,
+            first_ordinals: self.ordinals
+        }
+        return ContentNode.objects.filter(**filter_map).exclude(id=self.id)
+
+
+class ResourceManager(models.Manager):
+    def get_queryset(self):
+        return super().get_queryset().filter(casebook__isnull=False, resource_id__isnull=False)
+
+
+class Resource(SectionAndResourceMixin, ContentNode):
+    class Meta:
+        proxy = True
+
+    objects = ResourceManager()
+
+    def get_absolute_url(self):
+        """See ContentNode.get_absolute_url"""
+        return reverse('resource', args=[self.new_casebook, self])
+
+    def get_edit_url(self):
+        """See ContentNode.get_edit_url"""
+        return reverse('edit_resource', args=[self.new_casebook, self])
+
+    def get_edit_or_absolute_url(self, editing=False):
+        """
+        See ContentNode.get_edit_or_absolute_url
+        In the Rails app, when editing a casebook/section/resource,
+        breadcrumbs and TOC entries generally point to the "annotate" view,
+        when available. Recreate that here.
+        """
+        if editing:
+            if self.annotatable:
+                return self.get_annotate_url()
+            return self.get_edit_url()
+        return self.get_absolute_url()
+
+    def is_annotated(self):
+        """See ContentNode.is_annotated"""
+        return bool(self.annotations)
+
+    _resource_prefetched = False
+    _resource = None
+
+    @property
+    def resource(self):
+        """
+        Resource nodes are each related to one Case, TextBlock, or Link object,
+        which has historically been referred to as the node's "resource."
+
+        (Resource objects might more accurately be called "ResourceWrapper"
+        objects, or similar.)
+
+        This method retrieves the node's related resource, in the manner one
+        would expect to be able to do if this relationship were achieved via
+        foreign keys (not possible on the Django side, without altering the
+        database so as to support generic foreign keys or polymorphic models).
+        """
+        if hasattr(self,'_resource_prefetched') and not self._resource_prefetched:
+            if not self.resource_id:
+                return None
+            if self.resource_type in ['Case', 'TextBlock', 'Link']:
+                # so fancy...
+                self._resource = globals()[self.resource_type].objects.get(id=self.resource_id)
+                self._resource_prefetched = True
+            else:
+                raise NotImplementedError
+        return self._resource
+
+    @property
+    def annotatable(self):
+        """
+        Only particular kinds of resources can be annotated.
+        """
+        return self.type == 'resource' and self.resource_type in ['Case', 'TextBlock']
+
+    def get_annotate_url(self):
+        """
+        If a resource can be annotated, returns the URL for the page an author
+        uses to make annotations. Otherwise, returns a ValueError.
+        """
+        if self.annotatable:
+            return reverse('annotate_resource', args=[self.new_casebook, self])
+        raise ValueError('Only Resources (Case and TextBlock) can be annotated.')
 
     @property
     def originating_authors(self):
@@ -2361,15 +2605,15 @@ class Resource(SectionAndResourceMixin, ContentNode):
         originating_node = set(self.provenance)
         users = [collaborator.user for cn in
                     ContentNode.objects.filter(id__in=originating_node)
-                        .select_related('casebook')
-                        .prefetch_related('casebook__contentcollaborator_set__user')
+                        .select_related('new_casebook')
+                        .prefetch_related('new_casebook__tempcollaborator_set__user')
                         .all()
-                    for collaborator in cn.casebook.contentcollaborator_set.all() if collaborator.has_attribution and collaborator.user.attribution != 'Anonymous']
+                    for collaborator in cn.new_casebook.tempcollaborator_set.all() if collaborator.has_attribution and collaborator.user.attribution != 'Anonymous']
         return set(users)
 
     @property
     def primary_authors(self):
-        return self.casebook.primary_authors
+        return self.new_casebook.primary_authors
 
     @property
     def attributed_authors(self):
@@ -2518,7 +2762,7 @@ class User(NullableTimestampedModel, PermissionsMixin, AbstractBaseUser):
 
             Includes all casebooks the user is a collaborator on.
         """
-        return self.casebooks.filter(draft_mode_of_published_casebook=None)
+        return self.casebooks.exclude(state=Casebook.LifeCycle.DRAFT.value)
 
     def published_casebooks(self):
         """
@@ -2530,7 +2774,7 @@ class User(NullableTimestampedModel, PermissionsMixin, AbstractBaseUser):
         """
         # This probably wants to be:
         # return self.casebooks.filter(contentcollaborator__has_attribution=True, public=True)
-        return self.casebooks.filter(public=True)
+        return self.casebooks.filter(state=Casebook.LifeCycle.PUBLISHED.value)
 
 
 def update_user_login_fields(sender, request, user, **kwargs):

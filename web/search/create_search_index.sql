@@ -46,12 +46,11 @@ UNION ALL
         ) AS metadata,
         'casebook'::text AS category
     FROM
-        main_contentnode c
-        LEFT JOIN main_contentcollaborator cc ON cc.content_id = c.id AND cc.has_attribution = true
+        main_casebook c
+        LEFT JOIN main_tempcollaborator cc ON cc.casebook_id = c.id AND cc.has_attribution = true
         LEFT JOIN main_user u ON cc.user_id = u.id
     WHERE
-        casebook_id IS NULL AND
-        public = true AND
+        state = 'Public' AND
         u.verified_professor = true
     GROUP BY c.id
 UNION ALL
@@ -65,13 +64,13 @@ UNION ALL
            jsonb_build_object(
                'attribution', u.attribution,
                'affiliation', u.affiliation,
-               'casebook_count', count(cn.id)
+               'casebook_count', count(cb.id)
            ) AS metadata,
            'user'::text AS category
     FROM
         main_user u
-        INNER JOIN main_contentcollaborator cc ON cc.user_id = u.id
-        INNER JOIN main_contentnode cn ON cc.content_id = cn.id AND cn.public = TRUE
+        INNER JOIN main_tempcollaborator cc ON cc.user_id = u.id
+        INNER JOIN main_casebook cb ON cc.casebook_id = cb.id AND cb.state='Public'
     WHERE
           u.verified_professor = true AND
           u.attribution != ''
