@@ -1,16 +1,24 @@
-{% if casebook.is_draft %}
-<div class="casebook-preview banner">
-    {# TBD: Draft wording is proposed. #}
-    <div class="banner-inner">
-        You are viewing a preview of your changes.
+{% if editing %}
+    <div class="casebook-draft banner">
+        <div class="banner-inner">
+            {% if casebook.is_draft %}
+                This casebook is a draft and is visible only to collaborators.
+            {% elif casebook.has_draft %}
+                This casebook <a href="{{casebook.draft.get_edit_url}}">has a draft</a>, but you are editing the original.
+            {% elif casebook.is_private %}
+                You are viewing a private casebook.
+            {% endif %}
     </div>
 </div>
-{% elif casebook.is_private %}
-<div class="casebook-preview banner">
-    {# TBD: Draft wording is proposed. #}
-    <div class="banner-inner">
-        You are viewing a private casebook.
+{% else %}
+    <div class="casebook-preview banner">
+        <div class="banner-inner">
+            {% if casebook.is_draft %}
+                You are viewing a preview of your changes.
+            {% elif casebook.is_private %}
+                You are viewing a private casebook.
+            {% endif %}
+        </div>
     </div>
-</div>
 {% endif %}
 

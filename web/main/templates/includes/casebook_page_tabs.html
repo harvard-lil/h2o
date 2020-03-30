@@ -1,0 +1,22 @@
+<header class="casebook casebook-{% if editing %}draft{% else %}public{% endif %}"
+        {% if editing %}data-editable="true"{% endif %}
+        data-casebook-id="{{ casebook.id }}"
+        data-section-id="{{ section.id }}"
+        data-section-ordinals="{{ section.ordinal_string }}"
+        data-resource-id="{{section.id}}">
+    {% if tabs %}
+    <div class="content">
+        <div class="casebook-inner">
+            <div class="tabs">
+                {% for name, link, is_active_tab in tabs %}
+                {% if is_active_tab %}
+                <span class="tab disabled active">{{name}}</span>
+                {% else %}
+                <a class="tab" href="{{ link }}">{{name}}</a>
+                {% endif %}
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+    {% endif %}
+</header>

@@ -7,14 +7,14 @@
   {% endif %}
   {% if can_be_directly_edited %}
       {# TBD: in Rails, this always points to the casebook's top-level edit page; linking straight to the section/resource makes more sense to me. #}
-      <a class="action edit one-line" data-disable-with="Revise" href="{{ content.get_edit_url }}">{% if content.is_draft %}Continue Revising{% else %}Revise{% endif %}</a>
+      <a class="action edit one-line" data-disable-with="Revise" href="{% firstof section.get_edit_url casebook.get_edit_url %}">{% if content.is_draft %}Continue Revising{% else %}Revise{% endif %}</a>
   {% endif %}
   {% if can_view_existing_draft %}
       {# NB: in Rails "return to draft" also refers to a link from a draft's previews to its edit pages. For clarity, the Django app is only using "return to draft" as a link from the original to the draft, and uses "revise" or "continue revising" for links to edit pages. #}
-      <a class="action edit one-line" data-disable-with="Return to Draft" href="{{ content.get_draft_url }}">Return to Draft</a>
+      <a class="action edit one-line" data-disable-with="Return to Draft" href="{% firstof section.get_draft_url casebook.get_draft_url %}">Return to Draft</a>
   {% endif %}
   {% if can_create_draft %}
-    <form class="button_to" method="post" action="{% if casebook %}{% url 'create_draft' casebook %}{% else %}{% url 'create_draft' content.new_casebook %}{% endif %}">
+    <form class="button_to" method="post" action="{% if casebook %}{% url 'create_draft' casebook %}{% else %}{% url 'create_draft' section.new_casebook %}{% endif %}">
       <input class="action edit one-line create-draft" data-disable-with="Revise" type="submit" value="Revise">
       {% csrf_token %}
     </form>
@@ -30,8 +30,8 @@
   {% endif %}
   {% if can_save_nodes %}
       {# TODO: consider using buttons w/ "form" attribute instead of save_details.js #}
-      <button class="action one-line save submit-{{ content.type }}-details" data-disable-with="Save">Save</button>
-      <button class="action one-line cancel cancel-{{ content.type }}-details" data-disable-with="Cancel">Cancel</button>
+      <button class="action one-line save submit-{% if section and section.has_body %}resource{% elif section%}section{% else %}casebook{% endif %}-details" data-disable-with="Save">Save</button>
+      <button class="action one-line cancel cancel-{% if section and section.has_body %}resource{% elif section%}section{% else %}casebook{% endif %}-details" data-disable-with="Cancel">Cancel</button>
   {% endif %}
   {% if cloneable %}
     <form class="clone_casebook" method="post" action="{% if casebook %}{% url 'clone' casebook %}{% else %}{% url 'clone' content.new_casebook %}{% endif %}">

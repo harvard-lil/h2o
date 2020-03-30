@@ -1,0 +1,64 @@
+{% extends 'base.html' %}
+
+{% if edit_mode %}
+{% load render_bundle from webpack_loader %}
+{% load crispy_forms_tags %}
+{% endif %}
+
+{% block page_title %} {% if mode %}{{mode}} | {% endif %} {{casebook.title}} {% if section %}: {{ section.title }} {% endif %} {% endblock %}
+
+
+{% block banner %}
+    {% include 'includes/preview_banner.html' %}
+{% endblock %}
+
+{% block mainContent %}
+{% include 'includes/casebook_page_tabs.html' %}
+
+<section class="casebook-{% if editing %}draft{% else %}public{% endif %} casebook">
+    <div class="content">
+        <div class="casebook-inner">
+            <div class="top-strip"></div>
+            <header class="content">
+                {% if editing %}
+                    <form class="edit_content_{% if section and section.has_body %}resource{% elif section%}section{% else %}casebook{% endif %}" method="{{ form.helper.form_method }}">
+                        {% crispy form %}
+                        {% if embedded_resource_form %}{% crispy embedded_resource_form %}{% endif %}
+                    </form>
+                {% else %}
+                    <h1 class="title">{{ casebook.title }} {% if section %}: {{ section.title }} {% endif %}</h1>
+                    {% if section and section.subtitle %}
+                    <h2 class="subtitle">
+                        {{ section.subtitle }}
+                    </h2>
+                    {% elif casebook.subtitle %}
+                    <h2 class="subtitle">
+                        {{ casebook.subtitle }}
+                    </h2>
+                    {% endif %}
+                    <div class="authorship">
+                        <div class="collaborators">
+                            {% include 'includes/collaborators.html' with content=casebook %}
+                        </div>
+                    </div>
+                {% endif %}
+            </header>
+            {% if section %}
+                {% include 'includes/action_buttons.html' with content=section %}
+                {% if not editing %}
+                    {% include 'includes/headnote.html' with content=section %}
+                {% endif %}
+                {% include section.body_template %}
+            {% else %}
+                {% if not editing %}
+                    {% include 'includes/headnote.html' with content=casebook %}
+                {% endif %}
+            {% endif %}
+            {% if not section.has_body %}
+                {% include 'includes/action_buttons.html' with content=casebook %}
+                {% include 'includes/table-of-contents.html'%}
+            {% endif %}
+        </div>
+    </div>
+</section>
+{% endblock %}

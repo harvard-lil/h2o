@@ -682,19 +682,10 @@ def show_credits(request, casebook, section=None):
 
     params = {'contributing_casebooks': [v for v in casebook_mapping.values()],
               'casebook':casebook,
+              'section':section,
+              'tabs': (section if section else casebook).tabs_for_user(request.user, current_tab='Credits'),
               'edit_mode': casebook.directly_editable_by(request.user)}
-    if not section:
-        template = 'casebook_credits.html'
-        params['type'] = 'casebook'
-    elif section.type == 'resource':
-        template = 'resource_credits.html'
-        params['resource'] = section
-        params['type'] = 'resource'
-    else:
-        template = 'section_credits.html'
-        params['section'] = section
-        params['type'] = 'section'
-    return render(request, template, params)
+    return render(request, 'casebook_page_credits.html', params)
 
 
 
@@ -737,8 +728,9 @@ class CasebookView(View):
             return HttpResponseRedirect(canonical)
 
         contents = casebook.contents.prefetch_resources()
-        return render_with_actions(request, 'casebook.html', {
+        return render_with_actions(request, 'casebook_page.html', {
             'casebook': casebook,
+            'tabs': casebook.tabs_for_user(request.user, current_tab='Casebook'),
             'contents': contents
         })
 
@@ -863,28 +855,37 @@ def edit_casebook(request, casebook):
         >>> draft = with_draft.draft
 
         Users can edit their unpublished and draft casebooks:
-        >>> for book in [private, draft]:
-        ...     new_title = 'owner-edited title'
-        ...     check_response(
-        ...         client.get(book.get_edit_url(), as_user=book.testing_editor),
-        ...         content_includes=[book.title, "This casebook is a draft"],
-        ...     )
-        ...     check_response(
-        ...         client.post(book.get_edit_url(), {'title': new_title}, as_user=book.testing_editor),
-        ...         content_includes=new_title,
-        ...         content_excludes=book.title
-        ...     )
+        >>> new_title = 'owner-edited title'
+        >>> check_response(
+        ...    client.get(private.get_edit_url(), as_user=private.testing_editor),
+        ...    content_includes=[private.title, "You are viewing a private casebook"],
+        ... )
+        >>> check_response(
+        ...     client.post(private.get_edit_url(), {'title': new_title}, as_user=private.testing_editor),
+        ...     content_includes=new_title,
+        ...     content_excludes=private.title
+        ... )
+        >>> check_response(
+        ...    client.get(draft.get_edit_url(), as_user=draft.testing_editor),
+        ...    content_includes=[draft.title, "This casebook is a draft"],
+        ... )
+        >>> check_response(
+        ...     client.post(draft.get_edit_url(), {'title': new_title}, as_user=draft.testing_editor),
+        ...     content_includes=new_title,
+        ...     content_excludes=draft.title
+        ... )
+
     """
     # NB: The Rails app does NOT redirect here to a canonical URL; it silently accepts any slug.
     # Duplicating that here.
     form = CasebookForm(request.POST or None, instance=casebook)
     if request.method == 'POST' and form.is_valid():
         form.save()
-    contents = casebook.contents.prefetch_resources()
-    return render_with_actions(request, 'casebook_edit.html', {
+    casebook.contents.prefetch_resources()
+    return render_with_actions(request, 'casebook_page.html', {
         'casebook': casebook,
-        'contents': contents,
         'editing': True,
+        'tabs': casebook.tabs_for_user(request.user, current_tab='Edit'),
         'form': form
     })
 
@@ -1079,11 +1080,10 @@ class SectionView(View):
         if request.path != canonical:
             return HttpResponseRedirect(canonical)
 
-        contents = section.contents.prefetch_resources()
-        return render_with_actions(request, 'section.html', {
+        return render_with_actions(request, 'casebook_page.html', {
             'casebook': casebook,
             'section': section,
-            'contents': contents,
+            'tabs':section.tabs_for_user(request.user, current_tab='Read'),
             'edit_mode': casebook.directly_editable_by(request.user)
         })
 
@@ -1131,7 +1131,7 @@ def edit_section(request, casebook, section):
         ...     new_title = 'owner-edited title'
         ...     check_response(
         ...         client.get(section.get_edit_url(), as_user=section.testing_editor),
-        ...         content_includes=[section.title, "This casebook is a draft"],
+        ...         content_includes=[section.title, "casebook-draft"],
         ...     )
         ...     check_response(
         ...         client.post(section.get_edit_url(), {'title': new_title}, as_user=section.testing_editor),
@@ -1144,13 +1144,11 @@ def edit_section(request, casebook, section):
     form = SectionForm(request.POST or None, instance=section)
     if request.method == 'POST' and form.is_valid():
         form.save()
-    contents = section.contents.prefetch_resources()
-    return render_with_actions(request, 'section_edit.html', {
+    section.contents.prefetch_resources()
+    return render_with_actions(request, 'casebook_page.html', {
         'casebook': casebook,
         'section': section,
-        'contents': contents,
         'editing': True,
-        'edit_mode': True,
         'form': form
     })
 
@@ -1184,19 +1182,26 @@ class ResourceView(View):
             >>> check_response(client.get(draft_resource.get_absolute_url(), as_user=draft_resource.testing_editor), content_includes="You are viewing a preview")
         """
         # canonical redirect
-        canonical = resource.get_absolute_url()
+        section = resource
+        canonical = section.get_absolute_url()
         if request.path != canonical:
             return HttpResponseRedirect(canonical)
 
-        if resource.resource_type == 'Case':
-            resource.json = json.dumps(CaseSerializer(resource.resource).data)
-        elif resource.resource_type == 'TextBlock':
-            resource.json = json.dumps(TextBlockSerializer(resource.resource).data)
+        if section.resource_type == 'Case':
+            body_json = json.dumps(CaseSerializer(section.resource).data)
+        elif section.resource_type == 'TextBlock':
+            body_json = json.dumps(TextBlockSerializer(section.resource).data)
+        else:
+            body_json = ''
 
-        return render_with_actions(request, 'resource.html', {
-            'resource': resource,
-            'include_vuejs': resource.annotatable,
-            'edit_mode': resource.directly_editable_by(request.user)
+        return render_with_actions(request, 'casebook_page.html', {
+            'casebook':casebook,
+            'section':section,
+            'body_json': body_json,
+            'contents': section,
+            'include_vuejs': section.annotatable,
+            'edit_mode': section.directly_editable_by(request.user),
+            'tabs':section.tabs_for_user(request.user, current_tab='Read')
         })
 
     @method_decorator(perms_test(directly_editable_resource))
@@ -1245,7 +1250,7 @@ def edit_resource(request, casebook, resource):
         ...     new_title = 'owner-edited title'
         ...     check_response(
         ...         client.get(resource.get_edit_url(), as_user=resource.testing_editor),
-        ...         content_includes=[resource.title, "This casebook is a draft"],
+        ...         content_includes=[resource.title, "casebook-draft"],
         ...     )
         ...     check_response(
         ...         client.post(resource.get_edit_url(), {'title': new_title}, as_user=resource.testing_editor),
@@ -1294,12 +1299,13 @@ def edit_resource(request, casebook, resource):
             if form.is_valid():
                 form.save()
 
-    return render_with_actions(request, 'resource_edit.html', {
-        'resource': resource,
+    return render_with_actions(request, 'casebook_page.html', {
+        'casebook': casebook,
+        'section': resource,
         'editing': True,
+        'tabs': resource.tabs_for_user(request.user, current_tab='Edit'),
         'form': form,
-        'embedded_resource_form': embedded_resource_form,
-        'edit_mode':True
+        'embedded_resource_form': embedded_resource_form
     })
 
 
