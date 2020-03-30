@@ -1,16 +1,21 @@
+import logging
 import os
 import re
 import subprocess
 import tempfile
 from enum import Enum
 from os.path import commonprefix
+from test.test_helpers import (dump_annotated_text, dump_casebook_outline,
+                               dump_content_tree, dump_content_tree_children)
 from urllib.parse import urlparse
 
+import lxml.etree
+import lxml.sax
 from django.conf import settings
 from django.contrib.auth import user_logged_in
-from django.contrib.auth.models import PermissionsMixin
 from django.contrib.auth.base_user import AbstractBaseUser, BaseUserManager
-from django.contrib.postgres.fields import JSONField, ArrayField
+from django.contrib.auth.models import PermissionsMixin
+from django.contrib.postgres.fields import ArrayField, JSONField
 from django.contrib.postgres.indexes import GinIndex
 from django.db import models, transaction
 from django.template.defaultfilters import truncatechars
@@ -20,24 +25,16 @@ from django.utils import timezone
 from django.utils.html import format_html
 from django.utils.safestring import mark_safe
 from django.utils.text import slugify
+from pyquery import PyQuery
+from pytest import raises as assert_raises
 from simple_history.models import HistoricalRecords
 
-import lxml.etree
-import lxml.sax
-from pyquery import PyQuery
-from pytest import raises
-
 from .differ import AnnotationUpdater
-from test.test_helpers import dump_casebook_outline, dump_content_tree, dump_annotated_text, dump_content_tree_children
-from pytest import raises as assert_raises
-
-from .utils import clone_model_instance, parse_html_fragment, \
-    remove_empty_tags, inner_html, block_level_elements, void_elements, normalize_newlines, \
-    strip_trailing_block_level_whitespace, elements_equal, get_ip_address
-
 from .sanitize import sanitize
-
-import logging
+from .utils import (block_level_elements, clone_model_instance, elements_equal,
+                    get_ip_address, inner_html, normalize_newlines,
+                    parse_html_fragment, remove_empty_tags,
+                    strip_trailing_block_level_whitespace, void_elements)
 
 logger = logging.getLogger(__name__)
 
@@ -601,13 +598,13 @@ class MaterializedPathTreeMixin(models.Model):
             >>> assert r_1_4_2.ordinals == [1, 4, 2]  # note that this is, correctly, different from the value provided, because parent moved
 
             Enforce some rules:
-            >>> with raises(ValueError, match='Cannot move casebook node'):
+            >>> with assert_raises(ValueError, match='Cannot move casebook node'):
             ...     casebook.content_tree__move_to([2])
-            >>> with raises(ValueError, match='Cannot move node to root'):
+            >>> with assert_raises(ValueError, match='Cannot move node to root'):
             ...     s_1.content_tree__move_to([])
-            >>> with raises(ValueError, match='Cannot add descendant of Resource'):
+            >>> with assert_raises(ValueError, match='Cannot add descendant of Resource'):
             ...     r_1_4_2.content_tree__move_to([1, 1, 1])
-            >>> with raises(ValueError, match='Cannot move a node inside itself'):
+            >>> with assert_raises(ValueError, match='Cannot move a node inside itself'):
             ...     s_1.content_tree__move_to([1, 1, 1])
         """
         # check rules
@@ -1000,6 +997,19 @@ class ContentNode(EditTrackedModel, TimestampedModel, BigPkModel, MaterializedPa
                 raise NotImplementedError
         return self._resource
 
+    @property
+    def has_body(self):
+        return bool(self.resource_type)
+
+    @property
+    def body(self):
+        return (self._resource or self.resource) if self.has_body else None
+
+    @property
+    def body_template(self):
+        if not self.has_body:
+            return 'includes/bodies/empty.html'
+        return {'Case': 'includes/bodies/case.html', 'Link': 'includes/bodies/link.html', 'TextBlock': 'includes/bodies/text_block.html'}[self.resource_type]
 
     def save(self, *args, **kwargs):
         r"""
@@ -1620,6 +1630,17 @@ class ContentNode(EditTrackedModel, TimestampedModel, BigPkModel, MaterializedPa
         contents = list(self.contents) if type(self) is Section or type(self) is Casebook else []
         new_casebook.clone_nodes(([self] if type(self) is not Casebook else []) + contents, append=True)
 
+    @property
+    def in_edit_state(self):
+        return self.new_casebook.in_edit_state
+
+    def tabs_for_user(self, user, current_tab='Read'):
+        tabs = [('Casebook', reverse('casebook', args=[self.new_casebook]), True),
+                ('Read', reverse('section', args=[self.new_casebook, self]), True),
+                ('Annotate', reverse('annotate_resource', args=[self.new_casebook, self]), self.in_edit_state and self.editable_by(user)),
+                ('Edit', reverse('edit_resource', args=[self.new_casebook, self]), self.in_edit_state and self.editable_by(user)),
+                ('Credits', reverse('show_resource_credits', args=[self.new_casebook, self]), True)]
+        return [(n, l, n == current_tab) for n,l,c in tabs if c]
 
 #
 # Start ContentNode Proxies
@@ -1951,7 +1972,6 @@ class Casebook(EditTrackedModel, TimestampedModel, BigPkModel, CasebookAndSectio
         if editing:
             return self.get_edit_url()
         return self.get_absolute_url()
-
 
     def delete(self, *args, **kwargs):
         """
@@ -2320,7 +2340,7 @@ class Casebook(EditTrackedModel, TimestampedModel, BigPkModel, CasebookAndSectio
     # Collaborators
     @property
     def primary_authors(self):
-        return set([c.user for c in self.contentcollaborator_set.all() if c.has_attribution and c.user.attribution != 'Anonymous'])
+        return set([c.user for c in self.tempcollaborator_set.all() if c.has_attribution and c.user.attribution != 'Anonymous'])
 
     def has_collaborator(self, user):
         # filter in the client to allow .prefetch_related('contentcollaborator_set__user') to work:
@@ -2465,6 +2485,18 @@ class Casebook(EditTrackedModel, TimestampedModel, BigPkModel, CasebookAndSectio
 
     def content_tree__move_to(self,arg):
         raise ValueError('Cannot move casebook node')
+
+    @property
+    def in_edit_state(self):
+        return self.state in {Casebook.LifeCycle.NEWLY_CLONED.value,
+                              Casebook.LifeCycle.DRAFT.value,
+                              Casebook.LifeCycle.NEWLY_CREATED.value}
+
+    def tabs_for_user(self, user, current_tab='Casebook'):
+        tabs = [('Casebook', reverse('casebook', args=[self]), True),
+                ('Edit', reverse('edit_casebook', args=[self]), self.in_edit_state and self.editable_by(user)),
+                ('Credits', reverse('show_credits', args=[self]), True)]
+        return [(n, l, n == current_tab) for n,l,c in tabs if c]
 
 
 
