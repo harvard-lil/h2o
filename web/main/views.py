@@ -45,6 +45,7 @@ from .utils import (CapapiCommunicationException, StringFileResponse,
                     fix_after_rails, parse_cap_decision_date,
                     send_verification_email)
 from django.views.decorators.cache import never_cache
+from django.db.models import Q
 
 
 ### helpers ###
@@ -86,17 +87,19 @@ def hydrate_params(func):
                 continue
             key, search_key = param.split('_', 1)
             if search_key == 'param':
-                kwargs[key] = get_object_or_404(ContentNode.objects.select_related('new_casebook'),
-                                                new_casebook=casebook_param['id'],
+                kwargs[key] = get_object_or_404(ContentNode.objects
+                                                .filter(Q(new_casebook=casebook_param['id']) | Q(casebook=casebook_param['id']))
+                                                .select_related('new_casebook'),
                                                 ordinals=param_value['ordinals'])
                 kwargs['casebook'] = kwargs[key].new_casebook
             else:
-                kwargs[key] = get_object_or_404(ContentNode.objects.select_related('new_casebook'),
-                                                new_casebook=casebook_param['id'],
+                kwargs[key] = get_object_or_404(ContentNode.objects
+                                                .filter(Q(new_casebook=casebook_param['id']) | Q(casebook=casebook_param['id']))
+                                                .select_related('new_casebook'),
                                                 id=param_value['id'])
                 kwargs['casebook'] = kwargs[key].new_casebook
         if 'casebook' not in kwargs:
-            kwargs['casebook'] = get_object_or_404(Casebook, id=casebook_param['id'])
+            kwargs['casebook'] = get_object_or_404(Casebook.objects.filter(Q(pk=casebook_param['id']) | Q(old_casebook=casebook_param['id'])))
         return func(request, *args, **kwargs)
 
     return wrapper
@@ -653,8 +656,8 @@ def show_credits(request, casebook, section=None):
     originating_node = set(
         [cloned_node for child_content in contents for cloned_node in child_content.provenance])
     prior_art = {x.id: x for x in ContentNode.objects.filter(id__in=originating_node)
-        .select_related('casebook')
-        .prefetch_related('casebook__tempcollaborator_set__user')
+        .select_related('new_casebook')
+        .prefetch_related('new_casebook__tempcollaborator_set__user')
         .all()}
     casebook_mapping = {}
     cloned_sections = {}
