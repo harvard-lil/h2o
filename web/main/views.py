@@ -1148,6 +1148,7 @@ def edit_section(request, casebook, section):
     return render_with_actions(request, 'casebook_page.html', {
         'casebook': casebook,
         'section': section,
+        'tabs':section.tabs_for_user(request.user, current_tab='Edit'),
         'editing': True,
         'form': form
     })
