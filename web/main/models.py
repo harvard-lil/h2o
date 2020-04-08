@@ -2267,7 +2267,9 @@ class Casebook(EditTrackedModel, TimestampedModel, BigPkModel, CasebookAndSectio
         """
         # clone casebook
         old_casebook = self
-        cloned_casebook = clone_model_instance(old_casebook, public=False,
+        cloned_casebook = clone_model_instance(old_casebook,
+                                               public=False,
+                                               old_casebook=None,
                                                provenance=self.provenance + [self.id],
                                                state=(Casebook.LifeCycle.DRAFT.value if draft_mode else Casebook.LifeCycle.NEWLY_CLONED.value))
         cloned_casebook.save()
@@ -2303,6 +2305,7 @@ class Casebook(EditTrackedModel, TimestampedModel, BigPkModel, CasebookAndSectio
         for old_content_node in nodes:
             # clone content_node
             cloned_content_node = clone_model_instance(old_content_node,
+                                                       old_casebook=None,
                                                        provenance=old_content_node.provenance + [old_content_node.id],
                                                        new_casebook=self)
             cloned_content_nodes.append(cloned_content_node)
