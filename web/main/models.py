@@ -678,6 +678,10 @@ class MaterializedPathTreeMixin(models.Model):
             raise ValueError("Cannot use content_tree.children before calling content_tree.load.")
         return self._content_tree__children
 
+    @property
+    def children(self):
+        return self._content_tree__children
+
     def content_tree__load(self):
         """
             Fetch all descendants of this node and populate their content_tree__parent and content_tree__children
@@ -1637,7 +1641,7 @@ class ContentNode(EditTrackedModel, TimestampedModel, BigPkModel, MaterializedPa
     def tabs_for_user(self, user, current_tab='Read'):
         tabs = [('Casebook', reverse('casebook', args=[self.new_casebook]), True),
                 ('Read', reverse('section', args=[self.new_casebook, self]), True),
-                ('Annotate', reverse('annotate_resource', args=[self.new_casebook, self]), self.in_edit_state and self.editable_by(user)),
+                ('Annotate', reverse('annotate_resource', args=[self.new_casebook, self]), self.in_edit_state and self.editable_by(user) and self.annotatable),
                 ('Edit', reverse('edit_resource', args=[self.new_casebook, self]), self.in_edit_state and self.editable_by(user)),
                 ('Credits', reverse('show_resource_credits', args=[self.new_casebook, self]), True)]
         return [(n, l, n == current_tab) for n,l,c in tabs if c]
@@ -1958,6 +1962,10 @@ class Casebook(EditTrackedModel, TimestampedModel, BigPkModel, CasebookAndSectio
         tree = parse_html_fragment(self.headnote)
         PyQuery(tree).remove('img')
         return mark_safe(inner_html(tree))
+
+    @property
+    def is_resource(self):
+        return False
 
     @property
     def is_public(self):
