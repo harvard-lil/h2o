@@ -81,6 +81,17 @@ def hydrate_params(func):
     @wraps(func)
     def wrapper(request, *args, **kwargs):
         casebook_param = kwargs.pop('casebook_param')
+        if casebook_param:
+            candidate_casebooks = [x for x in Casebook.objects.filter(Q(pk=casebook_param['id']) | Q(old_casebook=casebook_param['id'])).all()]
+            new_cb_ids = [x for x in candidate_casebooks if x.id == casebook_param['id']]
+            if new_cb_ids:
+                cb_param = {'new_casebook': casebook_param['id']}
+                kwargs['casebook'] = new_cb_ids[0]
+            else:
+                old_cb_ids = [x for x in candidate_casebooks if x.old_casebook_id == casebook_param['id']]
+                if old_cb_ids:
+                    cb_param = {'casebook': casebook_param['id']}
+                    kwargs['casebook'] = old_cb_ids[0]
         for param in ('section_param', 'section_id', 'resource_param', 'resource_id', 'node_param', 'node_id'):
             param_value = kwargs.pop(param, None)
             if not param_value:
@@ -88,18 +99,16 @@ def hydrate_params(func):
             key, search_key = param.split('_', 1)
             if search_key == 'param':
                 kwargs[key] = get_object_or_404(ContentNode.objects
-                                                .filter(Q(new_casebook=casebook_param['id']) | Q(casebook=casebook_param['id']))
+                                                .filter(**cb_param)
                                                 .select_related('new_casebook'),
                                                 ordinals=param_value['ordinals'])
                 kwargs['casebook'] = kwargs[key].new_casebook
             else:
                 kwargs[key] = get_object_or_404(ContentNode.objects
-                                                .filter(Q(new_casebook=casebook_param['id']) | Q(casebook=casebook_param['id']))
+                                                .filter(**cb_param)
                                                 .select_related('new_casebook'),
                                                 id=param_value['id'])
                 kwargs['casebook'] = kwargs[key].new_casebook
-        if 'casebook' not in kwargs:
-            kwargs['casebook'] = get_object_or_404(Casebook.objects.filter(Q(pk=casebook_param['id']) | Q(old_casebook=casebook_param['id'])))
         return func(request, *args, **kwargs)
 
     return wrapper
