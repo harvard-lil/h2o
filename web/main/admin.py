@@ -12,7 +12,7 @@ from django.utils.safestring import mark_safe
 from simple_history.admin import SimpleHistoryAdmin
 from .utils import fix_after_rails, clone_model_instance
 from .models import Case, Link, User, Casebook, Section, \
-    Resource, ContentCollaborator, ContentAnnotation, TextBlock
+    Resource, ContentCollaborator, ContentAnnotation, TextBlock, ContentNode
 
 
 #
@@ -206,14 +206,14 @@ class AnnotationInline(admin.TabularInline):
 
 ## Casebooks
 
-class CasebookAdmin(BaseAdmin):
-    list_display = ['id', 'title', 'source', 'draft_link', 'created_at', 'updated_at']
+class CasebookAdmin(BaseAdmin, SimpleHistoryAdmin):
+    list_display = ['id', 'title', 'source', 'created_at', 'updated_at', 'state']
     list_filter = [CollaboratorNameFilter, CollaboratorIdFilter]
     search_fields = ['title']
 
-    fields = ['title', 'subtitle', 'public', 'source', 'draft_link', 'provenance', 'headnote', 'playlist_id', 'created_at', 'updated_at']
+    fields = ['title', 'subtitle', 'source', 'provenance', 'headnote', 'created_at', 'updated_at', 'state' ,'draft']
     readonly_fields = ['created_at', 'updated_at', 'source']
-    # raw_id_fields = ['collaborators', 'draft']
+    raw_id_fields = ['collaborators', 'draft']
     inlines = []
 
     def save_model(self, request, obj, form, change):
@@ -241,10 +241,6 @@ class CasebookAdmin(BaseAdmin):
     def formfield_for_dbfield(self, db_field, **kwargs):
         return self.enable_richeditor_for_field('headnote', db_field, **kwargs)
 
-    def draft_link(self, obj):
-        return edit_link(obj.draft)
-    draft_link.short_description = 'draft'
-
     def source(self, obj):
         if obj.provenance:
             copied_from = Casebook.objects.filter(id=obj.provenance[-1]).get()
@@ -252,7 +248,7 @@ class CasebookAdmin(BaseAdmin):
     source.short_description = 'source'
 
 
-class SectionAdmin(BaseAdmin):
+class SectionAdmin(BaseAdmin, SimpleHistoryAdmin):
     readonly_fields = ['created_at', 'updated_at', 'casebook_link', 'provenance', 'ordinals']
     list_select_related = ['casebook']
     list_display = ['id', 'casebook_link', 'title', 'ordinals', 'created_at', 'updated_at']
@@ -272,7 +268,30 @@ class SectionAdmin(BaseAdmin):
     casebook_link.short_description = 'casebook'
 
 
-class ResourceAdmin(BaseAdmin):
+class ContentNodeAdmin(BaseAdmin, SimpleHistoryAdmin):
+    readonly_fields = ['created_at', 'updated_at', 'casebook_link', 'provenance', 'resource_id', 'resource_type', 'ordinals']
+    list_select_related = ['casebook']
+    list_display = ['id', 'casebook_link', 'title', 'ordinals', 'resource_type', 'resource_id', 'annotation_count', 'created_at', 'updated_at']
+    list_filter = [CasebookIdFilter, 'resource_type', ResourceIdFilter]
+    search_fields = ['title', 'casebook__title']
+    fields = ['casebook', 'ordinals', 'title', 'subtitle', 'provenance', 'headnote', 'created_at', 'updated_at']
+    raw_id_fields = ['collaborators', 'casebook']
+    inlines = [AnnotationInline]
+
+    def get_queryset(self, request):
+        return super().get_queryset(request).select_related('casebook').prefetch_related('casebook__contentcollaborator_set__user').annotate(annotations_count=Count('annotations'))
+
+    def formfield_for_dbfield(self, db_field, **kwargs):
+        return self.enable_richeditor_for_field('headnote', db_field, **kwargs)
+
+    def casebook_link(self, obj):
+        return edit_link(obj.casebook, True)
+    casebook_link.short_description = 'casebook'
+
+    def annotation_count(self, obj):
+        return 'n/a' if obj.is_annotated == 'Link' else obj.annotations_count
+
+class ResourceAdmin(BaseAdmin, SimpleHistoryAdmin):
     readonly_fields = ['created_at', 'updated_at', 'casebook_link', 'provenance', 'resource_id', 'resource_type', 'ordinals']
     list_select_related = ['casebook']
     list_display = ['id', 'casebook_link', 'title', 'ordinals', 'resource_type', 'resource_id', 'annotation_count', 'created_at', 'updated_at']
@@ -296,7 +315,7 @@ class ResourceAdmin(BaseAdmin):
         return 'n/a' if obj.resource_type == 'Link' else obj.annotations_count
 
 
-class AnnotationsAdmin(BaseAdmin):
+class AnnotationsAdmin(BaseAdmin, SimpleHistoryAdmin):
     readonly_fields = ['created_at', 'updated_at', 'start_paragraph', 'end_paragraph', 'start_offset', 'end_offset', 'kind']
     fields = ['resource', ('global_start_offset', 'global_end_offset'), ('start_paragraph', 'end_paragraph'), ('start_offset', 'end_offset'), 'kind', 'content', 'created_at', 'updated_at']
     list_select_related = ['resource']
@@ -352,7 +371,7 @@ class CaseAdmin(BaseAdmin, SimpleHistoryAdmin):
     live_annotations_count.short_description = 'Annotations'
 
 
-class LinkAdmin(BaseAdmin):
+class LinkAdmin(BaseAdmin, SimpleHistoryAdmin):
     readonly_fields = ['created_at', 'updated_at']
     list_display = ['id', 'name', 'url', 'public', 'related_resources', 'created_at', 'updated_at', 'content_type']
     list_filter = ['public', 'content_type']
@@ -469,3 +488,4 @@ admin_site.register(Link, LinkAdmin)
 admin_site.register(TextBlock, TextBlockAdmin)
 admin_site.register(User, UserAdmin)
 admin_site.register(ContentCollaborator, CollaboratorsAdmin)
+admin_site.register(ContentNode, ContentNodeAdmin)

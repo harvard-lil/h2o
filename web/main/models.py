@@ -332,7 +332,7 @@ class ContentAnnotation(TimestampedModel, BigPkModel):
     global_end_offset = models.IntegerField(blank=True, null=True)
 
     resource = models.ForeignKey(
-        'Resource',
+        'ContentNode',
         on_delete=models.CASCADE,
         related_name='annotations',
     )
@@ -345,6 +345,7 @@ class ContentAnnotation(TimestampedModel, BigPkModel):
     end_paragraph = models.IntegerField(blank=True, null=True)
     start_offset = models.IntegerField(blank=True, null=True)
     end_offset = models.IntegerField(blank=True, null=True)
+    history = HistoricalRecords()
 
     class Meta:
         indexes = [
@@ -904,6 +905,7 @@ class ContentNode(EditTrackedModel, TimestampedModel, BigPkModel, MaterializedPa
         null=True,
         related_name='clones',
     )
+    history = HistoricalRecords()
 
     # Some fields are only used by certain subsets of ContentNodes
     # https://github.com/harvard-lil/h2o/issues/1035
@@ -1727,9 +1729,9 @@ class SectionAndResourceMixin(models.Model):
             >>> casebook, s_1, r_1_1, r_1_2, r_1_3, s_1_4, r_1_4_1, r_1_4_2, r_1_4_3, s_2 = full_casebook_parts_factory()
 
             Delete a section in a section (and children, including one case, one text block, and one link/default), no reordering required:
-            >>> with assert_num_queries(delete=6, select=9, update=1):
+            >>> with assert_num_queries(delete=5, select=13, update=1, insert=7):
             ...     deleted = s_1_4.delete()
-            >>> assert deleted == (1, {'main.ContentAnnotation': 0, 'main.Section': 1})
+            >>> assert deleted == (6, {'main.Section': 1, 'main.ContentAnnotation': 2, 'main.ContentNode': 3})
             >>> assert dump_content_tree(casebook) == [
             ...         [s_1, casebook, [
             ...             [r_1_1, s_1, []],
@@ -1743,9 +1745,9 @@ class SectionAndResourceMixin(models.Model):
             ...         node.refresh_from_db()
 
             Delete the first section in the book (and children, including one case, one text block, and one link/default), triggering reordering:
-            >>> with assert_num_queries(delete=6, select=8, update=1):
+            >>> with assert_num_queries(delete=5, select=12, update=1, insert=7):
             ...     deleted = s_1.delete()
-            >>> assert deleted == (1, {'main.ContentAnnotation': 0, 'main.Section': 1})
+            >>> assert deleted == (6, {'main.Section': 1, 'main.ContentAnnotation': 2, 'main.ContentNode': 3})
             >>> assert dump_content_tree(casebook) == [
             ...         [s_2, casebook, []],
             ... ]
@@ -1759,7 +1761,7 @@ class SectionAndResourceMixin(models.Model):
             >>> casebook, s_1, r_1_1, r_1_2, r_1_3, s_1_4, r_1_4_1, r_1_4_2, r_1_4_3, s_2 = getfixture('full_casebook_parts')
 
             Delete a case resource in the middle of a section:
-            >>> with assert_num_queries(delete=2, select=3, update=1):
+            >>> with assert_num_queries(delete=2, select=4, update=1, insert=2):
             ...     deleted = r_1_2.delete()
             >>> assert deleted == (3, {'main.Resource': 1, 'main.ContentAnnotation': 2})
             >>> assert dump_content_tree(casebook) == [
@@ -1782,9 +1784,9 @@ class SectionAndResourceMixin(models.Model):
 
             Delete a text resource at the beginning of a section:
             >>> r_1_4_1.refresh_from_db()
-            >>> with assert_num_queries(delete=3, select=5, update=1):
+            >>> with assert_num_queries(delete=2, select=6, update=1, insert=1):
             ...     deleted = r_1_4_1.delete()
-            >>> assert deleted == (1, {'main.Resource': 1, 'main.ContentAnnotation': 0})
+            >>> assert deleted == (2, {'main.Resource': 1, 'main.TextBlock': 1})
             >>> assert dump_content_tree(casebook) == [
             ...     [s_1, casebook, [
             ...         [r_1_1, s_1, []],
@@ -1801,9 +1803,9 @@ class SectionAndResourceMixin(models.Model):
 
             Delete a link/default resource at the end of a section:
             >>> r_1_4_3.refresh_from_db()
-            >>> with assert_num_queries(delete=3, select=5, update=1):
+            >>> with assert_num_queries(delete=2, select=6, update=1, insert=1):
             ...     deleted = r_1_4_3.delete()
-            >>> assert deleted == (1, {'main.Resource': 1, 'main.ContentAnnotation': 0})
+            >>> assert deleted == (2, {'main.Resource': 1, 'main.Link': 1})
             >>> assert dump_content_tree(casebook) == [
             ...     [s_1, casebook, [
             ...         [r_1_1, s_1, []],
@@ -1828,19 +1830,23 @@ class SectionAndResourceMixin(models.Model):
         # Delete this nodes's children, and any related links and textblocks,
         # without recursively calling our custom Section.delete and Resource.delete methods
         # https://docs.djangoproject.com/en/2.2/topics/db/queries/#deleting-objects
-        if type(self) is Section:
+        child_total = 0
+        child_deletes = {}
+        if self.resource_id is None:
             self._delete_related_links_and_text_blocks()
-            self.contents.delete()
+            child_total, child_deletes = self.contents.delete()
         elif self.resource_type in ['TextBlock', 'Link']:
-            self.resource.delete()
+            child_total, child_deletes = self.resource.delete()
 
         # Delete this node
-        return_value = super().delete(*args, **kwargs)
+        return_total, return_dict = super().delete(*args, **kwargs)
 
         # Update the ordinals of the content tree
         parent.content_tree__repair()
 
-        return return_value
+        for k,v in child_deletes.items():
+            return_dict[k] = return_dict.get(k,0) + v
+        return (return_total + child_total, return_dict)
 
     @property
     def is_public(self):
@@ -1903,6 +1909,7 @@ class Casebook(EditTrackedModel, TimestampedModel, BigPkModel, CasebookAndSectio
         null=True,
         related_name='draft_of'
     )
+    history = HistoricalRecords()
 
     tracked_fields = ['headnote']
 
@@ -2004,7 +2011,7 @@ class Casebook(EditTrackedModel, TimestampedModel, BigPkModel, CasebookAndSectio
             >>> assert Casebook.objects.exists()
             >>> assert ContentNode.objects.exists()
             >>> assert ContentAnnotation.objects.exists()
-            >>> with assert_num_queries(delete=12, select=12):
+            >>> with assert_num_queries(delete=12, select=18, insert=36):
             ...     deleted = casebook.delete()
             >>> assert not Casebook.objects.exists()
             >>> assert not ContentNode.objects.exists()
@@ -2105,7 +2112,7 @@ class Casebook(EditTrackedModel, TimestampedModel, BigPkModel, CasebookAndSectio
             >>> draft.title = "New Title"
             >>> draft.save()
             >>> Section(new_casebook=draft, ordinals=[3], title="New Section").save()
-            >>> with assert_num_queries(delete=7, select=11, update=3):
+            >>> with assert_num_queries(delete=6, select=15, update=3, insert=19):
             ...     new_casebook = draft.merge_draft()
             >>> assert new_casebook == full_casebook
             >>> expected = [
@@ -2216,7 +2223,7 @@ class Casebook(EditTrackedModel, TimestampedModel, BigPkModel, CasebookAndSectio
             >>> assert user not in set(full_casebook.attributed_authors)
 
             Return a cloned casebook like this:
-            >>> with assert_num_queries(select=6, insert=6):
+            >>> with assert_num_queries(select=6, insert=7):
             ...     clone = full_casebook.clone(current_user=user)
             >>> expected = [
             ...      'Casebook<2>: Some Title 0',
@@ -2305,7 +2312,7 @@ class Casebook(EditTrackedModel, TimestampedModel, BigPkModel, CasebookAndSectio
         for old_content_node in nodes:
             # clone content_node
             cloned_content_node = clone_model_instance(old_content_node,
-                                                       old_casebook=None,
+                                                       casebook=None,
                                                        provenance=old_content_node.provenance + [old_content_node.id],
                                                        new_casebook=self)
             cloned_content_nodes.append(cloned_content_node)
@@ -2683,6 +2690,7 @@ class Link(NullableTimestampedModel):
     url = models.URLField(max_length=1024)
     public = models.BooleanField(null=True, default=True)
     content_type = models.CharField(max_length=255, blank=True, null=True)
+    history = HistoricalRecords()
 
     def get_name(self):
         return self.name if self.name else "Link to {}".format(urlparse(self.url).netloc)
@@ -2710,6 +2718,7 @@ class TextBlock(NullableTimestampedModel, AnnotatedModel):
     content = models.CharField(max_length=5242880)
     public = models.BooleanField(default=True, blank=True, null=True)
     created_via_import = models.BooleanField(default=False)
+    history = HistoricalRecords()
 
     class Meta:
         indexes = [
