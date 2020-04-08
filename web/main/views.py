@@ -123,7 +123,7 @@ def user_has_perm(kwarg, method):
         @wraps(func)
         def wrapper(request, *args, **kwargs):
             # Temporary Resource kludge
-            if not getattr(kwargs[kwarg], method)(request.user):
+            if not (kwarg in kwargs and getattr(kwargs[kwarg], method)(request.user)):
                 return login_required_response(request)
             return func(request, *args, **kwargs)
 
@@ -1303,11 +1303,12 @@ def edit_resource(request, casebook, resource):
     if request.method == 'POST':
         if embedded_resource_form:
             if form.is_valid() and embedded_resource_form.is_valid():
-                form.save()
                 embedded_resource_form.save()
+                form.save()
         else:
             if form.is_valid():
                 form.save()
+
 
     return render_with_actions(request, 'casebook_page.html', {
         'casebook': casebook,
