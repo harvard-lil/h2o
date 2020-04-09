@@ -10,7 +10,7 @@
             {% endif %}
     </div>
 </div>
-{% else %}
+{% elif casebook.is_draft or casebook.is_private %}
     <div class="casebook-preview banner">
         <div class="banner-inner">
             {% if casebook.is_draft %}
