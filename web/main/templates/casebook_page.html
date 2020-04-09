@@ -7,6 +7,9 @@
 
 {% block page_title %} {% if mode %}{{mode}} | {% endif %} {{casebook.title}} {% if section %}: {{ section.title }} {% endif %} {% endblock %}
 
+{% if editing %}
+{% block extra_foot %}{% render_bundle 'rich_text_editor' %}{% endblock %}
+{% endif %}
 
 {% block banner %}
     {% include 'includes/preview_banner.html' %}
