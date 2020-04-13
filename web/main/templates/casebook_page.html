@@ -1,6 +1,6 @@
 {% extends 'base.html' %}
 
-{% if edit_mode %}
+{% if edit_mode or clone_section_targets %}
 {% load render_bundle from webpack_loader %}
 {% load crispy_forms_tags %}
 {% endif %}
@@ -44,21 +44,20 @@
                             {% include 'includes/collaborators.html' with content=casebook %}
                         </div>
                     </div>
-                {% endif %}
+                    {% endif %}
             </header>
+            {% include 'includes/action_buttons.html' %}
             {% if section %}
-                {% include 'includes/action_buttons.html' with content=section %}
                 {% if not editing %}
                     {% include 'includes/headnote.html' with content=section %}
+                    {% include section.body_template %}
                 {% endif %}
-                {% include section.body_template %}
             {% else %}
                 {% if not editing %}
                     {% include 'includes/headnote.html' with content=casebook %}
                 {% endif %}
             {% endif %}
             {% if not section.has_body %}
-                {% include 'includes/action_buttons.html' with content=casebook %}
                 {% include 'includes/table-of-contents.html'%}
             {% endif %}
         </div>

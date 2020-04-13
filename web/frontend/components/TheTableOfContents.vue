@@ -6,7 +6,7 @@
       v-on:change="moveSubsection"
       v-if="dataReady">
       <vue-nestable-handle slot-scope="{ item }" :item="item" class="collapsed" v-if="editing">
-        <div v-bind:class="{'listing-wrapper':true, 'delete-confirm': promptForDelete({id:item.id})}">
+        <div :id="getAnchor(item)" v-bind:class="{'listing-wrapper':true, 'delete-confirm': promptForDelete({id:item.id})}">
           <div class="listing resource" v-if="item.resource_type !== null">
             <div class="section-number">{{rootOrdinals}}</div>
             <div class="resource-container" v-if="item.resource_type==='Case'">
@@ -64,7 +64,7 @@
           </div>
         </div>
       </vue-nestable-handle>
-      <div class="listing-wrapper" v-else>
+      <div :id="getAnchor(item)" class="listing-wrapper" v-else>
         <div class="listing resource" v-if="item.resource_type !== null">
           <div class="section-number">{{rootOrdinals}}</div>
           <div class="resource-container" v-if="item.resource_type==='Case'">
@@ -163,6 +163,24 @@ export default {
       return this.toc !== [null] && this.toc !== null;
     }
   },
+  mounted: function() {
+    const hash = window.location.hash;
+    let attempts = 0;
+    function waitForID() {
+      if (null !== document.getElementById(hash.substring(1))) {
+        window.location.hash = "";
+        window.location.hash = hash;
+      } else {
+        attempts += 1;
+        if (attempts < 5) {
+          setTimeout(waitForID,15);
+        }
+      }
+    }
+    if (hash !== "") {
+      setTimeout(waitForID,15);
+    }
+  },
   methods: {
     ...mapActions(["fetch", "deleteNode", "commitShuffle", "moveNode"]),
     ...mapMutations(["shuffle"]),
@@ -229,6 +247,10 @@ export default {
       } else {
         Vue.set(this.collapsedSections, id, true);
       }
+    },
+    getAnchor: function ({ url }) {
+      const url_parts = url.split("/");
+      return url_parts[url_parts.length - 2];    
     }
   },
   props: ["rootId", "casebook", "editing","rootOrdinals"],
