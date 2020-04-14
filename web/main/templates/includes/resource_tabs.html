@@ -10,11 +10,6 @@
                 {% else %}
                     <a class="tab" href="{% url 'edit_casebook' resource.new_casebook %}">Casebook</a>
                 {% endif %}
-                {% if read_tab %}
-                    <span class="tab disabled active">Preview</span>
-                {% else %}
-                    <a class="tab" href="{{ resource.get_absolute_url }}">Preview</a>
-                {% endif %}
                 {% if edit_mode %}
                     {% if details_tab %}
                     <span class="tab disabled active">Edit</span>
@@ -28,6 +23,11 @@
                             <a class="tab" href="{% url 'annotate_resource' resource.new_casebook resource %}">Annotate</a>
                         {% endif %}
                     {% endif %}
+                {% endif %}
+                {% if read_tab %}
+                    <span class="tab disabled active">Preview</span>
+                {% else %}
+                    <a class="tab" href="{{ resource.get_absolute_url }}">Preview</a>
                 {% endif %}
                 {% if credits_tab %}
                     <span class="tab disabled active">Credits</span>
