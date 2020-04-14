@@ -6,33 +6,33 @@
         <div class="casebook-inner">
             <div class="tabs">
                 {% if not edit_mode %}
-                <a class="tab" href="{{ resource.new_casebook.get_absolute_url }}">Casebook</a>
+                    <a class="tab" href="{{ resource.new_casebook.get_absolute_url }}">Casebook</a>
                 {% else %}
-                <a class="tab" href="{% url 'edit_casebook' resource.new_casebook %}">Casebook</a>
+                    <a class="tab" href="{% url 'edit_casebook' resource.new_casebook %}">Casebook</a>
                 {% endif %}
                 {% if read_tab %}
-                <span class="tab disabled active">Read</span>
+                    <span class="tab disabled active">Preview</span>
                 {% else %}
-                <a class="tab" href="{{ resource.get_absolute_url }}">Read</a>
+                    <a class="tab" href="{{ resource.get_absolute_url }}">Preview</a>
                 {% endif %}
                 {% if edit_mode %}
-                {% if resource.annotatable %}
-                {% if annotate_tab %}
-                <span class="tab disabled active">Annotate</span>
-                {% else %}
-                <a class="tab" href="{% url 'annotate_resource' resource.new_casebook resource %}">Annotate</a>
-                {% endif %}
-                {% endif %}
-                {% if details_tab %}
-                <span class="tab disabled active">Resource Details</span>
-                {% else %}
-                <a class="tab" href="{% url 'edit_resource' resource.new_casebook resource %}">Resource Details</a>
-                {% endif %}
+                    {% if details_tab %}
+                    <span class="tab disabled active">Edit</span>
+                    {% else %}
+                    <a class="tab" href="{% url 'edit_resource' resource.new_casebook resource %}">Edit</a>
+                    {% endif %}
+                    {% if resource.annotatable %}
+                        {% if annotate_tab %}
+                            <span class="tab disabled active">Annotate</span>
+                        {% else %}
+                            <a class="tab" href="{% url 'annotate_resource' resource.new_casebook resource %}">Annotate</a>
+                        {% endif %}
+                    {% endif %}
                 {% endif %}
                 {% if credits_tab %}
-                <span class="tab disabled active">Credits</span>
+                    <span class="tab disabled active">Credits</span>
                 {% else %}
-                <a class="tab" href="{% url 'show_resource_credits' resource.new_casebook resource %}">Credits</a>
+                    <a class="tab" href="{% url 'show_resource_credits' resource.new_casebook resource %}">Credits</a>
                 {% endif %}
             </div>
         </div>

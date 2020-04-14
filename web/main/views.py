@@ -739,7 +739,7 @@ class CasebookView(View):
         contents = casebook.contents.prefetch_resources()
         return render_with_actions(request, 'casebook_page.html', {
             'casebook': casebook,
-            'tabs': casebook.tabs_for_user(request.user, current_tab='Casebook'),
+            'tabs': casebook.tabs_for_user(request.user),
             'contents': contents
         })
 
@@ -1092,7 +1092,7 @@ class SectionView(View):
         return render_with_actions(request, 'casebook_page.html', {
             'casebook': casebook,
             'section': section,
-            'tabs':section.tabs_for_user(request.user, current_tab='Read'),
+            'tabs':section.tabs_for_user(request.user),
             'edit_mode': casebook.directly_editable_by(request.user)
         })
 
@@ -1211,7 +1211,7 @@ class ResourceView(View):
             'contents': section,
             'include_vuejs': section.annotatable,
             'edit_mode': section.directly_editable_by(request.user),
-            'tabs':section.tabs_for_user(request.user, current_tab='Read')
+            'tabs':section.tabs_for_user(request.user)
         })
 
     @method_decorator(perms_test(directly_editable_resource))

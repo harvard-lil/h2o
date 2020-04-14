@@ -1640,11 +1640,14 @@ class ContentNode(EditTrackedModel, TimestampedModel, BigPkModel, MaterializedPa
     def in_edit_state(self):
         return self.new_casebook.in_edit_state
 
-    def tabs_for_user(self, user, current_tab='Read'):
+    def tabs_for_user(self, user, current_tab=None):
+        read_tab = 'Preview' if self.in_edit_state else 'Read'
+        if current_tab == None:
+            current_tab = read_tab
         tabs = [('Casebook', reverse('casebook', args=[self.new_casebook]), True),
-                ('Read', reverse('section', args=[self.new_casebook, self]), True),
-                ('Annotate', reverse('annotate_resource', args=[self.new_casebook, self]), self.in_edit_state and self.editable_by(user) and self.annotatable),
+                (read_tab, reverse('section', args=[self.new_casebook, self]), True),
                 ('Edit', reverse('edit_resource', args=[self.new_casebook, self]), self.in_edit_state and self.editable_by(user)),
+                ('Annotate', reverse('annotate_resource', args=[self.new_casebook, self]), self.in_edit_state and self.editable_by(user) and self.annotatable),
                 ('Credits', reverse('show_resource_credits', args=[self.new_casebook, self]), True)]
         return [(n, l, n == current_tab) for n,l,c in tabs if c]
 
@@ -2510,8 +2513,11 @@ class Casebook(EditTrackedModel, TimestampedModel, BigPkModel, CasebookAndSectio
                               Casebook.LifeCycle.DRAFT.value,
                               Casebook.LifeCycle.NEWLY_CREATED.value}
 
-    def tabs_for_user(self, user, current_tab='Casebook'):
-        tabs = [('Casebook', reverse('casebook', args=[self]), True),
+    def tabs_for_user(self, user, current_tab=None):
+        read_tab = 'Preview' if self.in_edit_state else 'Casebook'
+        if current_tab == None:
+            current_tab = read_tab
+        tabs = [(read_tab, reverse('casebook', args=[self]), True),
                 ('Edit', reverse('edit_casebook', args=[self]), self.in_edit_state and self.editable_by(user)),
                 ('Credits', reverse('show_credits', args=[self]), True)]
         return [(n, l, n == current_tab) for n,l,c in tabs if c]
