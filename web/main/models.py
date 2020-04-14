@@ -1642,12 +1642,12 @@ class ContentNode(EditTrackedModel, TimestampedModel, BigPkModel, MaterializedPa
 
     def tabs_for_user(self, user, current_tab=None):
         read_tab = 'Preview' if self.in_edit_state else 'Read'
-        if current_tab == None:
+        if current_tab is None:
             current_tab = read_tab
         tabs = [('Casebook', reverse('casebook', args=[self.new_casebook]), True),
-                (read_tab, reverse('section', args=[self.new_casebook, self]), True),
                 ('Edit', reverse('edit_resource', args=[self.new_casebook, self]), self.in_edit_state and self.editable_by(user)),
                 ('Annotate', reverse('annotate_resource', args=[self.new_casebook, self]), self.in_edit_state and self.editable_by(user) and self.annotatable),
+                (read_tab, reverse('section', args=[self.new_casebook, self]), True),
                 ('Credits', reverse('show_resource_credits', args=[self.new_casebook, self]), True)]
         return [(n, l, n == current_tab) for n,l,c in tabs if c]
 
@@ -2515,11 +2515,11 @@ class Casebook(EditTrackedModel, TimestampedModel, BigPkModel, CasebookAndSectio
 
     def tabs_for_user(self, user, current_tab=None):
         read_tab = 'Preview' if self.in_edit_state else 'Casebook'
-        if current_tab == None:
+        if current_tab is None:
             current_tab = read_tab
-        tabs = [(read_tab, reverse('casebook', args=[self]), True),
-                ('Edit', reverse('edit_casebook', args=[self]), self.in_edit_state and self.editable_by(user)),
-                ('Credits', reverse('show_credits', args=[self]), True)]
+        tabs = [('Edit', reverse('edit_casebook', args=[self]), self.in_edit_state and self.editable_by(user)),
+                (read_tab, reverse('casebook', args=[self]), True),
+                ('Credits', reverse('show_credits', args=[self]), True),]
         return [(n, l, n == current_tab) for n,l,c in tabs if c]
 
 
