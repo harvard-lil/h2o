@@ -1,4 +1,4 @@
-<header class="casebook casebook-{% if editing %}draft{% else %}public{% endif %}"
+<header class="casebook {{casebook_color_class}}"
         {% if editing %}data-editable="true"{% endif %}
         data-casebook-id="{{ casebook.id }}"
         data-section-id="{{ section.id }}"
