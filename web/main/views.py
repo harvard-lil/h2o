@@ -693,7 +693,7 @@ def show_credits(request, casebook, section=None):
               'casebook':casebook,
               'section':section,
               'tabs': (section if section else casebook).tabs_for_user(request.user, current_tab='Credits'),
-              'casebook_color_class':'casebook-draft' if casebook.in_edit_state else 'casebook-preview',
+              'casebook_color_class':'casebook-draft' if casebook.in_edit_state else 'casebook-preview casebook-public',
               'edit_mode': casebook.directly_editable_by(request.user)}
     return render(request, 'casebook_page_credits.html', params)
 
@@ -741,7 +741,7 @@ class CasebookView(View):
         return render_with_actions(request, 'casebook_page.html', {
             'casebook': casebook,
             'tabs': casebook.tabs_for_user(request.user),
-            'casebook_color_class':'casebook-preview',
+            'casebook_color_class':'casebook-public casebook-preview',
             'contents': contents
         })
 
@@ -897,7 +897,7 @@ def edit_casebook(request, casebook):
         'casebook': casebook,
         'editing': True,
         'tabs': casebook.tabs_for_user(request.user, current_tab='Edit'),
-        'casebook_color_class':'casebook-draft' if casebook.in_edit_state else 'casebook-preview',
+        'casebook_color_class':'casebook-draft' if casebook.in_edit_state else 'casebook-preview casebook-public',
         'form': form
     })
 
@@ -1096,7 +1096,7 @@ class SectionView(View):
             'casebook': casebook,
             'section': section,
             'tabs':section.tabs_for_user(request.user),
-            'casebook_color_class':'casebook-preview',
+            'casebook_color_class':'casebook-preview casebook-public',
             'edit_mode': casebook.directly_editable_by(request.user)
         })
 
@@ -1162,7 +1162,7 @@ def edit_section(request, casebook, section):
         'casebook': casebook,
         'section': section,
         'tabs':section.tabs_for_user(request.user, current_tab='Edit'),
-        'casebook_color_class':'casebook-draft' if casebook.in_edit_state else 'casebook-preview',
+        'casebook_color_class':'casebook-draft' if casebook.in_edit_state else 'casebook-preview casebook-public',
         'editing': True,
         'form': form
     })
@@ -1217,7 +1217,7 @@ class ResourceView(View):
             'include_vuejs': section.annotatable,
             'edit_mode': section.directly_editable_by(request.user),
             'tabs':section.tabs_for_user(request.user),
-            'casebook_color_class':'casebook-preview',
+            'casebook_color_class':'casebook-preview casebook-public',
         })
 
     @method_decorator(perms_test(directly_editable_resource))
@@ -1321,7 +1321,7 @@ def edit_resource(request, casebook, resource):
         'section': resource,
         'editing': True,
         'tabs': resource.tabs_for_user(request.user, current_tab='Edit'),
-        'casebook_color_class':'casebook-draft' if casebook.in_edit_state else 'casebook-preview',
+        'casebook_color_class':'casebook-draft' if casebook.in_edit_state else 'casebook-preview casebook-public',
         'form': form,
         'embedded_resource_form': embedded_resource_form
     })
