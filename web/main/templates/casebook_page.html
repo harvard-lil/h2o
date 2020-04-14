@@ -18,7 +18,7 @@
 {% block mainContent %}
 {% include 'includes/casebook_page_tabs.html' %}
 
-<section class="casebook-{% if editing %}draft{% else %}public{% endif %} casebook">
+<section class="casebook {{casebook_color_class}}">
     <div class="content">
         <div class="casebook-inner">
             <div class="top-strip"></div>
