@@ -68,11 +68,12 @@ ul.clone-target-list {
     max-height: 600px;
     li {
         button.link {
+            background-color:white;
             border: 0;
             text-decoration: underline;
             color: rgba(80, 172, 50, 1);
             &:hover {
-                
+                font-weight: bold;
             }
         }
     }
