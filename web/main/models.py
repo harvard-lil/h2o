@@ -743,6 +743,13 @@ class MaterializedPathTreeMixin(models.Model):
                 parent._content_tree__children.append(node)
             last_child = node
 
+    @property
+    def content_tree__descendants(self):
+        for child in self.children:
+            yield child
+            for grandchild in child.children:
+                yield grandchild
+
     ## content tree: storing updates
 
     def content_tree__store(self):
@@ -2833,6 +2840,10 @@ class User(NullableTimestampedModel, PermissionsMixin, AbstractBaseUser):
         # This probably wants to be:
         # return self.casebooks.filter(contentcollaborator__has_attribution=True, public=True)
         return self.casebooks.filter(state=Casebook.LifeCycle.PUBLISHED.value)
+
+    @property
+    def directly_editable_casebooks(self):
+        return (x for x in self.casebooks.order_by('-updated_at').all() if x.directly_editable_by(self))
 
 
 def update_user_login_fields(sender, request, user, **kwargs):

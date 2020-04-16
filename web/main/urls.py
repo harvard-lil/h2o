@@ -33,7 +33,6 @@ urlpatterns = format_suffix_patterns(drf_urlpatterns) + [
     path('users/<int:user_id>/', views.dashboard, name='dashboard'),
     path('accounts/new/', views.sign_up, name='sign_up'),
     path('accounts/edit/', views.edit_user, name='edit_user'),
-
     # built-in Django auth views for login/logout/password update/password reset, with overrides to replace the form or tweak behavior in some views
     path('accounts/password_reset/', no_perms_test(views.reset_password), name='password_reset'),
     path('accounts/reset/<uidb64>/<token>/', no_perms_test(auth_views.PasswordResetConfirmView.as_view(form_class=forms.SetPasswordForm)), name='password_reset_confirm'),
@@ -60,8 +59,10 @@ urlpatterns = format_suffix_patterns(drf_urlpatterns) + [
     path('casebooks/<idslug:casebook_param>/layout/', views.edit_casebook, name='edit_casebook'),
     path('casebooks/<idslug:casebook_param>/edit/', RedirectView.as_view(pattern_name='edit_casebook', permanent=True)),
     path('casebooks/<idslug:casebook_param>/clone/', views.clone_casebook, name='clone'),
+    path('casebooks/<idslug:from_casebook_dict>/sections/<ordslug:from_section_dict>/clone/to/<idslug:to_casebook_dict>/', views.clone_casebook_nodes, name='clone_nodes'),
     path('casebooks/<idslug:casebook_param>/create_draft/', views.create_draft, name='create_draft'),
     path('casebooks/<idslug:casebook_param>/credits/', views.show_credits, name='show_credits'),
+    
     # TODO: we temporarily need to list with and without trailing slash, to handle POSTs without slashes
     path('casebooks/<idslug:casebook_param>/', views.CasebookView.as_view(), name='casebook'),
     path('casebooks/<idslug:casebook_param>', no_perms_test(views.CasebookView.as_view())),

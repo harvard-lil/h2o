@@ -286,6 +286,8 @@ def actions(request, context):
 def render_with_actions(request, template_name, context=None, content_type=None, status=None, using=None):
     if context is None:
         context = {}
+    if request.user and hasattr(request.user,'casebooks') and 'section' in context:
+        context['clone_section_targets'] = json.dumps([{'title': "{} ({})".format(user_casebook.title,user_casebook.created_at.year), 'form_target':reverse('clone_nodes', args=[context['casebook'],context['section'], user_casebook])} for user_casebook in request.user.directly_editable_casebooks])
 
     return render(request, template_name, {
         **context,
@@ -509,7 +511,6 @@ def index(request):
     else:
         return render(request, 'index.html')
 
-
 @perms_test({'args': ['user.id'], 'results': {200: ['user', None]}})
 def dashboard(request, user_id):
     """
@@ -683,10 +684,10 @@ def show_credits(request, casebook, section=None):
         nesting_depth = sum(map(lambda x: x in cs_set, [".".join(map(str,node.ordinals[:y])) for y in range(len(node.ordinals))]))
         if immediate_clone.id not in casebook_mapping:
             casebook_mapping[immediate_clone.id] = {'casebook':immediate_clone,
-                                                   'immediate_authors': {c.user for c in immediate_clone.tempcollaborator_set.all() if c.has_attribution},
+                                                   'immediate_authors': {c.user for c in immediate_clone.tempcollaborator_set.all() if c.has_attribution and c.user.display_name != 'Anonymous'},
                                                    'incidental_authors': set(),
                                                    'nodes':[]}
-        casebook_mapping[immediate_clone.id]['incidental_authors'] |= {c.user for clone in incidental_clones for c in clone.tempcollaborator_set.all() if c.has_attribution and c.user not in casebook_mapping[immediate_clone.id]['immediate_authors']}
+        casebook_mapping[immediate_clone.id]['incidental_authors'] |= {c.user for clone in incidental_clones for c in clone.tempcollaborator_set.all() if c.has_attribution and c.user.display_name != 'Anonymous' and c.user not in casebook_mapping[immediate_clone.id]['immediate_authors']}
         casebook_mapping[immediate_clone.id]['nodes'].append((node, known_priors[-1],nesting_depth))
 
     params = {'contributing_casebooks': [v for v in casebook_mapping.values()],
@@ -823,6 +824,23 @@ def clone_casebook(request, casebook):
         clone = casebook.clone(request.user)
         return HttpResponseRedirect(reverse('edit_casebook', args=[clone]))
     raise PermissionDenied
+
+
+@no_perms_test
+def clone_casebook_nodes(request, from_casebook_dict, from_section_dict, to_casebook_dict):
+    from_section = get_object_or_404(ContentNode.objects.filter(new_casebook=from_casebook_dict['id'], ordinals=from_section_dict['ordinals']))
+    to_casebook = get_object_or_404(Casebook.objects.filter(id=to_casebook_dict['id']))
+    if not from_section.permits_cloning:
+        raise PermissionDenied
+    if not to_casebook.directly_editable_by(request.user):
+        raise PermissionDenied
+    from_section.content_tree__load()
+    nodes_to_clone = [from_section] + [d for d in from_section.content_tree__descendants]
+    to_casebook.clone_nodes(nodes_to_clone, append=True)
+    to_casebook.refresh_from_db()
+    new_add = to_casebook.children.order_by('-ordinals').first()
+    link_hash = new_add.ordinal_string() + "-" + new_add.get_slug()
+    return HttpResponseRedirect(to_casebook.get_edit_url() + "#" + link_hash)
 
 
 @perms_test(
