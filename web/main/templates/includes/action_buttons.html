@@ -35,7 +35,7 @@
       {% csrf_token %}
       {# TODO: see if disable functionality works #}
     </form>
-    {% if section %}
+    {% if section and super_user %}
     <section-cloner :casebook-targets="{{clone_section_targets}}"
                     section-source="{{section.title}}"></section-cloner>
     {% endif %}

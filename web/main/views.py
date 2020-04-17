@@ -289,6 +289,8 @@ def render_with_actions(request, template_name, context=None, content_type=None,
     if request.user and hasattr(request.user,'casebooks') and 'section' in context:
         context['clone_section_targets'] = json.dumps([{'title': "{} ({})".format(user_casebook.title,user_casebook.created_at.year), 'form_target':reverse('clone_nodes', args=[context['casebook'],context['section'], user_casebook])} for user_casebook in request.user.directly_editable_casebooks])
 
+    if request.user and request.user.is_superuser:
+        context['super_user'] = True
     return render(request, template_name, {
         **context,
         **actions(request, context)
@@ -379,6 +381,8 @@ class SectionTOCView(APIView):
             section.content_tree__move_to(new_ordinals)
         except ValueError as e:
             return HttpResponseBadRequest(b"Invalid ordinals: %s" % e.args[0].encode('utf8'))
+        except IndexError:
+            casebook.content_tree__repair()
 
         return Response(CasebookTOCView.format_casebook(casebook), status=200)
 
