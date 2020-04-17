@@ -16,5 +16,5 @@ document.addEventListener("DOMContentLoaded", () => {
         }
     });
 
-    window.action_app = app;
+    window.app = app;
 });

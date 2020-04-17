@@ -694,7 +694,7 @@ def show_credits(request, casebook, section=None):
               'casebook':casebook,
               'section':section,
               'tabs': (section if section else casebook).tabs_for_user(request.user, current_tab='Credits'),
-              'casebook_color_class':'casebook-draft' if casebook.in_edit_state else 'casebook-preview casebook-public',
+              'casebook_color_class':'casebook-preview casebook-public',
               'edit_mode': casebook.directly_editable_by(request.user)}
     return render(request, 'casebook_page_credits.html', params)
 
