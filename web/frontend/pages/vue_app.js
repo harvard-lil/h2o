@@ -23,7 +23,7 @@ document.addEventListener("DOMContentLoaded", () => {
   });
 
   const app = new Vue({
-    el: "#app",
+    el: "#resource-body",
     store,
     router,
     components: {
