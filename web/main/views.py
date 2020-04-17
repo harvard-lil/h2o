@@ -379,6 +379,8 @@ class SectionTOCView(APIView):
             section.content_tree__move_to(new_ordinals)
         except ValueError as e:
             return HttpResponseBadRequest(b"Invalid ordinals: %s" % e.args[0].encode('utf8'))
+        except IndexError:
+            casebook.content_tree__repair()
 
         return Response(CasebookTOCView.format_casebook(casebook), status=200)
 
