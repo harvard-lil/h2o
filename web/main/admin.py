@@ -211,8 +211,8 @@ class CasebookAdmin(BaseAdmin, SimpleHistoryAdmin):
     list_filter = [CollaboratorNameFilter, CollaboratorIdFilter]
     search_fields = ['title']
 
-    fields = ['title', 'subtitle', 'source', 'provenance', 'headnote', 'created_at', 'updated_at', 'state' ,'draft']
-    readonly_fields = ['created_at', 'updated_at', 'source']
+    fields = ['title', 'subtitle', 'source', 'provenance', 'headnote', 'created_at', 'updated_at' ,'draft']
+    readonly_fields = ['created_at', 'updated_at', 'source', 'state']
     raw_id_fields = ['collaborators', 'draft']
     inlines = [CollaboratorInline]
 
@@ -229,10 +229,10 @@ class CasebookAdmin(BaseAdmin, SimpleHistoryAdmin):
         # Copy current collaborators from the saved object to its draft/draft_of:
         # TODO: testing the admin is tricky; this would be a good candidate for integration testing
         saved_obj = request.saved_obj
-        other_casebook = saved_obj.draft or saved_obj.draft_of
+        other_casebook = saved_obj.draft or saved_obj.draft_of.first()
         if other_casebook:
-            other_casebook.tempcollaborator_set.all().delete()
-            collaborators = saved_obj.tempcollaborator_set.prefetch_related(None)  # prefetch_related cancels out an earlier prefetch so we see fresh results
+            other_casebook.contentcollaborator_set.all().delete()
+            collaborators = saved_obj.contentcollaborator_set.prefetch_related(None)  # prefetch_related cancels out an earlier prefetch so we see fresh results
             TempCollaborator.objects.bulk_create(clone_model_instance(c, content=other_casebook) for c in collaborators)
 
     def get_queryset(self, request):
