@@ -12,7 +12,7 @@ from django.utils.safestring import mark_safe
 from simple_history.admin import SimpleHistoryAdmin
 from .utils import fix_after_rails, clone_model_instance
 from .models import Case, Link, User, Casebook, Section, \
-    Resource, ContentCollaborator, ContentAnnotation, TextBlock, ContentNode
+    Resource, TempCollaborator, ContentAnnotation, TextBlock, ContentNode
 
 
 #
@@ -176,8 +176,8 @@ class ResourceIdFilter(InputFilter):
 #
 
 class CollaboratorInline(admin.TabularInline):
-    model = ContentCollaborator
-    fields = ['user', 'content', 'has_attribution', 'can_edit']
+    model = TempCollaborator
+    fields = ['user', 'casebook', 'has_attribution', 'can_edit']
     raw_id_fields = ['user', 'content']
     max_num = None
     can_delete = True
@@ -214,7 +214,7 @@ class CasebookAdmin(BaseAdmin, SimpleHistoryAdmin):
     fields = ['title', 'subtitle', 'source', 'provenance', 'headnote', 'created_at', 'updated_at', 'state' ,'draft']
     readonly_fields = ['created_at', 'updated_at', 'source']
     raw_id_fields = ['collaborators', 'draft']
-    inlines = []
+    inlines = [CollaboratorInline]
 
     def save_model(self, request, obj, form, change):
         # Workaround -- we need to make some changes after save_related, but save_related can't access the object being
@@ -231,9 +231,9 @@ class CasebookAdmin(BaseAdmin, SimpleHistoryAdmin):
         saved_obj = request.saved_obj
         other_casebook = saved_obj.draft or saved_obj.draft_of
         if other_casebook:
-            other_casebook.contentcollaborator_set.all().delete()
-            collaborators = saved_obj.contentcollaborator_set.prefetch_related(None)  # prefetch_related cancels out an earlier prefetch so we see fresh results
-            ContentCollaborator.objects.bulk_create(clone_model_instance(c, content=other_casebook) for c in collaborators)
+            other_casebook.tempcollaborator_set.all().delete()
+            collaborators = saved_obj.tempcollaborator_set.prefetch_related(None)  # prefetch_related cancels out an earlier prefetch so we see fresh results
+            TempCollaborator.objects.bulk_create(clone_model_instance(c, content=other_casebook) for c in collaborators)
 
     def get_queryset(self, request):
         return super().get_queryset(request).prefetch_related('contentcollaborator_set__user')
@@ -487,5 +487,5 @@ admin_site.register(Case, CaseAdmin)
 admin_site.register(Link, LinkAdmin)
 admin_site.register(TextBlock, TextBlockAdmin)
 admin_site.register(User, UserAdmin)
-admin_site.register(ContentCollaborator, CollaboratorsAdmin)
+admin_site.register(TempCollaborator, CollaboratorsAdmin)
 admin_site.register(ContentNode, ContentNodeAdmin)
