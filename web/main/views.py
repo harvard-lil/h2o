@@ -643,6 +643,7 @@ def new_casebook(request):
         >>> assert_url_equal(response, user.casebooks.first().get_edit_url())
     """
     casebook = Casebook()
+    casebook.state = Casebook.LifeCycle.NEWLY_CREATED.value
     casebook.save()
     casebook.add_collaborator(user=request.user, has_attribution=True, can_edit=True)
     return HttpResponseRedirect(casebook.get_edit_url())

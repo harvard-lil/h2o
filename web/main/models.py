@@ -2516,6 +2516,9 @@ class Casebook(EditTrackedModel, TimestampedModel, BigPkModel, CasebookAndSectio
 
     @property
     def in_edit_state(self):
+        if self.state == '':
+            self.state = Casebook.LifeCycle.NEWLY_CREATED.value
+            self.save()
         return self.state in {Casebook.LifeCycle.NEWLY_CLONED.value,
                               Casebook.LifeCycle.DRAFT.value,
                               Casebook.LifeCycle.NEWLY_CREATED.value}
