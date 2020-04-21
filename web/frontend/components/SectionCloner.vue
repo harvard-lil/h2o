@@ -72,16 +72,16 @@ ul.clone-target-list {
     max-height: 600px;
     li {
         margin-bottom: .5rem;
-        border: 1px solid grey;
         margin-right: 40px;
+        
         button.link {
-            background-color:white;
-            border: 0;
-            text-decoration: underline;
-            color: rgba(80, 172, 50, 1);
+            padding:8px;
+            border: 1px solid grey;
+            font-weight: bold;
             text-align: left;
+            width: 100%;
             &:hover {
-                font-weight: bold;
+                background-color: #EEEEEE;
             }
         }
     }
