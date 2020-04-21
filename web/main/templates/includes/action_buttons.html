@@ -30,7 +30,7 @@
       <button class="action one-line cancel cancel-{% if section and section.has_body %}resource{% elif section%}section{% else %}casebook{% endif %}-details" data-disable-with="Cancel">Cancel</button>
   {% endif %}
   {% if cloneable %}
-      {% if section and super_user %}
+      {% if section %}
       <section-cloner :casebook-targets="{{clone_section_targets}}"
                       section-source="{{section.title}}"
                       section-type="{% if section.resource_type == 'TextBlock' %}text{% elif not section.resource_type %}section{% else %}{{section.resource_type|lower}}{% endif %}"
