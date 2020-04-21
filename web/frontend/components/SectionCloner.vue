@@ -1,11 +1,11 @@
 <template>
 <div id="section-cloner">
-  <button class="action clone-casebook-nodes" data-disable-with="Clone-Node" v-on:click="displayModal()">Clone Nodes</button>
+  <button class="action clone-casebook-nodes" data-disable-with="Clone-Node" v-on:click="displayModal()">Clone {{properType()}}</button>
   <Modal v-if="showModal"
             @close="showModal = false">
-    <template slot="title">Clone Section To Casebook</template>
+    <template slot="title">Clone {{properType()}} To Casebook</template>
     <template slot="body">
-      <p>Select a casebook to clone <em>{{sectionSource}}</em> to</p>
+      <p>The {{sectionType}} "<em>{{sectionSource}}</em>" will be copied to the casebook you select below:</p>
       <ul class="clone-target-list">
         <li v-for="cb in casebookTargets" v-bind:key="cb.form_target">
           <form :action="cb.form_target" method="POST">
@@ -43,13 +43,17 @@ export default {
   },
   props:{
     casebookTargets: {type: Array},
-    sectionSource: {type: String}
+    sectionSource: {type: String},
+    sectionType: {type: String}
   },
   data: () => ({showModal: false,
                 csrftoken: getCookie('csrftoken')}),
   methods: {
     displayModal: function displayModal() {
       this.showModal = true;
+    },
+    properType: function properType() {
+      return this.sectionType[0].toUpperCase() + this.sectionType.substr(1);
     }
   }
 };
@@ -67,11 +71,15 @@ ul.clone-target-list {
     overflow: scroll;
     max-height: 600px;
     li {
+        margin-bottom: .5rem;
+        border: 1px solid grey;
+        margin-right: 40px;
         button.link {
             background-color:white;
             border: 0;
             text-decoration: underline;
             color: rgba(80, 172, 50, 1);
+            text-align: left;
             &:hover {
                 font-weight: bold;
             }

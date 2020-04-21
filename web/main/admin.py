@@ -178,7 +178,7 @@ class ResourceIdFilter(InputFilter):
 class CollaboratorInline(admin.TabularInline):
     model = TempCollaborator
     fields = ['user', 'casebook', 'has_attribution', 'can_edit']
-    raw_id_fields = ['user', 'content']
+    raw_id_fields = ['user', 'casebook']
     max_num = None
     can_delete = True
 
@@ -233,7 +233,7 @@ class CasebookAdmin(BaseAdmin, SimpleHistoryAdmin):
         if other_casebook:
             other_casebook.contentcollaborator_set.all().delete()
             collaborators = saved_obj.contentcollaborator_set.prefetch_related(None)  # prefetch_related cancels out an earlier prefetch so we see fresh results
-            TempCollaborator.objects.bulk_create(clone_model_instance(c, content=other_casebook) for c in collaborators)
+            TempCollaborator.objects.bulk_create(clone_model_instance(c, casebook=other_casebook) for c in collaborators)
 
     def get_queryset(self, request):
         return super().get_queryset(request).prefetch_related('contentcollaborator_set__user')
@@ -468,12 +468,12 @@ class UserAdmin(BaseAdmin, DjangoUserAdmin):
 
 
 class CollaboratorsAdmin(BaseAdmin):
-    readonly_fields = ['created_at', 'updated_at', 'user', 'content']
-    list_select_related = ['user', 'content']
-    list_display = ['id', 'user', 'has_attribution', 'can_edit', 'content']
+    readonly_fields = ['created_at', 'updated_at', 'user', 'casebook']
+    list_select_related = ['user', 'casebook']
+    list_display = ['id', 'user', 'has_attribution', 'can_edit', 'casebook']
     list_filter = ['has_attribution']
     ordering = []
-    raw_id_fields = ['user', 'content']
+    raw_id_fields = ['user', 'casebook']
 
 
 ## Courts
