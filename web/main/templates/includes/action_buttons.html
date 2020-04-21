@@ -30,15 +30,18 @@
       <button class="action one-line cancel cancel-{% if section and section.has_body %}resource{% elif section%}section{% else %}casebook{% endif %}-details" data-disable-with="Cancel">Cancel</button>
   {% endif %}
   {% if cloneable %}
-    <form class="clone_casebook" method="post" action="{% if casebook %}{% url 'clone' casebook %}{% else %}{% url 'clone' casebook %}{% endif %}">
-      <button class="action clone-casebook" data-disable-with="Clone" type="submit">Clone</button>
-      {% csrf_token %}
-      {# TODO: see if disable functionality works #}
+      {% if section and super_user %}
+      <section-cloner :casebook-targets="{{clone_section_targets}}"
+                      section-source="{{section.title}}"
+                      section-type="{% if section.resource_type == 'TextBlock' %}text{% elif not section.resource_type %}section{% else %}{{section.resource_type|lower}}{% endif %}"
+      >
+      </section-cloner>
+      {% else %}
+      <form class="clone_casebook" method="post" action="{% if casebook %}{% url 'clone' casebook %}{% else %}{% url 'clone' casebook %}{% endif %}">
+        <button class="action clone-casebook" data-disable-with="Clone" type="submit">Clone</button>
+        {% csrf_token %}
     </form>
-    {% if section and super_user %}
-    <section-cloner :casebook-targets="{{clone_section_targets}}"
-                    section-source="{{section.title}}"></section-cloner>
-    {% endif %}
+      {% endif %}
   {% endif %}
   {% if exportable %}
     <a class="action one-line export export-{{ section.is_annotated|yesno:"has,no" }}-annotations" role="button" rel="nofollow" href="#">Export</a>
