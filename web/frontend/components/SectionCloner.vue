@@ -81,6 +81,7 @@ ul.clone-target-list {
             font-weight: bold;
             text-align: left;
             width: 100%;
+            background-color: white;
             &:hover {
                 background-color: #EEEEEE;
             }
