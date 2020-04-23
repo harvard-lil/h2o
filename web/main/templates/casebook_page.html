@@ -50,9 +50,7 @@
             {% if section %}
                 {% if not editing %}
                     {% include 'includes/headnote.html' with content=section %}
-                    <div id="resource-body">
-                        {% include section.body_template %}
-                    </div>
+                    {% include section.body_template %}
             {% endif %}
             {% else %}
                 {% if not editing %}

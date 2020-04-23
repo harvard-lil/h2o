@@ -1,5 +1,7 @@
 <template>
+<portal to="modal-target">
 <transition name="fade">
+  <focus-trap active="true">
   <div id="modal"
        aria-labelledby="modal-title"
        tabindex="-1"
@@ -24,20 +26,39 @@
       </div>
     </div>
   </div>
+  </focus-trap>
 </transition>
+</portal>
 </template>
 
 <script>
+import PortalVue from "portal-vue";
+import Vue from "vue";
+import { FocusTrap } from 'focus-trap-vue';
+Vue.use(PortalVue)
+
 export default {
+  components: {
+    FocusTrap
+  },
   methods: {
     onKey(e) {
       if(e.key == "Escape") this.$emit("close");
     }
   },
   created: function () {
+    let nm = document.getElementById('non-modal');
+    nm.style.position = "relative";
+    nm.setAttribute('aria-hidden', 'true');
+    nm.style.overflow = "unset";
+    document.body.classList.add('modal-open');
     window.addEventListener('keydown', this.onKey)
   },
   beforeDestroy: function () {
+    let nm = document.getElementById('non-modal');
+    nm.removeAttribute('aria-hidden');
+    document.body.classList.remove('modal-open');
+    nm.style = "";
     window.removeEventListener('keydown', this.onKey)
   }
 }
@@ -54,6 +75,9 @@ export default {
   width: 100%;
   height: 100%;
   background-color: rgba(255, 255, 255, .85);
+}
+.modal-dialog {
+    margin-top: 90px;
 }
 
 /*
