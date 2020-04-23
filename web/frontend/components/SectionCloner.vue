@@ -70,6 +70,7 @@ ul.clone-target-list {
     list-style: none;
     overflow: scroll;
     max-height: 600px;
+    padding-top:4px;
     li {
         margin-bottom: .5rem;
         margin-right: 40px;

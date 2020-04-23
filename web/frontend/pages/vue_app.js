@@ -11,6 +11,9 @@ import contenteditableDirective from "vue-contenteditable-directive";
 Vue.use(contenteditableDirective);
 
 import TheResource from "../components/TheResource";
+import SectionCloner from "../components/SectionCloner";
+import TheTableOfContents from "../components/TheTableOfContents";
+import PortalVue from "portal-vue";
 
 document.addEventListener("DOMContentLoaded", () => {
   const routes = [
@@ -23,11 +26,14 @@ document.addEventListener("DOMContentLoaded", () => {
   });
 
   const app = new Vue({
-    el: "#resource-body",
+    el: "#app",
     store,
     router,
     components: {
-      TheResource
+        TheResource,
+        SectionCloner,
+        TheTableOfContents,
+        PortalVue
     }
   });
 

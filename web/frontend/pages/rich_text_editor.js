@@ -14,14 +14,17 @@ function initRichTextEditor(element, code=false) {
     plugins.push('code');
     toolbar += ' | code';
   }
+  // Vue rebuilds the whole dom in between the call to init and tinymce actually doing the init
+  // so we use a selector here until we use vue to init tinymce
+  const selector=`${element.type}#${element.id}`;
   tinymce.init({
-    target: element,
+    selector: selector,
     plugins: plugins,
     skin_url: '/static/tinymce_skin',
     menubar: false,
     branding: false,
     toolbar: toolbar
-  })
+  });
 }
 
 for (const textArea of document.querySelectorAll('.richtext-editor'))

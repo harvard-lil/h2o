@@ -30,7 +30,7 @@
         {% if resource.resource_type == 'Case' %}
         {% include 'includes/case_header.html' with case=resource.resource %}
         {% endif %}
-        <section id="resource-body" class="resource">
+        <section class="resource">
           <the-resource :editable="true" :resource="{{ resource.json }}"></the-resource>
         </section>
       </div>

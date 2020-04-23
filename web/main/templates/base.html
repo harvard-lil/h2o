@@ -15,15 +15,11 @@
     <link rel="stylesheet" type="text/css" href="//fonts.googleapis.com/css?family=Lora|Sorts+Mill+Goudy"/>
     <link rel="stylesheet" type="text/css" href="https://use.fontawesome.com/releases/v5.0.13/css/all.css"/>
     {% render_bundle 'chunk-common' %}
-    {% render_bundle 'table_of_contents' %}
-    {% render_bundle 'action_buttons' %}
-    {% if include_vuejs %}
-      {% render_bundle 'vue_app' %}
-    {% endif %}
+    {% render_bundle 'vue_app' %}
     {% block extra_head %}{% endblock %}
   </head>
   <body class=""> <!--need parameter here for class based on view? -->
-    {% if include_vuejs %}<div id="app">{% endif %}
+      <div id="app">
     <div id="non-modal">
       <a href="#main" class="skip-link">Skip to main content</a>
       <a href="#footer" class="skip-link">Skip to footer</a>
@@ -59,13 +55,15 @@
         {% endif %}
       </main>
       <footer id="main-footer">
-        <p id="footer" tabindex="-1" class="sr-only">Footer</p>
-        {% include 'includes/footer.html' %}
+          <p id="footer" tabindex="-1" class="sr-only">Footer</p>
+          {% include 'includes/footer.html' %}
       </footer>
     </div>
-    {% if include_vuejs %}</div>{% endif %}
-    {% render_bundle 'application' %}
-    {% include 'includes/analytics.html' %}
-    {% block extra_foot %}{% endblock %}
+    <portal-target name="modal-target"></portal-target>
+      </div>
+      {% block extra_foot %}{% endblock %}
+      {% render_bundle 'application' %}
+      {% include 'includes/analytics.html' %}
+
   </body>
 </html>
