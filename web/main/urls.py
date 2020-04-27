@@ -28,6 +28,7 @@ drf_urlpatterns = [
 
 urlpatterns = format_suffix_patterns(drf_urlpatterns) + [
     path('', views.index, name='index'),
+    path('archived/', views.archived_casebooks, name='archived_casebooks'),
 
     # users
     path('users/<int:user_id>/', views.dashboard, name='dashboard'),
@@ -62,7 +63,8 @@ urlpatterns = format_suffix_patterns(drf_urlpatterns) + [
     path('casebooks/<idslug:from_casebook_dict>/sections/<ordslug:from_section_dict>/clone/to/<idslug:to_casebook_dict>/', views.clone_casebook_nodes, name='clone_nodes'),
     path('casebooks/<idslug:casebook_param>/create_draft/', views.create_draft, name='create_draft'),
     path('casebooks/<idslug:casebook_param>/credits/', views.show_credits, name='show_credits'),
-    
+    path('casebooks/<idslug:casebook_param>/settings/', views.casebook_settings, name='casebook_settings'),
+
     # TODO: we temporarily need to list with and without trailing slash, to handle POSTs without slashes
     path('casebooks/<idslug:casebook_param>/', views.CasebookView.as_view(), name='casebook'),
     path('casebooks/<idslug:casebook_param>', no_perms_test(views.CasebookView.as_view())),

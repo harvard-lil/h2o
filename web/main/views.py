@@ -27,7 +27,8 @@ from rest_framework.response import Response
 from rest_framework.views import APIView
 
 from .forms import (CasebookForm, LinkForm, NewTextBlockForm, ResourceForm,
-                    SectionForm, SignupForm, TextBlockForm, UserProfileForm)
+                    SectionForm, SignupForm, TextBlockForm, UserProfileForm,
+                    CasebookSettingsForm)
 from .models import (Case, Casebook, ContentAnnotation, ContentNode,
                      Link, Resource, Section, TextBlock, User)
 from .serializers import (AnnotationSerializer, CaseSerializer,
@@ -526,7 +527,7 @@ def dashboard(request, user_id):
         >>> casebook, casebook_factory, client, admin_user, user_factory = [getfixture(f) for f in ['casebook', 'casebook_factory', 'client', 'admin_user', 'user_factory']]
         >>> user = casebook.collaborators.first()
         >>> non_collaborating_user = user_factory()
-        >>> private_casebook = casebook_factory(tempcollaborator_set__user=user, state=Casebook.LifeCycle.NEWLY_CREATED.value)
+        >>> private_casebook = casebook_factory(tempcollaborator_set__user=user, state=Casebook.LifeCycle.PRIVATELY_EDITING.value)
         >>> draft_casebook = casebook_factory(tempcollaborator_set__user=user, state=Casebook.LifeCycle.DRAFT.value, provenance=[casebook.id])
         >>> casebook.draft = draft_casebook
         >>> casebook.save()
@@ -560,6 +561,12 @@ def dashboard(request, user_id):
     """
     user = get_object_or_404(User, pk=user_id)
     return render(request, 'dashboard.html', {'user': user})
+
+
+@no_perms_test
+def archived_casebooks(request):
+    return render(request, 'archived_casebooks.html', {'user': request.user})
+
 
 
 @no_perms_test
@@ -645,7 +652,7 @@ def new_casebook(request):
         >>> assert_url_equal(response, user.casebooks.first().get_edit_url())
     """
     casebook = Casebook()
-    casebook.state = Casebook.LifeCycle.NEWLY_CREATED.value
+    casebook.state = Casebook.LifeCycle.PRIVATELY_EDITING.value
     casebook.save()
     casebook.add_collaborator(user=request.user, has_attribution=True, can_edit=True)
     return HttpResponseRedirect(casebook.get_edit_url())
@@ -701,12 +708,25 @@ def show_credits(request, casebook, section=None):
               'casebook':casebook,
               'section':section,
               'tabs': (section if section else casebook).tabs_for_user(request.user, current_tab='Credits'),
-              'casebook_color_class':'casebook-preview casebook-public',
+              'casebook_color_class': 'casebook-archived' if casebook.is_archived else 'casebook-preview casebook-public',
               'edit_mode': casebook.directly_editable_by(request.user)}
     return render(request, 'casebook_page_credits.html', params)
 
-
-
+@no_perms_test
+@hydrate_params
+@user_has_perm('casebook', 'editable_by')
+def casebook_settings(request, casebook):
+    if request.method == 'POST':
+        settings = CasebookSettingsForm(request.POST)
+        if settings.is_valid():
+            transition_to = settings['transition_to'].value() if 'transition_to' in settings.fields else None
+            if transition_to and casebook.can_transition_to(transition_to):
+                casebook.transition_to(transition_to)
+    params = {'casebook':casebook,
+              'tabs': casebook.tabs_for_user(request.user, current_tab='Settings'),
+              'casebook_color_class':'casebook-archived' if casebook.is_archived else 'casebook-preview casebook-public',
+              'edit_mode': casebook.directly_editable_by(request.user)}
+    return render(request, 'casebook_settings.html', params)
 
 class CasebookView(View):
 
@@ -719,7 +739,6 @@ class CasebookView(View):
     ))
     @method_decorator(requires_csrf_token)
     @method_decorator(hydrate_params)
-    @method_decorator(user_has_perm('casebook', 'viewable_by'))
     def get(self, request, casebook):
         """
             Show a casebook's front page.
@@ -728,7 +747,7 @@ class CasebookView(View):
             >>> casebook, casebook_factory, client, admin_user, user_factory = [getfixture(f) for f in ['casebook', 'casebook_factory', 'client', 'admin_user', 'user_factory']]
             >>> user = casebook.collaborators.first()
             >>> non_collaborating_user = user_factory()
-            >>> private_casebook = casebook_factory(tempcollaborator_set__user=user, state=Casebook.LifeCycle.NEWLY_CREATED.value)
+            >>> private_casebook = casebook_factory(tempcollaborator_set__user=user, state=Casebook.LifeCycle.PRIVATELY_EDITING.value)
             >>> draft_casebook = casebook_factory(tempcollaborator_set__user=user, state=Casebook.LifeCycle.DRAFT.value, provenance=[casebook.id])
 
             All users can see public casebooks:
@@ -740,6 +759,11 @@ class CasebookView(View):
             Owners see the "preview mode" of draft casebooks:
             >>> check_response(client.get(draft_casebook.get_absolute_url(), as_user=user), content_includes="You are viewing a preview")
         """
+        if not casebook.viewable_by(request.user):
+            if request.user.is_authenticated and casebook.contentcollaborator_set.filter(user=request.user,can_edit=True).exists():
+                return HttpResponseRedirect(reverse('casebook_settings', args=[casebook]))
+            else:
+                return login_required_response(request)
         # canonical redirect
         canonical = casebook.get_absolute_url()
         if request.path != canonical:
@@ -749,7 +773,7 @@ class CasebookView(View):
         return render_with_actions(request, 'casebook_page.html', {
             'casebook': casebook,
             'tabs': casebook.tabs_for_user(request.user),
-            'casebook_color_class':'casebook-public casebook-preview',
+            'casebook_color_class': 'casebook-archived' if casebook.is_archived else 'casebook-public casebook-preview',
             'contents': contents
         })
 
@@ -771,7 +795,7 @@ class CasebookView(View):
             >>> casebook, casebook_factory, client, admin_user, user_factory = [getfixture(f) for f in ['casebook', 'casebook_factory', 'client', 'admin_user', 'user_factory']]
             >>> user = casebook.collaborators.first()
             >>> non_collaborating_user = user_factory()
-            >>> private_casebook = casebook_factory(tempcollaborator_set__user=user, state=Casebook.LifeCycle.NEWLY_CREATED.value)
+            >>> private_casebook = casebook_factory(tempcollaborator_set__user=user, state=Casebook.LifeCycle.PRIVATELY_EDITING.value)
             >>> draft_casebook = casebook_factory(tempcollaborator_set__user=user, state=Casebook.LifeCycle.DRAFT.value, provenance=[casebook.id])
 
             Newly-composed (private, never-published) casebooks, when published, become public.
@@ -946,7 +970,7 @@ def new_section_or_resource(request, casebook):
         >>> client, case_factory = [getfixture(i) for i in ['client', 'case_factory']]
         >>> case = case_factory()
         >>> casebook, s_1, r_1_1, r_1_2, r_1_3, s_1_4, r_1_4_1, r_1_4_2, r_1_4_3, s_2 = getfixture('full_casebook_parts')
-        >>> casebook.state = Casebook.LifeCycle.NEWLY_CREATED.value
+        >>> casebook.state = Casebook.LifeCycle.PRIVATELY_EDITING.value
         >>> casebook.save()
 
         A simple POST adds a new section to the end of the casebook.
@@ -1089,7 +1113,6 @@ class SectionView(View):
     @method_decorator(perms_test(viewable_section))
     @method_decorator(requires_csrf_token)
     @method_decorator(hydrate_params)
-    @method_decorator(user_has_perm('casebook', 'viewable_by'))
     def get(self, request, casebook, section):
         """
             Show a section within a casebook.
@@ -1113,6 +1136,12 @@ class SectionView(View):
             >>> check_response(client.get(draft_section.get_absolute_url(), as_user=draft_section.testing_editor), content_includes="You are viewing a preview")
         """
         # canonical redirect
+        if not casebook.viewable_by(request.user):
+            if request.user.is_authenticated and casebook.contentcollaborator_set.filter(user=request.user,can_edit=True).exists():
+                return HttpResponseRedirect(reverse('casebook_settings', args=[casebook]))
+            else:
+                return login_required_response(request)
+
         canonical = section.get_absolute_url()
         if request.path != canonical:
             return HttpResponseRedirect(canonical)
@@ -1121,7 +1150,7 @@ class SectionView(View):
             'casebook': casebook,
             'section': section,
             'tabs':section.tabs_for_user(request.user),
-            'casebook_color_class':'casebook-preview casebook-public',
+            'casebook_color_class':'casebook-archived' if casebook.is_archived else 'casebook-preview casebook-public',
             'edit_mode': casebook.directly_editable_by(request.user)
         })
 
@@ -1198,7 +1227,6 @@ class ResourceView(View):
     @method_decorator(perms_test(viewable_resource))
     @method_decorator(requires_csrf_token)
     @method_decorator(hydrate_params)
-    @method_decorator(user_has_perm('casebook', 'viewable_by'))
     def get(self, request, casebook, resource):
         """
             Show a resource within a casebook.
@@ -1221,6 +1249,11 @@ class ResourceView(View):
             Owners see the "preview mode" of resources in draft casebooks:
             >>> check_response(client.get(draft_resource.get_absolute_url(), as_user=draft_resource.testing_editor), content_includes="You are viewing a preview")
         """
+        if not casebook.viewable_by(request.user):
+            if request.user.is_authenticated and casebook.contentcollaborator_set.filter(user=request.user,can_edit=True).exists():
+                return HttpResponseRedirect(reverse('casebook_settings', args=[casebook]))
+            else:
+                return login_required_response(request)
         # canonical redirect
         section = resource
         canonical = section.get_absolute_url()
@@ -1242,7 +1275,7 @@ class ResourceView(View):
             'include_vuejs': section.annotatable,
             'edit_mode': section.directly_editable_by(request.user),
             'tabs':section.tabs_for_user(request.user),
-            'casebook_color_class':'casebook-preview casebook-public',
+            'casebook_color_class':'casebook-archived' if casebook.is_archived else 'casebook-preview casebook-public',
         })
 
     @method_decorator(perms_test(directly_editable_resource))
@@ -1386,7 +1419,7 @@ def reorder_node(request, casebook, section=None, node=None):
         Given:
         >>> client, *_ = [getfixture(f) for f in ['client']]
         >>> casebook, s_1, r_1_1, r_1_2, r_1_3, s_1_4, r_1_4_1, r_1_4_2, r_1_4_3, s_2 = getfixture('full_casebook_parts')
-        >>> casebook.state = Casebook.LifeCycle.NEWLY_CREATED.value
+        >>> casebook.state = Casebook.LifeCycle.PRIVATELY_EDITING.value
         >>> casebook.save()
         >>> payload = json.dumps({'child': {'ordinals': [1, 4, 3]}})
 

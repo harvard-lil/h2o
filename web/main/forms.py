@@ -7,6 +7,7 @@ from django.conf import settings
 from django.core.exceptions import ValidationError
 from django.core.mail import send_mail
 from django.forms import ModelForm, Textarea
+from django import forms
 from django.urls import reverse
 
 from main.models import ContentNode, Link, TextBlock, User
@@ -249,3 +250,6 @@ class SetPasswordForm(auth_forms.SetPasswordForm):
                 [self.user.email_address],
             )
         return super().save(commit)
+
+class CasebookSettingsForm(forms.Form):
+    transition_to = forms.CharField(max_length=10)

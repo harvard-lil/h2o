@@ -118,7 +118,7 @@ class CasebookFactory(factory.DjangoModelFactory):
 
 @register_factory
 class PrivateCasebookFactory(CasebookFactory):
-    state = Casebook.LifeCycle.NEWLY_CREATED.value
+    state = Casebook.LifeCycle.PRIVATELY_EDITING.value
     tempcollaborator_set = factory.RelatedFactory('conftest.TempCollaboratorFactory', 'casebook', can_edit=True)
 
 
@@ -374,7 +374,7 @@ def full_private_casebook(full_casebook_parts_factory):
         >>> assert private.is_private and not published.is_private
         >>> assert all(node.is_private for node in private.contents.all())
     """
-    return full_casebook_parts_factory(state=Casebook.LifeCycle.NEWLY_CREATED.value)[0]
+    return full_casebook_parts_factory(state=Casebook.LifeCycle.PRIVATELY_EDITING.value)[0]
 
 
 @pytest.fixture

@@ -2,10 +2,10 @@
 <div class="content-browser">
   {% for node in content %}{% with node as casebook %}
     {% call_method casebook "editable_by" request.user as user_can_edit %}
-    <a class="wrapper" href="{% if casebook.is_public %}{% url "casebook" casebook %}{% else %}{% url "edit_casebook" casebook %}{% endif %}">
-      <div class="content-page {% if casebook.is_public and not casebook.has_draft %}public{% else %}draft{% endif %}">
+    <a class="wrapper" href="{% if casebook.has_draft and request.user == user %}{% url "edit_casebook" casebook.draft %}{% elif casebook.is_public %}{% url "casebook" casebook %}{% elif casebook.is_archived %}{% url "casebook_settings" casebook %}{% else %}{% url "edit_casebook" casebook %}{% endif %}">
+      <div class="content-page {% if casebook.is_archived %}archived{% elif casebook.is_public and not casebook.has_draft %}public{% else %}draft{% endif %}">
         <div class="casebook-info">
-          <div class="state">{% if casebook.is_public %}Published{% else %}Draft{% endif %}</div>
+          <div class="state">{% if casebook.is_public %}Published{% if casebook.has_draft%} with draft{% endif %}{% elif casebook.is_archived %}Archived{% else %}Draft{% endif %}</div>
           <div class="title">{{ casebook.title }}</div>
           <div class="subtitle">{{ casebook.subtitle|default:"" }}</div>
         </div>

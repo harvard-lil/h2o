@@ -27,6 +27,9 @@ main > section.casebook {
   &.casebook-public .top-strip {
     background-color: $light-blue;
   }
+  &.casebook-archived .top-strip {
+      background-color: grey;
+  }
   &.casebook-draft .subtitle {
     color: $yellow;
   }
@@ -79,6 +82,13 @@ main > header.casebook {
       background-color: $yellow;
       border-color: $yellow;
     }
+  }
+  &.casebook-archived {
+      .tabs .tab.active {
+          color: white;
+          background-color: grey;
+          border-color: black;
+      }
   }
 }
 
@@ -663,6 +673,39 @@ form.edit_content_resource, form.edit_content_section, form.edit_content_caseboo
                 }
             }
 
+        }
+    }
+}
+
+ul.settings-section {
+    list-style: none;
+    margin-top: 2rem;
+    ul.transition-state {
+        list-style: none;
+        button {
+            padding: 8px 10px;
+            &.warn-button {
+                background-color: red;
+                color: white;
+                font-weight: bold;
+            }
+        }
+        li {
+            margin-bottom: 1rem;
+            display:table;
+            div {
+                display: table-cell;
+                padding: 1rem;
+                vertical-align: middle;
+            }
+        }
+    }
+
+    > li {
+        padding: 20px;
+        border-bottom: 1px solid black;
+        &:last-child {
+            border-bottom: none;
         }
     }
 }

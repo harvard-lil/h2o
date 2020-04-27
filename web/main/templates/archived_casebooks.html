@@ -1,0 +1,18 @@
+
+{% extends 'base.html' %}
+
+{% block custom_skip_target %}{% endblock %}
+
+{% block mainContent %}
+{# This appears to be solely for spacing <header class="dashboard"></header> #}
+<section class="dashboard" style="margin-top: 15px;">
+    <p id="main" tabindex="-1" class="sr-only">Main Content</p>
+    <div class="content">
+        <h2 class="casebooks">My Archived Casebooks</h2>
+        <div class="dashboard-link"><a href="{%url 'index' %}">[Back to My Dashboard]</a></div>
+        <hr class="owned"/>
+        <p>Archived Casebooks do not appear in search results and are not viewable by other users.</p>
+        {% include "includes/content_browser.html" with content=user.archived_casebooks %}
+    </div>
+</section>
+{% endblock %}

@@ -86,6 +86,21 @@ section#flash {
       border-bottom-width: 1px;
     }
   }
+  &.casebook-archived {
+      background-color: grey;
+      color: white;
+
+      .non-edit-inner-banner {
+          @include sans-serif($bold, 14px, 14px);
+          padding: 1.5rem;
+          vertical-align:middle;
+      }
+      .banner-inner a {
+          @include link-color($white);
+          border-bottom-color: $white;
+          border-bottom-width: 1px;
+      }
+  }
   .banner-inner {
     @include sans-serif($bold, 14px, 14px);
     padding: 7px 100px;

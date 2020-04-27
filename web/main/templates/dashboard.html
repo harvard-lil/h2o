@@ -9,6 +9,7 @@
   <div class="content">
     {% if user == request.user %}
       <h2 class="casebooks">My Casebooks</h2>
+      <div class="archived-link"><a href="{%url 'archived_casebooks' %}">[View Archived Casebooks]</a></div>
       <hr class="owned"/>
       {% include "includes/content_browser.html" with content=user.non_draft_casebooks %}
     {% else %}

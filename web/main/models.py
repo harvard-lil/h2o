@@ -1902,11 +1902,12 @@ class Casebook(EditTrackedModel, TimestampedModel, BigPkModel, CasebookAndSectio
         return self.tempcollaborator_set
 
     class LifeCycle(Enum):
-        NEWLY_CREATED = 'Fresh' # There is no public version of this casebook
+        PRIVATELY_EDITING = 'Fresh' # There is no public version of this casebook
         NEWLY_CLONED = 'Clone' # There is no public version of this casebook
         DRAFT = 'Draft' # This version is private, but a public version exists
         PUBLISHED = 'Public' # This version is public
         ARCHIVED = 'Archived' # This is retired, and is no longer public
+        REVISING = 'Revising' # A public and private (with edits) version of this casebook exist.
 
     state = models.CharField(
       max_length=10,
@@ -1950,7 +1951,7 @@ class Casebook(EditTrackedModel, TimestampedModel, BigPkModel, CasebookAndSectio
         return slugify(self.title)
 
     def viewable_by(self, user):
-        return self.is_public or self.editable_by(user)
+        return (not self.is_archived) and (self.is_public or self.editable_by(user))
 
     def directly_editable_by(self, user):
         """
@@ -2365,10 +2366,103 @@ class Casebook(EditTrackedModel, TimestampedModel, BigPkModel, CasebookAndSectio
             cloned_annotation.resource = cloned_content_node
         ContentAnnotation.objects.bulk_create(r[0] for r in cloned_annotations)
 
+
+    def archive(self):
+        self.state = Casebook.LifeCycle.ARCHIVED.value
+        self.save()
+
+    def unarchive(self):
+        self.state = Casebook.LifeCycle.PRIVATELY_EDITING.value
+        self.save()
+
+    @property
+    def is_archived(self):
+        return self.state == Casebook.LifeCycle.ARCHIVED.value
+
+    @property
+    def can_archive(self):
+        return self.can_transition_to(Casebook.LifeCycle.ARCHIVED)
+
+    @property
+    def can_depublish(self):
+        return self.is_public and self.can_transition_to(Casebook.LifeCycle.PRIVATELY_EDITING)
+
+    def depublish(self):
+        if not (self.can_depublish):
+            raise ValueError("Cannot depublish this casebook")
+        self.state = Casebook.LifeCycle.PRIVATELY_EDITING
+        self.save()
+
+    @property
+    def can_publish(self):
+        return self.can_transition_to(Casebook.LifeCycle.PUBLISHED) or self.is_draft or self.has_draft
+
+    def can_transition_to(self, target):
+        target_value = (hasattr(target, 'value') and target.value) or target
+        if self.state == target_value:
+            return False
+
+        transition_options = {
+            (Casebook.LifeCycle.PRIVATELY_EDITING.value,Casebook.LifeCycle.NEWLY_CLONED.value):False,
+            (Casebook.LifeCycle.PRIVATELY_EDITING.value,Casebook.LifeCycle.DRAFT.value):False,
+            (Casebook.LifeCycle.PRIVATELY_EDITING.value,Casebook.LifeCycle.PUBLISHED.value):True,
+            (Casebook.LifeCycle.PRIVATELY_EDITING.value,Casebook.LifeCycle.REVISING.value):False,
+            (Casebook.LifeCycle.PRIVATELY_EDITING.value,Casebook.LifeCycle.ARCHIVED.value):True,
+
+            (Casebook.LifeCycle.NEWLY_CLONED.value,Casebook.LifeCycle.PRIVATELY_EDITING.value):True,
+            (Casebook.LifeCycle.NEWLY_CLONED.value,Casebook.LifeCycle.DRAFT.value):False,
+            (Casebook.LifeCycle.NEWLY_CLONED.value,Casebook.LifeCycle.PUBLISHED.value):True,
+            (Casebook.LifeCycle.NEWLY_CLONED.value,Casebook.LifeCycle.REVISING.value):False,
+            (Casebook.LifeCycle.NEWLY_CLONED.value,Casebook.LifeCycle.ARCHIVED.value):True,
+
+            (Casebook.LifeCycle.DRAFT.value,Casebook.LifeCycle.PRIVATELY_EDITING.value):False,
+            (Casebook.LifeCycle.DRAFT.value,Casebook.LifeCycle.NEWLY_CLONED.value):False,
+            (Casebook.LifeCycle.DRAFT.value,Casebook.LifeCycle.PUBLISHED.value):False,
+            (Casebook.LifeCycle.DRAFT.value,Casebook.LifeCycle.REVISING.value):False,
+            (Casebook.LifeCycle.DRAFT.value,Casebook.LifeCycle.ARCHIVED.value):False,
+
+            (Casebook.LifeCycle.PUBLISHED.value,Casebook.LifeCycle.PRIVATELY_EDITING.value):True,
+            (Casebook.LifeCycle.PUBLISHED.value,Casebook.LifeCycle.NEWLY_CLONED.value):False,
+            (Casebook.LifeCycle.PUBLISHED.value,Casebook.LifeCycle.DRAFT.value):False,
+            (Casebook.LifeCycle.PUBLISHED.value,Casebook.LifeCycle.REVISING.value):True,
+            (Casebook.LifeCycle.PUBLISHED.value,Casebook.LifeCycle.ARCHIVED.value):False,
+
+            (Casebook.LifeCycle.REVISING.value,Casebook.LifeCycle.PRIVATELY_EDITING.value):True,
+            (Casebook.LifeCycle.REVISING.value,Casebook.LifeCycle.NEWLY_CLONED.value):False,
+            (Casebook.LifeCycle.REVISING.value,Casebook.LifeCycle.DRAFT.value):False,
+            (Casebook.LifeCycle.REVISING.value,Casebook.LifeCycle.PUBLISHED.value):True,
+            (Casebook.LifeCycle.REVISING.value,Casebook.LifeCycle.ARCHIVED.value):False,
+
+            (Casebook.LifeCycle.ARCHIVED.value,Casebook.LifeCycle.PRIVATELY_EDITING.value):True,
+            (Casebook.LifeCycle.ARCHIVED.value,Casebook.LifeCycle.NEWLY_CLONED.value):False,
+            (Casebook.LifeCycle.ARCHIVED.value,Casebook.LifeCycle.DRAFT.value):False,
+            (Casebook.LifeCycle.ARCHIVED.value,Casebook.LifeCycle.PUBLISHED.value):False,
+            (Casebook.LifeCycle.ARCHIVED.value,Casebook.LifeCycle.REVISING.value):False,
+        }
+
+        return transition_options[(self.state, target_value)]
+
+    def transition_to(self, desired_state):
+        target_state = (hasattr(desired_state, 'value') and desired_state.value) or desired_state
+        if not self.can_transition_to(target_state):
+            raise ValueError("Cannot transition to desired state")
+        if target_state == Casebook.LifeCycle.PUBLISHED.value:
+            if self.has_draft:
+                self.draft.merge_draft()
+            elif self.is_draft:
+                self.merge_draft()
+            else:
+                self.state = target_state
+                self.save()
+
     # Collaborators
     @property
     def primary_authors(self):
         return set([c.user for c in self.tempcollaborator_set.all() if c.has_attribution and c.user.attribution != 'Anonymous'])
+
+    @property
+    def all_collaborators(self):
+        return set([c.user for c in self.tempcollaborator_set.all()])
 
     def has_collaborator(self, user):
         # filter in the client to allow .prefetch_related('contentcollaborator_set__user') to work:
@@ -2517,21 +2611,25 @@ class Casebook(EditTrackedModel, TimestampedModel, BigPkModel, CasebookAndSectio
     @property
     def in_edit_state(self):
         if self.state == '':
-            self.state = Casebook.LifeCycle.NEWLY_CREATED.value
+            self.state = Casebook.LifeCycle.PRIVATELY_EDITING.value
             self.save()
         return self.state in {Casebook.LifeCycle.NEWLY_CLONED.value,
                               Casebook.LifeCycle.DRAFT.value,
-                              Casebook.LifeCycle.NEWLY_CREATED.value}
+                              Casebook.LifeCycle.PRIVATELY_EDITING.value}
 
     def tabs_for_user(self, user, current_tab=None):
         read_tab = 'Preview' if self.in_edit_state else 'Casebook'
         if current_tab is None:
             current_tab = read_tab
         tabs = [('Edit', reverse('edit_casebook', args=[self]), self.in_edit_state and self.editable_by(user)),
-                (read_tab, reverse('casebook', args=[self]), True),
-                ('Credits', reverse('show_credits', args=[self]), True),]
+                (read_tab, reverse('casebook', args=[self]), not self.is_archived),
+                ('Credits', reverse('show_credits', args=[self]), not self.is_archived),
+                ('Settings', reverse('casebook_settings', args=[self]), self.editable_by(user))]
         return [(n, l, n == current_tab) for n,l,c in tabs if c]
 
+    @property
+    def revising(self):
+        return self.draft_of.first()
 
 
 class SectionManager(models.Manager):
@@ -2830,19 +2928,13 @@ class User(NullableTimestampedModel, PermissionsMixin, AbstractBaseUser):
 
             Includes all casebooks the user is a collaborator on.
         """
-        return self.casebooks.exclude(state=Casebook.LifeCycle.DRAFT.value)
+        return self.casebooks.exclude(state=Casebook.LifeCycle.DRAFT.value).exclude(state=Casebook.LifeCycle.ARCHIVED.value)
 
     def published_casebooks(self):
-        """
-            Public casebooks owned by this user.
-            Equivalent of Rails "user.owned.published"
-
-            Currently only includes casebooks the user owns.
-            https://github.com/harvard-lil/h2o/issues/1033
-        """
-        # This probably wants to be:
-        # return self.casebooks.filter(contentcollaborator__has_attribution=True, public=True)
         return self.casebooks.filter(state=Casebook.LifeCycle.PUBLISHED.value)
+
+    def archived_casebooks(self):
+        return self.casebooks.filter(state=Casebook.LifeCycle.ARCHIVED.value)
 
     @property
     def directly_editable_casebooks(self):
