@@ -23,7 +23,7 @@ def migrate_casebooks(app,schema):
             elif original_casebook.provenance:
                 new_casebook.state = Casebook.LifeCycle.NEWLY_CLONED.value
             else:
-                new_casebook.state = Casebook.LifeCycle.NEWLY_CREATED.value
+                new_casebook.state = Casebook.LifeCycle.PRIVATELY_EDITING.value
         new_casebook.save()
         if original_casebook.draft_mode_of_published_casebook:
             drafted_casebook = original_casebook.provenance[-1]

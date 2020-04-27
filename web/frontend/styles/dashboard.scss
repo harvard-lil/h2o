@@ -26,6 +26,21 @@ hr.owned {
   background-color: $light-blue;
 }
 
+div.archived-link {
+    float: right;
+    clear: left;
+    margin-top: -1.5rem;
+    a {
+        color: grey;
+    }
+}
+
+div.dashboard-link {
+    float: right;
+    clear: left;
+    margin-top: -1.5rem;
+  }
+
 .content-browser {
   clear: both;
   display: flex;

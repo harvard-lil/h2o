@@ -8,8 +8,14 @@
             {% elif casebook.is_private %}
                 You are viewing a private casebook.
             {% endif %}
+        </div>
     </div>
-</div>
+{% elif casebook.is_archived %}
+    <div class="casebook-archived banner">
+        <div class="non-edit-inner-banner">
+            You are viewing an archived casebook.
+        </div>
+    </div>
 {% elif casebook.is_draft or casebook.is_private %}
     <div class="casebook-preview banner">
         <div class="banner-inner">
