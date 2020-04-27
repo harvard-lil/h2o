@@ -86,6 +86,8 @@ export default {
 
     submit() {
       if(this.isModified && this.content){
+        // Work around FirefoxDevEdition bug that isn't properly populating event.target.innerText reliably
+        this.newVals.content = this.$refs.replacementText.innerText;
         this[this.isNew ? "createAndUpdate" : "update"](
           {obj: this.annotation, vals: this.newVals}
         );

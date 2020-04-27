@@ -92,6 +92,8 @@ def hydrate_params(func):
                 if old_cb_ids:
                     cb_param = {'casebook': casebook_param['id']}
                     kwargs['casebook'] = old_cb_ids[0]
+                else:
+                    raise Http404
         for param in ('section_param', 'section_id', 'resource_param', 'resource_id', 'node_param', 'node_id'):
             param_value = kwargs.pop(param, None)
             if not param_value:
