@@ -2417,7 +2417,7 @@ class Casebook(EditTrackedModel, TimestampedModel, BigPkModel, CasebookAndSectio
 
             (Casebook.LifeCycle.DRAFT.value,Casebook.LifeCycle.PRIVATELY_EDITING.value):False,
             (Casebook.LifeCycle.DRAFT.value,Casebook.LifeCycle.NEWLY_CLONED.value):False,
-            (Casebook.LifeCycle.DRAFT.value,Casebook.LifeCycle.PUBLISHED.value):False,
+            (Casebook.LifeCycle.DRAFT.value,Casebook.LifeCycle.PUBLISHED.value):True,
             (Casebook.LifeCycle.DRAFT.value,Casebook.LifeCycle.REVISING.value):False,
             (Casebook.LifeCycle.DRAFT.value,Casebook.LifeCycle.ARCHIVED.value):False,
 
@@ -2619,6 +2619,17 @@ class Casebook(EditTrackedModel, TimestampedModel, BigPkModel, CasebookAndSectio
         return self.state in {Casebook.LifeCycle.NEWLY_CLONED.value,
                               Casebook.LifeCycle.DRAFT.value,
                               Casebook.LifeCycle.PRIVATELY_EDITING.value}
+
+    @property
+    def casebook_color_indicator(self):
+        return {
+            Casebook.LifeCycle.PRIVATELY_EDITING.value: 'casebook-draft',
+            Casebook.LifeCycle.NEWLY_CLONED.value: 'casebook-draft',
+            Casebook.LifeCycle.DRAFT.value: 'casebook-draft',
+            Casebook.LifeCycle.PUBLISHED.value: 'casebook-public casebook-preview',
+            Casebook.LifeCycle.ARCHIVED.value: 'casebook-archived',
+            Casebook.LifeCycle.REVISING.value: 'casebook-draft'
+        }[self.state]
 
     def tabs_for_user(self, user, current_tab=None):
         read_tab = 'Preview' if self.in_edit_state else 'Casebook'
