@@ -1,0 +1,257 @@
+
+Preface.. 10
+Introduction.. 11
+A.   The History of U.S. Trademark Law... 11
+1.     The Origins of Trademarks and Trademark Law... 11
+2.     The Trade-Mark Cases.. 17
+Trade-Mark Cases. 17
+3.     The Statutory Development of U.S. Trademark law and the Lanham Act of 1946   20
+4.     Recent Statutory Developments.. 22
+B.   The Policy Justifications for Trademark Protection.. 24
+C.    Trademark Law Within the Larger Scheme of Intellectual Property Law... 29
+I.     Establishing Trademark Rights.. 33
+A.   Trademark Distinctiveness.. 37
+1.     Inherent Distinctiveness of Source and Acquired Distinctiveness of Source.. 38
+a.     Inherent Distinctiveness of Source.. 38
+i.      The Abercrombie Spectrum.... 38
+Abercrombie &amp; Fitch Co. v. Hunting World, Inc. 39
+ii.     Distinguishing Suggestive from Descriptive Marks.. 43
+Zatarains, Inc. v. Oak Grove Smokehouse, Inc. 44
+Innovation Ventures, LLC v. N.V.E., Inc. 46
+iii.    Special Rules for Classification of Certain Kinds of Trademarks. 50
+⋄      Descriptiveness of Geographic Terms.. 50
+⋄      Certification Marks and Collective Marks. 51
+⋄      Surnames.. 54
+⋄      Non-English Words: The Doctrine of “Foreign Equivalents”. 54
+⋄      Acronyms.. 55
+⋄      Domain Names and Top-Level Domain Designations. 55
+b.     Acquired Distinctiveness of Source.. 56
+Frosty Treats Inc. v. Sony Computer Entertainment America.. 58
+Cartier, Inc. v. Four Star Jewelry Creations, Inc. 61
+Board of Supervisors for Louisiana State University Agricultural &amp; Mechanical College v. Smack Apparel Co. 64
+c.     Generic Marks.. 69
+Frito-Lay North America, Inc. v. Princeton Vanguard, LLC.. 71
+d.     Further Examples of Abercrombie Classifications. 90
+2.     The Distinctiveness Analysis of Nonverbal Marks. 93
+a.     Initial Supreme Court Approaches to the Analysis of Nonverbal Marks.. 94
+Two Pesos, Inc. v. Taco Cabana, Inc. 95
+Qualitex Co. v. Jacobson Products Co., Inc. 106
+b.     Product Packaging Trade Dress Versus Product Configuration Trade Dress   111
+i.      The Differing Distinctiveness Analysis of Product Packaging and Product Configuration   112
+Wal-Mart Stores, Inc. v. Samara Bros., Inc. 112
+ii.     Distinguishing Product Packaging from Product Configuration.. 117
+In re Slokevage. 118
+LVL XIII Brands, Inc. v. Louis Vuitton Malletier S.A. 122
+McKernan v. Burek.. 124
+Best Cellars, Inc. v. Wine Made Simple, Inc. 125
+Fedders Corp. v. Elite Classics. 126
+In re SnoWizard, Inc. 127
+In re Frankish Enterprises Ltd. 128
+c.     Analyzing the Inherent Distinctiveness of Product Packaging Trade Dress   129
+Fun-Damental Too, Ltd. v. Gemmy Industries Corp. 131
+Amazing Spaces, Inc. v. Metro Mini Storage.. 134
+Fiji Water Co., LLC v. Fiji Mineral Water USA, LLC.. 142
+In re Frankish Enterprises Ltd. 144
+Star Industries, Inc. v. Bacardi &amp; Co. Ltd. 144
+d.     Analyzing the Acquired Distinctiveness of Nonverbal Marks.. 146
+B.   Bars to Protection.. 147
+1.     Functionality.. 149
+a.     Foundational Cases.. 149
+In re Morton-Norwich Products, Inc. 150
+Inwood Labs., Inc. v. Ives Labs., Inc. 159
+TrafFix Devices, Inc. v. Marketing Displays, Inc. 161
+b.     Utilitarian Functionality Case Law after TrafFix.. 166
+i.      Federal Circuit. 167
+Valu Engineering, Inc. v. Rexnord Corp. 167
+ii.     Fifth Circuit. 169
+Eppendorf-Netheler-Hinz GMBH v. Ritter GMBH... 169
+iii.    Ninth Circuit. 172
+Apple, Inc. v. Samsung Electronics Co. Ltd. 172
+iv.    Seventh Circuit. 179
+Specialized Seating, Inc. v. Greenwich Industries, L.P. 179
+c.     Aesthetic Functionality.. 181
+i.      Foundational Cases.. 183
+Pagliero v. Wallace China Co. 183
+Wallace Int’l Silversmiths, Inc. v. Godinger Silver Art Co. 185
+ii.     Aesthetic Functionality and the Apparel Fashion Industry.. 188
+Christian Louboutin S.A. v. Yves Saint Laurent America Holding, Inc. 189
+2.     Deceptive and Deceptively Misdescriptive Marks. 197
+a.     Non-Geographic Deceptive and Deceptively Misdescriptive Marks.. 197
+b.     Geographic Deceptive and Deceptively Misdescriptive Marks.. 199
+In re California Innovations Inc., 199
+3.     Marks that May Falsely Suggest a Connection.. 206
+In re Nieves &amp; Nieves LLC.. 206
+4.     Confusingly-Similar Marks Under Lanham Act § 2(d). 213
+5.     Disparaging and Scandalous Marks. 213
+Matal v. Tam.... 214
+Iancu v. Brunetti. 229
+C.    Use in Commerce as a Prerequisite for Trademark Rights.. 246
+1.     Use in Commerce as a Prerequisite for Federal Trademark Registration.. 248
+Aycock Engineering, Inc. v. Airflite, Inc. 249
+Couture v. Playdom, Inc. 254
+2.     Use in Commerce as a Prerequisite for Unregistered “Common Law” Priority   256
+Planetary Motion, Inc. v. Techsplosion, Inc. 256
+D.   The Trademark Registration Process. 268
+1.     Benefits of Registration.. 271
+a.     Registration on the Principal Register.. 271
+b.     Registration on the Supplemental Register. 273
+2.     Lanham Act § 1(b) Intent to Use Applications and the Bona Fide Intent to Use Requirement  274
+Kelly Services, Inc. v. Creative Harbor, LLC.. 275
+3.     Process of Registration.. 283
+a.     Application.. 283
+b.     Examination.. 284
+c.     Publication.. 285
+d.     Opposition and the Trademark Trial and Appeal Board.. 285
+e.     Registration.. 287
+f.      Post-Registration Maintenance of the Registration.. 287
+4.     Notice of Federal Registration.. 288
+5.     The Madrid System.... 289
+6.     Cancellation of Registration.. 289
+7.     Incontestable Status and Park ‘N Fly.. 293
+Park ‘N Fly, Inc. v. Dollar Park and Fly, Inc. 293
+E.    The Territorial Extent of Trademark Rights.. 302
+1.     The Territorial Extent of Rights in Registered Marks. 302
+a.     Applications Filed on or after November 16, 1989: Constructive Use Priority as of Date of Application   302
+b.     Applications Filed before November 16, 1989: Constructive Notice Priority as of Date of Registration   305
+c.     Concurrent Use and Registration.. 305
+d.     The Dawn Donut Rule.. 309
+2.     The Territorial Extent of Rights in Unregistered Marks.. 311
+Stone Creek, Inc. v. Omnia Italian Design, Inc. 312
+3.     National Borders and Trademark Rights. 317
+a.     National-Border Limits on Trademark Rights. 318
+Person’s Co., Ltd. v. Christman.. 318
+b.     The Well-Known Marks Doctrine.. 323
+i.      The Well-Known Marks Doctrine in the Ninth Circuit. 323
+Grupo Gigante SA De CV v. Dallo &amp; Co., Inc. 323
+ii.     The Well-Known Marks Doctrine in the Second Circuit. 333
+ITC Ltd. v. Punchgini, Inc. 333
+ITC Ltd. v. Punchgini, Inc. 348
+c.     Belmora and the End of Territorial Limits on Trademark Rights?. 351
+Belmora LLC v. Bayer Consumer Care AG.. 352
+II.    Trademark Infringement. 364
+A.   The Actionable Use Requirement. 365
+1.     Defendant’s “Use in Commerce”. 366
+Rescuecom Corp. v. Google Inc. 367
+2.     Defendant’s Use “in Connection with the Sale . . . of any Goods or Services”. 376
+Radiance Foundation, Inc. v. National Association for the Advancement of Colored People   377
+B.   Confusion-Based Infringement. 382
+1.     The History of the Confusion-Based Cause of Action for Trademark Infringement  383
+a.     The Early-Twentieth Century Approach to the Likelihood of Consumer Confusion   383
+Borden Ice Cream Co. v. Borden’s Condensed Milk Co. 383
+b.     The Development of the Modern Multifactor Test. 386
+Polaroid Corp. v. Polarad Electronics Corp. 388
+2.     Contemporary Applications of the Multifactor Test for the Likelihood of Confusion   390
+Virgin Enterprises Ltd. v. Nawab.. 391
+3.     Further Examples of the Application of the Multifactor Test for the Likelihood of Confusion Test  403
+4.     Survey Evidence and the Likelihood of Confusion.. 408
+Smith v. Wal-Mart Stores, Inc. 412
+5.     “Sponsorship or Affiliation” Confusion.. 427
+Int’l Info. Sys. Sec. Certification Consortium, Inc. v. Sec. Univ., LLC.. 427
+Board of Supervisors for Louisiana State University Agricultural &amp; Mechanical College v. Smack Apparel Co. 436
+6.     Initial Interest Confusion.. 439
+Multi Time Machine v. Amazon.com.... 439
+7.     Post-Sale Confusion.. 449
+Ferrari S.P.A. v. Roberts. 450
+8.     Reverse Confusion.. 460
+Uber Promotions, Inc. v. Uber Technologies, Inc. 461
+9.     Reverse Passing Off. 473
+Dastar Corp. v. Twentieth Century Fox Film Corp. 475
+10.   Lanham Act § 2(d) Confusion.. 486
+C.    Trademark Dilution.. 488
+1.     The Fame Requirement for Antidilution Protect. 493
+Coach Servs., Inc. v. Triumph Learning LLC.. 494
+2.     Dilution by Blurring.. 498
+Nike, Inc. v. Nikepal Intern., Inc. 498
+Starbucks Corp. v. Wolfe’s Borough Coffee, Inc. 508
+3.     Dilution by Tarnishment. 521
+V Secret Catalogue, Inc. v. Moseley.. 521
+D.   Cybersquatting.. 532
+1.     The Section 43(d) Prohibition Against Cybersquatting.. 533
+Sporty’s Farm L.LC. v. Sportsman’s Market, Inc. 533
+Lamparello v. Falwell. 542
+2.     The Uniform Dispute Resolution Policy and the Uniform Rapid Suspension System     547
+a.     The Uniform Dispute Resolution Policy.. 547
+Pinterest, Inc. v. Pinerest.com c/o Whois Privacy Services Pty Ltd / Ian Townsend   552
+b.     The Uniform Rapid Suspension System.... 559
+Facebook Inc. v. Radoslav.. 560
+E.    Secondary Liability.. 563
+Tiffany (NJ) Inc. v. eBay Inc. 563
+Gucci America, Inc. v. Frontline Processing Corp. 578
+III. Defenses to Trademark Infringement and Related Limitations on Trademark Rights.. 588
+A.   Descriptive Fair Use.. 588
+1.     Descriptive Fair Use and Consumer Confusion.. 588
+KP Permanent Make-Up, Inc. v. Lasting Impression I, Inc. 589
+2.     The Three-Step Test for Descriptive Fair Use.. 593
+Dessert Beauty, Inc. v. Fox. 593
+Sorensen v. WD-40 Company.. 601
+3.     Further Examples of Descriptive Fair Use Analyses.. 607
+International Stamp Art v. U.S. Postal Service.. 607
+Bell v. Harley Davidson Motor Co. 608
+Fortune Dynamic, Inc. v. Victoria’s Secret. 609
+B.   Nominative Fair Use.. 610
+1.     The Three-Step Test for Nominative Fair Use.. 610
+Toyota Motor Sales, U.S.A., Inc. v. Tabari. 612
+Int’l Info. Sys. Sec. Certification Consortium, Inc. v. Sec. Univ., LLC.. 621
+2.     Further Examples of Nominative Fair Use Analyses.. 625
+Liquid Glass Enterprises, Inc. v. Dr. Ing. h.c.F. Porsche AG.. 625
+Toho Co., Ltd. v. William Morrow &amp; Co., Inc. 626
+Mattel, Inc. v. Walking Mountain Productions. 629
+C.    Expressive Uses of Trademarks. 631
+1.     Expressive Uses and the Tests for Confusion and Dilution.. 633
+Louis Vuitton Malletier S.A. v. Haute Diggity Dog, LLC.. 634
+2.     The Rogers v. Grimaldi Test for Unauthorized “Artistic” Uses.. 645
+Gordon v. Drape Creative, Inc. 646
+3.     Further Examples of Expressive Use Analyses. 657
+Mattel, Inc. v. MCA Records, Inc. 658
+Louis Vuitton Malletier, S.A. v. Hyundai Motor Am. 660
+MPS Entm’t, LLC v. Abercrombie &amp; Fitch Stores, Inc. 662
+The Louis Vuitton / Penn Law School Controversy.. 663
+D.   Trademark Abandonment. 669
+1.     Abandonment Through Cessation of Use.. 669
+ITC Ltd. v. Punchgini, Inc. 669
+Crash Dummy Movie, LLC v. Mattel, Inc. 677
+2.     Abandonment Through Failure to Control Use.. 681
+FreecycleSunnyvale v. Freecycle Network.. 681
+E.    Assignment in Gross. 690
+Sugar Busters LLC v Brennan.. 691
+F.    The First Sale Doctrine.. 695
+Champion Spark Plug Co. v. Sanders. 695
+Davidoff &amp; CIE, S.A. v. PLD Int’l Corp. 698
+IV.   False Advertising.. 702
+A.   False Advertising Under the Lanham Act. 702
+1.     Literal Falsity.. 704
+S.C. Johnson &amp; Son, Inc. v Clorox Co. 704
+2.     Literal Falsity by Necessary Implication.. 714
+Time Warner Cable, Inc. v. DIRECTV, Inc. 714
+3.     Puffery, Statements of Opinion, and Materiality.. 725
+Pizza Hut, Inc. v. Papa John’s Intern., Inc. 725
+4.     Substantiation.. 739
+a.     “Tests Prove” Claims.. 739
+Castrol Inc. v. Quaker State Corp. 740
+b.     Comparative Claims.. 747
+Castrol Inc. v. Pennzoil Co. 748
+c.     False Demonstrations.. 754
+Schick Mfg., Inc. v. Gillette Co. 754
+B.   Endorsements, Testimonials, and Reviews. 764
+FTC Guides Concerning Use of Endorsements and Testimonials in Advertising   765
+The FTC’s Endorsement Guides: What People Are Asking (September 2017)  775
+V.    Right of Publicity.. 793
+A.   State Right of Publicity Statutory Provisions.. 795
+B.   Right of Publicity Case Law... 797
+White v. Samsung Electronics America, Inc. 799
+White v. Samsung Electronics America, Inc. 806
+In re NCAA Student–Athlete Name &amp; Likeness Licensing Litigation.. 817
+VI.   Remedies.. 839
+A.   Injunctive Relief. 839
+Herb Reed Enterprises, LLC v. Florida Entertainment Management, Inc. 840
+adidas Am., Inc. v. Skechers USA, Inc. 844
+B.   Plaintiff’s Damages and Defendant’s Profits.. 853
+1.     Recovery of Defendant’s Profits.. 855
+2.     Recovery of Plaintiff’s Damages.. 857
+3.     Enhanced Damages.. 857
+4. The Notice Requirement for Registered Marks.. 857
+C.    Corrective Advertising.. 858
+D.   Attorney’s Fees. 858
+E.    Counterfeiting Remedies.. 859
+F.    Federal Criminal Penalties for Counterfeiting.. 861
+

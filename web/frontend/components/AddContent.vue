@@ -4,7 +4,7 @@
       class="action one-line add-resource"
       v-on:click.stop.prevent="displayModal()"
     >Add Resource</button>
-    <Modal v-if="showModal" @close="showModal = false" :initial-focus="() => $refs.case_search">
+    <Modal v-if="showModal" @close="showModal = false" :initial-focus="focusTarget">
       <template slot="title">Add Resource</template>
       <template slot="body">
         <div class="search-tabs">
@@ -20,6 +20,10 @@
             v-bind:class="{ active: linkTab, 'search-tab': true }"
             v-on:click.stop.prevent="setTab('link')"
           >Add Link</a>
+          <a
+            v-bind:class="{ active: bulkTab, 'search-tab': true }"
+            v-on:click.stop.prevent="setTab('bulk')"
+          >Outline</a>
         </div>
         <div class="add-resource-body" v-if="caseTab">
           <form class="case-search">
@@ -91,7 +95,7 @@
               <label class="textarea">
                 Text body
                 <editor
-                  ref="text-body"
+                  ref="text_body"
                   name="content"
                   :init="tinyMCEInitConfig"
                   v-model="textContent"
@@ -104,13 +108,14 @@
             <input class="save-button" type="submit" value="Save text" />
           </form>
         </div>
-        <div class="add-resource-body" v-else>
+        <div class="add-resource-body" v-else-if="linkTab">
           <h3>Enter the URL of any asset to link from the web.</h3>
           <h4>Some examples: YouTube videos, PDFs, JPG, PNG, or GIF images</h4>
           <form ref="linkForm" class="new-link" v-on:submit.stop.prevent="submitLinkForm()">
             <div v-bind:class="{'form-group': true, 'has-error': errors.url}">
               <input
                 class="form-control"
+                ref="link_body"
                 name="url"
                 type="text"
                 placeholder="Enter a URL to add it to your casebook"
@@ -124,6 +129,9 @@
             <input class="search-button" type="submit" value="Add linked resource" />
           </form>
         </div>
+        <div class="add-resource-body" v-else>
+          <casebook-outliner ref="outline_body" :casebook="casebook" :section="section"></casebook-outliner>
+        </div>
       </template>
     </Modal>
   </div>
@@ -132,6 +140,7 @@
 <script>
 import Modal from "./Modal";
 import LoadingSpinner from "./LoadingSpinner";
+import CasebookOutliner from "./CasebookOutliner";
 import Editor from "@tinymce/tinymce-vue";
 import Axios from "../config/axios";
 import _ from "lodash";
@@ -142,6 +151,7 @@ export default {
   components: {
     Modal,
     LoadingSpinner,
+    CasebookOutliner,
     editor: Editor
   },
   props: ["casebook", "section"],
@@ -163,6 +173,16 @@ export default {
     errors: {}
   }),
   computed: {
+    focusTarget: function() {
+      if (this.caseTab) {
+        return this.$refs.case_search;
+      } else if (this.textTab) {
+        return this.$refs.text_body;
+      } else if (this.linkTab) {
+        return this.$refs.link_body;
+      }
+      return null;
+    },
     caseTab: function() {
       return this.currentTab === "case";
     },
@@ -171,6 +191,9 @@ export default {
     },
     linkTab: function() {
       return this.currentTab === "link";
+    },
+    bulkTab: function() {
+      return this.currentTab === "bulk";
     },
     caseResults: function() {
       function truncatedCaseName({ name }) {
@@ -195,7 +218,7 @@ export default {
           .filter(x => x.cite == query.trim())
           .map(x => x.cite);
         cites = cites.concat(
-          citations.filter(x => (x.type = "official")).map(x => x.cite)
+          citations.filter(x => (x.type === "official")).map(x => x.cite)
         );
         cites = cites.concat(
           citations.map(x => x.cite).filter(x => cites.indexOf(x) == -1)
@@ -242,11 +265,13 @@ export default {
     },
     setTab: function setTab(newTab) {
       const self = this;
+      let tries = 0;
       function tryFocus() {
         if (self.$refs.case_search) {
           self.$refs.case_search.focus();
         } else {
-          this.$nextTick(tryFocus);
+          tries += 1;
+          if (tries < 10) self.$nextTick(tryFocus);
         }
       }
       this.currentTab = newTab;
@@ -308,8 +333,12 @@ export default {
 label.textarea {
   width: 100%;
 }
-a.search-tab {
-  color: black;
+.search-tabs {
+  display: flex;
+  flex-direction: row;
+  a.search-tab {
+    color: black;
+  }
 }
 
 .search-results {

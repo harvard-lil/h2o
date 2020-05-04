@@ -15,6 +15,7 @@ import SectionCloner from "../components/SectionCloner";
 import AddContent from "../components/AddContent";
 import TheTableOfContents from "../components/TheTableOfContents";
 import PortalVue from "portal-vue";
+import CasebookOutliner from "../components/CasebookOutliner";
 
 document.addEventListener("DOMContentLoaded", () => {
   const routes = [
@@ -35,7 +36,8 @@ document.addEventListener("DOMContentLoaded", () => {
         SectionCloner,
         AddContent,
         TheTableOfContents,
-        PortalVue
+        PortalVue,
+        CasebookOutliner
     }
   });
 

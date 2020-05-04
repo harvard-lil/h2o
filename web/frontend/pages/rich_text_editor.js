@@ -5,6 +5,7 @@ import 'tinymce/plugins/lists';
 import 'tinymce/plugins/image';
 import 'tinymce/plugins/table';
 import 'tinymce/plugins/code';
+import 'tinymce/plugins/paste';
 
 function initRichTextEditor(element, code=false) {
   let plugins = ['link', 'lists', 'image', 'table'];
