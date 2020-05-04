@@ -1,5 +1,5 @@
 {% if editing %}
-    <div class="casebook-draft banner">
+    <div class="{{casebook_color_class}} banner">
         <div class="banner-inner">
             {% if casebook.is_draft %}
                 This casebook is a draft and is visible only to collaborators.
@@ -17,7 +17,7 @@
         </div>
     </div>
 {% elif casebook.is_draft or casebook.is_private %}
-    <div class="casebook-preview banner">
+    <div class="{{casebook_color_class}} banner">
         <div class="banner-inner">
             {% if casebook.is_draft %}
                 You are viewing a preview of your changes.
