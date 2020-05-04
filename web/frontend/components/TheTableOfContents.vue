@@ -11,7 +11,7 @@
           :id="getAnchor(item)"
           v-bind:class="{'listing-wrapper':true, 'delete-confirm': promptForDelete({id:item.id})}"
         >
-          <div class="listing resource" v-if="item.resource_type !== null">
+          <div class="listing resource" v-if="!(item.resource_type === null || item.resource_type === 'Section')">
             <div class="section-number">{{rootOrdinalDisplay}}</div>
             <div class="resource-container" v-if="item.resource_type==='Case'">
               <a :href="item.edit_url" class="section-title case-section-title">{{ item.title }}</a>

@@ -1,0 +1,437 @@
+About the Author ………………………………………….…………………………....... iii
+About CALI eLangdell Press ………………………………………………………......... iii
+Notices ……………………………………………………….…………………………... iv
+Preface …………………………………………………………………………………… vi
+Introduction …………………………………………………………………..................xxiv
+The legislative branch ………………………………………………………………..xxvi
+The executive branch …………………………………………………………………xxvi
+Tax procedure overview ……………………………………………………………....xxxi
+The judicial branch …………………………………………………………………..xxxii
+Excerpt from Of Crud and Dogs: An Updated Collection of Quotations in Support of
+the Proposition That the Supreme Court Does Not Devote the Greatest of Care and
+Attention to Our Exciting Are of the Law by Erik M. Jensen ……………………......xxxv
+Unit I: The Core Structures of Income 
+and Consumption Taxation and Tax Policy
+Introduction to Chapters 1 through 4 ……………………….…………………….………….. 1
+Chapter 1: The Essential Structure of the Income Tax ……............................... 3
+A. The theoretical core structure of a tax on “income” and how it is implemented in
+     positive law  ……………………………………………..…………………………….  3
+Introduction to § 61 “Gross Income” …………………………………………………. 5
+Deductions (part 1): nondeductible “capital expenditures” vs. potentially 
+deductible “expenses” …………………………………………………………..…...... 7
+§ 61(a)(3) “gains derived from dealings in property” and the critical role of “basis” .8
+Deductions (part 2): which “expenses” are deductible and why? …………………… 14
+Deductions (part 3): § 1001 “loss” (and more on normative income tax theory) …….17
+Deductions (part 4): depreciation …..………………………………………………....19
+§ 1016 basis adjustments ………………………………………………………………20
+A brief introduction to the concept of “capital” gains and losses ……………….……21
+Problems ……………………………………………………………………………….24   
+B. Subsistence consumption, tax rates, and more ……………...………………………... 26
+§ 62 above-the-line deductions ………………………………………………………...27
+The (suspended) personal exemption deduction and (continuing) standard deduction .28
+§ 67: (suspended)“miscellaneous itemized deductions” (MIDs)………………………29
+The Alternative Minimum Tax (AMT) ………………………………………………….30
+Child tax credit and earned income tax credit …………………………..…….……….32
+Effective tax rate versus marginal tax rate …………………………………………….34
+The new § 199A deduction for sole proprietors and owners of pass-through entities…38
+Problems ……………………………………………………………………………….42
+Chapter 2: Consumption Taxation and Our Hybrid Income/Consumption 
+          Tax ……………………………………………………………………………………44 
+A. Consumption taxation forms and comparison to income taxation ……….....................44
+A retail sales tax ……………………………………………………………………….45
+A value added tax ……………………………………………………………………...45
+A cash-flow consumption tax …………………………………………………………..47
+Exempting capital returns from tax: the wage tax and the E. Cary Brown 
+yield-exemption phenomenon ………………………………………………………….49
+B. Consumption tax provisions in the Internal Revenue Code …………..……………….53
+C. The additional wrinkle of debt ………………………………….……………………...54
+D. Tax arbitrage: the income tax treatment of debt coupled with consumption tax 
+     treatment of the debt-financed investment …………………………………….………56  
+     Introduction to the concept of “capture” ……………………………………………...58
+Chapter 3: Ethical Debates, Economic Theories, and Real-World 
+Impacts ……………………………………………………………………………………. 61  
+A. The development of the income tax and how taxes affect the Federal budget and
+     living standards ………………………………………………………………………...62  
+Excerpt from The Taxing Power: A Reference Guide to the United States
+Constitution by Erik M. Jensen ……………………………………………………….. 65
+B. Fairness norms, economic theories, and politics ……………………………………….82
+Fairness norms in general ……………………………………………………………..84
+Fairness and the wage tax ……………………………………………………………..86
+Fairness and other forms of consumption taxation ……………………………………88
+Welfare economics …………………………………………………………………….89
+Chicago-school-style economics ………………………………………………………91  
+Negative and positive externalities and Pigovian taxes…..……………………………93  
+Rent-seeking behavior …………………………………………………………………95
+Supply-side economics ………………………………………………………………....96
+The limits of economic theory ………………………………………………………….99
+Tax expenditures………………………………………………………………………102
+Final thoughts ………………………………………………………………………...105
+Chapter 4: The Contours of “Capital Expenditure” v. Expense”
+(or Current Depreciation) ……………………………………………………………107
+A. Outlays pertaining to intangibles ……………………………………………………..108
+INDOPCO, INC. v. COMMISSIONER …………………………………………….. 109
+Post-INDOPCO developments ……………………………………………………….111
+Outline of the regulations pertaining to intangibles …………………………………112
+Problems …………………………………………………………………………….. 113
+B. Outlays pertaining to tangible assets ……………………………….………………...114
+Two mutually exclusive de minimis elections ………………………………………...115
+The § 162 deduction for “materials and supplies” …………………………………. 116
+Problems …………………………………………………………………………….. 116
+The difficult distinction between repair (expense) and improvement (capital expenditure)………………………………………………………………………….. 117
+Improvement: betterment, restoration, or adapting the property to a new use ……....118
+Determining the “unit of property” ………………………………………………….119
+Routine maintenance safe harbor ……………………………………………………119
+Small business safe harbor election for building improvements …………………….120
+Problems ……………………………………………………………………………..120
+C. Indirect costs of producing inventory (and other property)…………………………..121
+COMMISSIONER v. IDAHO POWER CO. ………………………………………..121
+§ 263A codification …………………………………………………………………..122
+Unit II: Two Types of Gross Income: 
+Compensation and Residual Gross Income
+Introduction to Chapters 5 and 6 ……………………………………………………............124
+Chapter 5: § 61(a)(1) Compensation ……………………………………………....126
+OLD COLONY TRUST CO. v. COMMISSIONER ………………………………...126
+REVENUE RULING 79-24 …………………………………………………….……129
+A. Section 119 ………………………………………………………...…………………131
+COMMISSIONER v. KOWALSKI ………………….………………………………132
+LINDEMAN v. COMMISSIONER ….………………………………………………134
+B. Section 132 ………………………………………….………………………………..139
+Excerpt from General Explanation of the Revenue Provisions of the Deficit
+Reduction Act of 1984 ……………………………………………………………….140
+C. The Employer’s Business Expense Deduction for Compensation …………………...142
+Problems ……………………………………………………………………………...143
+D. Section 83 …………………………………………………………………………….145
+Problems ……………………………………………………………………………...147
+Chapter 6: § 61 Residual Gross Income ………………………………………….149
+COMMISSIONER v. GLENSHAW GLASS ……..…………………………………150
+A.   What is an “accession to wealth” within the meaning of Glenshaw Glass? ………...154
+Cash receipts that are not basis recovery (or loan principal or excluded by statute)..154
+REVENUE RULING 76-131 ………………………………………………………...154
+Consumption received in kind ………………………………………………………..157
+Oscar Freebies Balloon to $80K (Don’t Tell IRS) by Robert W. Wood …………….159
+UNITED STATES v. GOTCHER …………………………………………………...163
+Problem ………………………………………………………………………………166
+HAVERLY v. UNITED STATES …………………………………………………...167
+Problem ………………………………………………………………………………169
+B. When is a wealth accession “clearly realized” within the meaning of
+     Glenshaw Glass? …………………………………………………………………….169
+The bargain purchase rule …………………………………………………………...169
+Problem ………………………………………………………………………………170
+Commercial rebates ………………………………………………………………….170
+REVENUE RULING 76-96 ………………………………………………………….170
+Problem ………………………………………………………………………………172
+Lessee improvements that are not “rent” ……………………………………………172
+HELVERING v. BRUUN ……………………………………………………………172
+Treasure trove ………………………………………………………………………..175
+Excerpt from Defining Income by Alice G. Abreu &amp; Richard K. Greenstein …….....176
+Unit III: The Possibilities for Income Shifting
+Introduction to Chapters 7 and 8 .….……………………………………………….............182
+Chapter 7: Gifts and Bequests ……………………………………………………...183
+Possible taxation approaches to the transfer and receipt of gifts and bequests ……..183
+A brief description of positive law ……………………………………………………185
+A. The basis of property received in kind as a gift or bequest (and related rules) ……....190
+Problems …………………………………………………………………………….. 190
+Historical development of the basis rules….………………………………………….191
+Is § 1014 justified? If not, which alternative would be better? ……………………....193
+B. What is a “gift” within the meaning of § 102(a)? …………………………………….195
+COMMISSIONER v. DURBERSTEIN …………………………………………….. 195
+Consequences of the Duberstein Court’s approach to “gift” ………………………. 202
+Problem ………………………………………………………………………………204
+A Duberstein example and introduction of “small tax case” jurisdiction
+in the Tax Court ……………………………………………………………………... 204
+JUE-YA YANG v. COMMISSIONER ……………………………………………... 204
+The possible limits of the Duberstein “intent” approach …………………………… 206
+OLK v. UNITED STATES ………………………………………………………….. 206
+The relationship between § 61 and exclusion provisions …………………………… 209
+Final thoughts ………………………………………………………………………...210
+C. Life insurance proceeds received on death of the insured ………………....................210
+Is the § 101(a)(1) exclusion justified? ………………………………………………. 211
+Sales of life insurance policies to investors …………………………………………. 211
+Problems …………………………………………………………………………….. 212
+Chapter 8: Income Shifting in the Happy and Fractured Family ……….....213
+A. Income splitting via the joint return ………………………………………………… 213
+LUCAS v. EARL ………………………………………………………………….… 213
+POE v. SEABORN ………………………………………………………………….. 215
+Registered domestic partnerships (RDPs) and civil unions ………………………….222
+CHIEF COUNSEL ADVICE 201021050 …………………………………………... 223
+B. Income-shifting possibilities outside the joint return ……………………...................224
+Problems …………………………………………………………………………….. 224
+BLAIR v. COMMISSIONER ………………………………………………………..226
+HARRISON v. SCHAFFNER …….…………………………………………………229
+The § 1(g) kiddie tax ….…………………………………………………………....... 232
+The grantor trust rules …….…………………………………………………………233
+HELVERING v. CLIFFORD ……………………………………………………….. 234
+Income splitting using a nongrantor trust ……………………………………………238
+Final thoughts ……………………………………………………………………….. 238
+C. Income Shifting in the Fractured Family ……………………………………………..239
+Cash payments …..………………………………………………………………........239
+GOULD v. GOULD ………………………………………………………………….239
+Retirement savings in divorce…………………………………………………………243
+Transfers of property in kind …..……………………………………………………..244
+Problems …………………………………………………………………………….. 247
+Unmarried cohabitants with no formal legal relationship ………………………….. 247
+REYNOLDS v. COMMISSIONER ………………………………………………….247
+RDPs and civil unions ………………………………………………………………. 251
+Problem ………………………………………………………………………………252
+Unit IV: Everything You Ever Wanted To
+Know About Debt but Were Afraid To Ask
+Introduction to Chapters 9 through 11 . …………………………………………………… 254
+Chapter 9: Borrowing and Lending ...……………………………………………..256
+A. The basic rules of the road ….………………………………………………………..256
+B. Section 7872 ………………………………………………………………………….258
+C. Identifying principal and interest (including original issue discount)
+     and the timing of interest inclusions and deductions ………………………………...261
+ Identifying principal and interest ……………………………………………………261
+Segue to a brief discussion of methods of accounting ………………………………..264
+Original issue discount ………………………………………………………………267
+OID pertains to realization rather than accounting methods ….…………………… 269
+D. Recovery of annuity basis under § 72 ………………………………………..............270
+Problem ………………………………………………………………………………272
+E. Which receipts fall within the “borrowing exclusion”? ………………………………273
+JAMES v. UNITED STATES ……..…………………………………………………273
+NORTH AMERICAN OIL CONSOLIDATED v. BURNET ………………………..276
+Lewis and the enactment of § 1341 …………………………………………………...278
+A workable tax definition of “loan”: absolute versus contingent obligation
+to repay ..…………………………………………………………………………........279
+COMMISSIONER v. INDIANAPOLIS POWER &amp; LIGHT ………………………...279
+Problem …………………………………………………………………………….....284
+Chapter 10: The Bad-Debt Deduction (for Lenders) and Debt-Discharge Income (for Borrowers) ……………………………………………………………….285
+A. The lender’s deduction for a bad debt (or worthless security) ….……………………….285
+§ 165(g) deduction for a worthless security ………………………………………… 285
+§ 166 bad-debt deduction …………………………………………………………….286
+Bona fide debt ……………………………………………………………………….. 288
+Worthlessness ………………………………………………………………………...289
+Deduction limited to basis ……………………………………………………………289
+REVENUE RULING 93-27 ………………………………………………………… 290
+Problems …………………………………………………………………………….. 292
+B. § 61(a)(12) income from the discharge of indebtedness …………………..................293
+UNITED STATES v. KIRBY LUMBER ….………………………………………... 293
+The modern rationale underlying § 61(a)(12): the borrowing exclusion ….………... 296
+Deferral of § 61(a)(12) debt-discharge income under § 108 ………………………… 297
+Failure to grasp the modern rationale by some courts ………………………………. 299
+PAYNE v. COMMISSIONER ………………………………………………………. 300
+Problems …………………………………………………………………………….. 303
+Measuring the economic value received in the borrowing year with
+seller-financed purchases …………………………………………………………………...303
+ ZARIN v. COMMISSIONER (Tax Court) ………………………………………….304
+ZARIN v. COMMISSIONER (Third Circuit) ……………………………………….312
+Chapter 11: Debt and Property …………………………………………………….319
+A. The purchase of property with borrowed money—the front-end rule in Crane……...320
+B. The transfer of property subject to debt—the back-end rule in Crane, Tufts, and
+     Rev. Rul. 90-16 ………………………………………………………………………323
+Relief from recourse debt not in excess of property FMV …………………………...323
+Relief from nonrecourse debt—whether or not in excess of property FMV …………325
+COMMISSIONER v. TUFTS ………………………………………………………..326  
+Relief from recourse debt in excess of property FMV ……………………………......334
+REVENUE RULING 90-16 ………………………………………………………….334
+C. Reduction of property debt without a property transfer ………………………………339
+REVENUE RULING 91-31 ………………………………………………………….339
+§§ 108(a)(1)(D) and (e)(5) …………………………………………………………...341
+Problems ……………………………………………………………………………...343
+Unit V: The Ownership and Disposition of Property
+Introduction to Chapters 12 through 15 …………………………………………….............345
+Chapter 12: Properly Accounting for, and the Nonrecognition of, 
+§ 1001 Realized Gain or Loss ………………………………………………..............346
+On the disposition of property ………………………………………………………. 346
+A. Properly accounting for realized and recognized gain and loss ……………………...347
+Inventory sales ……………………………………………………………………….348
+Timing of § 1001 realized and recognized gain inclusion …………………………...350
+Installment sale reporting …………………………………………………………....351
+Open transaction reporting …………………………………………………………..352
+B. The nonrecognition of § 1001 realized gain or loss ………………………………….352
+§ 1033 involuntary conversions of built-in gain property …………………………...353
+§ 1031 like kind exchanges …………………………………………………………..355
+Three-corner exchanges ……………………………………………………………...362
+CRANDALL v. COMMISSIONER ………………………………………………....362
+Does § 1031 reflect sound policy? …………………………………………………...366
+§§ 1400Z-1 and -2 Qualified Opportunity Zones and Funds ………………………...368
+§ 267(a)(1) sales of loss property to a related party ………………………………...369
+§ 1091 wash sales of loss securities ………………………………………………….369
+Problems …………………………………………………………………………….. 370
+Chapter 13: Depreciation and in a Realization Income Tax and the
+Business Interest Deduction…………………………………....................................371
+A. Economic depreciation in a realization-based income tax …………..........................372
+B. “Wear and tear” within the meaning of § 167(a) …………………….........................376
+SIMON v. COMMISSIONER ….……………………………………………………377
+C. Depreciation of tangible assets ……………………………………………………… 388
+Non-real estate ……………………………………………………………………… 388
+§ 179 “expensing” …………………………………………………………………...389
+§ 168 depreciation …………………………………………………………………....390
+Real estate ……………………………………………………………………………394
+§ 280F limitations ……………………………………………………………………395
+D. Amortization of intangible assets …………………………………………….............396
+E. Amortization of start-up costs ………………………………………………………..398
+F. Tax arbitrage: the business interest deduction for debt-financed purchases of  
+     expensed (or nearly expensed) assets………………………………………………...399
+Problems …………………………………………………………………………......401
+Chapter 14: Capital Gains and Losses …………………………………………...403
+A. Capital losses …………………………………………………………………….......403
+Problem ………………………………………………………………………………406
+B. Net capital gain ………………………………………………………………….........406
+Why is net capital gain taxed at a preferential rate? ………………………………...407
+The double tax argument regarding capital returns …………………………………410
+Lock-in effect …………………………………………………………………………411
+Inflation gain …………………………………………………………………………411
+Encouraging risk-taking entrepreneurship to stimulate economic growth ………….415
+Bunching effect from the realization requirement …………………………………...416
+The definition of “net capital gain” …………………………………………………417
+Planning possibilities regarding the timing of realized capital gains and losses …...418       
+C. The meaning of “capital asset” and “sale or exchange” …………………..................420
+§ 1221(a)(1): the  inventory or dealer exception …………………………………….421
+BYRAM v. UNITED STATES ……………………………………………………... 421
+§ 1221(a)(2): certain property “used” in the taxpayer’s trade or business …………425
+§ 1221(a)(3): certain copyrights, works of art, musical compositions, and 
+similar property ………………………………………………………………………425
+§ 1221(b)(3): the election for self-created musical works …………………………...428
+§ 1221(a)(7): hedging transactions ………………………………………………….428
+The sale of a right to collect ordinary income in the future …………………………431
+The sale or exchange requirement …………………………………………………...432
+The Arrowsmith doctrine …………………………………………………………….432
+D. Section 1231 gains and losses and depreciation recapture …………………………..433
+§ 1231 gains and losses ……………………………………………………………....433
+§§ 1245 and 1250 “depreciation recapture” ………………………………………...435
+Problems ……………………………………………………………………………...437
+E. The § 1(h) rates applicable to “net capital gain” ……………………………………...438
+Chapter 15: Tax Shelters ……………………………………………………………..440
+Policy concerns ………………………………………………………………………442
+A. Common law doctrines used in tax shelter litigation ……………………...................443
+Sham debt …………………………………………………………………………….443
+KNETSCH v. UNITED STATES ……………………………………………………443
+ESTATE OF FRANKLIN v. COMMISSIONER ……………………………………447
+Tax ownership ………………………………………………………………………..453
+The business purpose doctrine ……………………………………………………….454
+The economic substance doctrine ……………………………………………………455
+B. Statutory tools in combatting tax shelters ……………………………………………459
+The § 163(d) investment interest deduction rules ……………………………………460
+Problem ………………………………………………………………………………462
+The § 465 at-risk rules and § 469 passive activity loss rules ………………………..462
+Section 461(l)…………………………………………………………………………467
+Problems ……………………………………………………………………………..468
+Unit VI: Distinguishing Between Income-
+Producing Activities and Personal Consumption 
+and the Personal Consumption Tax Expenditures
+Introduction to Chapters 16 through 19 …………………………………………………….470
+Chapter 16: On Human Capital ……………………………………………............471
+A. Education costs ………………………………………………………………….........471
+Problems ……………………………………………………………………………...474
+Treas. Reg. § 1.162-5: education costs as deductible business expenses 
+under § 162 …………………………………………………………………………..475
+SHARON v. COMMISIONER ……………………………………………………....477
+Problems ……………………………………………………………………………..484
+B. Compensation received on account of the loss of human capital ……………………485
+Excerpt from Murphy and the Evolution of “Basis” by Deborah A. Geier ………….485
+§ 104(a)(2) as tax expenditure ……………………………………………………….490
+Determining the excludable amount: deducted medical costs, structured
+settlements, prejudgment interest, and punitive damages ……………………...........491
+The treatment of attorney fees ……………………………………………………….493
+AMOS v. COMMISSIONER ………………………………………………………..496
+Problems ……………………………………………………………………………..502
+Chapter 17: Homes, Health, Charity, and More ……………………................504
+A. Owner-occupied housing …………………………………………………………….504
+The exclusion of imputed income with respect to owner-occupied housing …………504
+Tax policy critiques of the homeownership tax expenditures…………………………506
+The deduction for qualified residence interest under § 163(h)(3) …………………...508
+Problems ……………………………………………………………………………..511
+The exclusion of gain on the sale or exchange of a principal residence 
+under § 121 …………………………………………………………………………..512
+Problem ………………………………………………………………………………514
+B. Personal casualty and theft losses ……………………………………………………515
+Determining the amount and character of a personal casualty or theft loss
+and whether it is an Itemized Deduction or above-the-line deduction ………………..515
+Problem ………………………………………………………………………………518
+C. Health care ………………………………………………………………………........518
+The § 213 deduction for certain medical costs ………………………………………519
+The §§ 105(b) and 106 exclusions for employer-provided health care (and the 
+§ 162(l) deduction for the self-employed) ……………………………………………520
+The consumer-driven, health-care movement: HSAs and high-deductible plans ……523  
+The § 36B premium health care credit ………………………………………………525
+Problems ……………………………………………………………………………..525
+D. Charitable contributions …………...............................................................................526
+Tax-exempt organizations ……………………………………………………………526
+Who benefits from the § 170 deduction and where do our charitable dollars go? ….527
+What is a “contribution or gift” within the meaning of § 170(c) ……………………530
+HERNANDEZ v. COMMISSIONER ……………………………………………….532
+SKLAR v. COMMISSIONER ……………………………………………………….543
+Determining the deductible amount when property is contributed in kind ………….546
+Contributions of services in kind ………………………………………………….....551
+Substantiation requirements …………………………………………………………551
+AGI percentage contribution limits ………………………………………………….551
+Problems ……………………………………………………………………………..553
+E. State and local taxes …………………………………………………………….........554
+F. Expenses for the determination, collection, or refund of any tax ……….....................555
+Chapter 18: Gambling and Hobby Losses………………………………………..556
+A. Gambling losses: § 165(d) ……………………………………………………............556
+GENERAL LEGAL ADVICE MEMORANDA 2008-011 ………………………….557
+Problem ………………………………………………………………………………561
+B. Hobby losses: § 183 …………………………………………………………….........561
+Establishing a profit motive .........................................................................................563
+ZARINS v. COMMISSIONER ……………………………………………………... 565
+The § 183(d) presumption and § 183(e) election …………………………………….570
+Defining the scope of “the activity” ……………………………………………….....571
+TOPPING v. COMMISSIONER …………………………………………………….571
+Hobby or Business: Brothel-Hopping Scrutinized by the IRS by Robert W. Wood ...578
+Problems ……………………………………………………………………………...580
+Chapter 19: Allocating Costs Between Income Production and Personal Consumption …………………………………………………………............................582
+A. The meaning of “ordinary” and “necessary” ………………………………...............582
+Lobbying costs as business expenses ………………………………………………...586
+Bribes and kickbacks, fines and penalties, treble damages under the antitrust 
+laws, and the end of the common law public policy exception (or is it?) ……………586
+Excess compensation ………………………………………………………………...590
+B. The origin-of-the-claim test ………………………………………………….............591
+UNITED STATES v. GILMORE ……………………………………………………591
+Gilmore II …………………………………………………………………………….596
+How far back do we go in looking for the “origin” of a cost? ………………………597
+The origin of commuting, clothing, and meal costs unconnected to travel 
+or entertainment ……………………………………………………………………...598
+PEVSNER v. COMMISSIONER ……………………………………………………598
+MOSS v. COMMISSIONER ………………………………………………………...601
+Problems ……………………………………………………………………………...607
+C. Travel and entertainment costs ……..……………………………………...................607
+“Away from home in pursuit of a trade or business” ………………………………..608
+COMMISSIONER v. FLOWERS …………………………………………………...610
+REVENUE RULING 93-86 …………………………………………………………612
+HENDERSON v. COMMISSIONER ………………………………………………..615
+Mixed trips …………………………………………………………………………...621
+§ 274: entertainment …………………………………………………………………621
+§ 274: business meals ………………………………………………………………..622
+Substantiation of costs ……………………………………………………………….623
+Problems ……………………………………………………………………………..624
+D. Use of a personal residence for income production ………………………………….625
+Converting a former personal residence wholly to income production ……………..625
+The so-called home office deduction ………………………………………………....626
+RAYDEN v. COMMISSIONER …………………………………………………….628
+Revenue Procedure 2013-13: the safe harbor method for home office deductions ….636
+E. Distinguishing between “business” and “investment” ……………………………….636
+UNITED STATES v. GENERES ……………………………………………………637
+Unit VII: The Taxable Year and Methods of Accounting
+Introduction to Chapters 20 and 21 ………………………………………………...............645
+Chapter 20: The Taxable Year …………………………………………………......646
+A. The annual accounting principle in general ………………………………………….646
+The borrowing exclusion ……………………………………………………………..646
+§ 61(a)(12) debt-discharge income ………………………………………………......647
+Receipts subject to a contingent obligation to repay ………………………………...647
+Depreciation recapture and the Arrowsmith doctrine ……………………………….648
+B. The tax benefit rule …………………………………………………………………...648
+REVENUE RULING 2019-11 ……………………………………………………….651
+Problem ………………………………………………………………………………653
+C. Net operating losses …………………………………………………………….........654
+BURNET v. SANFORD &amp; BROOKS CO. ………………………………………….654
+Problem ………………………………………………………………………………658
+Chapter 21: Methods of Accounting ………………………………………………659
+A. The cash method of accounting ………………………………………………………660
+The constructive receipt doctrine ………………………………………………….....661
+Deferred compensation, the economic benefit doctrine, rabbi trusts, and § 409A …..661
+SPROULL v. COMMISSIONER ……………………………………………………663
+PRIVATE LETTER RULING 88113107 ……………………………………………666
+Problem ………………………………………………………………………………668
+B. The accrual method of accounting ……………………………………………………669
+Accrual accounting in financial reporting and the divergence of financial accounting
+and income tax values ………………………………………………………………..669
+THOR POWER TOOL CO. v. COMMISSIONER ………………………………….672
+The all-events test and its use as a tool for diverging from GAAP …………………..681
+The accrual (deduction) of expenses not yet paid ……………………………………682
+FORD MOTOR CO. v. COMMISSIONER …………………………………………684
+The accrual (inclusion) of prepaid income (advance payments) …………………….693
+Back to our roots and the elimination of accrual accounting for § 61 Gross Income
+And expenses for income tax purposes? ……………………………………………...696
+Problem ………………………………………………………………………………698

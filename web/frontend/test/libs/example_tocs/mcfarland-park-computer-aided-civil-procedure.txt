@@ -1,0 +1,242 @@
+Notices. iii
+About CALI eLangdell Press. v
+Summary of Contents. vi
+Table of Contents. vii
+Preface. xvi
+Exercise One - Holding and Dicta in the Context of a Diversity Case  1
+I. Of Stare Decisis, Holding, and Dicta. 1
+A. The Law of Stare Decisis. 1
+B. The Concepts of Holding and Dictum... 3
+1. A Holding Is a Rule of Law Applied by the Court to the Case Before It 7
+2. A Rule of Law Stated in an Opinion is Dictum if the Rule Is Not Applicable to the Facts Before the Court 8
+C. Stating the Holding of a Case in Class. 11
+1. Formulate a rule that would be helpful to a lawyer who has not read the case and wants to know what the case holds. &quot;  11
+2. State the holding that is most relevant to the purpose for which the case is being studied. A case may have multiple holdings. 11
+3. State the holding at a level of generality that is useful for the purpose for which the case is being studied. 12
+4. Use the court’s own language from the opinion when possible. 14
+II. Written Exercise: Stating the Holding of a Case. 14
+Authors&#39; Evaluation of the Statements of the Mottley Holding. 21
+III. Computer–Aided Exercise: Baker v. Keck. 23
+Exercise Two - Jurisdiction. 30
+I. The law of jurisdiction. 30
+A. Types of Jurisdiction.. 30
+B. Subject Matter Jurisdiction.. 33
+1. State Courts. 33
+2. Federal Courts. 34
+a. Federal Question Jurisdiction.. 35
+b. Diversity Jurisdiction.. 36
+1. Determining Citizenship of the Parties. 39
+2. Determining the Amount in Controversy. 45
+c. Removal Jurisdiction.. 46
+d. Supplemental Jurisdiction.. 49
+C. Personal Jurisdiction. 49
+1. Rules of In Personam Jurisdiction.. 49
+2. Rules of In Rem Jurisdiction.. 58
+a. Types of in rem jurisdiction. 58
+b. Constitutional limits on in rem jurisdiction. 59
+D. Notice and Opportunity to Be Heard.. 60
+E. Venue. 60
+1. State Courts. 60
+2. Federal Courts. 61
+3. Forum Non Conveniens. 64
+II. Questions on Jurisdiction. 65
+A. Subject Matter Jurisdiction. 65
+1. Original Jurisdiction.. 65
+2. Removal Jurisdiction. 73
+B. Personal Jurisdiction.. 75
+C. Notice and Opportunity to Be Heard.. 79
+D. Venue. 80
+III. Computer Exercises 82
+A. CALI CIV 03: Jurisdiction and Venue. 82
+1. Facts. 82
+2. Fact Summary. 84
+3. Questions for Computer Exercise. 85
+Q–1. Coffman–Federal Court 85
+Q–2. Coffman–State Court 85
+Q–3. Elliott–Federal Court 86
+Q–4. Elliott–State Court 86
+Q–5. Northrop–Federal Court 86
+Q–6. Northrop–State Court 87
+Q–7. Fraser–Federal Court 87
+Q–8. Fraser–State Court 88
+B. CALI CIV 19: Jurisdiction Over the Person.. 88
+Exercise Three - Pleading a Complaint 90
+I. History of pleading. 90
+A. Pleading under the Common Law.. 90
+1. The Systems of Law and Equity. 90
+2. The Writ System in the Common Law Courts. 92
+3. Problems with Common Law Pleading. 93
+B. Pleading under the Codes. 93
+1. Development of Code Pleading. 93
+2. Problems with Code Pleading. 94
+a. Pleading ultimate facts. 94
+b. Pleading a cause of action.. 95
+C. Pleading under the Federal Rules of Civil Procedure. 97
+1. Development of the Federal Rules. 97
+2. Pleading a Claim under the Federal Rules. 98
+II. Drafting a Complaint under the Federal Rules 100
+A. Form of the Complaint 100
+B. Content of the Complaint 102
+1. Jurisdictional Allegations. 102
+2. The Claim... 102
+3. Federal Rule 11 and Ethical Considerations in Good Faith Pleading  104
+III. An Exercise In Drafting A Complaint for Defamation under the Federal Rules: CALI Civ 01  108
+A. Facts of the Case. 108
+B. Substantive Law of Defamation. 110
+1. State Law.. 110
+2. Federal Constitutional Law.. 113
+C. Procedural Law: the Burden of Pleading. 113
+D. Preliminary Questions. 116
+1. Jurisdictional allegations. 117
+2. Substantive Allegations. 118
+Pleading Defects Display. 125
+Exercise Four - Demurrers and Judgments on the Pleadings. 127
+I. Substantive Law.. 128
+II. Procedural law.. 128
+A. Burden of Pleading. 128
+B. Sequence of Code Pleadings and Motions. 129
+C. The General Demurrer. 130
+D. The Motion for Judgment on the Pleadings. 131
+III. Preliminary Questions 133
+Part One—Demurrer. 133
+Part Two—Judgments on the Pleadings. 134
+Exercise Five - Motions to Dismiss and Waiver under Federal Rule 12  137
+I. Raising, and Waiving, Rule 12 Defenses 137
+A. The Federal Rule 12(b) Defenses. 137
+1. Abandonment of the Special Appearance. 137
+2. Assertion of Rule 12(b) Defenses. 138
+3. Waiving Rule 12(b) Defenses. 141
+II. Written Exercise. 143
+III. Computer Exercise: CALI Civ 09. 150
+Exercise Six - Joinder and Supplemental Jurisdiction. 151
+I. Introduction. 151
+A. Joinder Devices Available under the Federal Rules. 151
+1. Common Law and Code Practice. 151
+2. Federal Rules Joinder. 153
+B. Supplemental Jurisdiction. 155
+1. The History of Pendent and Ancillary Jurisdiction. 155
+2. Supplemental Jurisdiction.. 157
+II. The Joinder Devices 159
+A. Claims. 159
+1. Joinder of Claims. 159
+2. Supplemental jurisdiction. 160
+B. Counterclaims. 161
+1. Compulsory Counterclaims. 161
+2. Permissive Counterclaims. 163
+3. Supplemental Jurisdiction for Counterclaims. 164
+C. Crossclaims. 165
+1. Joinder of Crossclaims. 165
+2. Supplemental Jurisdiction for Crossclaims. 166
+D. Third-Party Claims [Also Known as Impleader] 166
+1. Joinder of Third-Party Claims. 166
+2. Supplemental Jurisdiction for Third-party Claims. 171
+E. Joinder of Parties. 172
+1. Permissive Joinder of Parties. 172
+2. Compulsory Joinder of Parties. 174
+3. Supplemental Jurisdiction for Joinder of Parties. 175
+F. Intervention.. 177
+1. Intervention of Right 178
+2. Permissive intervention.. 180
+3. Supplemental Jurisdiction over Intervenors. 180
+G. Interpleader. 181
+1. Statutory Interpleader 183
+2. Interpleader under the Rule. 183
+III. Questions on Joinder 184
+A. Counterclaims. 184
+B. Crossclaims. 189
+C. Third-party claims. 192
+D. Joinder of Parties. 195
+E. Intervention.. 199
+F. Interpleader 201
+IV. Computer Exercises 203
+A. CALI CIV 11: A Review of Joinder Concepts. 204
+B. CALI CIV 18: Joinder of Claims and Parties. 204
+C. CALI CIV 21: An Interpleader Primer. 204
+Exercise Seven - Discovery. 206
+I. Discovery under the federal rules 206
+A. Philosophy. 206
+B. Scope of Discovery. 209
+1. Privilege. 210
+2. Relevancy. 211
+3. Trial Preparation: Materials. 212
+4. Trial Preparation: Experts. 214
+5. Protective Orders. 215
+C. Required Disclosures. 215
+D. Discovery Devices. 216
+E. Sanctions for Failure to Make Discovery. 219
+II. Questions on Discovery. 220
+A. Philosophy of Discovery Under the Federal Rules. 220
+B. Scope of Discovery. 222
+C. Discovery Devices. 227
+III. Computer Exercise. 229
+Exercise Eight - Summary Judgment 232
+I. The law of summary judgment 232
+A. Federal Rule 56. 232
+B. Supreme Court Interpretation of Federal Rule 56. 234
+II. Computer Exercise: CALI CIV 13. 243
+A. The Law of Battery. 244
+B. The Facts of the Case. 245
+C. Questions. 247
+Exercise Nine - Judgment as a Matter of Law.. 249
+I. Judgment as a matter of law.. 249
+A. Controlling the Jury. 249
+B. Judgment as a Matter of Law.. 251
+1. Directed Verdict and JNOV.. 251
+2. Binding Instructions. 254
+3. Burdens of Production and Persuasion. 255
+4. Evidence Considered for Judgment as a Matter of Law.. 260
+a. The Favorable–Evidence–Only Test 261
+b. The Qualified Favorable–Evidence Test 262
+c. The All-the-Evidence Test 264
+II. Computer Exercise: CALI CIV 04. 265
+A. Introductory Note. 265
+B. Cases and Questions. 266
+Exercise Ten - Evidence for Civil Procedure Students. 290
+I. Some Basic Evidence Rules 290
+A. The Requirement of Personal Knowledge. 291
+B. The Hearsay Rule and Its Exceptions. 292
+1. The Concept of Hearsay. 292
+a. Statements Offered to Show Their Effect on the Reader or Hearer 294
+b. Legally Operative Language. 294
+c. Statements Used Indirectly. 294
+2. Exceptions to the Hearsay Rule. 295
+a. Present Sense Impression Exception.. 295
+b. Excited Utterance Exception.. 296
+c. Present State of Mind Exception.. 296
+d. Dying Declaration Exception.. 296
+e. Declaration Against Interest Exception.. 297
+f. Admission of a Party Opponent 297
+g. Former Testimony Exception; Depositions. 298
+h. Business Records Exception.. 298
+i. Other Exceptions. 299
+C. Relevancy and Its Counterweights. 299
+D. The Opinion Rule. 300
+E. Lawyer–Client Privilege. 302
+F. The Best Evidence Rule. 303
+G. Leading Questions. 305
+II. Computer Exercise: CALI CIV 06. 306
+A. General Instructions. 306
+B. Background Facts About the Lawsuit 307
+C. Display One and Display Two.. 308
+Exercise Eleven - Preclusion. 310
+I. Introduction. 310
+A. Overview.. 310
+B. Policy. 312
+C. Affirmative Defense. 313
+II. The Preclusion Doctrines 313
+A. Claim Preclusion.. 313
+1. Final, Valid Judgment on the Merits. 313
+2. Same Parties and Others in Privity. 314
+3. Same Claim Barred, Including All Issues That Were or Should Have Been Litigated  315
+B. Issue Preclusion.. 318
+1. Final, Valid Judgment on the Merits. 319
+2. Same Parties and Those in Privity. 320
+3. Different Claim; Identical Issue. 322
+4. Issue Must Have Been Actually Litigated.. 323
+5. Necessary. 323
+6. Fairness. 325
+C. Exceptions to Preclusion.. 325
+III. Questions on Preclusion. 326
+A. Claim Preclusion.. 326
+B. Issue Preclusion.. 329
+IV. Computer Exercise: CALI CIV 17. 334

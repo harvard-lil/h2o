@@ -182,6 +182,7 @@ class CaseFactory(factory.DjangoModelFactory):
     created_via_import = False
     content = factory.Sequence(lambda n: 'Some Case Content %s' % n)
     decision_date = datetime(1900, 1, 1)
+    capapi_id = 1
     citations = [{'cite': '1 Mass. 1'}, {'cite': '2 Jones 2'}]
 
 

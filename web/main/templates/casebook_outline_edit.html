@@ -1,0 +1,29 @@
+{% extends 'base.html' %}
+
+{% if edit_mode or clone_section_targets %}
+{% load render_bundle from webpack_loader %}
+{% load crispy_forms_tags %}
+{% endif %}
+
+{% block page_title %} {% if mode %}{{mode}} | {% endif %} {{casebook.title}} {% if section %}: {{ section.title }} {% endif %} {% endblock %}
+
+{% if editing %}
+{% block extra_foot %}{% render_bundle 'rich_text_editor' %}{% endblock %}
+{% endif %}
+
+{% block banner %}
+    {% include 'includes/preview_banner.html' %}
+{% endblock %}
+
+{% block mainContent %}
+{% include 'includes/casebook_page_tabs.html' %}
+
+<section class="wide-casebook {{casebook_color_class}}">
+    <casebook-outliner
+        casebook="{{casebook.id}}-{{ casebook.get_slug }}"
+        root-id="{{ section.id }}"
+        editing="{{ editing }}"
+        root-ordinals="{{ section.ordinal_string }}">
+        />
+</section>
+{% endblock %}

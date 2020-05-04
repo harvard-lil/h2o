@@ -1,7 +1,7 @@
 <template>
 <portal to="modal-target">
 <transition name="fade">
-  <focus-trap :active="true" :initial-focus="initialFocus">
+  <focus-trap :active="hasFocusTarget" :initial-focus="wrappedFocus">
   <div id="modal"
        aria-labelledby="modal-title"
        tabindex="-1"
@@ -48,6 +48,14 @@ export default {
     FocusTrap
   },
   props: ['initialFocus'],
+  computed: {
+    wrappedFocus: function() {
+      return this.initialFocus;
+    },
+    hasFocusTarget: function() {
+      return !! this.initialFocus;
+    }
+  },
   methods: {
     onKey(e) {
       if(e.key == "Escape") this.$emit("close");

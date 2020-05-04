@@ -52,6 +52,7 @@ from .utils import (CapapiCommunicationException, StringFileResponse,
 
 ### helpers ###
 
+
 def login_required_response(request):
     if request.user.is_authenticated:
         raise PermissionDenied
@@ -102,17 +103,17 @@ def hydrate_params(func):
                 continue
             key, search_key = param.split('_', 1)
             if search_key == 'param':
-                temp_obj = get_object_or_404(ContentNode.objects
-                                                .filter(**cb_param)
-                                                .select_related('new_casebook'),
-                                                ordinals=param_value['ordinals'])
+                temp_obj = get_object_or_404(
+                    ContentNode.objects
+                    .filter(**cb_param)
+                    .select_related('new_casebook'), ordinals=param_value['ordinals'])
                 kwargs[key] = temp_obj.as_proxy()
                 kwargs['casebook'] = kwargs[key].new_casebook
             else:
-                temp_obj = get_object_or_404(ContentNode.objects
-                                                .filter(**cb_param)
-                                                .select_related('new_casebook'),
-                                                id=param_value['id'])
+                temp_obj = get_object_or_404(
+                    ContentNode.objects
+                    .filter(**cb_param)
+                    .select_related('new_casebook'), id=param_value['id'])
                 kwargs[key] = temp_obj.as_proxy()
                 kwargs['casebook'] = kwargs[key].new_casebook
         return func(request, *args, **kwargs)
@@ -292,8 +293,11 @@ def actions(request, context):
 def render_with_actions(request, template_name, context=None, content_type=None, status=None, using=None):
     if context is None:
         context = {}
-    if request.user and hasattr(request.user,'casebooks') and 'section' in context:
-        context['clone_section_targets'] = json.dumps([{'title': "{} ({})".format(user_casebook.title,user_casebook.created_at.year), 'form_target':reverse('clone_nodes', args=[context['casebook'],context['section'], user_casebook])} for user_casebook in request.user.directly_editable_casebooks])
+    if request.user and hasattr(request.user, 'casebooks') and 'section' in context:
+        context['clone_section_targets'] = json.dumps([
+            {'title': "{} ({})".format(user_casebook.title, user_casebook.created_at.year),
+             'form_target': reverse('clone_nodes', args=[context['casebook'], context['section'], user_casebook])}
+            for user_casebook in request.user.directly_editable_casebooks])
 
     if request.user and request.user.is_superuser:
         context['super_user'] = True
@@ -356,7 +360,6 @@ class SectionTOCView(APIView):
     @method_decorator(user_has_perm('casebook', 'directly_editable_by'))
     @method_decorator(user_has_perm('section', 'directly_editable_by'))
     def delete(self, request, casebook, section, format=None):
-        
         section.delete()
         return Response(status=200)
 
@@ -522,6 +525,7 @@ def index(request):
     else:
         return render(request, 'index.html')
 
+
 @perms_test({'args': ['user.id'], 'results': {200: ['user', None]}})
 def dashboard(request, user_id):
     """
@@ -570,7 +574,6 @@ def dashboard(request, user_id):
 @no_perms_test
 def archived_casebooks(request):
     return render(request, 'archived_casebooks.html', {'user': request.user})
-
 
 
 @no_perms_test
@@ -680,7 +683,7 @@ def show_credits(request, casebook, section=None):
     else:
         contents = [x for x in casebook.contents.all()]
 
-    contents.sort(key= lambda x: x.ordinals)
+    contents.sort(key=lambda x: x.ordinals)
     originating_node = set(
         [cloned_node for child_content in contents for cloned_node in child_content.provenance])
     prior_art = {x.id: x for x in ContentNode.objects.filter(id__in=originating_node)
@@ -696,25 +699,26 @@ def show_credits(request, casebook, section=None):
         known_clones = [p.new_casebook for p in known_priors]
         immediate_clone = known_clones[-1]
         incidental_clones = known_clones[:-1]
-        cs_set = cloned_sections.get(immediate_clone.id,set())
-        cs_set.add(".".join(map(str,node.ordinals)))
+        cs_set = cloned_sections.get(immediate_clone.id, set())
+        cs_set.add(".".join(map(str, node.ordinals)))
         cloned_sections[immediate_clone.id] = cs_set
-        nesting_depth = sum(map(lambda x: x in cs_set, [".".join(map(str,node.ordinals[:y])) for y in range(len(node.ordinals))]))
+        nesting_depth = sum(map(lambda x: x in cs_set, [".".join(map(str, node.ordinals[:y])) for y in range(len(node.ordinals))]))
         if immediate_clone.id not in casebook_mapping:
-            casebook_mapping[immediate_clone.id] = {'casebook':immediate_clone,
+            casebook_mapping[immediate_clone.id] = {'casebook': immediate_clone,
                                                    'immediate_authors': {c.user for c in immediate_clone.tempcollaborator_set.all() if c.has_attribution and c.user.display_name != 'Anonymous'},
                                                    'incidental_authors': set(),
-                                                   'nodes':[]}
+                                                   'nodes': []}
         casebook_mapping[immediate_clone.id]['incidental_authors'] |= {c.user for clone in incidental_clones for c in clone.tempcollaborator_set.all() if c.has_attribution and c.user.display_name != 'Anonymous' and c.user not in casebook_mapping[immediate_clone.id]['immediate_authors']}
-        casebook_mapping[immediate_clone.id]['nodes'].append((node, known_priors[-1],nesting_depth))
+        casebook_mapping[immediate_clone.id]['nodes'].append((node, known_priors[-1], nesting_depth))
 
     params = {'contributing_casebooks': [v for v in casebook_mapping.values()],
-              'casebook':casebook,
-              'section':section,
+              'casebook': casebook,
+              'section': section,
               'tabs': (section if section else casebook).tabs_for_user(request.user, current_tab='Credits'),
               'casebook_color_class': casebook.casebook_color_indicator,
               'edit_mode': casebook.directly_editable_by(request.user)}
     return render(request, 'casebook_page_credits.html', params)
+
 
 @no_perms_test
 @hydrate_params
@@ -726,14 +730,24 @@ def casebook_settings(request, casebook):
             transition_to = settings['transition_to'].value() if 'transition_to' in settings.fields else None
             if transition_to and casebook.can_transition_to(transition_to):
                 casebook.transition_to(transition_to)
-    params = {'casebook':casebook,
+    params = {'casebook': casebook,
               'tabs': casebook.tabs_for_user(request.user, current_tab='Settings'),
               'casebook_color_class': casebook.casebook_color_indicator,
               'edit_mode': casebook.directly_editable_by(request.user)}
     return render(request, 'casebook_settings.html', params)
 
-class CasebookView(View):
 
+@no_perms_test
+@hydrate_params
+def casebook_outline(request, casebook):
+    params = {'casebook': casebook,
+              'tabs': casebook.tabs_for_user(request.user, current_tab='Settings'),
+              'casebook_color_class': 'casebook-archived' if casebook.is_archived else 'casebook-preview casebook-public',
+              'edit_mode': casebook.directly_editable_by(request.user)}
+    return render(request, 'casebook_outline_edit.html', params)
+
+
+class CasebookView(View):
     @method_decorator(perms_test(
         {'args': ['casebook'], 'results': {200: [None, 'other_user', 'casebook.testing_editor']}},
         {'args': ['private_casebook'],
@@ -764,7 +778,7 @@ class CasebookView(View):
             >>> check_response(client.get(draft_casebook.get_absolute_url(), as_user=user), content_includes="You are viewing a preview")
         """
         if not casebook.viewable_by(request.user):
-            if request.user.is_authenticated and casebook.contentcollaborator_set.filter(user=request.user,can_edit=True).exists():
+            if request.user.is_authenticated and casebook.contentcollaborator_set.filter(user=request.user, can_edit=True).exists():
                 return HttpResponseRedirect(reverse('casebook_settings', args=[casebook]))
             else:
                 return login_required_response(request)
@@ -954,11 +968,12 @@ def edit_casebook(request, casebook):
         'form': form
     })
 
+
 @transaction.atomic
 def create_from_form(casebook, parent_section, form):
     fresh_body = form.save()
     fresh_resource = Resource(title=fresh_body.get_name(),
-                            new_casebook= casebook,
+                            new_casebook=casebook,
                             ordinals=parent_section.content_tree__get_next_available_child_ordinals(),
                             resource_id=fresh_body.id,
                             resource_type=type(fresh_body).__name__)
@@ -1098,8 +1113,6 @@ def new_link(request, casebook):
         return JsonResponse(form.errors.get_json_data(), status=status.HTTP_400_BAD_REQUEST)
 
 
-
-
 @perms_test(
     {'method': 'post', 'args': ['casebook'],
      'results': {403: ['casebook.testing_editor', 'other_user'], 'login': [None]}},
@@ -1135,13 +1148,13 @@ def new_case(request, casebook):
 
     """
     if 'resource_id' not in request.POST:
-        return JsonResponse({'resource_id':[{'message': 'A resource id must be provided to use a case'}]}, status=status.HTTP_400_BAD_REQUEST)
+        return JsonResponse({'resource_id': [{'message': 'A resource id must be provided to use a case'}]}, status=status.HTTP_400_BAD_REQUEST)
     case_id = request.POST['resource_id']
     case = get_object_or_404(Case.objects.filter(id=case_id))
     parent_section_id = request.POST.get('section', None)
     parent_section = Section.objects.get(id=parent_section_id) if parent_section_id else casebook
     fresh_resource = Resource(title=case.get_name(),
-                            new_casebook= casebook,
+                            new_casebook=casebook,
                             ordinals=parent_section.content_tree__get_next_available_child_ordinals(),
                             resource_id=case.id,
                             resource_type='Case')
@@ -1178,7 +1191,7 @@ class SectionView(View):
         """
         # canonical redirect
         if not casebook.viewable_by(request.user):
-            if request.user.is_authenticated and casebook.contentcollaborator_set.filter(user=request.user,can_edit=True).exists():
+            if request.user.is_authenticated and casebook.contentcollaborator_set.filter(user=request.user, can_edit=True).exists():
                 return HttpResponseRedirect(reverse('casebook_settings', args=[casebook]))
             else:
                 return login_required_response(request)
@@ -1190,7 +1203,7 @@ class SectionView(View):
         return render_with_actions(request, 'casebook_page.html', {
             'casebook': casebook,
             'section': section,
-            'tabs':section.tabs_for_user(request.user),
+            'tabs': section.tabs_for_user(request.user),
             'casebook_color_class': casebook.casebook_color_indicator,
             'edit_mode': casebook.directly_editable_by(request.user)
         })
@@ -1256,7 +1269,7 @@ def edit_section(request, casebook, section):
     return render_with_actions(request, 'casebook_page.html', {
         'casebook': casebook,
         'section': section,
-        'tabs':section.tabs_for_user(request.user, current_tab='Edit'),
+        'tabs': section.tabs_for_user(request.user, current_tab='Edit'),
         'casebook_color_class': casebook.casebook_color_indicator,
         'editing': True,
         'form': form
@@ -1291,7 +1304,7 @@ class ResourceView(View):
             >>> check_response(client.get(draft_resource.get_absolute_url(), as_user=draft_resource.testing_editor), content_includes="You are viewing a preview")
         """
         if not casebook.viewable_by(request.user):
-            if request.user.is_authenticated and casebook.contentcollaborator_set.filter(user=request.user,can_edit=True).exists():
+            if request.user.is_authenticated and casebook.contentcollaborator_set.filter(user=request.user, can_edit=True).exists():
                 return HttpResponseRedirect(reverse('casebook_settings', args=[casebook]))
             else:
                 return login_required_response(request)
@@ -1309,13 +1322,13 @@ class ResourceView(View):
             body_json = ''
 
         return render_with_actions(request, 'casebook_page.html', {
-            'casebook':casebook,
-            'section':section,
+            'casebook': casebook,
+            'section': section,
             'body_json': body_json,
             'contents': section,
             'include_vuejs': section.annotatable,
             'edit_mode': section.directly_editable_by(request.user),
-            'tabs':section.tabs_for_user(request.user),
+            'tabs': section.tabs_for_user(request.user),
             'casebook_color_class': casebook.casebook_color_indicator,
         })
 
@@ -1394,7 +1407,7 @@ def edit_resource(request, casebook, resource):
         ...     )
     """
     if not resource.is_resource:
-        return HttpResponseRedirect(reverse('edit_section', args=[casebook,resource]))
+        return HttpResponseRedirect(reverse('edit_section', args=[casebook, resource]))
     form = ResourceForm(request.POST or None, instance=resource)
 
     # Let users edit Link and TextBlock resources directly from this page
@@ -1413,7 +1426,6 @@ def edit_resource(request, casebook, resource):
         else:
             if form.is_valid():
                 form.save()
-
 
     return render_with_actions(request, 'casebook_page.html', {
         'casebook': casebook,
@@ -1447,7 +1459,7 @@ def annotate_resource(request, casebook, resource):
         'resource': resource,
         'include_vuejs': resource.resource_type in ['Case', 'TextBlock'],
         'editing': True,
-        'edit_mode':True
+        'edit_mode': True
     })
 
 
@@ -1521,36 +1533,7 @@ def case(request, case_id):
     })
 
 
-@perms_test({'method': 'post', 'results': {400: ['user'], 'login': [None]}})
-@require_POST
-@login_required
-def from_capapi(request):
-    """
-        Given a posted CAP ID, return the internal ID for the same case, first ingesting the case from CAP if necessary.
-
-        Given:
-        >>> capapi_mock, client, user, case_factory = [getfixture(i) for i in ['capapi_mock', 'client', 'user', 'case_factory']]
-        >>> url = reverse('from_capapi')
-        >>> existing_case = case_factory(capapi_id=9999)
-
-        Existing cases will be returned without hitting the CAP API:
-        >>> response = client.post(url, json.dumps({'id': 9999}), content_type="application/json", as_user=user)
-        >>> check_response(response, content_includes='{"id": %s}' % existing_case.id, content_type='application/json')
-
-        Non-existing cases will be fetched and created:
-        >>> response = client.post(url, json.dumps({'id': 12345}), content_type="application/json", as_user=user)
-        >>> check_response(response, content_type='application/json')
-        >>> case = Case.objects.get(id=json.loads(response.content.decode())['id'])
-        >>> assert case.name_abbreviation == "1-800 Contacts, Inc. v. Lens.Com, Inc."
-        >>> assert case.opinions == {"majority": "HARTZ, Circuit Judge."}
-    """
-    # parse ID from request:
-    try:
-        data = json.loads(request.body.decode("utf-8"))
-        cap_id = int(data['id'])
-    except Exception:
-        return HttpResponseBadRequest("Request body should match {'id': &lsaquo;int&rsaquo'}")
-
+def internal_case_id_from_cap_id(cap_id):
     # try to fetch existing case:
     case = Case.objects.filter(capapi_id=cap_id, public=True).first()
 
@@ -1597,8 +1580,42 @@ def from_capapi(request):
             opinions={el.attr('data-type'): el('.author').text() for el in parsed('.opinion').items()},
         )
         case.save()
+    return case.id
 
-    return JsonResponse({'id': case.id})
+
+@perms_test({'method': 'post', 'results': {400: ['user'], 'login': [None]}})
+@require_POST
+@login_required
+def from_capapi(request):
+    """
+        Given a posted CAP ID, return the internal ID for the same case, first ingesting the case from CAP if necessary.
+
+        Given:
+        >>> capapi_mock, client, user, case_factory = [getfixture(i) for i in ['capapi_mock', 'client', 'user', 'case_factory']]
+        >>> url = reverse('from_capapi')
+        >>> existing_case = case_factory(capapi_id=9999)
+
+        Existing cases will be returned without hitting the CAP API:
+        >>> response = client.post(url, json.dumps({'id': 9999}), content_type="application/json", as_user=user)
+        >>> check_response(response, content_includes='{"id": %s}' % existing_case.id, content_type='application/json')
+
+        Non-existing cases will be fetched and created:
+        >>> response = client.post(url, json.dumps({'id': 12345}), content_type="application/json", as_user=user)
+        >>> check_response(response, content_type='application/json')
+        >>> case = Case.objects.get(id=json.loads(response.content.decode())['id'])
+        >>> assert case.name_abbreviation == "1-800 Contacts, Inc. v. Lens.Com, Inc."
+        >>> assert case.opinions == {"majority": "HARTZ, Circuit Judge."}
+    """
+    # parse ID from request:
+    try:
+        data = json.loads(request.body.decode("utf-8"))
+        cap_id = int(data['id'])
+    except Exception:
+        return HttpResponseBadRequest("Request body should match {'id': &lsaquo;int&rsaquo'}")
+
+    case_id = internal_case_id_from_cap_id(cap_id)
+
+    return JsonResponse({'id': case_id})
 
 
 @method_decorator(perms_test(
@@ -1662,3 +1679,75 @@ def reset_password(request):
             send_verification_email(request, target_user)
 
     return PasswordResetView.as_view()(request)
+
+@perms_test({"method": "post", "args": ['casebook'],
+             "results": {403: ["user"], "login": [None]}})
+@login_required
+@require_POST
+@hydrate_params
+@user_has_perm('casebook', 'directly_editable_by')
+def new_from_outline(request, casebook=None):
+    """
+        Given:
+        >>> casebook, client = [getfixture(f) for f in ['full_private_casebook', 'client']]
+        >>> orig = getfixture('full_private_casebook')
+        >>> textblock = {'title': 'Test TextBlock', 'subtitle': 'Test TextBlock subtitle', 'headnote': 'Test TextBlock headnote', 'resource_type':'TextBlock'}
+        >>> case = {'title': 'Test Case', 'subtitle': 'Test Case subtitle', 'headnote': 'Test Case headnote', 'resource_type':'Case', 'cap_id': 1}
+        >>> section = {'title': 'Test Section', 'subtitle': 'Test Section subtitle', 'headnote':'Test Section headnote', 'children':[textblock, case]}
+        >>> data = {'data':[section,textblock]}
+        >>> payload = json.dumps(data)
+
+        Post the required data as JSON to create a new annotation:
+        >>> url = reverse('new_from_outline', args=[casebook])
+        >>> response = client.post(url, payload, content_type="application/json", as_user=casebook.testing_editor)
+        >>> check_response(response, status_code=302)
+        >>> assert response.url == casebook.get_edit_url()
+        >>> casebook.refresh_from_db()
+        >>> contents = [{'title':x.title,'subtitle':x.subtitle,'headnote':x.headnote,'resource_type':x.resource_type, 'ordinals':x.ordinals} for x in casebook.contents.all()]
+        >>> assert contents[9:] == [ \
+            {'title': 'Test Section', 'subtitle': 'Test Section subtitle', 'headnote': 'Test Section headnote', 'resource_type': 'Section', 'ordinals': [3]}, \
+            {'title': 'Test TextBlock', 'subtitle': 'Test TextBlock subtitle', 'headnote': 'Test TextBlock headnote', 'resource_type': 'TextBlock', 'ordinals': [3, 1]}, \
+            {'title': 'Test Case', 'subtitle': 'Test Case subtitle', 'headnote': 'Test Case headnote', 'resource_type': 'Case', 'ordinals': [3, 2]}, \
+            {'title': 'Test TextBlock', 'subtitle': 'Test TextBlock subtitle', 'headnote': 'Test TextBlock headnote', 'resource_type': 'TextBlock', 'ordinals': [4]}]
+
+
+    """
+
+    def unnest_with_ordinals(ordinals, nodes):
+        local_ords = ordinals[:]
+        for node in nodes:
+            children = node.pop('children', [])
+            node['ordinals'] = local_ords[:]
+            yield node
+            for res in unnest_with_ordinals(local_ords + [1], children):
+                yield res
+            local_ords[-1] += 1
+
+    @transaction.atomic
+    def add_sections_and_resources(parent_section, nodes):
+        start_ordinal = (
+            parent_section.content_tree__get_next_available_child_ordinals()
+        )
+        all_nodes = list(unnest_with_ordinals(start_ordinal, nodes))
+        content_nodes = []
+        for node in all_nodes:
+            node['new_casebook'] = parent_section.new_casebook
+            if 'resource_type' not in node:
+                node['resource_type'] = 'Section'
+            if node['resource_type'] == 'Case' and 'cap_id' in node:
+                node['resource_id'] = internal_case_id_from_cap_id(node.pop('cap_id'))
+            elif node['resource_type'] == 'TextBlock':
+                text_block = TextBlock(name=node['title'], content='TBD')
+                text_block.save()
+                node['resource_id'] = text_block.id
+            content_nodes.append(ContentNode(**node))
+        ContentNode.objects.bulk_create(content_nodes)
+
+    body = json.loads(request.body.decode("utf-8"))
+    section = body.get('section', None)
+    nodes = body.get('data', None)
+    if not nodes:
+        return Response('', status=status.HTTP_400_BAD_REQUEST)
+    parent_section = section or casebook
+    add_sections_and_resources(parent_section, nodes)
+    return HttpResponseRedirect(parent_section.get_edit_url())
