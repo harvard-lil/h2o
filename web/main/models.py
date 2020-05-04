@@ -2454,6 +2454,9 @@ class Casebook(EditTrackedModel, TimestampedModel, BigPkModel, CasebookAndSectio
             else:
                 self.state = target_state
                 self.save()
+        else:
+            self.state = target_state
+            self.save()
 
     # Collaborators
     @property
