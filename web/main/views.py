@@ -1352,8 +1352,8 @@ def edit_resource(request, casebook, resource):
         ...         content_excludes=escape(original_text)
         ...     )
     """
-    # NB: The Rails app does NOT redirect here to a canonical URL; it silently accepts any slug.
-    # Duplicating that here.
+    if not resource.is_resource:
+        return HttpResponseRedirect(reverse('edit_section', args=[casebook,resource]))
     form = ResourceForm(request.POST or None, instance=resource)
 
     # Let users edit Link and TextBlock resources directly from this page
