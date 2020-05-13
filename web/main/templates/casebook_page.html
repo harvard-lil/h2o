@@ -22,6 +22,17 @@
     <div class="content">
         <div class="casebook-inner">
             <div class="top-strip"></div>
+            {% if section %}
+            <header class="casebook-header">
+                <div class="casebook-title">
+                    {{ casebook.title }}
+                </div>
+            </header>
+            <header class="content">
+                {% include 'includes/breadcrumbs.html' with content=section %}
+                <h1 class="title">{{ section.title }}</h1>
+            </header>
+            {% endif %}
             <header class="content">
                 {% if editing %}
                     <form class="edit_content_{% if section and section.has_body %}resource{% elif section%}section{% else %}casebook{% endif %}" method="{{ form.helper.form_method }}">
@@ -29,7 +40,6 @@
                         {% if embedded_resource_form %}{% crispy embedded_resource_form %}{% endif %}
                     </form>
                 {% else %}
-                    <h1 class="title">{{ casebook.title }} {% if section %}: {{ section.title }} {% endif %}</h1>
                     {% if section and section.subtitle %}
                     <h2 class="subtitle">
                         {{ section.subtitle }}
