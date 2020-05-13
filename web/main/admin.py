@@ -211,8 +211,8 @@ class CasebookAdmin(BaseAdmin, SimpleHistoryAdmin):
     list_filter = [CollaboratorNameFilter, CollaboratorIdFilter]
     search_fields = ['title']
 
-    fields = ['title', 'subtitle', 'source', 'provenance', 'headnote', 'created_at', 'updated_at' ,'draft']
-    readonly_fields = ['created_at', 'updated_at', 'source', 'state']
+    fields = ['title', 'subtitle', 'source', 'provenance', 'headnote', 'created_at', 'updated_at' ,'draft', 'state']
+    readonly_fields = ['created_at', 'updated_at', 'provenance', 'source', 'state']
     raw_id_fields = ['collaborators', 'draft']
     inlines = [CollaboratorInline]
 
