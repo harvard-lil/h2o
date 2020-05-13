@@ -2,7 +2,7 @@
     <the-table-of-contents
         casebook="{{casebook.id}}-{{ casebook.get_slug }}"
         root-id="{{ section.id }}"
-        editing="{{ casebook.in_edit_state }}"
+        :editing="{{ casebook.in_edit_state|lower }}"
         root-ordinals="{{ section.ordinal_string }}">
     </the-table-of-contents>
 </section>
