@@ -2698,7 +2698,7 @@ class Section(CasebookAndSectionMixin, SectionAndResourceMixin, ContentNode):
 
 class ResourceManager(models.Manager):
     def get_queryset(self):
-        return super().get_queryset().filter(casebook__isnull=False, resource_id__isnull=False)
+        return super().get_queryset().filter(new_casebook__isnull=False, resource_id__isnull=False)
 
 
 class Resource(SectionAndResourceMixin, ContentNode):

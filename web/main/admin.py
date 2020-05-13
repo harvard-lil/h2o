@@ -136,7 +136,7 @@ class CasebookIdFilter(InputFilter):
     def queryset(self, request, queryset):
         value = self.value()
         if value is not None:
-            return queryset.filter(casebook_id=value)
+            return queryset.filter(new_casebook_id=value)
 
 
 class CollaboratorNameFilter(InputFilter):
@@ -253,18 +253,18 @@ class SectionAdmin(BaseAdmin, SimpleHistoryAdmin):
     list_select_related = ['casebook']
     list_display = ['id', 'casebook_link', 'title', 'ordinals', 'created_at', 'updated_at']
     list_filter = [CasebookIdFilter]
-    search_fields = ['title', 'casebook__title']
-    fields = ['casebook', 'ordinals', 'title', 'subtitle', 'provenance', 'headnote', 'created_at', 'updated_at']
+    search_fields = ['title', 'new_casebook__title']
+    fields = ['new_casebook', 'ordinals', 'title', 'subtitle', 'provenance', 'headnote', 'created_at', 'updated_at']
     raw_id_fields = ['collaborators', 'casebook']
 
     def get_queryset(self, request):
-        return super().get_queryset(request).select_related('casebook').prefetch_related('casebook__contentcollaborator_set__user')
+        return super().get_queryset(request).select_related('new_casebook').prefetch_related('casebook__contentcollaborator_set__user')
 
     def formfield_for_dbfield(self, db_field, **kwargs):
         return self.enable_richeditor_for_field('headnote', db_field, **kwargs)
 
     def casebook_link(self, obj):
-        return edit_link(obj.casebook, True)
+        return edit_link(obj.new_casebook, True)
     casebook_link.short_description = 'casebook'
 
 
@@ -296,19 +296,19 @@ class ResourceAdmin(BaseAdmin, SimpleHistoryAdmin):
     list_select_related = ['casebook']
     list_display = ['id', 'casebook_link', 'title', 'ordinals', 'resource_type', 'resource_id', 'annotation_count', 'created_at', 'updated_at']
     list_filter = [CasebookIdFilter, 'resource_type', ResourceIdFilter]
-    search_fields = ['title', 'casebook__title']
-    fields = ['casebook', 'ordinals', 'title', 'subtitle', 'provenance', 'headnote', 'created_at', 'updated_at']
+    search_fields = ['title', 'new_casebook__title']
+    fields = ['new_casebook', 'ordinals', 'title', 'subtitle', 'provenance', 'headnote', 'created_at', 'updated_at']
     raw_id_fields = ['collaborators', 'casebook']
     inlines = [AnnotationInline]
 
     def get_queryset(self, request):
-        return super().get_queryset(request).select_related('casebook').prefetch_related('casebook__contentcollaborator_set__user').annotate(annotations_count=Count('annotations'))
+        return super().get_queryset(request).select_related('new_casebook').prefetch_related('casebook__contentcollaborator_set__user').annotate(annotations_count=Count('annotations'))
 
     def formfield_for_dbfield(self, db_field, **kwargs):
         return self.enable_richeditor_for_field('headnote', db_field, **kwargs)
 
     def casebook_link(self, obj):
-        return edit_link(obj.casebook, True)
+        return edit_link(obj.new_casebook, True)
     casebook_link.short_description = 'casebook'
 
     def annotation_count(self, obj):
