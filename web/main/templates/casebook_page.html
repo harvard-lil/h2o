@@ -22,12 +22,12 @@
     <div class="content">
         <div class="casebook-inner">
             <div class="top-strip"></div>
-            {% if section %}
             <header class="casebook-header">
                 <div class="casebook-title">
                     {{ casebook.title }}
                 </div>
             </header>
+            {% if section %}
             <header class="content">
                 {% include 'includes/breadcrumbs.html' with content=section %}
                 <h1 class="title">{{ section.title }}</h1>
