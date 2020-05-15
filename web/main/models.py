@@ -3036,3 +3036,10 @@ class Media(models.Model):
 
     class Meta:
         db_table = 'medias'
+
+
+
+class EmailWhitelist(models.Model):
+    university_name = models.CharField(max_length=255, blank=True, null=True)
+    university_url = models.URLField(max_length=1024)
+    email_domain = models.CharField(max_length=255, blank=True, null=True)
