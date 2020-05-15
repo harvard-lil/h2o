@@ -214,7 +214,7 @@ class SignupForm(ModelForm):
             Submit('submit', 'Sign up'),
             HTML('<p class="help-block">By signing up for an account, you agree to our <a href="%s">Terms of Service</a>.</p>' % reverse('terms-of-service')),
         )
-        self.fields['email_address'].help_text = '<p class="help-block">Registration is restricted to email addresses that end in <code>.edu</code>.</p>'
+        self.fields['email_address'].help_text = '<p class="help-block">Registration is restricted to email addresses belonging to an educational institution. If your email address doesn\'t work and you believe it should, please <a href="mailto:info@opencasebook.org?subject=Whitelist%20University%20Email&body=Hello%20H2O,%A0Please%20whitelist%20my%20email%20domain.">Let us know</a></p>'
 
     def clean_email_address(self):
         email = self.cleaned_data['email_address']
