@@ -12,7 +12,8 @@ from django.utils.safestring import mark_safe
 from simple_history.admin import SimpleHistoryAdmin
 from .utils import fix_after_rails, clone_model_instance
 from .models import Case, Link, User, Casebook, Section, \
-    Resource, TempCollaborator, ContentAnnotation, TextBlock, ContentNode
+    Resource, TempCollaborator, ContentAnnotation, TextBlock, ContentNode, \
+    EmailWhitelist
 
 
 #
@@ -475,6 +476,13 @@ class CollaboratorsAdmin(BaseAdmin):
     ordering = []
     raw_id_fields = ['user', 'casebook']
 
+class EmailWhitelistAdmin(BaseAdmin):
+    fields = ['university_name', 'university_url', 'email_domain']
+    list_filter = ['university_name', 'email_domain']
+    list_display = ['email_domain', 'university_name', 'university_url']
+    def has_add_permission(self, request):
+        return super(BaseAdmin, self).has_add_permission(request)
+
 
 ## Courts
 
@@ -489,3 +497,4 @@ admin_site.register(TextBlock, TextBlockAdmin)
 admin_site.register(User, UserAdmin)
 admin_site.register(TempCollaborator, CollaboratorsAdmin)
 admin_site.register(ContentNode, ContentNodeAdmin)
+admin_site.register(EmailWhitelist, EmailWhitelistAdmin)
