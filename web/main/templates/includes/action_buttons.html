@@ -18,7 +18,7 @@
   {% endif %}
   {% if can_add_nodes %}
     {# TODO: actual "add resource" functionality #}
-    <button class="action one-line add-resource">Add Resource</button>
+    <add-content casebook="{{casebook.id}}" section="{{section.id}}"> </add-content>
     <form class="button_to" method="post" action="{% if section %}{% url 'new_section_or_resource' section.new_casebook %}?parent={{ section.id }}{% else %}{% url 'new_section_or_resource' casebook %}{% endif %}">
       <input class="action add-section" data-disable-with="Add Section" type="submit" value="Add Section">
       {% csrf_token %}

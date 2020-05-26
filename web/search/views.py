@@ -1,13 +1,24 @@
 import requests
+import json
 
 from django.conf import settings
 from django.core.paginator import Paginator
 from django.shortcuts import render
 from django.urls import reverse
 
+from rest_framework.response import Response
+from rest_framework import status
+from rest_framework.decorators import api_view, renderer_classes
+from rest_framework.renderers import JSONRenderer
+
+
 from test.test_helpers import check_response
 from main.utils import looks_like_citation
 from .models import SearchIndex
+from search.utils import hybrid_search
+
+import logging
+logger = logging.getLogger('django')
 
 type_param_to_category = {'cases': 'case', 'casebooks': 'casebook', 'users': 'user'}
 
@@ -84,3 +95,20 @@ def search(request):
             'facets': facets,
             'category': category,
         })
+
+
+@api_view(('GET',))
+@renderer_classes((JSONRenderer,))
+def search_cases(request):
+    query = request.GET.get('q')
+    search_params = {}
+    if not query:
+        return Response('', status=status.HTTP_400_BAD_REQUEST)
+    if looks_like_citation(query):
+        search_params['cite'] = query
+    else:
+        search_params['name'] = query
+    results = hybrid_search(search_params)
+    if results['via'] == 'hybrid' or results['via'] == 'CL':
+        logger.info("CASE_SEARCH: params=%s, in_cap=%s", json.dumps(search_params), results['via'] == 'hybrid')
+    return Response(results, status=200)
