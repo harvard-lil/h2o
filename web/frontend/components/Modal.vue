@@ -1,7 +1,7 @@
 <template>
 <portal to="modal-target">
 <transition name="fade">
-  <focus-trap active="true">
+  <focus-trap :active="true" :initial-focus="initialFocus">
   <div id="modal"
        aria-labelledby="modal-title"
        tabindex="-1"
@@ -37,10 +37,17 @@ import Vue from "vue";
 import { FocusTrap } from 'focus-trap-vue';
 Vue.use(PortalVue)
 
+Vue.directive('focus', {
+    inserted: function (el) {
+        el.focus()
+    }
+})
+
 export default {
   components: {
     FocusTrap
   },
+  props: ['initialFocus'],
   methods: {
     onKey(e) {
       if(e.key == "Escape") this.$emit("close");
@@ -75,6 +82,10 @@ export default {
   width: 100%;
   height: 100%;
   background-color: rgba(255, 255, 255, .85);
+  .modal-content {
+    max-height: calc(100vh - 225px);
+    overflow-y: scroll;
+  }
 }
 .modal-dialog {
     margin-top: 90px;

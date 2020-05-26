@@ -225,6 +225,8 @@ WEBPACK_LOADER = {
 CAPAPI_BASE_URL = 'https://api.case.law/v1/'
 CAPAPI_API_KEY = ''
 
+COURTLISTENER_BASE_URL = 'https://www.courtlistener.com/'
+COURTLISTENER_KEY = ''
 
 CRISPY_TEMPLATE_PACK = 'bootstrap3'
 CRISPY_FAIL_SILENTLY = False

@@ -12,6 +12,7 @@ Vue.use(contenteditableDirective);
 
 import TheResource from "../components/TheResource";
 import SectionCloner from "../components/SectionCloner";
+import AddContent from "../components/AddContent";
 import TheTableOfContents from "../components/TheTableOfContents";
 import PortalVue from "portal-vue";
 
@@ -32,6 +33,7 @@ document.addEventListener("DOMContentLoaded", () => {
     components: {
         TheResource,
         SectionCloner,
+        AddContent,
         TheTableOfContents,
         PortalVue
     }

@@ -9,6 +9,7 @@
     "lint": "vue-cli-service lint frontend/"
   },
   "dependencies": {
+    "@tinymce/tinymce-vue": "^3.2.2",
     "autoprefixer": "^6.7.7",
     "axios": "^0.19.0",
     "bluebird": "^3.5.0",
