@@ -41,11 +41,20 @@
             />
           </form>
           <div class="results-list" id="case-search-results">
-            <div v-if="pendingCaseFetch">
-              <div class="spinner"></div>
+            <div class="search-alert" v-if="pendingCaseFetch">
+              <div class="spinner-message"><div>Searching</div></div>
+              <loading-spinner> </loading-spinner>
+            </div>
+            <div v-if="emptyResults">
+              <span>No cases found matching your search</span>
             </div>
             <div v-else>
-              <a v-on:click.stop.prevent="selectCase(c)" class="wrapper" v-for="c in caseResults" :key="c.id">
+              <a
+                v-on:click.stop.prevent="selectCase(c)"
+                class="wrapper"
+                v-for="c in caseResults"
+                :key="c.id"
+              >
                 <div class="results-entry">
                   <div class="title">{{c.name}}</div>
                   <div class="citation">{{c.citations.map(x => x.cite).join(", ")}}</div>
@@ -56,17 +65,34 @@
           </div>
         </div>
         <div class="add-resource-body" v-else-if="textTab">
-          <form class="new-text" v-on:submit.stop.prevent="submitTextForm()">
-            <div class="form-group">
+          <form ref="textForm" class="new-text" v-on:submit.stop.prevent="submitTextForm()">
+            <div v-bind:class="{'form-group': true, 'has-error': errors.name}">
               <label class="title">
                 Text title
-                <input class="form-control" name="title" type="text" v-model="textTitle" v-focus/>
+                <input
+                  class="form-control"
+                  name="name"
+                  type="text"
+                  v-model="textTitle"
+                  v-focus
+                />
+                <span class="help-block" v-if="errors.name">
+                  <strong>{{errors.name[0].message}}</strong>
+                </span>
               </label>
             </div>
-            <div class="form-group">
+            <div v-bind:class="{'form-group': true, 'has-error': errors.content}">
               <label class="textarea">
                 Text body
-                <editor ref="text-body" :init="tinyMCEInitConfig" v-model="textContent"></editor>
+                <editor
+                  ref="text-body"
+                  name="content"
+                  :init="tinyMCEInitConfig"
+                  v-model="textContent"
+                ></editor>
+                <span class="help-block has-error" v-if="errors.content">
+                  <strong>{{errors.content[0].message}}</strong>
+                </span>
               </label>
             </div>
             <input class="save-button" type="submit" value="Save text" />
@@ -75,15 +101,20 @@
         <div class="add-resource-body" v-else>
           <h3>Enter the URL of any asset to link from the web.</h3>
           <h4>Some examples: YouTube videos, PDFs, JPG, PNG, or GIF images</h4>
-          <form class="new-link" v-on:submit.stop.prevent="submitLinkForm()">
-            <input
-              class="form-control"
-              name="url"
-              type="text"
-              placeholder="Enter a URL to add it to your casebook"
-              v-model="linkTarget"
-              v-focus
-            />
+          <form ref="linkForm" class="new-link" v-on:submit.stop.prevent="submitLinkForm()">
+            <div v-bind:class="{'form-group': true, 'has-error': errors.url}">
+              <input
+                class="form-control"
+                name="url"
+                type="text"
+                placeholder="Enter a URL to add it to your casebook"
+                v-model="linkTarget"
+                v-focus
+              />
+              <span class="help-block has-error" v-if="errors.url">
+                <strong>{{errors.url[0].message}}</strong>
+              </span>
+            </div>
             <input class="search-button" type="submit" value="Add linked resource" />
           </form>
         </div>
@@ -94,6 +125,7 @@
 
 <script>
 import Modal from "./Modal";
+import LoadingSpinner from "./LoadingSpinner";
 import Editor from "@tinymce/tinymce-vue";
 import Axios from "../config/axios";
 import { createNamespacedHelpers } from "vuex";
@@ -102,6 +134,7 @@ const { mapActions } = createNamespacedHelpers("case_search");
 export default {
   components: {
     Modal,
+    LoadingSpinner,
     editor: Editor
   },
   props: ["casebook", "section"],
@@ -120,7 +153,8 @@ export default {
     },
     textTitle: "",
     textContent: "",
-    linkTarget: ""
+    linkTarget: "",
+    errors: {}
   }),
   computed: {
     caseTab: function() {
@@ -136,14 +170,14 @@ export default {
       return this.$store.getters["case_search/getSearch"](this.caseQuery);
     },
     pendingCaseFetch: function() {
-      return this.caseResults === 'pending';
+      return this.caseResults === "pending";
+    },
+    emptyResults: function () {
+      return this.caseResults && this.caseResults.length == 0;
     }
   },
   methods: {
     ...mapActions(["fetch"]),
-    blurCaseSearch: function(e) {
-      console.log(e);
-    },
     displayModal: function displayModal() {
       this.showModal = true;
     },
@@ -154,9 +188,8 @@ export default {
       this.currentTab = newTab;
       if (this.caseTab) {
         this.$nextTick(() => {
-          console.log(this.$refs)
           this.$refs.case_search.focus();
-        })
+        });
       }
     },
     runCaseSearch: function runCaseSearch() {
@@ -166,56 +199,52 @@ export default {
     },
     submitCaseForm: function submitCaseForm() {},
     submitTextForm: function submitTextForm() {
-      const data = {
-        parent: this.section,
-        resource_id: null,
-        text: { title: this.textTitle, content: this.textContent }
-      };
-      const url = FRONTEND_URLS.new_section_or_resource.replace(
-        "$CASEBOOK_ID",
-        this.casebook
+      let formData = new FormData(this.$refs.textForm);
+      formData.append("section", this.section);
+      formData.set("content", this.textContent);
+      const url = `/casebooks/${this.casebook}/new/text`;
+      Axios.post(url, formData).then(
+        this.handleSubmitResponse,
+        this.handleSubmitErrors
       );
-      Axios.post(url, data).then(this.handleSubmitResponse, console.error);
     },
     submitLinkForm: function submitLinkForm() {
-      const data = {
-        parent: this.section,
-        resource_id: null,
-        link: { url: this.linkTarget }
-      };
-      const url = FRONTEND_URLS.new_section_or_resource.replace(
-        "$CASEBOOK_ID",
-        this.casebook
+      let formData = new FormData(this.$refs.linkForm);
+      formData.append("section", this.section);
+      const url = `/casebooks/${this.casebook}/new/link`;
+      Axios.post(url, formData).then(
+        this.handleSubmitResponse,
+        this.handleSubmitErrors
       );
-      Axios.post(url, data).then(this.handleSubmitResponse, console.error);
     },
     selectCase: function(c) {
-      const CAPAPI_LOADER_URL = '/cases/from_capapi';
-      let data = {
-        parent: this.section,
-        resource_id: c.id
-      };
-      const url = FRONTEND_URLS.new_section_or_resource.replace(
-        "$CASEBOOK_ID",
-        this.casebook
-      );
+      const CAPAPI_LOADER_URL = "/cases/from_capapi";
+      let formData = new FormData();
+      formData.append('parent', this.section);
+      const url = `/casebooks/${this.casebook}/new/case`;
       const handler = this.handleSubmitResponse;
-      Axios.post(CAPAPI_LOADER_URL, {id: c.id}).then((resp) => {
-        data.resource_id = resp.data.id;
-        Axios.post(url, data).then(handler, console.error);
-      })
+      Axios.post(CAPAPI_LOADER_URL, { id: c.id }).then(resp => {
+        formData.append('resource_id',resp.data.id);
+        Axios.post(url, formData).then(handler, this.handleSubmitErrors);
+      });
     },
     handleSubmitResponse: function handleSubmitResponse(response) {
       let location = response.request.responseURL;
       window.location.href = location;
+      this.errors = {};
+    },
+    handleSubmitErrors: function handleSubmitErrors(error) {
+      if (error.response.data) {
+        this.errors = error.response.data;
+      }
     }
-  },
+  }
 };
 </script>
 
 <style lang="scss">
 @use "sass:color";
-@import 'variables';
+@import "variables";
 label.textarea {
   width: 100%;
 }
@@ -228,10 +257,24 @@ a.search-tab {
   overflow-x: unset;
 
   .results-entry {
-    &:hover{
+    &:hover {
       background-color: color.adjust($light-blue, $alpha: -0.75);
       cursor: pointer;
     }
   }
 }
+
+.search-alert {
+  display: flex;
+  flex-direction: row;
+  .spinner-message {
+    flex-direction: column;
+    align-content: center;
+    justify-content: center;
+    display: flex;
+    margin-right: 14px;
+    margin-left: 12px;
+  }
+}
+
 </style>

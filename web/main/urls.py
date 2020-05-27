@@ -51,7 +51,10 @@ urlpatterns = format_suffix_patterns(drf_urlpatterns) + [
     path('casebooks/<idslug:casebook_param>/sections/<ordslug:section_param>/', views.SectionView.as_view(), name='section'),
     path('casebooks/<idslug:casebook_param>/sections/<ordslug:section_param>', no_perms_test(views.SectionView.as_view())),
     # sections and resources
-    path('casebooks/<idslug:casebook_param>/sections', views.new_section_or_resource, name='new_section_or_resource'),
+    path('casebooks/<idslug:casebook_param>/new/section', views.new_section, name='new_section'),
+    path('casebooks/<idslug:casebook_param>/new/text', views.new_text, name='new_text'),
+    path('casebooks/<idslug:casebook_param>/new/link', views.new_link, name='new_link'),
+    path('casebooks/<idslug:casebook_param>/new/case', views.new_case, name='new_case'),
     path('casebooks/<idslug:casebook_param>/sections/<ordslug:section_param>/credits/', views.show_credits, name='show_resource_credits'),
     # reordering nodes
     path('casebooks/<idslug:casebook_param>/sections/<ordslug:section_param>/reorder/<ordslug:node_param>', views.reorder_node, name='reorder_node'),

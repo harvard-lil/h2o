@@ -45,7 +45,6 @@ def frontend_urls(request):
             # key: [url_name, reverse_args, strings, placeholders]
             'reorder_section_node': ['reorder_node', [1, "2", "3"], ["1", "2", "3"], ['_CASEBOOK_ID', '_SECTION_ORDINALS', '_CHILD_ORDINALS']],
             'reorder_casebook_node': ['reorder_node', [1, "2"], ["1", "2"], ['_CASEBOOK_ID', '_CHILD_ORDINALS']],
-            'new_section_or_resource': ['new_section_or_resource', [1], ["1"], ['$CASEBOOK_ID']],
             'search': ['search', [], [], []],
             'new_casebook': ['new_casebook', [], [], []],
             'section': ['section', [1, "2"], ["1", "2"], ['CASEBOOK_ID', 'SECTION_ID']],

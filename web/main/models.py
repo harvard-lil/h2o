@@ -534,7 +534,7 @@ class MaterializedPathTreeMixin(models.Model):
         """
         self.content_tree__load()
         prefix = self.ordinals if self.ordinals else []
-        return prefix + [len(self.content_tree__children) + 1]
+        return prefix + [max([x.ordinals[-1] for x in self.content_tree__children] or [0]) + 1]
 
     def content_tree__move_to(self, new_ordinals):
         """
@@ -759,7 +759,8 @@ class MaterializedPathTreeMixin(models.Model):
 
             [self] is included because we don't know whether self.ordinals has changed or not.
         """
-        ContentNode.objects.bulk_update([self] + list(self.content_tree__update_ordinals()), ['ordinals'])
+        to_update = [self] + list(self.content_tree__update_ordinals())
+        ContentNode.objects.bulk_update(to_update, ['ordinals'])
 
     def content_tree__update_ordinals(self):
         """
@@ -984,6 +985,13 @@ class ContentNode(EditTrackedModel, TimestampedModel, BigPkModel, MaterializedPa
         else:
             subclass = Resource
         return models.Model.from_db.__func__(subclass, db, field_names, values)
+
+    def as_proxy(self):
+        if not self.resource_type:
+            self.__class__ = Section
+        else:
+            self.__class__ = Resource
+        return self
 
     @property
     def resource(self):
@@ -2571,7 +2579,7 @@ class Casebook(EditTrackedModel, TimestampedModel, BigPkModel, CasebookAndSectio
             what should that node's ordinals be?
         """
         self.content_tree__load()
-        return [len(self.content_tree__children) + 1]
+        return [max([x.ordinals[-1] for x in self.content_tree__children] or [0]) + 1]
 
     def content_tree__store(self):
         contents = [x for x in self.content_tree__update_ordinals()]
