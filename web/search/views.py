@@ -105,7 +105,7 @@ def search_cases(request):
     if not query:
         return Response('', status=status.HTTP_400_BAD_REQUEST)
     if looks_like_citation(query):
-        search_params['cite'] = query
+        search_params['citation'] = query
     else:
         search_params['name'] = query
     results = hybrid_search(search_params)

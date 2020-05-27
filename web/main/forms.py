@@ -133,7 +133,7 @@ class TextBlockForm(ModelForm):
                 ),
             )
         )
-        # Remove the explicit label on the "url" field, since it is
+        # Remove the explicit label on the "content" field, since it is
         # labeled using aria-labelledby
         self.fields['content'].label = False
         self.helper.disable_csrf = True  # handled independently
@@ -144,7 +144,6 @@ class NewTextBlockForm(ModelForm):
     class Meta:
         model = TextBlock
         fields = ['name', 'content']
-
 
 class UserProfileForm(ModelForm):
     class Meta:
