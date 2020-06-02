@@ -82,9 +82,15 @@ export default {
   width: 100%;
   height: 100%;
   background-color: rgba(255, 255, 255, .85);
-  .modal-content {
-    max-height: calc(100vh - 225px);
-    overflow-y: scroll;
+  .modal-dialog {
+      max-width: 1000px;
+      min-width: 600px;
+      width: unset;
+    .modal-content {
+      max-height: calc(100vh - 225px);
+      overflow-y: scroll;
+
+    }
   }
 }
 .modal-dialog {
