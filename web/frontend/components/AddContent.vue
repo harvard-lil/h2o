@@ -52,16 +52,18 @@
             </div>
             <div class="search-results-entry" v-else v-for="c in caseResults" :key="c.id">
               <div class="name-column">
-                  <a v-on:click.stop.prevent="selectCase(c)" class="wrapper">
+                <a v-on:click.stop.prevent="selectCase(c)" class="wrapper">
                   <span :title="c.fullName">{{c.shortName}}</span>
-                  </a>
-                </div>
-                <div class="cite-column">
-                  <a v-on:click.stop.prevent="selectCase(c)" class="wrapper">
+                </a>
+              </div>
+              <div class="cite-column">
+                <a v-on:click.stop.prevent="selectCase(c)" class="wrapper">
                   <span :title="c.allCitations">{{c.citations}}</span>
-                  </a>
-                </div>
-                <div class="date-column"><a v-on:click.stop.prevent="selectCase(c)" class="wrapper">{{c.decision_date}}</a></div>
+                </a>
+              </div>
+              <div class="date-column">
+                <a v-on:click.stop.prevent="selectCase(c)" class="wrapper">{{c.decision_date}}</a>
+              </div>
               <div class="preview-column">
                 <a :href="c.url" target="_blank" rel="noopener noreferrer">CAP</a>
               </div>
@@ -148,13 +150,12 @@ export default {
     currentTab: "case",
     caseQuery: "",
     tinyMCEInitConfig: {
-      plugins: "lists paste",
+      plugins: ["link", "lists", "image", "table"],
       skin_url: "/static/tinymce_skin",
       menubar: false,
       branding: false,
-      toolbar: "undo redo | numlist indent outdent | paste",
-      valid_elements: "div,ol,li,span",
-      paste_enable_default_filters: false
+      toolbar:
+        "undo redo removeformat | styleselect | bold italic underline | numlist bullist indent outdent | table blockquote link image"
     },
     textTitle: "",
     textContent: "",
@@ -222,7 +223,10 @@ export default {
       );
     },
     pendingCaseFetch: function() {
-      return "pending" === this.$store.getters["case_search/getSearch"](this.caseQuery);
+      return (
+        "pending" ===
+        this.$store.getters["case_search/getSearch"](this.caseQuery)
+      );
     },
     emptyResults: function() {
       return this.caseResults && this.caseResults.length == 0;
@@ -242,7 +246,7 @@ export default {
         if (self.$refs.case_search) {
           self.$refs.case_search.focus();
         } else {
-          this.$nextTick(tryFocus)
+          this.$nextTick(tryFocus);
         }
       }
       this.currentTab = newTab;
@@ -311,14 +315,13 @@ a.search-tab {
 .search-results {
   overflow-y: unset;
   overflow-x: unset;
-  display:table;
+  display: table;
   width: 100%;
   .search-results-entry {
     display: table-row;
     div {
       padding: 0.4rem 0.2rem;
       &.name-column {
-
       }
       &.cite-column {
         min-width: 9rem;
@@ -329,7 +332,7 @@ a.search-tab {
       &.preview-column {
         width: 6rem;
       }
-      display:table-cell;
+      display: table-cell;
     }
 
     &:hover {
