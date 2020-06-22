@@ -6,12 +6,25 @@
       v-on:change="moveSubsection"
       v-if="dataReady"
     >
+      <div slot="placeholder">
+        <div v-if="editing">
+          <div class="listing empty">
+            <div class="add-content-link">
+              This casebook is empty.
+              <add-content />
+            </div>
+          </div>
+        </div>
+      </div>
       <vue-nestable-handle slot-scope="{ item }" :item="item" class="collapsed" v-if="editing">
         <div
           :id="getAnchor(item)"
           v-bind:class="{'listing-wrapper':true, 'delete-confirm': promptForDelete({id:item.id})}"
         >
-          <div class="listing resource" v-if="!(item.resource_type === null || item.resource_type === 'Section')">
+          <div
+            class="listing resource"
+            v-if="!(item.resource_type === null || item.resource_type === 'Section')"
+          >
             <div class="section-number">{{rootOrdinalDisplay}}</div>
             <div class="resource-container" v-if="item.resource_type==='Case'">
               <a :href="item.edit_url" class="section-title case-section-title">{{ item.title }}</a>
@@ -121,6 +134,7 @@ import _ from "lodash";
 import Vue from "vue";
 import { VueNestable, VueNestableHandle } from "vue-nestable";
 import CollapseTriangle from "./CollapseTriangle";
+import AddContent from "./AddContent";
 import { createNamespacedHelpers } from "vuex";
 const { mapActions, mapMutations } = createNamespacedHelpers(
   "table_of_contents"
@@ -130,7 +144,8 @@ export default {
   components: {
     VueNestable,
     VueNestableHandle,
-    CollapseTriangle
+    CollapseTriangle,
+    AddContent
   },
   data: () => ({
     needsDeleteConfirmation: {},
@@ -588,6 +603,20 @@ export default {
       .section-number:before {
         content: "-";
       }
+    }
+  }
+}
+.table-of-contents .add-content-link div {
+  display: inline;
+  button.action.one-line.add-resource {
+    border: none;
+    background-color: rgba(0, 0, 0, 0);
+    text-decoration: underline;
+    color: $light-blue;
+    display: inline;
+
+    &:hover {
+      font-weight: bold;
     }
   }
 }

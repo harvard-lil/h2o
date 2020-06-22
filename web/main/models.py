@@ -987,7 +987,7 @@ class ContentNode(EditTrackedModel, TimestampedModel, BigPkModel, MaterializedPa
         return models.Model.from_db.__func__(subclass, db, field_names, values)
 
     def as_proxy(self):
-        if not self.resource_type:
+        if not self.resource_type or self.resource_type == 'Section':
             self.__class__ = Section
         else:
             self.__class__ = Resource
