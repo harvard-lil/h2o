@@ -1,9 +1,9 @@
 <template>
-  <div id="section-cloner">
+  <div>
     <button
       class="action one-line add-resource"
       v-on:click.stop.prevent="displayModal()"
-    >Add Resource</button>
+    >Add Content</button>
     <Modal v-if="showModal" @close="showModal = false" :initial-focus="focusTarget">
       <template slot="title">Add Resource</template>
       <template slot="body">
@@ -388,4 +388,9 @@ label.textarea {
     margin-left: 12px;
   }
 }
+
+ a.action.add-resource {
+    background-image: url(http://localhost:8080/static/dist/img/add-material.d109215f.svg);
+}
+
 </style>

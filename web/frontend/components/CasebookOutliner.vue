@@ -5,7 +5,7 @@
         ref="outliner"
         :init="tinyMCEInitConfig"
         :inline="false"
-        v-model="contents"
+        v-model="savedContents"
         output-format="html"
         @onFocus="clearInitial"
         @onBlur="resetPlaceholder"
@@ -46,8 +46,10 @@ import "tinymce/plugins/table";
 import "tinymce/plugins/code";
 import "tinymce/plugins/paste";
 
+const bagName = 'casebookOutlinerContents';
 const placeholder =
   "<ol><li>Paste your table of contents/syllabus/reading list here</li></ol>";
+
 export default {
   components: {
     editor: Editor,
@@ -56,7 +58,6 @@ export default {
   },
   data: function() {
     return {
-      contents: placeholder,
       caseDisambiguation: [],
       outlineStructure: {},
       step: "outline",
@@ -85,6 +86,11 @@ export default {
   },
   directives: {},
   computed: {
+    savedContents:{get: function () {
+      return _.get(this.$store.state.shared_bag,bagName,placeholder);
+    }, set: function(value) {
+      this.$store.commit('shared_bag/overwrite', {bagName, value});
+    }},
     selectButtonText: function() {
       return `Select Cases ${this.identifiedCaseCount}/${this.totalCaseCount}`;
     },
@@ -164,8 +170,9 @@ export default {
     },
     parseContentsAndSearch: function() {
       let domparser = new DOMParser();
-      let nodes = domparser.parseFromString(this.contents, "text/html");
-      let topList = nodes.children[0].childNodes[1].childNodes[0];
+      let tempContents = this.$refs.outliner.editor.contentDocument.children[0].children[1].innerHTML;
+      let nodes = domparser.parseFromString(tempContents, "text/html");
+      let topList = nodes.children[0].children[1].children[0];
       let [outline, case_queries] = pp.parseList(topList);
       this.outlineStructure = outline;
       this.setCaseLoad(case_queries);
@@ -182,8 +189,8 @@ export default {
       this.step = "outline";
     },
     resetPlaceholder: function() {
-      if (this.contents == "") {
-        this.contents = placeholder;
+      if (this.savedContents == "") {
+        this.savedContents = placeholder;
       }
     },
     clearInitial: function() {

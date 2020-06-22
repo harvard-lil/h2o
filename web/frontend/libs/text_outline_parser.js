@@ -380,7 +380,8 @@ export default {
             if (case_query !== "") {
                 case_queries.push({title,case_query});
             }
-            let children = (child_part && child_part[0] && _.map(child_part[0].children, translateNode)) || [];
+            let children = (child_part && child_part[0] && _.flatMap(child_part[0].children, translateNode)) || [];
+            children = children.filter(x => x !== null);
             let resource_type;
             if (children.length > 0) {
                 resource_type = 'Section';
@@ -389,9 +390,15 @@ export default {
             } else {
                 resource_type = 'TextBlock';
             }
+            if (title === '') {
+                if (children.length > 0) {
+                    return children;
+                }    
+                return null;
+            }
             return { title, headnote, resource_type, case_query, children };
         }
-        let nodes = _.map(topList.children, translateNode);
+        let nodes = _.flatMap(topList.children, translateNode).filter(x => x !== null);
         return [nodes, case_queries];
     }
 };
