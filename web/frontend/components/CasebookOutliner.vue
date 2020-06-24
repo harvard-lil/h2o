@@ -12,17 +12,23 @@
       />
     </div>
     <div v-else>
-      <case-selector 
-       v-model="caseDisambiguation"
-       @done="saveOutline" />
+      <case-selector v-model="caseDisambiguation" @done="saveOutline" />
     </div>
     <div class="form-group">
       <form v-if="step === 'outline'">
         <input
+          v-if="totalCaseCount > 0"
           v-on:click.prevent.stop="caseStep"
           class="search-button"
           type="submit"
           :value="selectButtonText"
+        />
+        <input
+          v-else
+          v-on:click.prevent.stop="saveCaseFreeOutline"
+          class="search-button"
+          type="submit"
+          value="Save Outline"
         />
       </form>
     </div>
@@ -46,7 +52,7 @@ import "tinymce/plugins/table";
 import "tinymce/plugins/code";
 import "tinymce/plugins/paste";
 
-const bagName = 'casebookOutlinerContents';
+const bagName = "casebookOutlinerContents";
 const placeholder =
   "<ol><li>Paste your table of contents/syllabus/reading list here</li></ol>";
 
@@ -58,7 +64,6 @@ export default {
   },
   data: function() {
     return {
-      caseDisambiguation: [],
       outlineStructure: {},
       step: "outline",
       showing: "Edit",
@@ -86,17 +91,37 @@ export default {
   },
   directives: {},
   computed: {
-    savedContents:{get: function () {
-      return _.get(this.$store.state.shared_bag,bagName,placeholder);
-    }, set: function(value) {
-      this.$store.commit('shared_bag/overwrite', {bagName, value});
-    }},
+    smartContents: function() {
+      // There are a pair of races that this tries to get around, with pasting, and mounting the component
+      const tinyMCEDefault = "<p><br data-mce-bogus=\"1\"></p>";
+      let tempContents = this.$refs.outliner.editor.contentDocument.children[0]
+        .children[1].innerHTML;
+      if (tempContents === tinyMCEDefault) {
+        return this.savedContents;
+      }
+      return tempContents;
+    },
+    savedContents: {
+      get: function() {
+        return _.get(this.$store.state.shared_bag, bagName, placeholder);
+      },
+      set: function(value) {
+        this.$store.commit("shared_bag/overwrite", { bagName, value });
+      }
+    },
+    caseDisambiguation: {
+      get: function() {
+        return _.get(this.$store.state.shared_bag, 'casebookOutlinerCaseDisambiguation', []);
+      },
+      set: function(value) {
+        this.$store.commit("shared_bag/overwrite", { bagName:'casebookOutlinerCaseDisambiguation', value });
+      }
+    },
     selectButtonText: function() {
       return `Select Cases ${this.identifiedCaseCount}/${this.totalCaseCount}`;
     },
     identifiedCaseCount: function() {
-      return _.map(this.caseDisambiguation).filter(c => c[1] !== null)
-        .length;
+      return _.map(this.caseDisambiguation).filter(c => c[1] !== null).length;
     },
     totalCaseCount: function() {
       return this.caseDisambiguation.length;
@@ -139,29 +164,35 @@ export default {
         }
       });
     },
+    saveCaseFreeOutline: function() {
+      this.parseContentsAndSearch();
+      this.saveOutline();
+    },
     saveOutline: function() {
       const url = `/casebooks/${this.casebook}/new/bulk`;
       const caseMapping = {};
-      this.caseDisambiguation.forEach(row => caseMapping[row[0].title] = row[1]);
+      this.caseDisambiguation.forEach(
+        row => (caseMapping[row[0].title] = row[1])
+      );
 
       function augmentCases(node) {
-        let {title, headnote, resource_type, children} = node;
+        let { title, headnote, resource_type, children } = node;
         let cap_id;
-        if (resource_type === 'Case') {
+        if (resource_type === "Case") {
           let id = caseMapping[title];
           if (id === "TextBlock") {
             resource_type = "TextBlock";
           } else {
             cap_id = id;
           }
-        } else if (resource_type === 'Section') {
+        } else if (resource_type === "Section") {
           children = children.map(augmentCases);
         }
-        return {title, headnote, resource_type, cap_id, children};
+        return { title, headnote, resource_type, cap_id, children };
       }
       let data = _.cloneDeep(this.outlineStructure).map(augmentCases);
-      const payload = {section: this.section, data};
-      Axios.post(url, payload).then(this.handleSubmitResponse,console.error);
+      const payload = { section: this.section, data };
+      Axios.post(url, payload).then(this.handleSubmitResponse, console.error);
     },
     handleSubmitResponse: function handleSubmitResponse(response) {
       let location = response.request.responseURL;
@@ -170,7 +201,7 @@ export default {
     },
     parseContentsAndSearch: function() {
       let domparser = new DOMParser();
-      let tempContents = this.$refs.outliner.editor.contentDocument.children[0].children[1].innerHTML;
+      let tempContents = this.smartContents;
       let nodes = domparser.parseFromString(tempContents, "text/html");
       let topList = nodes.children[0].children[1].children[0];
       let [outline, case_queries] = pp.parseList(topList);
@@ -179,7 +210,7 @@ export default {
     },
     setCaseLoad: function(cases) {
       cases.map(x => this.searchForCase(x.case_query));
-      this.caseDisambiguation = cases.map(q => [q,null]);
+      this.caseDisambiguation = cases.map(q => [q, null]);
     },
     caseStep: function() {
       this.parseContentsAndSearch();
@@ -214,7 +245,25 @@ export default {
     }
   },
   props: ["casebook", "rootId"],
-  mounted: function() {}
+  watch: {
+    savedContents: function() {
+      this.parseContentsAndSearch();
+    }
+  },
+  mounted: function() {
+    this.savedContents = this.savedContents.replace(/\n/g, "");
+    const w = this.savedContents;
+    const self = this;
+    function whenceContentful() {
+      console.log("whence");
+      if (self.savedContents == w) {
+        self.parseContentsAndSearch();
+      } else {
+        self.$nextTick(whenceContentful);
+      }
+    }
+    whenceContentful();
+  }
 };
 </script>
 

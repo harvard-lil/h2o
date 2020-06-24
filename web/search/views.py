@@ -56,7 +56,7 @@ def search(request):
 
     # query CAP API if we are searching for a citation from the add-resource modal:
     if category == 'case' and partial and looks_like_citation(query):
-        response = requests.get(settings.CAPAPI_BASE_URL+"cases/", {"cite": query})
+        response = requests.get(settings.CAPAPI_BASE_URL + "cases/", {"cite": query})
         results = response.json()['results']
         results = Paginator(results, 10).get_page(1)
         results.from_capapi = True
@@ -101,7 +101,7 @@ def search(request):
 @renderer_classes((JSONRenderer,))
 def search_cases(request):
     query = request.GET.get('q')
-    search_params = {}
+    search_params = {k: request.GET.get(k) for k in request.GET.keys() if k != 'q'}
     if not query:
         return Response('', status=status.HTTP_400_BAD_REQUEST)
     if looks_like_citation(query):
