@@ -1680,6 +1680,7 @@ def reset_password(request):
 
     return PasswordResetView.as_view()(request)
 
+
 @perms_test({"method": "post", "args": ['casebook'],
              "results": {403: ["user"], "login": [None]}})
 @login_required

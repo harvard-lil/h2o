@@ -9,43 +9,57 @@ const state = {
 };
 
 const helpers = {
-    normalize: function normalize(query) {
-        return query;
+    normalize: function normalize(queryObj) {
+        const string = _.keys(queryObj).map(k => `${k}=${queryObj[k]}`).join(",");
+        return string;
+    },
+    encodeQuery: function encodeQuery(queryObj) {
+        const string = _.keys(queryObj).map(k => `${k === 'query' ? 'q' : k }=${encodeURI(queryObj[k])}`).join("&");
+        return string;
     }
 };
 
 const getters = {
-    getSearch: state => query => state.searches[helpers.normalize(query)],
+    getSearch: state => queryObj => {
+        const qKey = helpers.normalize(queryObj);
+        console.log("CS Getting: " + qKey);
+        return state.searches[qKey]
+    },
 };
 
 const mutations = {
-    overwrite: (state, {query, results}) => {
-        Vue.set(state.searches,helpers.normalize(query),results);
+    overwrite: (state, {queryObj, results}) => {
+        const qKey = helpers.normalize(queryObj);
+        console.log("CS Saving Results: " + qKey);
+        Vue.set(state.searches,qKey,results);
     },
-    setPending: (state, query) => {
-        Vue.set(state.searches, helpers.normalize(query), 'pending');
+    setPending: (state, queryObj) => {
+        const qKey = helpers.normalize(queryObj);
+        Vue.set(state.searches, qKey, 'pending');
     },
-    scrub: (state, query) => {
-        Vue.delete(state.searches, query);
+    scrub: (state, queryObj) => {
+        Vue.delete(state.searches, helpers.normalize(queryObj));
     }
 };
 
 const actions = {
-    fetch: ({ state, commit, dispatch }, {query}) => {
-        if (!_.has(state.searches, query)) {
-            commit('setPending', query)
-            Axios.get(searchURL + `?q=${encodeURI(query)}`)
+    fetch: ({ state, commit, dispatch }, queryObj) => {
+        const qKey = helpers.normalize(queryObj);
+        console.log("CS Fetching: " + qKey);
+        if (!_.has(state.searches, qKey)) {
+            commit('setPending', queryObj)
+            Axios.get(searchURL + `?${helpers.encodeQuery(queryObj)}`)
                 .then(resp => {
-                    commit('overwrite', {query, results: resp.data.results});
+                    commit('overwrite', {queryObj, results: resp.data.results});
                 }, console.error);
             }
-            dispatch('timeOutSearch', {query});
+            dispatch('timeOutSearch', queryObj);
     },
-    timeOutSearch: ({ state, commit }, {query}) => {
+    timeOutSearch: ({ state, commit }, queryObj) => {
         const searchTimeout = 30000;
         setTimeout(() => {
-            if (state.searches[query] === 'pending') {
-                commit('scrub', {query});
+            if (state.searches[helpers.normalize(queryObj)] === 'pending') {
+                commit('scrub', queryObj);
             }
         }, searchTimeout)
 

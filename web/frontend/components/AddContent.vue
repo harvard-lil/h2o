@@ -25,54 +25,15 @@
             v-on:click.stop.prevent="setTab('bulk')"
           >Outline</a>
         </div>
+
         <div class="add-resource-body" v-if="caseTab">
-          <form class="case-search">
-            <input
-              id="case_search"
-              ref="case_search"
-              class="form-control"
-              name="q"
-              type="text"
-              placeholder="Search for a case to import"
-              v-model="caseQuery"
-              v-focus
-            />
-            <input
-              class="search-button"
-              type="submit"
-              value="Search"
-              v-on:click.stop.prevent="runCaseSearch()"
-            />
-          </form>
-          <div class="search-results" id="case-search-results">
-            <div class="search-alert" v-if="pendingCaseFetch">
-              <div class="spinner-message">
-                <div>Searching</div>
-              </div>
-              <loading-spinner></loading-spinner>
-            </div>
-            <div class="search-alert" v-else-if="emptyResults">
-              <span>No cases found matching your search</span>
-            </div>
-            <div class="search-results-entry" v-else v-for="c in caseResults" :key="c.id">
-              <div class="name-column">
-                <a v-on:click.stop.prevent="selectCase(c)" class="wrapper">
-                  <span :title="c.fullName">{{c.shortName}}</span>
-                </a>
-              </div>
-              <div class="cite-column">
-                <a v-on:click.stop.prevent="selectCase(c)" class="wrapper">
-                  <span :title="c.allCitations">{{c.citations}}</span>
-                </a>
-              </div>
-              <div class="date-column">
-                <a v-on:click.stop.prevent="selectCase(c)" class="wrapper">{{c.decision_date}}</a>
-              </div>
-              <div class="preview-column">
-                <a :href="c.url" target="_blank" rel="noopener noreferrer">CAP</a>
-              </div>
-            </div>
-          </div>
+          <case-searcher
+            :search-on-top="false"
+            :can-cancel="true"
+            v-model="caseQueryObj"
+            @choose="selectCase"
+          />
+          <case-results :queryObj="caseQueryObj" @choose="selectCase" />
         </div>
         <div class="add-resource-body" v-else-if="textTab">
           <form ref="textForm" class="new-text" v-on:submit.stop.prevent="submitTextForm()">
@@ -139,8 +100,9 @@
 
 <script>
 import Modal from "./Modal";
-import LoadingSpinner from "./LoadingSpinner";
 import CasebookOutliner from "./CasebookOutliner";
+import CaseSearcher from "./CaseSearcher";
+import CaseResults from "./CaseResults";
 import Editor from "@tinymce/tinymce-vue";
 import Axios from "../config/axios";
 import _ from "lodash";
@@ -150,7 +112,8 @@ const { mapActions } = createNamespacedHelpers("case_search");
 export default {
   components: {
     Modal,
-    LoadingSpinner,
+    CaseSearcher,
+    CaseResults,
     CasebookOutliner,
     editor: Editor
   },
@@ -158,7 +121,7 @@ export default {
   data: () => ({
     showModal: false,
     currentTab: "case",
-    caseQuery: "",
+    caseQueryObj: {query: ""},
     tinyMCEInitConfig: {
       plugins: ["link", "lists", "image", "table"],
       skin_url: "/static/tinymce_skin",
@@ -218,7 +181,7 @@ export default {
           .filter(x => x.cite == query.trim())
           .map(x => x.cite);
         cites = cites.concat(
-          citations.filter(x => (x.type === "official")).map(x => x.cite)
+          citations.filter(x => x.type === "official").map(x => x.cite)
         );
         cites = cites.concat(
           citations.map(x => x.cite).filter(x => cites.indexOf(x) == -1)
@@ -350,8 +313,7 @@ label.textarea {
     display: table-row;
     div {
       padding: 0.4rem 0.2rem;
-      &.name-column {
-      }
+
       &.cite-column {
         min-width: 9rem;
       }
@@ -389,8 +351,7 @@ label.textarea {
   }
 }
 
- a.action.add-resource {
-    background-image: url(http://localhost:8080/static/dist/img/add-material.d109215f.svg);
+a.action.add-resource {
+  background-image: url(http://localhost:8080/static/dist/img/add-material.d109215f.svg);
 }
-
 </style>
