@@ -16,6 +16,7 @@ import AddContent from "../components/AddContent";
 import TheTableOfContents from "../components/TheTableOfContents";
 import PortalVue from "portal-vue";
 import CasebookOutliner from "../components/CasebookOutliner";
+import ResourceTypePicker from "../components/ResourceTypePicker";
 
 document.addEventListener("DOMContentLoaded", () => {
   const routes = [
@@ -37,7 +38,8 @@ document.addEventListener("DOMContentLoaded", () => {
         AddContent,
         TheTableOfContents,
         PortalVue,
-        CasebookOutliner
+        CasebookOutliner,
+        ResourceTypePicker
     }
   });
 

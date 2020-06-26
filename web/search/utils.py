@@ -10,10 +10,10 @@ def normalize_dictionary(remap_map, params):
 
 
 def cap_search(params, limit=10):
-    param_normalizer = {'name': 'name_abbreviation', 
-                        'citation': 'cite', 
-                        'full_text': 'search', 
-                        'before_date': 'decision_date_max', 
+    param_normalizer = {'name': 'name_abbreviation',
+                        'citation': 'cite',
+                        'full_text': 'search',
+                        'before_date': 'decision_date_max',
                         'after_date': 'decision_date_min',
                         'jurisdiction': 'jurisdiction'}
     param_defaults = {'page_size': limit, 'ordering': 'relevance'}

@@ -16,9 +16,11 @@
         :queryObj="caseQueryObj"
         @choose="selectCase"
         />
+        <div>If you don't see your case above:</div>
       <case-searcher
         :search-on-top="false"
         :can-cancel="true"
+        search-labl="Search by another name or citation"
         v-model="caseQueryObj"
         @choose="selectCase"
        />
@@ -27,7 +29,7 @@
         class="search-button"
         type="submit"
         value="Skip"
-        v-on:click.stop.prevent="selectTextBlock"
+        v-on:click.stop.prevent="skipEntry"
       />
     </div>
   </div>
@@ -92,8 +94,8 @@ export default {
       this.currentTab = newTab;
       tryFocus();
     },
-    selectTextBlock: function() {
-      this.selectCase({id:"TextBlock"});
+    skipEntry: function() {
+      this.selectCase({id:"Temp"});
     },
     selectCase: function(c) {
       this.value[this.caseIndex][1] = c.id;

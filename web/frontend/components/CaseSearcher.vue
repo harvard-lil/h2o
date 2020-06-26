@@ -1,10 +1,9 @@
 <template>
   <div class="search-results" id="case-search-results">
     <form class="case-search">
-      <div>If you don't see your case above:</div>
       <div class="form-control-group">
-        <label>
-          Search by another name or citation
+        <label style="width:66%;">
+          {{searchLabel}}
           <input
             id="case_search"
             ref="case_search"
@@ -43,6 +42,7 @@
               class="form-control-sm"
               placeholder="YYYY-MM-DD"
               v-model="after_date"
+              @blur="reformatDates"
             />
           </label>
           <label class="wee-gap">
@@ -53,12 +53,11 @@
               class="form-control-sm"
               placeholder="YYYY-MM-DD"
               v-model="before_date"
+              @blur="reformatDates"
             />
           </label>
         </div>
       </div>
-
-
     </form>
   </div>
 </template>
@@ -135,7 +134,7 @@ const jurisdictions = [
 ];
 
 export default {
-  props: ["searchOnTop", "canCancel", "value"],
+  props: ["searchOnTop", "canCancel", "value", "searchLabel"],
   data: () => ({
     jurisdictions,
     showingLimits: false
@@ -150,8 +149,46 @@ export default {
       this.showingLimits = false;
       this.updateValue(this.value);
     },
+    reformatDates: function() {
+      function completeDates(v, k) {
+        const dateRex = /(?<year>[0-9]{4})-?(?<month>[0-9]{1,2})?-?(?<day>[0-9]{1,2})?/;
+        if (k === "after_date") {
+          let [_, year, month, day] = dateRex.exec(v);
+          if (!year) {
+            return undefined;
+          }
+          month = month || "01";
+          month = month.length == 1 ? "0" + month : month;
+          day = day || "01";
+          day = day.length == 1 ? "0" + day : day;           
+          return `${year}-${month}-${day}`;
+        } else if (k === "before_date") {
+          let [_, year, month, day] = dateRex.exec(v);
+          if (!year) {
+            return undefined;
+          }
+          if (!month) {
+            return `${year}-12-31`;
+          }
+          month = month.length == 1 ? "0" + month : month;
+          if (!day) {
+            const monthDays = [31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31];
+            let iMonth = parseInt(month) - 1;
+            iMonth = iMonth > 11 ? 11 : iMonth;
+            return `${year}-${month}-${monthDays[iMonth]}`;
+          }
+          day = day.length == 1 ? "0" + day : day;
+          return `${year}-${month}-${day}`;
+        } else {
+          return v;
+        }
+      }
+      const newValue = _.mapValues(this.cleanQuery, completeDates);
+      this.$emit('input', newValue);
+      return newValue;
+    },
     runCaseSearch: function runCaseSearch() {
-      const searchQ = this.cleanQuery;
+      const searchQ = this.reformatDates();
       if (searchQ.query !== "") {
         this.fetch(searchQ);
       }
@@ -166,11 +203,19 @@ export default {
       this.$emit("input", this.cleaned(newVal));
     },
     cleaned: function(val) {
-        const validKeys = this.showingLimits ? ['query', 'jurisdiction', 'before_date', 'after_date'] : ['query'];
-      return _.pickBy(val, (v, k) => v && v !== "" && validKeys.indexOf(k) > -1 );
+      const validKeys = this.showingLimits
+        ? ["query", "jurisdiction", "before_date", "after_date"]
+        : ["query"];
+      return _.pickBy(
+        val,
+        (v, k) => v && v !== "" && validKeys.indexOf(k) > -1
+      );
     }
   },
   computed: {
+    displayedSearchLabel: function() {
+      return this.searchLabel || "";
+    },
     cleanQuery: function() {
       const data = this.cleaned(this.value);
       if (data.query) {

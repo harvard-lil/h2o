@@ -7,8 +7,6 @@
         :inline="false"
         v-model="savedContents"
         output-format="html"
-        @onFocus="clearInitial"
-        @onBlur="resetPlaceholder"
       />
     </div>
     <div v-else>
@@ -17,18 +15,10 @@
     <div class="form-group">
       <form v-if="step === 'outline'">
         <input
-          v-if="totalCaseCount > 0"
-          v-on:click.prevent.stop="caseStep"
+          v-on:click.prevent.stop="stepTwo"
           class="search-button"
           type="submit"
           :value="selectButtonText"
-        />
-        <input
-          v-else
-          v-on:click.prevent.stop="saveCaseFreeOutline"
-          class="search-button"
-          type="submit"
-          value="Save Outline"
         />
       </form>
     </div>
@@ -37,6 +27,7 @@
 
 <script>
 import _ from "lodash";
+import Vue from 'vue';
 import Editor from "@tinymce/tinymce-vue";
 import LoadingSpinner from "./LoadingSpinner";
 import CaseSelector from "./CaseSelector";
@@ -54,7 +45,7 @@ import "tinymce/plugins/paste";
 
 const bagName = "casebookOutlinerContents";
 const placeholder =
-  "<ol><li>Paste your table of contents/syllabus/reading list here</li></ol>";
+  "<ol><li></li></ol>";
 
 export default {
   components: {
@@ -91,16 +82,6 @@ export default {
   },
   directives: {},
   computed: {
-    smartContents: function() {
-      // There are a pair of races that this tries to get around, with pasting, and mounting the component
-      const tinyMCEDefault = "<p><br data-mce-bogus=\"1\"></p>";
-      let tempContents = this.$refs.outliner.editor.contentDocument.children[0]
-        .children[1].innerHTML;
-      if (tempContents === tinyMCEDefault) {
-        return this.savedContents;
-      }
-      return tempContents;
-    },
     savedContents: {
       get: function() {
         return _.get(this.$store.state.shared_bag, bagName, placeholder);
@@ -111,14 +92,21 @@ export default {
     },
     caseDisambiguation: {
       get: function() {
-        return _.get(this.$store.state.shared_bag, 'casebookOutlinerCaseDisambiguation', []);
+        return _.get(
+          this.$store.state.shared_bag,
+          "casebookOutlinerCaseDisambiguation",
+          []
+        );
       },
       set: function(value) {
-        this.$store.commit("shared_bag/overwrite", { bagName:'casebookOutlinerCaseDisambiguation', value });
+        this.$store.commit("shared_bag/overwrite", {
+          bagName: "casebookOutlinerCaseDisambiguation",
+          value
+        });
       }
     },
     selectButtonText: function() {
-      return `Select Cases ${this.identifiedCaseCount}/${this.totalCaseCount}`;
+      return this.totalCaseCount > 0 ? `Select Cases ${this.identifiedCaseCount}/${this.totalCaseCount}` : 'Save Outline';
     },
     identifiedCaseCount: function() {
       return _.map(this.caseDisambiguation).filter(c => c[1] !== null).length;
@@ -128,6 +116,16 @@ export default {
     }
   },
   methods: {
+    smartContents: function() {
+      // There are a pair of races that this tries to get around, with pasting, and mounting the component
+      const tinyMCEDefault = '<p><br data-mce-bogus="1"></p>';
+      let tempContents = this.$refs.outliner.editor.contentDocument.children[0]
+        .children[1].innerHTML;
+      if (tempContents === tinyMCEDefault) {
+        return this.savedContents;
+      }
+      return tempContents;
+    },
     tinymceSetup: function(editor) {
       editor.ui.registry.addButton("caseButton", {
         text: "Case",
@@ -182,6 +180,8 @@ export default {
           let id = caseMapping[title];
           if (id === "TextBlock") {
             resource_type = "TextBlock";
+          } else if (id === "Temp"){
+            resource_type = "Temp";
           } else {
             cap_id = id;
           }
@@ -201,7 +201,7 @@ export default {
     },
     parseContentsAndSearch: function() {
       let domparser = new DOMParser();
-      let tempContents = this.smartContents;
+      let tempContents = this.smartContents();
       let nodes = domparser.parseFromString(tempContents, "text/html");
       let topList = nodes.children[0].children[1].children[0];
       let [outline, case_queries] = pp.parseList(topList);
@@ -210,7 +210,13 @@ export default {
     },
     setCaseLoad: function(cases) {
       cases.map(x => this.searchForCase(x.case_query));
-      this.caseDisambiguation = cases.map(q => [q, null]);
+      Vue.set(this, 'caseDisambiguation',cases.map(q => [q, null]));
+    },
+    stepTwo: function() {
+      if (this.totalCaseCount > 0) {
+        return this.caseStep();
+      }
+      return this.saveCaseFreeOutline();
     },
     caseStep: function() {
       this.parseContentsAndSearch();
@@ -225,8 +231,8 @@ export default {
       }
     },
     clearInitial: function() {
-      if (this.contents == placeholder) {
-        this.contents = "<ol><li></li></ol>";
+      if (this.savedContents.replace(/\n/g,'') == placeholder) {
+        this.savedContents = "<ol><li></li></ol>";
       }
     },
     handlePrePaste: function handlePrePaste(plugin, args) {
