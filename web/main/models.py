@@ -1019,8 +1019,16 @@ class ContentNode(EditTrackedModel, TimestampedModel, BigPkModel, MaterializedPa
         return self._resource
 
     @property
+    def is_temporary(self):
+        return self.resource_type == 'Temp'
+    
+    @property
+    def can_publish(self):
+        return self.new_casebook.can_publish
+
+    @property
     def has_body(self):
-        return bool(self.resource_type)
+        return bool(self.resource_type and self.resource_type != 'Temp')
 
     @property
     def body(self):
@@ -1111,12 +1119,34 @@ class ContentNode(EditTrackedModel, TimestampedModel, BigPkModel, MaterializedPa
             return reverse('annotate_resource', args=[self.new_casebook, self])
         raise ValueError('Only Resources (Case and TextBlock) can be annotated.')
 
+    def get_preferred_url(self, user):
+        """
+        When this resource is displayed for the given user, this method provides the
+        default/preferred url. 
+        User does not have edit permissions or resource not editable?
+         - Return the read url for this resource/section
+        User has edit permission?
+         Section:
+          - Return the layout url.
+          Case/Text:
+          - Return the annotate url.
+          Link/Temp:
+          - Return the edit url.
+        """
+        if not (self.in_edit_state or self.directly_editable(user)):
+            return self.get_absolute_url()
+        else:
+            if self.resource_type in {None, "", "Section", "Link", "Temp"}:
+                return self.get_edit_url()
+        return self.get_annotate_url()
 
     @property
     def type(self):
         # TODO: In use in templates and tests; shouldn't be necessary. Consider refactoring.
-        if not self.resource_type:
+        if not self.resource_type or self.resource_type == 'Section':
             return 'section'
+        elif self.resource_type == 'Temp':
+            return 'temp'
         else:
             return 'resource'
 
@@ -1136,10 +1166,12 @@ class ContentNode(EditTrackedModel, TimestampedModel, BigPkModel, MaterializedPa
             self) is not Resource else None
 
         # render html
-        if self.resource_type:
-            template_name = 'export/node.html'
-        else:
+        if not self.resource_type or self.resource_type == 'Section':
             template_name = 'export/section.html'
+        elif self.resource_type == 'Temp':
+            template_name = 'export/tbd.html'
+        else:
+            template_name = 'export/node.html'
         html = render_to_string(template_name, {
             'is_export': True,
             'node': self,
@@ -1580,7 +1612,7 @@ class ContentNode(EditTrackedModel, TimestampedModel, BigPkModel, MaterializedPa
 
         This method should be implemented by all children.
         """
-        if self.resource_id:
+        if self.resource_id or self.resource_type == 'Temp':
             return reverse('edit_resource', args=[self.new_casebook, self])
         else:
             return reverse('edit_section', args=[self.new_casebook, self])
@@ -2403,6 +2435,8 @@ class Casebook(EditTrackedModel, TimestampedModel, BigPkModel, CasebookAndSectio
 
     @property
     def can_publish(self):
+        if len([x for x in self.contents.all() if x.is_temporary]) > 0:
+            return False
         return self.can_transition_to(Casebook.LifeCycle.PUBLISHED) or self.is_draft or self.has_draft
 
     def can_transition_to(self, target):

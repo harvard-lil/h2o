@@ -22,7 +22,7 @@
           v-bind:class="{'listing-wrapper':true, 'delete-confirm': promptForDelete({id:item.id})}"
         >
           <div
-            class="listing resource"
+            v-bind:class="{'listing':true, 'resource':true, 'temporary': item.resource_type == 'Temp'}"
             v-if="!(item.resource_type === null || item.resource_type === 'Section')"
           >
             <div class="section-number">{{rootOrdinalDisplay}}</div>
@@ -39,9 +39,15 @@
             <div class="resource-container" v-else-if="item.resource_type === 'Link'">
               <a :href="item.edit_url" class="section-title">{{ item.title }}</a>
             </div>
+            <div
+              class="resource-container resource-temporary"
+              v-else-if="item.resource_type === 'Temp'"
+            >
+              <a :href="item.edit_url" class="section-title">{{ item.title }}</a>
+            </div>
             <div class="resource-type-container">
               <div
-                class="resource-type"
+                v-bind:class="{'resource-type': true, 'temporary': item.resource_type === 'Temp'}"
               >{{ item.resource_type === 'TextBlock' ? 'Text' : item.resource_type }}</div>
             </div>
           </div>
@@ -74,7 +80,7 @@
                 <button
                   class="action-confirm-delete"
                   v-on:click="confirmDeletion({id:item.id})"
-                >Delete {{item.resource_type !== null ? '' : 'section and all contents'}}</button>
+                >Delete {{item.resource_type !== null && item.resource_type !== 'Section' ? '' : 'section and all contents'}}</button>
                 <button
                   class="action-cancel-delete"
                   v-on:click="cancelDeletion({id:item.id})"
@@ -86,7 +92,10 @@
         </div>
       </vue-nestable-handle>
       <div :id="getAnchor(item)" class="listing-wrapper" v-else>
-        <div class="listing resource" v-if="item.resource_type !== null">
+        <div
+          class="listing resource"
+          v-if="item.resource_type !== null || item.resource_type === 'Section'"
+        >
           <div class="section-number">{{rootOrdinalDisplay}}</div>
           <div class="resource-container" v-if="item.resource_type==='Case'">
             <a :href="item.url" class="section-title case-section-title">{{ item.title }}</a>
@@ -239,7 +248,7 @@ export default {
       while (path.length > 0) {
         res_path.push({ ii, t: curr.resoure_type });
         if (
-          curr.resource_type !== null ||
+          (curr.resource_type !== null && curr.resource_type !== 'Section' ) ||
           curr.id in this.collapsedSections ||
           curr.id === dragItem.id
         ) {
@@ -317,10 +326,21 @@ export default {
   > .table-of-contents > .nestable > ol {
     > li.nestable-item > .nestable-item-content {
       > .listing-wrapper > .listing.resource {
-        padding-left: 60px;
+        padding-left: 60px;        
       }
       > div > .listing-wrapper > .listing.resource {
         padding-left: 60px;
+        &.temporary {
+          border: 4px solid $red;
+          padding-left: 58px;
+        }
+      }
+    }
+  }
+  > .table-of-contents > .nestable > ol {
+    > li.nestable-item > .nestable-item-content {
+      > .listing-wrapper > .listing.resource.temporary {
+        background-color: $red;
       }
     }
   }

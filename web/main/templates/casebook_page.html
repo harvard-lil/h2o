@@ -35,10 +35,15 @@
             {% endif %}
             <header class="content">
                 {% if editing %}
-                    <form class="edit_content_{% if section and section.has_body %}resource{% elif section%}section{% else %}casebook{% endif %}" method="{{ form.helper.form_method }}">
-                        {% crispy form %}
-                        {% if embedded_resource_form %}{% crispy embedded_resource_form %}{% endif %}
-                    </form>
+                    {% if section and section.is_temporary %}
+                        <resource-type-picker casebook="casebook.id" section="section.id" />
+                    {% else %}
+                        <form class="edit_content_{% if section and section.has_body %}resource{% elif section%}section{% else %}casebook{% endif %}" method="{{ form.helper.form_method }}">
+                            {% crispy form %}
+                            {% if embedded_resource_form %}{% crispy embedded_resource_form %}{% endif %}
+                        </form>
+                    {% endif %}
+                    
                 {% else %}
                     {% if section and section.subtitle %}
                     <h2 class="subtitle">
@@ -67,7 +72,7 @@
                     {% include 'includes/headnote.html' with content=casebook %}
                 {% endif %}
             {% endif %}
-            {% if not section.has_body %}
+            {% if not section.has_body and not section.is_temporary %}
                 {% include 'includes/table-of-contents.html'%}
             {% endif %}
         </div>

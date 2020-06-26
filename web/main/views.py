@@ -267,9 +267,7 @@ def actions(request, context):
                 view in ['casebook', 'section', 'resource', 'edit_casebook'] and \
                 node.permits_cloning
 
-    publishable = view == 'edit_casebook' or \
-                  (node.is_private and view in ['casebook', 'section', 'resource']) or \
-                  node.is_draft
+    publishable = node.can_publish and (view == 'edit_casebook' or (node.is_private and view in ['casebook', 'section', 'resource']) or node.is_draft)
 
     actions = OrderedDict([
         ('exportable', True),
@@ -1356,6 +1354,67 @@ class ResourceView(View):
         resource.delete()
         return HttpResponse()
 
+    @method_decorator(perms_test([
+    {'method': 'patch', 'args': ['full_casebook', 'full_casebook.resources.first'], 'results': {403: ['other_user', 'full_casebook.testing_editor'], 'login': [None]}},
+    {'method': 'patch', 'args': ['full_private_casebook', 'full_private_casebook.resources.first'], 'results': {400: ['full_private_casebook.testing_editor'], 'login': [None], 403: ['other_user']}},
+    {'method': 'patch', 'args': ['full_casebook_with_draft.draft', 'full_casebook_with_draft.draft.resources.first'], 'results': {400: ['full_casebook_with_draft.draft.testing_editor'], 'login': [None], 403: ['other_user']}},
+]
+))
+    @method_decorator(hydrate_params)
+    @method_decorator(user_has_perm('casebook', 'directly_editable_by'))
+    def patch(self, request, casebook, resource):
+        """
+            Change the type of a resource in a casebook.
+            Currently this can only be used on Temp resources.
+
+            Given:
+            >>> private, with_draft, client = [getfixture(f) for f in ['full_private_casebook', 'full_casebook_with_draft', 'client']]
+            >>> private_resource = private.resources.first()
+            >>> draft_resource = with_draft.draft.resources.first()
+            >>> draft_resource.resource_type = 'Temp'
+            >>> draft_resource.save()
+
+            >>> owner = draft_resource.testing_editor
+            >>> data = '{"from": "Temp", "to": "Link", "url": "https://example.com/"}'
+            >>> url = reverse('resource', args=[draft_resource.new_casebook, draft_resource])
+            >>> response = client.patch(url, data, as_user=owner)
+            >>> assert response.status_code == 302
+            >>> draft_resource.refresh_from_db()
+            >>> assert draft_resource.resource_type == 'Link'
+        """
+        if resource.resource_type != 'Temp':
+            return HttpResponseBadRequest("Only Temp resources may be changes")
+        try:
+            data = json.loads(request.body.decode("utf-8"))
+            old_type = data['from']
+            if resource.resource_type != old_type:
+                return HttpResponseBadRequest("Resource is not of " + old_type)
+            new_type = data['to']
+
+            if new_type not in {'Case', 'TextBlock', 'Link'}:
+                return HttpResponseBadRequest("Must transition to a Case, TextBlock, or Link")
+            if new_type == 'Case':
+                cap_id = data['cap_id']
+                resource.resource_id = internal_case_id_from_cap_id(cap_id)
+                resource.resource_type = new_type
+                resource.save()
+            elif new_type == 'Link':
+                url = data['url']
+                resource.resource_type = new_type
+                link = Link(name=resource.title, url=url, public=True)
+                link.save()
+                resource.resource_id = link.id
+                resource.save()
+            elif new_type == 'TextBlock':
+                contents = data['contents']
+                text_block = TextBlock(name=resource.title, contents=contents)
+                text_block.save()
+                resource.resource_id = text_block.id
+                resource.save()
+        except Exception:
+            return HttpResponseBadRequest("Improperly formatted request")
+        return HttpResponseRedirect(resource.get_preferred_url(request.user))
+
 
 @perms_test(directly_editable_resource)
 @require_http_methods(["GET", "POST"])
@@ -1406,7 +1465,7 @@ def edit_resource(request, casebook, resource):
         ...         content_excludes=escape(original_text)
         ...     )
     """
-    if not resource.is_resource:
+    if not (resource.is_resource or resource.is_temporary):
         return HttpResponseRedirect(reverse('edit_section', args=[casebook, resource]))
     form = ResourceForm(request.POST or None, instance=resource)
 
@@ -1741,6 +1800,7 @@ def new_from_outline(request, casebook=None):
                 text_block = TextBlock(name=node['title'], content='TBD')
                 text_block.save()
                 node['resource_id'] = text_block.id
+            # resource_type may be 'Temp' for skipped nodes
             content_nodes.append(ContentNode(**node))
         ContentNode.objects.bulk_create(content_nodes)
 

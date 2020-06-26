@@ -1,31 +1,22 @@
 <template>
-  <div>
-    <button
-      class="action one-line add-resource"
-      v-on:click.stop.prevent="displayModal()"
-    >Add Content</button>
-    <Modal v-if="showModal" @close="showModal = false" :initial-focus="focusTarget">
-      <template slot="title">Add Resource</template>
-      <template slot="body">
-        <div class="search-tabs">
-          <a
-            v-bind:class="{ active: caseTab, 'search-tab': true }"
-            v-on:click.stop.prevent="setTab('case')"
-          >Find Case</a>
-          <a
-            v-bind:class="{ active: textTab, 'search-tab': true }"
-            v-on:click.stop.prevent="setTab('text')"
-          >Create Text</a>
-          <a
-            v-bind:class="{ active: linkTab, 'search-tab': true }"
-            v-on:click.stop.prevent="setTab('link')"
-          >Add Link</a>
-          <a
-            v-bind:class="{ active: bulkTab, 'search-tab': true }"
-            v-on:click.stop.prevent="setTab('bulk')"
-          >Outline</a>
-        </div>
-
+  <div class="type-picker">
+    <h4>This is a temporary entry in your casebook. Finish it below.</h4>
+    <div>
+      <div class="type-tabs">
+        <a
+          v-bind:class="{ active: caseTab, 'tab': true }"
+          v-on:click.stop.prevent="setTab('case')"
+        >Case</a>
+        <a
+          v-bind:class="{ active: textTab, 'tab': true }"
+          v-on:click.stop.prevent="setTab('text')"
+        >Text</a>
+        <a
+          v-bind:class="{ active: linkTab, 'tab': true }"
+          v-on:click.stop.prevent="setTab('link')"
+        >Link</a>
+      </div>
+      <div class="modal-body">
         <div class="add-resource-body" v-if="caseTab">
           <case-searcher
             :search-on-top="false"
@@ -37,21 +28,6 @@
         </div>
         <div class="add-resource-body" v-else-if="textTab">
           <form ref="textForm" class="new-text" v-on:submit.stop.prevent="submitTextForm()">
-            <div v-bind:class="{'form-group': true, 'has-error': errors.name}">
-              <label class="title">
-                Text title
-                <input
-                  class="form-control"
-                  name="name"
-                  type="text"
-                  v-model="textTitle"
-                  v-focus
-                />
-                <span class="help-block" v-if="errors.name">
-                  <strong>{{errors.name[0].message}}</strong>
-                </span>
-              </label>
-            </div>
             <div v-bind:class="{'form-group': true, 'has-error': errors.content}">
               <label class="textarea">
                 Text body
@@ -90,17 +66,12 @@
             <input class="search-button" type="submit" value="Add linked resource" />
           </form>
         </div>
-        <div class="add-resource-body" v-else>
-          <casebook-outliner ref="outline_body" :casebook="casebook" :section="section"></casebook-outliner>
-        </div>
-      </template>
-    </Modal>
+      </div>
+    </div>
   </div>
 </template>
 
 <script>
-import Modal from "./Modal";
-import CasebookOutliner from "./CasebookOutliner";
 import CaseSearcher from "./CaseSearcher";
 import CaseResults from "./CaseResults";
 import Editor from "@tinymce/tinymce-vue";
@@ -111,17 +82,15 @@ const { mapActions } = createNamespacedHelpers("case_search");
 
 export default {
   components: {
-    Modal,
     CaseSearcher,
     CaseResults,
-    CasebookOutliner,
     editor: Editor
   },
   props: ["casebook", "section"],
   data: () => ({
     showModal: false,
     currentTab: "case",
-    caseQueryObj: {query: ""},
+    caseQueryObj: { query: "" },
     tinyMCEInitConfig: {
       plugins: ["link", "lists", "image", "table"],
       skin_url: "/static/tinymce_skin",
@@ -154,68 +123,6 @@ export default {
     },
     linkTab: function() {
       return this.currentTab === "link";
-    },
-    bulkTab: function() {
-      return this.currentTab === "bulk";
-    },
-    caseResults: function() {
-      function truncatedCaseName({ name }) {
-        const maxPartLength = 40;
-        const vsChecker = / [vV][sS]?[.]? /;
-        let splits = name.split(vsChecker);
-        if (splits.length !== 2) {
-          let ret = name.substr(0, maxPartLength * 2 + 4);
-          return ret + (name.length > ret.length ? "..." : "");
-        }
-        let partA = splits[0].substr(0, maxPartLength);
-        partA += splits[0].length > partA.length ? "..." : "";
-        let partB = splits[1].substr(0, maxPartLength);
-        partB += splits[0].length > partA.length ? "..." : "";
-        return `${partA} v. ${partB}`;
-      }
-      function preferedCitations(query, { citations }) {
-        if (!citations) {
-          return "";
-        }
-        let cites = citations
-          .filter(x => x.cite == query.trim())
-          .map(x => x.cite);
-        cites = cites.concat(
-          citations.filter(x => x.type === "official").map(x => x.cite)
-        );
-        cites = cites.concat(
-          citations.map(x => x.cite).filter(x => cites.indexOf(x) == -1)
-        );
-        const ret = cites.slice(0, 2).join(", ");
-        return ret;
-      }
-      let results = this.$store.getters["case_search/getSearch"](
-        this.caseQuery
-      );
-      return (
-        results &&
-        _.isArray(results) &&
-        results.map(c => ({
-          shortName: truncatedCaseName(c),
-          fullName: c.name,
-          citations: preferedCitations(this.caseQuery, c),
-          allCitations: c.citations
-            ? c.citations.map(x => x.name).join(", ")
-            : "",
-          url: c.frontend_url,
-          id: c.id,
-          decision_date: c.decision_date
-        }))
-      );
-    },
-    pendingCaseFetch: function() {
-      return (
-        "pending" ===
-        this.$store.getters["case_search/getSearch"](this.caseQuery)
-      );
-    },
-    emptyResults: function() {
-      return this.caseResults && this.caseResults.length == 0;
     }
   },
   methods: {
@@ -240,41 +147,29 @@ export default {
       this.currentTab = newTab;
       tryFocus();
     },
-    runCaseSearch: function runCaseSearch() {
-      if (this.caseQuery !== "") {
-        this.fetch({ query: this.caseQuery });
-      }
-    },
-    submitCaseForm: function submitCaseForm() {},
     submitTextForm: function submitTextForm() {
-      let formData = new FormData(this.$refs.textForm);
-      formData.append("section", this.section);
-      formData.set("content", this.textContent);
-      const url = `/casebooks/${this.casebook}/new/text`;
-      Axios.post(url, formData).then(
+      const data = { from: "Temp", to: "TextBlock", content: this.textContent };
+      const url = window.location.href.substr(0, window.location.href.length - 5)
+      Axios.patch(url, data).then(
         this.handleSubmitResponse,
         this.handleSubmitErrors
       );
     },
     submitLinkForm: function submitLinkForm() {
-      let formData = new FormData(this.$refs.linkForm);
-      formData.append("section", this.section);
-      const url = `/casebooks/${this.casebook}/new/link`;
-      Axios.post(url, formData).then(
+      const data = { from: "Temp", to: "Link", url: this.linkTarget };
+      const url = window.location.href.substr(0, window.location.href.length - 5)
+      Axios.patch(url, data).then(
         this.handleSubmitResponse,
         this.handleSubmitErrors
       );
     },
     selectCase: function(c) {
-      const CAPAPI_LOADER_URL = "/cases/from_capapi";
-      let formData = new FormData();
-      formData.append("section", this.section);
-      const url = `/casebooks/${this.casebook}/new/case`;
-      const handler = this.handleSubmitResponse;
-      Axios.post(CAPAPI_LOADER_URL, { id: c.id }).then(resp => {
-        formData.append("resource_id", resp.data.id);
-        Axios.post(url, formData).then(handler, this.handleSubmitErrors);
-      });
+      const url = window.location.href.substr(0, window.location.href.length - 5)
+      const data = { from: "Temp", to: "Case", cap_id: c.id };
+      Axios.patch(url, data).then(
+        this.handleSubmitResponse,
+        this.handleSubmitErrors
+      );
     },
     handleSubmitResponse: function handleSubmitResponse(response) {
       let location = response.request.responseURL;
@@ -293,22 +188,70 @@ export default {
 <style lang="scss">
 @use "sass:color";
 @import "variables";
-label.textarea {
-  width: 100%;
-}
-.search-tabs {
-  display: flex;
-  flex-direction: row;
-  a.search-tab {
-    color: black;
+.type-picker {
+  label.textarea {
+    width: 100%;
   }
-}
+  .search-tabs {
+    display: flex;
+    flex-direction: row;
+    div.search-tab {
+      color: black;
+    }
+  }
 
-.search-results {
-  overflow-y: unset;
-  overflow-x: unset;
-  display: table;
-  width: 100%;
+  .type-tabs {
+    background-position-x: 50%;
+    background-position-y: 50%;
+    background-size: contain;
+    box-sizing: border-box;
+    color: rgb(51, 51, 51);
+    display: flex;
+    flex-direction: row;
+    font-size: 14px;
+    height: 36px;
+    line-height: 20px;
+    margin-bottom: 15px;
+    margin-left: -15px;
+    margin-right: -15px;
+    text-size-adjust: 100%;
+    width: 100%;
+    -webkit-box-direction: normal;
+    -webkit-box-orient: horizontal;
+    -webkit-tap-highlight-color: rgba(0, 0, 0, 0);
+
+    a.tab {
+      border-bottom-style: solid;
+      border-bottom-width: 2px;
+      box-sizing: border-box;
+
+      cursor: pointer;
+      display: block;
+      float: none;
+      font-size: 14px;
+      font-weight: 700;
+      height: 26px;
+      line-height: 14px;
+      margin-bottom: 5px;
+      margin: 5px;
+      padding: 5px;
+      position: relative;
+      text-align: center;
+      text-decoration-line: none;
+      text-decoration-style: solid;
+      text-size-adjust: 100%;
+      width: 33%;
+      color: black;
+      text-decoration-color: black;
+      &.active,
+      &:hover {
+        color: rgb(62, 114, 216);
+        border-bottom-color: rgb(62, 114, 216);
+        text-decoration-color: rgb(62, 114, 216);
+      }
+    }
+    border-bottom: 1px solid black;
+  }
   .search-results-entry {
     display: table-row;
     div {
@@ -336,22 +279,22 @@ label.textarea {
       color: black;
     }
   }
-}
 
-.search-alert {
-  display: flex;
-  flex-direction: row;
-  .spinner-message {
-    flex-direction: column;
-    align-content: center;
-    justify-content: center;
+  .search-alert {
     display: flex;
-    margin-right: 14px;
-    margin-left: 12px;
+    flex-direction: row;
+    .spinner-message {
+      flex-direction: column;
+      align-content: center;
+      justify-content: center;
+      display: flex;
+      margin-right: 14px;
+      margin-left: 12px;
+    }
   }
-}
 
-a.action.add-resource {
-  background-image: url(http://localhost:8080/static/dist/img/add-material.d109215f.svg);
+  a.action.add-resource {
+    background-image: url(http://localhost:8080/static/dist/img/add-material.d109215f.svg);
+  }
 }
 </style>

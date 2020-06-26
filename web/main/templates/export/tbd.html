@@ -1,0 +1,10 @@
+{% if node.type == 'section' %}
+  <div class="SectionNumber" data-custom-style="Section Number" data-toc-idx="{{ index }}">{{ node.ordinal_string }}</div>
+  <div class="SectionTitle" data-custom-style="Section Title">{{ node.title }}</div>
+  {% if node.subtitle %}
+    <div class="SectionSubtitle" data-custom-style="Section Subtitle">{{ node.subtitle }}</div>
+  {% endif %}
+  {% if node.headnote %}
+    <div class="SectionHeadnote" data-custom-style="Section Headnote">{{ node.headnote_for_export }}</div>
+  {% endif %}
+<p> TBD </p>
