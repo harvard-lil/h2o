@@ -1,8 +1,8 @@
 <aside id="action-buttons" class="casebook-actions" data-actions="{{ action_list }}">
-  {% if publishable %}
-    <button type="button" class="action publish one-line">Publish{% if casebook.is_draft %} Changes{% endif %}</button>
+  {% if editing %}
+  <audit-button> </audit-button>
   {% endif %}
-  {% if can_be_directly_edited and not casebook.is_draft %}
+    {% if can_be_directly_edited and not casebook.is_draft %}
       <a class="action edit one-line" data-disable-with="Revise" href="{% firstof section.get_edit_url casebook.get_edit_url %}">{% if casebook.is_draft %}Continue Revising{% else %}Revise{% endif %}</a>
   {% endif %}
   {% if can_view_existing_draft %}

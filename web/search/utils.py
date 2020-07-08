@@ -19,7 +19,10 @@ def cap_search(params, limit=10):
     param_defaults = {'page_size': limit, 'ordering': 'relevance'}
     search_params = {**param_defaults, **normalize_dictionary(param_normalizer, params)}
     response = requests.get(settings.CAPAPI_BASE_URL + "cases/", search_params)
-    results = response.json()['results']
+    try:
+        results = response.json()['results']
+    except Exception:
+        results = None
     return results
 
 

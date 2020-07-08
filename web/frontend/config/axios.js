@@ -16,7 +16,7 @@ Axios.interceptors.request.use(config => {
       ...config.headers,
       ["X-HTTP-Method-Override"]: method,
     };
-    config.method = "post";
+    //config.method = "post";
   }
   return config;
 });

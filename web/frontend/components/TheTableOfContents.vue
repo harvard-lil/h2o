@@ -7,133 +7,16 @@
       v-if="dataReady"
     >
       <div slot="placeholder">
-        <div v-if="editing">
-          <div class="listing empty">
-            <div class="add-content-link">
-              This casebook is empty.
-              <add-content />
-            </div>
-          </div>
-        </div>
+        <placeholder :editing="editing" />
       </div>
-      <vue-nestable-handle slot-scope="{ item }" :item="item" class="collapsed" v-if="editing">
-        <div
-          :id="getAnchor(item)"
-          v-bind:class="{'listing-wrapper':true, 'delete-confirm': promptForDelete({id:item.id})}"
-        >
-          <div
-            v-bind:class="{'listing':true, 'resource':true, 'temporary': item.resource_type == 'Temp'}"
-            v-if="!(item.resource_type === null || item.resource_type === 'Section')"
-          >
-            <div class="section-number">{{rootOrdinalDisplay}}</div>
-            <div class="resource-container" v-if="item.resource_type==='Case'">
-              <a :href="item.edit_url" class="section-title case-section-title">{{ item.title }}</a>
-              <div class="case-metadata-container">
-                <div class="resource-case">{{ item.citation }}</div>
-                <div class="resource-date">{{ item.decision_date }}</div>
-              </div>
-            </div>
-            <div class="resource-container" v-else-if="item.resource_type === 'TextBlock'">
-              <a :href="item.edit_url" class="section-title">{{ item.title }}</a>
-            </div>
-            <div class="resource-container" v-else-if="item.resource_type === 'Link'">
-              <a :href="item.edit_url" class="section-title">{{ item.title }}</a>
-            </div>
-            <div
-              class="resource-container resource-temporary"
-              v-else-if="item.resource_type === 'Temp'"
-            >
-              <a :href="item.edit_url" class="section-title">{{ item.title }}</a>
-            </div>
-            <div class="resource-type-container">
-              <div
-                v-bind:class="{'resource-type': true, 'temporary': item.resource_type === 'Temp'}"
-              >{{ item.resource_type === 'TextBlock' ? 'Text' : item.resource_type }}</div>
-            </div>
-          </div>
-          <div class="listing section" v-else>
-            <button
-              aria-role="heading"
-              :aria-expanded="!isCollapsed({id:item.id}) ? 'true' : 'false'"
-              :aria-label="isCollapsed({id:item.id}) ? 'expand ' + item.title : 'collapse ' + item.title"
-              v-on:click="toggleSectionExpanded({id:item.id})"
-              class="action-expand"
-              v-if="item.children.length > 0 || isCollapsed({id:item.id})"
-            >
-              <collapse-triangle :collapsed="isCollapsed({id:item.id})" />
-            </button>
-            <div class="no-collapse-padded" v-else></div>
-            <div class="section-number">{{rootOrdinalDisplay}}</div>
-            <div class="section-title">
-              <a :href="item.edit_url" class="section-title">{{ item.title }}</a>
-            </div>
-          </div>
-          <div class="actions">
-            <button
-              :aria-label="'Delete ' +item.title"
-              class="action-delete"
-              v-on:click="markForDeletion({id:item.id})"
-              v-if="!promptForDelete({id:item.id})"
-            ></button>
-            <div class="action-confirmation" v-else>
-              <div class="action-align">
-                <button
-                  class="action-confirm-delete"
-                  v-on:click="confirmDeletion({id:item.id})"
-                >Delete {{item.resource_type !== null && item.resource_type !== 'Section' ? '' : 'section and all contents'}}</button>
-                <button
-                  class="action-cancel-delete"
-                  v-on:click="cancelDeletion({id:item.id})"
-                  v-focus
-                >Keep</button>
-              </div>
-            </div>
-          </div>
-        </div>
+      <vue-nestable-handle slot-scope="{ item }" :item="item" class="collapsed">
+        <entry
+          :item="item"
+          :root-ordinal-display="rootOrdinalDisplay"
+          :editing="editing"
+          @toggle="toggleSectionExpanded"
+        />
       </vue-nestable-handle>
-      <div :id="getAnchor(item)" class="listing-wrapper" v-else>
-        <div
-          class="listing resource"
-          v-if="item.resource_type !== null || item.resource_type === 'Section'"
-        >
-          <div class="section-number">{{rootOrdinalDisplay}}</div>
-          <div class="resource-container" v-if="item.resource_type==='Case'">
-            <a :href="item.url" class="section-title case-section-title">{{ item.title }}</a>
-            <div class="case-metadata-container">
-              <div class="resource-case">{{ item.citation }}</div>
-              <div class="resource-date">{{ item.decision_date }}</div>
-            </div>
-          </div>
-          <div class="resource-container" v-else-if="item.resource_type === 'TextBlock'">
-            <a :href="item.url" class="section-title">{{ item.title }}</a>
-          </div>
-          <div class="resource-container" v-else-if="item.resource_type === 'Link'">
-            <a :href="item.url" class="section-title">{{ item.title }}</a>
-          </div>
-          <div class="resource-type-container">
-            <div
-              class="resource-type"
-            >{{ item.resource_type === 'TextBlock' ? 'Text' : item.resource_type }}</div>
-          </div>
-        </div>
-        <div class="listing section" v-else>
-          <button
-            aria-role="heading"
-            :aria-expanded="!isCollapsed({id:item.id}) ? 'true' : 'false'"
-            :aria-label="isCollapsed({id:item.id}) ? 'expand ' + item.title : 'collapse ' + item.title"
-            v-on:click="toggleSectionExpanded({id:item.id})"
-            class="action-expand"
-            v-if="item.children.length > 0 || isCollapsed({id:item.id})"
-          >
-            <collapse-triangle :collapsed="isCollapsed({id:item.id})" />
-          </button>
-          <div class="no-collapse-padded" v-else></div>
-          <div class="section-number"></div>
-          <div class="section-title">
-            <a :href="item.url" class="section-title">{{ item.title }}</a>
-          </div>
-        </div>
-      </div>
     </vue-nestable>
   </div>
 </template>
@@ -142,8 +25,8 @@
 import _ from "lodash";
 import Vue from "vue";
 import { VueNestable, VueNestableHandle } from "vue-nestable";
-import CollapseTriangle from "./CollapseTriangle";
-import AddContent from "./AddContent";
+import Placeholder from "./TableOfContents/PlaceHolder";
+import Entry from "./TableOfContents/Entry";
 import { createNamespacedHelpers } from "vuex";
 const { mapActions, mapMutations } = createNamespacedHelpers(
   "table_of_contents"
@@ -153,8 +36,8 @@ export default {
   components: {
     VueNestable,
     VueNestableHandle,
-    CollapseTriangle,
-    AddContent
+    Placeholder,
+    Entry
   },
   data: () => ({
     needsDeleteConfirmation: {},
@@ -168,8 +51,14 @@ export default {
     }
   },
   computed: {
+    casebook: function() {
+      return this.$store.getters['globals/casebook']();
+    },
+    section: function() {
+      return this.$store.getters['globals/section']();
+    },
     rootNode: function() {
-      return this.rootId || this.casebook;
+      return this.section || this.casebook;
     },
     rootOrdinalDisplay: function() {
       return this.rootOrdinals !== ""
@@ -178,23 +67,7 @@ export default {
     },
     toc: {
       get: function() {
-        const candidate = this.$store.getters["table_of_contents/getNode"](
-          this.rootNode
-        );
-        const omit = this.collapsedSections;
-        function disownChildren(node) {
-          if (!node) {
-            return node;
-          }
-          let { children, id } = node;
-          if (id in omit) {
-            return { ...node, children: [] };
-          } else {
-            return { ...node, children: children.map(disownChildren) };
-          }
-        }
-        let list = disownChildren(candidate);
-        return list && list.children;
+        return _.get(this.$store, `state.table_of_contents.augmentedToc.${this.rootNode}.children`)
       },
       set: function(newVal) {
         this.shuffle({ id: this.rootNode, children: newVal });
@@ -223,7 +96,7 @@ export default {
     }
   },
   methods: {
-    ...mapActions(["fetch", "deleteNode", "commitShuffle", "moveNode"]),
+    ...mapActions(["fetch", "commitShuffle", "moveNode"]),
     ...mapMutations(["shuffle"]),
     canMove: function({ dragItem, pathFrom, pathTo }) {
       if (pathTo.length === 1) {
@@ -248,7 +121,7 @@ export default {
       while (path.length > 0) {
         res_path.push({ ii, t: curr.resoure_type });
         if (
-          (curr.resource_type !== null && curr.resource_type !== 'Section' ) ||
+          (curr.resource_type !== null && curr.resource_type !== "Section") ||
           curr.id in this.collapsedSections ||
           curr.id === dragItem.id
         ) {
@@ -258,22 +131,6 @@ export default {
         curr = curr.children[ii];
       }
       return true;
-    },
-    promptForDelete: function({ id }) {
-      return id in this.needsDeleteConfirmation;
-    },
-    markForDeletion: function({ id }) {
-      Vue.set(this.needsDeleteConfirmation, id, true);
-    },
-    cancelDeletion: function({ id }) {
-      Vue.delete(this.needsDeleteConfirmation, id);
-    },
-    confirmDeletion: function({ id }) {
-      this.deleteNode({
-        casebook: this.casebook,
-        rootNode: this.rootNode,
-        targetId: id
-      });
     },
     moveSubsection: function({ id }, { items, pathTo }) {
       function findIn(tree, id) {
@@ -306,15 +163,11 @@ export default {
       } else {
         Vue.set(this.collapsedSections, id, true);
       }
-    },
-    getAnchor: function({ url }) {
-      const url_parts = url.split("/");
-      return url_parts[url_parts.length - 2];
     }
   },
-  props: ["rootId", "casebook", "editing", "rootOrdinals"],
+  props: ["editing", "rootOrdinals"],
   created: function() {
-    this.fetch({ casebook: this.casebook, subsection: this.rootId });
+    this.fetch({ casebook: this.casebook, subsection: this.section });
   }
 };
 </script>
@@ -326,7 +179,7 @@ export default {
   > .table-of-contents > .nestable > ol {
     > li.nestable-item > .nestable-item-content {
       > .listing-wrapper > .listing.resource {
-        padding-left: 60px;        
+        padding-left: 60px;
       }
       > div > .listing-wrapper > .listing.resource {
         padding-left: 60px;
@@ -363,11 +216,6 @@ export default {
   .nestable-item {
     position: relative;
     .actions {
-      position: absolute;
-      top: -6px;
-      right: 0;
-      height: 100%;
-      margin-top: 6px;
       display: flex;
       flex-direction: column;
       align-content: center;
@@ -375,6 +223,7 @@ export default {
     }
   }
   .action-confirmation {
+    margin-top: 1.5rem;
     display: flex;
     flex-direction: row;
     justify-content: space-between;

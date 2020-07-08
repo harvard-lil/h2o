@@ -20,10 +20,6 @@
             v-bind:class="{ active: linkTab, 'search-tab': true }"
             v-on:click.stop.prevent="setTab('link')"
           >Add Link</a>
-          <a
-            v-bind:class="{ active: bulkTab, 'search-tab': true }"
-            v-on:click.stop.prevent="setTab('bulk')"
-          >Outline</a>
         </div>
 
         <div class="add-resource-body" v-if="caseTab">
@@ -90,9 +86,6 @@
             <input class="search-button" type="submit" value="Add linked resource" />
           </form>
         </div>
-        <div class="add-resource-body" v-else>
-          <casebook-outliner ref="outline_body" :casebook="casebook" :section="section"></casebook-outliner>
-        </div>
       </template>
     </Modal>
   </div>
@@ -100,7 +93,6 @@
 
 <script>
 import Modal from "./Modal";
-import CasebookOutliner from "./CasebookOutliner";
 import CaseSearcher from "./CaseSearcher";
 import CaseResults from "./CaseResults";
 import Editor from "@tinymce/tinymce-vue";
@@ -114,7 +106,6 @@ export default {
     Modal,
     CaseSearcher,
     CaseResults,
-    CasebookOutliner,
     editor: Editor
   },
   props: ["casebook", "section"],
@@ -154,68 +145,6 @@ export default {
     },
     linkTab: function() {
       return this.currentTab === "link";
-    },
-    bulkTab: function() {
-      return this.currentTab === "bulk";
-    },
-    caseResults: function() {
-      function truncatedCaseName({ name }) {
-        const maxPartLength = 40;
-        const vsChecker = / [vV][sS]?[.]? /;
-        let splits = name.split(vsChecker);
-        if (splits.length !== 2) {
-          let ret = name.substr(0, maxPartLength * 2 + 4);
-          return ret + (name.length > ret.length ? "..." : "");
-        }
-        let partA = splits[0].substr(0, maxPartLength);
-        partA += splits[0].length > partA.length ? "..." : "";
-        let partB = splits[1].substr(0, maxPartLength);
-        partB += splits[0].length > partA.length ? "..." : "";
-        return `${partA} v. ${partB}`;
-      }
-      function preferedCitations(query, { citations }) {
-        if (!citations) {
-          return "";
-        }
-        let cites = citations
-          .filter(x => x.cite == query.trim())
-          .map(x => x.cite);
-        cites = cites.concat(
-          citations.filter(x => x.type === "official").map(x => x.cite)
-        );
-        cites = cites.concat(
-          citations.map(x => x.cite).filter(x => cites.indexOf(x) == -1)
-        );
-        const ret = cites.slice(0, 2).join(", ");
-        return ret;
-      }
-      let results = this.$store.getters["case_search/getSearch"](
-        this.caseQuery
-      );
-      return (
-        results &&
-        _.isArray(results) &&
-        results.map(c => ({
-          shortName: truncatedCaseName(c),
-          fullName: c.name,
-          citations: preferedCitations(this.caseQuery, c),
-          allCitations: c.citations
-            ? c.citations.map(x => x.name).join(", ")
-            : "",
-          url: c.frontend_url,
-          id: c.id,
-          decision_date: c.decision_date
-        }))
-      );
-    },
-    pendingCaseFetch: function() {
-      return (
-        "pending" ===
-        this.$store.getters["case_search/getSearch"](this.caseQuery)
-      );
-    },
-    emptyResults: function() {
-      return this.caseResults && this.caseResults.length == 0;
     }
   },
   methods: {

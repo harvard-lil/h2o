@@ -86,7 +86,6 @@ export default {
     CaseResults,
     editor: Editor
   },
-  props: ["casebook", "section"],
   data: () => ({
     showModal: false,
     currentTab: "case",
@@ -105,6 +104,12 @@ export default {
     errors: {}
   }),
   computed: {
+    casebook: function() {
+      return this.$store.getters["globals/casebook"]();
+    },
+    section: function() {
+      return this.$store.getters["globals/section"]();
+    },
     focusTarget: function() {
       if (this.caseTab) {
         return this.$refs.case_search;
@@ -149,7 +154,10 @@ export default {
     },
     submitTextForm: function submitTextForm() {
       const data = { from: "Temp", to: "TextBlock", content: this.textContent };
-      const url = window.location.href.substr(0, window.location.href.length - 5)
+      const url = window.location.href.substr(
+        0,
+        window.location.href.length - 5
+      );
       Axios.patch(url, data).then(
         this.handleSubmitResponse,
         this.handleSubmitErrors
@@ -157,14 +165,20 @@ export default {
     },
     submitLinkForm: function submitLinkForm() {
       const data = { from: "Temp", to: "Link", url: this.linkTarget };
-      const url = window.location.href.substr(0, window.location.href.length - 5)
+      const url = window.location.href.substr(
+        0,
+        window.location.href.length - 5
+      );
       Axios.patch(url, data).then(
         this.handleSubmitResponse,
         this.handleSubmitErrors
       );
     },
     selectCase: function(c) {
-      const url = window.location.href.substr(0, window.location.href.length - 5)
+      const url = window.location.href.substr(
+        0,
+        window.location.href.length - 5
+      );
       const data = { from: "Temp", to: "Case", cap_id: c.id };
       Axios.patch(url, data).then(
         this.handleSubmitResponse,
