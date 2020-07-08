@@ -15,8 +15,10 @@ import SectionCloner from "../components/SectionCloner";
 import AddContent from "../components/AddContent";
 import TheTableOfContents from "../components/TheTableOfContents";
 import PortalVue from "portal-vue";
-import CasebookOutliner from "../components/CasebookOutliner";
+import QuickAdd from "../components/QuickAdd";
 import ResourceTypePicker from "../components/ResourceTypePicker";
+import Globals from "../components/Globals";
+import AuditButton from "../components/AuditButton";
 
 document.addEventListener("DOMContentLoaded", () => {
   const routes = [
@@ -38,8 +40,10 @@ document.addEventListener("DOMContentLoaded", () => {
         AddContent,
         TheTableOfContents,
         PortalVue,
-        CasebookOutliner,
-        ResourceTypePicker
+        QuickAdd,
+        ResourceTypePicker,
+        Globals,
+        AuditButton
     }
   });
 

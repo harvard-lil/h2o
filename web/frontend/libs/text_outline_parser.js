@@ -107,19 +107,14 @@ function roman_to_int(string) {
             num = num - pre * 2 + curr;
         }
     }
-
     return num;
 }
-
-
-
 
 function guess_line_depth(lines) {
     let frontier = [];
     let guessed_lines = [];
     function to_depth(front) {
         return front.length;
-        //return front.map(x => x.blank || x.arabic || x.latin || x.letter);
     }
 
     function smallest_numeral(en) {
@@ -238,8 +233,20 @@ const caseLike = /(\bvs?\b)|(\bin re:\b)|(ex parte)/i
 const removeParenthetical = /\([^)]*\)/;
 const guessCitation = /[0-9]+\s+[^0-9]*\b\s*[0-9]+/;
 function looksLikeCaseName(str) {
-
     return !!(str.match(caseLike) || str.match(guessCitation));
+}
+
+const linkLike = /https?:\/\/(?:[\w]+\.)(?:\.?[\w]{2,})/
+function looksLikeLink(str) {
+    return !!(str.match(linkLike));
+}
+
+function extractLink(str) {
+    const grabLink = str.match(linkLike);
+    if (grabLink && grabLink.length === 1) {
+        return grabLink[0];
+    }
+    return str;
 }
 
 function extractCaseSearch(string) {
@@ -251,155 +258,88 @@ function extractCaseSearch(string) {
     return ungarnished.trim();
 }
 
-export default {
-    parsePaste: (text) => {
+function guessLineType(line) {
+    if (looksLikeCaseName(line)) {
+        return {resource_type: 'Case', searchString: extractCaseSearch(line)};
+    } else if (looksLikeLink(line)) {
+        return {resource_type: 'Link', url: extractLink(line)}
+    } else {
+        return {resource_type: 'Unknown', title: line}
+    }
+}
+
+function cleanDocLines(text) {
         // This is a group of heuristics that I think are reasonable based on a smattering of
         // Tables of contents and syllabi that I pulled from online sources.
         // It works by parsing one line at a time
 
-        let lines = text.split("\n").filter(x => x.length > 0);
+        let lines = text.split("\n").map(x => x.trim()).filter(x => x.length > 0);
         let merged_lines = merge_wrapped_lines(lines);
         let enumerated_lines = merged_lines.map(enumeration_identification);
         let deep_lines = guess_line_depth(enumerated_lines);
         return deep_lines;
-    },
-    toJSON: (parsedLines) => {
-        function getPath(node, path) {
-            if (path.length === 0 || !node) {
-                return node;
-            }
-            const key = path[0];
-            const rest = path.slice(1);
-            if (key >= node.children.length) {
-                return null;
-            }
-            return getPath(node.children[key], rest);
+}
+
+function structureOutline(lines) {
+
+    function getPath(node, path) {
+        if (path.length === 0 || !node) {
+            return node;
         }
-        let root = {
-            title: "Root",
-            type: "root",
-            children: []
-        };
-        let path = [];
-        for (let ii = 0; ii < parsedLines.length; ii++) {
-            let previous_depth = (ii > 0 && parsedLines[ii - 1].depth) || 1;
-            let next_depth = (ii + 1 < parsedLines.length && parsedLines[ii + 1].depth) || 1;
-            let { depth, title } = parsedLines[ii];
-
-            while (previous_depth > depth) {
-                path.pop();
-                previous_depth--;
-            }
-
-            let currentNode = { title, type: 'unknown', children: [] };
-
-            let hasChildren = next_depth > depth;
-            if (hasChildren) {
-                currentNode.type = 'section';
-            } else {
-                if (looksLikeCaseName(title)) {
-                    currentNode.type = 'maybe-case';
-                } else {
-                    currentNode.type = 'text';
-                }
-            }
-            let parent = getPath(root, path);
-            if (hasChildren) {
-                path.push(parent.children.length);
-            }
-            parent.children.push(currentNode);
-
+        const key = path[0];
+        const rest = path.slice(1);
+        if (key >= node.children.length) {
+            return null;
         }
-        return root;
-    },
-    toNestedList: (parsedLines) => {
-        let output = "<ol>\n";
-        let cases = [];
-        for (let ii = 0; ii < parsedLines.length; ii++) {
-            let previous_depth = (ii > 0 && parsedLines[ii - 1].depth) || 1;
-            let next_depth = (ii + 1 < parsedLines.length && parsedLines[ii + 1].depth) || 1;
-            let { depth, title } = parsedLines[ii];
-
-            while (previous_depth > depth) {
-                output += "\n</ol>\n</li>\n";
-                previous_depth--;
-            }
-            let type = 'unknown';
-            let hasChildren = next_depth > depth;
-            if (hasChildren) {
-                type = 'section';
-            } else {
-                if (looksLikeCaseName(title)) {
-                    type = 'maybe-case';
-                    let case_part = extractCaseSearch(title);
-                    title = title.split(case_part).join(`<strong>${case_part}</strong>`)
-                    cases.push();
-
-                } else {
-                    type = 'text';
-                }
-            }
-            let _ = `data-type='${type}'`
-            output += "<li>\n" + `<span>` + title + "</span>\n";
-
-            if (hasChildren) {
-                output += "<ol>\n";
-            }
-        }
-
-        let last_line = parsedLines[parsedLines.length - 1];
-        let depth = last_line && last_line.depth;
-        while (depth > 0) {
-            output += "</ol>\n</li>\n";
-            depth -= 1;
-        }
-        return [output, cases];
-    },
-    parseList: function (topList) {
-        let case_queries = [];
-        function translateNode(node) {
-            // takes an li and turns it into a node
-            let parts = _.map(node.children);
-            let child_part = parts.filter(x => x.nodeName === "OL");
-            if (child_part.length === 1) {
-                node.removeChild(child_part[0])
-            }
-            
-            let case_query = _.flatMap(node.getElementsByTagName("strong"), strong => strong.innerText).join("").trim();
-
-            let headnote_parts = node.getElementsByTagName("em");
-            let headnote = _.map(headnote_parts, em => em.innerText).join("").trim();
-            headnote_parts.forEach(em => {
-                try {
-                    em.parent.removeChild(em)
-                } catch {
-                    console.error("Invalid assumption in parse");
-                }
-            })
-            let title = node.innerText.replace(headnote,'').trim();
-            if (case_query !== "") {
-                case_queries.push({title,case_query});
-            }
-            let children = (child_part && child_part[0] && _.flatMap(child_part[0].children, translateNode)) || [];
-            children = children.filter(x => x !== null);
-            let resource_type;
-            if (children.length > 0) {
-                resource_type = 'Section';
-            } else if (case_query) {
-                resource_type = 'Case';
-            } else {
-                resource_type = 'TextBlock';
-            }
-            if (title === '') {
-                if (children.length > 0) {
-                    return children;
-                }    
-                return null;
-            }
-            return { title, headnote, resource_type, case_query, children };
-        }
-        let nodes = _.flatMap(topList.children, translateNode).filter(x => x !== null);
-        return [nodes, case_queries];
+        return getPath(node.children[key], rest);
     }
+    let root = {
+        title: "Root",
+        type: "root",
+        children: []
+    };
+    let stats = {cases:0,texts:0,links:0,sections:0};
+    let path = [];
+    for (let ii = 0; ii < lines.length; ii++) {
+        let previous_depth = (ii > 0 && lines[ii - 1].depth) || 1;
+        let next_depth = (ii + 1 < lines.length && lines[ii + 1].depth) || 1;
+        let { depth, title } = lines[ii];
+
+        while (previous_depth > depth) {
+            path.pop();
+            previous_depth--;
+        }
+
+        let currentNode = { title, resource_type: 'unknown', children: [] };
+
+        let hasChildren = next_depth > depth;
+        if (hasChildren) {
+            currentNode.resource_type = 'Section';
+            stats.sections++;
+        } else {
+            if (looksLikeCaseName(title)) {
+                currentNode.resource_type = 'Temp';
+                stats.cases++;
+            } else {
+                currentNode.resource_type = 'TextBlock';
+                stats.texts++;
+            }
+        }
+        let parent = getPath(root, path);
+        if (hasChildren) {
+            path.push(parent.children.length);
+        }
+        parent.children.push(currentNode);
+
+    }
+    return [root,stats];
+}
+
+
+export default {
+    cleanDocLines,
+    structureOutline,
+    guessLineType,
+    extractCaseSearch
 };
 

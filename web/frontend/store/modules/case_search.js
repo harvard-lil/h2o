@@ -22,7 +22,6 @@ const helpers = {
 const getters = {
     getSearch: state => queryObj => {
         const qKey = helpers.normalize(queryObj);
-        console.log("CS Getting: " + qKey);
         return state.searches[qKey]
     },
 };
@@ -30,7 +29,6 @@ const getters = {
 const mutations = {
     overwrite: (state, {queryObj, results}) => {
         const qKey = helpers.normalize(queryObj);
-        console.log("CS Saving Results: " + qKey);
         Vue.set(state.searches,qKey,results);
     },
     setPending: (state, queryObj) => {
@@ -45,7 +43,6 @@ const mutations = {
 const actions = {
     fetch: ({ state, commit, dispatch }, queryObj) => {
         const qKey = helpers.normalize(queryObj);
-        console.log("CS Fetching: " + qKey);
         if (!_.has(state.searches, qKey)) {
             commit('setPending', queryObj)
             Axios.get(searchURL + `?${helpers.encodeQuery(queryObj)}`)

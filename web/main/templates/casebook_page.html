@@ -16,6 +16,8 @@
 {% endblock %}
 
 {% block mainContent %}
+
+
 {% include 'includes/casebook_page_tabs.html' %}
 
 <section class="casebook {{casebook_color_class}}">
@@ -34,9 +36,13 @@
             </header>
             {% endif %}
             <header class="content">
+            <globals 
+                :casebook="{{casebook.id}}" 
+                {% if section %}:section="{{section.id}}"  {% endif %}
+                ></globals>
                 {% if editing %}
                     {% if section and section.is_temporary %}
-                        <resource-type-picker casebook="casebook.id" section="section.id" />
+                        <resource-type-picker></resource-type-picker>
                     {% else %}
                         <form class="edit_content_{% if section and section.has_body %}resource{% elif section%}section{% else %}casebook{% endif %}" method="{{ form.helper.form_method }}">
                             {% crispy form %}
@@ -67,6 +73,7 @@
                     {% include 'includes/headnote.html' with content=section %}
                     {% include section.body_template %}
                 {% endif %}
+                
             {% else %}
                 {% if not editing %}
                     {% include 'includes/headnote.html' with content=casebook %}
@@ -74,6 +81,10 @@
             {% endif %}
             {% if not section.has_body and not section.is_temporary %}
                 {% include 'includes/table-of-contents.html'%}
+                {% if editing %}
+                    <quick-add casebook="{{casebook.id}}" section="{{section.id}}" />
+                {% endif %}
+                {% else %}
             {% endif %}
         </div>
     </div>

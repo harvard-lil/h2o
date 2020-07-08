@@ -7,7 +7,7 @@ import resources_ui from "./modules/resources_ui";
 import table_of_contents from "./modules/table_of_contents";
 import createLogger from "vuex/dist/logger";
 import case_search from './modules/case_search';
-import shared_bag from './modules/shared_bag';
+import globals from './modules/globals';
 
 Vue.use(Vuex);
 
@@ -21,7 +21,7 @@ export default new Vuex.Store({
     resources_ui,
     table_of_contents,
     case_search,
-    shared_bag
+    globals
   },
   strict: debug,
   plugins: debug ? [createLogger()] : []

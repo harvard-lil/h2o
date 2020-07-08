@@ -1028,7 +1028,7 @@ class ContentNode(EditTrackedModel, TimestampedModel, BigPkModel, MaterializedPa
 
     @property
     def has_body(self):
-        return bool(self.resource_type and self.resource_type != 'Temp')
+        return bool(self.resource_type and self.resource_type != 'Temp' and self.resource_type != 'Section')
 
     @property
     def body(self):
@@ -1599,7 +1599,7 @@ class ContentNode(EditTrackedModel, TimestampedModel, BigPkModel, MaterializedPa
 
         This method should be implemented by all children.
         """
-        if self.resource_id:
+        if self.resource_id or self.resource_type == 'Temp':
             return reverse('resource', args=[self.new_casebook, self])
         else:
             return reverse('section', args=[self.new_casebook, self])
@@ -1882,7 +1882,7 @@ class SectionAndResourceMixin(models.Model):
         # https://docs.djangoproject.com/en/2.2/topics/db/queries/#deleting-objects
         child_total = 0
         child_deletes = {}
-        if self.resource_id is None:
+        if self.resource_type in ['', 'Section', None]:
             self._delete_related_links_and_text_blocks()
             child_total, child_deletes = self.contents.delete()
         elif self.resource_type in ['TextBlock', 'Link']:

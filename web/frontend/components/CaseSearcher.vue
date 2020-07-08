@@ -16,7 +16,7 @@
         </label>
         <input
           style="margin-top:-4px;"
-          class="search-button"
+          class="search-button btn btn-primary"
           type="submit"
           value="Search"
           v-on:click.stop.prevent="runCaseSearch"
@@ -265,5 +265,8 @@ export default {
 }
 .wee-gap {
   margin-left: 1rem;
+}
+.search-button {
+  margin-left: 2rem;
 }
 </style>

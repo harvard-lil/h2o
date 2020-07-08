@@ -332,7 +332,7 @@ class CasebookTOCView(APIView):
         casebook.content_tree__load()
         toc = casebook.content_tree__children
         return {
-            'id': str(casebook.id) + "-" + casebook.get_slug(),
+            'id': casebook.id,
             'children': SectionOutlineSerializer(toc, many=True).data
         }
 
@@ -1395,8 +1395,11 @@ class ResourceView(View):
                 return HttpResponseBadRequest("Must transition to a Case, TextBlock, or Link")
             if new_type == 'Case':
                 cap_id = data['cap_id']
-                resource.resource_id = internal_case_id_from_cap_id(cap_id)
-                resource.resource_type = new_type
+                if not cap_id:
+                    resource.resource_type = 'Temp'
+                else:
+                    resource.resource_id = internal_case_id_from_cap_id(cap_id)
+                    resource.resource_type = new_type
                 resource.save()
             elif new_type == 'Link':
                 url = data['url']
@@ -1406,10 +1409,11 @@ class ResourceView(View):
                 resource.resource_id = link.id
                 resource.save()
             elif new_type == 'TextBlock':
-                contents = data['contents']
-                text_block = TextBlock(name=resource.title, contents=contents)
+                content = data['content']
+                text_block = TextBlock(name=resource.title, content=content)
                 text_block.save()
                 resource.resource_id = text_block.id
+                resource.resource_type = new_type
                 resource.save()
         except Exception:
             return HttpResponseBadRequest("Improperly formatted request")
@@ -1760,8 +1764,7 @@ def new_from_outline(request, casebook=None):
         Post the required data as JSON to create a new annotation:
         >>> url = reverse('new_from_outline', args=[casebook])
         >>> response = client.post(url, payload, content_type="application/json", as_user=casebook.testing_editor)
-        >>> check_response(response, status_code=302)
-        >>> assert response.url == casebook.get_edit_url()
+        >>> check_response(response, status_code=200, content_type='application/json')
         >>> casebook.refresh_from_db()
         >>> contents = [{'title':x.title,'subtitle':x.subtitle,'headnote':x.headnote,'resource_type':x.resource_type, 'ordinals':x.ordinals} for x in casebook.contents.all()]
         >>> assert contents[9:] == [ \
@@ -1794,8 +1797,11 @@ def new_from_outline(request, casebook=None):
             node['new_casebook'] = parent_section.new_casebook
             if 'resource_type' not in node:
                 node['resource_type'] = 'Section'
-            if node['resource_type'] == 'Case' and 'cap_id' in node:
-                node['resource_id'] = internal_case_id_from_cap_id(node.pop('cap_id'))
+            if node['resource_type'] == 'Case':
+                if 'cap_id' not in node:
+                    node['resource_type'] = 'Temp'
+                else:
+                    node['resource_id'] = internal_case_id_from_cap_id(node.pop('cap_id'))
             elif node['resource_type'] == 'TextBlock':
                 text_block = TextBlock(name=node['title'], content='TBD')
                 text_block.save()
@@ -1811,4 +1817,4 @@ def new_from_outline(request, casebook=None):
         return Response('', status=status.HTTP_400_BAD_REQUEST)
     parent_section = section or casebook
     add_sections_and_resources(parent_section, nodes)
-    return HttpResponseRedirect(parent_section.get_edit_url())
+    return JsonResponse(CasebookTOCView.format_casebook(casebook), status=200)

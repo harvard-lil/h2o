@@ -19,7 +19,6 @@ document.addEventListener("DOMContentLoaded", () => {
     const router = new VueRouter({
         routes,
         scrollBehavior: function(to, from, savedPosition) {
-            console.log("scrollBehavior!");
             if (to.hash) {
                 return {selector: to.hash};
             } else {
