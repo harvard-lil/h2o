@@ -1,7 +1,7 @@
 <template>
   <div id="audit-flow">
     <publish-button v-if="allNodesSpecified"></publish-button>
-    <button class="action audit-casebook" v-on:click="startAudit()" v-else>Finalize entries</button>
+    <button class="action audit-casebook" v-on:click.stop.prevent="startAudit()" v-else>Finalize entries</button>
   </div>
 </template>
 
@@ -18,7 +18,7 @@ export default {
     startAudit: function() {
       let self = this;
       function slowSearches(nodes) {
-        let closedNodes = nodes.slice();
+        let closedNodes = _.reverse(nodes.slice());
         const delay = 250;
         function popAndSearch() {
           let node = closedNodes.pop();

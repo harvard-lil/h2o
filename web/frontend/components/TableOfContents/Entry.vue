@@ -1,7 +1,8 @@
 <template>
   <div
     :id="anchor"
-    v-bind:class="['listing-wrapper', showDelete ? 'delete-confirm' : '', animated]"
+    v-bind:class="['listing-wrapper', showDelete ? 'delete-confirm' : '', animated, dimmed]"
+    v-click-outside.stop.prevent="dismissAudit"
   >
     <vue-nestable-handle :item="item">
         <entry-resource
@@ -49,10 +50,13 @@ import EntrySection from "./EntrySection";
 import EntryAuditor from "./EntryAuditor";
 import Vue from 'vue';
 import {VueNestable, VueNestableHandle} from "vue-nestable";
+import vClickOutside from 'v-click-outside'
 import { createNamespacedHelpers } from "vuex";
 const { mapActions } = createNamespacedHelpers("table_of_contents");
 
 Vue.use(VueNestable);
+Vue.use(vClickOutside);
+
 export default {
   components: {
     EntryResource,
@@ -63,6 +67,9 @@ export default {
   props: ["item", "rootOrdinalDisplay", "editing"],
   data: () => ({ showDelete: false }),
   computed: {
+    dimmed: function() {
+      return (!this.item.audit && this.$store.getters['globals/inAuditMode']()) ? 'dimmed' : '';
+    },
     animated: function() {
       return this.item.audit ? "" : this.item.animationState;
     },
@@ -91,6 +98,13 @@ export default {
     }
   },
   methods: {
+    dismissAudit: function() {
+      if (! this.item.audit || ! this.$store.getters['globals/inAuditMode']()) {
+        return;
+      }
+      this.$store.commit('globals/setAuditMode', false);
+      this.$store.dispatch('table_of_contents/clearAudit', {id: this.item.id});
+    },
     ...mapActions(["deleteNode"]),
     markForDeletion: function() {
       this.showDelete = true;
@@ -138,6 +152,10 @@ export default {
     opacity: 1;
     transform: translateY(100%);
   }
+}
+
+.dimmed {
+  opacity:0.5;
 }
 
 .audit-drawer {
