@@ -306,9 +306,5 @@ export default {
       margin-left: 12px;
     }
   }
-
-  a.action.add-resource {
-    background-image: url(http://localhost:8080/static/dist/img/add-material.d109215f.svg);
-  }
 }
 </style>

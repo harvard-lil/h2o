@@ -100,6 +100,6 @@ export default {
 
 <style lang="scss">
 button.action.audit-casebook {
-  background-image: url(/static/dist/img/audit-casebook.f96e34fb.svg);
+  background-image: url('~static/images/ui/casebook/audit-casebook.svg');
 }
 </style>

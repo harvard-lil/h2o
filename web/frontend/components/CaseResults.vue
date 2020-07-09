@@ -42,11 +42,17 @@ export default {
   components: {
     LoadingSpinner
   },
+  data: () => ({delayedObj: {}}),
   props: ["queryObj"],
+  watch: {
+    queryObj: _.debounce(function(newVal){
+      this.delayedObj = newVal;
+    },1000)
+  },
   computed: {
     pendingCaseFetch: function() {
       return (
-        "pending" === this.$store.getters["case_search/getSearch"](this.queryObj)
+        "pending" === this.$store.getters["case_search/getSearch"](this.delayedObj)
       );
     },
     emptyResults: function() {
@@ -83,14 +89,14 @@ export default {
         const ret = cites.slice(0, 2).join(", ");
         return ret;
       }
-      let results = this.$store.getters["case_search/getSearch"](this.queryObj);
+      let results = this.$store.getters["case_search/getSearch"](this.delayedObj);
       return (
         results &&
         _.isArray(results) &&
         results.map(c => ({
           shortName: truncatedCaseName(c),
           fullName: c.name,
-          citations: preferedCitations(this.queryObj.query, c),
+          citations: preferedCitations(this.delayedObj.query, c),
           allCitations: c.citations
             ? c.citations.map(x => x.name).join(", ")
             : "",
