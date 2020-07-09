@@ -62,7 +62,7 @@ export default {
 
 <style lang="scss">
 .casebook-actions button.action.clone-casebook-nodes {
-    background-image: url(/static/dist/img/clone.fc6eb4b4.svg);
+    background-image: url('~static/images/ui/casebook/clone.svg');
     border: none;
 }
 

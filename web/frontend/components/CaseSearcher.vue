@@ -137,7 +137,7 @@ export default {
   props: ["searchOnTop", "canCancel", "value", "searchLabel"],
   data: () => ({
     jurisdictions,
-    showingLimits: false
+    showingLimits: false,
   }),
   methods: {
     ...mapActions(["fetch"]),
@@ -160,7 +160,7 @@ export default {
           month = month || "01";
           month = month.length == 1 ? "0" + month : month;
           day = day || "01";
-          day = day.length == 1 ? "0" + day : day;           
+          day = day.length == 1 ? "0" + day : day;
           return `${year}-${month}-${day}`;
         } else if (k === "before_date") {
           let [_, year, month, day] = dateRex.exec(v);
@@ -184,13 +184,14 @@ export default {
         }
       }
       const newValue = _.mapValues(this.cleanQuery, completeDates);
-      this.$emit('input', newValue);
+      this.$emit("input", newValue);
       return newValue;
     },
     runCaseSearch: function runCaseSearch() {
       const searchQ = this.reformatDates();
       if (searchQ.query !== "") {
         this.fetch(searchQ);
+        this.$emit("input", searchQ)
       }
     },
     emitCancel: function() {
