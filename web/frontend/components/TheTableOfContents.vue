@@ -10,14 +10,14 @@
       <div slot="placeholder">
         <placeholder :editing="editing" />
       </div>
-      <vue-nestable-handle slot-scope="{ item }" :item="item">
+      <template v-slot="{item}">
         <entry
           :item="item"
           :root-ordinal-display="rootOrdinalDisplay"
           :editing="editing"
           @toggle="toggleSectionExpanded"
         />
-      </vue-nestable-handle>
+      </template>
     </vue-nestable>
   </div>
 </template>
@@ -25,7 +25,7 @@
 <script>
 import _ from "lodash";
 import Vue from "vue";
-import { VueNestable, VueNestableHandle } from "vue-nestable";
+import { VueNestable } from "vue-nestable";
 import Placeholder from "./TableOfContents/PlaceHolder";
 import Entry from "./TableOfContents/Entry";
 import { createNamespacedHelpers } from "vuex";
@@ -36,7 +36,6 @@ const { mapActions, mapMutations } = createNamespacedHelpers(
 export default {
   components: {
     VueNestable,
-    VueNestableHandle,
     Placeholder,
     Entry
   },

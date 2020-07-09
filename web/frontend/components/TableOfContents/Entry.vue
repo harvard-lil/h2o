@@ -3,38 +3,40 @@
     :id="anchor"
     v-bind:class="['listing-wrapper', showDelete ? 'delete-confirm' : '', animated]"
   >
-    <div>
-      <entry-resource
-        v-if="isResource"
-        :item="item"
-        :root-ordinal-display="rootOrdinalDisplay"
-        :editing="editing"
-      />
-      <entry-section
-        v-else
-        :item="item"
-        :root-ordinal-display="rootOrdinalDisplay"
-        :editing="editing"
-        v-on="$listeners"
-      />
-      <div class="actions" v-if="editing">
-        <button
-          :aria-label="'Delete ' +item.title"
-          class="action-delete"
-          v-on:click="markForDeletion"
-          v-if="!showDelete"
-        ></button>
-        <div class="action-confirmation" v-else>
-          <div class="action-align">
-            <button
-              class="action-confirm-delete"
-              v-on:click="confirmDeletion"
-            >Delete {{item.resource_type !== null && item.resource_type !== 'Section' ? '' : 'section and all contents'}}</button>
-            <button class="action-cancel-delete" v-on:click="cancelDeletion" v-focus>Keep</button>
+    <vue-nestable-handle :item="item">
+        <entry-resource
+          v-if="isResource"
+          :item="item"
+          :root-ordinal-display="rootOrdinalDisplay"
+          :editing="editing"
+        />
+        <entry-section
+          v-else
+          :item="item"
+          :root-ordinal-display="rootOrdinalDisplay"
+          :editing="editing"
+          v-on="$listeners"
+        />
+
+        <div class="actions" v-if="editing">
+          <button
+            :aria-label="'Delete ' +item.title"
+            class="action-delete"
+            v-on:click="markForDeletion"
+            v-if="!showDelete"
+          ></button>
+          <div class="action-confirmation" v-else>
+            <div class="action-align">
+              <button
+                class="action-confirm-delete"
+                v-on:click="confirmDeletion"
+              >Delete {{item.resource_type !== null && item.resource_type !== 'Section' ? '' : 'section and all contents'}}</button>
+              <button class="action-cancel-delete" v-on:click="cancelDeletion" v-focus>Keep</button>
+            </div>
           </div>
         </div>
-      </div>
-    </div>
+    </vue-nestable-handle>
+
     <div class="audit-drawer" v-if="item.audit">
       <entry-auditor :item="item"></entry-auditor>
     </div>
@@ -45,20 +47,24 @@
 import EntryResource from "./EntryResource";
 import EntrySection from "./EntrySection";
 import EntryAuditor from "./EntryAuditor";
+import Vue from 'vue';
+import {VueNestable, VueNestableHandle} from "vue-nestable";
 import { createNamespacedHelpers } from "vuex";
 const { mapActions } = createNamespacedHelpers("table_of_contents");
 
+Vue.use(VueNestable);
 export default {
   components: {
     EntryResource,
     EntrySection,
-    EntryAuditor
+    EntryAuditor,
+    VueNestableHandle
   },
   props: ["item", "rootOrdinalDisplay", "editing"],
   data: () => ({ showDelete: false }),
   computed: {
     animated: function() {
-      return this.item.audit ? '' : this.item.animationState;
+      return this.item.audit ? "" : this.item.animationState;
     },
     animatingLoading: function() {
       return this.animationState && this.animationState === "loading";
@@ -135,8 +141,8 @@ export default {
 }
 
 .audit-drawer {
-  animation-name: fadeInDown;
-  animation-duration: 200ms;
+  //animation-name: fadeInDown;
+  //animation-duration: 200ms;
   margin: 0 1rem 1rem 1rem;
   border-left: 2px solid black;
   border-bottom: 2px solid black;
