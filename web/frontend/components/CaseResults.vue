@@ -111,6 +111,9 @@ export default {
     emitChoice: function(c) {
       this.$emit("choose", c);
     }
+  },
+  mounted: function() {
+    this.delayedObj = this.queryObj;
   }
 };
 </script>
