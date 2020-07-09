@@ -3,13 +3,14 @@
     <vue-nestable
       v-model="toc"
       :hooks="{'beforeMove':canMove}"
+      classProp="cssClasses"
       v-on:change="moveSubsection"
       v-if="dataReady"
     >
       <div slot="placeholder">
         <placeholder :editing="editing" />
       </div>
-      <vue-nestable-handle slot-scope="{ item }" :item="item" class="collapsed">
+      <vue-nestable-handle slot-scope="{ item }" :item="item">
         <entry
           :item="item"
           :root-ordinal-display="rootOrdinalDisplay"
@@ -52,10 +53,10 @@ export default {
   },
   computed: {
     casebook: function() {
-      return this.$store.getters['globals/casebook']();
+      return this.$store.getters["globals/casebook"]();
     },
     section: function() {
-      return this.$store.getters['globals/section']();
+      return this.$store.getters["globals/section"]();
     },
     rootNode: function() {
       return this.section || this.casebook;
@@ -67,7 +68,11 @@ export default {
     },
     toc: {
       get: function() {
-        return _.get(this.$store, `state.table_of_contents.augmentedToc.${this.rootNode}.children`)
+        let toc = _.get(
+          this.$store,
+          `state.table_of_contents.toc.${this.rootNode}.children`
+        );
+        return toc;
       },
       set: function(newVal) {
         this.shuffle({ id: this.rootNode, children: newVal });
@@ -196,6 +201,10 @@ export default {
         background-color: $red;
       }
     }
+  }
+
+  li.nestable-item.collapsed ol {
+    display: none;
   }
   ol {
     counter-reset: item;

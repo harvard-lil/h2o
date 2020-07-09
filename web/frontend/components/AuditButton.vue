@@ -14,24 +14,32 @@ export default {
   components: {
     PublishButton
   },
-  data: () => ({ inAuditMode: false }),
   methods: {
     startAudit: function() {
+      let self = this;
+      function slowSearches(nodes) {
+        let closedNodes = nodes.slice();
+        const delay = 250;
+        function popAndSearch() {
+          let node = closedNodes.pop();
+          if (!node) return;
+          if (_.has(node, "title")) {
+            let query = pp.extractCaseSearch(node.title);
+            self.$store.dispatch("case_search/fetch", { query });
+          }
+          setTimeout(popAndSearch,delay);
+        }
+        popAndSearch();
+      }
+
       if (this.allNodesSpecified) {
         return;
       }
       this.inAuditMode = true;
       // Kick off all searches
-      this.needingAudit.forEach(id => {
-        let node = this.$store.getters["table_of_contents/getRawNode"](
-          this.casebook,
-          id
-        );
-        if (node && _.has(node, "title")) {
-          let query = pp.extractCaseSearch(node.title);
-          this.$store.dispatch("case_search/fetch", { query });
-        }
-      });
+
+      let nodes = this.needingAudit.map(this.$store.getters["table_of_contents/getNode"]);
+      slowSearches(nodes);
       let target = this.needingAudit[0];
       this.auditStep(target);
     },
@@ -44,10 +52,7 @@ export default {
         })
         .then(() => {
           // Zoom to it
-          const node = this.$store.getters["table_of_contents/getRawNode"](
-            this.casebook,
-            id
-          );
+          const node = this.$store.getters["table_of_contents/getNode"](id);
           const url_parts = node.url.split("/");
           const hash = url_parts[url_parts.length - 2];
           let elem = document.getElementById(hash);
@@ -67,6 +72,14 @@ export default {
     }
   },
   computed: {
+    inAuditMode: { 
+      get: function() {
+      return this.$store.getters['globals/inAuditMode']();
+    },
+     set: function(val) {
+       this.$store.commit('globals/setAuditMode', val);
+     }
+    },
     currentAuditId: function() {
       return this.needingAudit.length > 0 ? this.needingAudit[0] : "None";
     },

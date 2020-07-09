@@ -46,8 +46,7 @@ import _ from "lodash";
 import LoadingSpinner from "./LoadingSpinner";
 import Axios from "../config/axios";
 import pp from "libs/text_outline_parser";
-import { createNamespacedHelpers } from "vuex";
-const { mapGetters } = createNamespacedHelpers("table_of_contents");
+
 const data = function() {
     return {
       title: "",
@@ -98,7 +97,6 @@ export default {
     }
   },
   methods: {
-    ...mapGetters(["getNode"]),
     resetForm: function() {
       let resets = data();
       _.keys(resets).forEach((k) => {
@@ -115,6 +113,7 @@ export default {
       this.stats[k] = _.get(this.stats,k,0) + 1;
     },
     postData: function(data) {
+      this.$store.commit('globals/setAuditMode', false);
       const url = `/casebooks/${this.casebook}/new/bulk`;
       Axios.post(url, data).then(this.handleSuccess, this.handleFailure);
     },
