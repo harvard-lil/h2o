@@ -935,7 +935,7 @@ class ContentNode(EditTrackedModel, TimestampedModel, BigPkModel, MaterializedPa
         on_delete=models.DO_NOTHING,
         blank=True,
         null=True,
-        related_name='contents'
+        related_name='old_casebook_contents'
     )
 
     new_casebook = models.ForeignKey(
@@ -993,6 +993,9 @@ class ContentNode(EditTrackedModel, TimestampedModel, BigPkModel, MaterializedPa
             self.__class__ = Resource
         return self
 
+    _resource_prefetched = False
+    _resource = None
+
     @property
     def resource(self):
         """
@@ -1007,7 +1010,7 @@ class ContentNode(EditTrackedModel, TimestampedModel, BigPkModel, MaterializedPa
         foreign keys (not possible on the Django side, without altering the
         database so as to support generic foreign keys or polymorphic models).
         """
-        if not hasattr(self,'_resource_prefetched'):
+        if hasattr(self,'_resource_prefetched') and not self._resource_prefetched:
             if not self.resource_id:
                 return None
             if self.resource_type in ['Case', 'TextBlock', 'Link']:
@@ -1019,9 +1022,28 @@ class ContentNode(EditTrackedModel, TimestampedModel, BigPkModel, MaterializedPa
         return self._resource
 
     @property
+    def contents(self):
+        """
+        See https://github.com/harvard-lil/h2o/blob/master/app/models/content/concerns/has_children.rb#L5
+        """
+        # Django syntax for inspecting a slice of an array field
+        # https://docs.djangoproject.com/en/2.2/ref/contrib/postgres/fields/#slice-transforms
+        # We want only nodes whose first ordinals match this section's.
+        # That is, if this is section [2, 2], we want [2, 2, 1], [2, 2, 2, 7], etc.,
+        # but not [2, 1, 1], [1,1], etc.
+        first_ordinals = "ordinals__0_{}".format(len(self.ordinals))
+        filter_map = {
+            "new_casebook_id": self.new_casebook_id,
+            first_ordinals: self.ordinals
+        }
+        res = ContentNode.objects.filter(**filter_map).exclude(id=self.id)
+        return res
+
+
+    @property
     def is_temporary(self):
         return self.resource_type == 'Temp'
-    
+
     @property
     def can_publish(self):
         return self.new_casebook.can_publish
@@ -1122,7 +1144,7 @@ class ContentNode(EditTrackedModel, TimestampedModel, BigPkModel, MaterializedPa
     def get_preferred_url(self, user):
         """
         When this resource is displayed for the given user, this method provides the
-        default/preferred url. 
+        default/preferred url.
         User does not have edit permissions or resource not editable?
          - Return the read url for this resource/section
         User has edit permission?
@@ -1539,6 +1561,28 @@ class ContentNode(EditTrackedModel, TimestampedModel, BigPkModel, MaterializedPa
         ))
 
 
+    def is_transmutable(self):
+        if self.headnote and len(self.headnote) > 0 or self.provenance:
+            return False
+        if self.resource_type == 'Temp':
+            return True
+        if not self.resource_type or self.resource_type == 'Section' or self.resource_type == '':
+            self.content_tree__load()
+            return len(self.children) == 0
+        else:
+            if self.annotatable and self.is_annotated():
+                return False
+            if self.resource_type == 'TextBlock':
+                try:
+                    self.resource
+                except ContentNode.DoesNotExist:
+                    return True
+                return self.resource and len(self.resource.content) < 10 # Reasonable heuristic?
+            elif self.resource_type == 'Case':
+                return True
+            elif self.resource_type == 'Link':
+                return True
+
     ##
     # Methods specialized by children
     ##
@@ -1584,7 +1628,7 @@ class ContentNode(EditTrackedModel, TimestampedModel, BigPkModel, MaterializedPa
         This method should be implemented by all children.
         """
         if self.resource_id:
-            return bool(self.annotations)
+            return self.annotations.count() > 0
         else:
             return any(node.annotations for node in self.contents.prefetch_related('annotations'))
 
@@ -2720,24 +2764,6 @@ class Section(CasebookAndSectionMixin, SectionAndResourceMixin, ContentNode):
     def primary_authors(self):
         return self.new_casebook.primary_authors
 
-    @property
-    def contents(self):
-        """
-        See https://github.com/harvard-lil/h2o/blob/master/app/models/content/concerns/has_children.rb#L5
-        """
-        # Django syntax for inspecting a slice of an array field
-        # https://docs.djangoproject.com/en/2.2/ref/contrib/postgres/fields/#slice-transforms
-        # We want only nodes whose first ordinals match this section's.
-        # That is, if this is section [2, 2], we want [2, 2, 1], [2, 2, 2, 7], etc.,
-        # but not [2, 1, 1], [1,1], etc.
-        first_ordinals = "ordinals__0_{}".format(len(self.ordinals))
-        filter_map = {
-            "new_casebook_id": self.new_casebook_id,
-            first_ordinals: self.ordinals
-        }
-        return ContentNode.objects.filter(**filter_map).exclude(id=self.id)
-
-
 class ResourceManager(models.Manager):
     def get_queryset(self):
         return super().get_queryset().filter(new_casebook__isnull=False, resource_id__isnull=False)
@@ -2770,37 +2796,6 @@ class Resource(SectionAndResourceMixin, ContentNode):
             return self.get_edit_url()
         return self.get_absolute_url()
 
-    def is_annotated(self):
-        """See ContentNode.is_annotated"""
-        return bool(self.annotations)
-
-    _resource_prefetched = False
-    _resource = None
-
-    @property
-    def resource(self):
-        """
-        Resource nodes are each related to one Case, TextBlock, or Link object,
-        which has historically been referred to as the node's "resource."
-
-        (Resource objects might more accurately be called "ResourceWrapper"
-        objects, or similar.)
-
-        This method retrieves the node's related resource, in the manner one
-        would expect to be able to do if this relationship were achieved via
-        foreign keys (not possible on the Django side, without altering the
-        database so as to support generic foreign keys or polymorphic models).
-        """
-        if hasattr(self,'_resource_prefetched') and not self._resource_prefetched:
-            if not self.resource_id:
-                return None
-            if self.resource_type in ['Case', 'TextBlock', 'Link']:
-                # so fancy...
-                self._resource = globals()[self.resource_type].objects.get(id=self.resource_id)
-                self._resource_prefetched = True
-            else:
-                raise NotImplementedError
-        return self._resource
 
     @property
     def annotatable(self):

@@ -51,6 +51,7 @@ class SectionOutlineSerializer(serializers.ModelSerializer):
     citation = serializers.SerializerMethodField()
     decision_date = serializers.DateField(source='resource.decision_date', default=None)
     children = RecursiveField(many=True, allow_null=True, default=[])
+    is_transmutable = serializers.BooleanField()
 
     def get_citation(self, node):
         if node.resource_type == 'Case':
@@ -60,4 +61,4 @@ class SectionOutlineSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = models.ContentNode
-        fields = ('title', 'id', 'resource_type', 'edit_url', 'url', 'citation', 'decision_date', 'children')
+        fields = ('title', 'id', 'resource_type', 'edit_url', 'url', 'citation', 'decision_date', 'children', 'is_transmutable')

@@ -377,13 +377,11 @@ form.edit_content_resource, form.edit_content_section, form.edit_content_caseboo
       position: relative;
 
       .actions {
-        position: absolute;
-        top: -6px;
-        right: 0;
-
+          margin-left: 1rem;
+          margin-top: -8px;
         > form > input[type=submit], button {
-          @include square(50px);
-          display: block;
+          // @include square(50px);
+            display: block;
           margin: 4px 0;
           color: transparent;
           background-color: transparent;
@@ -392,9 +390,10 @@ form.edit_content_resource, form.edit_content_section, form.edit_content_caseboo
           background-size: auto;
           &.action-delete {
             background-image: url('~static/images/ui/edit/elide.png');
-            height: 51px;
-            width: 35px;
+            height: 36px;
+            width: 36px;
             border-width: 0px;
+            background-color: transparent;
           }
           &.action-add-resource {
             @include sans-serif($bold, 14px, 14px);

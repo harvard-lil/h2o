@@ -180,263 +180,328 @@ export default {
 @import "../styles/vars-and-mixins";
 
 #table-of-contents {
-  > .table-of-contents > .nestable > ol {
-    > li.nestable-item > .nestable-item-content {
-      > .listing-wrapper > .listing.resource {
-        padding-left: 60px;
-      }
-      > div > .listing-wrapper > .listing.resource {
-        padding-left: 60px;
-        &.temporary {
-          border: 4px solid $red;
-          padding-left: 58px;
+    > .table-of-contents > .nestable > ol {
+        > li.nestable-item > .nestable-item-content {
+            > .listing-wrapper > .listing.resource {
+                padding-left: 60px;
+            }
+            > div > .listing-wrapper > .listing.resource {
+                padding-left: 60px;
+                &.temporary {
+                    border: 4px solid $red;
+                    padding-left: 58px;
+                }
+            }
         }
-      }
     }
-  }
-  > .table-of-contents > .nestable > ol {
-    > li.nestable-item > .nestable-item-content {
-      > .listing-wrapper > .listing.resource.temporary {
-        background-color: $red;
-      }
+    > .table-of-contents > .nestable > ol {
+        > li.nestable-item > .nestable-item-content {
+            > .listing-wrapper > .listing.resource.temporary {
+                background-color: $red;
+            }
+        }
     }
-  }
-
-  li.nestable-item.collapsed ol {
-    display: none;
-  }
-  ol {
-    counter-reset: item;
-  }
-  li {
-    counter-increment: item;
-    display: block;
-  }
-  button.action-expand {
-    border: 0 solid transparent;
-    background: transparent;
-  }
-  .no-collapse-padded {
-    width: 32px;
-    height: 32px;
-    margin: 4px 7px;
-  }
-  .nestable-item {
-    position: relative;
-    .actions {
-      display: flex;
-      flex-direction: column;
-      align-content: center;
-      justify-content: center;
+    
+    .transmute-dropdown:hover {
+        color: black;
+        border-color: black;
     }
-  }
-  .action-confirmation {
-    margin-top: 1.5rem;
-    display: flex;
-    flex-direction: row;
-    justify-content: space-between;
-    padding-right: 10px;
-    button {
-      width: unset;
-      height: unset;
-      color: unset;
-      background-color: unset;
-      display: unset;
-      margin: unset;
-      background-position: unset;
-      background-repeat: unset;
-      background-size: unset;
-      font-weight: 400;
-      margin: 2px;
-      padding: 6px 16px;
+    li.nestable-item.collapsed ol {
+        display: none;
     }
-    .action-confirm-delete {
-      background-color: $light-blue;
-      color: $white;
+    ol {
+        counter-reset: item;
     }
-    .action-cancel-delete {
-      background-color: $white;
-      color: $black;
+    li {
+        counter-increment: item;
+        display: block;
     }
-  }
-  li.nestable-item.is-dragging {
-    border: 4px dashed grey;
-    border-radius: 8px;
-    margin-top: 8px;
-    margin-bottom: 8px;
+    button.action-expand {
+        border: 0 solid transparent;
+        background: transparent;
+    }
+    .no-collapse-padded {
+        width: 32px;
+        height: 32px;
+        margin: 4px 7px;
+    }
+    .nestable-item {
+        position: relative;
+        .actions {
+            display: flex;
+            flex-direction: column;
+            align-content: center;
+            justify-content: center;
+        }
+    }
+    .action-confirmation {
+        /* margin-top: 1.5rem; */
+        display: flex;
+        flex-direction: row;
+        justify-content: space-between;
+        padding-right: 10px;
+        button {
+            width: unset;
+            height: unset;
+            color: unset;
+            background-color: unset;
+            display: unset;
+            margin: unset;
+            background-position: unset;
+            background-repeat: unset;
+            background-size: unset;
+            font-weight: 400;
+            margin: 2px;
+            padding: 6px 16px;
+        }
+        .action-cancel-delete {
+            background-color: $white;
+            color: $black;
+            border: 1px solid black;
+        }
+    }
+    li.nestable-item.is-dragging {
+        border: 4px dashed grey;
+        border-radius: 8px;
+        margin-top: 8px;
+        margin-bottom: 8px;
+        .listing {
+            margin-top: 0px;
+            &.section:hover,
+            &.section:focus-within {
+                background-color: $black;
+                .section-number,
+                .section-title {
+                    color: $white;
+                }
+                .action-cancel-delete {
+                    color: black;
+                }
+                .transmute-dropdown {
+                    color: black;
+                    border-color: black;
+                }
+            }
+            &.resource:hover,
+            &.resource:focus-within {
+                background-color: $white;
+                .resource-case,
+                .resource-date,
+                .section-number,
+                .section-title,
+                .action-cancel-delete {
+                    color: $black;
+                }
+            }
+        }
+    }
     .listing {
-      margin-top: 0px;
-      &.section:hover,
-      &.section:focus-within {
-        background-color: $black;
-        .section-number,
-        .section-title {
-          color: $white;
-        }
-      }
-      &.resource:hover,
-      &.resource:focus-within {
-        background-color: $white;
-        .resource-case,
-        .resource-date,
-        .section-number,
-        .section-title {
-          color: $black;
-        }
-      }
-    }
-  }
-  .listing-wrapper.delete-confirm .listing {
-    padding-right: 168px;
-  }
-  .listing {
-    display: block;
-    width: 100%;
-    padding: 12px 16px;
-    padding-right: 42px;
-    margin-top: 6px;
-    border: 1px solid $black;
-
-    &.section {
-      display: flex;
-      flex-direction: column;
-      align-items: left;
-      background-color: $black;
-
-      @media (max-width: $screen-xs) {
-        flex-direction: row;
-      }
-
-      .section-title {
-        display: inline;
-        font-weight: $medium;
-      }
-      .section-number,
-      .section-title {
-        color: $white;
-        margin-right: 10px;
-      }
-    }
-    &.resource {
-      background-color: $white;
-      display: grid;
-      grid-template-columns: auto 1fr 15%;
-
-      @media (max-width: $screen-xs) {
-        .resource-container {
-          margin: 0 9px;
-        }
-      }
-
-      .section-title {
-        display: inline;
-      }
-
-      .case-section-title {
-        margin-bottom: 4px;
-      }
-
-      .section-number,
-      .section-title {
-        color: $black;
-      }
-
-      .case-metadata-container {
         display: flex;
-        align-items: center;
-
-        @media (max-width: $screen-xxs) {
-          flex-direction: column;
-          align-items: flex-start;
+        justify-content:space-between;
+        align-items: baseline;
+        width: 100%;
+        padding: 12px 16px;
+        /* padding-right: 42px; */
+        margin-top: 6px;
+        border: 1px solid $black;
+        
+        .list-left,
+        .list-right {
+            display: flex;
+            flex-direction:row;
+            div {
+                align-self:baseline;
+                &.actions {
+                    align-self:center;
+                }
+            }
         }
-
-        .resource-case:empty {
-          display: none;
+        .list-right {
+            padding-top: 16px;            
         }
-
-        .resource-case {
-          margin-right: 9px;
+        &.section {
+            align-items: left;
+            background-color: $black;
+            @media (max-width: $screen-xs) {
+                flex-direction: row;
+            }
+            
+            .section-title {
+                display: inline;
+                font-weight: $medium;
+            }
+            .section-number,
+            .section-title {
+                color: $white;
+                margin-right: 10px;
+                display:inline;
+            }
+            .resource-type-container {
+                display: flex;
+                align-items: center;
+                justify-content: flex-end;
+                
+                @media (max-width: $screen-xs) {
+                    margin-right: -4px;
+                    
+                    .resource-type {
+                        padding: 2px 7px;
+                    }
+                }
+            }
+            .btn.btn-danger {
+                color: #fff;
+                background-color: #c9302c;
+                border-color: #ac2925;
+            }
+            
+            
         }
-      }
-
-      .resource-type-container {
-        display: flex;
-        align-items: center;
-        justify-content: flex-end;
-
+        &.resource {
+            background-color: $white;
+            
+            @media (max-width: $screen-xs) {
+                .resource-container {
+                    margin: 0 9px;
+                }
+            }
+            
+            .section-title {
+                display: inline;
+            }
+            
+            .case-section-title {
+                margin-bottom: 4px;
+            }
+            
+            .section-number,
+            .section-title {
+                color: $black;
+            }
+            
+            .case-metadata-container {
+                display: flex;
+                align-items: center;
+                
+                @media (max-width: $screen-xxs) {
+                    flex-direction: column;
+                    align-items: flex-start;
+                }
+                
+                .resource-case:empty {
+                    display: none;
+                }
+                
+                .resource-case {
+                    margin-right: 9px;
+                }
+            }
+            
+            .resource-type-container {
+                display: flex;
+                align-items: center;
+                justify-content: flex-end;
+                
+                @media (max-width: $screen-xs) {
+                    margin-right: -4px;
+                    
+                    .resource-type {
+                        padding: 2px 7px;
+                    }
+                }
+            }
+            .btn.btn-danger {
+                color: #fff;
+                background-color: #c9302c;
+                border-color: #ac2925;
+            }
+        }
+        &.empty {
+            border: 1px dashed $gray;
+            text-align: center;
+            color: $dark-gray;
+            background: transparent;
+            padding: 60px;
+        }
+        &.section:hover,
+        &.section:focus,
+        &.section:focus-within,
+        &.resource:hover,
+        &.resource:focus,
+        &.resource:focus-within {
+            outline: 2px solid $white;
+            background-color: $light-blue;
+            border-color: $light-blue;
+            * {
+                color: $white;
+                border-color: $white;
+            }
+            *:focus {
+                outline: 2px solid $white;
+                outline-offset: 2px;
+            }
+            .transmute-dropdown {
+                color: black;
+                border-color: black;
+            }
+            .action-cancel-delete {
+                color: black;
+            }
+            
+            .btn.btn-danger {
+                color: #fff;
+                background-color: #c9302c;
+                border-color: #ac2925;
+                
+                &:hover {
+                color: #fff;
+                background-color: #d9534f;
+                border-color: #d43f3a;
+                }
+            }
+            .btn.specify-case-button {
+                color:black;
+            }
+        }
         @media (max-width: $screen-xs) {
-          margin-right: -4px;
-
-          .resource-type {
-            padding: 2px 7px;
-          }
+            &.section,
+            &.resource {
+                div {
+                    margin: 4px 0;
+                    padding-left: 0;
+                    text-align: left;
+                }
+            }
         }
-      }
-    }
-    &.empty {
-      border: 1px dashed $gray;
-      text-align: center;
-      color: $dark-gray;
-      background: transparent;
-      padding: 60px;
-    }
-    &.section:hover,
-    &.section:focus,
-    &.section:focus-within,
-    &.resource:hover,
-    &.resource:focus,
-    &.resource:focus-within {
-      outline: 2px solid $white;
-      background-color: $light-blue;
-      border-color: $light-blue;
-      * {
-        color: $white;
-        border-color: $white;
-      }
-      *:focus {
-        outline: 2px solid $white;
-        outline-offset: 2px;
-      }
-    }
-    @media (max-width: $screen-xs) {
-      &.section,
-      &.resource {
-        div {
-          margin: 4px 0;
-          padding-left: 0;
-          text-align: left;
+        @media (min-width: $screen-xs) {
+            &.section {
+                flex-direction: row;
+                align-items: center;
+            }
         }
-      }
-    }
-    @media (min-width: $screen-xs) {
-      &.section {
-        flex-direction: row;
-        align-items: center;
-      }
-    }
-
-    .section-number,
-    .section-number:after {
-      font-size: 12px;
-      display: flex;
-      align-items: center;
-      margin-right: 10px;
-    }
-    .section-number:after {
-      content: counters(item, ".") " ";
-    }
-    .section-title {
-      @include sans-serif($bold, 14px, 14px);
-      display: inline-block;
-    }
-    .resource-type,
-    .resource-case,
-    .resource-date {
-      @include sans-serif($light, 14px, 14px);
-      display: inline-block;
-
-      text-align: left;
-      color: $black;
+        
+        .section-number,
+        .section-number:after {
+            font-size: 12px;
+            display: flex;
+            align-items: center;
+            margin-right: 10px;
+        }
+        .section-number:after {
+            content: counters(item, ".") " ";
+        }
+        .section-title {
+            @include sans-serif($bold, 14px, 14px);
+            display: inline-block;
+        }
+        .resource-type,
+        .resource-case,
+        .resource-date {
+            @include sans-serif($light, 14px, 14px);
+            display: inline-block;
+            
+            text-align: left;
+            color: $black;
     }
 
     .resource-type {

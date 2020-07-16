@@ -15,7 +15,7 @@
             <select v-model="resource_type" class="resource-type form-control">
               <option value="Section">Section</option>
               <option value="Case">Case</option>
-              <option value="Text">Text</option>
+              <option value="TextBlock">Text</option>
               <option value="Link">Link</option>
             </select>
             <input
@@ -27,9 +27,10 @@
           </div>
         </div>
       </form>
-      <div class="stats" v-if="totalIdentified > 0">
-        Added {{stats.sections}} sections, {{stats.cases}} cases, {{stats.links}} links, and {{stats.texts}} texts.
-      </div>
+      <div
+        class="stats"
+        v-if="totalIdentified > 0"
+      >Added {{stats.sections}} sections, {{stats.cases}} cases, {{stats.links}} links, and {{stats.texts}} texts.</div>
     </div>
     <div class="advice">
       <span>Quickly add entries to your table of contents above</span>
@@ -37,7 +38,7 @@
         <li>We'll try to automatically detect the type of content you're adding</li>
         <li>You can copy+paste a table of contents from a word doc or PDF and we'll try to preserve the structure</li>
       </ul>
-    </div> 
+    </div>
   </div>
 </template>
 
@@ -46,13 +47,14 @@ import _ from "lodash";
 import LoadingSpinner from "./LoadingSpinner";
 import Axios from "../config/axios";
 import pp from "libs/text_outline_parser";
+import urls from "libs/urls";
 
 const data = function() {
-    return {
-      title: "",
-      resource_type: "Section",
-    };
+  return {
+    title: "",
+    resource_type: "Section"
   };
+};
 const caseSearchDelay = 1000;
 export default {
   components: {
@@ -60,7 +62,7 @@ export default {
   },
   props: ["casebook", "section", "rootOrdinals"],
   data: function() {
-    return {...data(),stats:{cases:0, texts:0, links:0,sections:0}};
+    return { ...data(), stats: { cases: 0, texts: 0, links: 0, sections: 0 } };
   },
   directives: {},
   computed: {
@@ -81,12 +83,12 @@ export default {
   },
   watch: {
     resource_type: function(newVal) {
-      if (newVal === 'Case') {
+      if (newVal === "Case") {
         this.searchForCase();
       }
     },
     title: function(newVal) {
-      if (this.resource_type === 'Case') {
+      if (this.resource_type === "Case") {
         this.searchForCase();
       }
     },
@@ -97,9 +99,10 @@ export default {
     }
   },
   methods: {
+    bulkAddUrl: urls.url('new_from_outline'),
     resetForm: function() {
       let resets = data();
-      _.keys(resets).forEach((k) => {
+      _.keys(resets).forEach(k => {
         this[k] = resets[k];
       });
     },
@@ -109,13 +112,18 @@ export default {
         data: [{ title: this.title, resource_type: this.resource_type }]
       };
       this.postData(data);
-      let k = {'Section':'sections', 'Case':'cases', 'Link':'links','Text':'texts','Temp':'temps'}[this.resource_type];
-      this.stats[k] = _.get(this.stats,k,0) + 1;
+      let k = {
+        Section: "sections",
+        Case: "cases",
+        Link: "links",
+        Text: "texts",
+        Temp: "temps"
+      }[this.resource_type];
+      this.stats[k] = _.get(this.stats, k, 0) + 1;
     },
     postData: function(data) {
-      this.$store.commit('globals/setAuditMode', false);
-      const url = `/casebooks/${this.casebook}/new/bulk`;
-      Axios.post(url, data).then(this.handleSuccess, this.handleFailure);
+      this.$store.commit("globals/setAuditMode", false);
+      Axios.post(this.bulkAddUrl({id:this.casebook}), data).then(this.handleSuccess, this.handleFailure);
     },
     handleSuccess: function(resp) {
       this.$store.dispatch("table_of_contents/slowMerge", {
@@ -165,10 +173,10 @@ export default {
     flex-direction: row;
 
     *:not(:first-child) {
-      margin-left:1rem;
+      margin-left: 1rem;
     }
     .resource-type {
-      width:14rem;
+      width: 14rem;
     }
     .create-button {
       width: 12rem;
@@ -184,9 +192,9 @@ export default {
     margin-right: 1.5rem;
   }
   .advice {
-    margin-top:2rem;
+    margin-top: 2rem;
     ul {
-      margin-top:1rem;
+      margin-top: 1rem;
     }
   }
   .stats {
