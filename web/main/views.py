@@ -1,4 +1,5 @@
 import json
+import logging
 from collections import OrderedDict
 from functools import wraps
 from test.test_helpers import (assert_url_equal, check_response,
@@ -11,6 +12,7 @@ from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.views import PasswordResetView, redirect_to_login
 from django.core.exceptions import PermissionDenied
+from django.core.validators import URLValidator
 from django.db import transaction
 from django.db.models import Q
 from django.http import (Http404, HttpResponse, HttpResponseBadRequest,
@@ -50,6 +52,7 @@ from .utils import (CapapiCommunicationException, StringFileResponse,
                     fix_after_rails, parse_cap_decision_date,
                     send_verification_email)
 
+logger = logging.getLogger('django')
 ### helpers ###
 
 
@@ -1160,6 +1163,82 @@ def new_case(request, casebook):
     return HttpResponseRedirect(reverse('annotate_resource', args=[casebook, fresh_resource]))
 
 
+
+def switch_node_type(request, casebook, content_node):
+    """
+        Change the type of a resource in a casebook.
+        Currently this can only be used on Temp resources.
+
+        Given:
+        >>> private, client = [getfixture(f) for f in ['full_private_casebook', 'client']]
+        >>> private_resource = private.resources.first()
+        >>> _ = private_resource.resource.delete()
+        >>> private_resource.resource_id = None
+        >>> private_resource.resource_type = 'Temp'
+        >>> private_resource.save()
+
+        >>> owner = private_resource.testing_editor
+        >>> data = '{"from": "Temp", "to": "Link", "url": "https://example.com/"}'
+        >>> url = reverse('resource', args=[private_resource.new_casebook, private_resource])
+        >>> response = client.patch(url, data, as_user=owner)
+        >>> assert response.status_code == 302
+        >>> private_resource.refresh_from_db()
+        >>> assert private_resource.resource_type == 'Link'
+    """
+    if not content_node.is_transmutable():
+        return HttpResponseBadRequest("Work has begun on this resource, and it cannot be changed.")
+    try:
+        data = json.loads(request.body.decode("utf-8"))
+        old_type = data['from']
+        if content_node.resource_type != old_type:
+            return HttpResponseBadRequest("Resource is not of " + old_type)
+        new_type = data['to']
+        if old_type == new_type:
+            return HttpResponseBadRequest("To and From are the same")
+        if content_node.has_body:
+            old_resource = content_node.resource
+        else:
+            old_resource = None
+        if new_type == 'Case':
+            logger.info("Type is Case")
+            cap_id = data.get('cap_id', None)
+            if not cap_id:
+                logger.info("Case with no ID")
+                content_node.resource_type = 'Temp'
+                content_node.resource_id = None
+            else:
+                content_node.resource_id = internal_case_id_from_cap_id(cap_id)
+                content_node.resource_type = new_type
+                logger.info("Case with ID")
+            content_node.save()
+        elif new_type == 'Link':
+            url = data.get('url','https://opencasebook.org/')
+            content_node.resource_type = new_type
+            link = Link(name=content_node.title, url=url, public=True)
+            link.save()
+            content_node.resource_id = link.id
+            content_node.save()
+        elif new_type == 'TextBlock':
+            content = data.get('content','TBD')
+            text_block = TextBlock(name=content_node.title, content=content)
+            text_block.save()
+            text_block.refresh_from_db()
+            content_node.resource_id = text_block.id
+            content_node.resource_type = new_type
+            content_node.save()
+            logger.info("TB: {}, CN.rid: {}, OR: {}".format(text_block.id, content_node.resource_id, old_resource.id if old_resource else None))
+        elif new_type == 'Section':
+            content_node.resource_type = new_type
+            content_node.resource_id = None
+            content_node.save()
+    except Exception:
+        return HttpResponseBadRequest("Improperly formatted request")
+    if old_resource:
+        logger.info("Deleting resource: {}".format(old_resource.id))
+        old_resource.delete()
+    return HttpResponseRedirect(content_node.get_preferred_url(request.user))
+
+
 class SectionView(View):
 
     @method_decorator(perms_test(viewable_section))
@@ -1229,6 +1308,18 @@ class SectionView(View):
         fix_after_rails("Let's return 204 instead of 200.")
         section.delete()
         return HttpResponse()
+
+    @method_decorator(perms_test([
+    {'method': 'patch', 'args': ['full_casebook', 'full_casebook.sections.first'],
+     'results': {403: ['other_user', 'full_casebook.testing_editor'], 'login': [None]}},
+    {'method': 'patch', 'args': ['full_private_casebook', 'full_private_casebook.sections.first'],
+     'results': {400: ['full_private_casebook.testing_editor'], 'login': [None], 403: ['other_user']}},
+    {'method': 'patch', 'args': ['full_casebook_with_draft.draft', 'full_casebook_with_draft.draft.sections.first'],
+     'results': {400: ['full_casebook_with_draft.draft.testing_editor'], 'login': [None], 403: ['other_user']}},]))
+    @method_decorator(hydrate_params)
+    @method_decorator(user_has_perm('casebook', 'directly_editable_by'))
+    def patch(self, request, casebook, section):
+        return switch_node_type(request, casebook, section)
 
 
 @perms_test(directly_editable_section)
@@ -1363,62 +1454,7 @@ class ResourceView(View):
     @method_decorator(hydrate_params)
     @method_decorator(user_has_perm('casebook', 'directly_editable_by'))
     def patch(self, request, casebook, resource):
-        """
-            Change the type of a resource in a casebook.
-            Currently this can only be used on Temp resources.
-
-            Given:
-            >>> private, with_draft, client = [getfixture(f) for f in ['full_private_casebook', 'full_casebook_with_draft', 'client']]
-            >>> private_resource = private.resources.first()
-            >>> draft_resource = with_draft.draft.resources.first()
-            >>> draft_resource.resource_type = 'Temp'
-            >>> draft_resource.save()
-
-            >>> owner = draft_resource.testing_editor
-            >>> data = '{"from": "Temp", "to": "Link", "url": "https://example.com/"}'
-            >>> url = reverse('resource', args=[draft_resource.new_casebook, draft_resource])
-            >>> response = client.patch(url, data, as_user=owner)
-            >>> assert response.status_code == 302
-            >>> draft_resource.refresh_from_db()
-            >>> assert draft_resource.resource_type == 'Link'
-        """
-        if resource.resource_type != 'Temp':
-            return HttpResponseBadRequest("Only Temp resources may be changes")
-        try:
-            data = json.loads(request.body.decode("utf-8"))
-            old_type = data['from']
-            if resource.resource_type != old_type:
-                return HttpResponseBadRequest("Resource is not of " + old_type)
-            new_type = data['to']
-
-            if new_type not in {'Case', 'TextBlock', 'Link'}:
-                return HttpResponseBadRequest("Must transition to a Case, TextBlock, or Link")
-            if new_type == 'Case':
-                cap_id = data['cap_id']
-                if not cap_id:
-                    resource.resource_type = 'Temp'
-                else:
-                    resource.resource_id = internal_case_id_from_cap_id(cap_id)
-                    resource.resource_type = new_type
-                resource.save()
-            elif new_type == 'Link':
-                url = data['url']
-                resource.resource_type = new_type
-                link = Link(name=resource.title, url=url, public=True)
-                link.save()
-                resource.resource_id = link.id
-                resource.save()
-            elif new_type == 'TextBlock':
-                content = data['content']
-                text_block = TextBlock(name=resource.title, content=content)
-                text_block.save()
-                resource.resource_id = text_block.id
-                resource.resource_type = new_type
-                resource.save()
-        except Exception:
-            return HttpResponseBadRequest("Improperly formatted request")
-        return HttpResponseRedirect(resource.get_preferred_url(request.user))
-
+        return switch_node_type(request, casebook, resource)
 
 @perms_test(directly_editable_resource)
 @require_http_methods(["GET", "POST"])
@@ -1806,6 +1842,17 @@ def new_from_outline(request, casebook=None):
                 text_block = TextBlock(name=node['title'], content='TBD')
                 text_block.save()
                 node['resource_id'] = text_block.id
+            elif node['resource_type'] == 'Link':
+                looks_like_url = URLValidator()
+                if 'url' in node:
+                    url = node['url']
+                elif looks_like_url(node['title']):
+                    url = node['title']
+                else:
+                    url = 'https://opencasebook.org/'
+                link = Link(name=node['title'], url=url)
+                link.save()
+                node['resource_id'] = link.id
             # resource_type may be 'Temp' for skipped nodes
             content_nodes.append(ContentNode(**node))
         ContentNode.objects.bulk_create(content_nodes)

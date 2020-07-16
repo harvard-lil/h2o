@@ -53,6 +53,7 @@ export default {
         .then(() => {
           // Zoom to it
           const node = this.$store.getters["table_of_contents/getNode"](id);
+          if (!node) return;
           const url_parts = node.url.split("/");
           const hash = url_parts[url_parts.length - 2];
           let elem = document.getElementById(hash);

@@ -48,10 +48,12 @@ def frontend_urls(request):
             'search': ['search', [], [], []],
             'new_casebook': ['new_casebook', [], [], []],
             'section': ['section', [1, "2"], ["1", "2"], ['CASEBOOK_ID', 'SECTION_ID']],
+            'resource': ['resource', [1, "2"], ["1", "2"], ['_CASEBOOK_ID', '_RESOURCE_ORDINALS']],
             'casebook': ['casebook', [1], ["1"], ['_ID']],
             'export_casebook': ['export', [Casebook(id=1), "docx"], ["1", "docx"], ['_ID', '_FORMAT']],
             'export_section': ['export', [Section(id=1), "docx"], ["1", "docx"], ['_ID', '_FORMAT']],
             'export_resource': ['export', [Resource(id=1), "docx"], ["1", "docx"], ['_ID', '_FORMAT']],
+            'new_from_outline': ['new_from_outline' ,[Casebook(id=1)], ["1-untitled"], ['_ID']]
         }
         urls_out = {}
         for key, [url_name, reverse_args, strings, placeholders] in urls_in.items():

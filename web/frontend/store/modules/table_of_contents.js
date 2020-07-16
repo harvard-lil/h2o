@@ -163,7 +163,7 @@ const mutations = {
 const actions = {
     revealNode: ({ commit, state }, { casebook, id }) => {
         let ids = helpers.findPath(state.toc[casebook], node => node.id === id);
-        commit('modifyAugment', { ids, modifyFn: expandNode })
+        commit('modifyAugment', { ids, modifyFn: expandNode });
     },
     toggleCollapsed: ({ commit }, { id }) => {
         commit('modifyAugment', {
@@ -172,7 +172,7 @@ const actions = {
         });
     },
     setAudit: ({ commit, state }, { id }) => {
-        let currentAudits = _.keys(state.augments).filter(k => _.get(state.augments[k], 'audit', false));
+        let currentAudits = _.keys(state.augments).filter(k => _.get(state.augments[k], 'audit', false)).map(parseInt);
         commit('modifyAugment', { ids: currentAudits, modifyFn: removeAudit });
         commit('modifyAugment', { id, modifyFn: setAudit });
     },
