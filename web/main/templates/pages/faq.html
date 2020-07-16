@@ -3,43 +3,61 @@
 {% block page_title %}Frequently Asked Questions{% endblock %}
 {% block mainContent %}
 
+<div id="toc">
+<p class="toc_title">Table of Contents</p>
+<ul class="toc_list">
+  <ul>
+    <li><a href="#1">What is an H2O casebook?</a></li>
+    <li><a href="#2">How do I create a casebook?</a></li>
+    <li><a href="#3">I want to use H2O to teach my class. Can you help get me going?</a></li>
+    <li><a href="#4">Have Harvard professors used H2O?</a></li>
+    <li><a href="#5"Can I share copyrighted material in my H2O casebook?</a></li>
+    <li><a href="#6">How do I get a case that is not in the database yet?</a></li>
+    <li><a href="#7">How do I export/print a casebook or item?</a></li>
+    <li><a href="#8">What are you working on now?/a></li>
+    <li><a href="#9">Who has supported H2O?/a></li>
+  </ul>
+</li>
+</ul>
+</div>
+
 <div class="content">
   <div class="pages-content">
     <h1>Frequently Asked Questions</h1>
     
-    <h2>What is an H2O casebook?</h2>
+    <h2 id="1">What is an H2O casebook?</h2>
     
     <p>A traditional casebook is a legal textbook for a particular area of study, containing excerpts from cases in which the law of that area was applied. An H2O casebook is a re-mixable, user-created collection of content - often including excerpted cases -  that is easily shared and remixed, and is ideal for use as an online course syllabus. An H2O casebook can also be exported to a Word doc, then sent to a print-on-demand service if the professor wishes to create a hard copy of it to distribute or sell. Professors can build an H2O casebook from scratch, or copy another professor’s casebook and modify it according to their objectives. A casebook can consist of any combination of edited cases, texts, cases, and links, with professors deciding what items to include and in what order.  They can also add a description/headnote for their casebook, casebook sections, and items.</p>
     
-    <h2>How do I create a casebook?</h2>
+    <h2 id="2">How do I create a casebook?</h2>
 
     <p>Anyone can create a casebook by first <a href="{% url "sign_up" %}">creating an account</a>. Once logged-in, click the “Create casebook” button, where you can select “Make a New Casebook” or, if you want to adapt an existing casebook, “Search Casebooks.” For more on creating casebooks and adding content, <a href="{{ GUIDE_URL }}making-casebooks/#creating-casebooks">view the entry on creating casebooks</a> in our user guide.</p>
     
-    <h2>I want to use H2O to teach my class. Can you help get me going?</h2>
+    <h2 id="3">I want to use H2O to teach my class. Can you help get me going?</h2>
 
     <p>H2O is built to be self-service, with our user guide (<a href="{{ GUIDE_URL }}">{{ GUIDE_URL }}</a>) addressing most user questions, but we love to hear from professors interested in using H2O, whether to develop a new casebook from scratch or to adapt existing casebooks or syllabi. Reach out to us at <a href="mailto:{{ CONTACT_EMAIL }}">{{ CONTACT_EMAIL }}</a>!</p>
     
-    <h2>Have Harvard professors used H2O?</h2>
+    <h2 id="4">Have Harvard professors used H2O?</h2>
 
     <p>Over 30 professors at Harvard Law School have used H2O for their courses since 2010, along with instructors at 35 other universities. HLS faculty who have used H2O for their courses include Profs. Jonathan Zittrain (<a href="https://opencasebook.org/casebooks/439-zittrain-torts-playlist-spring-2013/">Torts</a>), Charles Fried (<a href="https://opencasebook.org/casebooks/477-contracts-casebook-digital-version/">Contracts</a>), Jeannie Suk-Gersen (<a href="https://opencasebook.org/casebooks/411-criminal-law-spring-2017/">Criminal Law</a>), and more.
 
-    <h2>Can I share copyrighted material in my H2O casebook?</h2>
+    <h2 id="5">Can I share copyrighted material in my H2O casebook?</h2>
 
     <p>Yes, though it must be linked to on the web, rather than uploaded directly to H2O. As content in H2O is shared under a Creative Commons 3.0 license, copyrighted material that is not compatible with that must be either directly linked to, or, when excerpted, linked to behind a firewall with access available only to those who have permission to view it.</p>
 
-    <h2>How do I get a case that is not in the database yet?</h2>
+    <h2 id="6">How do I get a case that is not in the database yet?</h2>
 
     <p>The H2O caselaw database, which already included 2200+ cases, is now <a href="{{ BLOG_URL }}2018/11/07/Entire-Caselaw-Access-Project-CAP-Database-Accessible-via-H2O/">integrated with the Caselaw Access Project (CAP) database</a> , which contains the full corpus of U.S. caselaw. When searching for a case via the Add Resource button, searching by the parties’ names will search just the cases in the H2O database. If you wish to add a case from CAP, type in the case’s citation - for example, “410 U.S. 113” – then click Search. Select the case that appears, and it will automatically be added in full to your casebook. This will also add the case to H2O’s own database.</p>
 
-    <h2>How do I export/print a casebook or item?</h2>
+    <h2 id="7">How do I export/print a casebook or item?</h2>
 
     <p>To print an entire casebook, or a single item (such as an edited case or text), click the export button in the upper-right side of the screen while viewing what you wish to export or print. If there are annotations on the item, a dialogue box will appear asking whether or not you wish to include annotations. After selecting one of these, your browser will download a Word document that includes what you wished exported, which can then be printed.</p>
 
-    <h2>What are you working on now?</h2>
+    <h2 id="8">What are you working on now?</h2>
 
     <p>We’re working to improve the speed and responsiveness of annotations, as well as exploring easy ways for instructors to import their syllabus or course outline directly to an H2O casebook. We’ve also released a “Collaborators” feature that allow admins to designate more than one user the ability to edit a single casebook. Shoot us an email at <a href="mailto:{{ CONTACT_EMAIL }}">{{ CONTACT_EMAIL }}</a> to request this for your team! </p>
 
-    <h2>Who has supported H2O?</h2>
+    <h2 id="9">Who has supported H2O?</h2>
 
     <p>H2O is a project of the Library Innovation Lab at the Harvard Law School, and has received generous support over the years from the Harvard Library Lab, the Harvard Initiative for Learning and Teaching, Fastcase, and the Berkman-Klein Center for Internet and Society.</p>
   </div>
