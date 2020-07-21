@@ -483,8 +483,7 @@ export default {
         .section-number,
         .section-number:after {
             font-size: 12px;
-            display: flex;
-            align-items: center;
+            display: inline;
             margin-right: 10px;
         }
         .section-number:after {

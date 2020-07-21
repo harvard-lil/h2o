@@ -13,7 +13,7 @@ from rest_framework.renderers import JSONRenderer
 
 
 from test.test_helpers import check_response
-from main.utils import looks_like_citation
+from main.utils import looks_like_citation,looks_like_case_law_link
 from .models import SearchIndex
 from search.utils import hybrid_search
 
@@ -102,13 +102,19 @@ def search(request):
 def search_cases(request):
     query = request.GET.get('q')
     search_params = {k: request.GET.get(k) for k in request.GET.keys() if k != 'q'}
+    frontend_url = None
     if not query:
         return Response('', status=status.HTTP_400_BAD_REQUEST)
-    if looks_like_citation(query):
+    if looks_like_case_law_link(query):
+        frontend_url = query.split('cite.case.law')[1]
+        search_params['search'] = 'frontend_url:"{}"'.format(frontend_url)
+    elif looks_like_citation(query):
         search_params['citation'] = query
     else:
         search_params['name'] = query
     results = hybrid_search(search_params)
+    if frontend_url and len(results) > 0:
+        results['results'] = [x for x in results['results'] if x.get('frontend_url','cite.case.law').split('cite.case.law')[1] == frontend_url]
     if results['via'] == 'hybrid' or results['via'] == 'CL':
         logger.info("CASE_SEARCH: params=%s, in_cap=%s", json.dumps(search_params), results['via'] == 'hybrid')
     return Response(results, status=200)

@@ -32,6 +32,9 @@ export default {
     }
   },
   watch: {
+    item: function(newVal) {
+      this.resource_type = newVal.resource_type;
+    },
     resource_type: function(newVal) {
       if (newVal === this.item.resource_type) {
         return;
