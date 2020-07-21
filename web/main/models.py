@@ -2393,12 +2393,7 @@ class Casebook(EditTrackedModel, TimestampedModel, BigPkModel, CasebookAndSectio
                                     draft_mode=draft_mode)
         return cloned_casebook
 
-    @transaction.atomic
-    def clone_nodes(self, nodes, draft_mode=False, append=False):
-        """
-            Helper method to copy a set of nodes and their associated assets to this casebook. See callers for tests.
-            If append=True, ordinals will be edited so the new nodes appear after any existing nodes.
-        """
+    def collect_cloning_nodes(self, nodes):
         # clone contents
         cloned_resources = {TextBlock: [], Link: []}  # collect new TextBlocks and Links for bulk_create
         cloned_content_nodes = []  # collect new ContentNodes for bulk_create
@@ -2423,12 +2418,33 @@ class Casebook(EditTrackedModel, TimestampedModel, BigPkModel, CasebookAndSectio
                 cloned_resource = clone_model_instance(resource)
                 cloned_resources[type(cloned_resource)].append((cloned_resource, cloned_content_node))
 
+        return cloned_resources, cloned_content_nodes, cloned_annotations
+
+    def save_and_parent_cloned_resources(self, cloned_resources):
         # save TextBlocks and Links
         for resource_class, resources in cloned_resources.items():
             resource_class.objects.bulk_create(r[0] for r in resources)
             # after saving, update the associated cloned_content_nodes to point to the new resource_ids
             for cloned_resource, cloned_content_node in resources:
                 cloned_content_node.resource_id = cloned_resource.id
+
+
+    def save_and_parent_cloned_annotations(self, cloned_annotations):
+        # save ContentAnnotations (first update cloned_annotations to point to the new content_node IDs)
+        for cloned_annotation, cloned_content_node in cloned_annotations:
+            cloned_annotation.resource = cloned_content_node
+        ContentAnnotation.objects.bulk_create(r[0] for r in cloned_annotations)
+
+
+    @transaction.atomic
+    def clone_nodes(self, nodes, draft_mode=False, append=False):
+        """
+            Helper method to copy a set of nodes and their associated assets to this casebook. See callers for tests.
+            If append=True, ordinals will be edited so the new nodes appear after any existing nodes.
+        """
+        cloned_resources, cloned_content_nodes, cloned_annotations = self.collect_cloning_nodes(nodes)
+
+        self.save_and_parent_cloned_resources(cloned_resources)
 
         # save ContentNodes
         if append:
@@ -2445,10 +2461,7 @@ class Casebook(EditTrackedModel, TimestampedModel, BigPkModel, CasebookAndSectio
             # but might be non-consecutive or overly nested; call _repair to clean them up
             self.content_tree__repair()
 
-        # save ContentAnnotations (first update cloned_annotations to point to the new content_node IDs)
-        for cloned_annotation, cloned_content_node in cloned_annotations:
-            cloned_annotation.resource = cloned_content_node
-        ContentAnnotation.objects.bulk_create(r[0] for r in cloned_annotations)
+        self.save_and_parent_cloned_annotations(cloned_annotations)
 
 
     def archive(self):

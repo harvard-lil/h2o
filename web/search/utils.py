@@ -15,7 +15,8 @@ def cap_search(params, limit=10):
                         'full_text': 'search',
                         'before_date': 'decision_date_max',
                         'after_date': 'decision_date_min',
-                        'jurisdiction': 'jurisdiction'}
+                        'jurisdiction': 'jurisdiction',
+                        'search':'search'}
     param_defaults = {'page_size': limit, 'ordering': 'relevance'}
     search_params = {**param_defaults, **normalize_dictionary(param_normalizer, params)}
     response = requests.get(settings.CAPAPI_BASE_URL + "cases/", search_params)
@@ -29,7 +30,11 @@ def cap_search(params, limit=10):
 def courtlistener_search(params, limit=10):
     param_normalizer = {'name': 'case_name', 'citation': 'citation', 'full_text': 'q', 'before_date': 'filed_before', 'after_date': 'filed_after'}
     param_defaults = {'order_by': 'score desc', 'stat_Precedential': 'on'}
-    search_params = {**param_defaults, **normalize_dictionary(param_normalizer, params)}
+    normalized_params = normalize_dictionary(param_normalizer, params)
+    search_params = {**param_defaults, **normalized_params}
+
+    if not normalized_params:
+        return []
 
     def normalize_results(results_json):
         result_normalizer = {'caseName': 'name', 'caseNameShort': 'name_abbreviation', 'dateFiled': 'decision_date', 'docketNumber': 'docket_number', 'citation': 'citations'}

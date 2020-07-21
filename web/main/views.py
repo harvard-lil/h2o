@@ -1200,16 +1200,13 @@ def switch_node_type(request, casebook, content_node):
         else:
             old_resource = None
         if new_type == 'Case':
-            logger.info("Type is Case")
             cap_id = data.get('cap_id', None)
             if not cap_id:
-                logger.info("Case with no ID")
                 content_node.resource_type = 'Temp'
                 content_node.resource_id = None
             else:
                 content_node.resource_id = internal_case_id_from_cap_id(cap_id)
                 content_node.resource_type = new_type
-                logger.info("Case with ID")
             content_node.save()
         elif new_type == 'Link':
             url = data.get('url','https://opencasebook.org/')
@@ -1829,13 +1826,59 @@ def new_from_outline(request, casebook=None):
         )
         all_nodes = list(unnest_with_ordinals(start_ordinal, nodes))
         content_nodes = []
+        content_node_annotations = []
         for node in all_nodes:
+            skip_add_node = False
             node['new_casebook'] = parent_section.new_casebook
             if 'resource_type' not in node:
                 node['resource_type'] = 'Section'
-            if node['resource_type'] == 'Case':
-                if 'cap_id' not in node:
+            elif node['resource_type'] == 'Clone':
+                target_node = None
+                target_casebook_id = int(node.get('casebookId', '').split('-')[0])
+                if 'sectionId' in node or 'resourceId' in node:
+                    target_id = node.get('sectionId', node.get('resourceId', None ) )
+                    target_node = ContentNode.objects.get(id=target_id)
+                elif 'sectionOrd' in node or 'resourceOrd' in node:
+                    target_ord_str = node.get('sectionOrd', node.get('resourceOrd', '' ) ).split('-')[0]
+                    target_ord = [int(x) for x in target_ord_str.split('.')]
+                    target_node = ContentNode.objects.get(new_casebook_id=target_casebook_id, ordinals=target_ord)
+
+                cloned_resources, cloned_content_nodes, cloned_annotations = [[],[],[]]
+
+                if not target_node:
+                    target_casebook = Casebook.objects.get(id=target_casebook_id)
+                    if not target_casebook.permits_cloning or target_casebook.editable_by(request.user):
+                        next
+                    node['title'] = target_casebook.title + " (Cloned)"
+                    node.pop('casebookId')
+                    shell_node = ContentNode(**node)
+                    shell_node.resource_type = 'Section'
+                    child_nodes = list(target_casebook.contents.all())
+                    cloned_resources, cloned_content_nodes, cloned_annotations = casebook.collect_cloning_nodes(child_nodes)
+                    for child in cloned_content_nodes:
+                        child.ordinals = shell_node.ordinals + child.ordinals
+                    cloned_content_nodes.append(shell_node)
+                elif target_node.permits_cloning or target_node.new_casebook.editable_by(request.user):
+                    target_and_children  = [target_node] + list(target_node.contents.all())
+                    cloned_resources, cloned_content_nodes, cloned_annotations = casebook.collect_cloning_nodes(target_and_children)
+                    # casebook.save_and_parent_cloned_resources(cloned_resources)
+                    old_ordinals = cloned_content_nodes[0].ordinals
+                    for child in cloned_content_nodes:
+                        child.ordinals[0:len(old_ordinals)] = node['ordinals']
+                else:
+                    next
+                casebook.save_and_parent_cloned_resources(cloned_resources)
+                content_nodes += cloned_content_nodes
+                skip_add_node = True
+                content_node_annotations += cloned_annotations
+
+            elif node['resource_type'] == 'Case':
+                node.pop('searchString', None)
+                if 'cap_id' not in node and 'resource_id' not in node:
                     node['resource_type'] = 'Temp'
+                elif 'resource_id' in node:
+                    case = Case.objects.get(id=int(node['resource_id']))
+                    node['title'] = case.name_abbreviation or case.name
                 else:
                     node['resource_id'] = internal_case_id_from_cap_id(node.pop('cap_id'))
             elif node['resource_type'] == 'TextBlock':
@@ -1854,14 +1897,23 @@ def new_from_outline(request, casebook=None):
                 link.save()
                 node['resource_id'] = link.id
             # resource_type may be 'Temp' for skipped nodes
-            content_nodes.append(ContentNode(**node))
+            if not skip_add_node:
+                content_nodes.append(ContentNode(**node))
         ContentNode.objects.bulk_create(content_nodes)
+        if content_node_annotations:
+            casebook.save_and_parent_cloned_annotations(content_node_annotations)
 
     body = json.loads(request.body.decode("utf-8"))
-    section = body.get('section', None)
+    section_id = body.get('section', None)
+    section = None
+    if section_id:
+        section = ContentNode.objects.get(id=int(section_id))
     nodes = body.get('data', None)
     if not nodes:
         return Response('', status=status.HTTP_400_BAD_REQUEST)
     parent_section = section or casebook
     add_sections_and_resources(parent_section, nodes)
+    parent_section.content_tree__repair()
+    if section:
+        return JsonResponse(SectionOutlineSerializer(section).data, status=200)
     return JsonResponse(CasebookTOCView.format_casebook(casebook), status=200)

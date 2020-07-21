@@ -2,11 +2,12 @@ import {html} from 'es6-string-html-template';
 import delegate from 'delegate';
 import ModalComponent from 'legacy/lib/ui/modal';
 import {patch} from 'legacy/lib/requests';
+import urls from 'libs/urls';
 
 delegate(document, 'button.action.publish', 'click', showPublishModal);
 
-function casebook_path(resourceId) {
-  return FRONTEND_URLS.casebook.replace('_ID', resourceId);
+function casebook_path(casebookId) {
+  return urls.url('casebook')({casebookId});
 }
 
 function showPublishModal (e) {

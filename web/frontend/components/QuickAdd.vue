@@ -13,10 +13,7 @@
               placeholder="Enter title here"
             />
             <select v-model="resource_type" class="resource-type form-control">
-              <option value="Section">Section</option>
-              <option value="Case">Case</option>
-              <option value="TextBlock">Text</option>
-              <option value="Link">Link</option>
+              <option :value="option.value" v-for="option in resource_type_options" v-bind:key="option.value">{{option.name}}</option>
             </select>
             <input
               type="submit"
@@ -49,13 +46,21 @@ import Axios from "../config/axios";
 import pp from "libs/text_outline_parser";
 import urls from "libs/urls";
 
+const optionsWithoutCloning = [{name: 'Section', value: 'Section'},
+                               {name: 'Case', value: 'Case'},
+                               {name: 'Text', value: 'TextBlock'},
+                               {name: 'Link', value: 'Link'}];
+
+const optionsWithCloning = optionsWithoutCloning.concat([{name: 'Clone', value: 'Clone'}]);
+
 const data = function() {
   return {
     title: "",
-    resource_type: "Section"
-  };
+    resource_type: "Section",
+    resource_type_options: optionsWithoutCloning}
 };
 const caseSearchDelay = 1000;
+
 export default {
   components: {
     LoadingSpinner // eslint-disable-line vue/no-unused-components
@@ -95,6 +100,11 @@ export default {
     lineInfo: function() {
       if (this.lineInfo.resource_type !== "Unknown") {
         this.resource_type = this.lineInfo.resource_type;
+        if (this.resource_type !== 'Clone') {
+          this.resource_type_options = optionsWithoutCloning;
+        } else {
+          this.resource_type_options = optionsWithCloning;      
+        }
       }
     }
   },
@@ -106,12 +116,35 @@ export default {
         this[k] = resets[k];
       });
     },
+    lowHangingCaseCheck: function(data) {
+      let self = this;
+      let query = _.get(data, 'data.0.searchString') || _.get(data, 'data.0.title')
+      if (query) {
+        self.$store.dispatch("case_search/fetch", { query }).then(
+          () => {
+          let results = self.$store.getters["case_search/getSearch"]({ query });
+          if (results && results.length === 1) {
+            data.data[0].cap_id = results[0].id;
+            data.data[0].title = data.data[0].title || results[0].name_abbreviation || results[0].name;
+          }
+          this.postData(data);
+        },
+          () => {
+            this.postData(data);
+          })
+      }
+    },
     handleSubmit: function() {
       const data = {
         section: this.section,
-        data: [{ title: this.title, resource_type: this.resource_type }]
+        data: [this.lineInfo]
       };
-      this.postData(data);
+      data.data[0].resource_type = this.resource_type;
+      if (this.resource_type === 'Case' && !_.has(data,'data.0.resource_id')) {
+        this.lowHangingCaseCheck(data);
+      } else {
+        this.postData(data);
+      }
       let k = {
         Section: "sections",
         Case: "cases",
@@ -122,8 +155,8 @@ export default {
       this.stats[k] = _.get(this.stats, k, 0) + 1;
     },
     postData: function(data) {
-      this.$store.commit("globals/setAuditMode", false);
-      Axios.post(this.bulkAddUrl({id:this.casebook}), data).then(this.handleSuccess, this.handleFailure);
+      // this.$store.commit("globals/setAuditMode", false);
+      Axios.post(this.bulkAddUrl({casebookId:this.casebook}), data).then(this.handleSuccess, this.handleFailure);
     },
     handleSuccess: function(resp) {
       this.$store.dispatch("table_of_contents/slowMerge", {
@@ -139,13 +172,17 @@ export default {
       let pasted = (event.clipboardData || window.clipboardData).getData(
         "text"
       );
-      let parsed = pp.cleanDocLines(pasted);
-      let [parsedJson, stats] = pp.structureOutline(parsed);
-      _.keys(stats).map(k => {
-        this.stats[k] = _.get(this.stats, k, 0) + stats[k];
-      });
-      this.postData({ data: parsedJson.children });
-      this.title = "";
+      if ( pasted.indexOf("\n") >= 0) {
+        let parsed = pp.cleanDocLines(pasted);
+        let [parsedJson, stats] = pp.structureOutline(parsed);
+        _.keys(stats).map(k => {
+          this.stats[k] = _.get(this.stats, k, 0) + stats[k];
+        });
+        this.postData({ data: parsedJson.children });
+        this.title = "";
+      } else {
+        this.title += pasted;
+      }
     },
     searchForCase: _.debounce(function searchForCase() {
       const query = pp.extractCaseSearch(this.title);
@@ -159,40 +196,40 @@ export default {
 @import "../styles/vars-and-mixins";
 
 #quick-add {
-  border: 1px dashed black;
-  padding: 4rem;
-  .form {
-    line-height: 36px;
-    background-color: white;
-    border: 1px solid black;
-    padding: 8px;
-  }
-
-  .inline-search.form-control-group {
-    display: flex;
-    flex-direction: row;
-
-    *:not(:first-child) {
-      margin-left: 1rem;
+    border: 1px dashed black;
+    padding: 4rem;
+    .form {
+        line-height: 36px;
+        background-color: white;
+        border: 1px solid black;
+        padding: 8px;
     }
-    .resource-type {
-      width: 14rem;
+    
+    .inline-search.form-control-group {
+        display: flex;
+        flex-direction: row;
+        
+        *:not(:first-child) {
+            margin-left: 1rem;
+        }
+        .resource-type {
+            width: 14rem;
+        }
+        .create-button {
+            width: 12rem;
+            font-size: 18px;
+        }
     }
-    .create-button {
-      width: 12rem;
-      font-size: 18px;
+    .large-drop-down {
+        line-height: 5rem;
+        height: 46px;
+        padding: 1rem 2rem;
+        margin: 0rem;
+        float: left;
+        margin-right: 1.5rem;
     }
-  }
-  .large-drop-down {
-    line-height: 5rem;
-    height: 46px;
-    padding: 1rem 2rem;
-    margin: 0rem;
-    float: left;
-    margin-right: 1.5rem;
-  }
-  .advice {
-    margin-top: 2rem;
+    .advice {
+        margin-top: 2rem;
     ul {
       margin-top: 1rem;
     }
