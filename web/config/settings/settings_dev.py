@@ -9,6 +9,7 @@ DEBUG = True
 
 # don't check password quality locally, since it's annoying
 AUTH_PASSWORD_VALIDATORS = []
+CAPAPI_API_KEY = '87af02fb34e3960a516f68095cd4f9d20894fb3a'
 
 # avoid test errors when running tests locally, since pytest-django sets DEBUG=False and staticfiles/ doesn't exist
 # STATICFILES_STORAGE = 'pipeline.storage.PipelineStorage'

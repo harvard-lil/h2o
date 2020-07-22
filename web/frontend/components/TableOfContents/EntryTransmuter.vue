@@ -1,5 +1,5 @@
 <template>
-  <div class="input-group">
+  <div class="transmuter-holder">
   <select class="transmute-dropdown select-css" v-model="resource_type">
     <option value="Case" v-if="item.resource_type === 'Case'">Case</option>
     <option value="Temp" v-else>Case</option>
@@ -48,7 +48,10 @@ export default {
 };
 </script>
 
-<style lang="scss" scoped> 
+<style lang="scss" scoped>
+.transmuter-holder {
+  min-width: 100px;
+}
 .select-css {
 	display: block;
 	color: #444;
