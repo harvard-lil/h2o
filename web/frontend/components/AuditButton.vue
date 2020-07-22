@@ -96,7 +96,10 @@ export default {
       });
     },
     currentAuditId: function(newVal) {
-      if (this.inAuditMode) {
+        if (newVal === "None") {
+            this.inAuditMode = false;
+        }
+        if (this.inAuditMode) {
         this.auditStep(this.currentAuditId);
       }
     }

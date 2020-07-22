@@ -40,11 +40,12 @@ def frontend_urls(request):
                          '<idslug:to_casebook_dict>'   : '_toCasebookId',
                          '<idslug:section_id>'         : '_sectionId',
                          '<annotation:annotation>.json': '_annotationId',
-                         '<idslug:section_id>.json'    : '_sectionId'
+                         '<idslug:section_id>.json'    : '_sectionId',
+                         'export.<file_type>'          : 'export.docx'
         }
         return [replacements.get(x,x) for x in url.split('/')]
     global _frontend_urls
     if not _frontend_urls:
-        filtered_names = set([None, 'password_reset', 'password_reset_confirm', 'dashboard', 'export'])
+        filtered_names = set([None, 'password_reset', 'password_reset_confirm', 'dashboard'])
         _frontend_urls = {u.pattern.name:munge_url(u)  for u in urlpatterns if u.pattern.name not in filtered_names}
     return {'frontend_urls': mark_safe(json.dumps(_frontend_urls))}

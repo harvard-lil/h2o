@@ -1896,6 +1896,8 @@ def new_from_outline(request, casebook=None):
                 link = Link(name=node['title'], url=url)
                 link.save()
                 node['resource_id'] = link.id
+            elif node['resource_type'] == 'Unknown':
+                node['resource_type'] = 'Temp'
             # resource_type may be 'Temp' for skipped nodes
             if not skip_add_node:
                 content_nodes.append(ContentNode(**node))

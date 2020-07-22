@@ -79,9 +79,9 @@ urlpatterns = format_suffix_patterns(drf_urlpatterns) + [
     path('cases/from_capapi', views.from_capapi, name='from_capapi'),
     path('cases/<int:case_id>/', views.case, name='case'),
     # export
-    path('casebooks/<casebook:node>/export.<file_type>', views.export, name='export'),
-    path('sections/<section:node>/export.<file_type>', views.export, name='export'),
-    path('resources/<resource:node>/export.<file_type>', views.export, name='export'),
+    path('casebooks/<casebook:node>/export.<file_type>', views.export, name='export_casebook'),
+    path('sections/<section:node>/export.<file_type>', views.export, name='export_section'),
+    path('resources/<resource:node>/export.<file_type>', views.export, name='export_resource'),
     # canonical paths for static pages
     path('pages/about/', TemplateView.as_view(template_name='pages/about.html'), name='about'),
     path('pages/privacy-policy/', TemplateView.as_view(template_name='pages/privacy-policy.html'), name='privacy-policy'),
