@@ -223,7 +223,7 @@ WEBPACK_LOADER = {
 }
 
 CAPAPI_BASE_URL = 'https://api.case.law/v1/'
-CAPAPI_API_KEY = '87af02fb34e3960a516f68095cd4f9d20894fb3a'
+CAPAPI_API_KEY = ''
 
 COURTLISTENER_BASE_URL = 'https://www.courtlistener.com/'
 COURTLISTENER_KEY = ''
