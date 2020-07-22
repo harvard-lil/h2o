@@ -38,7 +38,7 @@
                v-bind:class="{'resource-type': true, 'temporary': item.resource_type === 'Temp'}"
                >{{ item.resource_type === 'TextBlock' ? 'Text' : item.resource_type }}</div>
         </div>
-            <div class="actions" v-if="editing">
+            <div v-bind:class="{'actions': !showDelete, 'actions-extra': showDelete}" v-if="editing">
       <button
         :aria-label="'Delete ' +item.title"
         class="action-delete"
@@ -87,7 +87,7 @@
         <div v-else>
           &nbsp;
         </div>
-    <div class="actions" v-if="editing">
+    <div v-bind:class="{'actions': !showDelete, 'actions-extra': showDelete}"  v-if="editing">
       <button
         :aria-label="'Delete ' +item.title"
         class="action-delete"

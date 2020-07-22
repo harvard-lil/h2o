@@ -315,6 +315,7 @@ export default {
             }
         }
         .list-right {
+            margin-left: 8px;
         }
         .actions {
             position: relative;
