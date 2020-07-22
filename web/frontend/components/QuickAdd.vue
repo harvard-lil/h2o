@@ -24,10 +24,10 @@
           </div>
         </div>
       </form>
-      <div
-        class="stats"
-        v-if="totalIdentified > 0"
-      >Added {{stats.sections}} sections, {{stats.cases}} cases, {{stats.links}} links, and {{stats.texts}} texts.</div>
+      <div class="stats" v-if="waitingFor">
+        <span>{{waitingFor}}</span>
+        <loading-spinner></loading-spinner>
+      </div>
     </div>
     <div class="advice">
       <span>Quickly add entries to your table of contents above</span>
@@ -67,7 +67,7 @@ export default {
   },
   props: ["casebook", "section", "rootOrdinals"],
   data: function() {
-    return { ...data(), stats: { cases: 0, texts: 0, links: 0, sections: 0 } };
+    return { ...data(), stats: {}, waitingFor: false, unWait: () => {} };
   },
   directives: {},
   computed: {
@@ -115,29 +115,39 @@ export default {
       _.keys(resets).forEach(k => {
         this[k] = resets[k];
       });
+        this.waitingFor = false;
+        this.unWait();
+        this.unWait = () => {};
     },
     lowHangingCaseCheck: function(data) {
       let self = this;
-      let query = _.get(data, 'data.0.searchString') || _.get(data, 'data.0.title')
-      if (query) {
-        self.$store.dispatch("case_search/fetch", { query }).then(
-          () => {
-          let results = self.$store.getters["case_search/getSearch"]({ query });
-          if (results && results.length === 1) {
-            data.data[0].cap_id = results[0].id;
-            data.data[0].title = data.data[0].title || results[0].name_abbreviation || results[0].name;
+      let query = _.get(data, 'data.0.searchString') || _.get(data, 'data.0.title');
+      
+      function checkForCase(results) {
+        if (results) {
+          if (results === "pending" ) {
+            return ;
           }
-          this.postData(data);
-        },
-          () => {
-            this.postData(data);
-          })
+          if (results.length === 1) {
+            data.data[0].cap_id = results[0].id;
+            if (data.data[0].title.replace(query,'').trim() === "") {
+              data.data[0].title =  results[0].name_abbreviation || results[0].name;
+            }
+          }
+          self.postData(data);
+        }
+      }
+      
+      if (query) {
+        self.waitingFor = "Gathering case info";
+        self.unWait = self.$watch(() => self.$store.getters["case_search/getSearch"]({ query }), checkForCase);
+        self.$store.dispatch("case_search/fetch", { query }).then( checkForCase, () => {this.postData(data); this.unWait()})
       }
     },
     handleSubmit: function() {
       const data = {
         section: this.section,
-        data: [this.lineInfo]
+        data: [{...this.lineInfo, title:this.title}]
       };
       data.data[0].resource_type = this.resource_type;
       if (this.resource_type === 'Case' && !_.has(data,'data.0.resource_id')) {
@@ -156,7 +166,7 @@ export default {
     },
     postData: function(data) {
       // this.$store.commit("globals/setAuditMode", false);
-      Axios.post(this.bulkAddUrl({casebookId:this.casebook}), data).then(this.handleSuccess, this.handleFailure);
+      return Axios.post(this.bulkAddUrl({casebookId:this.casebook}), data).then(this.handleSuccess, this.handleFailure);
     },
     handleSuccess: function(resp) {
       this.$store.dispatch("table_of_contents/slowMerge", {
@@ -172,7 +182,9 @@ export default {
       let pasted = (event.clipboardData || window.clipboardData).getData(
         "text"
       );
-      if ( pasted.indexOf("\n") >= 0) {
+        if ( pasted.indexOf("\n") >= 0) {
+            this.waitingFor = "Parsing pasted text";
+
         let parsed = pp.cleanDocLines(pasted);
         let [parsedJson, stats] = pp.structureOutline(parsed);
         _.keys(stats).map(k => {
@@ -185,8 +197,10 @@ export default {
       }
     },
     searchForCase: _.debounce(function searchForCase() {
-      const query = pp.extractCaseSearch(this.title);
-      this.$store.dispatch("case_search/fetch", { query });
+        const query = pp.extractCaseSearch(this.title);
+        if (query) {
+            this.$store.dispatch("case_search/fetch", { query });
+        }
     }, caseSearchDelay)
   }
 };
