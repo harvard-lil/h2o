@@ -1217,7 +1217,7 @@ def switch_node_type(request, casebook, content_node):
             content_node.save()
         elif new_type == 'TextBlock':
             content = data.get('content','TBD')
-            text_block = TextBlock(name=content_node.title, content=content)
+            text_block = TextBlock(name=content_node.title[0:250], content=content)
             text_block.save()
             text_block.refresh_from_db()
             content_node.resource_id = text_block.id

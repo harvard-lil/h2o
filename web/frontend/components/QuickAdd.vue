@@ -149,6 +149,7 @@ export default {
         section: this.section,
         data: [{...this.lineInfo, title:this.title}]
       };
+      if (data.data[0].resource_type === 'Unknown') { data.data[0].resource_type = 'Temp';}
       data.data[0].resource_type = this.resource_type;
       if (this.resource_type === 'Case' && !_.has(data,'data.0.resource_id')) {
         this.lowHangingCaseCheck(data);
