@@ -9,12 +9,17 @@
 import _ from "lodash";
 import pp from "../libs/text_outline_parser";
 import PublishButton from "./PublishButton";
+import Axios from "../config/axios";
+import urls from "../libs/urls";
+
 
 export default {
   components: {
     PublishButton
   },
+  data: () => ({autoAudited: {}}),
   methods: {
+    bulkAddUrl: urls.url('new_from_outline'),    
     startAudit: function() {
       let self = this;
       function slowSearches(nodes) {
@@ -31,13 +36,13 @@ export default {
         }
         popAndSearch();
       }
-
+      
       if (this.allNodesSpecified) {
         return;
       }
       this.inAuditMode = true;
       // Kick off all searches
-
+      
       let nodes = this.needingAudit.map(this.$store.getters["table_of_contents/getNode"]);
       slowSearches(nodes);
       let target = this.needingAudit[0];
@@ -63,9 +68,33 @@ export default {
           // Augment the node with the audit-portal
           this.$store.dispatch("table_of_contents/setAudit", { id });
         });
-    }
+    },
   },
   watch: {
+    allSearchResults: function(newVal) {
+      const self = this;
+      newVal.forEach(({ url, id, results }) => {
+        function handleSubmitResponse(id) {
+          return (response) => {
+            self.$store.dispatch("table_of_contents/clearAudit", { id });
+            self.$store.dispatch("table_of_contents/fetch", {
+              casebook: self.casebook,
+              subsection: self.section
+            });
+          };
+        }
+        if (results && results !== "pending" && results.length === 1) {
+          const data = { from: "Temp", to: "Case", cap_id: results[0].id };
+          if (!_.has(this.autoAudited, id)) {
+            this.autoAudited[id] = true;
+            Axios.patch(url, data).then(
+              handleSubmitResponse(id),
+              console.error
+            );
+          }
+        }
+      });
+    },
     currentAuditId: function(newVal) {
       if (this.inAuditMode) {
         this.auditStep(this.currentAuditId);
@@ -75,11 +104,11 @@ export default {
   computed: {
     inAuditMode: { 
       get: function() {
-      return this.$store.getters['globals/inAuditMode']();
-    },
-     set: function(val) {
-       this.$store.commit('globals/setAuditMode', val);
-     }
+        return this.$store.getters['globals/inAuditMode']();
+      },
+      set: function(val) {
+        this.$store.commit('globals/setAuditMode', val);
+      }
     },
     currentAuditId: function() {
       return this.needingAudit.length > 0 ? this.needingAudit[0] : "None";
@@ -91,6 +120,17 @@ export default {
       return this.$store.getters["table_of_contents/auditTargets"](
         this.casebook
       );
+    },
+    allSearchResults: function() {
+      let allNodes = [];
+      this.needingAudit.forEach(id => {
+        const node = this.$store.getters["table_of_contents/getNode"](id);
+        if (node && node.resource_type === 'Temp') {
+          const query = pp.extractCaseSearch(node.title);
+          allNodes.push({url: node.url, id:node.id, results: this.$store.getters["case_search/getSearch"]({ query })});
+        }
+      });
+      return allNodes;
     },
     allNodesSpecified: function() {
       return this.needingAudit.length === 0;

@@ -219,6 +219,7 @@ export default {
     button.action-expand {
         border: 0 solid transparent;
         background: transparent;
+        margin: -8px;
     }
     .no-collapse-padded {
         width: 32px;
@@ -311,17 +312,22 @@ export default {
             flex-direction:row;
             div {
                 align-self:baseline;
-                &.actions {
-                    align-self:center;
-                }
             }
         }
         .list-right {
-            padding-top: 16px;            
+        }
+        .actions {
+            position: relative;
+            top: 12px;
         }
         &.section {
+            .actions {
+                min-height:44px;
+            }
+
             align-items: left;
             background-color: $black;
+            
             @media (max-width: $screen-xs) {
                 flex-direction: row;
             }
@@ -476,7 +482,7 @@ export default {
         @media (min-width: $screen-xs) {
             &.section {
                 flex-direction: row;
-                align-items: center;
+                align-items: baseline;
             }
         }
         

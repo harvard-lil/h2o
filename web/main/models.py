@@ -1564,7 +1564,7 @@ class ContentNode(EditTrackedModel, TimestampedModel, BigPkModel, MaterializedPa
     def is_transmutable(self):
         if self.headnote and len(self.headnote) > 0 or self.provenance:
             return False
-        if self.resource_type == 'Temp':
+        if self.resource_type == 'Temp' or self.resource_type == 'Unknown':
             return True
         if not self.resource_type or self.resource_type == 'Section' or self.resource_type == '':
             self.content_tree__load()

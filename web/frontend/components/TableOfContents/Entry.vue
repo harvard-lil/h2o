@@ -84,6 +84,9 @@
         <div class="resource-type-container" v-if="item.is_transmutable">
           <entry-transmuter :item="item"></entry-transmuter>
         </div>
+        <div v-else>
+          &nbsp;
+        </div>
     <div class="actions" v-if="editing">
       <button
         :aria-label="'Delete ' +item.title"
@@ -108,7 +111,7 @@
     
     
   </vue-nestable-handle>
-  <div class="audit-drawer" v-if="item.audit">
+  <div class="audit-drawer" v-if="item.audit && item.resource_type === 'Temp'">
     <entry-auditor :item="item"></entry-auditor>
     </div>
   </div>
