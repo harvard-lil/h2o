@@ -46,7 +46,7 @@ class RecursiveField(serializers.Serializer):
 
 class SectionOutlineSerializer(serializers.ModelSerializer):
     resource_type = serializers.CharField(allow_null=True, default='Section', initial='Section')
-    edit_url = serializers.URLField(source='get_edit_url')
+    edit_url = serializers.URLField(source='get_preferred_url')
     url = serializers.URLField(source='get_absolute_url')
     citation = serializers.SerializerMethodField()
     decision_date = serializers.DateField(source='resource.decision_date', default=None)

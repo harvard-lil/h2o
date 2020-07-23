@@ -30,11 +30,7 @@
       </div>
     </div>
     <div class="advice">
-      <span>Quickly add entries to your table of contents above</span>
-      <ul>
-        <li>We'll try to automatically detect the type of content you're adding</li>
-        <li>You can copy+paste a table of contents from a word doc or PDF and we'll try to preserve the structure</li>
-      </ul>
+      <span>Enter a single title or citation, or paste in a list or outline. To learn more, review our <a href="/pages/quickadd/">quick add</a> cheat sheet or watch <a href="/pages/quickadd/#video">a short video</a> </span>
     </div>
   </div>
 </template>

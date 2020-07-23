@@ -105,6 +105,7 @@ def search_cases(request):
     frontend_url = None
     if not query:
         return Response('', status=status.HTTP_400_BAD_REQUEST)
+    query = query.replace('’',"'")
     if looks_like_case_law_link(query):
         frontend_url = query.split('cite.case.law')[1]
         search_params['search'] = 'frontend_url:"{}"'.format(frontend_url)

@@ -1141,7 +1141,8 @@ class ContentNode(EditTrackedModel, TimestampedModel, BigPkModel, MaterializedPa
             return reverse('annotate_resource', args=[self.new_casebook, self])
         raise ValueError('Only Resources (Case and TextBlock) can be annotated.')
 
-    def get_preferred_url(self, user):
+    @property
+    def get_preferred_url(self):
         """
         When this resource is displayed for the given user, this method provides the
         default/preferred url.
@@ -1155,7 +1156,7 @@ class ContentNode(EditTrackedModel, TimestampedModel, BigPkModel, MaterializedPa
           Link/Temp:
           - Return the edit url.
         """
-        if not (self.in_edit_state or self.directly_editable(user)):
+        if not (self.in_edit_state):
             return self.get_absolute_url()
         else:
             if self.resource_type in {None, "", "Section", "Link", "Temp"}:

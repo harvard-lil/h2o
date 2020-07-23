@@ -190,9 +190,8 @@ const actions = {
         let newNodes = helpers.flatFilter(newToc, notInPreviousTree);
         const delayGap = 250;
         newNodes.forEach(node => {
-            state.augments[node.id] = {cssClasses: ['loading', 'collapsed'], collapsed: node.children.length > 0};
-            node.collapsed = true;
-            node.cssClasses = ['loading', 'collapsed'];
+            state.augments[node.id] = {cssClasses: ['loading']};
+            node.cssClasses = ['loading'];
         });
         commit('overwrite', newToc);
         setTimeout(() => {

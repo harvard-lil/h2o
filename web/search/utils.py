@@ -52,12 +52,14 @@ def courtlistener_search(params, limit=10):
     if settings.COURTLISTENER_KEY:
         extra_args['headers'] = {'Authorization': 'Token %s' % settings.COURTLISTENER_KEY}
     response = requests.get(settings.COURTLISTENER_BASE_URL + "api/rest/v3/search/", search_params, **extra_args)
-    data = response.json()
-    if 'results' not in data:
+    try:
+        data = response.json()
+        if 'results' not in data:
+            return []
+        results = normalize_results(data['results'][0:limit])
+        return results
+    except Exception:
         return []
-    results = normalize_results(data['results'][0:limit])
-
-    return results
 
 
 def hybrid_search(params, limit=10):
