@@ -298,7 +298,7 @@ function guessLineType(line) {
   } else if (looksLikeLink(line)) {
     return {resource_type: 'Link', url: extractLink(line)};
   } else {
-    return {resource_type: 'Unknown', title: line};
+    return {resource_type: 'TextBlock', title: line};
   }
 }
 

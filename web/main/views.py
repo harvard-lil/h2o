@@ -1233,7 +1233,7 @@ def switch_node_type(request, casebook, content_node):
     if old_resource:
         logger.info("Deleting resource: {}".format(old_resource.id))
         old_resource.delete()
-    return HttpResponseRedirect(content_node.get_preferred_url(request.user))
+    return HttpResponseRedirect(content_node.get_preferred_url)
 
 
 class SectionView(View):
@@ -1882,7 +1882,7 @@ def new_from_outline(request, casebook=None):
                 else:
                     node['resource_id'] = internal_case_id_from_cap_id(node.pop('cap_id'))
             elif node['resource_type'] == 'TextBlock':
-                text_block = TextBlock(name=node['title'], content='TBD')
+                text_block = TextBlock(name=node['title'][0:250], content='TBD')
                 text_block.save()
                 node['resource_id'] = text_block.id
             elif node['resource_type'] == 'Link':
@@ -1896,6 +1896,7 @@ def new_from_outline(request, casebook=None):
                 link = Link(name=node['title'], url=url)
                 link.save()
                 node['resource_id'] = link.id
+                node.pop('url', None)
             elif node['resource_type'] == 'Unknown':
                 node['resource_type'] = 'Temp'
             # resource_type may be 'Temp' for skipped nodes
