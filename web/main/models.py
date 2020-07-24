@@ -1158,11 +1158,10 @@ class ContentNode(EditTrackedModel, TimestampedModel, BigPkModel, MaterializedPa
         """
         if not (self.in_edit_state):
             return self.get_absolute_url()
-        else:
-            if self.resource_type in {None, "", "Section", "Link", "Temp"}:
-                return self.get_edit_url()
-        return self.get_annotate_url()
-
+        elif self.annotatable:
+            return self.get_annotate_url()
+        return self.get_edit_url()
+        
     @property
     def type(self):
         # TODO: In use in templates and tests; shouldn't be necessary. Consider refactoring.
