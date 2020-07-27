@@ -698,6 +698,8 @@ def show_credits(request, casebook, section=None):
             continue
         known_priors = [prior_art[p] for p in node.provenance if p in prior_art]
         known_clones = [p.new_casebook for p in known_priors]
+        if not known_clones:
+            continue
         immediate_clone = known_clones[-1]
         incidental_clones = known_clones[:-1]
         cs_set = cloned_sections.get(immediate_clone.id, set())

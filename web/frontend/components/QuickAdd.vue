@@ -30,7 +30,7 @@
       </div>
     </div>
     <div class="advice">
-      <span>Enter a single title or citation, or paste in a list or outline. To learn more, review our <a href="/pages/quickadd/">quick add</a> cheat sheet or watch <a href="/pages/quickadd/#video">a short video</a> </span>
+      <span>Enter a single title or citation, or paste in a list or outline. To learn more, review our <a href="http://about.opencasebook.org/making-casebooks/#quick-add">quick add documentation.</a>  </span>
     </div>
   </div>
 </template>
