@@ -37,9 +37,9 @@
           </select>
         </label>
       </div>
-      <div class="date-row">
-        <label>
+      <label>
           Decision Date
+      <div class="date-row form-control-inline">
           <input
             name="after_date"
             type="date"
@@ -48,17 +48,17 @@
             v-model="after_date"
             @blur="reformatDates"
             />
-        </label>
         <span> - </span>
-        <label><input
+        <input
             name="before_date"
             type="date"
             class="form-control"
             placeholder="YYYY-MM-DD"
             v-model="before_date"
             @blur="reformatDates"
-            /></label>
+            />
       </div>
+        </label>
     </div>
   </form>
 </div>
@@ -264,6 +264,16 @@ export default {
 
 <style lang="scss" scoped>
 .search-button {
-  margin-left: 2rem;
+    margin-left: 2rem;
+}
+.date-row {
+    display: grid;
+    grid-template-columns: auto 24px auto;
+    align-items: baseline;
+    span {
+        text-align: center;
+        padding-top: 2rem;
+        padding-bottom: 1rem;
+    }
 }
 </style>

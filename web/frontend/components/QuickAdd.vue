@@ -187,7 +187,8 @@ export default {
         _.keys(stats).map(k => {
           this.stats[k] = _.get(this.stats, k, 0) + stats[k];
         });
-        this.postData({ data: parsedJson.children });
+            this.postData({ section: this.section,
+                            data: parsedJson.children });
         this.title = "";
       } else {
         this.title += pasted;
