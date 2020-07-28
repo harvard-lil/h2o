@@ -467,6 +467,10 @@ class UserAdmin(BaseAdmin, DjangoUserAdmin):
     def has_add_permission(self, request):
         return super(BaseAdmin, self).has_add_permission(request)
 
+    def has_delete_permission(self, request, obj=None):
+        return super(BaseAdmin, self).has_delete_permission(request, obj)
+
+
 
 class CollaboratorsAdmin(BaseAdmin):
     readonly_fields = ['created_at', 'updated_at', 'user', 'casebook']
