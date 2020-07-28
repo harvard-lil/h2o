@@ -1832,6 +1832,8 @@ def new_from_outline(request, casebook=None):
         for node in all_nodes:
             skip_add_node = False
             node['new_casebook'] = parent_section.new_casebook
+            if ('title' not in node) or node['title'].strip() == '':
+                node['title'] = 'Untitled'
             if 'resource_type' not in node:
                 node['resource_type'] = 'Section'
             elif node['resource_type'] == 'Clone':

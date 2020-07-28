@@ -31,7 +31,7 @@
                   >Specify Case</button>
         </div>
         <div class="resource-type-container">
-          <div v-if="item.is_transmutable">
+          <div v-if="item.is_transmutable && editing">
             <entry-transmuter :item="item"></entry-transmuter>
           </div>
           <div v-else
@@ -81,7 +81,7 @@
         </div>
       </div>
       <div class="list-right">
-        <div class="resource-type-container" v-if="item.is_transmutable">
+        <div class="resource-type-container" v-if="item.is_transmutable && editing">
           <entry-transmuter :item="item"></entry-transmuter>
         </div>
         <div v-else>
