@@ -4,7 +4,7 @@
   v-bind:class="['listing-wrapper', showDelete ? 'delete-confirm' : '', animated, dimmed]"
   v-click-outside.stop.prevent="dismissAudit"
   >
-  <vue-nestable-handle :item="item">
+  <component :is="editing ? 'vue-nestable-handle' : 'div'" v-bind:item="item">
     <div v-bind:class="{'listing':true, 'resource':true, 'temporary': item.resource_type == 'Temp', 'editing': 'editing'}" v-if="isResource">
       <div class="list-left">
         <div class="section-number">{{rootOrdinalDisplay}}</div>
@@ -108,9 +108,7 @@
 
       </div>
     </div>
-    
-    
-  </vue-nestable-handle>
+  </component>
   <div class="audit-drawer" v-if="item.audit && item.resource_type === 'Temp'">
     <entry-auditor :item="item"></entry-auditor>
     </div>
