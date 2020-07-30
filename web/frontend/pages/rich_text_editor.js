@@ -10,7 +10,7 @@ import 'tinymce/plugins/paste';
 function initRichTextEditor(element, code=false) {
   let plugins = ['link', 'lists', 'image', 'table'];
   // toolbar options: https://www.tiny.cloud/docs/advanced/editor-control-identifiers/#toolbarcontrols
-  let toolbar = 'undo redo removeformat | styleselect | bold italic underline | numlist bullist indent outdent | table blockquote link image';
+  let toolbar = 'undo redo removeformat | styleselect | h1 h2 | bold italic underline | numlist bullist indent outdent | table blockquote link image';
   if (code){
     plugins.push('code');
     toolbar += ' | code';
