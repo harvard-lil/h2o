@@ -1551,7 +1551,7 @@ def annotate_resource(request, casebook, resource):
         # Only Cases and TextBlocks can be annotated.
         # Rails serves the "edit" page contents at both "edit" and "annotate" when resources can't be annotated;
         # let's redirect instead.
-        return HttpResponseRedirect(reverse('edit_resource', args=[resource.casebook, resource]))
+        return HttpResponseRedirect(reverse('edit_resource', args=[resource.new_casebook, resource]))
 
     return render_with_actions(request, 'resource_annotate.html', {
         'resource': resource,

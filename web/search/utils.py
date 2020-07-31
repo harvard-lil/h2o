@@ -51,8 +51,8 @@ def courtlistener_search(params, limit=10):
     extra_args = {}
     if settings.COURTLISTENER_KEY:
         extra_args['headers'] = {'Authorization': 'Token %s' % settings.COURTLISTENER_KEY}
-    response = requests.get(settings.COURTLISTENER_BASE_URL + "api/rest/v3/search/", search_params, **extra_args)
     try:
+        response = requests.get(settings.COURTLISTENER_BASE_URL + "api/rest/v3/search/", search_params, **extra_args)
         data = response.json()
         if 'results' not in data:
             return []
