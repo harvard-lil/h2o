@@ -19,6 +19,7 @@ import QuickAdd from "../components/QuickAdd";
 import ResourceTypePicker from "../components/ResourceTypePicker";
 import Globals from "../components/Globals";
 import AuditButton from "../components/AuditButton";
+import Dashboard from "../components/Dashboard";
 
 document.addEventListener("DOMContentLoaded", () => {
   const routes = [
@@ -43,7 +44,8 @@ document.addEventListener("DOMContentLoaded", () => {
         QuickAdd,
         ResourceTypePicker,
         Globals,
-        AuditButton
+        AuditButton,
+        Dashboard
     }
   });
 

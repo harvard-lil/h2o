@@ -24,20 +24,29 @@ drf_urlpatterns = [
     path('resources/<resource:resource>/annotations', views.AnnotationListView.as_view(), name='annotation_list'),
     path('casebook/<idslug:casebook_param>/toc/<idslug:section_id>', views.SectionTOCView.as_view(), name='toc_list'),
     path('casebook/<idslug:casebook_param>/toc', views.CasebookTOCView.as_view(), name='casebook_toc_list'),
+    path('api/titles/', no_perms_test(views.CommonTitleView.as_view()), name='new_title'),
+    path('api/titles/<int:title_id>', no_perms_test(views.CommonTitleView.as_view()), name='edit_title'),
+
 ]
 
 urlpatterns = format_suffix_patterns(drf_urlpatterns) + [
     path('', views.index, name='index'),
-    path('archived/', views.archived_casebooks, name='archived_casebooks'),
+    path('casebooks/archived/', views.archived_casebooks, name='archived_casebooks'),
 
     # users
     path('users/<int:user_id>/', views.dashboard, name='dashboard'),
+
     path('accounts/new/', views.sign_up, name='sign_up'),
     path('accounts/edit/', views.edit_user, name='edit_user'),
     # built-in Django auth views for login/logout/password update/password reset, with overrides to replace the form or tweak behavior in some views
     path('accounts/password_reset/', no_perms_test(views.reset_password), name='password_reset'),
     path('accounts/reset/<uidb64>/<token>/', no_perms_test(auth_views.PasswordResetConfirmView.as_view(form_class=forms.SetPasswordForm)), name='password_reset_confirm'),
     path('accounts/', include('django.contrib.auth.urls')),
+
+    # author urls
+    path('author/<slug:user_slug>/', no_perms_test(views.dashboard), name='pretty_dashboard'),
+    path('author/<slug:user_slug>/<slug:title_slug>/', no_perms_test(views.pretty_url_dispatch), name='pretty_casebook'),
+    path('author/<slug:user_slug>/<slug:title_slug>/<ordslug:content_param>', no_perms_test(views.pretty_url_dispatch), name='pretty_section'),
 
     # resources
     path('casebooks/<idslug:casebook_param>/resources/<ordslug:resource_param>/layout/', RedirectView.as_view(pattern_name='resource', permanent=True)),
