@@ -1633,7 +1633,7 @@ def case(request, case_id):
 
 def internal_case_id_from_cap_id(cap_id):
     # try to fetch existing case:
-    case = Case.objects.filter(capapi_id=cap_id, public=True).first()
+    case = Case.objects.filter(capapi_id=cap_id, public=True).order_by('-id').first()
 
     if not case:
         # fetch from CAP:
