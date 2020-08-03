@@ -1197,7 +1197,7 @@ def switch_node_type(request, casebook, content_node):
         new_type = data['to']
         if old_type == new_type:
             return HttpResponseBadRequest("To and From are the same")
-        if content_node.has_body:
+        if content_node.has_body and content_node.resource_type == 'TextBlock':
             old_resource = content_node.resource
         else:
             old_resource = None
@@ -1863,7 +1863,7 @@ def new_from_outline(request, casebook=None):
                         child.ordinals = shell_node.ordinals + child.ordinals
                     cloned_content_nodes.append(shell_node)
                 elif target_node.permits_cloning or target_node.new_casebook.editable_by(request.user):
-                    target_and_children  = [target_node] + list(target_node.contents.all())
+                    target_and_children = [target_node] + list(target_node.contents.all())
                     cloned_resources, cloned_content_nodes, cloned_annotations = casebook.collect_cloning_nodes(target_and_children)
                     # casebook.save_and_parent_cloned_resources(cloned_resources)
                     old_ordinals = cloned_content_nodes[0].ordinals
@@ -1904,6 +1904,7 @@ def new_from_outline(request, casebook=None):
             elif node['resource_type'] == 'Unknown':
                 node['resource_type'] = 'Temp'
             # resource_type may be 'Temp' for skipped nodes
+            node.pop('searchString', None)
             if not skip_add_node:
                 content_nodes.append(ContentNode(**node))
         ContentNode.objects.bulk_create(content_nodes)
