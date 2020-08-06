@@ -16,7 +16,8 @@ from django.core.validators import URLValidator
 from django.db import transaction
 from django.db.models import Q
 from django.http import (Http404, HttpResponse, HttpResponseBadRequest,
-                         HttpResponseRedirect, JsonResponse)
+                         HttpResponseRedirect, HttpResponseServerError,
+                         HttpResponseForbidden, JsonResponse)
 from django.shortcuts import get_object_or_404, render
 from django.urls import reverse
 from django.utils.decorators import method_decorator
@@ -306,6 +307,34 @@ def render_with_actions(request, template_name, context=None, content_type=None,
         **context,
         **actions(request, context)
     }, content_type, status, using)
+
+### error handlers ###
+
+def bad_request(request, exception):
+    '''
+    Custom view for 400 failures, required for proper rendering of
+    our custom template, which uses injected context variables.
+    https://github.com/django/django/blob/master/django/views/defaults.py#L97
+    '''
+    return HttpResponseBadRequest(render(request, '400.html'))
+
+
+def csrf_failure(request, reason="CSRF Failure."):
+    '''
+    Custom view for CSRF failures, required for proper rendering of
+    our custom template, which uses injected context variables.
+    https://github.com/django/django/blob/master/django/views/defaults.py#L146
+    '''
+    return HttpResponseForbidden(render(request, '403_csrf.html'))
+
+
+def server_error(request):
+    '''
+    Custom view for 500 failures, required for proper rendering of
+    our custom template, which uses injected context variables.
+    https://github.com/django/django/blob/master/django/views/defaults.py#L97
+    '''
+    return HttpResponseServerError(render(request, '500.html'))
 
 
 ### views ###

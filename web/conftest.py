@@ -619,3 +619,97 @@ def client():
             else:
                 return super().request(*args, **kwargs)
     return UserClient()
+
+
+@pytest.fixture
+def client_with_raise_request_exception():
+    """
+        Django 3.0 adds an argument to the test client, `raise_request_exception`,
+        letting you toggle whether or not exceptions raised during the request
+        should also be raised in the test.
+
+        This fixture grabs that feature from https://github.com/django/django/pull/10892,
+        for use in testing error pages.
+    """
+    import django.test.client
+    from django.test.client import Client
+
+    class RaiseRequestExceptionClient(Client):
+
+        def __init__(self, enforce_csrf_checks=False, raise_request_exception=True, **defaults):
+            super().__init__(**defaults)
+            self.handler = django.test.client.ClientHandler(enforce_csrf_checks)
+            self.raise_request_exception = raise_request_exception
+            self.exc_info = None
+
+        def request(self, **request):
+            """
+            The master request method. Compose the environment dictionary and pass
+            to the handler, return the result of the handler. Assume defaults for
+            the query environment, which can be overridden using the arguments to
+            the request.
+            """
+            environ = self._base_environ(**request)
+
+            # Curry a data dictionary into an instance of the template renderer
+            # callback function.
+            data = {}
+            on_template_render = django.test.client.partial(django.test.client.store_rendered_templates, data)
+            signal_uid = "template-render-%s" % id(request)
+            django.test.client.signals.template_rendered.connect(on_template_render, dispatch_uid=signal_uid)
+            # Capture exceptions created by the handler.
+            exception_uid = "request-exception-%s" % id(request)
+            django.test.client.got_request_exception.connect(self.store_exc_info, dispatch_uid=exception_uid)
+            try:
+                try:
+                    response = self.handler(environ)
+                except django.test.client.TemplateDoesNotExist as e:
+                    # If the view raises an exception, Django will attempt to show
+                    # the 500.html template. If that template is not available,
+                    # we should ignore the error in favor of re-raising the
+                    # underlying exception that caused the 500 error. Any other
+                    # template found to be missing during view error handling
+                    # should be reported as-is.
+                    if e.args != ('500.html',):
+                        raise
+
+                # Look for a signalled exception, clear the current context
+                # exception data, then re-raise the signalled exception.
+                # Also make sure that the signalled exception is cleared from
+                # the local cache!
+                response.exc_info = self.exc_info
+                if self.exc_info:
+                    _, exc_value, _ = self.exc_info
+                    self.exc_info = None
+                    if self.raise_request_exception:
+                        raise exc_value
+
+                # Save the client and request that stimulated the response.
+                response.client = self
+                response.request = request
+
+                # Add any rendered template detail to the response.
+                response.templates = data.get("templates", [])
+                response.context = data.get("context")
+
+                response.json = django.test.client.partial(self._parse_json, response)
+
+                # Attach the ResolverMatch instance to the response
+                response.resolver_match = django.test.client.SimpleLazyObject(lambda: django.test.client.resolve(request['PATH_INFO']))
+
+                # Flatten a single context. Not really necessary anymore thanks to
+                # the __getattr__ flattening in ContextList, but has some edge-case
+                # backwards-compatibility implications.
+                if response.context and len(response.context) == 1:
+                    response.context = response.context[0]
+
+                # Update persistent cookie data.
+                if response.cookies:
+                    self.cookies.update(response.cookies)
+
+                return response
+            finally:
+                django.test.client.signals.template_rendered.disconnect(dispatch_uid=signal_uid)
+                django.test.client.got_request_exception.disconnect(dispatch_uid=exception_uid)
+
+    return RaiseRequestExceptionClient

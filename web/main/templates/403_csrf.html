@@ -1,0 +1,12 @@
+{% extends 'base.html' %}
+
+{% block page_title %}403 Login Request Failed{% endblock %}
+
+{% block mainContent %}
+<div class="content">
+  <div class="pages-content">
+   <h1>Login Request Failed</h1>
+   <p>Your attempt to log in failed. If you believe you reached this page in error, please <a href="mailto:{{ CONTACT_EMAIL }}?subject=Permission%20Denied">contact us</a>.</p>
+  </div>
+</div>
+{% endblock %}
