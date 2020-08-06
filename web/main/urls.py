@@ -108,6 +108,6 @@ if settings.DEBUG or settings.TESTING:
         for error_page in ('400.html', '403.html', '403_csrf.html', '404.html', '500.html')
     ]
     urlpatterns += [
-        path(error_page, no_perms_test(getattr(test_views, f"raise_{error_page}")), name=error_page)
+        path(error_page, no_perms_test(getattr(test_views, "raise_{}".format(error_page))), name=error_page)
         for error_page in ('400', '403', '403_csrf', '404', '500')
     ]
