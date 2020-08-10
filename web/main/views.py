@@ -919,16 +919,15 @@ def create_draft(request, casebook):
 
 @perms_test(
     {'method': 'post', 'args': ['casebook'],
-     'results': {403: ['casebook.testing_editor', 'other_user'], 'login': [None]}},
+     'results': {302: ['casebook.testing_editor', 'other_user']}},
     {'method': 'post', 'args': ['draft_casebook'],
-     'results': {200: ['draft_casebook.testing_editor'], 403: ['other_user'], 'login': [None]}},
+     'results': {200: ['draft_casebook.testing_editor'], 302: ['other_user']}},
     {'method': 'post', 'args': ['private_casebook'],
-     'results': {200: ['private_casebook.testing_editor'], 403: ['other_user'], 'login': [None]}},
+     'results': {200: ['private_casebook.testing_editor'], 302: ['other_user']}},
 )
 @require_http_methods(["GET", "POST"])
 @requires_csrf_token
 @hydrate_params
-@user_has_perm('casebook', 'directly_editable_by')
 def edit_casebook(request, casebook):
     """
         Given:
@@ -957,6 +956,8 @@ def edit_casebook(request, casebook):
         ... )
 
     """
+    if not request.user.is_authenticated or not casebook.directly_editable_by(request.user):
+        return HttpResponseRedirect(reverse('casebook', args=[casebook]))
     # NB: The Rails app does NOT redirect here to a canonical URL; it silently accepts any slug.
     # Duplicating that here.
     form = CasebookForm(request.POST or None, instance=casebook)
