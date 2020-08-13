@@ -17,6 +17,8 @@ from django.contrib.auth.base_user import AbstractBaseUser, BaseUserManager
 from django.contrib.auth.models import PermissionsMixin
 from django.contrib.postgres.fields import ArrayField, JSONField
 from django.contrib.postgres.indexes import GinIndex
+from django.core.exceptions import ValidationError
+from django.core.validators import validate_unicode_slug
 from django.db import models, transaction
 from django.template.defaultfilters import truncatechars
 from django.template.loader import render_to_string
@@ -1788,7 +1790,7 @@ class CasebookAndSectionMixin(models.Model):
         users = [collaborator.user for cn in
                     ContentNode.objects.filter(id__in=originating_node)
                         .select_related('casebook')
-                        .prefetch_related('casebook__contentcollaborator_set__user')
+                        .prefetch_related('casebook__tempcollaborator_set__user')
                         .all()
                     for collaborator in cn.new_casebook.tempcollaborator_set.all() if collaborator.has_attribution and collaborator.user.attribution != 'Anonymous']
         return set(users)
@@ -1969,7 +1971,13 @@ class SectionAndResourceMixin(models.Model):
         """See ContentNode.get_draft_url"""
         return self.new_casebook.get_draft_url()
 
+class CommonTitle(BigPkModel):
+    name = models.CharField(max_length=300, blank=False, null=False)
+    public_url = models.CharField(max_length=300, blank=False, null=False, validators=[validate_unicode_slug])
+    current = models.ForeignKey('Casebook', on_delete=models.DO_NOTHING, blank=False, null=False, related_name='title_name')
 
+    class Meta:
+        managed = True
 
 class Casebook(EditTrackedModel, TimestampedModel, BigPkModel, CasebookAndSectionMixin, TrackedCloneable):
     old_casebook = models.ForeignKey('ContentNode', on_delete=models.DO_NOTHING,blank=True,null=True,related_name='replacement_casebook')
@@ -2005,6 +2013,13 @@ class Casebook(EditTrackedModel, TimestampedModel, BigPkModel, CasebookAndSectio
         related_name='draft_of'
     )
     history = HistoricalRecords()
+    common_title = models.ForeignKey(
+        'CommonTitle',
+        on_delete=models.SET_NULL,
+        blank=True,
+        null=True,
+        related_name='casebooks'
+    )
 
     tracked_fields = ['headnote']
 
@@ -2135,6 +2150,10 @@ class Casebook(EditTrackedModel, TimestampedModel, BigPkModel, CasebookAndSectio
     def get_absolute_url(self):
         """See ContentNode.get_absolute_url"""
         return reverse('casebook', args=[self])
+
+    @property
+    def view_url(self):
+        return self.get_absolute_url()
 
     def get_draft_url(self):
         """See ContentNode.get_draft_url"""
@@ -2373,6 +2392,7 @@ class Casebook(EditTrackedModel, TimestampedModel, BigPkModel, CasebookAndSectio
                                                public=False,
                                                old_casebook=None,
                                                provenance=self.provenance + [self.id],
+                                               draft=None,
                                                state=(Casebook.LifeCycle.DRAFT.value if draft_mode else Casebook.LifeCycle.NEWLY_CLONED.value))
         cloned_casebook.save()
 
@@ -2556,6 +2576,21 @@ class Casebook(EditTrackedModel, TimestampedModel, BigPkModel, CasebookAndSectio
         else:
             self.state = target_state
             self.save()
+
+    #Editions
+    @property
+    def is_current_edition(self):
+        return self.common_title is None or self.common_title.current == self
+
+    @property
+    def is_outdated(self):
+        return not self.is_current_edition
+
+    @property
+    def current_edition(self):
+        if self.is_current_edition:
+            return self
+        return self.common_title.current
 
     # Collaborators
     @property
@@ -2937,11 +2972,32 @@ class TextBlock(NullableTimestampedModel, AnnotatedModel):
     def related_resources(self):
         return Resource.objects.filter(resource_id=self.id, resource_type='TextBlock')
 
+def validate_unused_prefix(value):
+    if value.lower() in set(['accounts',
+                     'archived',
+                     'casebook',
+                     'casebooks',
+                     'cases',
+                     'pages',
+                     'resources',
+                     'robots.txt',
+                     'sections',
+                     'users',
+                     'api',
+                     'about',
+                     'privacy-policy',
+                     'terms-of-service',
+                     'faq',
+                     'search']):
+        raise ValidationError('{} is already in use'.format(value))
+
+
 
 class User(NullableTimestampedModel, PermissionsMixin, AbstractBaseUser):
     email_address = models.CharField(max_length=255, unique=True)
     attribution = models.CharField(max_length=255, default='Anonymous', verbose_name='Display name')
     affiliation = models.CharField(max_length=255, blank=True, null=True)
+    public_url = models.CharField(max_length=255, blank=True, null=True, unique=True, validators=[validate_unicode_slug, validate_unused_prefix])
     verified_professor = models.BooleanField(default=False)
     professor_verification_requested = models.BooleanField(default=False)
 

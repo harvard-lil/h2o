@@ -148,7 +148,8 @@ class NewTextBlockForm(ModelForm):
 class UserProfileForm(ModelForm):
     class Meta:
         model = User
-        fields = ['email_address', 'attribution', 'affiliation', 'professor_verification_requested']
+        fields = ['email_address', 'attribution', 'affiliation', 'professor_verification_requested', 'public_url']
+    public_url = forms.CharField(label="Public url",help_text="Your public casebooks will be accessible at https://opencasebook.org/author/[public url]/", required=False)
 
     def __init__(self, *args, **kwargs):
         """
@@ -163,7 +164,7 @@ class UserProfileForm(ModelForm):
         self.helper = FormHelper()
         self.helper.form_tag = True
         self.helper.layout = Layout(
-            'email_address', 'attribution', 'affiliation',
+            'email_address', 'attribution', 'affiliation','public_url',
             (
                 HTML('<div class="verified-professor">Verified Professor<span class="verified"></span></div>') if self.instance.verified_professor else
                 HTML('<div class="verified-professor">Professor Verification Requested</div>') if self.instance.professor_verification_requested else

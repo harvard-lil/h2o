@@ -7,20 +7,7 @@
 <section class="dashboard" style="margin-top: 15px;">
   <p id="main" tabindex="-1" class="sr-only">Main Content</p>
   <div class="content">
-    {% if user == request.user %}
-      <h2 class="casebooks">My Casebooks</h2>
-      <div class="archived-link"><a href="{%url 'archived_casebooks' %}">[View Archived Casebooks]</a></div>
-      <hr class="owned"/>
-      {% include "includes/content_browser.html" with content=user.non_draft_casebooks %}
-    {% else %}
-      <h2 class="casebooks">{{ user.display_name }}'s Casebooks</h2>
-      <hr class="owned"/>
-      {% if request.user.is_superuser %}
-        {% include "includes/content_browser.html" with content=user.non_draft_casebooks %}
-      {% else %}
-        {% include "includes/content_browser.html" with content=user.published_casebooks %}
-      {% endif %}
-    {% endif %}
+      <dashboard :casebook-list="{{casebooks}}"> </dashboard>
   </div>
 </section>
 {% endblock %}

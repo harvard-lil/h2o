@@ -41,6 +41,9 @@ def frontend_urls(request):
                          '<idslug:section_id>'         : '_sectionId',
                          '<annotation:annotation>.json': '_annotationId',
                          '<idslug:section_id>.json'    : '_sectionId',
+                         '<slug:user_slug>'            : '_userSlug',
+                         '<slug:title_slug>'           : '_titleSlug',
+                         '<ordslug:content_param>'     : '_nodeOrd',
                          'export.<file_type>'          : 'export.docx'
         }
         return [replacements.get(x,x) for x in url.split('/')]

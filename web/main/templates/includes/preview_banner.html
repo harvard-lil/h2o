@@ -26,5 +26,11 @@
             {% endif %}
         </div>
     </div>
+{% elif casebook.is_outdated %}
+    <div class="casebook-archived banner">
+        <div class="non-edit-inner-banner">
+            You are viewing an old edition of a casebook. <a href="{{ casebook.current_edition.view_url }}"> View the current edition here.</a>
+        </div>
+    </div>
 {% endif %}
 

@@ -89,6 +89,11 @@ section#flash {
   &.casebook-archived {
       background-color: grey;
       color: white;
+      a {
+          background-color:white;
+          padding:2px;
+          padding-top: 4px;
+      }
 
       .non-edit-inner-banner {
           @include sans-serif($bold, 14px, 14px);

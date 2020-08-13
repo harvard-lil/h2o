@@ -32,14 +32,16 @@ from pytest import raises as assert_raises
 from rest_framework import status
 from rest_framework.response import Response
 from rest_framework.views import APIView
+from rest_framework.exceptions import ValidationError
+
 
 from .forms import (CasebookForm, CasebookSettingsForm, LinkForm,
                     NewTextBlockForm, ResourceForm, SectionForm, SignupForm,
                     TextBlockForm, UserProfileForm)
-from .models import (Case, Casebook, ContentAnnotation, ContentNode, Link,
+from .models import (Case, Casebook, CommonTitle, ContentAnnotation, ContentNode, Link,
                      Resource, Section, TextBlock, User)
-from .serializers import (AnnotationSerializer, CaseSerializer,
-                          NewAnnotationSerializer, SectionOutlineSerializer,
+from .serializers import (AnnotationSerializer, CaseSerializer, CasebookListSerializer, CommonTitleSerializer,
+                          NewAnnotationSerializer, NewCommonTitleSerializer, SectionOutlineSerializer,
                           TextBlockSerializer, UpdateAnnotationSerializer)
 from .test.test_permissions_helpers import (directly_editable_resource,
                                             directly_editable_section,
@@ -63,6 +65,22 @@ def login_required_response(request):
     else:
         return redirect_to_login(request.build_absolute_uri())
 
+def find_from_title_slugs(user_slug=None, title_slug= None, content_param=None):
+    if title_slug is None:
+        return (None, None)
+    titles = CommonTitle.objects.filter(public_url=title_slug).prefetch_related('casebooks').prefetch_related('casebooks__tempcollaborator_set').filter(casebooks__collaborators__public_url=user_slug)
+    title = titles.distinct().first()
+    if not title:
+        return (None, None)
+    casebook = title.current
+    if not content_param:
+        return ('Casebook', casebook)
+    section = ContentNode.objects.filter(new_casebook=casebook, ordinals=content_param['ordinals']).first()
+    if not section:
+        return (None, None)
+    if section.is_resource:
+        return ('Resource', section)
+    return ('Section', section)
 
 def hydrate_params(func):
     """
@@ -87,7 +105,7 @@ def hydrate_params(func):
 
     @wraps(func)
     def wrapper(request, *args, **kwargs):
-        casebook_param = kwargs.pop('casebook_param')
+        casebook_param = kwargs.pop('casebook_param', None)
         if casebook_param:
             candidate_casebooks = [x for x in Casebook.objects.filter(Q(pk=casebook_param['id']) | Q(old_casebook=casebook_param['id'])).all()]
             new_cb_ids = [x for x in candidate_casebooks if x.id == casebook_param['id']]
@@ -547,17 +565,127 @@ class AnnotationDetailView(APIView):
         annotation.delete()
         return Response(status=status.HTTP_204_NO_CONTENT)
 
+class CommonTitleView(APIView):
+    @method_decorator(requires_csrf_token)
+    @no_perms_test
+    def post(self, request):
+        """
+        Given:
+        >>> private, with_draft, client, user_factory = [getfixture(f) for f in ['full_private_casebook', 'full_casebook_with_draft', 'client', 'user_factory']]
+        >>> draft = with_draft.draft
+
+        A user must be logged in to create a new CommonTitle
+        >>> check_response(
+        ...     client.post(reverse('new_title'), json.dumps({'name': 'l', 'public_url':'l', 'current':with_draft.id, 'casebooks':[{'id':with_draft.id}]}),content_type="application/json", as_user=None),
+        ...     status_code=403
+        ... )
+        >>> other_user = user_factory()
+        >>> check_response(
+        ...     client.post(reverse('new_title'), json.dumps({'name': 'l', 'public_url':'l', 'current':with_draft.id, 'casebooks':[{'id':with_draft.id}]}),content_type="application/json", as_user=other_user),
+        ...     status_code=403
+        ... )
+        >>> check_response(
+        ...     client.post(reverse('new_title'), json.dumps({'name': 'l', 'public_url':'l', 'current':with_draft.id, 'casebooks':[{'id':with_draft.id}]}),content_type="application/json", as_user=with_draft.testing_editor),
+        ...     status_code=200
+        ... )
+        """
+        serializer = NewCommonTitleSerializer(data=request.data)
+        if serializer.is_valid():
+            cb_data = serializer.validated_data['casebooks']
+            casebooks = set(Casebook.objects.filter(id__in={cb['id'] for cb in cb_data}))
+            if len(cb_data) != len(casebooks):
+                raise ValidationError
+            for casebook in casebooks:
+                if not casebook.editable_by(request.user):
+                    return HttpResponseForbidden({})
+            if serializer.validated_data['current'] not in casebooks:
+                raise ValidationError
+            val = serializer.save()
+            return Response(CommonTitleSerializer(val, context={'request': request}).data)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+    def delete(self, request, title_id=None):
+        """
+        Given:
+        >>> private, with_draft, client, user_factory = [getfixture(f) for f in ['full_private_casebook', 'full_casebook_with_draft', 'client', 'user_factory']]
+        >>> other_user = user_factory()
+        >>> ct = CommonTitle.objects.create(name='foo', public_url='foo', current=with_draft)
+        >>> with_draft.common_title = ct
+        >>> with_draft.save()
+        >>> check_response(
+        ...     client.delete(reverse('edit_title', args=[ct.id]), as_user=other_user),
+        ...     status_code=403
+        ... )
+        >>> check_response(
+        ...     client.delete(reverse('edit_title', args=[ct.id]), as_user=with_draft.testing_editor),
+        ...     status_code=204
+        ... )
+        """
+        title = get_object_or_404(CommonTitle.objects.filter(id=title_id))
+        for cb in title.casebooks.all():
+            if not cb.editable_by(request.user):
+                return HttpResponseForbidden({})
+            cb.commont_title = None
+        title.delete()
+        return Response(status=status.HTTP_204_NO_CONTENT)
+
+    def put(self, request, title_id=None):
+        """
+        Given:
+        >>> private, with_draft, client, user_factory = [getfixture(f) for f in ['full_private_casebook', 'full_casebook_with_draft', 'client', 'user_factory']]
+        >>> other_user = user_factory()
+        >>> ct = CommonTitle.objects.create(name='foo', public_url='foo', current=with_draft)
+        >>> with_draft.common_title = ct
+        >>> with_draft.save()
+        >>> check_response(
+        ...     client.put(reverse('edit_title', args=[ct.id]), json.dumps({'name': 'l', 'public_url':'l', 'current':{'id':with_draft.id}, 'casebooks':[{'id':with_draft.id},{'id':private.id}]}),content_type="application/json", as_user=None),
+        ...     status_code=403
+        ... )
+        >>> other_user = user_factory()
+        >>> check_response(
+        ...     client.put(reverse('edit_title', args=[ct.id]), json.dumps({'name': 'l', 'public_url':'l', 'current':{'id':with_draft.id}, 'casebooks':[{'id':with_draft.id},{'id':private.id}]}),content_type="application/json", as_user=other_user),
+        ...     status_code=403
+        ... )
+        >>> private.add_collaborator(with_draft.testing_editor, can_edit=True)
+        >>> check_response(
+        ...     client.put(reverse('edit_title', args=[ct.id]), json.dumps({'name': 'l', 'public_url':'l', 'current':{'id':with_draft.id}, 'casebooks':[{'id':with_draft.id},{'id':private.id}]}),content_type="application/json", as_user=with_draft.testing_editor),
+        ...     status_code=200
+        ... )
+        """
+        og_title = get_object_or_404(CommonTitle.objects.filter(id=title_id))
+        serializer = CommonTitleSerializer(og_title, data=request.data, partial=True)
+        if serializer.is_valid():
+            old_casebooks = set(Casebook.objects.filter(common_title=title_id).all())
+            for casebook in old_casebooks:
+                if not casebook.editable_by(request.user):
+                    return HttpResponseForbidden({})
+            for casebook in Casebook.objects.filter(id__in={x['id'] for x in request.data['casebooks']}).all():
+                if not casebook.editable_by(request.user):
+                    return HttpResponseForbidden({})
+                if casebook in old_casebooks:
+                    old_casebooks.remove(casebook)
+            if serializer.validated_data['current'] not in serializer.validated_data['casebooks']:
+                return HttpResponseBadRequest({})
+            for ocb in old_casebooks:
+                ocb.common_title=None
+            Casebook.objects.bulk_update(list(old_casebooks), ['common_title'])
+            val = serializer.save()
+            data = CommonTitleSerializer(val, context={'request': request}).data
+            return Response(data)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+
 
 @perms_test({'results': {200: ['user', None]}})
 def index(request):
     if request.user.is_authenticated:
-        return render(request, 'dashboard.html', {'user': request.user})
+        return dashboard(request, user_id=request.user.id)
     else:
         return render(request, 'index.html')
 
 
 @perms_test({'args': ['user.id'], 'results': {200: ['user', None]}})
-def dashboard(request, user_id):
+def dashboard(request, user_id=None, user_slug=None):
     """
         Show given user's casebooks.
 
@@ -590,15 +718,27 @@ def dashboard(request, user_id):
         >>> check_response(client.get(url, as_user=admin_user), content_excludes=draft_casebook.title)
 
         Drafts of published books are described as "unpublished changes" to owners and admins:
-        >>> check_response(client.get(url, as_user=user), content_includes="This casebook has unpublished changes.")
-        >>> check_response(client.get(url, as_user=admin_user), content_includes="This casebook has unpublished changes.")
+        >>> check_response(client.get(url, as_user=user), content_includes="draft_url")
 
         Drafts of published books are not apparent to other users:
         >>> check_response(client.get(url), content_excludes="This casebook has unpublished changes.")
         >>> check_response(client.get(url, as_user=non_collaborating_user), content_excludes="This casebook has unpublished changes.")
     """
-    user = get_object_or_404(User, pk=user_id)
-    return render(request, 'dashboard.html', {'user': user})
+    if user_slug:
+        user = get_object_or_404(User, public_url=user_slug)
+    elif user_id:
+        user = get_object_or_404(User, pk=user_id)
+    else:
+        raise Http404
+    all_casebooks = [x for x in user.casebooks.exclude(state='Archived').exclude(state='Draft').all() if x.viewable_by(request.user)]
+    titles = set([cb.common_title for cb in all_casebooks if cb.common_title])
+    loose_casebooks = [x for x in all_casebooks if not x.common_title]
+    data = json.dumps({'casebooks': CasebookListSerializer(loose_casebooks, many=True, context={'request': request}).data,
+                       'titles': CommonTitleSerializer(titles, many=True, context={'request': request}).data,
+                       'user': {'name': user.display_name,
+                                'public_url': user.public_url,
+                                'active': user == request.user}})
+    return render(request, 'dashboard.html', {'user': user, 'casebooks': data})
 
 
 @no_perms_test
@@ -626,7 +766,7 @@ def sign_up(request):
         >>> check_response(client.post(new_password_form_response.redirect_chain[0][0], {'new_password1': 'anewpass', 'new_password2': 'anewpass'}, follow=True), content_includes=['Your password has been updated'])
 
         Can log in with the new account:
-        >>> check_response(client.post(reverse('login'), {'username': 'user@example.edu', 'password': 'anewpass'}, follow=True), content_includes=['My Casebooks'])
+        >>> check_response(client.post(reverse('login'), {'username': 'user@example.edu', 'password': 'anewpass'}, follow=True), content_includes=['{&quot;name&quot;: &quot;Anonymous&quot;, &quot;public_url&quot;: null, &quot;active&quot;: true}}'])
 
         Received the welcome email after setting password:
         >>> assert len(mailoutbox) == 2
@@ -815,9 +955,10 @@ class CasebookView(View):
             else:
                 return login_required_response(request)
         # canonical redirect
-        canonical = casebook.get_absolute_url()
-        if request.path != canonical:
-            return HttpResponseRedirect(canonical)
+        
+        # canonical = casebook.get_absolute_url()
+        # if request.path != canonical:
+        #     return HttpResponseRedirect(canonical)
 
         contents = casebook.contents.prefetch_resources()
         return render_with_actions(request, 'casebook_page.html', {
@@ -1868,23 +2009,36 @@ def new_from_outline(request, casebook=None):
                 node['resource_type'] = 'Section'
             elif node['resource_type'] == 'Clone':
                 target_node = None
-                target_casebook_id = int(node.get('casebookId', '').split('-')[0])
-                if 'sectionId' in node or 'resourceId' in node:
-                    target_id = node.get('sectionId', node.get('resourceId', None ) )
-                    target_node = ContentNode.objects.get(id=target_id)
-                elif 'sectionOrd' in node or 'resourceOrd' in node:
-                    target_ord_str = node.get('sectionOrd', node.get('resourceOrd', '' ) ).split('-')[0]
-                    target_ord = [int(x) for x in target_ord_str.split('.')]
-                    target_node = ContentNode.objects.get(new_casebook_id=target_casebook_id, ordinals=target_ord)
+                target_casebook = None
+                if 'titleSlug' in node:
+                    content_type, content = find_from_title_slugs(user_slug=node.pop('userSlug', None),
+                                                                  title_slug=node.pop('titleSlug', None),
+                                                                  content_param=node.pop('ordSlug', None))
+                    if content_type == 'Casebook':
+                        target_casebook = content
+                    elif content_type == 'Section' or content_type == 'Resource':
+                        target_node = content
+                    else:
+                        next
+                else:
+                    target_casebook_id = int(node.get('casebookId', '').split('-')[0])
+                    if 'sectionId' in node or 'resourceId' in node:
+                        target_id = node.get('sectionId', node.get('resourceId', None ) )
+                        target_node = ContentNode.objects.get(id=target_id)
+                    elif 'sectionOrd' in node or 'resourceOrd' in node:
+                        target_ord_str = node.get('sectionOrd', node.get('resourceOrd', '' ) ).split('-')[0]
+                        target_ord = [int(x) for x in target_ord_str.split('.')]
+                        target_node = ContentNode.objects.get(new_casebook_id=target_casebook_id, ordinals=target_ord)
 
                 cloned_resources, cloned_content_nodes, cloned_annotations = [[],[],[]]
 
                 if not target_node:
-                    target_casebook = Casebook.objects.get(id=target_casebook_id)
+                    if not target_casebook:
+                        target_casebook = Casebook.objects.get(id=target_casebook_id)
                     if not target_casebook.permits_cloning or target_casebook.editable_by(request.user):
                         next
                     node['title'] = target_casebook.title + " (Cloned)"
-                    node.pop('casebookId')
+                    node.pop('casebookId', None)
                     shell_node = ContentNode(**node)
                     shell_node.resource_type = 'Section'
                     child_nodes = list(target_casebook.contents.all())
@@ -1955,3 +2109,14 @@ def new_from_outline(request, casebook=None):
     if section:
         return JsonResponse(SectionOutlineSerializer(section).data, status=200)
     return JsonResponse(CasebookTOCView.format_casebook(casebook), status=200)
+
+@no_perms_test
+def pretty_url_dispatch(request, user_slug=None, title_slug=None, content_param=None):
+    content_type, content = find_from_title_slugs(user_slug=user_slug, title_slug=title_slug, content_param=content_param)
+    if content_type == 'Casebook':
+        return CasebookView.as_view()(request, content)
+    if content_type == 'Section':
+        return SectionView.as_view()(request, content.new_casebook, content)
+    if content_type == 'Resource':
+        return ResourceView.as_view()(request, content.new_casebook, content)
+    raise Http404

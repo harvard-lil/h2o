@@ -293,6 +293,8 @@ function guessLineType(line) {
       return {resource_type: 'Case', resource_id: params.caseId};
     } else if (_.has(params, 'casebookId')) {
       return {resource_type: 'Clone', casebookId: params.casebookId, sectionId: params.sectionId || params.resourceId, sectionOrd: params.sectionOrd || params.resourceOrd};
+    } else if (_.has(params, 'titleSlug')) {
+        return {resource_type: 'Clone', userSlug: params.userSlug, titleSlug: params.titleSlug, ordSlug: params.ordSlug};
     }
     return {resource_type: 'Link', url: extractLink(line)};
   } else if (looksLikeLink(line)) {
