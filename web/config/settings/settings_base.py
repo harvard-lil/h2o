@@ -14,7 +14,7 @@ import os
 
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 ALLOWED_HOSTS = []
-
+TESTING = False
 
 # Application definition
 
@@ -233,7 +233,7 @@ CRISPY_FAIL_SILENTLY = False
 
 # Temporary: this is the name of the CSRF header used by the Rails app's AJAX requests
 CSRF_HEADER_NAME = 'HTTP_X_CSRF_TOKEN'
-
+CSRF_FAILURE_VIEW = 'main.views.csrf_failure'
 REST_FRAMEWORK = {
     'DEFAULT_AUTHENTICATION_CLASSES': (
         'rest_framework.authentication.SessionAuthentication',  # authenticate with Django login

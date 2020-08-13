@@ -17,6 +17,10 @@ from django.conf import settings
 from django.urls import path, include
 from main.admin import admin_site
 
+
+handler400 = 'main.views.bad_request'
+handler500 = 'main.views.server_error'
+
 urlpatterns = [
     path('', include('main.urls')),
     path('search/', include('search.urls')),
