@@ -1,6 +1,7 @@
 import {html} from 'es6-string-html-template';
 import delegate from 'delegate';
 import ModalComponent from 'legacy/lib/ui/modal';
+import urls from 'libs/urls';
 
 delegate(document, 'a.action.export', 'click', (e) => {
   e.preventDefault();
@@ -13,14 +14,18 @@ delegate(document, 'a.action.export', 'click', (e) => {
   }
 });
 
-function resource_export_path(resourceId, format = 'docx') {
-  return FRONTEND_URLS.export_resource.replace('_ID', resourceId).replace('_FORMAT', format);
+function resource_export_path(resourceId) {
+    const url = urls.url('export_resource');
+    return url({resourceId});
 }
-function section_export_path(sectionId, format = 'docx') {
-  return FRONTEND_URLS.export_section.replace('_ID', sectionId).replace('_FORMAT', format);
+
+function section_export_path(sectionId) {
+    const url =  urls.url('export_section');
+    return url({sectionId});
 }
-function export_casebook_path(casebookId, format = 'docx') {
-  return FRONTEND_URLS.export_casebook.replace('_ID', casebookId).replace('_FORMAT', format);
+function export_casebook_path(casebookId) {
+    const url = urls.url('export_casebook');
+    return url({casebookId});
 }
 
 function downloadFile (includeAnnotations) {

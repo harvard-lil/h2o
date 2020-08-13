@@ -1,3 +1,4 @@
+from django.conf import settings
 from django.contrib.auth import views as auth_views
 from django.urls import path, register_converter, include
 from django.views.generic import RedirectView, TemplateView
@@ -79,9 +80,9 @@ urlpatterns = format_suffix_patterns(drf_urlpatterns) + [
     path('cases/from_capapi', views.from_capapi, name='from_capapi'),
     path('cases/<int:case_id>/', views.case, name='case'),
     # export
-    path('casebooks/<casebook:node>/export.<file_type>', views.export, name='export'),
-    path('sections/<section:node>/export.<file_type>', views.export, name='export'),
-    path('resources/<resource:node>/export.<file_type>', views.export, name='export'),
+    path('casebooks/<casebook:node>/export.<file_type>', views.export, name='export_casebook'),
+    path('sections/<section:node>/export.<file_type>', views.export, name='export_section'),
+    path('resources/<resource:node>/export.<file_type>', views.export, name='export_resource'),
     # canonical paths for static pages
     path('pages/about/', TemplateView.as_view(template_name='pages/about.html'), name='about'),
     path('pages/privacy-policy/', TemplateView.as_view(template_name='pages/privacy-policy.html'), name='privacy-policy'),
@@ -96,3 +97,17 @@ urlpatterns = format_suffix_patterns(drf_urlpatterns) + [
 ]
 fix_after_rails("some routes don't have end slashes for rails compatibility")
 fix_after_rails("remove pages/ from static pages URLs")
+
+# debugging routes to see error pages
+# for example, http://localhost:8000/404 triggers an actual 404
+# and http://localhost:8000/404.html shows the 404 template
+if settings.DEBUG or settings.TESTING:
+    from .test import views as test_views
+    urlpatterns += [
+        path(error_page, TemplateView.as_view(template_name=error_page), name=error_page)
+        for error_page in ('400.html', '403.html', '403_csrf.html', '404.html', '500.html')
+    ]
+    urlpatterns += [
+        path(error_page, no_perms_test(getattr(test_views, "raise_{}".format(error_page))), name=error_page)
+        for error_page in ('400', '403', '403_csrf', '404', '500')
+    ]

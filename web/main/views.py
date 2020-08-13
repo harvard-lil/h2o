@@ -1,4 +1,5 @@
 import json
+import logging
 from collections import OrderedDict
 from functools import wraps
 from test.test_helpers import (assert_url_equal, check_response,
@@ -11,10 +12,12 @@ from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.views import PasswordResetView, redirect_to_login
 from django.core.exceptions import PermissionDenied
+from django.core.validators import URLValidator
 from django.db import transaction
 from django.db.models import Q
 from django.http import (Http404, HttpResponse, HttpResponseBadRequest,
-                         HttpResponseRedirect, JsonResponse)
+                         HttpResponseRedirect, HttpResponseServerError,
+                         HttpResponseForbidden, JsonResponse)
 from django.shortcuts import get_object_or_404, render
 from django.urls import reverse
 from django.utils.decorators import method_decorator
@@ -50,6 +53,7 @@ from .utils import (CapapiCommunicationException, StringFileResponse,
                     fix_after_rails, parse_cap_decision_date,
                     send_verification_email)
 
+logger = logging.getLogger('django')
 ### helpers ###
 
 
@@ -303,6 +307,34 @@ def render_with_actions(request, template_name, context=None, content_type=None,
         **context,
         **actions(request, context)
     }, content_type, status, using)
+
+### error handlers ###
+
+def bad_request(request, exception):
+    '''
+    Custom view for 400 failures, required for proper rendering of
+    our custom template, which uses injected context variables.
+    https://github.com/django/django/blob/master/django/views/defaults.py#L97
+    '''
+    return HttpResponseBadRequest(render(request, '400.html'))
+
+
+def csrf_failure(request, reason="CSRF Failure."):
+    '''
+    Custom view for CSRF failures, required for proper rendering of
+    our custom template, which uses injected context variables.
+    https://github.com/django/django/blob/master/django/views/defaults.py#L146
+    '''
+    return HttpResponseForbidden(render(request, '403_csrf.html'))
+
+
+def server_error(request):
+    '''
+    Custom view for 500 failures, required for proper rendering of
+    our custom template, which uses injected context variables.
+    https://github.com/django/django/blob/master/django/views/defaults.py#L97
+    '''
+    return HttpResponseServerError(render(request, '500.html'))
 
 
 ### views ###
@@ -695,6 +727,8 @@ def show_credits(request, casebook, section=None):
             continue
         known_priors = [prior_art[p] for p in node.provenance if p in prior_art]
         known_clones = [p.new_casebook for p in known_priors]
+        if not known_clones:
+            continue
         immediate_clone = known_clones[-1]
         incidental_clones = known_clones[:-1]
         cs_set = cloned_sections.get(immediate_clone.id, set())
@@ -914,16 +948,15 @@ def create_draft(request, casebook):
 
 @perms_test(
     {'method': 'post', 'args': ['casebook'],
-     'results': {403: ['casebook.testing_editor', 'other_user'], 'login': [None]}},
+     'results': {302: ['casebook.testing_editor', 'other_user']}},
     {'method': 'post', 'args': ['draft_casebook'],
-     'results': {200: ['draft_casebook.testing_editor'], 403: ['other_user'], 'login': [None]}},
+     'results': {200: ['draft_casebook.testing_editor'], 302: ['other_user']}},
     {'method': 'post', 'args': ['private_casebook'],
-     'results': {200: ['private_casebook.testing_editor'], 403: ['other_user'], 'login': [None]}},
+     'results': {200: ['private_casebook.testing_editor'], 302: ['other_user']}},
 )
 @require_http_methods(["GET", "POST"])
 @requires_csrf_token
 @hydrate_params
-@user_has_perm('casebook', 'directly_editable_by')
 def edit_casebook(request, casebook):
     """
         Given:
@@ -952,6 +985,8 @@ def edit_casebook(request, casebook):
         ... )
 
     """
+    if not request.user.is_authenticated or not casebook.directly_editable_by(request.user):
+        return HttpResponseRedirect(reverse('casebook', args=[casebook]))
     # NB: The Rails app does NOT redirect here to a canonical URL; it silently accepts any slug.
     # Duplicating that here.
     form = CasebookForm(request.POST or None, instance=casebook)
@@ -1160,6 +1195,79 @@ def new_case(request, casebook):
     return HttpResponseRedirect(reverse('annotate_resource', args=[casebook, fresh_resource]))
 
 
+
+def switch_node_type(request, casebook, content_node):
+    """
+        Change the type of a resource in a casebook.
+        Currently this can only be used on Temp resources.
+
+        Given:
+        >>> private, client = [getfixture(f) for f in ['full_private_casebook', 'client']]
+        >>> private_resource = private.resources.first()
+        >>> _ = private_resource.resource.delete()
+        >>> private_resource.resource_id = None
+        >>> private_resource.resource_type = 'Temp'
+        >>> private_resource.save()
+
+        >>> owner = private_resource.testing_editor
+        >>> data = '{"from": "Temp", "to": "Link", "url": "https://example.com/"}'
+        >>> url = reverse('resource', args=[private_resource.new_casebook, private_resource])
+        >>> response = client.patch(url, data, as_user=owner)
+        >>> assert response.status_code == 302
+        >>> private_resource.refresh_from_db()
+        >>> assert private_resource.resource_type == 'Link'
+    """
+    if not content_node.is_transmutable():
+        return HttpResponseBadRequest("Work has begun on this resource, and it cannot be changed.")
+    try:
+        data = json.loads(request.body.decode("utf-8"))
+        old_type = data['from']
+        if content_node.resource_type != old_type:
+            return HttpResponseBadRequest("Resource is not of " + old_type)
+        new_type = data['to']
+        if old_type == new_type:
+            return HttpResponseBadRequest("To and From are the same")
+        if content_node.has_body and content_node.resource_type == 'TextBlock':
+            old_resource = content_node.resource
+        else:
+            old_resource = None
+        if new_type == 'Case':
+            cap_id = data.get('cap_id', None)
+            if not cap_id:
+                content_node.resource_type = 'Temp'
+                content_node.resource_id = None
+            else:
+                content_node.resource_id = internal_case_id_from_cap_id(cap_id)
+                content_node.resource_type = new_type
+            content_node.save()
+        elif new_type == 'Link':
+            url = data.get('url','https://opencasebook.org/')
+            content_node.resource_type = new_type
+            link = Link(name=content_node.title, url=url, public=True)
+            link.save()
+            content_node.resource_id = link.id
+            content_node.save()
+        elif new_type == 'TextBlock':
+            content = data.get('content','TBD')
+            text_block = TextBlock(name=content_node.title[0:250], content=content)
+            text_block.save()
+            text_block.refresh_from_db()
+            content_node.resource_id = text_block.id
+            content_node.resource_type = new_type
+            content_node.save()
+            logger.info("TB: {}, CN.rid: {}, OR: {}".format(text_block.id, content_node.resource_id, old_resource.id if old_resource else None))
+        elif new_type == 'Section':
+            content_node.resource_type = new_type
+            content_node.resource_id = None
+            content_node.save()
+    except Exception:
+        return HttpResponseBadRequest("Improperly formatted request")
+    if old_resource:
+        logger.info("Deleting resource: {}".format(old_resource.id))
+        old_resource.delete()
+    return HttpResponseRedirect(content_node.get_preferred_url)
+
+
 class SectionView(View):
 
     @method_decorator(perms_test(viewable_section))
@@ -1229,6 +1337,18 @@ class SectionView(View):
         fix_after_rails("Let's return 204 instead of 200.")
         section.delete()
         return HttpResponse()
+
+    @method_decorator(perms_test([
+    {'method': 'patch', 'args': ['full_casebook', 'full_casebook.sections.first'],
+     'results': {403: ['other_user', 'full_casebook.testing_editor'], 'login': [None]}},
+    {'method': 'patch', 'args': ['full_private_casebook', 'full_private_casebook.sections.first'],
+     'results': {400: ['full_private_casebook.testing_editor'], 'login': [None], 403: ['other_user']}},
+    {'method': 'patch', 'args': ['full_casebook_with_draft.draft', 'full_casebook_with_draft.draft.sections.first'],
+     'results': {400: ['full_casebook_with_draft.draft.testing_editor'], 'login': [None], 403: ['other_user']}},]))
+    @method_decorator(hydrate_params)
+    @method_decorator(user_has_perm('casebook', 'directly_editable_by'))
+    def patch(self, request, casebook, section):
+        return switch_node_type(request, casebook, section)
 
 
 @perms_test(directly_editable_section)
@@ -1363,62 +1483,7 @@ class ResourceView(View):
     @method_decorator(hydrate_params)
     @method_decorator(user_has_perm('casebook', 'directly_editable_by'))
     def patch(self, request, casebook, resource):
-        """
-            Change the type of a resource in a casebook.
-            Currently this can only be used on Temp resources.
-
-            Given:
-            >>> private, with_draft, client = [getfixture(f) for f in ['full_private_casebook', 'full_casebook_with_draft', 'client']]
-            >>> private_resource = private.resources.first()
-            >>> draft_resource = with_draft.draft.resources.first()
-            >>> draft_resource.resource_type = 'Temp'
-            >>> draft_resource.save()
-
-            >>> owner = draft_resource.testing_editor
-            >>> data = '{"from": "Temp", "to": "Link", "url": "https://example.com/"}'
-            >>> url = reverse('resource', args=[draft_resource.new_casebook, draft_resource])
-            >>> response = client.patch(url, data, as_user=owner)
-            >>> assert response.status_code == 302
-            >>> draft_resource.refresh_from_db()
-            >>> assert draft_resource.resource_type == 'Link'
-        """
-        if resource.resource_type != 'Temp':
-            return HttpResponseBadRequest("Only Temp resources may be changes")
-        try:
-            data = json.loads(request.body.decode("utf-8"))
-            old_type = data['from']
-            if resource.resource_type != old_type:
-                return HttpResponseBadRequest("Resource is not of " + old_type)
-            new_type = data['to']
-
-            if new_type not in {'Case', 'TextBlock', 'Link'}:
-                return HttpResponseBadRequest("Must transition to a Case, TextBlock, or Link")
-            if new_type == 'Case':
-                cap_id = data['cap_id']
-                if not cap_id:
-                    resource.resource_type = 'Temp'
-                else:
-                    resource.resource_id = internal_case_id_from_cap_id(cap_id)
-                    resource.resource_type = new_type
-                resource.save()
-            elif new_type == 'Link':
-                url = data['url']
-                resource.resource_type = new_type
-                link = Link(name=resource.title, url=url, public=True)
-                link.save()
-                resource.resource_id = link.id
-                resource.save()
-            elif new_type == 'TextBlock':
-                content = data['content']
-                text_block = TextBlock(name=resource.title, content=content)
-                text_block.save()
-                resource.resource_id = text_block.id
-                resource.resource_type = new_type
-                resource.save()
-        except Exception:
-            return HttpResponseBadRequest("Improperly formatted request")
-        return HttpResponseRedirect(resource.get_preferred_url(request.user))
-
+        return switch_node_type(request, casebook, resource)
 
 @perms_test(directly_editable_resource)
 @require_http_methods(["GET", "POST"])
@@ -1516,7 +1581,7 @@ def annotate_resource(request, casebook, resource):
         # Only Cases and TextBlocks can be annotated.
         # Rails serves the "edit" page contents at both "edit" and "annotate" when resources can't be annotated;
         # let's redirect instead.
-        return HttpResponseRedirect(reverse('edit_resource', args=[resource.casebook, resource]))
+        return HttpResponseRedirect(reverse('edit_resource', args=[resource.new_casebook, resource]))
 
     return render_with_actions(request, 'resource_annotate.html', {
         'resource': resource,
@@ -1598,7 +1663,7 @@ def case(request, case_id):
 
 def internal_case_id_from_cap_id(cap_id):
     # try to fetch existing case:
-    case = Case.objects.filter(capapi_id=cap_id, public=True).first()
+    case = Case.objects.filter(capapi_id=cap_id, public=True).order_by('-id').first()
 
     if not case:
         # fetch from CAP:
@@ -1793,28 +1858,100 @@ def new_from_outline(request, casebook=None):
         )
         all_nodes = list(unnest_with_ordinals(start_ordinal, nodes))
         content_nodes = []
+        content_node_annotations = []
         for node in all_nodes:
+            skip_add_node = False
             node['new_casebook'] = parent_section.new_casebook
+            if ('title' not in node) or node['title'].strip() == '':
+                node['title'] = 'Untitled'
             if 'resource_type' not in node:
                 node['resource_type'] = 'Section'
-            if node['resource_type'] == 'Case':
-                if 'cap_id' not in node:
+            elif node['resource_type'] == 'Clone':
+                target_node = None
+                target_casebook_id = int(node.get('casebookId', '').split('-')[0])
+                if 'sectionId' in node or 'resourceId' in node:
+                    target_id = node.get('sectionId', node.get('resourceId', None ) )
+                    target_node = ContentNode.objects.get(id=target_id)
+                elif 'sectionOrd' in node or 'resourceOrd' in node:
+                    target_ord_str = node.get('sectionOrd', node.get('resourceOrd', '' ) ).split('-')[0]
+                    target_ord = [int(x) for x in target_ord_str.split('.')]
+                    target_node = ContentNode.objects.get(new_casebook_id=target_casebook_id, ordinals=target_ord)
+
+                cloned_resources, cloned_content_nodes, cloned_annotations = [[],[],[]]
+
+                if not target_node:
+                    target_casebook = Casebook.objects.get(id=target_casebook_id)
+                    if not target_casebook.permits_cloning or target_casebook.editable_by(request.user):
+                        next
+                    node['title'] = target_casebook.title + " (Cloned)"
+                    node.pop('casebookId')
+                    shell_node = ContentNode(**node)
+                    shell_node.resource_type = 'Section'
+                    child_nodes = list(target_casebook.contents.all())
+                    cloned_resources, cloned_content_nodes, cloned_annotations = casebook.collect_cloning_nodes(child_nodes)
+                    for child in cloned_content_nodes:
+                        child.ordinals = shell_node.ordinals + child.ordinals
+                    cloned_content_nodes.append(shell_node)
+                elif target_node.permits_cloning or target_node.new_casebook.editable_by(request.user):
+                    target_and_children = [target_node] + list(target_node.contents.all())
+                    cloned_resources, cloned_content_nodes, cloned_annotations = casebook.collect_cloning_nodes(target_and_children)
+                    # casebook.save_and_parent_cloned_resources(cloned_resources)
+                    old_ordinals = cloned_content_nodes[0].ordinals
+                    for child in cloned_content_nodes:
+                        child.ordinals[0:len(old_ordinals)] = node['ordinals']
+                else:
+                    next
+                casebook.save_and_parent_cloned_resources(cloned_resources)
+                content_nodes += cloned_content_nodes
+                skip_add_node = True
+                content_node_annotations += cloned_annotations
+
+            elif node['resource_type'] == 'Case':
+                node.pop('searchString', None)
+                if 'cap_id' not in node and 'resource_id' not in node:
                     node['resource_type'] = 'Temp'
+                elif 'resource_id' in node:
+                    case = Case.objects.get(id=int(node['resource_id']))
+                    node['title'] = case.name_abbreviation or case.name
                 else:
                     node['resource_id'] = internal_case_id_from_cap_id(node.pop('cap_id'))
             elif node['resource_type'] == 'TextBlock':
-                text_block = TextBlock(name=node['title'], content='TBD')
+                text_block = TextBlock(name=node['title'][0:250], content='TBD')
                 text_block.save()
                 node['resource_id'] = text_block.id
+            elif node['resource_type'] == 'Link':
+                looks_like_url = URLValidator()
+                if 'url' in node:
+                    url = node['url']
+                elif looks_like_url(node['title']):
+                    url = node['title']
+                else:
+                    url = 'https://opencasebook.org/'
+                link = Link(name=node['title'], url=url)
+                link.save()
+                node['resource_id'] = link.id
+                node.pop('url', None)
+            elif node['resource_type'] == 'Unknown':
+                node['resource_type'] = 'Temp'
             # resource_type may be 'Temp' for skipped nodes
-            content_nodes.append(ContentNode(**node))
+            node.pop('searchString', None)
+            if not skip_add_node:
+                content_nodes.append(ContentNode(**node))
         ContentNode.objects.bulk_create(content_nodes)
+        if content_node_annotations:
+            casebook.save_and_parent_cloned_annotations(content_node_annotations)
 
     body = json.loads(request.body.decode("utf-8"))
-    section = body.get('section', None)
+    section_id = body.get('section', None)
+    section = None
+    if section_id:
+        section = ContentNode.objects.get(id=int(section_id))
     nodes = body.get('data', None)
     if not nodes:
         return Response('', status=status.HTTP_400_BAD_REQUEST)
     parent_section = section or casebook
     add_sections_and_resources(parent_section, nodes)
+    parent_section.content_tree__repair()
+    if section:
+        return JsonResponse(SectionOutlineSerializer(section).data, status=200)
     return JsonResponse(CasebookTOCView.format_casebook(casebook), status=200)

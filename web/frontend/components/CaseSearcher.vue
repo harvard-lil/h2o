@@ -1,65 +1,67 @@
 <template>
-  <div class="search-results" id="case-search-results">
-    <form class="case-search">
-      <div class="form-control-group">
-        <label style="width:66%;">
-          {{searchLabel}}
-          <input
-            id="case_search"
-            ref="case_search"
-            class="form-control"
-            name="q"
-            type="text"
-            placeholder="Search for a case to import"
-            v-model="passThrough"
-          />
-        </label>
+<div class="search-results" id="case-search-results">
+  <form class="case-search">
+    <div class="form-control-group">
+      <label style="width:66%;">
+        {{searchLabel}}
         <input
-          style="margin-top:-4px;"
-          class="search-button btn btn-primary"
-          type="submit"
-          value="Search"
-          v-on:click.stop.prevent="runCaseSearch"
+          id="case_search"
+          ref="case_search"
+          class="form-control"
+          name="q"
+          type="text"
+          placeholder="Search for a case to import"
+          v-model="passThrough"
+          />
+      </label>
+      <input
+        style="margin-top:-4px;"
+        class="search-button btn btn-primary"
+        type="submit"
+        value="Search"
+        v-on:click.stop.prevent="runCaseSearch"
         />
-      </div>
-      <div v-if="!showingLimits">
-        <a v-on:click.stop.prevent="showLimits">Limit search by date range and/or jurisdiction</a>
-      </div>
-      <div class="form-control-group" v-else>
+    </div>
+    <div v-if="!showingLimits">
+      <a v-on:click.stop.prevent="showLimits">Limit search by date range and/or jurisdiction</a>
+    </div>
+    <div v-else>
+      <div class="toggle-line">
         <a v-on:click.stop.prevent="hideLimits">Disable limits on search</a>
-        <div>
-          <label>
-            Jurisdiction:
-            <select class="form-control-sm" v-model="jurisdiction" name="jurisdiction">
-              <option :value="j.val" v-for="j in jurisdictions" :key="j.val">{{j.name}}</option>
-            </select>
-          </label>
-          <label class="small-gap">
-            Decision Date
-            <input
-              name="after_date"
-              type="date"
-              class="form-control-sm"
-              placeholder="YYYY-MM-DD"
-              v-model="after_date"
-              @blur="reformatDates"
-            />
-          </label>
-          <label class="wee-gap">
-            -
-            <input
-              name="before_date"
-              type="date"
-              class="form-control-sm"
-              placeholder="YYYY-MM-DD"
-              v-model="before_date"
-              @blur="reformatDates"
-            />
-          </label>
-        </div>
       </div>
-    </form>
-  </div>
+      <div class="jurisdiction-row">
+        <label>
+          Jurisdiction:
+          <select class="form-control" v-model="jurisdiction" name="jurisdiction">
+            <option :value="j.val" v-for="j in jurisdictions" :key="j.val">{{j.name}}</option>
+          </select>
+        </label>
+      </div>
+      <label>
+          Decision Date
+      <div class="date-row form-control-inline">
+          <input
+            name="after_date"
+            type="date"
+            class="form-control"
+            placeholder="YYYY-MM-DD"
+            v-model="after_date"
+            @blur="reformatDates"
+            />
+        <span> - </span>
+        <input
+            name="before_date"
+            type="date"
+            class="form-control"
+            placeholder="YYYY-MM-DD"
+            v-model="before_date"
+            @blur="reformatDates"
+            />
+      </div>
+        </label>
+    </div>
+  </form>
+</div>
 </template>
 
 <script>
@@ -261,13 +263,17 @@ export default {
 </script>
 
 <style lang="scss" scoped>
-.small-gap {
-  margin-left: 2rem;
-}
-.wee-gap {
-  margin-left: 1rem;
-}
 .search-button {
-  margin-left: 2rem;
+    margin-left: 2rem;
+}
+.date-row {
+    display: grid;
+    grid-template-columns: auto 24px auto;
+    align-items: baseline;
+    span {
+        text-align: center;
+        padding-top: 2rem;
+        padding-bottom: 1rem;
+    }
 }
 </style>

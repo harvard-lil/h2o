@@ -16,13 +16,13 @@ const helpers = {
         return (node) => {
             node.cssClasses = _.get(node, 'cssClasses', []).filter(x => x !== cls).concat([cls]);
             return node;
-        }
+        };
     },
     removeCSSClass: (cls) => {
         return (node) => {
             node.cssClasses = _.get(node, 'cssClasses', []).filter(x => x !== cls);
             return node;
-        }
+        };
     },
     addFlag: (flagName) => {
         return (node) => {
@@ -34,13 +34,13 @@ const helpers = {
         return (node) => {
             node[flagName] = false;
             return node;
-        }
+        };
     },
     flatFilter: (tree, filterFn) => {
         // Return any node for which filterFn returns true
         function dive(node) {
             let ret = filterFn(node) ? [node] : [];
-            return ret.concat(_.flatMap(node.children || [], dive))
+            return ret.concat(_.flatMap(node.children || [], dive));
         }
         return dive(tree);
     },
@@ -74,10 +74,10 @@ const helpers = {
     },
     auditIDs: (toc, casebook) => {
         function isTemp(node) {
-            return node.resource_type && node.resource_type === 'Temp'
+            return node.resource_type && node.resource_type === 'Temp';
         }
         if (!(casebook in toc)) {
-            return []
+            return [];
         }
         return helpers.flatFilter(toc[casebook], isTemp).map(node => node.id);
     },
@@ -98,12 +98,12 @@ const getters = {
     auditTargets: state => (casebook) => helpers.auditIDs(state.toc, casebook)
 };
 
-const collapseNode = (node) => helpers.addCSSClass('collapsed')(helpers.addFlag('collapsed')(node))
-const expandNode = (node) => helpers.removeCSSClass('collapsed')(helpers.removeFlag('collapsed')(node))
-//const setLoading = helpers.addFlag('loading')
-const setLoaded = (node) => helpers.removeCSSClass('loading')(helpers.addCSSClass('loaded')(node))
-const setAudit = helpers.addFlag('audit')
-const removeAudit = helpers.removeFlag('audit')
+const collapseNode = (node) => helpers.addCSSClass('collapsed')(helpers.addFlag('collapsed')(node));
+const expandNode = (node) => helpers.removeCSSClass('collapsed')(helpers.removeFlag('collapsed')(node));
+//const setLoading = helpers.addFlag('loading');
+const setLoaded = (node) => helpers.removeCSSClass('loading')(helpers.addCSSClass('loaded')(node));
+const setAudit = helpers.addFlag('audit');
+const removeAudit = helpers.removeFlag('audit');
 
 const mutations = {
     overwrite: (state, payload) => {
@@ -122,7 +122,7 @@ const mutations = {
                         if (_.has(state.augments, child)) {
                             Vue.delete(state.augments, child);
                         }
-                    })
+                    });
                     Vue.delete(node.children, ii);
                     ii--;
                 } else {
@@ -156,14 +156,14 @@ const mutations = {
                 return;
             }
             helpers.augmentNode(node, updatedNode);
-        })
+        });
     }
 };
 
 const actions = {
     revealNode: ({ commit, state }, { casebook, id }) => {
         let ids = helpers.findPath(state.toc[casebook], node => node.id === id);
-        commit('modifyAugment', { ids, modifyFn: expandNode })
+        commit('modifyAugment', { ids, modifyFn: expandNode });
     },
     toggleCollapsed: ({ commit }, { id }) => {
         commit('modifyAugment', {
@@ -172,7 +172,7 @@ const actions = {
         });
     },
     setAudit: ({ commit, state }, { id }) => {
-        let currentAudits = _.keys(state.augments).filter(k => _.get(state.augments[k], 'audit', false));
+        let currentAudits = _.keys(state.augments).filter(k => _.get(state.augments[k], 'audit', false)).map(parseInt);
         commit('modifyAugment', { ids: currentAudits, modifyFn: removeAudit });
         commit('modifyAugment', { id, modifyFn: setAudit });
     },
@@ -188,19 +188,17 @@ const actions = {
         }
 
         let newNodes = helpers.flatFilter(newToc, notInPreviousTree);
-        
         const delayGap = 250;
         newNodes.forEach(node => {
-            state.augments[node.id] = {cssClasses: ['loading', 'collapsed'], collapsed: node.children.length > 0};
-            node.collapsed = true;
-            node.cssClasses = ['loading', 'collapsed'];
-        })
+            state.augments[node.id] = {cssClasses: ['loading']};
+            node.cssClasses = ['loading'];
+        });
         commit('overwrite', newToc);
         setTimeout(() => {
             commit('modifyAugment', {
                 ids: newNodes.map(x => x.id),
                 modifyFn: setLoaded
-            })
+            });
         }, delayGap);
     },
     fetch: ({ commit }, { casebook, subsection }) => {

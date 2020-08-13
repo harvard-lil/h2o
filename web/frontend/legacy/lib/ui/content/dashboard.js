@@ -22,8 +22,8 @@ class NewCasebookModal extends ModalComponent {
             Would you like to make a new casebook from scratch or search for a casebook you can copy and customize?
           </div>
           <div class="modal-footer">
-            <a href="${FRONTEND_URLS.new_casebook}" class="modal-button">Make a New Casebook</a>
-            <a href="${FRONTEND_URLS.search}" class="modal-button">Search Casebooks</a>
+            <a href="/casebooks/new" class="modal-button">Make a New Casebook</a>
+            <a href="/search" class="modal-button">Search Casebooks</a>
           </div>
         </div>
       </div>

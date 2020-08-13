@@ -1,20 +1,21 @@
 from django_json_widget.widgets import JSONEditorWidget
-
+import requests
+from pyquery import PyQuery
 from django import forms
 from django.conf import settings
 from django.contrib import admin
 from django.contrib.auth.admin import UserAdmin as DjangoUserAdmin
 from django.contrib.postgres import fields
 from django.db.models import Q, Count
+from django.http import HttpResponseRedirect
 from django.urls import reverse
 from django.utils.html import format_html
 from django.utils.safestring import mark_safe
 from simple_history.admin import SimpleHistoryAdmin
-from .utils import fix_after_rails, clone_model_instance
+from .utils import fix_after_rails, clone_model_instance, CapapiCommunicationException, parse_cap_decision_date
 from .models import Case, Link, User, Casebook, Section, \
     Resource, TempCollaborator, ContentAnnotation, TextBlock, ContentNode, \
     EmailWhitelist
-
 
 #
 # Helpers
@@ -293,12 +294,12 @@ class ContentNodeAdmin(BaseAdmin, SimpleHistoryAdmin):
         return 'n/a' if obj.is_annotated == 'Link' else obj.annotations_count
 
 class ResourceAdmin(BaseAdmin, SimpleHistoryAdmin):
-    readonly_fields = ['created_at', 'updated_at', 'casebook_link', 'provenance', 'resource_id', 'resource_type', 'ordinals']
+    readonly_fields = ['created_at', 'updated_at', 'casebook_link', 'provenance', 'resource_type', 'ordinals']
     list_select_related = ['casebook']
     list_display = ['id', 'casebook_link', 'title', 'ordinals', 'resource_type', 'resource_id', 'annotation_count', 'created_at', 'updated_at']
     list_filter = [CasebookIdFilter, 'resource_type', ResourceIdFilter]
     search_fields = ['title', 'new_casebook__title']
-    fields = ['new_casebook', 'ordinals', 'title', 'subtitle', 'provenance', 'headnote', 'created_at', 'updated_at']
+    fields = ['new_casebook', 'ordinals', 'title', 'subtitle', 'provenance', 'headnote', 'created_at', 'updated_at', 'resource_id']
     raw_id_fields = ['collaborators', 'casebook']
     inlines = [AnnotationInline]
 
@@ -335,6 +336,46 @@ class AnnotationsAdmin(BaseAdmin, SimpleHistoryAdmin):
 
 ## Resources
 
+def force_case_from_cap_id(cap_id):
+    try:
+        response = requests.get(
+            settings.CAPAPI_BASE_URL + "cases/%s/" % cap_id,
+            {"full_case": "true", "body_format": "html"},
+            headers={'Authorization': 'Token %s' % settings.CAPAPI_API_KEY},
+            )
+        assert response.ok
+    except (requests.RequestException, AssertionError) as e:
+        msg = "Communication with CAPAPI failed: {}".format(str(e))
+        raise CapapiCommunicationException(msg)
+
+    cap_case = response.json()
+
+    # parse html:
+    parsed = PyQuery(cap_case['casebody']['data'])
+
+    # create case:
+    case = Case(
+        # our db metadata
+        created_via_import=True,
+        public=True,
+        capapi_id=cap_id,
+        # cap case metadata
+        court_name=cap_case['court']['name'],
+        name_abbreviation=cap_case['name_abbreviation'],
+        name=cap_case['name'],
+        docket_number=cap_case['docket_number'],
+        citations=cap_case['citations'],
+        decision_date=parse_cap_decision_date(cap_case['decision_date']),
+        # cap case html
+        content=cap_case['casebody']['data'],
+        attorneys=[el.text() for el in parsed('.attorneys').items()],
+        # TODO: copying a Rails bug. Using a dict here is incorrect, as the same data-type can appear more than once:
+        # https://github.com/harvard-lil/h2o/issues/1041
+        opinions={el.attr('data-type'): el('.author').text() for el in parsed('.opinion').items()},
+    )
+    return case
+
+
 class CaseAdmin(BaseAdmin, SimpleHistoryAdmin):
     readonly_fields = ['created_at', 'updated_at']
     list_select_related = []
@@ -370,6 +411,27 @@ class CaseAdmin(BaseAdmin, SimpleHistoryAdmin):
     def live_annotations_count(self, obj):
         return obj.related_annotations().count()
     live_annotations_count.short_description = 'Annotations'
+
+    def response_change(self, request, obj):
+        if "_reimport_from_case_law" in request.POST:
+            cap_id = obj.capapi_id
+            case = force_case_from_cap_id(cap_id)
+            meta_matches = True
+            for att in ['name_abbreviation', 'name', 'docket_number', 'decision_date', 'attorneys', 'parties', 'opinions', 'citations', 'court_name']:
+                o_val = getattr(obj, att)
+                c_val = getattr(case, att)
+                if o_val != c_val and (bool(o_val) or bool(c_val)):
+                    meta_matches = False
+            case_matches = True
+            if PyQuery(case.content).text() != PyQuery(obj.content).text():
+                case_matches = False
+            if not (case_matches and meta_matches):
+                self.message_user(request, "Differences detected")
+                case.save()
+                return HttpResponseRedirect(reverse('admin:main_case_change', args=(case.id,)))
+            self.message_user(request, "No differences detected")
+            return HttpResponseRedirect(".")
+        return super().response_change(request, obj)
 
 
 class LinkAdmin(BaseAdmin, SimpleHistoryAdmin):
@@ -466,6 +528,10 @@ class UserAdmin(BaseAdmin, DjangoUserAdmin):
 
     def has_add_permission(self, request):
         return super(BaseAdmin, self).has_add_permission(request)
+
+    def has_delete_permission(self, request, obj=None):
+        return super(BaseAdmin, self).has_delete_permission(request, obj)
+
 
 
 class CollaboratorsAdmin(BaseAdmin):
