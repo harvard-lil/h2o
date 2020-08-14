@@ -214,17 +214,17 @@ class SignupForm(ModelForm):
             Submit('submit', 'Sign up'),
             HTML('<p class="help-block">By signing up for an account, you agree to our <a href="%s">Terms of Service</a>.</p>' % reverse('terms-of-service')),
         )
-        self.fields['email_address'].help_text = '<p class="help-block">Registration is restricted to email addresses belonging to an educational institution. If your email address doesn\'t work and you believe it should, please <a href="mailto:info@opencasebook.org?subject=Whitelist%20University%20Email&body=Hello%20H2O,%A0Please%20whitelist%20my%20email%20domain.">Let us know</a></p>'
+        self.fields['email_address'].help_text = '<p class="help-block">Registration is restricted to email addresses belonging to an educational or government institution. If your email address doesn\'t work and you believe it should, please <a href="mailto:info@opencasebook.org?subject=Whitelist%20University%20Email&body=Hello%20H2O,%A0Please%20whitelist%20my%20email%20domain.">Let us know</a></p>'
 
     def clean_email_address(self):
         email = self.cleaned_data['email_address']
         if email:
-            if email.endswith(".edu"):
+            if email.endswith(".edu") or email.endswith(".gov"):
                 return email
             domain = email.split("@")[-1]
             valid_domains = set([e.email_domain for e in EmailWhitelist.objects.all()])
             if domain not in valid_domains:
-                raise ValidationError("Email address is not .edu.")
+                raise ValidationError("Email address is not .edu or .gov.")
         return email
 
     def save(self, commit=True):

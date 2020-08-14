@@ -751,10 +751,11 @@ def sign_up(request):
     r"""
         Given:
         >>> _, client, mailoutbox = [getfixture(f) for f in ['db', 'client', 'mailoutbox']]
+        >>> assert len(mailoutbox) == 0
 
-        Signup flow -- can sign up with a .edu account:
+        Signup flow -- can sign up with a .edu or .gov account:
         >>> check_response(client.get(reverse('sign_up')), content_includes=['Sign up for an account'])
-        >>> check_response(client.post(reverse('sign_up'), {'email_address': 'not_edu@example.com'}), content_includes=['Email address is not .edu.'])
+        >>> check_response(client.post(reverse('sign_up'), {'email_address': 'not_edu@example.com'}), content_includes=['Email address is not .edu or .gov'])
         >>> check_response(client.post(reverse('sign_up'), {'email_address': 'user@example.edu'}, follow=True), content_includes=['Please check your email for a link'])
 
         Can confirm the account and set a password with the emailed URL:
