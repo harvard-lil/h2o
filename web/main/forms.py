@@ -180,6 +180,12 @@ class UserProfileForm(ModelForm):
         fix_after_rails("setting email_address.required to True manually until the field is required in the model")
         self.fields['email_address'].required = True
 
+    def clean_public_url(self):
+        public_url = self.cleaned_data['public_url']
+        if public_url == '':
+            return None
+        return public_url
+
     def save(self, commit=True):
         super(UserProfileForm, self).save()
 
