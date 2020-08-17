@@ -5,6 +5,10 @@
       <template slot="body">
         <form @submit.prevent.stop="createGroup" class="form-group">
           <div>
+            <div>
+              The following co-authors will also see this group: 
+              <span>{{selectedCoAuthors}}</span>
+            </div>
             <label for="newGroupTitle">
               Title
             </label>
@@ -44,29 +48,35 @@
       <ul>
         <li>
           <a v-bind:class="{'disabled': !canArchive}"
-               :title="archiveHelp"
-               @click="archiveCasebooks">
+             @click="archiveCasebooks"
+             @mouseover="activateHelp(archiveHelp)"
+             @mouseleave="deactivateHelp">
             Archive selected
           </a>
         </li>
         <li>
           <a v-bind:class="{'disabled': !canUngroup}"
-             :title="ungroupHelp"
-             @click="unTitle">
+             @click="unTitle"
+             @mouseover="activateHelp(ungroupHelp)"
+             @mouseleave="deactivateHelp">
             Ungroup selected
           </a>
         </li>
         <li>
           <a v-bind:class="{'disabled': !canGroup}"
-             :title="groupHelp"
-             @click="finalizeGroup">
+             @click="finalizeGroup"
+             @mouseover="activateHelp(groupHelp)"
+             @mouseleave="deactivateHelp">
             Group selected
           </a>
         </li>
         <li>
-          <a title="Finish managing casebooks" @click="stopManagement">Finish</a>
+          <a title="Finish managing casebooks" @click="stopManagement">Done</a>
         </li>
       </ul>
+
+      <div class="help-manage" v-html="currentHelp">
+      </div>
     </div>
 
 <div class="content-browser">
@@ -86,15 +96,17 @@
       <li>
         <a
           v-bind:class="{'disabled': !canAddToGroup}"
-          :title="addToGroupHelp(title)"
-          @click="addToTitle(title)">
+          @click="addToTitle(title)"
+          @mouseover="activateTitleHelp(addToGroupHelp(title), title)"
+          @mouseleave="deactivateTitleHelp">
           Add selected to group
         </a>
       </li>
       <li>
         <a v-bind:class="{'disabled': !canSetCurrent(title)}"
-           :title="setCurrentHelp(title)"
-           @click="setCurrent(title)">
+           @click="setCurrent(title)"
+           @mouseover="activateTitleHelp(setCurrentTitleHelp(title), title)"
+           @mouseleave="deactivateTitleHelp">
           Set current edition
         </a>
       </li>
@@ -104,6 +116,8 @@
         </a>
       </li>
     </ul>
+    <div class="help-manage" v-html="titleHelp(title)">
+    </div>
   </div>
 
   <div class="content-browser" v-if="title.expanded">
@@ -153,6 +167,9 @@ export default {
         selectedCasebooks: [],
         newGroupTitle:'',
         managingCasebooks: false,
+        currentHelp: '&nbsp;',
+        currentTitleHelp: '&nbsp;',
+        currentTitleHelpId: null,
         casebooks:[],
         titles:[],
         user:{}
@@ -166,6 +183,9 @@ export default {
         }
     },
     computed: {
+        selectedCoAuthors: function() {
+            return _.sortBy(_.uniq(_.map(_.flatMap(this.selectedCasebooks, 'authors'), 'attribution'))).join(", ");
+        },
         takenTitle: function() {
             return this.allTitleUrls.includes(this.slugifyNewTitle);
         },
@@ -180,13 +200,14 @@ export default {
         },
         canGroup: function() {
             const freeIDs = _.map(this.casebooks, 'id');
-            return _.every(this.selectedCasebooks, ({id, is_public}) => is_public && freeIDs.includes(id));
+            return this.selectedCasebooks.length > 0 && _.every(this.selectedCasebooks, ({id, is_public}) => is_public && freeIDs.includes(id));
         },
         groupHelp: function() {
-            return this.canGroup ? "Collect editions of the same casebook under one title." : "Only published casebooks can be grouped. Casebooks may only belong to one group.";
+            return this.canGroup ? "Collect editions of the same casebook, and promote the ." : "Only published casebooks can be grouped. Casebooks may only belong to one group.";
         },
         canUngroup: function() {
-            return !this.canGroup;
+            const freeIDs = _.map(this.casebooks, 'id');
+            return this.selectedCasebooks.length > 0 && _.find(this.selectedCasebooks, ({id}) => !freeIDs.includes(id));
         },
         ungroupHelp: function() {
             return this.canUngroup ? "Remove selected casebooks from groups" : "None of the selected casebooks belong to a group";
@@ -213,10 +234,31 @@ export default {
         }
     },
     methods: {
+        activateHelp: function (currentHelp) {
+            this.currentHelp = currentHelp;
+        },
+        deactivateHelp: function() {
+            this.currentHelp = '&nbsp;';
+        },
+        activateTitleHelp: function(currentHelp, title) {
+            this.currentTitleHelp = currentHelp;
+            this.currentTitleHelpID = title.id;
+        },
+        deactivateTitleHelp: function() {
+            this.currentTitleHelp = '&nbsp;';
+            this.currentTitleHelpID = null;
+        },
+        titleHelp: function(title) {
+            let helpText = this.currentTitleHelp;
+            if (title.id === this.currentTitleHelpID) {
+                return helpText;
+            }
+            return '&nbsp;';
+        },
         canSetCurrent: function(title) {
             return this.uniqueSelection && this.selectionWithinTitle(title);
         },
-        setCurrentHelp: function(title) {
+        setCurrentTitleHelp: function(title) {
             return this.canSetCurrent(title) ? "Sets the current edition to the selected casebook" : "Please specify a unique edition to make current";
         },
         canAddToGroup: function(title) {
@@ -370,13 +412,15 @@ export default {
             function removeFromArray(casebookArray) {
                 let index = _.findIndex(casebookArray, matcher);
                 while(index !== -1) {
-                    casebookArray.splice(index);
+                    casebookArray.splice(index,1);
                     index = _.findIndex(casebookArray, matcher, index);
                 }
             }
+            console.log("Looking in Casebooks");
             removeFromArray(this.casebooks);
             for (const titleCasebooks of this.titles) {
-                removeFromArray(titleCasebooks);
+                console.log(`Looking in Title(${titleCasebooks.id})`)
+                removeFromArray(titleCasebooks.casebooks);
             }
         },
         handleTitleUpdateResponse: function(response) {
@@ -506,6 +550,7 @@ export default {
         list-style: none;
         display: flex;
         flex-direction: row;
+        justify-content: flex-end;
         li a {
             cursor: pointer;
             padding-left: 4px;
@@ -532,5 +577,9 @@ export default {
 
 .invalid-feedback {
     color:$red;
+}
+
+.help-manage {
+    text-align: end;
 }
 </style>
