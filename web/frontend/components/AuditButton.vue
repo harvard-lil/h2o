@@ -85,8 +85,8 @@ export default {
         }
         if (results && results !== "pending" && results.length === 1) {
           const data = { from: "Temp", to: "Case", cap_id: results[0].id };
-          if (!_.has(this.autoAudited, id)) {
-            this.autoAudited[id] = true;
+          if (!_.has(self.autoAudited, id)) {
+            self.autoAudited[id] = true;
             Axios.patch(url, data).then(
               handleSubmitResponse(id),
               console.error

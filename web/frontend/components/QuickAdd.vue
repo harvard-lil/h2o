@@ -111,33 +111,15 @@ export default {
       _.keys(resets).forEach(k => {
         this[k] = resets[k];
       });
-        this.waitingFor = false;
-        this.unWait();
-        this.unWait = () => {};
+      this.waitingFor = false;
+      this.unWait();
+      this.unWait = () => {};
     },
     lowHangingCaseCheck: function(data) {
-      let self = this;
       let query = _.get(data, 'data.0.searchString') || _.get(data, 'data.0.title');
       
-      function checkForCase(results) {
-        if (results) {
-          if (results === "pending" ) {
-            return ;
-          }
-          if (results.length === 1) {
-            data.data[0].cap_id = results[0].id;
-            if (data.data[0].title.replace(query,'').trim() === "") {
-              data.data[0].title =  results[0].name_abbreviation || results[0].name;
-            }
-          }
-          self.postData(data);
-        }
-      }
-      
       if (query) {
-        self.waitingFor = "Gathering case info";
-        self.unWait = self.$watch(() => self.$store.getters["case_search/getSearch"]({ query }), checkForCase);
-        self.$store.dispatch("case_search/fetch", { query }).then( checkForCase, () => {this.postData(data); this.unWait()})
+        this.$store.dispatch("case_search/fetch", { query });
       }
     },
     handleSubmit: function() {
@@ -149,9 +131,8 @@ export default {
       data.data[0].resource_type = this.resource_type;
       if (this.resource_type === 'Case' && !_.has(data,'data.0.resource_id')) {
         this.lowHangingCaseCheck(data);
-      } else {
-        this.postData(data);
       }
+      this.postData(data);
       let k = {
         Section: "sections",
         Case: "cases",
@@ -179,26 +160,25 @@ export default {
       let pasted = (event.clipboardData || window.clipboardData).getData(
         "text"
       );
-        if ( pasted.indexOf("\n") >= 0) {
-            this.waitingFor = "Parsing pasted text";
-
+      if ( pasted.indexOf("\n") >= 0) {
+        this.waitingFor = "Parsing pasted text";
         let parsed = pp.cleanDocLines(pasted);
         let [parsedJson, stats] = pp.structureOutline(parsed);
         _.keys(stats).map(k => {
           this.stats[k] = _.get(this.stats, k, 0) + stats[k];
         });
-            this.postData({ section: this.section,
-                            data: parsedJson.children });
+        this.postData({ section: this.section,
+                        data: parsedJson.children });
         this.title = "";
       } else {
         this.title += pasted;
       }
     },
     searchForCase: _.debounce(function searchForCase() {
-        const query = pp.extractCaseSearch(this.title);
-        if (query) {
-            this.$store.dispatch("case_search/fetch", { query });
-        }
+      const query = pp.extractCaseSearch(this.title);
+      if (query) {
+        this.$store.dispatch("case_search/fetch", { query });
+      }
     }, caseSearchDelay)
   }
 };

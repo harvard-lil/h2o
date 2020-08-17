@@ -1341,7 +1341,6 @@ def new_case(request, casebook):
 def switch_node_type(request, casebook, content_node):
     """
         Change the type of a resource in a casebook.
-        Currently this can only be used on Temp resources.
 
         Given:
         >>> private, client = [getfixture(f) for f in ['full_private_casebook', 'client']]
