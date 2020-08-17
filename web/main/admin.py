@@ -500,7 +500,7 @@ class UserAdmin(BaseAdmin, DjangoUserAdmin):
     search_fields = ['attribution', 'email_address']
     fieldsets = (
         (None, {'fields': ('email_address', 'password')}),
-        ('Personal info', {'fields': ('attribution', 'affiliation')}),
+        ('Personal info', {'fields': ('attribution', 'affiliation', 'public_url')}),
         ('Permissions', {
             'fields': ('is_active', 'professor_verification_requested', 'verified_professor', 'is_staff', 'is_superuser'),
         }),
