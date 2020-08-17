@@ -26,8 +26,11 @@
               <option v-for="casebook in selectedCasebooks" v-bind:key="casebook.id" :value="casebook">{{casebook.title}}</option>
             </select>
           </div>
-          <div class="advice">
+          <div class="advice" v-if="user.public_url">
             The current edition will be available at <span>{{newPublicUrl}}</span>
+          </div>
+          <div class="advice" v-else>
+            Your author URL isn't yet set. To give this casebook a nice public url set it up <a target="_blank" href="/accounts/edit/"> on your profile page</a>.
           </div>
           <br>
           <button class="btn btn-primary full-width" :disabled="takenTitle" type="submit" @submit="createGroup">Group these casebooks</button>
