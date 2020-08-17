@@ -20,7 +20,7 @@ function enumeration_identification(line) {
   let candidate = line.trim();
   let prefix_check = candidate.toLowerCase();
   let top = false;
-  if (line.match(cuckoo_starts)) {
+  if (prefix_check.match(cuckoo_starts)) {
     return { numeral_stack: [], title: line };
   }
   for (let stop of enumeration_stop_prefixes) {
