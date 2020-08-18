@@ -5,7 +5,7 @@
       <template slot="body">
         <form @submit.prevent.stop="createGroup" class="form-group">
           <div>
-            <div>
+            <div v-if="selectedCoAuthors.length > 0">
               The following co-authors will also see this group: 
               <span>{{selectedCoAuthors}}</span>
             </div>
@@ -184,7 +184,14 @@ export default {
     },
     computed: {
         selectedCoAuthors: function() {
-            return _.sortBy(_.uniq(_.map(_.flatMap(this.selectedCasebooks, 'authors'), 'attribution'))).join(", ");
+          return _.sortBy(
+            _.filter(
+              _.uniq(
+                _.map(
+                  _.flatMap(this.selectedCasebooks, 'authors'),
+                  'attribution')),
+              attribution => attribution !== this.user.name)
+          ).join(", ");
         },
         takenTitle: function() {
             return this.allTitleUrls.includes(this.slugifyNewTitle);
