@@ -2188,7 +2188,7 @@ class Casebook(EditTrackedModel, TimestampedModel, BigPkModel, CasebookAndSectio
 
     def allows_draft_creation_by(self, user):
         """See ContentNode.allows_draft_creation_by"""
-        return self.is_public and self.editable_by(user) and not self.has_draft 
+        return self.is_public and self.editable_by(user) and not self.has_draft
 
     def make_draft(self):
         """
@@ -2226,7 +2226,7 @@ class Casebook(EditTrackedModel, TimestampedModel, BigPkModel, CasebookAndSectio
             >>> draft.title = "New Title"
             >>> draft.save()
             >>> Section(new_casebook=draft, ordinals=[3], title="New Section").save()
-            >>> with assert_num_queries(delete=6, select=15, update=3, insert=19):
+            >>> with assert_num_queries(delete=6, select=16, update=3, insert=19):
             ...     new_casebook = draft.merge_draft()
             >>> assert new_casebook == full_casebook
             >>> expected = [
@@ -2262,9 +2262,12 @@ class Casebook(EditTrackedModel, TimestampedModel, BigPkModel, CasebookAndSectio
         """
         # set up variables
         draft = self
-        parent = Casebook.objects.filter(id=self.provenance[-1]).get()
         if not self.is_draft:
             raise ValueError("Only draft casebooks may be merged")
+        if not self.draft_of.count() == 1:
+            raise ValueError("Data integrity issue detected, publish prevented to prevent data loss")
+        parent = self.draft_of.get()
+
 
         # update casebook attributes
         for attr in ('headnote', 'title', 'subtitle'):

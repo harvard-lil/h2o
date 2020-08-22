@@ -989,6 +989,9 @@ class CasebookView(View):
             >>> non_collaborating_user = user_factory()
             >>> private_casebook = casebook_factory(tempcollaborator_set__user=user, state=Casebook.LifeCycle.PRIVATELY_EDITING.value)
             >>> draft_casebook = casebook_factory(tempcollaborator_set__user=user, state=Casebook.LifeCycle.DRAFT.value, provenance=[casebook.id])
+            >>> casebook.draft = draft_casebook
+            >>> draft_casebook.save()
+            >>> casebook.save()
 
             Newly-composed (private, never-published) casebooks, when published, become public.
             >>> response = client.patch(private_casebook.get_absolute_url(), as_user=user, follow=True)

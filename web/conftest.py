@@ -121,14 +121,6 @@ class PrivateCasebookFactory(CasebookFactory):
     state = Casebook.LifeCycle.PRIVATELY_EDITING.value
     tempcollaborator_set = factory.RelatedFactory('conftest.TempCollaboratorFactory', 'casebook', can_edit=True)
 
-
-@register_factory
-class DraftCasebookFactory(CasebookFactory):
-    state = Casebook.LifeCycle.DRAFT.value
-    provenance = factory.LazyAttribute(lambda _: [CasebookFactory.create().id])
-    tempcollaborator_set = factory.RelatedFactory('conftest.TempCollaboratorFactory', 'casebook', can_edit=True)
-
-
 @register_factory
 class SectionFactory(ContentNodeFactory):
     class Meta:
@@ -361,6 +353,7 @@ def full_casebook_parts(full_casebook_parts_factory):
     return full_casebook_parts_factory()
 
 
+
 @pytest.fixture
 def full_casebook(full_casebook_parts):
     return full_casebook_parts[0]
@@ -416,6 +409,12 @@ def casebook_sections_factory(casebook_factory, section_factory):
         return new_casebook, sections_by_ordinal
     return factory
 
+
+@pytest.fixture
+def draft_casebook(casebook_factory):
+    new_casebook = casebook_factory()
+    draft = new_casebook.make_draft()
+    return draft
 
 @pytest.fixture
 def other_user(user_factory):
