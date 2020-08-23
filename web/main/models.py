@@ -30,6 +30,7 @@ from django.utils.text import slugify
 from pyquery import PyQuery
 from pytest import raises as assert_raises
 from simple_history.models import HistoricalRecords
+from simple_history.utils import bulk_create_with_history, bulk_update_with_history
 
 from .differ import AnnotationUpdater
 from .sanitize import sanitize
@@ -411,7 +412,7 @@ class ContentAnnotation(TimestampedModel, BigPkModel):
 
         # save all changes
         if to_update:
-            ContentAnnotation.objects.bulk_update(to_update, ['global_start_offset', 'global_end_offset'])
+            bulk_update_with_history(to_update, ContentAnnotation, ['global_start_offset', 'global_end_offset'], batch_size=500, default_change_reason="Automated Shift")
 
 class TempCollaborator(TimestampedModel, BigPkModel):
     has_attribution = models.BooleanField(default=False)
@@ -552,7 +553,7 @@ class MaterializedPathTreeMixin(models.Model):
             >>> casebook, s_1, r_1_1, r_1_2, r_1_3, s_1_4, r_1_4_1, r_1_4_2, r_1_4_3, s_2 = getfixture('full_casebook_parts')
 
             Move a node from one place to another:
-            >>> with assert_num_queries(select=2, update=1):
+            >>> with assert_num_queries(select=2, update=1, insert=1):
             ...     r_1_4_1.content_tree__move_to([2, 1])
             >>> assert dump_content_tree(casebook) == [
             ...         [s_1, casebook, [
@@ -762,7 +763,8 @@ class MaterializedPathTreeMixin(models.Model):
             [self] is included because we don't know whether self.ordinals has changed or not.
         """
         to_update = [self] + list(self.content_tree__update_ordinals())
-        ContentNode.objects.bulk_update(to_update, ['ordinals'])
+        bulk_update_with_history(to_update, ContentNode, ['ordinals'], batch_size=500, default_change_reason="Tree Repair")
+
 
     def content_tree__update_ordinals(self):
         """
@@ -1825,7 +1827,7 @@ class SectionAndResourceMixin(models.Model):
             >>> casebook, s_1, r_1_1, r_1_2, r_1_3, s_1_4, r_1_4_1, r_1_4_2, r_1_4_3, s_2 = full_casebook_parts_factory()
 
             Delete a section in a section (and children, including one case, one text block, and one link/default), no reordering required:
-            >>> with assert_num_queries(delete=5, select=13, update=1, insert=7):
+            >>> with assert_num_queries(delete=5, select=13, update=1, insert=8):
             ...     deleted = s_1_4.delete()
             >>> assert deleted == (6, {'main.Section': 1, 'main.ContentAnnotation': 2, 'main.ContentNode': 3})
             >>> assert dump_content_tree(casebook) == [
@@ -1841,7 +1843,7 @@ class SectionAndResourceMixin(models.Model):
             ...         node.refresh_from_db()
 
             Delete the first section in the book (and children, including one case, one text block, and one link/default), triggering reordering:
-            >>> with assert_num_queries(delete=5, select=12, update=1, insert=7):
+            >>> with assert_num_queries(delete=5, select=12, update=1, insert=8):
             ...     deleted = s_1.delete()
             >>> assert deleted == (6, {'main.Section': 1, 'main.ContentAnnotation': 2, 'main.ContentNode': 3})
             >>> assert dump_content_tree(casebook) == [
@@ -1857,7 +1859,7 @@ class SectionAndResourceMixin(models.Model):
             >>> casebook, s_1, r_1_1, r_1_2, r_1_3, s_1_4, r_1_4_1, r_1_4_2, r_1_4_3, s_2 = getfixture('full_casebook_parts')
 
             Delete a case resource in the middle of a section:
-            >>> with assert_num_queries(delete=2, select=4, update=1, insert=2):
+            >>> with assert_num_queries(delete=2, select=4, update=1, insert=3):
             ...     deleted = r_1_2.delete()
             >>> assert deleted == (3, {'main.Resource': 1, 'main.ContentAnnotation': 2})
             >>> assert dump_content_tree(casebook) == [
@@ -1880,7 +1882,7 @@ class SectionAndResourceMixin(models.Model):
 
             Delete a text resource at the beginning of a section:
             >>> r_1_4_1.refresh_from_db()
-            >>> with assert_num_queries(delete=2, select=6, update=1, insert=1):
+            >>> with assert_num_queries(delete=2, select=6, update=1, insert=2):
             ...     deleted = r_1_4_1.delete()
             >>> assert deleted == (2, {'main.Resource': 1, 'main.TextBlock': 1})
             >>> assert dump_content_tree(casebook) == [
@@ -1899,7 +1901,7 @@ class SectionAndResourceMixin(models.Model):
 
             Delete a link/default resource at the end of a section:
             >>> r_1_4_3.refresh_from_db()
-            >>> with assert_num_queries(delete=2, select=6, update=1, insert=1):
+            >>> with assert_num_queries(delete=2, select=6, update=1, insert=2):
             ...     deleted = r_1_4_3.delete()
             >>> assert deleted == (2, {'main.Resource': 1, 'main.Link': 1})
             >>> assert dump_content_tree(casebook) == [
@@ -2226,7 +2228,7 @@ class Casebook(EditTrackedModel, TimestampedModel, BigPkModel, CasebookAndSectio
             >>> draft.title = "New Title"
             >>> draft.save()
             >>> Section(new_casebook=draft, ordinals=[3], title="New Section").save()
-            >>> with assert_num_queries(delete=6, select=16, update=3, insert=19):
+            >>> with assert_num_queries(delete=6, select=16, update=3, insert=20):
             ...     new_casebook = draft.merge_draft()
             >>> assert new_casebook == full_casebook
             >>> expected = [
@@ -2296,8 +2298,7 @@ class Casebook(EditTrackedModel, TimestampedModel, BigPkModel, CasebookAndSectio
             clone.provenance = [provenance_to_remap.get(x,x) for x in clone.provenance]
 
         provenance_updates = list(nodes_to_update) + clones_to_remap
-        ContentNode.objects.bulk_update(provenance_updates, ['provenance'])
-
+        bulk_update_with_history(provenance_updates, ContentNode, ['provenance'], batch_size=500, default_change_reason="Draft Merge")
 
         # delete old content nodes
         parent.contents.all().delete()
@@ -2340,7 +2341,7 @@ class Casebook(EditTrackedModel, TimestampedModel, BigPkModel, CasebookAndSectio
             >>> assert user not in set(full_casebook.attributed_authors)
 
             Return a cloned casebook like this:
-            >>> with assert_num_queries(select=6, insert=7):
+            >>> with assert_num_queries(select=6, insert=11):
             ...     clone = full_casebook.clone(current_user=user)
             >>> expected = [
             ...      'Casebook<2>: Some Title 0',
@@ -2404,7 +2405,7 @@ class Casebook(EditTrackedModel, TimestampedModel, BigPkModel, CasebookAndSectio
         if draft_mode:
             collaborators = [clone_model_instance(c, casebook=cloned_casebook, can_edit=c.can_edit) for c in
                              self.contentcollaborator_set.all()]
-            TempCollaborator.objects.bulk_create(collaborators)
+            TempCollaborator.objects.bulk_create(collaborators) # Currently no History on Collaborators
             self.draft = cloned_casebook
             self.save()
         elif current_user:
@@ -2446,7 +2447,7 @@ class Casebook(EditTrackedModel, TimestampedModel, BigPkModel, CasebookAndSectio
     def save_and_parent_cloned_resources(self, cloned_resources):
         # save TextBlocks and Links
         for resource_class, resources in cloned_resources.items():
-            resource_class.objects.bulk_create(r[0] for r in resources)
+            bulk_create_with_history((r[0] for r in resources), resource_class, batch_size=500, default_change_reason="Clone Create")
             # after saving, update the associated cloned_content_nodes to point to the new resource_ids
             for cloned_resource, cloned_content_node in resources:
                 cloned_content_node.resource_id = cloned_resource.id
@@ -2456,7 +2457,7 @@ class Casebook(EditTrackedModel, TimestampedModel, BigPkModel, CasebookAndSectio
         # save ContentAnnotations (first update cloned_annotations to point to the new content_node IDs)
         for cloned_annotation, cloned_content_node in cloned_annotations:
             cloned_annotation.resource = cloned_content_node
-        ContentAnnotation.objects.bulk_create(r[0] for r in cloned_annotations)
+        bulk_create_with_history((r[0] for r in cloned_annotations), ContentAnnotation, batch_size=500, default_change_reason="Clone Create")
 
 
     @transaction.atomic
@@ -2478,7 +2479,7 @@ class Casebook(EditTrackedModel, TimestampedModel, BigPkModel, CasebookAndSectio
                 0] + 1
             for node in cloned_content_nodes:
                 node.ordinals[0] += offset
-        ContentNode.objects.bulk_create(cloned_content_nodes)
+        bulk_create_with_history(cloned_content_nodes, ContentNode, batch_size=500, default_change_reason="Clone Create")
         if append:
             # if we offset the ordinals to push the new nodes to the end, then they will be in the right order
             # but might be non-consecutive or overly nested; call _repair to clean them up
@@ -2716,7 +2717,7 @@ class Casebook(EditTrackedModel, TimestampedModel, BigPkModel, CasebookAndSectio
             Update ordinals in the database for any that need to change, based on nodes that have been moved within
             content_tree__children. It is not valid to add nodes from outside, as their tree values will not be populated.
         """
-        ContentNode.objects.bulk_update(contents, ['ordinals'])
+        bulk_update_with_history(contents, ContentNode, ['ordinals'], batch_size=500, default_change_reason="Tree Repair")
 
     def content_tree__repair(self):
         self.content_tree__load()

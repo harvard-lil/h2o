@@ -33,6 +33,7 @@ from rest_framework import status
 from rest_framework.response import Response
 from rest_framework.views import APIView
 from rest_framework.exceptions import ValidationError
+from simple_history.utils import bulk_create_with_history
 
 
 from .forms import (CasebookForm, CasebookSettingsForm, LinkForm,
@@ -2094,7 +2095,7 @@ def new_from_outline(request, casebook=None):
             node.pop('searchString', None)
             if not skip_add_node:
                 content_nodes.append(ContentNode(**node))
-        ContentNode.objects.bulk_create(content_nodes)
+        bulk_create_with_history(content_nodes, ContentNode, batch_size=500, default_change_reason="Bulk Create")
         if content_node_annotations:
             casebook.save_and_parent_cloned_annotations(content_node_annotations)
 
