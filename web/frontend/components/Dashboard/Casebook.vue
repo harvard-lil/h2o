@@ -24,7 +24,7 @@
         <div class="author-info">
           <div class="owner">
             <ul>
-              <li v-for="author in casebook.authors" v-bind:key="author.id" v-bind:class="author.verified_professor ? 'verified-prof' : ''">
+              <li v-for="author in attributed(casebook.authors)" v-bind:key="author.id" v-bind:class="author.verified_professor ? 'verified-prof' : ''">
                 {{ author.attribution }}
               </li>
             </ul>
@@ -40,7 +40,7 @@
 </template>
 
 <script>
-  import _ from "lodash";
+import _ from "lodash";
 
 export default {
     props: ['casebook', 'selectable', 'value'],
@@ -81,6 +81,9 @@ export default {
         }
     },
     methods: {
+        attributed: function(authors) {
+            return _.filter(authors, 'has_attribution');
+        },
         selectBook: function() {
             if (!this.selectable) return;
             this.selectionIndirection = _.find(this.value, this.casebook) ?
