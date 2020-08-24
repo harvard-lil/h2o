@@ -731,7 +731,10 @@ def dashboard(request, user_id=None, user_slug=None):
         user = get_object_or_404(User, pk=user_id)
     else:
         raise Http404
-    all_casebooks = [x for x in user.casebooks.exclude(state='Archived').exclude(state='Draft').all() if x.viewable_by(request.user)]
+    all_casebooks = [x for x in user.casebooks.exclude(state=Casebook.LifeCycle.ARCHIVED.value)
+                     .exclude(state=Casebook.LifeCycle.DRAFT.value)
+                     .exclude(state=Casebook.LifeCycle.PREVIOUS_SAVE.value)
+                     .all() if x.viewable_by(request.user)]
     titles = set([cb.common_title for cb in all_casebooks if cb.common_title])
     loose_casebooks = [x for x in all_casebooks if not x.common_title]
     data = json.dumps({'casebooks': CasebookListSerializer(loose_casebooks, many=True, context={'request': request}).data,
@@ -952,6 +955,9 @@ class CasebookView(View):
             >>> check_response(client.get(draft_casebook.get_absolute_url(), as_user=user), content_includes="You are viewing a preview")
         """
         if not casebook.viewable_by(request.user):
+            if casebook.is_previous_save:
+                parent = casebook.version_tree__parent()
+                return HttpResponseRedirect(reverse('casebook', args=[parent]))
             if request.user.is_authenticated and casebook.contentcollaborator_set.filter(user=request.user, can_edit=True).exists():
                 return HttpResponseRedirect(reverse('casebook_settings', args=[casebook]))
             else:
@@ -1012,8 +1018,6 @@ class CasebookView(View):
             ...     content_includes=draft_casebook.title,
             ...     content_excludes="You are viewing a preview"
             ... )
-            >>> with assert_raises(Casebook.DoesNotExist):
-            ...     draft_casebook.refresh_from_db()
             >>> casebook.refresh_from_db()
             >>> assert_url_equal(response, casebook.get_absolute_url())
             >>> assert casebook.is_public
@@ -1021,7 +1025,8 @@ class CasebookView(View):
         # check permissions
         if casebook.is_public:
             raise PermissionDenied("Only private casebooks may be published.")
-
+        if not casebook.can_publish:
+            return HttpResponseBadRequest("Casebook is not publishable")
         if casebook.is_draft:
             casebook = casebook.merge_draft()
         else:

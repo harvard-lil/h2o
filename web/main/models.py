@@ -2002,17 +2002,19 @@ class Casebook(EditTrackedModel, TimestampedModel, BigPkModel, CasebookAndSectio
         PUBLISHED = 'Public' # This version is public
         ARCHIVED = 'Archived' # This is retired, and is no longer public
         REVISING = 'Revising' # A public and private (with edits) version of this casebook exist.
+        PREVIOUS_SAVE = 'Previous' # A casebook that has been replaced with a merged draft
 
     state = models.CharField(
       max_length=10,
-      choices=[(tag, tag.value) for tag in LifeCycle]
+      choices=[(tag.value, tag.name) for tag in LifeCycle]
     )
-    draft = models.ForeignKey(
+    draft = models.OneToOneField(
         'self',
         on_delete=models.DO_NOTHING,
         blank=True,
         null=True,
-        related_name='draft_of'
+        related_name='draft_of',
+        unique=True,
     )
     history = HistoricalRecords()
     common_title = models.ForeignKey(
@@ -2052,7 +2054,7 @@ class Casebook(EditTrackedModel, TimestampedModel, BigPkModel, CasebookAndSectio
         return slugify(self.title)
 
     def viewable_by(self, user):
-        return (not self.is_archived) and (self.is_public or self.editable_by(user))
+        return (not (self.is_archived or self.is_previous_save)) and (self.is_public or self.editable_by(user))
 
     def directly_editable_by(self, user):
         """
@@ -2177,7 +2179,7 @@ class Casebook(EditTrackedModel, TimestampedModel, BigPkModel, CasebookAndSectio
     @property
     def permits_cloning(self):
         """See ContentNode.permits_cloning"""
-        return self.state not in {Casebook.LifeCycle.DRAFT.value, Casebook.LifeCycle.ARCHIVED.value}
+        return self.state not in {Casebook.LifeCycle.DRAFT.value, Casebook.LifeCycle.ARCHIVED.value, Casebook.LifeCycle.PREVIOUS_SAVE.value}
 
     @property
     def has_draft(self):
@@ -2215,20 +2217,22 @@ class Casebook(EditTrackedModel, TimestampedModel, BigPkModel, CasebookAndSectio
 
             Given:
             >>> reset_sequences, full_casebook, assert_num_queries = [getfixture(i) for i in ['reset_sequences', 'full_casebook', 'assert_num_queries']]
-            >>> original_assets = set(ContentNode.objects.values_list('id', flat=True))
             >>> elena, john =  [User(attribution=name, email_address="{}@scotus.gov".format(name)) for name in ['Elena', 'John']]
             >>> elena.save()
             >>> john.save()
             >>> full_casebook.add_collaborator(elena, has_attribution=True)
+            >>> section = full_casebook.contents.first()
+            >>> section.provenance = [100]
+            >>> section.save()
+            >>> original_provenances = [x.provenance for x in full_casebook.contents.all()]
             >>> second_casebook = full_casebook.clone(current_user=john)
             >>> draft = full_casebook.make_draft()
-            >>> # _ = ContentNode.objects.filter(id=2).update(provenance=[1])  # mark node 2 as copy_of node 1
 
             Merge draft back into original:
             >>> draft.title = "New Title"
             >>> draft.save()
             >>> Section(new_casebook=draft, ordinals=[3], title="New Section").save()
-            >>> with assert_num_queries(delete=6, select=16, update=3, insert=20):
+            >>> with assert_num_queries(select=2, update=3, insert=3):
             ...     new_casebook = draft.merge_draft()
             >>> assert new_casebook == full_casebook
             >>> expected = [
@@ -2250,14 +2254,9 @@ class Casebook(EditTrackedModel, TimestampedModel, BigPkModel, CasebookAndSectio
             ... ]
             >>> assert dump_casebook_outline(new_casebook) == expected
 
-            Assets associated with old published version are gone:
-            >>> assert set(ContentNode.objects.values_list('id', flat=True)).intersection(original_assets) == set()
-            >>> assert set(ContentAnnotation.objects.values_list('id', flat=True)) == {5, 6, 7, 8, 9, 10, 11, 12}
-            >>> assert set(TextBlock.objects.values_list('id', flat=True)) == {3,4,5, 6}
-            >>> assert set(Link.objects.values_list('id', flat=True)) == {3,4,5, 6}
-
             The original copy_of attributes from the published version are preserved:
-            >>> assert ContentNode.objects.get(id=12).provenance == [21]
+            >>> full_casebook.refresh_from_db()
+            >>> assert original_provenances + [[]] == [x.provenance for x in full_casebook.contents.all()]
 
             Clones of the original casebook have proper attribution
             >>> assert elena in second_casebook.attributed_authors
@@ -2266,49 +2265,44 @@ class Casebook(EditTrackedModel, TimestampedModel, BigPkModel, CasebookAndSectio
         draft = self
         if not self.is_draft:
             raise ValueError("Only draft casebooks may be merged")
-        if not self.draft_of.count() == 1:
-            raise ValueError("Data integrity issue detected, publish prevented to prevent data loss")
-        parent = self.draft_of.get()
+        parent = self.draft_of
+
+        # swap all attributes
+
+        #start with the fields
+        for attr in ('title', 'subtitle', 'headnote'):
+            temp = getattr(draft, attr)
+            setattr(draft, attr, getattr(parent, attr))
+            setattr(parent, attr, temp)
 
 
-        # update casebook attributes
-        for attr in ('headnote', 'title', 'subtitle'):
-            setattr(parent, attr, getattr(draft, attr))
+        # state
+        # parent.state stays public
+        draft.state = Casebook.LifeCycle.PREVIOUS_SAVE.value
+
+
+        # update relations
+        # draft
+
         parent.draft = None
+        draft.draft = None
+
+        # content nodes
+
+        to_publish = [x for x in draft.contents.all()]
+        to_retire = [cn for cn in parent.contents.all()]
+        for content_node in to_publish:
+            if content_node.provenance:
+                content_node.provenance.pop()
+            content_node.new_casebook = parent
+        for content_node in to_retire:
+            content_node.new_casebook = draft
+
+        bulk_update_with_history(to_publish + to_retire, ContentNode, ['new_casebook_id', 'provenance'], batch_size=500, default_change_reason="Draft Merge")
+        draft._change_reason = "Draft Merge"
+        draft.save()
+        parent._change_reason = "Draft Merge"
         parent.save()
-
-        # delete old links and textblocks
-        parent._delete_related_links_and_text_blocks()
-
-        # delete old annotations
-        ContentAnnotation.objects.filter(resource__new_casebook=parent).delete()
-
-        # The last parent can be removed from the provenance, as it is a node that's deleted in a few lines
-        nodes_to_update = set([])
-        provenance_to_remap = {}
-        for node in draft.contents.all():
-            if node.provenance:
-                provenance_to_remap[node.provenance[-1]] = node.id
-                nodes_to_update.add(node)
-                node.provenance = node.provenance[:-1]
-
-        # Remap descendant references
-        clones_to_remap = [x for x in ContentNode.objects.filter(provenance__overlap=[x for x in provenance_to_remap.keys()]) if x not in nodes_to_update]
-        for clone in clones_to_remap:
-            clone.provenance = [provenance_to_remap.get(x,x) for x in clone.provenance]
-
-        provenance_updates = list(nodes_to_update) + clones_to_remap
-        bulk_update_with_history(provenance_updates, ContentNode, ['provenance'], batch_size=500, default_change_reason="Draft Merge")
-
-        # delete old content nodes
-        parent.contents.all().delete()
-
-        # move new content nodes
-        draft.contents.update(new_casebook=parent)
-
-        # delete draft
-        draft.delete()
-
 
         return parent
 
@@ -2505,6 +2499,11 @@ class Casebook(EditTrackedModel, TimestampedModel, BigPkModel, CasebookAndSectio
         return self.can_transition_to(Casebook.LifeCycle.ARCHIVED)
 
     @property
+    def is_previous_save(self):
+        return self.state == Casebook.LifeCycle.PREVIOUS_SAVE.value
+
+
+    @property
     def can_depublish(self):
         return self.is_public and self.can_transition_to(Casebook.LifeCycle.PRIVATELY_EDITING)
 
@@ -2531,36 +2530,50 @@ class Casebook(EditTrackedModel, TimestampedModel, BigPkModel, CasebookAndSectio
             (Casebook.LifeCycle.PRIVATELY_EDITING.value,Casebook.LifeCycle.PUBLISHED.value):True,
             (Casebook.LifeCycle.PRIVATELY_EDITING.value,Casebook.LifeCycle.REVISING.value):False,
             (Casebook.LifeCycle.PRIVATELY_EDITING.value,Casebook.LifeCycle.ARCHIVED.value):True,
+            (Casebook.LifeCycle.PRIVATELY_EDITING.value,Casebook.LifeCycle.PREVIOUS_SAVE.value):True,
 
             (Casebook.LifeCycle.NEWLY_CLONED.value,Casebook.LifeCycle.PRIVATELY_EDITING.value):True,
             (Casebook.LifeCycle.NEWLY_CLONED.value,Casebook.LifeCycle.DRAFT.value):False,
             (Casebook.LifeCycle.NEWLY_CLONED.value,Casebook.LifeCycle.PUBLISHED.value):True,
             (Casebook.LifeCycle.NEWLY_CLONED.value,Casebook.LifeCycle.REVISING.value):False,
             (Casebook.LifeCycle.NEWLY_CLONED.value,Casebook.LifeCycle.ARCHIVED.value):True,
+            (Casebook.LifeCycle.NEWLY_CLONED.value,Casebook.LifeCycle.PREVIOUS_SAVE.value):False,
 
             (Casebook.LifeCycle.DRAFT.value,Casebook.LifeCycle.PRIVATELY_EDITING.value):False,
             (Casebook.LifeCycle.DRAFT.value,Casebook.LifeCycle.NEWLY_CLONED.value):False,
             (Casebook.LifeCycle.DRAFT.value,Casebook.LifeCycle.PUBLISHED.value):True,
             (Casebook.LifeCycle.DRAFT.value,Casebook.LifeCycle.REVISING.value):False,
             (Casebook.LifeCycle.DRAFT.value,Casebook.LifeCycle.ARCHIVED.value):False,
+            (Casebook.LifeCycle.DRAFT.value,Casebook.LifeCycle.PREVIOUS_SAVE.value):True,
 
             (Casebook.LifeCycle.PUBLISHED.value,Casebook.LifeCycle.PRIVATELY_EDITING.value):True,
             (Casebook.LifeCycle.PUBLISHED.value,Casebook.LifeCycle.NEWLY_CLONED.value):False,
             (Casebook.LifeCycle.PUBLISHED.value,Casebook.LifeCycle.DRAFT.value):False,
             (Casebook.LifeCycle.PUBLISHED.value,Casebook.LifeCycle.REVISING.value):True,
             (Casebook.LifeCycle.PUBLISHED.value,Casebook.LifeCycle.ARCHIVED.value):False,
+            (Casebook.LifeCycle.PUBLISHED.value,Casebook.LifeCycle.PREVIOUS_SAVE.value):False,
 
             (Casebook.LifeCycle.REVISING.value,Casebook.LifeCycle.PRIVATELY_EDITING.value):True,
             (Casebook.LifeCycle.REVISING.value,Casebook.LifeCycle.NEWLY_CLONED.value):False,
             (Casebook.LifeCycle.REVISING.value,Casebook.LifeCycle.DRAFT.value):False,
             (Casebook.LifeCycle.REVISING.value,Casebook.LifeCycle.PUBLISHED.value):True,
             (Casebook.LifeCycle.REVISING.value,Casebook.LifeCycle.ARCHIVED.value):False,
+            (Casebook.LifeCycle.REVISING.value,Casebook.LifeCycle.PREVIOUS_SAVE.value):False,
 
             (Casebook.LifeCycle.ARCHIVED.value,Casebook.LifeCycle.PRIVATELY_EDITING.value):True,
             (Casebook.LifeCycle.ARCHIVED.value,Casebook.LifeCycle.NEWLY_CLONED.value):False,
             (Casebook.LifeCycle.ARCHIVED.value,Casebook.LifeCycle.DRAFT.value):False,
             (Casebook.LifeCycle.ARCHIVED.value,Casebook.LifeCycle.PUBLISHED.value):False,
             (Casebook.LifeCycle.ARCHIVED.value,Casebook.LifeCycle.REVISING.value):False,
+            (Casebook.LifeCycle.ARCHIVED.value,Casebook.LifeCycle.PREVIOUS_SAVE.value):False,
+
+            (Casebook.LifeCycle.PREVIOUS_SAVE.value,Casebook.LifeCycle.PRIVATELY_EDITING.value):False,
+            (Casebook.LifeCycle.PREVIOUS_SAVE.value,Casebook.LifeCycle.NEWLY_CLONED.value):False,
+            (Casebook.LifeCycle.PREVIOUS_SAVE.value,Casebook.LifeCycle.DRAFT.value):False,
+            (Casebook.LifeCycle.PREVIOUS_SAVE.value,Casebook.LifeCycle.PUBLISHED.value):False,
+            (Casebook.LifeCycle.PREVIOUS_SAVE.value,Casebook.LifeCycle.REVISING.value):False,
+            (Casebook.LifeCycle.PREVIOUS_SAVE.value,Casebook.LifeCycle.ARCHIVED.value):False,
+
         }
 
         return transition_options[(self.state, target_value)]
@@ -2766,7 +2779,8 @@ class Casebook(EditTrackedModel, TimestampedModel, BigPkModel, CasebookAndSectio
             Casebook.LifeCycle.DRAFT.value: 'casebook-draft',
             Casebook.LifeCycle.PUBLISHED.value: 'casebook-public casebook-preview',
             Casebook.LifeCycle.ARCHIVED.value: 'casebook-archived',
-            Casebook.LifeCycle.REVISING.value: 'casebook-draft'
+            Casebook.LifeCycle.REVISING.value: 'casebook-draft',
+            Casebook.LifeCycle.PREVIOUS_SAVE.value: 'casebook-archived'
         }[self.state]
 
     def tabs_for_user(self, user, current_tab=None):
@@ -3043,16 +3057,6 @@ class User(NullableTimestampedModel, PermissionsMixin, AbstractBaseUser):
 
     def __str__(self):
         return self.display_name
-
-    def non_draft_casebooks(self):
-        """
-            Casebooks, published or not, but excluding draft copies.
-            Drafts of published casebooks should not show up on their own, but inline with the published casebook.
-            Equivalent of Rails "owned_casebook_compacted"
-
-            Includes all casebooks the user is a collaborator on.
-        """
-        return self.casebooks.exclude(state=Casebook.LifeCycle.DRAFT.value).exclude(state=Casebook.LifeCycle.ARCHIVED.value)
 
     def published_casebooks(self):
         return self.casebooks.filter(state=Casebook.LifeCycle.PUBLISHED.value)
