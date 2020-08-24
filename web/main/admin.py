@@ -214,7 +214,7 @@ class CasebookAdmin(BaseAdmin, SimpleHistoryAdmin):
     search_fields = ['title']
 
     fields = ['title', 'subtitle', 'source', 'provenance', 'headnote', 'created_at', 'updated_at' ,'draft', 'state']
-    readonly_fields = ['created_at', 'updated_at', 'provenance', 'source', 'state']
+    readonly_fields = ['created_at', 'updated_at', 'provenance', 'source']
     raw_id_fields = ['collaborators', 'draft']
     inlines = [CollaboratorInline]
 
@@ -231,7 +231,7 @@ class CasebookAdmin(BaseAdmin, SimpleHistoryAdmin):
         # Copy current collaborators from the saved object to its draft/draft_of:
         # TODO: testing the admin is tricky; this would be a good candidate for integration testing
         saved_obj = request.saved_obj
-        other_casebook = saved_obj.draft or saved_obj.draft_of.first()
+        other_casebook = (saved_obj.draft or Casebook.objects.filter(draft=saved_obj).first())
         if other_casebook:
             other_casebook.contentcollaborator_set.all().delete()
             collaborators = saved_obj.contentcollaborator_set.prefetch_related(None)  # prefetch_related cancels out an earlier prefetch so we see fresh results
