@@ -43,7 +43,7 @@ export default {
     },
     selectText: function() {
       const url = this.item.url;
-      const data = { from: "Temp", to: "TextBlock", content: "TBD" };
+      const data = { from: "Temp", to: "TextBlock", content: null };
       Axios.patch(url, data).then(
         this.handleSubmitResponse,
         this.handleSubmitErrors

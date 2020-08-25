@@ -1393,7 +1393,7 @@ def switch_node_type(request, casebook, content_node):
             content_node.resource_id = link.id
             content_node.save()
         elif new_type == 'TextBlock':
-            content = data.get('content','TBD')
+            content = data.get('content', None)
             text_block = TextBlock(name=content_node.title[0:250], content=content)
             text_block.save()
             text_block.refresh_from_db()
@@ -2074,7 +2074,7 @@ def new_from_outline(request, casebook=None):
                 else:
                     node['resource_id'] = internal_case_id_from_cap_id(node.pop('cap_id'))
             elif node['resource_type'] == 'TextBlock':
-                text_block = TextBlock(name=node['title'][0:250], content='TBD')
+                text_block = TextBlock(name=node['title'][0:250])
                 text_block.save()
                 node['resource_id'] = text_block.id
             elif node['resource_type'] == 'Link':
