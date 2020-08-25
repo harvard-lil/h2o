@@ -3090,7 +3090,10 @@ class User(NullableTimestampedModel, PermissionsMixin, AbstractBaseUser):
 
     @property
     def directly_editable_casebooks(self):
-        return (x for x in self.casebooks.order_by('-updated_at').all() if x.directly_editable_by(self))
+        return (x for x in self.casebooks.exclude(state=Casebook.LifeCycle.ARCHIVED.value)
+                .exclude(state=Casebook.LifeCycle.PREVIOUS_SAVE.value)
+                .order_by('-updated_at').all()
+                if x.directly_editable_by(self))
 
 
 def update_user_login_fields(sender, request, user, **kwargs):
