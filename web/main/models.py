@@ -2151,6 +2151,31 @@ class Casebook(EditTrackedModel, TimestampedModel, BigPkModel, CasebookAndSectio
     def children(self):
         return ContentNode.objects.filter(new_casebook=self, ordinals__len=1)
 
+    @property
+    def previous_saves(self):
+        target_provenance = self.provenance + [self.id]
+        return Casebook.objects.filter(provenance=target_provenance, state=Casebook.LifeCycle.PREVIOUS_SAVE.value).order_by('-updated_at')
+
+    @transaction.atomic
+    def restore_from_save(self):
+        if not self.state == Casebook.LifeCycle.PREVIOUS_SAVE.value:
+            raise ValueError("Bad restore state")
+        current_casebook = self.version_tree__parent()
+        savepoint = self
+
+        # swap all attributes
+        #start with the fields
+        for attr in ('title', 'subtitle', 'headnote'):
+            setattr(current_casebook, attr, getattr(savepoint, attr))
+
+        current_casebook._delete_related_links_and_text_blocks()
+        cloned_resources, cloned_content_nodes, cloned_annotations = current_casebook.collect_cloning_nodes(node for node in savepoint.contents.all())
+        current_casebook.save_and_parent_cloned_resources(cloned_resources)
+        for ccn in cloned_content_nodes:
+            ccn.provenance.pop()
+        bulk_create_with_history(cloned_content_nodes, ContentNode, batch_size=500, default_change_reason="Restore from {}".format(self.id))
+        current_casebook.save_and_parent_cloned_annotations(cloned_annotations)
+
     def get_absolute_url(self):
         """See ContentNode.get_absolute_url"""
         return reverse('casebook', args=[self])
@@ -2279,7 +2304,6 @@ class Casebook(EditTrackedModel, TimestampedModel, BigPkModel, CasebookAndSectio
         # state
         # parent.state stays public
         draft.state = Casebook.LifeCycle.PREVIOUS_SAVE.value
-
 
         # update relations
         # draft

@@ -962,11 +962,6 @@ class CasebookView(View):
                 return HttpResponseRedirect(reverse('casebook_settings', args=[casebook]))
             else:
                 return login_required_response(request)
-        # canonical redirect
-        
-        # canonical = casebook.get_absolute_url()
-        # if request.path != canonical:
-        #     return HttpResponseRedirect(canonical)
 
         contents = casebook.contents.prefetch_resources()
         return render_with_actions(request, 'casebook_page.html', {
