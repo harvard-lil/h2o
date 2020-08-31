@@ -888,13 +888,87 @@ def show_credits(request, casebook, section=None):
         casebook_mapping[immediate_clone.id]['incidental_authors'] |= {c.user for clone in incidental_clones for c in clone.tempcollaborator_set.all() if c.has_attribution and c.user.display_name != 'Anonymous' and c.user not in casebook_mapping[immediate_clone.id]['immediate_authors']}
         casebook_mapping[immediate_clone.id]['nodes'].append((node, known_priors[-1], nesting_depth))
 
+
+    node_type = 'casebook'
+    if section:
+        if section.resource_type == 'Section' or not section.resource_type:
+            node_type = 'section'
+        else:
+            node_type = 'resource'
     params = {'contributing_casebooks': [v for v in casebook_mapping.values()],
               'casebook': casebook,
               'section': section,
+              'type': node_type,
               'tabs': (section if section else casebook).tabs_for_user(request.user, current_tab='Credits'),
               'casebook_color_class': casebook.casebook_color_indicator,
               'edit_mode': casebook.directly_editable_by(request.user)}
     return render(request, 'casebook_page_credits.html', params)
+
+
+@perms_test(
+    {'args': ['casebook'], 'results': {200: [None, 'other_user', 'casebook.testing_editor']}},
+    {'args': ['private_casebook'],
+     'results': {200: ['private_casebook.testing_editor'], 'login': [None], 403: ['other_user']}},
+    {'args': ['draft_casebook'],
+     'results': {200: ['draft_casebook.testing_editor'], 'login': [None], 403: ['other_user']}},
+    *viewable_resource,
+    *viewable_section
+)
+@requires_csrf_token
+@hydrate_params
+@user_has_perm('casebook', 'viewable_by')
+def show_related(request, casebook, section=None):
+    def get_root_key(cn):
+        if cn.resource_type == 'Case':
+            return "cap-{}".format(cn.resource.capapi_id) if cn.resource.capapi_id else "h2o-".format(cn.resource_id)
+        else:
+            root_cn = ContentNode.objects.filter(id=cn.provenance[0] if cn.provenance else cn.id).first()
+            if not root_cn:
+                raise Http404
+            if cn.resource_type == 'TextBlock':
+                return "text-{}".format(root_cn.resource_id)
+        return "section-{}".format(root_cn.id)
+
+    subject = section if section else casebook
+    contents = [x for x in subject.contents.prefetch_resources().all()] + ([section] if section else [])
+    descendants = {x for x in subject.descendant_nodes.all()}
+    related_cases = {x for x in subject.related_cases.all() if x not in descendants}
+    related_map = {}
+    for cn in contents:
+        root_key = get_root_key(cn)
+        related_map[root_key] = [cn]
+
+    for cn in descendants:
+        root_key = get_root_key(cn)
+        if root_key in related_map:
+            related_map[root_key].append(cn)
+        else:
+            logger.warn("Unknown relation: {} -- {}".format(cn.id, root_key))
+            raise Http404
+    for cn in related_cases:
+        root_key = get_root_key(cn)
+        if root_key in related_map:
+            related_map[root_key].append(cn)
+        else:
+            logger.warn("Unknown relation: {} -- {}".format(cn.id, root_key))
+            raise Http404
+
+    related_content = sorted(({'local': x[0], 'related':x[1:]} for x in related_map.values() if len(x) > 1), key=lambda x: x['local'].ordinals)
+
+    node_type = 'casebook'
+    if section:
+        if section.resource_type == 'Section' or not section.resource_type:
+            node_type = 'section'
+        else:
+            node_type = 'resource'
+    params = {'related_content': related_content,
+              'casebook': casebook,
+              'section': section,
+              'type': node_type,
+              'tabs': (section if section else casebook).tabs_for_user(request.user, current_tab='Credits'),
+              'casebook_color_class': casebook.casebook_color_indicator,
+              'edit_mode': casebook.directly_editable_by(request.user)}
+    return render(request, 'casebook_page_related.html', params)
 
 
 @no_perms_test
@@ -2142,3 +2216,4 @@ def pretty_url_dispatch(request, user_slug=None, title_slug=None, content_param=
     if content_type == 'Resource':
         return ResourceView.as_view()(request, content.new_casebook, content)
     raise Http404
+

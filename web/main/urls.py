@@ -27,7 +27,6 @@ drf_urlpatterns = [
     path('casebook/<idslug:casebook_param>/toc', views.CasebookTOCView.as_view(), name='casebook_toc_list'),
     path('api/titles/', no_perms_test(views.CommonTitleView.as_view()), name='new_title'),
     path('api/titles/<int:title_id>', no_perms_test(views.CommonTitleView.as_view()), name='edit_title'),
-
 ]
 
 urlpatterns = format_suffix_patterns(drf_urlpatterns) + [
@@ -68,6 +67,8 @@ urlpatterns = format_suffix_patterns(drf_urlpatterns) + [
     path('casebooks/<idslug:casebook_param>/new/bulk', views.new_from_outline, name='new_from_outline'),
 
     path('casebooks/<idslug:casebook_param>/sections/<ordslug:section_param>/credits/', views.show_credits, name='show_resource_credits'),
+    path('casebooks/<idslug:casebook_param>/sections/<ordslug:section_param>/related/', views.show_related, name='show_section_related'),
+
     # reordering nodes
     path('casebooks/<idslug:casebook_param>/sections/<ordslug:section_param>/reorder/<ordslug:node_param>', views.reorder_node, name='reorder_node'),
     path('casebooks/<idslug:casebook_param>/reorder/<ordslug:node_param>', views.reorder_node, name='reorder_node'),
@@ -78,6 +79,7 @@ urlpatterns = format_suffix_patterns(drf_urlpatterns) + [
     path('casebooks/<idslug:from_casebook_dict>/sections/<ordslug:from_section_dict>/clone/to/<idslug:to_casebook_dict>/', views.clone_casebook_nodes, name='clone_nodes'),
     path('casebooks/<idslug:casebook_param>/create_draft/', views.create_draft, name='create_draft'),
     path('casebooks/<idslug:casebook_param>/credits/', views.show_credits, name='show_credits'),
+    path('casebooks/<idslug:casebook_param>/related/', views.show_related, name='show_related'),
     path('casebooks/<idslug:casebook_param>/settings/', views.casebook_settings, name='casebook_settings'),
     path('casebooks/<idslug:casebook_param>/outline/', views.casebook_outline, name='casebook_outline'),
 

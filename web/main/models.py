@@ -849,6 +849,7 @@ class MaterializedPathTreeMixin(models.Model):
             })
         return return_value
 
+
 class TrackedCloneable(models.Model):
     class Meta:
         abstract = True
@@ -1165,7 +1166,7 @@ class ContentNode(EditTrackedModel, TimestampedModel, BigPkModel, MaterializedPa
         elif self.annotatable:
             return self.get_annotate_url()
         return self.get_edit_url()
-        
+
     @property
     def type(self):
         # TODO: In use in templates and tests; shouldn't be necessary. Consider refactoring.
@@ -1746,6 +1747,35 @@ class ContentNode(EditTrackedModel, TimestampedModel, BigPkModel, MaterializedPa
                 ('Credits', reverse('show_resource_credits', args=[self.new_casebook, self]), True)]
         return [(n, l, n == current_tab) for n,l,c in tabs if c]
 
+
+    @property
+    def descendant_nodes(self):
+        ids = [cn.id for cn in self.contents.all()] + [self.id]
+        return ContentNode.objects.filter(provenance__overlap=ids).filter(new_casebook__state='Public')
+
+    @property
+    def ancestor_nodes(self):
+        ids = [p for cn in self.contents.all() for p in cn.provenance] + [p for p in self.provenance]
+        return ContentNode.objects.filter(id__in=ids).filter(new_casebook__state='Public')
+
+    @property
+    def related_cases(self):
+        cases = None
+        if self.resource_type == 'Case':
+            cases = [self]
+        else:
+            cases = [x for x in self.contents.filter(resource_type='Case').prefetch_resources()]
+        cap_ids = []
+        res_ids = []
+        for case in cases:
+            if case.resource.capapi_id:
+                cap_ids.append(case.resource.capapi_id)
+            else:
+                res_ids.append(case.resource.id)
+        res_ids += [x.id for x in Case.objects.filter(capapi_id__in=cap_ids).all()]
+        return ContentNode.objects.filter(resource_type='Case',resource_id__in=res_ids).filter(new_casebook__state='Public')
+
+
 #
 # Start ContentNode Proxies
 #
@@ -2150,6 +2180,30 @@ class Casebook(EditTrackedModel, TimestampedModel, BigPkModel, CasebookAndSectio
     @property
     def children(self):
         return ContentNode.objects.filter(new_casebook=self, ordinals__len=1)
+
+    @property
+    def descendant_nodes(self):
+        ids = [cn.id for cn in self.contents.all()]
+        return ContentNode.objects.filter(provenance__overlap=ids).filter(new_casebook__state='Public')
+
+    @property
+    def ancestor_nodes(self):
+        ids = [p for cn in self.contents.all() for p in cn.provenance]
+        return ContentNode.objects.filter(id__in=ids).filter(new_casebook__state='Public')
+
+    @property
+    def related_cases(self):
+        cases = None
+        cases = [x for x in self.contents.filter(resource_type='Case').prefetch_resources()]
+        cap_ids = []
+        res_ids = []
+        for case in cases:
+            if case.resource.capapi_id:
+                cap_ids.append(case.resource.capapi_id)
+            else:
+                res_ids.append(case.resource.id)
+        res_ids += [x.id for x in Case.objects.filter(capapi_id__in=cap_ids).all()]
+        return ContentNode.objects.filter(resource_type='Case',resource_id__in=res_ids).filter(new_casebook__state="Public")
 
     @property
     def previous_saves(self):
