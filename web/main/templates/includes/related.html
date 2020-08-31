@@ -1,0 +1,28 @@
+<section class="credits">
+    <div>
+        {% if related_content %}
+        <h3>Below is a list of derivative and related content for this {{type}}:</h3>
+        <ul class="related-content-list">
+            {% for row in related_content %}
+            <li>
+                <span class="section-title">{{ row.local.ordinal_string }}: {{ row.local.title }} </span>
+                <ul>
+                    {% for related in row.related %}
+                    <li>
+                        <a class="og-node-link" href="{{ related.get_absolute_url }}">{{related.new_casebook.title}} ({{related.updated_at | date:"Y-M-d" }})</a>
+                        <ul class="author-list">
+                            {% for author in related.primary_authors %}
+                            <li> {{author.attribution}} </li>
+                            {% endfor %}
+                        </ul>
+                    </li>
+                    {% endfor %}
+                </ul>
+            </li>
+            {% endfor %}
+        </ul>
+        {% else %}
+        <h3>Unable to find related content</h3>
+        {% endif %}
+    </div>
+</section>

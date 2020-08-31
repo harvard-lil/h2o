@@ -1,0 +1,20 @@
+{% extends 'base.html' %}
+
+{% block page_title %} {% if mode %}{{mode}} | {% endif %} {{casebook.title}} {% if section %}: {{ section.title }} {% endif %} {% endblock %}
+
+
+{% block banner %}
+{% include 'includes/preview_banner.html' %}
+{% endblock %}
+
+{% block mainContent %}
+{% include 'includes/casebook_page_tabs.html' %}
+<section id="credits" class="casebook {{casebook_color_class}}">
+    <div class="content">
+        <div class="casebook-inner">
+            <div class="top-strip"></div>
+            {% include 'includes/related.html' %}
+        </div>
+    </div>
+</section>
+{% endblock %}
