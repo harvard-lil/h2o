@@ -4,8 +4,10 @@ import difflib
 import html as   python_html
 from lxml import etree, html
 import mimetypes
+from pyquery import PyQuery
 import re
-from urllib.parse import quote
+from requests import request
+from urllib.parse import quote, unquote
 
 from django.contrib.auth.tokens import default_token_generator
 from django.http import HttpResponse
@@ -353,3 +355,24 @@ def send_verification_email(request, user):
         [user.email_address],
     )
 
+
+def get_link_title(url):
+    file_name_re = re.compile('/([^/]*)(?:[.].{1,4})$')
+    last_slug_re = re.compile('/([^/]*)/$')
+    file_name = file_name_re.search(url)
+    default_title = url
+    last_slug = last_slug_re.search(url)
+    if file_name and file_name.groups()[0]:
+        default_title = unquote(file_name.groups()[0])
+    elif last_slug and last_slug.groups()[0]:
+        default_title = unquote(last_slug.groups()[0])
+    resp = request('get',url)
+    if not resp.ok:
+        return default_title
+    body = PyQuery(resp.content)
+    if not body:
+        return default_title
+    title = body.find('title')
+    if not title:
+        return default_title
+    return title[0].text

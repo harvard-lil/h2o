@@ -230,7 +230,7 @@ function guess_line_depth(lines) {
   return guessed_lines;
 }
 
-const caseLike = /(\bvs?\b)|(\bin re:\b)|(ex parte)/i;
+const caseLike = /( vs? )|(\bin re:\b)|(ex parte)/i;
 const removeParenthetical = /\([^)]*\)/;
 const guessCitation = /[0-9]+\s+[a-zA-Z0-9 .]*\b\s*[0-9]+/;
 const caseLawLink = /https?:\/\/cite\.case\.law\/[/0-9a-zA-Z_-]*/;
@@ -238,7 +238,7 @@ function looksLikeCaseName(str) {
   return !!(str.match(caseLike) || str.match(guessCitation) || str.match(caseLawLink));
 }
 
-const linkLike = /https?:\/\/(?:[\w]+\.)(?:\.?[\w]{2,})/;
+const linkLike = /https?:\/\/(?:[\w]+\.)(?:\.?[\w]{2,})[^ ]*/;
 function looksLikeLink(str) {
   return !!(str.match(linkLike));
 }

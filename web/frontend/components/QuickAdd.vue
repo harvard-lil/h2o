@@ -128,6 +128,12 @@ export default {
         data: [{...this.lineInfo, title:this.title}]
       };
       if (data.data[0].resource_type === 'Unknown') { data.data[0].resource_type = 'Temp';}
+      if (data.data[0].resource_type === 'Link') {
+        if (!data.data[0].url) {
+          data.data[0].url = data.data[0].title;
+        }
+        data.data[0].title = undefined;
+      }
       data.data[0].resource_type = this.resource_type;
       if (this.resource_type === 'Case' && !_.has(data,'data.0.resource_id')) {
         this.lowHangingCaseCheck(data);

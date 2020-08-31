@@ -54,7 +54,7 @@ from .test.test_permissions_helpers import (directly_editable_resource,
                                             viewable_section)
 from .utils import (CapapiCommunicationException, StringFileResponse,
                     fix_after_rails, parse_cap_decision_date,
-                    send_verification_email)
+                    send_verification_email, get_link_title)
 
 logger = logging.getLogger('django')
 ### helpers ###
@@ -1287,6 +1287,11 @@ def new_link(request, casebook):
     parent_section_id = request.POST.get('section', None)
     parent_section = Section.objects.get(id=parent_section_id) if parent_section_id else casebook
     if form.is_valid():
+        name = get_link_title(form.cleaned_data['url'])
+        if 'name' not in form.cleaned_data or not form.cleaned_data['name']:
+            form.cleaned_data['name'] = name
+            form = LinkForm(form.cleaned_data)
+            form.is_valid()
         return create_from_form(casebook, parent_section, form)
     else:
         return JsonResponse(form.errors.get_json_data(), status=status.HTTP_400_BAD_REQUEST)
@@ -2081,11 +2086,24 @@ def new_from_outline(request, casebook=None):
                 looks_like_url = URLValidator()
                 if 'url' in node:
                     url = node['url']
-                elif looks_like_url(node['title']):
-                    url = node['title']
                 else:
-                    url = 'https://opencasebook.org/'
-                link = Link(name=node['title'], url=url)
+                    url = node['title']
+                try:
+                    looks_like_url(url)
+                except Exception:
+                    try:
+                        url = 'https://' + url
+                        looks_like_url(url)
+                    except Exception:
+                        url = 'https://opencasebook.org/'
+
+                title = None
+                if 'title' not in node or node['title'] == 'Untitled':
+                    title = get_link_title(url)
+                    node['title'] = title
+                else:
+                    title = node['title']
+                link = Link(name=title, url=url)
                 link.save()
                 node['resource_id'] = link.id
                 node.pop('url', None)
