@@ -24,7 +24,9 @@ function initRichTextEditor(element, code=false) {
     skin_url: '/static/tinymce_skin',
     menubar: false,
     branding: false,
-    toolbar: toolbar
+    toolbar: toolbar,
+    contextmenu_never_use_native: false,
+    contextmenu:false
   });
 }
 

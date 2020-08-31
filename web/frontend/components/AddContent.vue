@@ -118,6 +118,8 @@ export default {
       skin_url: "/static/tinymce_skin",
       menubar: false,
       branding: false,
+      contextmenu_never_use_native: false,
+      contextmenu:false,
       toolbar:
         "undo redo removeformat | styleselect | bold italic underline | numlist bullist indent outdent | table blockquote link image"
     },
