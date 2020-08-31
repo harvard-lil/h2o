@@ -147,6 +147,7 @@ class CommonTitleSerializer(serializers.ModelSerializer):
         model = models.CommonTitle
         fields = ['id', 'name', 'public_url', 'current', 'casebooks']
 
+
 class NewCommonTitleSerializer(serializers.ModelSerializer):
     casebooks = CasebookListSerializer(many=True)
 

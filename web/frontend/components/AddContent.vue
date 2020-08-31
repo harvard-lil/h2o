@@ -62,7 +62,7 @@
                 </span>
               </label>
             </div>
-            <input class="save-button" type="submit" value="Save text" />
+            <input class="save-button" type="submit" :value="pendingSubmit ? 'Save in progress' : 'Save Text'" :disabled="pendingSubmit" />
           </form>
         </div>
         <div class="add-resource-body" v-else-if="linkTab">
@@ -83,7 +83,7 @@
                 <strong>{{errors.url[0].message}}</strong>
               </span>
             </div>
-            <input class="search-button" type="submit" value="Add linked resource" />
+            <input class="search-button" type="submit" :value="pendingSubmit ? 'Save in progress' : 'Add Link'" :disabled="pendingSubmit" />
           </form>
         </div>
       </template>
@@ -110,6 +110,7 @@ export default {
   },
   props: ["casebook", "section"],
   data: () => ({
+    pendingSubmit: false,
     showModal: false,
     currentTab: "case",
     caseQueryObj: {query: ""},
@@ -182,6 +183,7 @@ export default {
       formData.append("section", this.section);
       formData.set("content", this.textContent);
       const url = `/casebooks/${this.casebook}/new/text`;
+      this.pendingSubmit = true;
       Axios.post(url, formData).then(
         this.handleSubmitResponse,
         this.handleSubmitErrors
@@ -191,6 +193,7 @@ export default {
       let formData = new FormData(this.$refs.linkForm);
       formData.append("section", this.section);
       const url = `/casebooks/${this.casebook}/new/link`;
+      this.pendingSubmit = true;
       Axios.post(url, formData).then(
         this.handleSubmitResponse,
         this.handleSubmitErrors
@@ -202,6 +205,7 @@ export default {
       formData.append("section", this.section);
       const url = `/casebooks/${this.casebook}/new/case`;
       const handler = this.handleSubmitResponse;
+      this.pendingSubmit = true;
       Axios.post(CAPAPI_LOADER_URL, { id: c.id }).then(resp => {
         formData.append("resource_id", resp.data.id);
         Axios.post(url, formData).then(handler, this.handleSubmitErrors);
@@ -211,8 +215,10 @@ export default {
       let location = response.request.responseURL;
       window.location.href = location;
       this.errors = {};
+      this.pendingSubmit = false;
     },
     handleSubmitErrors: function handleSubmitErrors(error) {
+      this.pendingSubmit = false;
       if (error.response.data) {
         this.errors = error.response.data;
       }
