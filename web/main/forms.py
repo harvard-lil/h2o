@@ -29,7 +29,7 @@ class ContentNodeForm(ModelForm):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.helper = FormHelper()
-        self.helper.form_tag = True
+        self.helper.form_tag = False
         self.helper.render_unmentioned_fields = True
         self.helper.layout = Layout(
             Field('title', placeholder='Enter a concise title.'),
@@ -53,6 +53,7 @@ class CasebookForm(ContentNodeForm):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.helper.form_class = 'edit_content_casebook'
+        self.helper.form_tag = False
 
 
 class SectionForm(ContentNodeForm):
@@ -80,7 +81,6 @@ class ResourceForm(ContentNodeForm):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.helper.form_class = 'edit_content_resource'
-        self.helper.form_tag = False
 
 
 class LinkForm(ModelForm):

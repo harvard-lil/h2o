@@ -1,6 +1,7 @@
 <template>
   <div id="audit-flow">
-    <publish-button v-if="allNodesSpecified"></publish-button>
+    <button class="action one-line save" v-if="dirtyForm" v-on:click.stop.prevent="save">Save</button>
+    <publish-button v-else-if="allNodesSpecified"></publish-button>
     <button class="action audit-casebook" v-on:click.stop.prevent="startAudit()" v-else>Finalize entries</button>
   </div>
 </template>
@@ -11,14 +12,39 @@ import pp from "../libs/text_outline_parser";
 import PublishButton from "./PublishButton";
 import Axios from "../config/axios";
 import urls from "../libs/urls";
+import Vue from "vue";
+const bus = new Vue();
 
+Vue.component('DirtyForm',{
+  data: () => ({original: {}}),
+  props: ['cssClass', 'formMethod'],
+  mounted: function() {
+    for(let k of this.$refs.form.elements) {
+      if (k.id) {
+        k.addEventListener('change', this.emitDirty)
+      }
+    }
+  },
+  methods: {
+    emitDirty: function() {
+      bus.$emit('dirtiedForm', {})
+    }
+  },
+  //template: '<div ref="parent"><slot></slot></div>'
+  template: '<form ref="form" :class="cssClass" :method="formMethod"><slot></slot></form>'
+})
 
 export default {
   components: {
     PublishButton
   },
-  data: () => ({autoAudited: {}}),
+  data: () => ({autoAudited: {},
+                dirtyForm: false}),
   methods: {
+    save: function() {
+      let form = document.querySelector('form.edit_content_resource') || document.querySelector('form.edit_content_section') || document.querySelector('form.edit_content_casebook');
+      form.submit()
+    },
     bulkAddUrl: urls.url('new_from_outline'),    
     startAudit: function() {
       let self = this;
@@ -96,10 +122,10 @@ export default {
       });
     },
     currentAuditId: function(newVal) {
-        if (newVal === "None") {
-            this.inAuditMode = false;
-        }
-        if (this.inAuditMode) {
+      if (newVal === "None") {
+        this.inAuditMode = false;
+      }
+      if (this.inAuditMode) {
         this.auditStep(this.currentAuditId);
       }
     }
@@ -138,6 +164,12 @@ export default {
     allNodesSpecified: function() {
       return this.needingAudit.length === 0;
     }
+  },
+  created: function() {
+    const self = this;
+    bus.$on('dirtiedForm', () => {
+      self.dirtyForm = true;
+    })
   }
 };
 </script>
