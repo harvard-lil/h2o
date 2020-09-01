@@ -30,7 +30,6 @@
   {% endif %}
   {% if can_save_nodes %}
       {# TODO: consider using buttons w/ "form" attribute instead of save_details.js #}
-      <button class="action one-line save submit-{% if section and section.has_body %}resource{% elif section%}section{% else %}casebook{% endif %}-details" data-disable-with="Save">Save</button>
       <button class="action one-line cancel cancel-{% if section and section.has_body %}resource{% elif section%}section{% else %}casebook{% endif %}-details" data-disable-with="Cancel">Cancel</button>
   {% endif %}
   {% if cloneable %}
