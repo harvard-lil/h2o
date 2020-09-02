@@ -17,7 +17,7 @@ def cap_search(params, limit=10):
                         'after_date': 'decision_date_min',
                         'jurisdiction': 'jurisdiction',
                         'search':'search'}
-    param_defaults = {'page_size': limit, 'ordering': 'relevance'}
+    param_defaults = {'page_size': limit, 'ordering': '-analysis.pagerank.percentile'}
     search_params = {**param_defaults, **normalize_dictionary(param_normalizer, params)}
     response = requests.get(settings.CAPAPI_BASE_URL + "cases/", search_params)
     try:
