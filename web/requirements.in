@@ -2,7 +2,7 @@ pip-tools
 fabric3
 tqdm
 
-django
+django==2.2.16
 django-extensions
 djangorestframework
 django-crispy-forms # tidier custom model forms
@@ -21,11 +21,15 @@ django-simple-history # history preservation for contents
 pytest
 pytest-django
 pytest-cov
-factory-boy         # create django model fixtures on demand
-flake8
+factory-boy==2.12.0 # create django model fixtures on demand
+flake8==3.7.8
 requests-mock       # mock the requests library
 pytest-mock
 
 # CAP API requests
 requests
 pyquery
+
+# Who knows?
+pip==20.2.2
+importlib-metadata==1.7.0
