@@ -8,6 +8,7 @@
 
 <script>
 import _ from "lodash";
+import _tinymce from 'tinymce/tinymce';
 import pp from "../libs/text_outline_parser";
 import PublishButton from "./PublishButton";
 import Axios from "../config/axios";
@@ -16,18 +17,26 @@ import Vue from "vue";
 const bus = new Vue();
 
 Vue.component('DirtyForm',{
-  data: () => ({original: {}}),
+  data: () => ({fired: false}),
   props: ['cssClass', 'formMethod'],
-  mounted: function() {
+    mounted: function() {
     for(let k of this.$refs.form.elements) {
       if (k.id) {
-        k.addEventListener('change', this.emitDirty)
+          k.addEventListener('input', this.emitDirty);
       }
     }
+    const self = this;
+    setTimeout(() => {
+        window.tinyMCE.editors.forEach(editor => {
+            editor.on('input', self.emitDirty);
+        }, 100)
+    })
   },
   methods: {
-    emitDirty: function() {
-      bus.$emit('dirtiedForm', {})
+      emitDirty: function() {
+          if (this.fired) return;
+        bus.$emit('dirtiedForm', {})
+        this.fired = true;
     }
   },
   //template: '<div ref="parent"><slot></slot></div>'
