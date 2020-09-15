@@ -1,8 +1,8 @@
 from rest_framework import serializers
 from django.urls import reverse
 from rest_framework.exceptions import ValidationError
-from main.models import Casebook, CommonTitle
-
+from main.models import Casebook, CommonTitle, User, TempCollaborator
+from main.utils import send_invitation_email, send_collaboration_email
 from . import models
 
 
@@ -166,3 +166,117 @@ class NewCommonTitleSerializer(serializers.ModelSerializer):
     class Meta:
         model = models.CommonTitle
         fields = ['name', 'public_url', 'current', 'casebooks']
+
+
+class UserSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = models.User
+        fields = ['email_address', 'attribution', 'affiliation', 'id']
+
+
+class CollaboratorSerializer(serializers.ModelSerializer):
+    user = UserSerializer()
+
+    class Meta:
+        model = models.TempCollaborator
+        fields = ['casebook', 'has_attribution', 'can_edit', 'user', 'id']
+
+
+class PotentialUser(serializers.BaseSerializer):
+    email_address = serializers.EmailField(required=False)
+    id = serializers.IntegerField(required=False)
+    attribution = serializers.CharField(required=False)
+    affiliation = serializers.CharField(required=False)
+
+    def to_internal_value(self, data):
+        id = data.get('id', None)
+        email_address = data.get('email_address', None)
+        if not id:
+            if not email_address:
+                raise serializers.ValidationError({
+                    'email_address': 'Either an id or email address is required.'
+                })
+            user = User.objects.filter(email_address=email_address).first()
+            if user:
+                self.instance = user
+        else:
+            user = User.objects.filter(id=id).first()
+            if not user:
+                raise serializers.ValidationError({
+                    'id': 'User with this id does not exist.'
+                })
+            self.instance = user
+        return {'id': id,
+                'email_address': email_address}
+
+    def create(self, validated_data):
+        # No user present in system with given email address
+        # Send out an invite
+        return User.objects.create(**validated_data)
+
+    def update(self, instance, validated_data):
+        raise NotImplementedError
+
+
+class CollaboratorDeserializer(serializers.BaseSerializer):
+    casebook = serializers.IntegerField()
+    has_attribution = serializers.BooleanField()
+    can_edit = serializers.BooleanField()
+    id = serializers.IntegerField(required=False)
+    user = PotentialUser()
+
+    def to_internal_value(self, data):
+        instance = None
+        casebook_id = data.get('casebook', None)
+        if not casebook_id:
+            raise serializers.ValidationError({
+                'casebook': 'This field is required.'
+            })
+        casebook = Casebook.objects.filter(id=casebook_id).first()
+        if not casebook:
+            raise serializers.ValidationError({
+                'casebook': 'Casebook with given id not found.'
+            })
+        has_attribution = data.get('has_attribution', False)
+        can_edit = data.get('can_edit', False)
+        id = data.get('id', None)
+        if id:
+            collaborator = TempCollaborator.objects.filter(id=id).first()
+            if not collaborator:
+                raise serializers.ValidationError({
+                    'id': 'Collaborator with this id does not exist.'
+                })
+            instance = collaborator
+        user = data.get('user', None)
+        if not user:
+            raise serializers.ValidationError({
+                'user': 'This field is required.'
+            })
+        deserialized_user = PotentialUser(data=user, context=self.context)
+        deserialized_user.is_valid()
+        return {'casebook': casebook,
+                'has_attribution': has_attribution,
+                'can_edit': can_edit,
+                'user': deserialized_user,
+                'instance': instance}
+
+    def create(self, validated_data):
+        instance = validated_data.pop('instance', None)
+        if instance:
+            instance.has_attribution = validated_data.get('has_attribution')
+            instance.can_edit = validated_data.get('can_edit')
+            return instance.save()
+        existing_user = validated_data.get('user').instance
+        if existing_user:
+            send_collaboration_email(self.context['request'], existing_user, validated_data.get('casebook'))
+        else:
+            existing_user = validated_data.get('user').save()
+            send_invitation_email(self.context['request'], existing_user, validated_data.get('casebook'))
+        data = {**validated_data}
+        data['user'] = existing_user
+        results = TempCollaborator.objects.create(**data)
+        return results
+
+    def update(self, instance, validated_data):
+        raise NotImplementedError

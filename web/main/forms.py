@@ -261,3 +261,4 @@ class SetPasswordForm(auth_forms.SetPasswordForm):
 
 class CasebookSettingsForm(forms.Form):
     transition_to = forms.CharField(max_length=10)
+
