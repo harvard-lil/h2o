@@ -149,7 +149,6 @@ export default {
       this.stats[k] = _.get(this.stats, k, 0) + 1;
     },
     postData: function(data) {
-      // this.$store.commit("globals/setAuditMode", false);
       return Axios.post(this.bulkAddUrl({casebookId:this.casebook}), data).then(this.handleSuccess, this.handleFailure);
     },
     handleSuccess: function(resp) {

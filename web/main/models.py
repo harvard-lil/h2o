@@ -1095,7 +1095,7 @@ class ContentNode(EditTrackedModel, TimestampedModel, BigPkModel, MaterializedPa
         return slugify(self.title)
 
     def viewable_by(self, user):
-        return self.new_casebook.is_public or self.new_casebook.editable_by(user)
+        return self.new_casebook.viewable_by(user)
 
     def directly_editable_by(self, user):
         """
@@ -2084,7 +2084,10 @@ class Casebook(EditTrackedModel, TimestampedModel, BigPkModel, CasebookAndSectio
         return slugify(self.title)
 
     def viewable_by(self, user):
-        return (not (self.is_archived or self.is_previous_save)) and (self.is_public or self.editable_by(user))
+        if (not (self.is_archived or self.is_previous_save)) and (self.is_public or user.is_superuser):
+            return True
+        return bool(self.tempcollaborator_set.filter(user_id=user.id).first())
+
 
     def directly_editable_by(self, user):
         """
@@ -3148,6 +3151,10 @@ class User(NullableTimestampedModel, PermissionsMixin, AbstractBaseUser):
                 .exclude(state=Casebook.LifeCycle.PREVIOUS_SAVE.value)
                 .order_by('-updated_at').all()
                 if x.directly_editable_by(self))
+
+    @property
+    def current_collaborators(self):
+        return User.objects.filter(tempcollaborator__casebook__tempcollaborator__user=self)
 
 
 def update_user_login_fields(sender, request, user, **kwargs):

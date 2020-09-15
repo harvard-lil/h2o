@@ -27,6 +27,8 @@ drf_urlpatterns = [
     path('casebook/<idslug:casebook_param>/toc', views.CasebookTOCView.as_view(), name='casebook_toc_list'),
     path('api/titles/', no_perms_test(views.CommonTitleView.as_view()), name='new_title'),
     path('api/titles/<int:title_id>', no_perms_test(views.CommonTitleView.as_view()), name='edit_title'),
+    path('api/users/search', no_perms_test(views.UserSearchView.as_view()), name='user_search'),
+    path('api/casebook/<idslug:casebook_param>/collaborators', views.CollaboratorView.as_view(), name='api_collaborators'),
 ]
 
 urlpatterns = format_suffix_patterns(drf_urlpatterns) + [

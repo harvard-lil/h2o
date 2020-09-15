@@ -682,7 +682,7 @@ ul.related-content-list {
 
 ul.settings-section {
     list-style: none;
-    margin-top: 2rem;
+    background-color: white;
     ul.transition-state {
         list-style: none;
         button {
@@ -709,6 +709,53 @@ ul.settings-section {
         border-bottom: 1px solid black;
         &:last-child {
             border-bottom: none;
+        }
+    }
+}
+
+
+.collaborator-list {
+    padding: 4px;
+    table {
+        margin-top: 2rem;
+        margin-bottom: 2rem;
+        width: 100%;
+        tr {
+            td,th {
+                padding:6px;
+                &.centered {
+                    text-align:center;
+                }
+            }
+        }
+    }
+}
+
+.form-control.force-min-width {
+    min-width: 600px;
+}
+.autocomplete-result-list {
+    list-style: none;
+    border: 1px solid black;
+    border-bottom-left-radius: 8px;
+    border-bottom-right-radius: 8px;
+    border-top: 0px solid transparent;
+    background-color: white;
+    padding-left: 0px;
+    li {
+        padding: 8px;
+        &:hover {
+            background-color: light-blue;
+        }
+        &.focused {
+            padding: 4px;
+            border: 4px solid #66afe9;;
+        }
+        &:not(:last-child) {
+            border-bottom: 1px solid grey;
+            &.focused {
+                border-bottom: 4px solid #66afe9;
+            }
         }
     }
 }

@@ -17,52 +17,61 @@
             <ul class="settings-section">
                 <li>
                     <p>
-                    {# PRIVATELY_EDITING = 'Fresh' #}
-                    {% if casebook.state == 'Fresh' %}
-                    This casebook is private. You and other authors can edit it freely.
+                        {# PRIVATELY_EDITING = 'Fresh' #}
+                        {% if casebook.state == 'Fresh' %}
+                        This casebook is private. You and other authors can edit it freely.
 
-                    {# NEWLY_CLONED = 'Clone' #}
-                    {% elif casebook.state == 'Clone' %}
-                    This is a newly cloned casebook. Changes you make to it are private.
+                        {# NEWLY_CLONED = 'Clone' #}
+                        {% elif casebook.state == 'Clone' %}
+                        This is a newly cloned casebook. Changes you make to it are private.
 
-                    {# DRAFT = 'Draft' #}
-                    {% elif casebook.state == 'Draft' %}
-                    This is a private draft of <a href="{{ casebook.revising.get_absolute_url }}">{{casebook.revising.title}}</a> that you can edit without other people seeing the changes until you're ready. When you're ready, you can publish your changes below.
+                        {# DRAFT = 'Draft' #}
+                        {% elif casebook.state == 'Draft' %}
+                        This is a private draft of <a href="{{ casebook.revising.get_absolute_url }}">{{casebook.revising.title}}</a> that you can edit without other people seeing the changes until you're ready. When you're ready, you can publish your changes below.
 
-                    {# PUBLISHED = 'Public' #}
-                    {% elif casebook.state == 'Public' %}
-                    This is a public casebook. It will show up in searches, and anyone can read it.
+                        {# PUBLISHED = 'Public' #}
+                        {% elif casebook.state == 'Public' %}
+                        This is a public casebook. It will show up in searches, and anyone can read it.
 
-                    {# ARCHIVED = 'Archived' #}
-                    {% elif casebook.state == 'Archived' %}
-                    This casebook is archived. It won't show up on your dashboard, or in public searches.
+                        {# ARCHIVED = 'Archived' #}
+                        {% elif casebook.state == 'Archived' %}
+                        This casebook is archived. It won't show up on your dashboard, or in public searches.
 
-                    {# REVISING = 'Revising' #}
-                    {% elif casebook.state == 'Revising' %}
-                    This casebook is public, but you have a private draft at <a href="{{ casebook.draft.get_edit_url }}">{{casebook.draft.title}}</a> that you can edit and make public when you're ready.
+                        {# REVISING = 'Revising' #}
+                        {% elif casebook.revising %}
+                        This casebook is public, but you have a private draft at <a href="{{ casebook.draft.get_edit_url }}">{{casebook.draft.title}}</a> that you can edit and make public when you're ready.
 
-                    {% endif %}
+                        {% endif %}
                     </p>
+                </li>
+                <li>
+                    <h4 class="settings-header">Manage Collaborators</h4>
+                    <div>
+                        <collaborator-manager :casebook="{{casebook.id}}" :initial-collaborators="{{collaborator_json}}"></collaborator-manager>
+                    </div>
+                </li>
+                <li>
+                    <h4 class="settings-header">Manage Casebook Visibility</h4>
                     <ul class="transition-state">
-                    {% if casebook.can_depublish %}
+                        {% if casebook.can_depublish %}
                         <li>
-                            <form action="{% url 'casebook_settings' casebook %}" method="POST">
+                            <form action="{% url 'casebook_settings' casebook %}" method="POST" class="form-control-group">
                                 {% csrf_token %}
                                 <div>
-                                    <button id="unpublish" type="submit" class="transition-button" name="transition_to" value="Fresh">Unpublish</button>
+                                    <button id="unpublish" type="submit" class="btn btn-warning" name="transition_to" value="Fresh">Unpublish</button>
                                 </div>
                                 <div>
                                     <span>Make this casebook private</span>
                                 </div>
                             </form>
                         </li>
-                    {% endif %}
-                    {% if casebook.is_archived %}
+                        {% endif %}
+                        {% if casebook.is_archived %}
                         <li>
-                            <form action="{% url 'casebook_settings' casebook %}" method="POST">
+                            <form action="{% url 'casebook_settings' casebook %}" method="POST" class="form-control-group">
                                 {% csrf_token %}
                                 <div>
-                                    <button id="unarchive" type="submit" class="warn-button" name="transition_to" value="Fresh">Unarchive</button>
+                                    <button id="unarchive" type="submit" class="btn btn-warning" name="transition_to" value="Fresh">Unarchive</button>
                                 </div>
                                 <div>
                                     <span>Make this a private casebook, available on your dashboard</span>
@@ -70,26 +79,12 @@
                             </form>
                         </li>
                     {% endif %}
-                    {% if casebook.can_publish %}
+                    {% if casebook.can_archive %}
                         <li>
-                            <form action="{% url 'casebook_settings' casebook %}" method="POST">
+                            <form action="{% url 'casebook_settings' casebook %}" method="POST" class="form-control-group">
                                 {% csrf_token %}
                                 <div>
-                                    <button id="publish" type="submit" class="button" name="transition_to" value="Public">Publish</button>
-                                </div>
-                                <div>
-                                    <span>Publish the changes you've made to this casebook</span>
-                                </div>
-                            </form>
-
-                        </li>
-                    {% endif %}
-                        {% if casebook.can_archive %}
-                        <li>
-                            <form action="{% url 'casebook_settings' casebook %}" method="POST">
-                                {% csrf_token %}
-                                <div>
-                                    <button id="archive" type="submit" class="warn-button" name="transition_to" value="Archived">Archive</button>
+                                    <button id="archive" type="submit" class="btn btn-danger" name="transition_to" value="Archived">Archive</button>
                                 </div>
                                 <div>
                                     <span>Archived casebooks will not be viewable by other users, and won't show up in search or your dashboard</span>
