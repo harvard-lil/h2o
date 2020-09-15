@@ -49,9 +49,7 @@
                             form-method="{{ form.helper.form_method }}">
                             {% crispy form %}
                             {% if embedded_resource_form %}
-                            <p>BAND!</p>
                             {% crispy embedded_resource_form %}
-
                             {% endif %}
                         </dirty-form>
                     {% endif %}
