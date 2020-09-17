@@ -1,6 +1,6 @@
-
 {% extends 'base.html' %}
 
+{% load crispy_forms_tags %}
 {% block page_title %} {% if mode %}{{mode}} | {% endif %} {{casebook.title}} {% if section %}: {{ section.title }} {% endif %} {% endblock %}
 
 
@@ -46,9 +46,61 @@
                 </li>
                 <li>
                     <h4 class="settings-header">Manage Collaborators</h4>
-                    <div>
-                        <collaborator-manager :casebook="{{casebook.id}}" :initial-collaborators="{{collaborator_json}}"></collaborator-manager>
+                    <div class="collaborator-list">
+                        <form action="" method="POST" class="form-control-group" >
+                            {% csrf_token %}
+                            {{ modify_collaborator_form.management_form}}
+                            <table>
+                                <tr>
+                                    <th>Name</th>
+                                    <th>Email</th>
+                                    <th class="centered">Has Attribution</th>
+                                    <th class="centered{% if modify_collaborator_form.non_form_errors %} text-danger {% endif %}">Can Edit</th>
+                                    <th class="centered">Remove</th>
+                                </tr>
+                                {% for form in modify_collaborator_form %}
+                                <tr>
+                                    <td>{{ form.id }} {% if form.instance.user.attribution != "Anonymous" %}{{form.instance.user.attribution}}{% endif %}</td>
+                                    <td>{{form.instance.user.email_address}}</td>
+                                    <td class="centered">{{ form.has_attribution }}</td>
+                                    <td class="centered">{{ form.can_edit }}</td>
+                                    <td class="centered">
+                                        {% if form.instance.user != request.user %}
+                                        {{ form.DELETE }}
+                                        {% else %}
+                                        <input name="" type="checkbox" title="You may remove yourself as a collaborator with the button below." disabled/>
+                                        {% endif %}
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </table>
+                            {% if modify_collaborator_form.non_form_errors %}
+                            <div>
+                                <strong class="text-danger">Casebooks must have at least one editor.</strong>
+                            </div>
+                            {% endif %}
+                            <button type="submit" class="btn btn-primary" name="submission_type" value="modify_collaborators">Save collaborator changes</button>
+                        </form>
                     </div>
+                    <br />
+                    <h4>Invite a new Collaborator</h4>
+                    <form action="{% url 'casebook_settings' casebook %}" method="POST" class="form-control-group" >
+                        {% crispy invite_collaborator_form %}
+                        <button type="submit" class="btn btn-primary" name="submission_type" value="add_collaborator">Send Invitation</button>
+                    </form>
+                    <br />
+                    <h4>Leave Collaboration</h4>
+                    <form action="{% url 'casebook_settings' casebook %}" method="POST" class="form-control-group" >
+                        <button type="submit"
+                                class="btn btn-danger"
+                                name="submission_type"
+                                value="leave_collaboration"
+                                {% if only_editor %}
+                                title="You may not remove yourself as the last editor on a casebook"
+                                disabled
+                                {% endif %}
+                        >Remove yourself from this casebook</button>
+                    </form>
                 </li>
                 <li>
                     <h4 class="settings-header">Manage Casebook Visibility</h4>
@@ -94,14 +146,6 @@
                         {% endif %}
                     </ul>
                 </li>
-{#               <li>#}
-{#                   <p> The Following users are collaborators on this casebook. </p>#}
-{#                   <ul class="settings-contributors">#}
-{#                       {% for user in casebook.all_collaborators %}#}
-{#                       <li> {{ user.display_name }}</li>#}
-{#                       {% endfor %}#}
-{#                   </ul>#}
-{#               </li>#}
             </ul>
         </div>
     </div>
