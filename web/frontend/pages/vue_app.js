@@ -20,7 +20,6 @@ import ResourceTypePicker from "../components/ResourceTypePicker";
 import Globals from "../components/Globals";
 import AuditButton from "../components/AuditButton";
 import Dashboard from "../components/Dashboard";
-import CollaboratorManager from "../components/CollaboratorManager";
 
 document.addEventListener("DOMContentLoaded", () => {
   const routes = [
@@ -46,8 +45,7 @@ document.addEventListener("DOMContentLoaded", () => {
         ResourceTypePicker,
         Globals,
         AuditButton,
-        Dashboard,
-        CollaboratorManager
+        Dashboard
     }
   });
 

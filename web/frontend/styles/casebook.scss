@@ -759,3 +759,47 @@ ul.settings-section {
         }
     }
 }
+
+.collaborator-list {
+    padding: 4px;
+    table {
+        margin-top: 2rem;
+        margin-bottom: 2rem;
+        width: 100%;
+        tr {
+            .left-adjusted {
+                width: 2rem;
+                margin-left: -3rem;
+                position: fixed;
+                margin-top: -0.25rem;
+            }
+            td,th {
+                padding:6px;
+                &.centered {
+                    text-align:center;
+                }
+            }
+            &.modified {
+                span.modified-alert {
+                    background-color: $yellow;
+                    border-radius: 2rem; 
+                    font-weight: 900;
+                    font-size: large;
+                    padding: 0.5rem 1rem;
+                    cursor: help;
+                    vertical-align: baseline;
+                 }
+            }
+        }
+    }
+}
+
+  .inline-btn {
+    height: 52px;
+    vertical-align: baseline;
+    margin-top: -4px;
+    padding-top: 16px;
+  }
+.form-control.force-min-width {
+    min-width: 600px;
+}

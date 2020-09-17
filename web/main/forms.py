@@ -10,8 +10,9 @@ from django.forms import ModelForm, Textarea
 from django import forms
 from django.urls import reverse
 
-from main.models import ContentNode, Link, TextBlock, User, EmailWhitelist
-from main.utils import fix_after_rails, send_template_email, send_verification_email
+from main.models import ContentNode, Link, TextBlock, User, EmailWhitelist, TempCollaborator, Casebook
+from main.utils import fix_after_rails, send_template_email, send_verification_email, send_invitation_email, send_collaboration_email
+
 
 # Monkeypatch FormHelper to *not* include the <form> tag in {% crispy form %} by default.
 # Forms can opt back in with self.helper.form_tag = True. This is a more useful default
@@ -259,6 +260,37 @@ class SetPasswordForm(auth_forms.SetPasswordForm):
             )
         return super().save(commit)
 
-class CasebookSettingsForm(forms.Form):
+
+class CasebookSettingsTransitionForm(forms.Form):
     transition_to = forms.CharField(max_length=10)
 
+
+class CollaboratorFormSet(forms.BaseModelFormSet):
+    def clean(self):
+        if any(self.errors):
+            return
+        at_least_one_editor = len([form.cleaned_data.get('can_edit') for form in self.forms if form.cleaned_data.get('can_edit', False) and not form.cleaned_data.get('DELETE', False)]) > 0
+        if not at_least_one_editor:
+            raise forms.ValidationError("At least one collaborator must be able to edit.")
+
+
+class InviteCollaboratorForm(forms.Form):
+    casebook = forms.IntegerField(widget=forms.HiddenInput())
+    email = forms.EmailField()
+    helper = FormHelper()
+
+    def save(self, request, commit=True):
+        email_address = self.cleaned_data.get('email', None)
+        casebook = Casebook.objects.get(id=self.cleaned_data.get('casebook', None))
+
+        user = User.objects.filter(email_address=email_address).first()
+        collaborator = None
+        if not user:
+            user = User.objects.create(email_address=email_address)
+            collaborator = TempCollaborator.objects.create(has_attribution=False, can_edit=False, user=user, casebook=casebook)
+            send_invitation_email(request, user, casebook)
+        else:
+            collaborator = TempCollaborator.objects.create(has_attribution=False, can_edit=False, user=user, casebook=casebook)
+            send_collaboration_email(request, user, casebook)
+
+        return collaborator

@@ -15,6 +15,7 @@ from django.core.exceptions import PermissionDenied
 from django.core.validators import URLValidator
 from django.db import transaction
 from django.db.models import Q
+from django.forms import modelformset_factory, HiddenInput
 from django.http import (Http404, HttpResponse, HttpResponseBadRequest,
                          HttpResponseRedirect, HttpResponseServerError,
                          HttpResponseForbidden, JsonResponse)
@@ -36,15 +37,15 @@ from rest_framework.exceptions import ValidationError
 from simple_history.utils import bulk_create_with_history
 
 
-from .forms import (CasebookForm, CasebookSettingsForm, LinkForm,
+from .forms import (CasebookForm, CasebookSettingsTransitionForm, LinkForm,
                     NewTextBlockForm, ResourceForm, SectionForm, SignupForm,
-                    TextBlockForm, UserProfileForm)
+                    TextBlockForm, UserProfileForm,
+                    InviteCollaboratorForm, CollaboratorFormSet)
 from .models import (Case, Casebook, CommonTitle, ContentAnnotation, ContentNode, Link,
                      Resource, Section, TextBlock, User, TempCollaborator)
 from .serializers import (AnnotationSerializer, CaseSerializer, CasebookListSerializer, CommonTitleSerializer,
                           NewAnnotationSerializer, NewCommonTitleSerializer, SectionOutlineSerializer,
-                          TextBlockSerializer, UpdateAnnotationSerializer, UserSerializer,
-                          CollaboratorSerializer, CollaboratorDeserializer)
+                          TextBlockSerializer, UpdateAnnotationSerializer)
 from .test.test_permissions_helpers import (directly_editable_resource,
                                             directly_editable_section,
                                             no_perms_test,
@@ -976,18 +977,58 @@ def show_related(request, casebook, section=None):
 @hydrate_params
 @user_has_perm('casebook', 'editable_by')
 def casebook_settings(request, casebook):
+    ModificationFormSet = modelformset_factory(TempCollaborator,
+                                            fields=('id', 'can_edit', 'has_attribution'),
+                                            widgets={'id': HiddenInput()},
+                                            formset=CollaboratorFormSet,
+                                            extra=0,
+                                            can_delete=True)
+    collaborator_queryset = casebook.tempcollaborator_set.order_by('id').select_related('user').all()
+    modify_collaborator_form = ModificationFormSet(queryset=collaborator_queryset,auto_id='', prefix='form')
+    invite_collaborator_form = InviteCollaboratorForm(initial={'casebook': casebook.id})
+    editors = [c for c in collaborator_queryset if c.can_edit]
+    only_editor = len(editors) == 1 and editors[0].user.id == request.user.id
     if request.method == 'POST':
-        settings = CasebookSettingsForm(request.POST)
-        if settings.is_valid():
-            transition_to = settings['transition_to'].value() if 'transition_to' in settings.fields else None
-            if transition_to and casebook.can_transition_to(transition_to):
-                casebook.transition_to(transition_to)
-    collaborators = CollaboratorSerializer(casebook.tempcollaborator_set.order_by('id').all(), many=True)
+        data = dict(request.POST)
+        form_type = data.pop('submission_type', None)
+        if form_type:
+            form_type = form_type.pop()
+            if form_type == 'modify_collaborators':
+                for k in data.keys():
+                    data[k] = data[k].pop()
+                modify_collaborator_form = ModificationFormSet(data=data,
+                                                               queryset=collaborator_queryset,
+                                                               auto_id='', prefix='form')
+                if modify_collaborator_form.is_valid():
+                    modify_collaborator_form.save()
+                    modify_collaborator_form = ModificationFormSet(queryset=casebook.tempcollaborator_set.order_by('id').select_related('user').all()
+                                                                   ,auto_id='', prefix='form')
+            if form_type == 'add_collaborator':
+                invite_collab_form = InviteCollaboratorForm(request.POST)
+                if invite_collab_form.is_valid():
+                    invite_collab_form.save(request)
+                    modify_collaborator_form = ModificationFormSet(queryset=casebook.tempcollaborator_set.order_by('id').select_related('user').all(),auto_id='', prefix='form')
+            if form_type == 'change_visibility':
+                settings = CasebookSettingsTransitionForm(request.POST)
+                if settings.is_valid():
+                    transition_to = settings['transition_to'].value() if 'transition_to' in settings.fields else None
+                    if transition_to and casebook.can_transition_to(transition_to):
+                        casebook.transition_to(transition_to)
+            if form_type == 'leave_collaboration':
+                if not only_editor:
+                    collab = TempCollaborator.objects.filter(casebook=casebook, user=request.user).first()
+                    if collab:
+                        collab.delete()
+                    return HttpResponseRedirect('/')
+
+    only_editor = not [c for c in collaborator_queryset if c.can_edit and not c.user.id == request.user.id]
     params = {'casebook': casebook,
               'tabs': casebook.tabs_for_user(request.user, current_tab='Settings'),
               'casebook_color_class': casebook.casebook_color_indicator,
               'edit_mode': casebook.directly_editable_by(request.user),
-              'collaborator_json': json.dumps(collaborators.data)
+              'modify_collaborator_form': modify_collaborator_form,
+              'invite_collaborator_form': invite_collaborator_form,
+              'only_editor': only_editor
     }
     return render(request, 'casebook_settings.html', params)
 
@@ -2220,95 +2261,3 @@ def pretty_url_dispatch(request, user_slug=None, title_slug=None, content_param=
     if content_type == 'Resource':
         return ResourceView.as_view()(request, content.new_casebook, content)
     raise Http404
-
-
-class UserSearchView(APIView):
-    @method_decorator(requires_csrf_token)
-    @method_decorator(login_required)
-    def get(self, request, format=None):
-        filters = {(k+'__contains'):request.GET.get(k) for k in ['email_address', 'attribution', 'affiliation'] if k in request.GET}
-        users = User.objects.filter(is_active=True).filter(**filters).order_by('-last_login_at')[:10]
-        serializer = UserSerializer(users, many=True)
-        return Response(serializer.data)
-
-
-class CollaboratorView(APIView):
-    @method_decorator(perms_test([
-        {'args': ['full_casebook'],
-         'results': {200: ['full_casebook.testing_editor']}},
-        {'args': ['full_private_casebook'],
-         'results': {200: ['full_private_casebook.testing_editor'],
-                     'login': [None],
-                     403: ['other_user']}},
-        {'args': ['full_casebook_with_draft.draft'],
-         'results': {200: ['full_casebook_with_draft.draft.testing_editor'],
-                     'login': [None],
-                     403: ['other_user']}},
-    ]))
-    @method_decorator(hydrate_params)
-    @method_decorator(user_has_perm('casebook', 'editable_by'))
-    def get(self, request, casebook, format=None):
-        collaborators = TempCollaborator.objects.filter(casebook=casebook).order_by('id').all()
-        serializer = CollaboratorSerializer(collaborators, many=True)
-        return Response(serializer.data)
-
-    @method_decorator(requires_csrf_token)
-    @method_decorator(no_perms_test)
-    @method_decorator(hydrate_params)
-    @method_decorator(user_has_perm('casebook', 'editable_by'))
-    def post(self, request, casebook, format=None):
-        """
-        Given:
-        >>> casebook, user, client = [getfixture(f) for f in ['full_private_casebook', 'user', 'client']]
-        >>> data = [{'casebook': casebook.id, 'has_attribution':True, 'can_edit': True, 'user': {'id': user.id}}]
-        >>> payload = json.dumps(data)
-
-        Post the required data as JSON to create a new annotation:
-        >>> url = reverse('api_collaborators', args=[casebook])
-        >>> response = client.post(url, payload, content_type="application/json", as_user=casebook.testing_editor)
-        >>> check_response(response, status_code=200, content_type='application/json')
-        >>> casebook.refresh_from_db()
-        >>> u = casebook.tempcollaborator_set.filter(user__id=user.id).get()
-        """
-        deserialized = CollaboratorDeserializer(data=request.data, many=True, context={'request': request})
-        if deserialized.is_valid():
-            deserialized.save()
-        else:
-            return HttpResponseBadRequest(deserialized.errors)
-        collaborators = TempCollaborator.objects.filter(casebook=casebook).order_by('id').all()
-        serializer = CollaboratorSerializer(collaborators, many=True)
-        return Response(serializer.data)
-
-
-    @method_decorator(requires_csrf_token)
-    @method_decorator(no_perms_test)
-    @method_decorator(hydrate_params)
-    @method_decorator(user_has_perm('casebook', 'editable_by'))
-    def delete(self, request, casebook, format=None):
-        """
-        Given:
-        >>> casebook, user, client = [getfixture(f) for f in ['full_private_casebook', 'user', 'client']]
-        >>> data = [{'casebook': casebook.id, 'has_attribution':True, 'can_edit': True, 'user': {'id': user.id}}]
-        >>> payload = json.dumps(data)
-
-        Post the required data as JSON to create a new annotation:
-        >>> url = reverse('api_collaborators', args=[casebook])
-        >>> response = client.post(url, payload, content_type="application/json", as_user=casebook.testing_editor)
-        >>> check_response(response, status_code=200, content_type='application/json')
-        >>> casebook.refresh_from_db()
-        >>> u = casebook.tempcollaborator_set.filter(user__id=user.id).get()
-        """
-        try:
-            collaborator_ids = request.data
-            collaborators = [tc for tc in TempCollaborator.objects.filter(id__in=collaborator_ids).all()]
-        except TypeError:
-            return HttpResponseBadRequest('Must provide a list of collaborator ids.')
-        if [x for x in collaborators if x.casebook != casebook]:
-            return HttpResponseBadRequest('Can only remove collaborators from one casebook at a time.')
-        current_collaborators = set(casebook.tempcollaborator_set.all())
-        if len(collaborators) >= len(current_collaborators):
-            return HttpResponseBadRequest('Casebooks must have at least one author.')
-        TempCollaborator.objects.filter(id__in=collaborator_ids).delete()
-        collaborators = TempCollaborator.objects.filter(casebook=casebook).order_by('id').all()
-        serializer = CollaboratorSerializer(collaborators, many=True)
-        return Response(serializer.data)
