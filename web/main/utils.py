@@ -365,7 +365,9 @@ def send_invitation_email(request, receiving_user, casebook):
         default_token_generator.make_token(receiving_user),
     ]))
     inviting_user = request.user
-    message = """You have been invited by {} to collaborate on a casebook. You can set up your account at {} , and the casebook will appear on your dashboard at https://opencasebook.org/ . You can also access the casebook directly at https://opencasebook.org{} after you have logged in.""".format(inviting_user.attribution, verify_link, request.build_absolute_uri(casebook.get_absolute_url()))
+    message = """You have been invited by {} to collaborate on a casebook on opencasebook.org.
+
+You can set up your account at {} , and the casebook will appear on your dashboard at https://opencasebook.org/ . You can also access the casebook directly at https://opencasebook.org{} after you have logged in.""".format(inviting_user.attribution, verify_link, request.build_absolute_uri(casebook.get_absolute_url()))
     send_mail(
         "{} has invited you to collaborate on a casebook".format(inviting_user.attribution),
         message,
@@ -377,9 +379,11 @@ def send_invitation_email(request, receiving_user, casebook):
 def send_collaboration_email(request, receiving_user, casebook):
     # For already existing users, send a notice that they've been invited to collaborate
     inviting_user = request.user
-    message = "{} has invited you to collaborate on a casebook. It will appear on your dashboard at https://opencasebook.org/ or you can access it directly at https://opencasebook.org{}".format(inviting_user.attribution, request.build_absolute_uri(casebook.get_absolute_url()))
+    message = """You have been invited by {} to collaborate on a casebook on opencasebook.org .
+
+It will appear on your dashboard at https://opencasebook.org/ or you can access it directly at https://opencasebook.org{}""".format(inviting_user.attribution, request.build_absolute_uri(casebook.get_absolute_url()))
     send_mail(
-        "{} has invited you to collaborate on a casebook.",
+        "{} has invited you to collaborate on a casebook.".format(inviting_user.attribution),
         message,
         settings.DEFAULT_FROM_EMAIL,
         [receiving_user.email_address],
