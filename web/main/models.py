@@ -2011,6 +2011,9 @@ class CommonTitle(BigPkModel):
     class Meta:
         managed = True
 
+    def public_casebooks(self):
+        return Casebook.objects.filter(common_title=self).exclude(state=Casebook.LifeCycle.ARCHIVED.value).exclude(state=Casebook.LifeCycle.DRAFT.value).exclude(state=Casebook.LifeCycle.PREVIOUS_SAVE.value)
+
 class Casebook(EditTrackedModel, TimestampedModel, BigPkModel, CasebookAndSectionMixin, TrackedCloneable):
     old_casebook = models.ForeignKey('ContentNode', on_delete=models.DO_NOTHING,blank=True,null=True,related_name='replacement_casebook')
     title = models.CharField(max_length=10000, default="Untitled")

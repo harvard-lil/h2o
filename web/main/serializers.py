@@ -77,6 +77,7 @@ class CasebookListAuthorSerializer(serializers.RelatedField):
                 'titles': [x.common_title.public_url for x in  collaborator.user.casebooks.all() if x.common_title]
         }
 
+
 class CasebookListSerializer(serializers.ModelSerializer):
     authors = CasebookListAuthorSerializer(many=True, read_only=True, source='tempcollaborator_set')
     url = serializers.SerializerMethodField()
@@ -111,11 +112,11 @@ class CasebookListSerializer(serializers.ModelSerializer):
         fields = ['id', 'title', 'subtitle', 'is_public', 'is_archived', 'has_draft', 'authors', 'url', 'settings_url', 'edit_url', 'draft_url', 'updated_at', 'can_archive', 'user_editable']
 
 class CommonTitleSerializer(serializers.ModelSerializer):
-    casebooks = CasebookListSerializer(many=True, default=[])
+    casebooks = CasebookListSerializer(many=True, default=[], source='public_casebooks')
     current = CasebookListSerializer()
 
     def update(self, instance, validated_data):
-        casebook_ids = [c['id'] for c in validated_data.pop('casebooks')]
+        casebook_ids = [c['id'] for c in validated_data.pop('public_casebooks')]
         new_casebooks = Casebook.objects.filter(id__in=casebook_ids).all()
         if len(new_casebooks) != len(casebook_ids):
             raise ValidationError

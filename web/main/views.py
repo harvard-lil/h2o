@@ -667,7 +667,7 @@ class CommonTitleView(APIView):
                     return HttpResponseForbidden({})
                 if casebook in old_casebooks:
                     old_casebooks.remove(casebook)
-            if serializer.validated_data['current'] not in serializer.validated_data['casebooks']:
+            if serializer.validated_data['current'] not in serializer.validated_data['public_casebooks']:
                 return HttpResponseBadRequest({})
             for ocb in old_casebooks:
                 ocb.common_title=None
