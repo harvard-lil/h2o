@@ -44,6 +44,7 @@
                         {% endif %}
                     </p>
                 </li>
+                {% if request.user.is_superuser %}
                 <li>
                     <h4 class="settings-header">Manage Collaborators</h4>
                     <div class="collaborator-list">
@@ -102,6 +103,7 @@
                         >Remove yourself from this casebook</button>
                     </form>
                 </li>
+                {% endif %}
                 <li>
                     <h4 class="settings-header">Manage Casebook Visibility</h4>
                     <ul class="transition-state">

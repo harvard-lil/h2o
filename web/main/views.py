@@ -973,6 +973,7 @@ def show_related(request, casebook, section=None):
     return render(request, 'casebook_page_related.html', params)
 
 
+@requires_csrf_token
 @no_perms_test
 @hydrate_params
 @user_has_perm('casebook', 'editable_by')
@@ -1517,7 +1518,7 @@ def switch_node_type(request, casebook, content_node):
             content_node.resource_id = link.id
             content_node.save()
         elif new_type == 'TextBlock':
-            content = data.get('content', None)
+            content = data.get('content', '')
             text_block = TextBlock(name=content_node.title[0:250], content=content)
             text_block.save()
             text_block.refresh_from_db()
