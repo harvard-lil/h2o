@@ -92,7 +92,10 @@
 <div class="title-holder" v-for="title in titles" v-bind:key="title.id">
   <div class="title-divider">
     <span class="title-name">{{ title.name }}</span>
-    <span class="title-slug"><a :href="titleUrl(title)"> {{titleUrl(title)}}</a></span>
+    <span class="title-slug">
+      <a :href="titleUrl(title)" v-if="user.public_url"> {{titleUrl(title)}}</a>
+      <a href="/accounts/edit/" v-else>Set up your public url </a>
+    </span>
   </div>
   <div v-if="user.active && managingCasebooks" class="management-links">
     <ul>
