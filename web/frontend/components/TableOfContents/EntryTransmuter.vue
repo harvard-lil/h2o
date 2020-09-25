@@ -18,7 +18,11 @@ export default {
     data: () => ({ resource_type: "" }),
     props: ["item"],
     mounted: function() {
-        this.resource_type = this.item.resource_type;
+        if (this.item.resource_type) {
+            this.resource_type = this.item.resource_type;
+        } else {
+            this.resource_type = 'Section';
+        }
     },
     methods: {
         changeType: urls.url("resource"),

@@ -111,6 +111,7 @@
                         <li>
                             <form action="{% url 'casebook_settings' casebook %}" method="POST" class="form-control-group">
                                 {% csrf_token %}
+                                <input type="hidden" name="submission_type" value="change_visibility" />
                                 <div>
                                     <button id="unpublish" type="submit" class="btn btn-warning" name="transition_to" value="Fresh">Unpublish</button>
                                 </div>
@@ -124,6 +125,7 @@
                         <li>
                             <form action="{% url 'casebook_settings' casebook %}" method="POST" class="form-control-group">
                                 {% csrf_token %}
+                                <input type="hidden" name="submission_type" value="change_visibility" />
                                 <div>
                                     <button id="unarchive" type="submit" class="btn btn-warning" name="transition_to" value="Fresh">Unarchive</button>
                                 </div>
@@ -137,6 +139,7 @@
                         <li>
                             <form action="{% url 'casebook_settings' casebook %}" method="POST" class="form-control-group">
                                 {% csrf_token %}
+                                <input type="hidden" name="submission_type" value="change_visibility" />
                                 <div>
                                     <button id="archive" type="submit" class="btn btn-danger" name="transition_to" value="Archived">Archive</button>
                                 </div>

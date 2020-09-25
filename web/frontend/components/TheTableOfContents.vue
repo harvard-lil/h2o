@@ -2,6 +2,7 @@
   <div class="table-of-contents" v-bind:class="{'editable':editing}">
     <vue-nestable
       v-model="toc"
+      :max-depth="100"
       :hooks="{'beforeMove':canMove}"
       classProp="cssClasses"
       v-on:change="moveSubsection"
@@ -206,7 +207,8 @@ export default {
         color: black;
         border-color: black;
     }
-    li.nestable-item.collapsed ol {
+    li.nestable-item.collapsed ol,
+    li.nestable-item-copy.collapsed ol {
         display: none;
     }
     ol {
