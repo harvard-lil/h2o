@@ -216,7 +216,7 @@ export default {
             return this.selectedCasebooks.length > 0 && _.every(this.selectedCasebooks, ({id, is_public}) => is_public && freeIDs.includes(id));
         },
         groupHelp: function() {
-            return this.canGroup ? "Collect editions of the same casebook, and promote the ." : "Only published casebooks can be grouped. Casebooks may only belong to one group.";
+            return this.canGroup ? "Collect editions of the same casebook, and promote the most recent." : "Only published casebooks can be grouped. Casebooks may only belong to one group.";
         },
         canUngroup: function() {
             const freeIDs = _.map(this.casebooks, 'id');
@@ -336,6 +336,7 @@ export default {
             if (! this.canArchive) return;
             for(const casebook of this.selectedCasebooks) {
                 let formData = new FormData();
+                formData.append("submission_type", "change_visibility");
                 formData.append("transition_to", "Archived");
                 const url = urls.url('casebook_settings')({casebookId: casebook.id});
                 Axios.post(url, formData).then(
