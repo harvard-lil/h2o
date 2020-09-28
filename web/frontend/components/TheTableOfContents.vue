@@ -1,32 +1,30 @@
 <template>
-  <div class="table-of-contents" v-bind:class="{'editable':editing}">
-    <vue-nestable
-      v-model="toc"
-      :max-depth="100"
-      :hooks="{'beforeMove':canMove}"
-      classProp="cssClasses"
-      v-on:change="moveSubsection"
-      v-if="dataReady"
-    >
-      <div slot="placeholder">
-        <placeholder :editing="editing" />
-      </div>
-      <template v-slot="{item}">
-        <entry
-          :item="item"
-          :root-ordinal-display="rootOrdinalDisplay"
-          :editing="editing"
-          @toggle="toggleSectionExpanded"
-        />
-      </template>
-    </vue-nestable>
-  </div>
-</template>
-                                
+<div class="table-of-contents"
+     v-bind:class="{'editable':editing}">
+     <vue-nestable v-model="toc"
+                   :max-depth="100"
+                   :hooks="{'beforeMove':canMove}"
+                   class-prop="cssClasses"
+                   v-on:change="moveSubsection"
+                   :collapsed-groups="collapsedSections"
+                   v-if="dataReady"
+                   >
+         <div slot="placeholder">
+         <placeholder :editing="editing" />
+         </div>
+         <template v-slot="{item}">
+         <entry :item="item"
+                :root-ordinal-display="rootOrdinalDisplay"
+                :editing="editing"
+         />
+        </template>
+        </vue-nestable>
+        </div>
+        </template>
+        
 <script>
 import _ from "lodash";
-import Vue from "vue";
-import { VueNestable } from "vue-nestable";
+import { VueNestable } from "@holtchesley/vue-nestable";
 import Placeholder from "./TableOfContents/PlaceHolder";
 import Entry from "./TableOfContents/Entry";
 import { createNamespacedHelpers } from "vuex";
@@ -41,8 +39,7 @@ export default {
     Entry
   },
   data: () => ({
-    needsDeleteConfirmation: {},
-    collapsedSections: {}
+    needsDeleteConfirmation: {}
   }),
   directives: {
     focus: {
@@ -52,6 +49,9 @@ export default {
     }
   },
   computed: {
+    collapsedSections: function() {
+      return this.$store.getters["table_of_contents/collapsedNodes"](this.rootNode);
+    },
     casebook: function() {
       return this.$store.getters["globals/casebook"]();
     },
@@ -71,7 +71,7 @@ export default {
         let toc = _.get(
           this.$store,
           `state.table_of_contents.toc.${this.rootNode}.children`
-        );
+          ,[]);
         return toc;
       },
       set: function(newVal) {
@@ -103,7 +103,8 @@ export default {
   methods: {
     ...mapActions(["fetch", "commitShuffle", "moveNode"]),
     ...mapMutations(["shuffle"]),
-    canMove: function({ dragItem, pathFrom, pathTo }) {
+    canMove: function(movement) {
+      let { dragItem, pathFrom, pathTo } = movement;
       if (pathTo.length === 1) {
         return true;
       }
@@ -115,20 +116,20 @@ export default {
       let pathToStart = path.slice(0, pathFrom.length);
       if (
         _.isEqual(pathToStart, pathFrom) &&
-        path.length > pathFrom.length &&
-        path[pathFrom.length] >= lastFromIndex
+          path.length > pathFrom.length &&
+          path[pathFrom.length] >= lastFromIndex
       ) {
         path[pathFrom.length] += 1;
       }
-
+      
       let ii = path.splice(0, 1)[0];
       let curr = this.toc[ii];
       while (path.length > 0) {
         res_path.push({ ii, t: curr.resoure_type });
         if (
           (curr.resource_type !== null && curr.resource_type !== "Section") ||
-          curr.id in this.collapsedSections ||
-          curr.id === dragItem.id
+            curr.id === dragItem.id ||
+            curr.collapsed
         ) {
           return false;
         }
@@ -140,14 +141,14 @@ export default {
     moveSubsection: function({ id }, { items, pathTo }) {
       function findIn(tree, id) {
         let candidates = tree.children
-          .map((x, index) => {
-            if (x.id === id) {
-              return { parent: tree.id, index };
-            } else {
-              return findIn(x, id);
-            }
-          })
-          .filter(x => x !== null);
+            .map((x, index) => {
+              if (x.id === id) {
+                return { parent: tree.id, index };
+              } else {
+                return findIn(x, id);
+              }
+            })
+            .filter(x => x !== null);
         return candidates.length === 1 ? candidates[0] : null;
       }
       let { parent, index } = findIn({ id: null, children: items }, id);
@@ -158,16 +159,6 @@ export default {
         parent,
         index
       });
-    },
-    isCollapsed: function({ id }) {
-      return id in this.collapsedSections;
-    },
-    toggleSectionExpanded: function({ id }) {
-      if (id in this.collapsedSections) {
-        Vue.delete(this.collapsedSections, id);
-      } else {
-        Vue.set(this.collapsedSections, id, true);
-      }
     }
   },
   props: ["editing", "rootOrdinals"],
@@ -327,7 +318,7 @@ export default {
             .actions {
                 min-height:44px;
             }
-
+            
             align-items: left;
             background-color: $black;
             
@@ -463,9 +454,9 @@ export default {
                 border-color: #ac2925;
                 
                 &:hover {
-                color: #fff;
-                background-color: #d9534f;
-                border-color: #d43f3a;
+                    color: #fff;
+                    background-color: #d9534f;
+                    border-color: #d43f3a;
                 }
             }
             .btn.specify-case-button {
@@ -510,65 +501,74 @@ export default {
             
             text-align: left;
             color: $black;
+        }
+        
+        .resource-type {
+            border: 1px solid $light-blue;
+            color: $light-blue;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 12px;
+            font-weight: bold;
+            height: 20px;
+            width: 72px;
+        }
     }
-
-    .resource-type {
-      border: 1px solid $light-blue;
-      color: $light-blue;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      font-size: 12px;
-      font-weight: bold;
-      height: 20px;
-      width: 72px;
+    &.confirm-delete {
+        margin-right: 160px;
     }
-  }
-  &.confirm-delete {
-    margin-right: 160px;
-  }
-  ol.nestable-list.nestable-group {
-    padding-left: 0px;
-  }
-  .nestable-list {
+    ol.nestable-list.nestable-group {
+        padding-left: 0px;
+    }
     .nestable-list {
-      border-left: 8px solid $light-blue;
-      padding-left: 16px;
-      margin-left: 30px;
+        .nestable-list {
+            border-left: 8px solid $light-blue;
+            padding-left: 16px;
+            margin-left: 30px;
+        }
     }
-  }
-  div.editable .nestable-list .nestable-list {
-    border-left: 8px solid $yellow;
-    padding-left: 16px;
-    margin-left: 30px;
-  }
-  .nestable-drag-layer {
-    opacity: 0.7;
-    position: fixed;
-    top: 0;
-    left: 0;
-    z-index: 100;
-    pointer-events: none;
-    .listing {
-      .section-number:before {
-        content: "-";
-      }
+    div.editable .nestable-list .nestable-list {
+        border-left: 8px solid $yellow;
+        padding-left: 16px;
+        margin-left: 30px;
     }
-  }
+    .nestable-drag-layer {
+        opacity: 0.7;
+        position: fixed;
+        top: 0;
+        left: 0;
+        z-index: 100;
+        pointer-events: none;
+        .listing {
+            .section-number:before {
+                content: "-";
+            }
+        }
+    }
 }
 .table-of-contents .add-content-link div {
-  display: inline;
-  button.action.one-line.add-resource {
-    border: none;
-    background-color: rgba(0, 0, 0, 0);
-    text-decoration: underline;
-    color: $light-blue;
     display: inline;
-
-    &:hover {
-      font-weight: bold;
+    button.action.one-line.add-resource {
+        border: none;
+        background-color: rgba(0, 0, 0, 0);
+        text-decoration: underline;
+        color: $light-blue;
+        display: inline;
+        
+        &:hover {
+            font-weight: bold;
+        }
     }
-  }
+}
+
+.nestable-list li.nestable-item.trailing-node {
+    height: 68px;
+    margin-top: 8px;
+}
+
+.nestable-list:not(:last-child) li.nestable-item.trailing-node {
+    border: 2px dashed black;
 }
 </style>
 

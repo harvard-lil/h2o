@@ -81,6 +81,15 @@ const helpers = {
         }
         return helpers.flatFilter(toc[casebook], isTemp).map(node => node.id);
     },
+    collapsedIDs: (toc, casebook) => {
+        function isCollapsed(node) {
+            return node.collapsed;
+        }
+        if (!(casebook in toc)) {
+            return [];
+        }
+        return helpers.flatFilter(toc[casebook], isCollapsed).map(node => node.id);
+    },
     augmentNode,
     augmentNodes: (tree, augments) => {
         const base = {};
@@ -95,7 +104,8 @@ const helpers = {
 
 const getters = {
     getNode: state => (id) => helpers.findNode(state.toc, id),
-    auditTargets: state => (casebook) => helpers.auditIDs(state.toc, casebook)
+    auditTargets: state => (casebook) => helpers.auditIDs(state.toc, casebook),
+    collapsedNodes: state => (casebook) => helpers.collapsedIDs(state.toc, casebook)
 };
 
 const collapseNode = (node) => helpers.addCSSClass('collapsed')(helpers.addFlag('collapsed')(node));

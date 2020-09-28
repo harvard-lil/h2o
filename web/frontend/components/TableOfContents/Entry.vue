@@ -120,7 +120,7 @@ import EntryAuditor from "./EntryAuditor";
 import EntryTransmuter from "./EntryTransmuter";
 import CollapseTriangle from "../CollapseTriangle";
 import Vue from "vue";
-import { VueNestable, VueNestableHandle } from "vue-nestable";
+import { VueNestable, VueNestableHandle } from "@holtchesley/vue-nestable";
 import vClickOutside from "v-click-outside";
 import { createNamespacedHelpers } from "vuex";
 const { mapActions } = createNamespacedHelpers("table_of_contents");
@@ -169,6 +169,7 @@ export default {
             );
         },
         anchor: function() {
+            if (!this.item.url) return '';
             const url_parts = this.item.url.split("/");
             return url_parts[url_parts.length - 2];
         },
