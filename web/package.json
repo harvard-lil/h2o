@@ -53,7 +53,7 @@
     "vue": "^2.6.10",
     "vue-contenteditable-directive": "^1.2.0",
     "vue-loader": "^15.6.2",
-    "vue-nestable": "^2.6.0",
+    "@holtchesley/vue-nestable": "git://github.com/holtchesley/vue-nestable.git#063a64e67e5a1acbb2b7d7556748a3ce00d1ca52",
     "vue-router": "^3.0.6",
     "vue-scrollto": "^2.13.0",
     "vuex": "^3.1.0"
