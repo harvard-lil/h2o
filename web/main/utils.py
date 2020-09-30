@@ -374,7 +374,7 @@ Access this casebook directly at {} or visit your dashboard at {} to see all of 
 To learn more, please visit our help guide at https://about.opencasebook.org/. If you have questions, you can reach us at info@opencasebook.org.
 
 
-The H2O-OpenCasebook team
+The H2O open casebook team
 Harvard Law School Library""".format(inviting_user.email_address, casebook.title, verify_link, request.build_absolute_uri(casebook.get_absolute_url()), request.build_absolute_uri("/"))
     send_mail(
         "{} has invited you to collaborate on a casebook".format(inviting_user.attribution),
@@ -393,7 +393,7 @@ Access this casebook directly at {} or visit your dashboard at {} to see all of 
 
 To learn more, please visit our help guide at https://about.opencasebook.org/. If you have questions, you can reach us at info@opencasebook.org.
 
-The H2O-OpenCasebook team
+The H2O open casebook team
 Harvard Law School Library""".format(inviting_user.email_address, casebook.title, request.build_absolute_uri(casebook.get_absolute_url()), request.build_absolute_uri("/"))
     send_mail(
         "{} has invited you to collaborate on a casebook.".format(inviting_user.attribution),
