@@ -1,7 +1,7 @@
 from pathlib import Path
 
 from django.contrib.postgres.fields import JSONField
-from django.contrib.postgres.search import SearchVectorField, SearchRank
+from django.contrib.postgres.search import SearchVectorField, SearchRank, SearchQuery
 from django.core.paginator import Paginator
 from django.db import models, connection, ProgrammingError
 from django.db.models import Count, F
@@ -113,15 +113,16 @@ class SearchIndex(models.Model):
         ... )
         """
         base_query = cls.objects.all()
-        if query:
-            base_query = base_query.filter(document=query)
+        query_vector = SearchQuery(query, config='english') if query else None
+        if query_vector:
+            base_query = base_query.filter(document=query_vector)
         for k, v in filters.items():
             base_query = base_query.filter(**{'metadata__%s' % k: v})
 
         # get results
         results = base_query.filter(category=category).only('result_id', 'metadata')
-        if query:
-            results = results.annotate(rank=SearchRank(F('document'), query))
+        if query_vector:
+            results = results.annotate(rank=SearchRank(F('document'), query_vector))
 
         display_name = get_display_name_field(category)
         order_by_expression = [display_name]
