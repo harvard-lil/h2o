@@ -5,11 +5,11 @@ CREATE MATERIALIZED VIEW search_view AS
            row_number() OVER (PARTITION BY true) AS id,
            c.id AS result_id,
            (
-                setweight(to_tsvector(coalesce(c.name, '')), 'A') ||
-                setweight(to_tsvector(coalesce(c.name_abbreviation, '')), 'D') ||
-                setweight(to_tsvector(coalesce(docket_number, '')), 'D') ||
-                setweight(to_tsvector(coalesce(string_agg(cite, ', '),'')), 'A') ||
-                setweight(to_tsvector(coalesce(min(c.court_name), '')), 'D')
+                setweight(to_tsvector('english',coalesce(c.name, '')), 'A') ||
+                setweight(to_tsvector('english',coalesce(c.name_abbreviation, '')), 'D') ||
+                setweight(to_tsvector('english',coalesce(docket_number, '')), 'D') ||
+                setweight(to_tsvector('english',coalesce(string_agg(cite, ', '),'')), 'A') ||
+                setweight(to_tsvector('english',coalesce(min(c.court_name), '')), 'D')
             )  AS document,
            jsonb_build_object(
                'display_name', coalesce(c.name_abbreviation, c.name),
@@ -32,11 +32,11 @@ UNION ALL
         row_number() OVER (PARTITION BY true) AS id,
         c.id AS result_id,
         (
-            setweight(to_tsvector(coalesce(c.title, '')), 'A') ||
-            setweight(to_tsvector(coalesce(string_agg(u.attribution, ', '), '')), 'A') ||
-            setweight(to_tsvector(coalesce(string_agg(u.affiliation, ', '), '')), 'A') ||
-            setweight(to_tsvector(coalesce(subtitle, '')), 'D') ||
-            setweight(to_tsvector(coalesce(headnote, '')), 'D')
+            setweight(to_tsvector('english',coalesce(c.title, '')), 'A') ||
+            setweight(to_tsvector('english',coalesce(string_agg(u.attribution, ', '), '')), 'A') ||
+            setweight(to_tsvector('english',coalesce(string_agg(u.affiliation, ', '), '')), 'A') ||
+            setweight(to_tsvector('english',coalesce(subtitle, '')), 'D') ||
+            setweight(to_tsvector('english',coalesce(headnote, '')), 'D')
         )  AS document,
         jsonb_build_object(
             'title', coalesce(c.title, 'Untitled'),
@@ -59,7 +59,7 @@ UNION ALL
            row_number() OVER (PARTITION BY true) AS id,
            u.id AS result_id,
            (
-                setweight(to_tsvector(coalesce(u.attribution, '')), 'A')
+                setweight(to_tsvector('english',coalesce(u.attribution, '')), 'A')
             )  AS document,
            jsonb_build_object(
                'attribution', u.attribution,
