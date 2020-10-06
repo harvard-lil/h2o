@@ -2879,7 +2879,7 @@ class Casebook(EditTrackedModel, TimestampedModel, BigPkModel, CasebookAndSectio
 
     @property
     def revising(self):
-        return self.draft_of.first()
+        return self.draft_of
 
 
 class SectionManager(models.Manager):

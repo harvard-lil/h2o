@@ -118,8 +118,7 @@
                                 </div>
                             </form>
                         </li>
-                        {% endif %}
-                        {% if casebook.is_archived %}
+                        {% elif casebook.is_archived %}
                         <li>
                             <form action="{% url 'casebook_settings' casebook %}" method="POST" class="form-control-group">
                                 {% csrf_token %}
@@ -132,8 +131,7 @@
                                 </div>
                             </form>
                         </li>
-                    {% endif %}
-                    {% if casebook.can_archive %}
+                        {% elif casebook.can_archive %}
                         <li>
                             <form action="{% url 'casebook_settings' casebook %}" method="POST" class="form-control-group">
                                 {% csrf_token %}
@@ -145,6 +143,12 @@
                                     <span>Archived casebooks will not be viewable by other users, and won't show up in search or your dashboard</span>
                                 </div>
                             </form>
+                        </li>
+                        {% elif casebook.in_edit_state %}
+                        <li>
+                            <p>
+                                You can publish your casebook <a href="{{ casebook.get_edit_url }}" title="Link to edit and publish casebook">here</a>
+                            </p>
                         </li>
                         {% endif %}
                     </ul>
