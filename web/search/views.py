@@ -29,7 +29,7 @@ def search(request):
 
         Given:
         >>> capapi_mock, client, casebook_factory = [getfixture(i) for i in ['capapi_mock', 'client', 'casebook_factory']]
-        >>> casebooks = [casebook_factory(tempcollaborator_set__user__verified_professor=True) for i in range(3)]
+        >>> casebooks = [casebook_factory(contentcollaborator_set__user__verified_professor=True) for i in range(3)]
         >>> url = reverse('search')
         >>> SearchIndex().create_search_index()
 

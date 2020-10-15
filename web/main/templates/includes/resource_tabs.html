@@ -1,26 +1,26 @@
 <header class="casebook {% if editing %}casebook-draft{% else %}casebook-public{% endif %}"
         data-editable="true"
-        data-casebook-id="{{ resource.new_casebook.id }}"
+        data-casebook-id="{{ resource.casebook.id }}"
         data-resource-id="{{ resource.id }}">
     <div class="content">
         <div class="casebook-inner">
             <div class="tabs">
                 {% if not edit_mode %}
-                    <a class="tab" href="{{ resource.new_casebook.get_absolute_url }}">Casebook</a>
+                    <a class="tab" href="{{ resource.casebook.get_absolute_url }}">Casebook</a>
                 {% else %}
-                    <a class="tab" href="{% url 'edit_casebook' resource.new_casebook %}">Casebook</a>
+                    <a class="tab" href="{% url 'edit_casebook' resource.casebook %}">Casebook</a>
                 {% endif %}
                 {% if edit_mode %}
                     {% if details_tab %}
                     <span class="tab disabled active">Edit</span>
                     {% else %}
-                    <a class="tab" href="{% url 'edit_resource' resource.new_casebook resource %}">Edit</a>
+                    <a class="tab" href="{% url 'edit_resource' resource.casebook resource %}">Edit</a>
                     {% endif %}
                     {% if resource.annotatable %}
                         {% if annotate_tab %}
                             <span class="tab disabled active">Annotate</span>
                         {% else %}
-                            <a class="tab" href="{% url 'annotate_resource' resource.new_casebook resource %}">Annotate</a>
+                            <a class="tab" href="{% url 'annotate_resource' resource.casebook resource %}">Annotate</a>
                         {% endif %}
                     {% endif %}
                 {% endif %}
@@ -32,7 +32,7 @@
                 {% if credits_tab %}
                     <span class="tab disabled active">Credits</span>
                 {% else %}
-                    <a class="tab" href="{% url 'show_resource_credits' resource.new_casebook resource %}">Credits</a>
+                    <a class="tab" href="{% url 'show_resource_credits' resource.casebook resource %}">Credits</a>
                 {% endif %}
             </div>
         </div>

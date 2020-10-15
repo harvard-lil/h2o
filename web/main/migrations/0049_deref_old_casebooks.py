@@ -6,13 +6,13 @@ from main.models import ContentNode
 def deref_old_casebooks(app,schema):
     bulk_nodes = []
     old_to_new_cbs = {}
-    for node in ContentNode.objects.order_by('new_casebook_id').all():
+    for node in ContentNode.objects.order_by('casebook_id').all():
         if node.casebook_id:
-            if node.casebook_id in old_to_new_cbs and node.new_casebook_id != old_to_new_cbs[node.casebook_id]:
+            if node.casebook_id in old_to_new_cbs and node.casebook_id != old_to_new_cbs[node.casebook_id]:
                 node.casebook = None
                 bulk_nodes.append(node)
             else:
-                old_to_new_cbs[node.casebook_id] = node.new_casebook_id
+                old_to_new_cbs[node.casebook_id] = node.casebook_id
     ContentNode.objects.bulk_update(bulk_nodes, ['casebook_id'])
 
 class Migration(migrations.Migration):

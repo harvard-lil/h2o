@@ -1,6 +1,6 @@
 <header class="casebook {% if editing %}casebook-draft{% else %}casebook-public{% endif %}"
         {% if edit_mode %}data-editable="true"{% endif %}
-        data-casebook-id="{{ section.new_casebook_id }}"
+        data-casebook-id="{{ section.casebook_id }}"
         data-section-id="{{ section.id }}"
         data-section-ordinals="{{ section.ordinal_string }}"
         data-resource-id="">
@@ -8,9 +8,9 @@
         <div class="casebook-inner">
             <div class="tabs">
                 {% if not edit_mode %}
-                    <a class="tab" href="{{ section.new_casebook.get_absolute_url }}">Casebook</a>
+                    <a class="tab" href="{{ section.casebook.get_absolute_url }}">Casebook</a>
                 {% else %}
-                    <a class="tab" href="{% url 'edit_casebook' section.new_casebook %}">Casebook</a>
+                    <a class="tab" href="{% url 'edit_casebook' section.casebook %}">Casebook</a>
                 {% endif %}
                 {% if read_tab %}
                     <span class="tab disabled active">Read</span>
