@@ -42,7 +42,7 @@ from .forms import (CasebookForm, CasebookSettingsTransitionForm, LinkForm,
                     TextBlockForm, UserProfileForm,
                     InviteCollaboratorForm, CollaboratorFormSet)
 from .models import (Case, Casebook, CommonTitle, ContentAnnotation, ContentNode, Link,
-                     Resource, Section, TextBlock, User, TempCollaborator)
+                     Resource, Section, TextBlock, User, ContentCollaborator)
 from .serializers import (AnnotationSerializer, CaseSerializer, CasebookListSerializer, CommonTitleSerializer,
                           NewAnnotationSerializer, NewCommonTitleSerializer, SectionOutlineSerializer,
                           TextBlockSerializer, UpdateAnnotationSerializer)
@@ -71,14 +71,14 @@ def login_required_response(request):
 def find_from_title_slugs(user_slug=None, title_slug= None, content_param=None):
     if title_slug is None:
         return (None, None)
-    titles = CommonTitle.objects.filter(public_url=title_slug).prefetch_related('casebooks').prefetch_related('casebooks__tempcollaborator_set').filter(casebooks__collaborators__public_url=user_slug)
+    titles = CommonTitle.objects.filter(public_url=title_slug).prefetch_related('casebooks').prefetch_related('casebooks__contentcollaborator_set').filter(casebooks__collaborators__public_url=user_slug)
     title = titles.distinct().first()
     if not title:
         return (None, None)
     casebook = title.current
     if not content_param:
         return ('Casebook', casebook)
-    section = ContentNode.objects.filter(new_casebook=casebook, ordinals=content_param['ordinals']).first()
+    section = ContentNode.objects.filter(casebook=casebook, ordinals=content_param['ordinals']).first()
     if not section:
         return (None, None)
     if section.is_resource:
@@ -113,7 +113,7 @@ def hydrate_params(func):
             candidate_casebooks = [x for x in Casebook.objects.filter(Q(pk=casebook_param['id']) | Q(old_casebook=casebook_param['id'])).all()]
             new_cb_ids = [x for x in candidate_casebooks if x.id == casebook_param['id']]
             if new_cb_ids:
-                cb_param = {'new_casebook': casebook_param['id']}
+                cb_param = {'casebook': casebook_param['id']}
                 kwargs['casebook'] = new_cb_ids[0]
             else:
                 old_cb_ids = [x for x in candidate_casebooks if x.old_casebook_id == casebook_param['id']]
@@ -131,16 +131,16 @@ def hydrate_params(func):
                 temp_obj = get_object_or_404(
                     ContentNode.objects
                     .filter(**cb_param)
-                    .select_related('new_casebook'), ordinals=param_value['ordinals'])
+                    .select_related('casebook'), ordinals=param_value['ordinals'])
                 kwargs[key] = temp_obj.as_proxy()
-                kwargs['casebook'] = kwargs[key].new_casebook
+                kwargs['casebook'] = kwargs[key].casebook
             else:
                 temp_obj = get_object_or_404(
                     ContentNode.objects
                     .filter(**cb_param)
-                    .select_related('new_casebook'), id=param_value['id'])
+                    .select_related('casebook'), id=param_value['id'])
                 kwargs[key] = temp_obj.as_proxy()
-                kwargs['casebook'] = kwargs[key].new_casebook
+                kwargs['casebook'] = kwargs[key].casebook
         return func(request, *args, **kwargs)
 
     return wrapper
@@ -452,7 +452,7 @@ class AnnotationListView(APIView):
 
     @method_decorator(perms_test(
         {'args': ['resource'],
-         'results': {200: ['resource.new_casebook.testing_editor', 'other_user', 'admin_user', None]}},
+         'results': {200: ['resource.casebook.testing_editor', 'other_user', 'admin_user', None]}},
         {'args': ['full_casebook_with_draft.draft.resources.first'],
          'results': {200: ['full_casebook_with_draft.draft.testing_editor', 'admin_user'], 403: ['other_user'],
                      'login': [None]}},
@@ -696,8 +696,8 @@ def dashboard(request, user_id=None, user_slug=None):
         >>> casebook, casebook_factory, client, admin_user, user_factory = [getfixture(f) for f in ['casebook', 'casebook_factory', 'client', 'admin_user', 'user_factory']]
         >>> user = casebook.collaborators.first()
         >>> non_collaborating_user = user_factory()
-        >>> private_casebook = casebook_factory(tempcollaborator_set__user=user, state=Casebook.LifeCycle.PRIVATELY_EDITING.value)
-        >>> draft_casebook = casebook_factory(tempcollaborator_set__user=user, state=Casebook.LifeCycle.DRAFT.value, provenance=[casebook.id])
+        >>> private_casebook = casebook_factory(contentcollaborator_set__user=user, state=Casebook.LifeCycle.PRIVATELY_EDITING.value)
+        >>> draft_casebook = casebook_factory(contentcollaborator_set__user=user, state=Casebook.LifeCycle.DRAFT.value, provenance=[casebook.id])
         >>> casebook.draft = draft_casebook
         >>> casebook.save()
         >>> url = reverse('dashboard', args=[user.id])
@@ -864,8 +864,8 @@ def show_credits(request, casebook, section=None):
     originating_node = set(
         [cloned_node for child_content in contents for cloned_node in child_content.provenance])
     prior_art = {x.id: x for x in ContentNode.objects.filter(id__in=originating_node)
-        .select_related('new_casebook')
-        .prefetch_related('new_casebook__tempcollaborator_set__user')
+        .select_related('casebook')
+        .prefetch_related('casebook__contentcollaborator_set__user')
         .all()}
     casebook_mapping = {}
     cloned_sections = {}
@@ -873,7 +873,7 @@ def show_credits(request, casebook, section=None):
         if not node.provenance:
             continue
         known_priors = [prior_art[p] for p in node.provenance if p in prior_art]
-        known_clones = [p.new_casebook for p in known_priors]
+        known_clones = [p.casebook for p in known_priors]
         if not known_clones:
             continue
         immediate_clone = known_clones[-1]
@@ -884,10 +884,10 @@ def show_credits(request, casebook, section=None):
         nesting_depth = sum(map(lambda x: x in cs_set, [".".join(map(str, node.ordinals[:y])) for y in range(len(node.ordinals))]))
         if immediate_clone.id not in casebook_mapping:
             casebook_mapping[immediate_clone.id] = {'casebook': immediate_clone,
-                                                   'immediate_authors': {c.user for c in immediate_clone.tempcollaborator_set.all() if c.has_attribution and c.user.display_name != 'Anonymous'},
+                                                   'immediate_authors': {c.user for c in immediate_clone.contentcollaborator_set.all() if c.has_attribution and c.user.display_name != 'Anonymous'},
                                                    'incidental_authors': set(),
                                                    'nodes': []}
-        casebook_mapping[immediate_clone.id]['incidental_authors'] |= {c.user for clone in incidental_clones for c in clone.tempcollaborator_set.all() if c.has_attribution and c.user.display_name != 'Anonymous' and c.user not in casebook_mapping[immediate_clone.id]['immediate_authors']}
+        casebook_mapping[immediate_clone.id]['incidental_authors'] |= {c.user for clone in incidental_clones for c in clone.contentcollaborator_set.all() if c.has_attribution and c.user.display_name != 'Anonymous' and c.user not in casebook_mapping[immediate_clone.id]['immediate_authors']}
         casebook_mapping[immediate_clone.id]['nodes'].append((node, known_priors[-1], nesting_depth))
 
 
@@ -978,13 +978,13 @@ def show_related(request, casebook, section=None):
 @hydrate_params
 @user_has_perm('casebook', 'editable_by')
 def casebook_settings(request, casebook):
-    ModificationFormSet = modelformset_factory(TempCollaborator,
+    ModificationFormSet = modelformset_factory(ContentCollaborator,
                                             fields=('id', 'can_edit', 'has_attribution'),
                                             widgets={'id': HiddenInput()},
                                             formset=CollaboratorFormSet,
                                             extra=0,
                                             can_delete=True)
-    collaborator_queryset = casebook.tempcollaborator_set.order_by('id').select_related('user').all()
+    collaborator_queryset = casebook.contentcollaborator_set.order_by('id').select_related('user').all()
     modify_collaborator_form = ModificationFormSet(queryset=collaborator_queryset,auto_id='', prefix='form')
     invite_collaborator_form = InviteCollaboratorForm(initial={'casebook': casebook.id})
     editors = [c for c in collaborator_queryset if c.can_edit]
@@ -1002,13 +1002,13 @@ def casebook_settings(request, casebook):
                                                                auto_id='', prefix='form')
                 if modify_collaborator_form.is_valid():
                     modify_collaborator_form.save()
-                    modify_collaborator_form = ModificationFormSet(queryset=casebook.tempcollaborator_set.order_by('id').select_related('user').all()
+                    modify_collaborator_form = ModificationFormSet(queryset=casebook.contentcollaborator_set.order_by('id').select_related('user').all()
                                                                    ,auto_id='', prefix='form')
             if form_type == 'add_collaborator':
                 invite_collab_form = InviteCollaboratorForm(request.POST)
                 if invite_collab_form.is_valid():
                     invite_collab_form.save(request)
-                    modify_collaborator_form = ModificationFormSet(queryset=casebook.tempcollaborator_set.order_by('id').select_related('user').all(),auto_id='', prefix='form')
+                    modify_collaborator_form = ModificationFormSet(queryset=casebook.contentcollaborator_set.order_by('id').select_related('user').all(),auto_id='', prefix='form')
             if form_type == 'change_visibility':
                 settings = CasebookSettingsTransitionForm(request.POST)
                 if settings.is_valid():
@@ -1017,7 +1017,7 @@ def casebook_settings(request, casebook):
                         casebook.transition_to(transition_to)
             if form_type == 'leave_collaboration':
                 if not only_editor:
-                    collab = TempCollaborator.objects.filter(casebook=casebook, user=request.user).first()
+                    collab = ContentCollaborator.objects.filter(casebook=casebook, user=request.user).first()
                     if collab:
                         collab.delete()
                     return HttpResponseRedirect('/')
@@ -1062,8 +1062,8 @@ class CasebookView(View):
             >>> casebook, casebook_factory, client, admin_user, user_factory = [getfixture(f) for f in ['casebook', 'casebook_factory', 'client', 'admin_user', 'user_factory']]
             >>> user = casebook.collaborators.first()
             >>> non_collaborating_user = user_factory()
-            >>> private_casebook = casebook_factory(tempcollaborator_set__user=user, state=Casebook.LifeCycle.PRIVATELY_EDITING.value)
-            >>> draft_casebook = casebook_factory(tempcollaborator_set__user=user, state=Casebook.LifeCycle.DRAFT.value, provenance=[casebook.id])
+            >>> private_casebook = casebook_factory(contentcollaborator_set__user=user, state=Casebook.LifeCycle.PRIVATELY_EDITING.value)
+            >>> draft_casebook = casebook_factory(contentcollaborator_set__user=user, state=Casebook.LifeCycle.DRAFT.value, provenance=[casebook.id])
 
             All users can see public casebooks:
             >>> check_response(client.get(casebook.get_absolute_url(), content_includes=casebook.title))
@@ -1109,8 +1109,8 @@ class CasebookView(View):
             >>> casebook, casebook_factory, client, admin_user, user_factory = [getfixture(f) for f in ['casebook', 'casebook_factory', 'client', 'admin_user', 'user_factory']]
             >>> user = casebook.collaborators.first()
             >>> non_collaborating_user = user_factory()
-            >>> private_casebook = casebook_factory(tempcollaborator_set__user=user, state=Casebook.LifeCycle.PRIVATELY_EDITING.value)
-            >>> draft_casebook = casebook_factory(tempcollaborator_set__user=user, state=Casebook.LifeCycle.DRAFT.value, provenance=[casebook.id])
+            >>> private_casebook = casebook_factory(contentcollaborator_set__user=user, state=Casebook.LifeCycle.PRIVATELY_EDITING.value)
+            >>> draft_casebook = casebook_factory(contentcollaborator_set__user=user, state=Casebook.LifeCycle.DRAFT.value, provenance=[casebook.id])
             >>> casebook.draft = draft_casebook
             >>> draft_casebook.save()
             >>> casebook.save()
@@ -1175,7 +1175,7 @@ def clone_casebook(request, casebook):
 
 @no_perms_test
 def clone_casebook_nodes(request, from_casebook_dict, from_section_dict, to_casebook_dict):
-    from_section = get_object_or_404(ContentNode.objects.filter(new_casebook=from_casebook_dict['id'], ordinals=from_section_dict['ordinals']))
+    from_section = get_object_or_404(ContentNode.objects.filter(casebook=from_casebook_dict['id'], ordinals=from_section_dict['ordinals']))
     to_casebook = get_object_or_404(Casebook.objects.filter(id=to_casebook_dict['id']))
     if not from_section.permits_cloning:
         raise PermissionDenied
@@ -1272,7 +1272,7 @@ def edit_casebook(request, casebook):
 def create_from_form(casebook, parent_section, form):
     fresh_body = form.save()
     fresh_resource = Resource(title=fresh_body.get_name(),
-                            new_casebook=casebook,
+                            casebook=casebook,
                             ordinals=parent_section.content_tree__get_next_available_child_ordinals(),
                             resource_id=fresh_body.id,
                             resource_type=type(fresh_body).__name__)
@@ -1320,7 +1320,7 @@ def new_section(request, casebook):
     if form.is_valid():
         fresh_section = form.save(commit=False)
         fresh_section.ordinals = parent_section.content_tree__get_next_available_child_ordinals()
-        fresh_section.new_casebook = casebook
+        fresh_section.casebook = casebook
         fresh_section.save()
         return HttpResponseRedirect(fresh_section.get_edit_url())
     else:
@@ -1458,7 +1458,7 @@ def new_case(request, casebook):
     parent_section_id = request.POST.get('section', None)
     parent_section = Section.objects.get(id=parent_section_id) if parent_section_id else casebook
     fresh_resource = Resource(title=case.get_name(),
-                            new_casebook=casebook,
+                            casebook=casebook,
                             ordinals=parent_section.content_tree__get_next_available_child_ordinals(),
                             resource_id=case.id,
                             resource_type='Case')
@@ -1481,7 +1481,7 @@ def switch_node_type(request, casebook, content_node):
 
         >>> owner = private_resource.testing_editor
         >>> data = '{"from": "Temp", "to": "Link", "url": "https://example.com/"}'
-        >>> url = reverse('resource', args=[private_resource.new_casebook, private_resource])
+        >>> url = reverse('resource', args=[private_resource.casebook, private_resource])
         >>> response = client.patch(url, data, as_user=owner)
         >>> assert response.status_code == 302
         >>> private_resource.refresh_from_db()
@@ -1599,7 +1599,7 @@ class SectionView(View):
             Users can delete sections in their unpublished and draft casebooks:
             >>> for section in [private_section, draft_section]:
             ...     owner = section.testing_editor
-            ...     url = reverse('section', args=[section.new_casebook, section])
+            ...     url = reverse('section', args=[section.casebook, section])
             ...     check_response(client.delete(url, as_user=owner))
             ...     with assert_raises(ContentNode.DoesNotExist):
             ...         section.refresh_from_db()
@@ -1735,7 +1735,7 @@ class ResourceView(View):
             Users can delete resources in their unpublished and draft casebooks:
             >>> for resource in [private_resource, draft_resource]:
             ...     owner = resource.testing_editor
-            ...     url = reverse('resource', args=[resource.new_casebook, resource])
+            ...     url = reverse('resource', args=[resource.casebook, resource])
             ...     check_response(client.delete(url, as_user=owner))
             ...     with assert_raises(ContentNode.DoesNotExist):
             ...         resource.refresh_from_db()
@@ -1851,7 +1851,7 @@ def annotate_resource(request, casebook, resource):
         # Only Cases and TextBlocks can be annotated.
         # Rails serves the "edit" page contents at both "edit" and "annotate" when resources can't be annotated;
         # let's redirect instead.
-        return HttpResponseRedirect(reverse('edit_resource', args=[resource.new_casebook, resource]))
+        return HttpResponseRedirect(reverse('edit_resource', args=[resource.casebook, resource]))
 
     return render_with_actions(request, 'resource_annotate.html', {
         'resource': resource,
@@ -2131,7 +2131,7 @@ def new_from_outline(request, casebook=None):
         content_node_annotations = []
         for node in all_nodes:
             skip_add_node = False
-            node['new_casebook'] = parent_section.new_casebook
+            node['casebook'] = parent_section.casebook
             if ('title' not in node) or node['title'].strip() == '':
                 node['title'] = 'Untitled'
             if 'resource_type' not in node:
@@ -2157,7 +2157,7 @@ def new_from_outline(request, casebook=None):
                     elif 'sectionOrd' in node or 'resourceOrd' in node:
                         target_ord_str = node.get('sectionOrd', node.get('resourceOrd', '' ) ).split('-')[0]
                         target_ord = [int(x) for x in target_ord_str.split('.')]
-                        target_node = ContentNode.objects.get(new_casebook_id=target_casebook_id, ordinals=target_ord)
+                        target_node = ContentNode.objects.get(casebook_id=target_casebook_id, ordinals=target_ord)
 
                 cloned_resources, cloned_content_nodes, cloned_annotations = [[],[],[]]
 
@@ -2175,7 +2175,7 @@ def new_from_outline(request, casebook=None):
                     for child in cloned_content_nodes:
                         child.ordinals = shell_node.ordinals + child.ordinals
                     cloned_content_nodes.append(shell_node)
-                elif target_node.permits_cloning or target_node.new_casebook.editable_by(request.user):
+                elif target_node.permits_cloning or target_node.casebook.editable_by(request.user):
                     target_and_children = [target_node] + list(target_node.contents.all())
                     cloned_resources, cloned_content_nodes, cloned_annotations = casebook.collect_cloning_nodes(target_and_children)
                     # casebook.save_and_parent_cloned_resources(cloned_resources)
@@ -2258,7 +2258,7 @@ def pretty_url_dispatch(request, user_slug=None, title_slug=None, content_param=
     if content_type == 'Casebook':
         return CasebookView.as_view()(request, content)
     if content_type == 'Section':
-        return SectionView.as_view()(request, content.new_casebook, content)
+        return SectionView.as_view()(request, content.casebook, content)
     if content_type == 'Resource':
-        return ResourceView.as_view()(request, content.new_casebook, content)
+        return ResourceView.as_view()(request, content.casebook, content)
     raise Http404

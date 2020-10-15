@@ -2,7 +2,7 @@
 
 import django.contrib.postgres.fields
 from django.db import migrations, models
-from main.models import Casebook, ContentNode, TempCollaborator, ContentCollaborator
+from main.models import Casebook, ContentNode, ContentCollaborator
 
 def migrate_casebooks(app,schema):
     print("About to update anything")
@@ -28,24 +28,18 @@ def migrate_casebooks(app,schema):
         if original_casebook.draft_mode_of_published_casebook:
             drafted_casebook = original_casebook.provenance[-1]
             draft_map[drafted_casebook] = new_casebook
-        new_collaborators = [TempCollaborator(has_attribution= old_collaborator.has_attribution,
-                                              can_edit= old_collaborator.can_edit,
-                                              user=old_collaborator.user,
-                                              casebook=new_casebook)
-                             for old_collaborator in ContentCollaborator.objects.filter(content=original_casebook).all()]
         all_map[original_casebook.id] = new_casebook
-        bulk_collaborators += new_collaborators
     for draft_id, target in draft_map.items():
         drafted = all_map[draft_id]
         drafted.draft = target
         drafted.save()
-    TempCollaborator.objects.bulk_create(bulk_collaborators)
+    ContentCollaborator.objects.bulk_create(bulk_collaborators)
     bulk_content = []
     print("About to update contents")
     for content_node in ContentNode.objects.filter(casebook_id__isnull=False).select_related('casebook').all():
-        content_node.new_casebook = all_map[content_node.casebook.id]
+        content_node.casebook = all_map[content_node.casebook.id]
         bulk_content.append(content_node)
-    ContentNode.objects.bulk_update(bulk_content, fields=['new_casebook'], batch_size=1000)
+    ContentNode.objects.bulk_update(bulk_content, fields=['casebook'], batch_size=1000)
 
 
 class Migration(migrations.Migration):

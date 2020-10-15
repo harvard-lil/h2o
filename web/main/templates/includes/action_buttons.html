@@ -10,7 +10,7 @@
       <a class="action edit one-line" data-disable-with="Return to Draft" href="{% firstof section.get_draft_url casebook.get_draft_url %}">Return to Draft</a>
   {% endif %}
   {% if can_create_draft %}
-    <form class="button_to" method="post" action="{% if casebook %}{% url 'create_draft' casebook %}{% else %}{% url 'create_draft' section.new_casebook %}{% endif %}">
+    <form class="button_to" method="post" action="{% if casebook %}{% url 'create_draft' casebook %}{% else %}{% url 'create_draft' section.casebook %}{% endif %}">
       <input class="action edit one-line create-draft" data-disable-with="Revise" type="submit" value="Revise">
       {% csrf_token %}
     </form>

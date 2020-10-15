@@ -1,7 +1,7 @@
 from rest_framework import serializers
 from django.urls import reverse
 from rest_framework.exceptions import ValidationError
-from main.models import Casebook, CommonTitle, User, TempCollaborator
+from main.models import Casebook, CommonTitle, User, ContentCollaborator
 from main.utils import send_invitation_email, send_collaboration_email
 from . import models
 
@@ -79,7 +79,7 @@ class CasebookListAuthorSerializer(serializers.RelatedField):
 
 
 class CasebookListSerializer(serializers.ModelSerializer):
-    authors = CasebookListAuthorSerializer(many=True, read_only=True, source='tempcollaborator_set')
+    authors = CasebookListAuthorSerializer(many=True, read_only=True, source='contentcollaborator_set')
     url = serializers.SerializerMethodField()
     settings_url = serializers.SerializerMethodField()
     edit_url = serializers.SerializerMethodField()
@@ -180,7 +180,7 @@ class CollaboratorSerializer(serializers.ModelSerializer):
     user = UserSerializer()
 
     class Meta:
-        model = models.TempCollaborator
+        model = models.ContentCollaborator
         fields = ['casebook', 'has_attribution', 'can_edit', 'user', 'id']
 
 
@@ -243,7 +243,7 @@ class CollaboratorDeserializer(serializers.BaseSerializer):
         can_edit = data.get('can_edit', False)
         id = data.get('id', None)
         if id:
-            collaborator = TempCollaborator.objects.filter(id=id).first()
+            collaborator = ContentCollaborator.objects.filter(id=id).first()
             if not collaborator:
                 raise serializers.ValidationError({
                     'id': 'Collaborator with this id does not exist.'
@@ -276,7 +276,7 @@ class CollaboratorDeserializer(serializers.BaseSerializer):
             send_invitation_email(self.context['request'], existing_user, validated_data.get('casebook'))
         data = {**validated_data}
         data['user'] = existing_user
-        results = TempCollaborator.objects.create(**data)
+        results = ContentCollaborator.objects.create(**data)
         return results
 
     def update(self, instance, validated_data):

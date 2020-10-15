@@ -414,7 +414,7 @@ class ContentAnnotation(TimestampedModel, BigPkModel):
         if to_update:
             bulk_update_with_history(to_update, ContentAnnotation, ['global_start_offset', 'global_end_offset'], batch_size=500, default_change_reason="Automated Shift")
 
-class TempCollaborator(TimestampedModel, BigPkModel):
+class ContentCollaborator(TimestampedModel, BigPkModel):
     has_attribution = models.BooleanField(default=False)
     can_edit = models.BooleanField(default=False)
     user = models.ForeignKey('User',
@@ -436,28 +436,6 @@ class TempCollaborator(TimestampedModel, BigPkModel):
         unique_together = (('user', 'casebook'),)
 
 
-class ContentCollaborator(TimestampedModel, BigPkModel):
-    has_attribution = models.BooleanField(default=False)
-    can_edit = models.BooleanField(default=False)
-    user = models.ForeignKey('User',
-                             on_delete=models.CASCADE,
-                             )
-    # This is marked "on_delete=models.DO_NOTHING" to avoid unnecessary queries when deleting Sections and Resources....
-    # We make sure to delete unneeded ContentCollaborator rows in the Casebook.delete method.
-    content = models.ForeignKey(
-        'ContentNode',
-        on_delete=models.DO_NOTHING,
-        blank=True,
-        null=True
-    )
-
-    def save(self, *args, **kwargs):
-        super().save(*args, **kwargs)
-
-    class Meta:
-        unique_together = (('user', 'content'),)
-
-
 class ContentNodeQueryset(models.QuerySet):
     """
         This queryset allows us to do ContentNode.objects.prefetch_resources() so that fetched content nodes will
@@ -466,7 +444,7 @@ class ContentNodeQueryset(models.QuerySet):
 
         Given:
         >>> full_casebook, assert_num_queries = [getfixture(f) for f in ['full_casebook', 'assert_num_queries']]
-        >>> section = ContentNode.objects.filter(new_casebook=full_casebook).first()
+        >>> section = ContentNode.objects.filter(casebook=full_casebook).first()
 
         Fetching all resources normally will take a linear number of queries -- each c.resource hits the DB:
     """
@@ -802,9 +780,9 @@ class MaterializedPathTreeMixin(models.Model):
 
     def content_tree__get_same_tree_node_from_ordinals(self, ordinals):
         """ Fetch a node from the database, with the given ordinals, that is part of the same tree as self. """
-        casebook_id = self.id if type(self) == Casebook else self.new_casebook_id
+        casebook_id = self.id if type(self) == Casebook else self.casebook_id
         return ContentNode.objects.get(ordinals=ordinals,
-                                       new_casebook_id=casebook_id) if ordinals else Casebook.objects.get(id=casebook_id)
+                                       casebook_id=casebook_id) if ordinals else Casebook.objects.get(id=casebook_id)
 
     def content_tree__get_descendant(self, ordinals):
         """
@@ -843,7 +821,7 @@ class MaterializedPathTreeMixin(models.Model):
                 'ordinal': o,
                 'ordinals': [*ordinals],
                 'url': ContentNode.objects.get(
-                    new_casebook_id=self.new_casebook_id,
+                    casebook_id=self.casebook_id,
                     ordinals=ordinals
                 ).get_edit_or_absolute_url(editing)
             })
@@ -886,7 +864,7 @@ class TrackedCloneable(models.Model):
         """
         if not self.provenance:
             return None
-        return type(self).objects.filter(id=self.provenance[0]).get().new_casebook
+        return type(self).objects.filter(id=self.provenance[0]).get().casebook
 
     def version_tree__parent(self):
         """
@@ -927,15 +905,11 @@ class ContentNode(EditTrackedModel, TimestampedModel, BigPkModel, MaterializedPa
     public = models.BooleanField(default=False)
     draft_mode_of_published_casebook = models.BooleanField(blank=True, null=True,
                                                            help_text='Unknown (None) or True; never False')
-    collaborators = models.ManyToManyField('User',
-                                           through='ContentCollaborator',
-                                           related_name='old_casebooks'
-                                           )
 
     # sections and resources only
     # This is marked "on_delete=models.DO_NOTHING" to avoid unnecessary queries when deleting Sections and Resources....
     # We make sure to delete Casebook contents in the Casebook.delete method.
-    casebook = models.ForeignKey(
+    old_casebook = models.ForeignKey(
         'ContentNode',
         on_delete=models.DO_NOTHING,
         blank=True,
@@ -943,7 +917,7 @@ class ContentNode(EditTrackedModel, TimestampedModel, BigPkModel, MaterializedPa
         related_name='old_casebook_contents'
     )
 
-    new_casebook = models.ForeignKey(
+    casebook = models.ForeignKey(
         'Casebook',
         on_delete=models.DO_NOTHING,
         blank=True,
@@ -977,12 +951,12 @@ class ContentNode(EditTrackedModel, TimestampedModel, BigPkModel, MaterializedPa
 
             Given:
             >>> casebook, section, resource_factory, case_factory = [getfixture(i) for i in ['casebook', 'section', 'resource_factory', 'case_factory']]
-            >>> resource = resource_factory(new_casebook=casebook, resource_type='Case', resource_id=case_factory().id)
+            >>> resource = resource_factory(casebook=casebook, resource_type='Case', resource_id=case_factory().id)
 
             ContentNode queries return the appropriate proxy models:
         """
         values_dict = dict(zip(field_names, values))
-        if not values_dict['casebook_id']:
+        if not values_dict['old_casebook_id']:
             # subclass = Casebook
             subclass = ContentNode
         elif not values_dict['resource_id']:
@@ -1038,7 +1012,7 @@ class ContentNode(EditTrackedModel, TimestampedModel, BigPkModel, MaterializedPa
         # but not [2, 1, 1], [1,1], etc.
         first_ordinals = "ordinals__0_{}".format(len(self.ordinals))
         filter_map = {
-            "new_casebook_id": self.new_casebook_id,
+            "casebook_id": self.casebook_id,
             first_ordinals: self.ordinals
         }
         res = ContentNode.objects.filter(**filter_map).exclude(id=self.id)
@@ -1051,7 +1025,7 @@ class ContentNode(EditTrackedModel, TimestampedModel, BigPkModel, MaterializedPa
 
     @property
     def can_publish(self):
-        return self.new_casebook.can_publish
+        return self.casebook.can_publish
 
     @property
     def has_body(self):
@@ -1095,7 +1069,7 @@ class ContentNode(EditTrackedModel, TimestampedModel, BigPkModel, MaterializedPa
         return slugify(self.title)
 
     def viewable_by(self, user):
-        return self.new_casebook.viewable_by(user)
+        return self.casebook.viewable_by(user)
 
     def directly_editable_by(self, user):
         """
@@ -1103,7 +1077,7 @@ class ContentNode(EditTrackedModel, TimestampedModel, BigPkModel, MaterializedPa
         rather than requiring them to make changes via the draft mechanism.
         (See allows_draft_creation_by for more discussion of editing and drafts.)
         """
-        return self.new_casebook.is_private and self.new_casebook.editable_by(user)
+        return self.casebook.is_private and self.casebook.editable_by(user)
 
     def __str__(self):
         return "{} ({})".format(self.title, self.id)
@@ -1125,7 +1099,7 @@ class ContentNode(EditTrackedModel, TimestampedModel, BigPkModel, MaterializedPa
         # but not [2, 1, 1], [1,1], etc.
         first_ordinals = "ordinals__0_{}".format(len(self.ordinals))
         filter_map = {
-            "new_casebook_id": self.new_casebook_id,
+            "casebook_id": self.casebook_id,
             first_ordinals: self.ordinals
         }
         return ContentNode.objects.filter(**filter_map).exclude(id=self.id)
@@ -1143,7 +1117,7 @@ class ContentNode(EditTrackedModel, TimestampedModel, BigPkModel, MaterializedPa
         uses to make annotations. Otherwise, returns a ValueError.
         """
         if self.annotatable:
-            return reverse('annotate_resource', args=[self.new_casebook, self])
+            return reverse('annotate_resource', args=[self.casebook, self])
         raise ValueError('Only Resources (Case and TextBlock) can be annotated.')
 
     @property
@@ -1594,7 +1568,7 @@ class ContentNode(EditTrackedModel, TimestampedModel, BigPkModel, MaterializedPa
 
     @property
     def is_public(self):
-        return self.new_casebook.is_public
+        return self.casebook.is_public
 
     @property
     def is_private(self):
@@ -1607,21 +1581,21 @@ class ContentNode(EditTrackedModel, TimestampedModel, BigPkModel, MaterializedPa
 
         This method should be implemented by all children.
         """
-        return self.new_casebook.permits_cloning
+        return self.casebook.permits_cloning
 
     def editable_by(self, user):
-        return self.new_casebook.editable_by(user)
+        return self.casebook.editable_by(user)
 
     @property
     def has_draft(self):
-        return self.new_casebook.has_draft
+        return self.casebook.has_draft
 
     @property
     def is_draft(self):
-        return self.new_casebook.is_draft
+        return self.casebook.is_draft
 
     def allows_draft_creation_by(self, user):
-        return self.new_casebook.allows_draft_creation_by(user)
+        return self.casebook.allows_draft_creation_by(user)
 
     def is_annotated(self):
         """
@@ -1649,9 +1623,9 @@ class ContentNode(EditTrackedModel, TimestampedModel, BigPkModel, MaterializedPa
         This method should be implemented by all children.
         """
         if self.resource_id or self.resource_type == 'Temp':
-            return reverse('resource', args=[self.new_casebook, self])
+            return reverse('resource', args=[self.casebook, self])
         else:
-            return reverse('section', args=[self.new_casebook, self])
+            return reverse('section', args=[self.casebook, self])
 
     def get_edit_url(self):
         """
@@ -1662,9 +1636,9 @@ class ContentNode(EditTrackedModel, TimestampedModel, BigPkModel, MaterializedPa
         This method should be implemented by all children.
         """
         if self.resource_id or self.resource_type == 'Temp':
-            return reverse('edit_resource', args=[self.new_casebook, self])
+            return reverse('edit_resource', args=[self.casebook, self])
         else:
-            return reverse('edit_section', args=[self.new_casebook, self])
+            return reverse('edit_section', args=[self.casebook, self])
 
     def get_draft_url(self):
         """
@@ -1673,7 +1647,7 @@ class ContentNode(EditTrackedModel, TimestampedModel, BigPkModel, MaterializedPa
 
         This method should be implemented by all children.
         """
-        return self.new_casebook.get_draft_url
+        return self.casebook.get_draft_url
 
     def get_edit_or_absolute_url(self, editing=False):
         """
@@ -1697,9 +1671,9 @@ class ContentNode(EditTrackedModel, TimestampedModel, BigPkModel, MaterializedPa
 
     @property
     def testing_editor(self):
-        return self.new_casebook.testing_editor
+        return self.casebook.testing_editor
 
-    def clone_to(self, new_casebook):
+    def clone_to(self, target_casebook):
         """
             Clone a section or resource from its current casebook to a new casebook.
 
@@ -1711,18 +1685,22 @@ class ContentNode(EditTrackedModel, TimestampedModel, BigPkModel, MaterializedPa
             >>> from_casebook = full_casebook_parts_factory()[0]
             >>> to_casebook = full_casebook_parts_factory()[0]
             >>> section = from_casebook.sections[1]
+            >>> og_section_outline = dump_content_tree(section)
             >>> resource = from_casebook.resources[0]
 
             Can append a section or a resource to the end of to_casebook:
+            >>> t = dump_casebook_outline(to_casebook)[-7:]
             >>> section.clone_to(to_casebook)
+            >>> u = dump_casebook_outline(to_casebook)[-7:]
             >>> resource.clone_to(to_casebook)
+            >>> v = dump_casebook_outline(to_casebook)[-7:]
             >>> assert dump_casebook_outline(to_casebook)[-7:] == [
             ...   '   ContentNode<16> -> Case<4>: Foo Foo3 vs. Bar Bar3',
             ...   '    ContentAnnotation<7>: note 0-10',
             ...   '    ContentAnnotation<8>: replace 0-10',
             ...   '   ContentNode<17> -> Link<4>: Some Link Name 3',
             ...   ' Section<18>: Some Section 17',
-            ...   ' ContentNode<19> -> Link<5>: Some Link Name 1',
+            ...   ' Section<19>: Some Section 4',
             ...   ' ContentNode<20> -> TextBlock<5>: Some TextBlock Name 0'
             ... ]
 
@@ -1730,33 +1708,33 @@ class ContentNode(EditTrackedModel, TimestampedModel, BigPkModel, MaterializedPa
             >>> assert [node.ordinals for node in list(to_casebook.contents.all())] == [node.ordinals for node in list(from_casebook.contents.all())] + [[3], [4]]
         """
         contents = list(self.contents) if type(self) is Section or type(self) is Casebook else []
-        new_casebook.clone_nodes(([self] if type(self) is not Casebook else []) + contents, append=True)
+        target_casebook.clone_nodes(([self] if type(self) is not Casebook else []) + contents, append=True)
 
     @property
     def in_edit_state(self):
-        return self.new_casebook.in_edit_state
+        return self.casebook.in_edit_state
 
     def tabs_for_user(self, user, current_tab=None):
         read_tab = 'Preview' if self.in_edit_state else 'Read'
         if current_tab is None:
             current_tab = read_tab
-        tabs = [('Casebook', reverse('casebook', args=[self.new_casebook]), True),
-                ('Edit', reverse('edit_resource', args=[self.new_casebook, self]), self.in_edit_state and self.editable_by(user)),
-                ('Annotate', reverse('annotate_resource', args=[self.new_casebook, self]), self.in_edit_state and self.editable_by(user) and self.annotatable),
-                (read_tab, reverse('section', args=[self.new_casebook, self]), True),
-                ('Credits', reverse('show_resource_credits', args=[self.new_casebook, self]), True)]
+        tabs = [('Casebook', reverse('casebook', args=[self.casebook]), True),
+                ('Edit', reverse('edit_resource', args=[self.casebook, self]), self.in_edit_state and self.editable_by(user)),
+                ('Annotate', reverse('annotate_resource', args=[self.casebook, self]), self.in_edit_state and self.editable_by(user) and self.annotatable),
+                (read_tab, reverse('section', args=[self.casebook, self]), True),
+                ('Credits', reverse('show_resource_credits', args=[self.casebook, self]), True)]
         return [(n, l, n == current_tab) for n,l,c in tabs if c]
 
 
     @property
     def descendant_nodes(self):
         ids = [cn.id for cn in self.contents.all()] + [self.id]
-        return ContentNode.objects.filter(provenance__overlap=ids).filter(new_casebook__state='Public')
+        return ContentNode.objects.filter(provenance__overlap=ids).filter(casebook__state='Public')
 
     @property
     def ancestor_nodes(self):
         ids = [p for cn in self.contents.all() for p in cn.provenance] + [p for p in self.provenance]
-        return ContentNode.objects.filter(id__in=ids).filter(new_casebook__state='Public')
+        return ContentNode.objects.filter(id__in=ids).filter(casebook__state='Public')
 
     @property
     def related_cases(self):
@@ -1773,7 +1751,7 @@ class ContentNode(EditTrackedModel, TimestampedModel, BigPkModel, MaterializedPa
             else:
                 res_ids.append(case.resource.id)
         res_ids += [x.id for x in Case.objects.filter(capapi_id__in=cap_ids).all()]
-        return ContentNode.objects.filter(resource_type='Case',resource_id__in=res_ids).filter(new_casebook__state='Public')
+        return ContentNode.objects.filter(resource_type='Case',resource_id__in=res_ids).filter(casebook__state='Public')
 
 
 #
@@ -1822,9 +1800,9 @@ class CasebookAndSectionMixin(models.Model):
         users = [collaborator.user for cn in
                     ContentNode.objects.filter(id__in=originating_node)
                         .select_related('casebook')
-                        .prefetch_related('casebook__tempcollaborator_set__user')
+                        .prefetch_related('casebook__contentcollaborator_set__user')
                         .all()
-                    for collaborator in cn.new_casebook.tempcollaborator_set.all() if collaborator.has_attribution and collaborator.user.attribution != 'Anonymous']
+                    for collaborator in cn.casebook.contentcollaborator_set.all() if collaborator.has_attribution and collaborator.user.attribution != 'Anonymous']
         return set(users)
 
     @property
@@ -1951,9 +1929,9 @@ class SectionAndResourceMixin(models.Model):
         # Find this nodes's parent
         ordinals_of_parent = self.ordinals[:-1]
         if ordinals_of_parent:
-            parent = ContentNode.objects.get(new_casebook=self.new_casebook, ordinals=ordinals_of_parent)
+            parent = ContentNode.objects.get(casebook=self.casebook, ordinals=ordinals_of_parent)
         else:
-            parent = self.new_casebook
+            parent = self.casebook
 
         # Delete this nodes's children, and any related links and textblocks,
         # without recursively calling our custom Section.delete and Resource.delete methods
@@ -1979,29 +1957,29 @@ class SectionAndResourceMixin(models.Model):
     @property
     def is_public(self):
         """See ContentNode.is_public"""
-        return self.new_casebook.is_public
+        return self.casebook.is_public
 
     def editable_by(self, user):
         """See ContentNode.editable_by"""
-        return self.new_casebook.editable_by(user)
+        return self.casebook.editable_by(user)
 
     @property
     def permits_cloning(self):
         """See ContentNode.permits_cloning"""
-        return self.new_casebook.permits_cloning
+        return self.casebook.permits_cloning
 
     @property
     def has_draft(self):
         """See ContentNode.has_draft"""
-        return self.new_casebook.has_draft
+        return self.casebook.has_draft
 
     def allows_draft_creation_by(self, user):
         """See ContentNode.allows_draft_creation_by"""
-        return self.new_casebook.allows_draft_creation_by(user)
+        return self.casebook.allows_draft_creation_by(user)
 
     def get_draft_url(self):
         """See ContentNode.get_draft_url"""
-        return self.new_casebook.get_draft_url()
+        return self.casebook.get_draft_url()
 
 class CommonTitle(BigPkModel):
     name = models.CharField(max_length=300, blank=False, null=False)
@@ -2021,12 +1999,12 @@ class Casebook(EditTrackedModel, TimestampedModel, BigPkModel, CasebookAndSectio
     headnote = models.TextField(blank=True, null=True)
 
     collaborators = models.ManyToManyField('User',
-                                           through='TempCollaborator',
+                                           through='ContentCollaborator',
                                            related_name='casebooks'
                                            )
     @property
     def contentcollaborator_set(self):
-        return self.tempcollaborator_set
+        return self.contentcollaborator_set
 
     class LifeCycle(Enum):
         PRIVATELY_EDITING = 'Fresh' # There is no public version of this casebook
@@ -2089,7 +2067,7 @@ class Casebook(EditTrackedModel, TimestampedModel, BigPkModel, CasebookAndSectio
     def viewable_by(self, user):
         if (not (self.is_archived or self.is_previous_save)) and (self.is_public or user.is_superuser):
             return True
-        return bool(self.tempcollaborator_set.filter(user_id=user.id).first())
+        return bool(self.contentcollaborator_set.filter(user_id=user.id).first())
 
 
     def directly_editable_by(self, user):
@@ -2103,6 +2081,10 @@ class Casebook(EditTrackedModel, TimestampedModel, BigPkModel, CasebookAndSectio
     def __str__(self):
         return "{} ({})".format(self.title, self.id)
 
+    @property
+    def casebook(self):
+        return self
+    
     @property
     def type(self):
         # TODO: In use in templates and tests; shouldn't be necessary. Consider refactoring.
@@ -2166,7 +2148,7 @@ class Casebook(EditTrackedModel, TimestampedModel, BigPkModel, CasebookAndSectio
             >>> assert not Casebook.objects.exists()
             >>> assert not ContentNode.objects.exists()
             >>> assert not ContentAnnotation.objects.exists()
-            >>> assert casebook.tempcollaborator_set.count() == 0
+            >>> assert casebook.contentcollaborator_set.count() == 0
         """
         if self.draft:
             self.draft.delete()
@@ -2177,25 +2159,25 @@ class Casebook(EditTrackedModel, TimestampedModel, BigPkModel, CasebookAndSectio
 
     @property
     def sections(self):
-        return Section.objects.filter(new_casebook=self)
+        return Section.objects.filter(casebook=self).filter(resource_type__isnull=True)
 
     @property
     def resources(self):
-        return ContentNode.objects.filter(new_casebook=self,resource_id__isnull=False)
+        return ContentNode.objects.filter(casebook=self,resource_id__isnull=False)
 
     @property
     def children(self):
-        return ContentNode.objects.filter(new_casebook=self, ordinals__len=1)
+        return ContentNode.objects.filter(casebook=self, ordinals__len=1)
 
     @property
     def descendant_nodes(self):
         ids = [cn.id for cn in self.contents.all()]
-        return ContentNode.objects.filter(provenance__overlap=ids).filter(new_casebook__state='Public')
+        return ContentNode.objects.filter(provenance__overlap=ids).filter(casebook__state='Public')
 
     @property
     def ancestor_nodes(self):
         ids = [p for cn in self.contents.all() for p in cn.provenance]
-        return ContentNode.objects.filter(id__in=ids).filter(new_casebook__state='Public')
+        return ContentNode.objects.filter(id__in=ids).filter(casebook__state='Public')
 
     @property
     def related_cases(self):
@@ -2209,7 +2191,7 @@ class Casebook(EditTrackedModel, TimestampedModel, BigPkModel, CasebookAndSectio
             else:
                 res_ids.append(case.resource.id)
         res_ids += [x.id for x in Case.objects.filter(capapi_id__in=cap_ids).all()]
-        return ContentNode.objects.filter(resource_type='Case',resource_id__in=res_ids).filter(new_casebook__state="Public")
+        return ContentNode.objects.filter(resource_type='Case',resource_id__in=res_ids).filter(casebook__state="Public")
 
     @property
     def previous_saves(self):
@@ -2258,7 +2240,7 @@ class Casebook(EditTrackedModel, TimestampedModel, BigPkModel, CasebookAndSectio
         """See ContentNode.editable_by"""
         if not user.is_authenticated:
             return False
-        collabs = self.tempcollaborator_set.filter(user=user).first()
+        collabs = self.contentcollaborator_set.filter(user=user).first()
         return user.is_superuser or (collabs and collabs.can_edit)
 
     @property
@@ -2316,7 +2298,7 @@ class Casebook(EditTrackedModel, TimestampedModel, BigPkModel, CasebookAndSectio
             Merge draft back into original:
             >>> draft.title = "New Title"
             >>> draft.save()
-            >>> Section(new_casebook=draft, ordinals=[3], title="New Section").save()
+            >>> Section(casebook=draft, ordinals=[3], title="New Section").save()
             >>> with assert_num_queries(select=2, update=3, insert=3):
             ...     new_casebook = draft.merge_draft()
             >>> assert new_casebook == full_casebook
@@ -2378,11 +2360,11 @@ class Casebook(EditTrackedModel, TimestampedModel, BigPkModel, CasebookAndSectio
         for content_node in to_publish:
             if content_node.provenance:
                 content_node.provenance.pop()
-            content_node.new_casebook = parent
+            content_node.casebook = parent
         for content_node in to_retire:
-            content_node.new_casebook = draft
+            content_node.casebook = draft
 
-        bulk_update_with_history(to_publish + to_retire, ContentNode, ['new_casebook_id', 'provenance'], batch_size=500, default_change_reason="Draft Merge")
+        bulk_update_with_history(to_publish + to_retire, ContentNode, ['casebook_id', 'provenance'], batch_size=500, default_change_reason="Draft Merge")
         draft._change_reason = "Draft Merge"
         draft.save()
         parent._change_reason = "Draft Merge"
@@ -2483,15 +2465,15 @@ class Casebook(EditTrackedModel, TimestampedModel, BigPkModel, CasebookAndSectio
         if draft_mode:
             collaborators = [clone_model_instance(c, casebook=cloned_casebook, can_edit=c.can_edit) for c in
                              self.contentcollaborator_set.all()]
-            TempCollaborator.objects.bulk_create(collaborators) # Currently no History on Collaborators
+            ContentCollaborator.objects.bulk_create(collaborators) # Currently no History on Collaborators
             self.draft = cloned_casebook
             self.save()
         elif current_user:
             cloned_casebook.add_collaborator(user=current_user, has_attribution=True, can_edit=True)
 
         cloned_casebook.clone_nodes(old_casebook.contents.prefetch_resources().prefetch_related('annotations')
-                                    .select_related('new_casebook')
-                                    .prefetch_related('new_casebook__tempcollaborator_set'),
+                                    .select_related('casebook')
+                                    .prefetch_related('casebook__contentcollaborator_set'),
                                     draft_mode=draft_mode)
         return cloned_casebook
 
@@ -2504,9 +2486,9 @@ class Casebook(EditTrackedModel, TimestampedModel, BigPkModel, CasebookAndSectio
         for old_content_node in nodes:
             # clone content_node
             cloned_content_node = clone_model_instance(old_content_node,
-                                                       casebook=None,
+                                                       old_casebook=None,
                                                        provenance=old_content_node.provenance + [old_content_node.id],
-                                                       new_casebook=self)
+                                                       casebook=self)
             cloned_content_nodes.append(cloned_content_node)
 
             # clone annotations
@@ -2553,7 +2535,7 @@ class Casebook(EditTrackedModel, TimestampedModel, BigPkModel, CasebookAndSectio
             # offset cloned nodes so they go at the end of the current tree.
             # "offset" is the count of existing top-level content_tree nodes:
             offset = \
-            (ContentNode.objects.filter(new_casebook_id=self).aggregate(models.Max('ordinals'))['ordinals__max'] or [0])[
+            (ContentNode.objects.filter(casebook_id=self).aggregate(models.Max('ordinals'))['ordinals__max'] or [0])[
                 0] + 1
             for node in cloned_content_nodes:
                 node.ordinals[0] += offset
@@ -2696,18 +2678,18 @@ class Casebook(EditTrackedModel, TimestampedModel, BigPkModel, CasebookAndSectio
     # Collaborators
     @property
     def primary_authors(self):
-        return set([c.user for c in self.tempcollaborator_set.all() if c.has_attribution and c.user.attribution != 'Anonymous'])
+        return set([c.user for c in self.contentcollaborator_set.all() if c.has_attribution and c.user.attribution != 'Anonymous'])
 
     @property
     def all_collaborators(self):
-        return set([c.user for c in self.tempcollaborator_set.all()])
+        return set([c.user for c in self.contentcollaborator_set.all()])
 
     def has_collaborator(self, user):
         # filter in the client to allow .prefetch_related('contentcollaborator_set__user') to work:
-        return any(c.user_id == user.id for c in self.tempcollaborator_set.all() if c.can_edit)
+        return any(c.user_id == user.id for c in self.contentcollaborator_set.all() if c.can_edit)
 
     def add_collaborator(self, user, **collaborator_kwargs):
-        collaborator_to_add = TempCollaborator(user=user, casebook_id=self.id, **collaborator_kwargs)
+        collaborator_to_add = ContentCollaborator(user=user, casebook_id=self.id, **collaborator_kwargs)
         collaborator_to_add.save()
 
     def export(self, include_annotations, file_type='docx'):
@@ -2762,11 +2744,7 @@ class Casebook(EditTrackedModel, TimestampedModel, BigPkModel, CasebookAndSectio
         """
         Used for testing purposes, return a user that can edit this casebook.
         """
-        return TempCollaborator.objects.filter(can_edit=True, casebook=self).prefetch_related('user').first().user
-
-    @property
-    def new_casebook(self):
-        return self
+        return ContentCollaborator.objects.filter(can_edit=True, casebook=self).prefetch_related('user').first().user
 
     def content_tree__load(self):
         ordinal_to_node_map = {}
@@ -2894,29 +2872,23 @@ class Section(CasebookAndSectionMixin, SectionAndResourceMixin, ContentNode):
 
     def get_absolute_url(self):
         """See ContentNode.get_absolute_url"""
-        return reverse('section', args=[self.new_casebook, self])
+        return reverse('section', args=[self.casebook, self])
 
     def get_edit_url(self):
         """See ContentNode.get_edit_url"""
-        return reverse('edit_section', args=[self.new_casebook, self])
+        return reverse('edit_section', args=[self.casebook, self])
 
     @property
     def children(self):
         return self._content_tree__children
-        # first_ordinals = "ordinals__0_{}".format(len(self.ordinals))
-        # return ContentNode.objects.filter(**{
-        #     "casebook_id": self.casebook_id,
-        #     first_ordinals: self.ordinals,
-        #     "ordinals__len": len(self.ordinals) + 1
-        # })
 
     @property
     def primary_authors(self):
-        return self.new_casebook.primary_authors
+        return self.casebook.primary_authors
 
 class ResourceManager(models.Manager):
     def get_queryset(self):
-        return super().get_queryset().filter(new_casebook__isnull=False, resource_id__isnull=False)
+        return super().get_queryset().filter(casebook__isnull=False, resource_id__isnull=False)
 
 
 class Resource(SectionAndResourceMixin, ContentNode):
@@ -2927,11 +2899,11 @@ class Resource(SectionAndResourceMixin, ContentNode):
 
     def get_absolute_url(self):
         """See ContentNode.get_absolute_url"""
-        return reverse('resource', args=[self.new_casebook, self])
+        return reverse('resource', args=[self.casebook, self])
 
     def get_edit_url(self):
         """See ContentNode.get_edit_url"""
-        return reverse('edit_resource', args=[self.new_casebook, self])
+        return reverse('edit_resource', args=[self.casebook, self])
 
     def get_edit_or_absolute_url(self, editing=False):
         """
@@ -2960,7 +2932,7 @@ class Resource(SectionAndResourceMixin, ContentNode):
         uses to make annotations. Otherwise, returns a ValueError.
         """
         if self.annotatable:
-            return reverse('annotate_resource', args=[self.new_casebook, self])
+            return reverse('annotate_resource', args=[self.casebook, self])
         raise ValueError('Only Resources (Case and TextBlock) can be annotated.')
 
     @property
@@ -2970,15 +2942,15 @@ class Resource(SectionAndResourceMixin, ContentNode):
         originating_node = set(self.provenance)
         users = [collaborator.user for cn in
                     ContentNode.objects.filter(id__in=originating_node)
-                        .select_related('new_casebook')
-                        .prefetch_related('new_casebook__tempcollaborator_set__user')
+                        .select_related('casebook')
+                        .prefetch_related('casebook__contentcollaborator_set__user')
                         .all()
-                    for collaborator in cn.new_casebook.tempcollaborator_set.all() if collaborator.has_attribution and collaborator.user.attribution != 'Anonymous']
+                    for collaborator in cn.casebook.contentcollaborator_set.all() if collaborator.has_attribution and collaborator.user.attribution != 'Anonymous']
         return set(users)
 
     @property
     def primary_authors(self):
-        return self.new_casebook.primary_authors
+        return self.casebook.primary_authors
 
     @property
     def attributed_authors(self):
@@ -3157,7 +3129,7 @@ class User(NullableTimestampedModel, PermissionsMixin, AbstractBaseUser):
 
     @property
     def current_collaborators(self):
-        return User.objects.filter(tempcollaborator__casebook__tempcollaborator__user=self)
+        return User.objects.filter(contentcollaborator__casebook__contentcollaborator__user=self)
 
 
 def update_user_login_fields(sender, request, user, **kwargs):

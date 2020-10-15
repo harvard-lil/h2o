@@ -10,7 +10,7 @@ from django.forms import ModelForm, Textarea
 from django import forms
 from django.urls import reverse
 
-from main.models import ContentNode, Link, TextBlock, User, EmailWhitelist, TempCollaborator, Casebook
+from main.models import ContentNode, Link, TextBlock, User, EmailWhitelist, ContentCollaborator, Casebook
 from main.utils import fix_after_rails, send_template_email, send_verification_email, send_invitation_email, send_collaboration_email
 
 
@@ -287,10 +287,10 @@ class InviteCollaboratorForm(forms.Form):
         collaborator = None
         if not user:
             user = User.objects.create(email_address=email_address)
-            collaborator = TempCollaborator.objects.create(has_attribution=False, can_edit=False, user=user, casebook=casebook)
+            collaborator = ContentCollaborator.objects.create(has_attribution=False, can_edit=False, user=user, casebook=casebook)
             send_invitation_email(request, user, casebook)
         else:
-            collaborator = TempCollaborator.objects.create(has_attribution=False, can_edit=False, user=user, casebook=casebook)
+            collaborator = ContentCollaborator.objects.create(has_attribution=False, can_edit=False, user=user, casebook=casebook)
             send_collaboration_email(request, user, casebook)
 
         return collaborator

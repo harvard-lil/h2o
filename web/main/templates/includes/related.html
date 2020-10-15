@@ -9,7 +9,7 @@
                 <ul>
                     {% for related in row.related %}
                     <li>
-                        <a class="og-node-link" href="{{ related.get_absolute_url }}">{{related.new_casebook.title}} ({{related.updated_at | date:"Y-M-d" }})</a>
+                        <a class="og-node-link" href="{{ related.get_absolute_url }}">{{related.casebook.title}} ({{related.updated_at | date:"Y-M-d" }})</a>
                         <ul class="author-list">
                             {% for author in related.primary_authors %}
                             <li> {{author.attribution}} </li>

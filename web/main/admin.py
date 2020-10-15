@@ -14,7 +14,7 @@ from django.utils.safestring import mark_safe
 from simple_history.admin import SimpleHistoryAdmin
 from .utils import fix_after_rails, clone_model_instance, CapapiCommunicationException, parse_cap_decision_date
 from .models import Case, Link, User, Casebook, Section, \
-    Resource, TempCollaborator, ContentAnnotation, TextBlock, ContentNode, \
+    Resource, ContentCollaborator, ContentAnnotation, TextBlock, ContentNode, \
     EmailWhitelist
 
 #
@@ -138,7 +138,7 @@ class CasebookIdFilter(InputFilter):
     def queryset(self, request, queryset):
         value = self.value()
         if value is not None:
-            return queryset.filter(new_casebook_id=value)
+            return queryset.filter(casebook_id=value)
 
 
 class CollaboratorNameFilter(InputFilter):
@@ -149,7 +149,7 @@ class CollaboratorNameFilter(InputFilter):
         value = self.value()
         if value is not None:
             users = User.objects.filter(Q(title__icontains=value) | Q(attribution__icontains=value))
-            return queryset.filter(collaborators__in=users)
+            return queryset.filter(casebook__collaborators__in=users)
 
 
 class CollaboratorIdFilter(InputFilter):
@@ -160,7 +160,7 @@ class CollaboratorIdFilter(InputFilter):
         value = self.value()
         if value is not None:
             users = User.objects.filter(id=value)
-            return queryset.filter(collaborators__in=users)
+            return queryset.filter(casebook__collaborators__in=users)
 
 
 class ResourceIdFilter(InputFilter):
@@ -178,7 +178,7 @@ class ResourceIdFilter(InputFilter):
 #
 
 class CollaboratorInline(admin.TabularInline):
-    model = TempCollaborator
+    model = ContentCollaborator
     fields = ['user', 'casebook', 'has_attribution', 'can_edit']
     raw_id_fields = ['user', 'casebook']
     max_num = None
@@ -235,7 +235,7 @@ class CasebookAdmin(BaseAdmin, SimpleHistoryAdmin):
         if other_casebook:
             other_casebook.contentcollaborator_set.all().delete()
             collaborators = saved_obj.contentcollaborator_set.prefetch_related(None)  # prefetch_related cancels out an earlier prefetch so we see fresh results
-            TempCollaborator.objects.bulk_create(clone_model_instance(c, casebook=other_casebook) for c in collaborators)
+            ContentCollaborator.objects.bulk_create(clone_model_instance(c, casebook=other_casebook) for c in collaborators)
 
     def get_queryset(self, request):
         return super().get_queryset(request).prefetch_related('contentcollaborator_set__user')
@@ -255,18 +255,18 @@ class SectionAdmin(BaseAdmin, SimpleHistoryAdmin):
     list_select_related = ['casebook']
     list_display = ['id', 'casebook_link', 'title', 'ordinals', 'created_at', 'updated_at']
     list_filter = [CasebookIdFilter]
-    search_fields = ['title', 'new_casebook__title']
-    fields = ['new_casebook', 'ordinals', 'title', 'subtitle', 'provenance', 'headnote', 'created_at', 'updated_at']
-    raw_id_fields = ['collaborators', 'casebook']
+    search_fields = ['title', 'casebook__title']
+    fields = ['casebook', 'ordinals', 'title', 'subtitle', 'provenance', 'headnote', 'created_at', 'updated_at']
+    raw_id_fields = ['casebook']
 
     def get_queryset(self, request):
-        return super().get_queryset(request).select_related('new_casebook').prefetch_related('casebook__contentcollaborator_set__user')
+        return super().get_queryset(request).select_related('casebook').prefetch_related('casebook__contentcollaborator_set__user')
 
     def formfield_for_dbfield(self, db_field, **kwargs):
         return self.enable_richeditor_for_field('headnote', db_field, **kwargs)
 
     def casebook_link(self, obj):
-        return edit_link(obj.new_casebook, True)
+        return edit_link(obj.casebook, True)
     casebook_link.short_description = 'casebook'
 
 
@@ -277,7 +277,7 @@ class ContentNodeAdmin(BaseAdmin, SimpleHistoryAdmin):
     list_filter = [CasebookIdFilter, 'resource_type', ResourceIdFilter]
     search_fields = ['title', 'casebook__title']
     fields = ['casebook', 'ordinals', 'title', 'subtitle', 'provenance', 'headnote', 'created_at', 'updated_at']
-    raw_id_fields = ['collaborators', 'casebook']
+    raw_id_fields = ['casebook']
     inlines = [AnnotationInline]
 
     def get_queryset(self, request):
@@ -298,19 +298,19 @@ class ResourceAdmin(BaseAdmin, SimpleHistoryAdmin):
     list_select_related = ['casebook']
     list_display = ['id', 'casebook_link', 'title', 'ordinals', 'resource_type', 'resource_id', 'annotation_count', 'created_at', 'updated_at']
     list_filter = [CasebookIdFilter, 'resource_type', ResourceIdFilter]
-    search_fields = ['title', 'new_casebook__title']
-    fields = ['new_casebook', 'ordinals', 'title', 'subtitle', 'provenance', 'headnote', 'created_at', 'updated_at', 'resource_id']
-    raw_id_fields = ['collaborators', 'casebook']
+    search_fields = ['title', 'casebook__title']
+    fields = ['casebook', 'ordinals', 'title', 'subtitle', 'provenance', 'headnote', 'created_at', 'updated_at', 'resource_id']
+    raw_id_fields = ['casebook']
     inlines = [AnnotationInline]
 
     def get_queryset(self, request):
-        return super().get_queryset(request).select_related('new_casebook').prefetch_related('casebook__contentcollaborator_set__user').annotate(annotations_count=Count('annotations'))
+        return super().get_queryset(request).select_related('casebook').prefetch_related('casebook__contentcollaborator_set__user').annotate(annotations_count=Count('annotations'))
 
     def formfield_for_dbfield(self, db_field, **kwargs):
         return self.enable_richeditor_for_field('headnote', db_field, **kwargs)
 
     def casebook_link(self, obj):
-        return edit_link(obj.new_casebook, True)
+        return edit_link(obj.casebook, True)
     casebook_link.short_description = 'casebook'
 
     def annotation_count(self, obj):
@@ -561,6 +561,6 @@ admin_site.register(Case, CaseAdmin)
 admin_site.register(Link, LinkAdmin)
 admin_site.register(TextBlock, TextBlockAdmin)
 admin_site.register(User, UserAdmin)
-admin_site.register(TempCollaborator, CollaboratorsAdmin)
+admin_site.register(ContentCollaborator, CollaboratorsAdmin)
 admin_site.register(ContentNode, ContentNodeAdmin)
 admin_site.register(EmailWhitelist, EmailWhitelistAdmin)
