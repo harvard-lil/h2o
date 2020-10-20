@@ -35,7 +35,7 @@ export default {
   methods: {
     selectCase: function(c) {
       const url = this.item.url;
-      const data = { from: "Temp", to: "Case", cap_id: c.id };
+      const data = { from: "Temp", to: "Case", cap_id: c.id,  h2o_case_id: c.h2o_case_id };
       Axios.patch(url, data).then(
         this.handleSubmitResponse,
         this.handleSubmitErrors
