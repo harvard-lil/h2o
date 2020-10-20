@@ -122,7 +122,7 @@ export default {
       contextmenu_never_use_native: false,
       contextmenu:false,
       toolbar:
-        "undo redo removeformat | styleselect | bold italic underline | numlist bullist indent outdent | table blockquote link image"
+      "undo redo removeformat | styleselect | bold italic underline | numlist bullist indent outdent | table blockquote link image"
     },
     textTitle: "",
     textContent: "",
@@ -206,10 +206,15 @@ export default {
       const url = `/casebooks/${this.casebook}/new/case`;
       const handler = this.handleSubmitResponse;
       this.pendingSubmit = true;
-      Axios.post(CAPAPI_LOADER_URL, { id: c.id }).then(resp => {
-        formData.append("resource_id", resp.data.id);
-        Axios.post(url, formData).then(handler, this.handleSubmitErrors);
-      });
+      if (c.h2o_case_id) {
+        formData.append("resource_id", c.h2o_case_id)
+        Axios.post(url, formData).then(handler, this.handleSubmitErrors); 
+      } else {
+        Axios.post(CAPAPI_LOADER_URL, { id: c.id }).then(resp => {
+          formData.append("resource_id", resp.data.id)
+          Axios.post(url, formData).then(handler, this.handleSubmitErrors);
+        });
+      }
     },
     handleSubmitResponse: function handleSubmitResponse(response) {
       let location = response.request.responseURL;

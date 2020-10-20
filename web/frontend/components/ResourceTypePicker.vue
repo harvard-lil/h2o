@@ -179,7 +179,7 @@ export default {
         0,
         window.location.href.length - 5
       );
-      const data = { from: "Temp", to: "Case", cap_id: c.id };
+      const data = { from: "Temp", to: "Case", cap_id: c.id, h2o_case_id: c.h2o_case_id };
       Axios.patch(url, data).then(
         this.handleSubmitResponse,
         this.handleSubmitErrors

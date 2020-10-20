@@ -27,7 +27,7 @@
           <a v-on:click.stop.prevent="emitChoice(c)" class="wrapper">{{c.decision_date}}</a>
         </div>
         <div class="preview-column">
-          <a :href="c.url" target="_blank" rel="noopener noreferrer">CAP</a>
+          <a :href="c.url" target="_blank" rel="noopener noreferrer">{{ c.h2o_case_id ? 'H2O' : 'CAP' }}</a>
         </div>
       </div>
     </div>
@@ -102,7 +102,8 @@ export default {
             : "",
           url: c.frontend_url,
           id: c.id,
-          decision_date: c.decision_date
+          decision_date: c.decision_date,
+          h2o_case_id: c.h2o_case_id
         }))
       );
     }

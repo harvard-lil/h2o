@@ -1503,11 +1503,13 @@ def switch_node_type(request, casebook, content_node):
             old_resource = None
         if new_type == 'Case':
             cap_id = data.get('cap_id', None)
-            if not cap_id:
+            h2o_case_id = data.get('h2o_case_id', None)
+            if not (cap_id or h2o_case_id) :
                 content_node.resource_type = 'Temp'
                 content_node.resource_id = None
             else:
-                content_node.resource_id = internal_case_id_from_cap_id(cap_id)
+                internal_id = h2o_case_id or internal_case_id_from_cap_id(cap_id)
+                content_node.resource_id = internal_id
                 content_node.resource_type = new_type
             content_node.save()
         elif new_type == 'Link':
