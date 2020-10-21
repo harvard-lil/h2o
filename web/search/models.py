@@ -104,9 +104,9 @@ class SearchIndex(models.Model):
         Get all cases:
         >>> assert dump_search_results(SearchIndex().search('case')) == (
         ...     [
-        ...         {'citations': '1 Mass. 1, 2 Jones 2', 'display_name': 'Foo0 v. Bar0', 'decision_date': '1900-01-01', 'decision_date_formatted': 'January   1, 1900'},
-        ...         {'citations': '1 Mass. 1, 2 Jones 2', 'display_name': 'Foo1 v. Bar1', 'decision_date': '1900-01-01', 'decision_date_formatted': 'January   1, 1900'},
-        ...         {'citations': '1 Mass. 1, 2 Jones 2', 'display_name': 'Foo2 v. Bar2', 'decision_date': '1900-01-01', 'decision_date_formatted': 'January   1, 1900'}
+        ...         {'citations': '1 Mass. 1, 2 Jones 2', 'display_name': 'Foo0 v. Bar0', 'jurisdiction': '', 'decision_date': '1900-01-01', 'decision_date_formatted': 'January   1, 1900'},
+        ...         {'citations': '1 Mass. 1, 2 Jones 2', 'display_name': 'Foo1 v. Bar1', 'jurisdiction': '', 'decision_date': '1900-01-01', 'decision_date_formatted': 'January   1, 1900'},
+        ...         {'citations': '1 Mass. 1, 2 Jones 2', 'display_name': 'Foo2 v. Bar2', 'jurisdiction': '', 'decision_date': '1900-01-01', 'decision_date_formatted': 'January   1, 1900'}
         ...     ],
         ...     {'case': 3, 'user': 3, 'casebook': 3},
         ...     {}

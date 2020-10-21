@@ -72,7 +72,8 @@ def internal_case_search(params, limit=10):
     name = params.get('name', None)
     filter_normalizer = {'citation': 'citations__contains',
                          'before_date': 'decision_date__lte',
-                         'after_date': 'decision_date__gte'}
+                         'after_date': 'decision_date__gte',
+                         'jurisdiction':'jurisdiction'}
     normalized_filters = normalize_dictionary(filter_normalizer, params)
     res, _, _ = SearchIndex.search('case', name, filters=normalized_filters)
     case_ids = [x.result_id for x in res.object_list]
