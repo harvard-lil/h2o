@@ -15,7 +15,8 @@ CREATE MATERIALIZED VIEW search_view AS
                'display_name', coalesce(c.name_abbreviation, c.name),
                'decision_date', decision_date,
                'decision_date_formatted', TO_CHAR(decision_date, 'Month FMDD, YYYY'),
-               'citations', string_agg(cite, ', ')
+               'citations', string_agg(cite, ', '),
+               'jurisdiction', jurisdiction_slug
            ) AS metadata,
            'case'::text AS category
     FROM
