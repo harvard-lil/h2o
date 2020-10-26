@@ -1,6 +1,5 @@
 {% if content.headnote or content.subtitle %}
   <section class="headnote">
-    {% if content.subtitle %}<h3>{{ content.subtitle }}</h3>{% endif %}
     <p>
       {{ content.headnote | safe }}
     </p>
