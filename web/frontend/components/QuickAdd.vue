@@ -12,7 +12,7 @@
               @paste.prevent.stop="handlePaste"
               placeholder="Enter title here"
             />
-            <select v-model="resource_type" class="resource-type form-control">
+            <select v-model="resource_type" @change="manualResource" class="resource-type form-control">
               <option :value="option.value" v-for="option in resource_type_options" v-bind:key="option.value">{{option.name}}</option>
             </select>
             <input
@@ -53,6 +53,7 @@ const data = function() {
   return {
     title: "",
     resource_type: "Section",
+    manualResourceType: false,
     resource_type_options: optionsWithoutCloning}
 };
 const caseSearchDelay = 1000;
@@ -94,7 +95,7 @@ export default {
       }
     },
     lineInfo: function() {
-      if (this.lineInfo.resource_type !== "Unknown") {
+      if (this.lineInfo.resource_type !== "Unknown" && !this.manualResourceType) {
         this.resource_type = this.lineInfo.resource_type;
         if (this.resource_type !== 'Clone') {
           this.resource_type_options = optionsWithoutCloning;
@@ -105,6 +106,9 @@ export default {
     }
   },
   methods: {
+    manualResource: function(event) {
+      this.manualResourceType = true;
+    },
     bulkAddUrl: urls.url('new_from_outline'),
     resetForm: function() {
       let resets = data();
