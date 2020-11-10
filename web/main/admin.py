@@ -160,7 +160,7 @@ class CollaboratorIdFilter(InputFilter):
         value = self.value()
         if value is not None:
             users = User.objects.filter(id=value)
-            return queryset.filter(casebook__collaborators__in=users)
+            return queryset.filter(collaborators__in=users)
 
 
 class ResourceIdFilter(InputFilter):
