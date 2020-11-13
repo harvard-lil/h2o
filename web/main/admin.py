@@ -151,7 +151,6 @@ class CollaboratorNameFilter(InputFilter):
             users = User.objects.filter(Q(title__icontains=value) | Q(attribution__icontains=value))
             return queryset.filter(casebook__collaborators__in=users)
 
-
 class CollaboratorIdFilter(InputFilter):
     parameter_name = 'collaborator-id'
     title = 'Collaborator (by id)'
@@ -162,6 +161,17 @@ class CollaboratorIdFilter(InputFilter):
             users = User.objects.filter(id=value)
             return queryset.filter(collaborators__in=users)
 
+
+class CasebookStateFilter(admin.SimpleListFilter):
+    title = 'casebook state'
+    parameter_name = 'state'
+
+    def lookups(self, request, model_admin):
+        return [(tag.value, tag.name) for tag in Casebook.LifeCycle]
+
+    def queryset(self, request, queryset):
+        value = self.value()
+        return queryset.filter(state=value)
 
 class ResourceIdFilter(InputFilter):
     parameter_name = 'resource-id'
@@ -210,7 +220,7 @@ class AnnotationInline(admin.TabularInline):
 
 class CasebookAdmin(BaseAdmin, SimpleHistoryAdmin):
     list_display = ['id', 'title', 'source', 'created_at', 'updated_at', 'state']
-    list_filter = [CollaboratorNameFilter, CollaboratorIdFilter]
+    list_filter = [CollaboratorNameFilter, CollaboratorIdFilter, CasebookStateFilter]
     search_fields = ['title']
 
     fields = ['title', 'subtitle', 'source', 'provenance', 'headnote', 'created_at', 'updated_at' ,'draft', 'state']
