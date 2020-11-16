@@ -115,7 +115,7 @@ def search_cases(request):
         search_params['name'] = query
     results = hybrid_search(search_params)
     if frontend_url and len(results) > 0:
-        results['results'] = [x for x in results['results'] if x.get('frontend_url','cite.case.law').split('cite.case.law')[1] == frontend_url]
+        results['results'] = [x for x in results['results'] if x.get('frontend_url','cite.case.law').split('cite.case.law')[-1] == frontend_url]
     if results['via'] == 'hybrid' or results['via'] == 'CL':
         logger.info("CASE_SEARCH: params=%s, in_cap=%s", json.dumps(search_params), results['via'] == 'hybrid')
     return Response(results, status=200)

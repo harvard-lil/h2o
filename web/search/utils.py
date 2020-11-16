@@ -21,6 +21,9 @@ def cap_search(params, limit=10):
                         'jurisdiction': 'jurisdiction',
                         'search':'search'}
     param_defaults = {'page_size': limit, 'ordering': '-analysis.pagerank.percentile'}
+    # In some cases, cap search will return too many results for what should be a unique search by frontend_urls
+    if 'frontend_url' in params.get('search', ''):
+        param_defaults.pop('ordering')
     search_params = {**param_defaults, **normalize_dictionary(param_normalizer, params)}
     response = requests.get(settings.CAPAPI_BASE_URL + "cases/", search_params)
     try:
