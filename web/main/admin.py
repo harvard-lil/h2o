@@ -171,7 +171,7 @@ class CasebookStateFilter(admin.SimpleListFilter):
 
     def queryset(self, request, queryset):
         value = self.value()
-        return queryset.filter(state=value)
+        return queryset.filter(state=value) if value else queryset
 
 class ResourceIdFilter(InputFilter):
     parameter_name = 'resource-id'
