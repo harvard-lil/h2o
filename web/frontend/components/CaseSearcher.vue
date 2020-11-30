@@ -1,5 +1,5 @@
 <template>
-<div class="search-results" id="case-search-results">
+<div class="search-results">
   <form class="case-search">
     <div class="form-control-group">
       <label style="width:66%;">
@@ -142,7 +142,7 @@ export default {
     showingLimits: false,
   }),
   methods: {
-    ...mapActions(["fetch"]),
+    ...mapActions(["fetchForAllSources", "fetchSources"]),
     showLimits: function() {
       this.showingLimits = true;
       this.updateValue(this.value);
@@ -192,7 +192,7 @@ export default {
     runCaseSearch: function runCaseSearch() {
       const searchQ = this.reformatDates();
       if (searchQ.query !== "") {
-        this.fetch(searchQ);
+        this.fetchForAllSources(searchQ);
         this.$emit("input", searchQ)
       }
     },
@@ -258,6 +258,9 @@ export default {
         this.updateValue({ ...this.value, query: val });
       }
     }
+  },
+  mounted: function() {
+    this.fetchSources();
   }
 };
 </script>

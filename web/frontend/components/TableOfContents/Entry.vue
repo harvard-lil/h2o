@@ -27,8 +27,8 @@
           <button
             class="btn btn-sm specify-case-button"
             @click="auditThisCase"
-            value="Specify Case"
-                  >Specify Case</button>
+            value="Specify Document"
+                  >Specify Document</button>
         </div>
         <div class="resource-type-container">
           <div v-if="item.is_transmutable && editing">

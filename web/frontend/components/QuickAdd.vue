@@ -43,7 +43,7 @@ import pp from "libs/text_outline_parser";
 import urls from "libs/urls";
 
 const optionsWithoutCloning = [{name: 'Section', value: 'Section'},
-                               {name: 'Case', value: 'Case'},
+                               {name: 'Search', value: 'Case'},
                                {name: 'Text', value: 'TextBlock'},
                                {name: 'Link', value: 'Link'}];
 
@@ -123,7 +123,7 @@ export default {
       let query = _.get(data, 'data.0.searchString') || _.get(data, 'data.0.title');
       
       if (query) {
-        this.$store.dispatch("case_search/fetch", { query });
+        this.$store.dispatch("case_search/fetchForAllSources", { query });
       }
     },
     handleSubmit: function() {
@@ -186,7 +186,7 @@ export default {
     searchForCase: _.debounce(function searchForCase() {
       const query = pp.extractCaseSearch(this.title);
       if (query) {
-        this.$store.dispatch("case_search/fetch", { query });
+        this.$store.dispatch("case_search/fetchForAllSources", { query });
       }
     }, caseSearchDelay)
   }

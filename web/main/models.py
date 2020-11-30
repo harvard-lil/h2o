@@ -1,8 +1,12 @@
+from dateutil import parser
 import logging
 import os
+from pathlib import Path
 import re
+import requests
 import subprocess
 import tempfile
+from datetime import datetime
 from enum import Enum
 from os.path import commonprefix
 from test.test_helpers import (dump_annotated_text, dump_casebook_outline,
@@ -17,9 +21,12 @@ from django.contrib.auth.base_user import AbstractBaseUser, BaseUserManager
 from django.contrib.auth.models import PermissionsMixin
 from django.contrib.postgres.fields import ArrayField, JSONField
 from django.contrib.postgres.indexes import GinIndex
+from django.contrib.postgres.search import SearchVector, SearchVectorField, SearchQuery, SearchRank
 from django.core.exceptions import ValidationError
 from django.core.validators import validate_unicode_slug
-from django.db import models, transaction
+from django.db import models, connection, transaction, ProgrammingError
+from django.core.paginator import Paginator
+from django.db.models import Count, F
 from django.template.defaultfilters import truncatechars
 from django.template.loader import render_to_string
 from django.urls import reverse
@@ -35,10 +42,11 @@ from simple_history.utils import bulk_create_with_history, bulk_update_with_hist
 from .differ import AnnotationUpdater
 from .sanitize import sanitize
 from .utils import (block_level_elements, clone_model_instance, elements_equal,
-                    get_ip_address, inner_html, normalize_newlines,
+                    get_ip_address, inner_html, looks_like_case_law_link,
+                    looks_like_citation, normalize_newlines,
                     parse_html_fragment, remove_empty_tags,
-                    strip_trailing_block_level_whitespace, void_elements)
-
+                    strip_trailing_block_level_whitespace, void_elements,
+                    APICommunicationError, fix_after_rails)
 logger = logging.getLogger(__name__)
 
 #
@@ -241,7 +249,6 @@ class AnnotatedModel(EditTrackedModel):
                                                  self.content)
         super().save(*args, **kwargs)
 
-
 #
 # Models
 #
@@ -319,6 +326,512 @@ class Case(NullableTimestampedModel, AnnotatedModel):
     @property
     def cite_string(self):
         return ", ".join([x['cite'] for x in self.citations if 'cite' in x])
+
+
+#
+# Legal Doc Source Types
+#
+
+vs_check = re.compile(" [vV][sS]?[.]? ")
+def truncate_name(case_name):
+    max_part_length = 40
+    parts = vs_check.split(case_name)
+    if len(parts) != 2:
+        return case_name[:max_part_length * 2 + 4] + ("..." if len(case_name) < (max_part_length * 2 + 4) else "")
+    part_a = parts[0][:max_part_length] + ("..." if len(parts[0]) > max_part_length else "")
+    part_b = parts[1][:max_part_length] + ("..." if len(parts[1]) > max_part_length else "")
+    return part_a + " v. " + part_b
+
+
+
+class CAP:
+
+    details = {'name': 'CAP',
+               'short_description':'CAP provides US Case law up to 2018',
+               'long_description':'The Caselaw Access Project contains three hundred and sixty years of United States caselaw',
+               'link':'https://case.law/'}
+
+
+    @staticmethod
+    def build_index():
+        pass
+
+    @staticmethod
+    def convert_search_result(result):
+        cites = [x['cite'] for x in result['citations'] if x['type'] == 'official'] + \
+                [x['cite'] for x in result['citations'] if x['type'] != 'official']
+        return {
+            'fullName':result.get('name', result.get('name_abbreviation', '')),
+            'shortName': truncate_name(result.get('name_abbreviation', result.get('name', ''))),
+            'fullCitations': ', '.join(cites),
+            'shortCitations': ', '.join(cites[:3]) + ("..." if len(cites) > 3 else ""),
+            'effectiveDate': result.get('decision_date', None),
+            'url': result.get('frontend_url', None),
+            'id': result.get('id', None)
+        }
+
+
+    @staticmethod
+    def looks_like_url(query):
+        return looks_like_case_law_link(query)
+
+    @staticmethod
+    def convert_frontend_url(url):
+        frontend_url = url.split('cite.case.law')[1]
+        frontend_split = frontend_url[1:-1].split("/")
+        # https://github.com/harvard-lil/capstone/blob/fe072badff59c4127d2ce82a557b287aaefc79f0/capstone/cite/urls.py#L14
+        if len(frontend_split) == 4:
+            id = frontend_split[-1]
+            return {'id': id}
+        elif len(frontend_split) == 3:
+            reporter, volume, page = frontend_split
+            citation = "{} {} {}".format(volume, reporter.replace("-", " "), page)
+            return {'cite': citation}
+        return {'frontend_url': frontend_url}
+
+    @staticmethod
+    def cap_params(search_params):
+        if search_params.q:
+            query = search_params.q.replace('’',"'")
+            if looks_like_case_law_link(query):
+                return CAP.convert_frontend_url(query)
+            elif looks_like_citation(query):
+                return {'cite': query}
+
+        params = {'name_abbreviation': search_params.name if search_params.name else search_params.q,
+                'cite': search_params.citation,
+                'decision_date_max': search_params.before_date,
+                'decision_date_min': search_params.after_date,
+                'jurisdiction': search_params.jurisdiction}
+        return {k:params[k] for k in params.keys() if params[k] is not None}
+
+    @staticmethod
+    def search(search_params):
+        param_defaults = {'page_size': 30, 'ordering': '-analysis.pagerank.percentile'}
+        # In some cases, cap search will return too many results for what should be a unique search by frontend_urls
+        supplied_cap_params = CAP.cap_params(search_params)
+        cap_params = {**param_defaults, **supplied_cap_params}
+        response = requests.get(settings.CAPAPI_BASE_URL + "cases/", cap_params)
+        try:
+            results = response.json()['results']
+        except Exception:
+            results = None
+        return [CAP.convert_search_result(x) for x in results]
+
+    @staticmethod
+    def pull(legal_doc_source, id):
+        if not settings.CAPAPI_API_KEY:
+            raise APICommunicationError('To interact with CAP, CAPAPI_API_KEY must be set.')
+        try:
+            response = requests.get(
+                settings.CAPAPI_BASE_URL + "cases/%s/" % id,
+                {"full_case": "true", "body_format": "html"},
+                headers={'Authorization': 'Token %s' % settings.CAPAPI_API_KEY},
+            )
+            assert response.ok
+        except (requests.RequestException, AssertionError) as e:
+            msg = "Communication with CAPAPI failed: {}".format(str(e))
+            raise APICommunicationError(msg)
+
+        metadata = response.json()
+        body = metadata.pop('casebody', {}).pop('data',None)
+
+        citations = [x.get('cite') for x in metadata['citations'] if 'cite' in x]
+        case = LegalDocument(source=legal_doc_source,
+                             short_name=metadata.get('name_abbreviation'),
+                             name=metadata.get('name'),
+                             doc_class='Case',
+                             citations=citations,
+                             jurisdiction=metadata.get('jurisdiction', {}).get('slug', ''),
+                             effective_date=parser.parse(metadata.get('decision_date')),
+                             publication_date=parser.parse(metadata.get('last_updated')),
+                             updated_date=datetime.now(),
+                             source_ref=str(id),
+                             content=body,
+                             metadata=metadata)
+        return case
+
+    @staticmethod
+    def header_template(legal_document):
+        return 'cap_header.html'
+
+class USCodeGPO():
+    details = {'name': 'GPO',
+               'short_description':'The GPO provides the USCode',
+               'long_description':'The GPO provides section level access to the US Code',
+               'link':'https://www.govinfo.gov/app/collection/uscode'}
+
+    @staticmethod
+    def build_index():
+        pass
+
+    @staticmethod
+    def convert_search_result(result):
+        # convert search results to the format the FE expects
+        return {
+            'fullName':result.title,
+            'shortName': truncate_name(result.title),
+            'fullCitations': result.citation,
+            'shortCitations': result.citation,
+            'effectiveDate': result.effective_date,
+            'url': result.lii_url,
+            'id': result.gpo_id
+        }
+
+
+    @staticmethod
+    def looks_like_url(query):
+        # t/f for looking like GPO/LII url
+        lii_matcher = re.compile("https://www.law.cornell.edu/uscode/text/[0-9]*/[0-9]*")
+        return lii_matcher.match(query)
+
+    @staticmethod
+    def convert_frontend_url(url):
+        # Convert url to query
+        return {}
+
+    @staticmethod
+    def search(search_params):
+        # given standard search params return results
+        cite_matcher = re.compile('[0-9]+ U.S.C. § [0-9]+(-[0-9]+)?')
+        if cite_matcher.match(search_params.q):
+            search_params.citation = search_params.q
+            search_params.q = None
+        search_fields = {}
+        if search_params.before_date:
+            search_fields['effective_date__lte'] = search_params.before_date
+        if search_params.after_date:
+            search_fields['effective_date__gte'] = search_params.after_date
+        if search_params.citation:
+            search_fields['citation'] = search_params.citation
+        if search_params.frontend_url:
+            search_fields['lii_url'] = search_params.frontend_url
+        if search_params.q:
+            if USCodeGPO.looks_like_url(search_params.q):
+                search_fields['lii_url'] = search_params.q
+            search_fields['search_field'] = SearchQuery(search_params.q, config='english')
+
+        return [USCodeGPO.convert_search_result(x) for x in USCodeIndex.objects.filter(**search_fields)[:30]]
+
+    @staticmethod
+    def pull(legal_doc_source, id):
+        # given a source_ref/API id return an (unsaved) LegalDocument
+        if not settings.GPO_API_KEY:
+            raise APICommunicationError('To interact with the GPO API, a key must be set.')
+        try:
+            package_id = "-".join(id.split("-")[:3])
+            body_response = requests.get(
+                f"{settings.GPO_BASE_URL}packages/{package_id}/granules/{id}/htm",
+                {},
+                headers={'X-Api-Key': settings.GPO_API_KEY},
+            )
+            assert body_response.ok
+            metadata_response = requests.get(
+                f"{settings.GPO_BASE_URL}packages/{package_id}/granules/{id}/summary",
+                {},
+                headers={'X-Api-Key': settings.GPO_API_KEY},
+            )
+            assert metadata_response.ok
+        except (requests.RequestException, AssertionError) as e:
+            msg = "Communication with GPO API failed: {}".format(str(e))
+            raise APICommunicationError(msg)
+        metadata = metadata_response.json()
+        content = PyQuery(body_response.content)
+        body = re.sub('style="[^"]*"','',re.sub('<!-- .*? -->', '', content("body").html())).split('\n')
+        effective_date = parser.parse(metadata['dateIssued'])
+        publication_date = parser.parse(metadata['lastModified'])
+        title_no = id.split("-")[2][5:]
+        first_section = metadata['leafRange']['from']
+        last_section = metadata['leafRange']['to']
+        single_leaf = first_section == last_section
+        silcrow = '§' if single_leaf else '§§'
+        sections = first_section if single_leaf else first_section + '-' + last_section
+        citation = f"{title_no} U.S.C. {silcrow} {sections}"
+        header = []
+        body_offset = 0
+        for line in body:
+            body_offset += 1
+            if line != '':
+                if line.startswith('<span'):
+                    header.append(re.sub('<br */>','',re.sub('</span *>','',re.sub('<span *>','',line))))
+                else:
+                    break
+        focused_content = '\n'.join(body[body_offset:])
+        header.pop()
+        metadata['header'] = header
+        code = LegalDocument(source=legal_doc_source,
+                             name=metadata['title'],
+                             doc_class='Code',
+                             citations=[citation],
+                             effective_date=effective_date,
+                             publication_date=publication_date,
+                             updated_date=datetime.now(),
+                             source_ref=id,
+                             content=focused_content,
+                             metadata=metadata)
+        return code
+
+    @staticmethod
+    def header_template(legal_document):
+        return 'gpo_header.html'
+
+
+
+def get_display_name_field(category):
+    display_name_fields = {
+        'legal_doc': 'display_name',
+        'casebook': 'title',
+        'user': 'attribution'
+    }
+    return 'metadata__%s' % display_name_fields[category]
+
+
+def dump_search_results(parts):
+    results, counts, facets = parts
+    return ([{k: '...' if k == 'created_at' else v for k, v in r.metadata.items()} for r in results.object_list], counts, facets)
+
+
+class SearchIndex(models.Model):
+    result_id = models.IntegerField()
+    document = SearchVectorField()
+    metadata = JSONField()
+    category = models.CharField(max_length=255)
+
+    class Meta:
+        managed = False
+        db_table = 'internal_search_view'
+
+    @classmethod
+    def create_search_index(cls):
+        """ Create or replace the materialized view 'search_view', which backs this model """
+        with connection.cursor() as cursor:
+            cursor.execute(Path(__file__).parent.joinpath('create_search_index.sql').read_text())
+
+    @classmethod
+    def refresh_search_index(cls):
+        """ Refresh the contents of the materialized view """
+        with connection.cursor() as cursor:
+            try:
+                cursor.execute("REFRESH MATERIALIZED VIEW CONCURRENTLY internal_search_view")
+            except ProgrammingError as e:
+                if e.args[0].startswith('relation "internal_search_view" does not exist'):
+                    cls.create_search_index()
+
+    @classmethod
+    def search(cls, *args, **kwargs):
+        try:
+            return cls._search(*args, **kwargs)
+        except ProgrammingError as e:
+            if e.args[0].startswith('relation "internalsearch_view" does not exist'):
+                cls.create_search_index()
+                return cls._search(*args, **kwargs)
+            raise
+
+    @classmethod
+    def _search(cls, category, query=None, page_size=10, page=1, filters={}, facet_fields=[], order_by=None):
+        """
+        Given:
+        >>> _, legal_document_factory, casebook_factory = [getfixture(i) for i in ['reset_sequences', 'legal_document_factory', 'casebook_factory']]
+        >>> casebooks = [casebook_factory() for i in range(3)]
+        >>> users = [cc.user for cb in casebooks for cc in cb.contentcollaborator_set.all() ]
+        >>> docs = [legal_document_factory() for i in range(3)]
+        >>> SearchIndex().create_search_index()
+
+        Get all casebooks:
+        >>> assert dump_search_results(SearchIndex().search('casebook')) == (
+        ...     [
+        ...         {'affiliation': 'Affiliation 0', 'created_at': '...', 'title': 'Some Title 0', 'attribution': 'Some User 0'},
+        ...         {'affiliation': 'Affiliation 1', 'created_at': '...', 'title': 'Some Title 1', 'attribution': 'Some User 1'},
+        ...         {'affiliation': 'Affiliation 2', 'created_at': '...', 'title': 'Some Title 2', 'attribution': 'Some User 2'}
+        ...     ],
+        ...     {'user': 3, 'legal_doc': 3, 'casebook': 3},
+        ...     {}
+        ... )
+
+        Get casebooks by query string:
+        >>> assert dump_search_results(SearchIndex().search('casebook', 'Some Title 0'))[0] == [
+        ...     {'affiliation': 'Affiliation 0', 'created_at': '...', 'title': 'Some Title 0', 'attribution': 'Some User 0'},
+        ... ]
+
+        Get casebooks by filter field:
+        >>> assert dump_search_results(SearchIndex().search('casebook', filters={'attribution': 'Some User 1'}))[0] == [
+        ...     {'affiliation': 'Affiliation 1', 'created_at': '...', 'title': 'Some Title 1', 'attribution': 'Some User 1'},
+        ... ]
+
+        Get all users:
+        >>> assert dump_search_results(SearchIndex().search('user')) == (
+        ...     [
+        ...         {'casebook_count': 1, 'attribution': 'Some User 0', 'affiliation': 'Affiliation 0'},
+        ...         {'casebook_count': 1, 'attribution': 'Some User 1', 'affiliation': 'Affiliation 1'},
+        ...         {'casebook_count': 1, 'attribution': 'Some User 2', 'affiliation': 'Affiliation 2'},
+        ...     ],
+        ...     {'casebook': 3, 'legal_doc': 3, 'user': 3},
+        ...     {},
+        ... )
+
+        Get all cases:
+        >>> assert dump_search_results(SearchIndex().search('legal_doc')) == (
+        ...     [
+        ...         {'citations': 'Adventures in criminality, 1 Fake 1, (2001)', 'display_name': 'Legal Doc 0', 'jurisdiction': '', 'effective_date': '1900-01-01T00:00:00+00:00', 'effective_date_formatted': 'January   1, 1900'},
+        ...         {'citations': 'Adventures in criminality, 1 Fake 1, (2001)', 'display_name': 'Legal Doc 1', 'jurisdiction': '', 'effective_date': '1900-01-01T00:00:00+00:00', 'effective_date_formatted': 'January   1, 1900'},
+        ...         {'citations': 'Adventures in criminality, 1 Fake 1, (2001)', 'display_name': 'Legal Doc 2', 'jurisdiction': '', 'effective_date': '1900-01-01T00:00:00+00:00', 'effective_date_formatted': 'January   1, 1900'}
+        ...     ],
+        ...     {'legal_doc': 3, 'user': 3, 'casebook': 3},
+        ...     {}
+        ... )
+        """
+        base_query = cls.objects.all()
+        query_vector = SearchQuery(query, config='english') if query else None
+        if query_vector:
+            base_query = base_query.filter(document=query_vector)
+        for k, v in filters.items():
+            base_query = base_query.filter(**{'metadata__%s' % k: v})
+
+        # get results
+        results = base_query.filter(category=category).only('result_id', 'metadata')
+        if query_vector:
+            results = results.annotate(rank=SearchRank(F('document'), query_vector))
+
+        display_name = get_display_name_field(category)
+        order_by_expression = [display_name]
+        if order_by:
+            # Treat 'decision date' like 'created at', so that sort-by-date is maintained
+            # when switching between case and casebook tab.
+            fix_after_rails('consider renaming these params "date".')
+            if query and order_by == 'score':
+                order_by_expression = ['-rank', display_name]
+            elif category == 'casebook':
+                if order_by in ['created_at', 'effective_date']:
+                    order_by_expression = ['-metadata__created_at', display_name]
+            elif category == 'case':
+                if order_by in ['created_at', 'effective_date']:
+                    order_by_expression = ['-metadata__effective_date', display_name]
+
+        results = results.order_by(*order_by_expression)
+        results = Paginator(results, page_size).get_page(page)
+
+        # get counts
+        counts = {c['category']: c['total'] for c in base_query.values('category').annotate(total=Count('category'))}
+        results.__dict__['count'] = counts.get(category, 0)  # hack to avoid redundant query for count
+
+        # get facets
+        facets = {}
+        for facet in facet_fields:
+            facet_param = 'metadata__%s' % facet
+            facets[facet] = base_query.filter(category=category).exclude(**{facet_param: ''}).order_by(facet_param).values_list(facet_param, flat=True).distinct()
+
+        return results, counts, facets
+
+class USCodeIndex(models.Model):
+    title = models.CharField(max_length=1000)
+    gpo_id = models.CharField(max_length=255)
+    citation = models.CharField(max_length=255)
+    lii_url = models.URLField(null=True)
+    gpo_url = models.URLField(null=True)
+    effective_date = models.DateField(blank=True, null=True)
+    search_field = SearchVectorField(null=True)
+
+    def save(self, *args, **kwargs):
+        self.search_field = (SearchVector('citation', weight='A')
+                             + SearchVector('title', weight='B'))
+        super().save(*args, **kwargs)
+
+
+class LegalDocumentSource(models.Model):
+    name = models.CharField(max_length=10000, blank=True, null=True)
+    date_added = models.DateField(blank=True, null=True)
+    last_updated = models.DateField(blank=True, null=True)
+    active = models.BooleanField(default=False)
+    enabled = models.BooleanField(default=False)
+
+    source_apis = {}
+
+    @classmethod
+    def register_api(cls, api):
+        if api.details['name'] not in cls.source_apis:
+            cls.source_apis[api.details['name']] = api
+
+    def api_model(self):
+        # short_description, long_description, bulk_process, search(long_citation_json), import(id)
+        if self.name in self.source_apis:
+            return self.source_apis[self.name]
+        raise ValueError(f"Missing API Model for {self.name}")
+
+    def pull(self, id):
+        return self.api_model().pull(self, id)
+
+LegalDocumentSource.register_api(USCodeGPO)
+LegalDocumentSource.register_api(CAP)
+
+class LegalDocument(NullableTimestampedModel, AnnotatedModel):
+    source = models.ForeignKey('LegalDocumentSource', on_delete='DO_NOTHING', related_name='documents')
+    short_name = models.CharField(max_length=100, blank=True, null=True)
+    name = models.CharField(max_length=10000, blank=True, null=True)
+    # The type of document: Case, Regulation, Code, Bill, etc.
+    doc_class = models.CharField(max_length=100, blank=True, null=True)
+    citations = ArrayField(models.CharField(max_length=500, blank=True, null=True))
+    # list of jurisdictions is currently in CaseSearcher.vue (room for improvement)
+    jurisdiction = models.CharField(max_length=20, blank=True)
+    # I think a tritemporal model is as simple as I can deal make this
+    # When the document was made effective (may be before or after other dates)
+    effective_date = models.DateTimeField(blank=True, null=True)
+    # When the DB 'published'
+    publication_date = models.DateTimeField(blank=True, null=True)
+    # When this copy was pulled from the external source
+    updated_date = models.DateTimeField(blank=True, null=True)
+    source_ref = models.CharField(max_length=10000)
+    content = models.CharField(max_length=5242880)
+    metadata = JSONField(blank=True, null=True)
+    history = HistoricalRecords()
+
+    class Meta:
+        indexes = [
+            GinIndex(fields=['citations']),
+        ]
+
+    @property
+    def header_template(self):
+        base = 'includes/legal_doc_sources/'
+        template = self.source.api_model().header_template(self)
+        return base + template
+
+    def save(self, *args, **kwargs):
+        r"""
+            Override save to ensure Case HTML is cleansed and annotations are
+            repositioned on save.
+
+            Given:
+            >>> annotations_factory, caplog = [getfixture(f) for f in ['annotations_factory', 'caplog']]
+            >>> html_with_annotations =     '<p>\n  <em>[note]Keep foo[/note] [highlight]delete bar[/highlight] [elide]keep baz[/elide] buzz</em>\n</p><p>bam</p>'
+            >>> new_html =                  '<p>Prepended</p>\n\n<p>\n  <em invalid-attr="invalid">Keep foo <invalid>keep baz</invalid> buzz add boo</em>\n</p>'
+            >>> new_doc_html_with_annotations = '<p>Prepended</p><p>\n  <em invalid-attr="invalid">[note]Keep foo[/note] <invalid>[elide]keep baz</invalid>[/elide] buzz add boo</em>\n</p>'
+
+            On save, Case HTML is cleansed (but not sanitized), and then annotations are updated:
+            >>> _, legal_doc = annotations_factory('LegalDocument', html_with_annotations)
+            >>> legal_doc.resource.content = new_html
+            >>> with caplog.at_level(logging.DEBUG):
+            ...     legal_doc.resource.save()
+            >>> assert dump_annotated_text(legal_doc) == new_doc_html_with_annotations
+            >>> assert len(caplog.record_tuples) == 3
+            >>> assert caplog.record_tuples[0][2] == 'Normalizing newlines in LegalDocument content'
+            >>> assert caplog.record_tuples[1][2] == 'Stripping trailing whitespace in LegalDocument content'
+            >>> assert caplog.record_tuples[2][2] == 'Updating annotations for LegalDocument'
+        """
+        cleanse_html_field(self, 'content')
+        super().save(*args, **kwargs)
+
+    def get_name(self):
+        return self.name
+
+    def __str__(self):
+        return self.get_name()
+
+    def related_resources(self):
+        return Resource.objects.filter(resource_id=self.id, resource_type='LegalDocument')
+
+    @property
+    def cite_string(self):
+        return ", ".join(self.citations)
 
 
 class ContentAnnotationQueryset(models.QuerySet):
@@ -455,12 +968,12 @@ class ContentNodeQueryset(models.QuerySet):
     _prefetch_resources_done = False
     _prefetch_resources = None
 
-    def prefetch_resources(self, case_query=None, textblock_query=None, link_query=None):
+    def prefetch_resources(self, case_query=None, textblock_query=None, link_query=None, legal_doc_query=None):
         """
             Return cloned queryset with attributes to trigger prefetching in _fetch_all.
         """
         clone = self._chain()
-        clone._prefetch_resources = [case_query, textblock_query, link_query]
+        clone._prefetch_resources = [case_query, textblock_query, link_query, legal_doc_query]
         return clone
 
     def _clone(self):
@@ -481,15 +994,17 @@ class ContentNodeQueryset(models.QuerySet):
             self._prefetch_resources_done = True
             if not self._result_cache:
                 return
-            case_query, textblock_query, link_query = self._prefetch_resources
+            case_query, textblock_query, link_query, legal_doc_query = self._prefetch_resources
             if case_query is None:
                 case_query = Case.objects.all()
             if textblock_query is None:
                 textblock_query = TextBlock.objects.all()
             if link_query is None:
                 link_query = Link.objects.all()
+            if legal_doc_query is None:
+                legal_doc_query = LegalDocument.objects.all()
             resources = {}
-            for resource_type, query in (('Case', case_query), ('TextBlock', textblock_query), ('Link', link_query)):
+            for resource_type, query in (('Case', case_query), ('TextBlock', textblock_query), ('Link', link_query), ('LegalDocument', legal_doc_query)):
                 for obj in query.filter(
                         id__in=[obj.resource_id for obj in self._result_cache if obj.resource_type == resource_type]):
                     resources[(resource_type, obj.id)] = obj
@@ -927,7 +1442,7 @@ class ContentNode(EditTrackedModel, TimestampedModel, BigPkModel, MaterializedPa
         related_name='contents'
     )
     # resources only
-    # These fields define a relationship with a Case, Link, or Textblock
+    # These fields define a relationship with a Case, Link, Textblock, or LegalDocument
     # not yet described/available via the Django ORM
     # https://github.com/harvard-lil/h2o/issues/1035
     resource_type = models.CharField(max_length=255, blank=True, null=True)
@@ -994,7 +1509,7 @@ class ContentNode(EditTrackedModel, TimestampedModel, BigPkModel, MaterializedPa
         if hasattr(self,'_resource_prefetched') and not self._resource_prefetched:
             if not self.resource_id:
                 return None
-            if self.resource_type in ['Case', 'TextBlock', 'Link']:
+            if self.resource_type in ['Case', 'TextBlock', 'Link', 'LegalDocument']:
                 # so fancy...
                 self._resource = globals()[self.resource_type].objects.get(id=self.resource_id)
                 self._resource_prefetched = True
@@ -1034,6 +1549,10 @@ class ContentNode(EditTrackedModel, TimestampedModel, BigPkModel, MaterializedPa
         return bool(self.resource_type and self.resource_type != 'Temp' and self.resource_type != 'Section')
 
     @property
+    def provides_header(self):
+        return not (self.resource_type is None or self.resource_type in {'Section', 'TextBlock', 'Link'})
+
+    @property
     def body(self):
         return (self._resource or self.resource) if self.has_body else None
 
@@ -1041,7 +1560,10 @@ class ContentNode(EditTrackedModel, TimestampedModel, BigPkModel, MaterializedPa
     def body_template(self):
         if not self.has_body:
             return 'includes/bodies/empty.html'
-        return {'Case': 'includes/bodies/case.html', 'Link': 'includes/bodies/link.html', 'TextBlock': 'includes/bodies/text_block.html'}[self.resource_type]
+        return {'Case': 'includes/bodies/case.html',
+                'Link': 'includes/bodies/link.html',
+                'TextBlock': 'includes/bodies/text_block.html',
+                'LegalDocument':'includes/bodies/legal_doc.html'}[self.resource_type]
 
     def save(self, *args, **kwargs):
         r"""
@@ -1111,7 +1633,7 @@ class ContentNode(EditTrackedModel, TimestampedModel, BigPkModel, MaterializedPa
         """
         Only particular kinds of resources can be annotated.
         """
-        return self.type == 'resource' and self.resource_type in ['Case', 'TextBlock']
+        return self.type == 'resource' and self.resource_type in ['Case', 'TextBlock', 'LegalDocument']
 
     def get_annotate_url(self):
         """
@@ -1346,7 +1868,7 @@ class ContentNode(EditTrackedModel, TimestampedModel, BigPkModel, MaterializedPa
         max_valid_offset = len(source_tree.text_content())
         annotations = []
         for annotation in self.annotations.all():
-            # equivalent test to self.annotations.valid(), but using all() lets us use prefetched querysets
+            # equivalent test to self.annotation.valid(),but using all() lets us use prefetched querysets
             if annotation.global_start_offset < 0 or annotation.global_end_offset < 0:
                 continue
             annotations.append((min(annotation.global_start_offset, max_valid_offset), True, annotation))
@@ -1796,7 +2318,7 @@ class CasebookAndSectionMixin(models.Model):
     @property
     def originating_authors(self):
         """
-        Every attributed author for any ancestor of a contentnode contained in the casebook
+        Every attributed author for any ancestor of a contentnode contained in the section
         """
         originating_node = set([cloned_node for child_content in self.contents.all() for cloned_node in child_content.provenance])
         users = [collaborator.user for cn in
@@ -2898,44 +3420,6 @@ class Resource(SectionAndResourceMixin, ContentNode):
         proxy = True
 
     objects = ResourceManager()
-
-    def get_absolute_url(self):
-        """See ContentNode.get_absolute_url"""
-        return reverse('resource', args=[self.casebook, self])
-
-    def get_edit_url(self):
-        """See ContentNode.get_edit_url"""
-        return reverse('edit_resource', args=[self.casebook, self])
-
-    def get_edit_or_absolute_url(self, editing=False):
-        """
-        See ContentNode.get_edit_or_absolute_url
-        In the Rails app, when editing a casebook/section/resource,
-        breadcrumbs and TOC entries generally point to the "annotate" view,
-        when available. Recreate that here.
-        """
-        if editing:
-            if self.annotatable:
-                return self.get_annotate_url()
-            return self.get_edit_url()
-        return self.get_absolute_url()
-
-
-    @property
-    def annotatable(self):
-        """
-        Only particular kinds of resources can be annotated.
-        """
-        return self.type == 'resource' and self.resource_type in ['Case', 'TextBlock']
-
-    def get_annotate_url(self):
-        """
-        If a resource can be annotated, returns the URL for the page an author
-        uses to make annotations. Otherwise, returns a ValueError.
-        """
-        if self.annotatable:
-            return reverse('annotate_resource', args=[self.casebook, self])
-        raise ValueError('Only Resources (Case and TextBlock) can be annotated.')
 
     @property
     def originating_authors(self):

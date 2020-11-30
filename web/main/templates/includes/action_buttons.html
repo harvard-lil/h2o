@@ -36,7 +36,7 @@
       {% if section %}
       <section-cloner :casebook-targets="{{clone_section_targets}}"
                       section-source="{{section.title}}"
-                      section-type="{% if section.resource_type == 'TextBlock' %}text{% elif not section.resource_type %}section{% else %}{{section.resource_type|lower}}{% endif %}"
+                      section-type="{% if section.resource_type == 'TextBlock' %}text{% elif section.resource_type == 'LegalDocument'%}Legal Doc{% elif not section.resource_type %}section{% else %}{{section.resource_type|lower}}{% endif %}"
       >
       </section-cloner>
       {% else %}

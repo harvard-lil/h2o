@@ -1,42 +1,52 @@
 <template>
-  <div class="search-results" id="case-search-results">
-    <div class="search-alert" v-if="pendingCaseFetch">
-      <div class="spinner-message">
-        <div>Searching</div>
+<div class="search-results">
+  <div v-for="source in searchResults" :key="source.id">
+    <div>
+      {{source.name}}: <i class="source-description">{{source.short_description}}</i>
+      <input type="checkbox" :checked="source.enabled" @change="internalToggleSource(source.id)"/>
+    </div>
+    <div v-if="source.enabled">
+      <div class="search-alert" v-if="source.pendingCaseFetch">
+        <div class="spinner-message">
+          <div>Searching</div>
+        </div>
+        <loading-spinner></loading-spinner>
       </div>
-      <loading-spinner></loading-spinner>
-    </div>
-    <div class="search-results-wrapper" v-else-if="emptyResults">
-    <div class="search-alert">
-      <span>No cases found matching your search</span>
-    </div>
-    </div>
-    <div class="search-results-wrapper" v-else>
-      <div class="search-results-entry" v-for="c in caseResults" :key="c.id">
-        <div class="name-column">
-          <a v-on:click.stop.prevent="emitChoice(c)" class="wrapper">
-            <span :title="c.fullName">{{c.shortName}}</span>
-          </a>
+      <div class="search-results-wrapper" v-else-if="source.emptyResults">
+        <div class="search-alert">
+          <span>No cases found matching your search</span>
         </div>
-        <div class="cite-column">
-          <a v-on:click.stop.prevent="emitChoice(c)" class="wrapper">
-            <span :title="c.allCitations">{{c.citations}}</span>
-          </a>
-        </div>
-        <div class="date-column">
-          <a v-on:click.stop.prevent="emitChoice(c)" class="wrapper">{{c.decision_date}}</a>
-        </div>
-        <div class="preview-column">
-          <a :href="c.url" target="_blank" rel="noopener noreferrer">{{ c.h2o_case_id ? 'H2O' : 'CAP' }}</a>
+      </div>
+      <div class="search-results-wrapper" v-else>
+        <div class="search-results-entry" v-for="c in source.results" :key="c.id">
+          <div class="name-column">
+            <a v-on:click.stop.prevent="emitChoice(c)" class="wrapper">
+              <span :title="c.fullName">{{c.shortName}}</span>
+            </a>
+          </div>
+          <div class="cite-column">
+            <a v-on:click.stop.prevent="emitChoice(c)" class="wrapper">
+              <span :title="c.fullCitations">{{c.shortCitations}}</span>
+            </a>
+          </div>
+          <div class="date-column">
+            <a v-on:click.stop.prevent="emitChoice(c)" class="wrapper">{{c.effectiveDate}}</a>
+          </div>
+          <div class="preview-column">
+            <a :href="c.url" target="_blank" rel="noopener noreferrer">{{ source.name }}</a>
+          </div>
         </div>
       </div>
     </div>
   </div>
+</div>
 </template>
 
 <script>
 import _ from "lodash";
 import LoadingSpinner from "./LoadingSpinner";
+import { createNamespacedHelpers } from "vuex";
+const { mapActions, mapGetters } = createNamespacedHelpers("case_search");
 
 export default {
   components: {
@@ -50,67 +60,36 @@ export default {
     },1000)
   },
   computed: {
-    pendingCaseFetch: function() {
-      return (
-        "pending" === this.$store.getters["case_search/getSearch"](this.delayedObj)
-      );
+    sources: function() {
+      return this.getSources();
     },
-    emptyResults: function() {
-      return this.caseResults && this.caseResults.length == 0;
-    },
-    caseResults: function() {
-      function truncatedCaseName({ name }) {
-        const maxPartLength = 40;
-        const vsChecker = / [vV][sS]?[.]? /;
-        let splits = name.split(vsChecker);
-        if (splits.length !== 2) {
-          let ret = name.substr(0, maxPartLength * 2 + 4);
-          return ret + (name.length > ret.length ? "..." : "");
+    searchResults: function() {
+      const tempResults = this.getSearch()(this.delayedObj);
+      if (!tempResults || !this.sources) return [];
+      let augmentedResults = this.sources.map(x => {
+        const results = tempResults[x.sourceIndex];
+        return {
+          ...x,
+          pendingCaseFetch: results && !_.isArray(results) && results === 'pending',
+          emptyResults: results && _.isArray(results) && results.length === 0,
+          disabled: results && !_.isArray(results) && results === 'disabled',
+          timeout: results && !_.isArray(results) && results === 'timeout',
+          results: results
         }
-        let partA = splits[0].substr(0, maxPartLength);
-        partA += splits[0].length > partA.length ? "..." : "";
-        let partB = splits[1].substr(0, maxPartLength);
-        partB += splits[0].length > partA.length ? "..." : "";
-        return `${partA} v. ${partB}`;
-      }
-      function preferedCitations(query, { citations }) {
-        if (!citations) {
-          return "";
-        }
-        let cites = citations
-          .filter(x => x.cite == query.trim())
-          .map(x => x.cite);
-        cites = cites.concat(
-          citations.filter(x => x.type === "official").map(x => x.cite)
-        );
-        cites = cites.concat(
-          citations.map(x => x.cite).filter(x => cites.indexOf(x) == -1)
-        );
-        const ret = cites.slice(0, 2).join(", ");
-        return ret;
-      }
-      let results = this.$store.getters["case_search/getSearch"](this.delayedObj);
-      return (
-        results &&
-        _.isArray(results) &&
-        results.map(c => ({
-          shortName: truncatedCaseName(c),
-          fullName: c.name,
-          citations: preferedCitations(this.delayedObj.query, c),
-          allCitations: c.citations
-            ? c.citations.map(x => x.name).join(", ")
-            : "",
-          url: c.frontend_url,
-          id: c.id,
-          decision_date: c.decision_date,
-          h2o_case_id: c.h2o_case_id
-        }))
-      );
+      });
+      augmentedResults.sort((a,b) => a.disabled < b.disabled)
+      return augmentedResults;
     }
   },
   methods: {
+    ...mapGetters(['getSearch', 'getSources']),
+    ...mapActions(["toggleSource"]),    
     emitChoice: function(c) {
       this.$emit("choose", c);
+    },
+    internalToggleSource: function(source_id) {
+      this.toggleSource({source_id, queryObj: this.delayedObj});
+      console.log(source_id);
     }
   },
   mounted: function() {
@@ -122,6 +101,14 @@ export default {
 <style lang="scss" scoped>
 @use "sass:color";
 @import "variables";
+.search-results {
+    max-height: 20rem;
+    overflow-y: scroll;
+}
+.source-description {
+    padding-left: 0.5rem;
+    padding-right: 1rem;
+}
 .search-results-wrapper {
   overflow-y: unset;
   overflow-x: unset;

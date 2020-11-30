@@ -1,31 +1,24 @@
 DROP MATERIALIZED VIEW IF EXISTS search_view;
-CREATE MATERIALIZED VIEW search_view AS
+DROP MATERIALIZED VIEW IF EXISTS internal_search_view;
+CREATE MATERIALIZED VIEW internal_search_view AS
     -- via app/models/case.rb
     SELECT
            row_number() OVER (PARTITION BY true) AS id,
            c.id AS result_id,
            (
                 setweight(to_tsvector('english',coalesce(c.name, '')), 'A') ||
-                setweight(to_tsvector('english',coalesce(c.name_abbreviation, '')), 'D') ||
-                setweight(to_tsvector('english',coalesce(docket_number, '')), 'D') ||
-                setweight(to_tsvector('english',coalesce(string_agg(cite, ', '),'')), 'A') ||
-                setweight(to_tsvector('english',coalesce(min(c.court_name), '')), 'D')
+                setweight(to_tsvector('english',coalesce(array_to_string(c.citations, ', '),'')), 'A')
             )  AS document,
            jsonb_build_object(
-               'display_name', coalesce(c.name_abbreviation, c.name),
-               'decision_date', decision_date,
-               'decision_date_formatted', TO_CHAR(decision_date, 'Month FMDD, YYYY'),
-               'citations', string_agg(cite, ', '),
-               'jurisdiction', jurisdiction_slug
+               'display_name', coalesce(c.short_name, c.name),
+               'effective_date', effective_date,
+               'effective_date_formatted', TO_CHAR(effective_date, 'Month FMDD, YYYY'),
+               'citations', array_to_string(c.citations, ', '),
+               'jurisdiction', jurisdiction
            ) AS metadata,
-           'case'::text AS category
+           'legal_doc'::text AS category
     FROM
-        main_case c
-        LEFT JOIN (
-            select id as case_id, jsonb_array_elements(citations) ->> 'cite' as cite from main_case
-        ) as citations on citations.case_id = c.id
-    WHERE
-        c.public = true
+        main_legaldocument c
     GROUP BY c.id
 UNION ALL
     -- via app/models/content/casebook.rb
@@ -77,4 +70,4 @@ UNION ALL
           u.attribution != ''
     GROUP BY u.id
 ;
-CREATE UNIQUE INDEX search_view_refresh_index ON search_view (result_id, category);
+CREATE UNIQUE INDEX search_view_refresh_index ON internal_search_view (result_id, category);

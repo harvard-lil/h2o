@@ -233,9 +233,10 @@ function guess_line_depth(lines) {
 const caseLike = /( vs?[.]? )|(\bin re:\b)|(ex parte)/i;
 const removeParenthetical = /\([^)]*\)/;
 const guessCitation = /[0-9]+\s+[a-zA-Z0-9 .]*\b\s*[0-9]+/;
+const guessCode = /[0-9]* U[.]?S[.]?C[.]? §§? [0-9]*(-[0-9]*)?/;
 const caseLawLink = /https?:\/\/cite\.case\.law\/[/0-9a-zA-Z_-]*/;
 function looksLikeCaseName(str) {
-  return !!(str.match(caseLike) || str.match(guessCitation) || str.match(caseLawLink));
+  return !!(str.match(caseLike) || str.match(guessCitation) || str.match(guessCode) || str.match(caseLawLink));
 }
 
 const linkLike = /https?:\/\/(?:[\w]+\.)(?:\.?[\w]{2,})[^ ]*/;
@@ -253,7 +254,7 @@ function extractLink(str) {
 
 function extractCaseSearch(string) {
   const ungarnished = string.replace(removeParenthetical, '');
-  let citeGuesses = ungarnished.match(guessCitation);
+  let citeGuesses = ungarnished.match(guessCitation) || ungarnished.match(guessCode);
   let caseLawGuesses = ungarnished.match(caseLawLink);
   if (caseLawGuesses && caseLawGuesses.length === 1) {
     return caseLawGuesses[0];

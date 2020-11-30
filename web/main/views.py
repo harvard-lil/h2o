@@ -4,7 +4,6 @@ from collections import OrderedDict
 from functools import wraps
 from test.test_helpers import (assert_url_equal, check_response,
                                dump_content_tree_children)
-
 import requests
 
 from django.conf import settings
@@ -41,11 +40,13 @@ from .forms import (CasebookForm, CasebookSettingsTransitionForm, LinkForm,
                     NewTextBlockForm, ResourceForm, SectionForm, SignupForm,
                     TextBlockForm, UserProfileForm,
                     InviteCollaboratorForm, CollaboratorFormSet)
-from .models import (Case, Casebook, CommonTitle, ContentAnnotation, ContentNode, Link,
-                     Resource, Section, TextBlock, User, ContentCollaborator)
+from .models import (Case, Casebook, CommonTitle, ContentAnnotation, ContentNode, LegalDocument,
+                     LegalDocumentSource, Link, Resource, Section, SearchIndex, TextBlock, User,
+                     ContentCollaborator)
 from .serializers import (AnnotationSerializer, CaseSerializer, CasebookListSerializer, CommonTitleSerializer,
                           NewAnnotationSerializer, NewCommonTitleSerializer, SectionOutlineSerializer,
-                          TextBlockSerializer, UpdateAnnotationSerializer)
+                          TextBlockSerializer, LegalDocumentSerializer, LegalDocumentSourceSerializer,
+                          LegalDocumentSearchParamsSerializer, UpdateAnnotationSerializer)
 from .test.test_permissions_helpers import (directly_editable_resource,
                                             directly_editable_section,
                                             no_perms_test,
@@ -54,7 +55,7 @@ from .test.test_permissions_helpers import (directly_editable_resource,
                                             post_directly_editable_resource,
                                             viewable_resource,
                                             viewable_section)
-from .utils import (CapapiCommunicationException, StringFileResponse,
+from .utils import (APICommunicationError, StringFileResponse,
                     fix_after_rails, parse_cap_decision_date,
                     send_verification_email, get_link_title)
 
@@ -923,6 +924,8 @@ def show_related(request, casebook, section=None):
     def get_root_key(cn):
         if cn.resource_type == 'Case':
             return "cap-{}".format(cn.resource.capapi_id) if cn.resource.capapi_id else "h2o-".format(cn.resource_id)
+        elif cn.resource_type == 'LegalDocument':
+            return "{}-{}".format(cn.source.name, cn.source_ref)
         else:
             root_cn = ContentNode.objects.filter(id=cn.provenance[0] if cn.provenance else cn.id).first()
             if not root_cn:
@@ -1512,6 +1515,15 @@ def switch_node_type(request, casebook, content_node):
                 content_node.resource_id = internal_id
                 content_node.resource_type = new_type
             content_node.save()
+        elif new_type == 'LegalDocument':
+            source_id = data.get('source_id', None)
+            source_ref = data.get('id', None)
+            source = LegalDocumentSource.objects.get(id=int(source_id))
+            if source and source_ref:
+                legal_doc = internal_doc_id_from_source(source, source_ref)
+                content_node.resource_type = new_type
+                content_node.resource_id = legal_doc.id
+                content_node.save()
         elif new_type == 'Link':
             url = data.get('url','https://opencasebook.org/')
             content_node.resource_type = new_type
@@ -1577,7 +1589,6 @@ class SectionView(View):
         canonical = section.get_absolute_url()
         if request.path != canonical:
             return HttpResponseRedirect(canonical)
-
         return render_with_actions(request, 'casebook_page.html', {
             'casebook': casebook,
             'section': section,
@@ -1708,6 +1719,8 @@ class ResourceView(View):
             body_json = json.dumps(CaseSerializer(section.resource).data)
         elif section.resource_type == 'TextBlock':
             body_json = json.dumps(TextBlockSerializer(section.resource).data)
+        elif section.resource_type == 'LegalDocument':
+            body_json = json.dumps(LegalDocumentSerializer(section.resource).data)
         else:
             body_json = ''
 
@@ -1780,8 +1793,11 @@ def edit_resource(request, casebook, resource):
         ...         client.get(resource.get_edit_url(), as_user=resource.testing_editor),
         ...         content_includes=[resource.title, "casebook-draft"],
         ...     )
+        ...     form_body = {'title': new_title}
+        ...     if resource.resource_type == 'Link':
+        ...         form_body['url'] = resource.resource.url
         ...     check_response(
-        ...         client.post(resource.get_edit_url(), {'title': new_title}, as_user=resource.testing_editor),
+        ...         client.post(resource.get_edit_url(), form_body, as_user=resource.testing_editor),
         ...         content_includes=new_title,
         ...         content_excludes=original_title
         ...     )
@@ -1791,7 +1807,7 @@ def edit_resource(request, casebook, resource):
         ...     original_url = resource.resource.url
         ...     new_url = "http://new-test-url.com"
         ...     check_response(
-        ...         client.post(resource.get_edit_url(), {'url': new_url}, as_user=resource.testing_editor),
+        ...         client.post(resource.get_edit_url(), {'title': resource.title, 'url': new_url}, as_user=resource.testing_editor),
         ...         content_includes=new_url,
         ...         content_excludes=original_url
         ...     )
@@ -1801,7 +1817,7 @@ def edit_resource(request, casebook, resource):
         ...     original_text = resource.resource.content
         ...     new_text = "<p>I'm new text</p>"
         ...     check_response(
-        ...         client.post(resource.get_edit_url(), {'content': new_text}, as_user=resource.testing_editor),
+        ...         client.post(resource.get_edit_url(), {'title': resource.title, 'content': new_text}, as_user=resource.testing_editor),
         ...         content_includes=escape(new_text),
         ...         content_excludes=escape(original_text)
         ...     )
@@ -1823,9 +1839,25 @@ def edit_resource(request, casebook, resource):
             if form.is_valid() and embedded_resource_form.is_valid():
                 embedded_resource_form.save()
                 form.save()
+                resource.resource.refresh_from_db()
+                resource.refresh_from_db()
+            else:
+                raise ValueError("Oops")
         else:
             if form.is_valid():
                 form.save()
+                resource.resource.refresh_from_db()
+                resource.refresh_from_db()
+            else:
+                raise ValueError("Oops")
+    if resource.resource_type == 'Case':
+        body_json = json.dumps(CaseSerializer(resource.resource).data)
+    elif resource.resource_type == 'TextBlock':
+        body_json = json.dumps(TextBlockSerializer(resource.resource).data)
+    elif resource.resource_type == 'LegalDocument':
+        body_json = json.dumps(LegalDocumentSerializer(resource.resource).data)
+    else:
+        body_json = ''
 
     return render_with_actions(request, 'casebook_page.html', {
         'casebook': casebook,
@@ -1834,7 +1866,8 @@ def edit_resource(request, casebook, resource):
         'tabs': resource.tabs_for_user(request.user, current_tab='Edit'),
         'casebook_color_class': casebook.casebook_color_indicator,
         'form': form,
-        'embedded_resource_form': embedded_resource_form
+        'embedded_resource_form': embedded_resource_form,
+        'body_json': body_json,
     })
 
 
@@ -1849,17 +1882,21 @@ def annotate_resource(request, casebook, resource):
         resource.json = json.dumps(CaseSerializer(resource.resource).data)
     elif resource.resource_type == 'TextBlock':
         resource.json = json.dumps(TextBlockSerializer(resource.resource).data)
+    elif resource.resource_type == 'LegalDocument':
+        resource.json = json.dumps(LegalDocumentSerializer(resource.resource).data)
     else:
         # Only Cases and TextBlocks can be annotated.
         # Rails serves the "edit" page contents at both "edit" and "annotate" when resources can't be annotated;
         # let's redirect instead.
         return HttpResponseRedirect(reverse('edit_resource', args=[resource.casebook, resource]))
 
+    body_json = resource.json
     return render_with_actions(request, 'resource_annotate.html', {
         'resource': resource,
         'include_vuejs': resource.resource_type in ['Case', 'TextBlock'],
         'editing': True,
-        'edit_mode': True
+        'edit_mode': True,
+        'body_json': body_json
     })
 
 
@@ -1940,7 +1977,7 @@ def internal_case_id_from_cap_id(cap_id):
     if not case:
         # fetch from CAP:
         if not settings.CAPAPI_API_KEY:
-            raise CapapiCommunicationException('To interact with CAP, CAPAPI_API_KEY must be set.')
+            raise APICommunicationError('To interact with CAP, CAPAPI_API_KEY must be set.')
         try:
             response = requests.get(
                 settings.CAPAPI_BASE_URL + "cases/%s/" % cap_id,
@@ -1950,7 +1987,7 @@ def internal_case_id_from_cap_id(cap_id):
             assert response.ok
         except (requests.RequestException, AssertionError) as e:
             msg = "Communication with CAPAPI failed: {}".format(str(e))
-            raise CapapiCommunicationException(msg)
+            raise APICommunicationError(msg)
 
         cap_case = response.json()
 
@@ -1981,6 +2018,14 @@ def internal_case_id_from_cap_id(cap_id):
         )
         case.save()
     return case.id
+
+def internal_doc_id_from_source(legal_doc_source, id):
+    most_recent_doc = legal_doc_source.pull(id)
+    most_recent_saved_doc = LegalDocument.objects.filter(source=legal_doc_source, source_ref=id).order_by('-effective_date','-publication_date').first()
+    if not most_recent_saved_doc or most_recent_doc.effective_date > most_recent_saved_doc.effective_date:
+        most_recent_doc.save()
+        return most_recent_doc
+    return most_recent_saved_doc
 
 
 @perms_test({'method': 'post', 'results': {400: ['user'], 'login': [None]}})
@@ -2017,6 +2062,59 @@ def from_capapi(request):
 
     return JsonResponse({'id': case_id})
 
+
+@perms_test({'method': 'post',
+             'args': ["legal_doc_source.id"],
+             'results': {400: ['user'], 'login': [None]}})
+@require_POST
+@login_required
+def import_from_source(request, source=None):
+    """
+        Given a posted CAP ID, return the internal ID for the same case, first ingesting the case from CAP if necessary.
+
+        Given:
+        >>> capapi_mock, client, user, case_factory = [getfixture(i) for i in ['capapi_mock', 'client', 'user', 'case_factory']]
+        >>> url = reverse('from_capapi')
+        >>> existing_case = case_factory(capapi_id=9999)
+
+        Existing cases will be returned without hitting the CAP API:
+        >>> response = client.post(url, json.dumps({'id': 9999}), content_type="application/json", as_user=user)
+        >>> check_response(response, content_includes='{"id": %s}' % existing_case.id, content_type='application/json')
+
+        Non-existing cases will be fetched and created:
+        >>> response = client.post(url, json.dumps({'id': 12345}), content_type="application/json", as_user=user)
+        >>> check_response(response, content_type='application/json')
+        >>> case = Case.objects.get(id=json.loads(response.content.decode())['id'])
+        >>> assert case.name_abbreviation == "1-800 Contacts, Inc. v. Lens.Com, Inc."
+        >>> assert case.opinions == {"majority": "HARTZ, Circuit Judge."}
+    """
+    legal_doc_source = get_object_or_404(LegalDocumentSource.objects.filter(id=source))
+    # parse ID from request:
+    try:
+        data = json.loads(request.body.decode("utf-8"))
+        id = data['id']
+    except Exception:
+        return HttpResponseBadRequest("Request body should match {'id': &lsaquo;string&rsaquo'}")
+
+    most_recent_doc = legal_doc_source.pull(id)
+    most_recent_saved_doc = LegalDocument.objects.filter(source=legal_doc_source, source_ref=id).order_by(['-effective_date','-publication_date'])
+    if most_recent_doc.effective_date > most_recent_saved_doc.effective_date:
+        most_recent_doc.save()
+        return JsonResponse({'id': most_recent_doc.id})
+    return JsonResponse({'id': most_recent_saved_doc.id})
+
+
+
+@perms_test(
+    {'args': ['legal_document.id'], 'results': {200: ['user', None]}},
+)
+def display_legal_doc(request, id=None):
+    legal_doc = get_object_or_404(LegalDocument, id=id)
+    legal_doc.json = json.dumps(LegalDocumentSerializer(legal_doc).data)
+    return render(request, "legal_doc.html", {
+        'legal_doc': legal_doc,
+        'include_vuejs': True
+    })
 
 @method_decorator(perms_test(
     {'args': ['casebook', '"docx"'], 'results': {200: [None, 'other_user', 'casebook.testing_editor']}},
@@ -2264,3 +2362,82 @@ def pretty_url_dispatch(request, user_slug=None, title_slug=None, content_param=
     if content_type == 'Resource':
         return ResourceView.as_view()(request, content.casebook, content)
     raise Http404
+
+
+# Searching
+
+@perms_test({"method": "get", "args": [],
+             "results": {200: ["user"], "login": [None]}})
+@login_required
+def search_sources(request):
+    sources = LegalDocumentSource.objects
+    if not (request.user and request.user.is_superuser):
+        sources = sources.filter(active=True)
+    doc_sources = list(sources.all())
+    serialized = LegalDocumentSourceSerializer(doc_sources, many=True)
+    return JsonResponse({'sources': serialized.data}, status=200)
+
+
+@perms_test({"method": "get", "args": ['legal_doc_source.id'],
+             "results": {200: ["user"], "login": [None]}})
+@login_required
+def search_using(request, source):
+    src = get_object_or_404(LegalDocumentSource.objects.filter(id=source))
+    params = LegalDocumentSearchParamsSerializer(data=request.GET)
+    if not params.is_valid():
+        return JsonResponse(params.errors, status=500)
+    results = src.api_model().search(params.save())
+    return JsonResponse({"results": results}, status=200)
+
+
+
+type_param_to_category = {'legal_doc': 'legal_doc', 'casebooks': 'casebook', 'users': 'user'}
+
+@no_perms_test
+def internal_search(request):
+    """
+        Search page.
+
+        Given:
+        >>> capapi_mock, client, casebook_factory = [getfixture(i) for i in ['capapi_mock', 'client', 'casebook_factory']]
+        >>> casebooks = [casebook_factory(contentcollaborator_set__user__verified_professor=True) for i in range(3)]
+        >>> url = reverse('internal_search')
+        >>> SearchIndex().create_search_index()
+
+        Show all casebooks by default:
+        >>> check_response(client.get(url), content_includes=[c.title for c in casebooks])
+
+        See SearchIndex._search tests for more specific tests.
+    """
+    # read query parameters
+    category = type_param_to_category.get(request.GET.get('type', None), 'casebook')
+    try:
+        page = int(request.GET.get('page'))
+    except (TypeError, ValueError):
+        page = 1
+    query = request.GET.get('q')
+
+    # else query postgres:
+    filters = {}
+    author = request.GET.get('author')
+    school = request.GET.get('school')
+    if author:
+        filters['attribution'] = author
+    if school:
+        filters['affiliation'] = school
+
+    results, counts, facets = SearchIndex.search(
+        category,
+        page=page,
+        query=query,
+        filters=filters,
+        facet_fields=['attribution', 'affiliation'],
+        order_by=request.GET.get('sort')
+    )
+    results.from_capapi = False
+    return render(request, 'search/show.html', {
+            'results': results,
+            'counts': counts,
+            'facets': facets,
+            'category': category,
+        })

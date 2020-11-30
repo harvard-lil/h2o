@@ -7,7 +7,7 @@
       {% if request.user.is_authenticated %}
         <button type="button" class="create-casebook" data-action="show-casebook-modal">Create Casebook</button>
       {% endif %}
-      <a href="{% url 'search' %}">Search</a>
+      <a href="{% url 'internal_search' %}">Search</a>
     </div>
     <div class="user">
       {% if request.user.is_authenticated %}

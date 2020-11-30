@@ -11,7 +11,7 @@
       </div>
       <div class="narrow-inner">
         <div class="input-group">
-          <input type="search" name="q" id="q" class="form-control" placeholder="Find casebooks, cases, and authors." aria-label="Find casebooks, cases, and authors." value="{{ request.GET.q }}">
+          <input type="search" name="q" id="q" class="form-control" placeholder="Find casebooks, legal documents, and authors." aria-label="Find casebooks, legal docs, and authors." value="{{ request.GET.q }}">
           <span class="input-group-btn">
             <button class="form-control btn" type="submit" aria-label="Search" style="border: 1px solid black; background-color: #f5f4ec;"><i aria-hidden="true" class="fa fa-search"></i></button>
           </span>
@@ -32,9 +32,9 @@
               </a>
             </div>
 
-            <div class="type-tab {% if category == 'case' %}active{% endif %}" {% if category == 'case' %}aria-current="location"{% endif %}>
-              <a href="?{% current_query_string type="cases" page=1 %}" class="wrapper">
-                Cases ({{ counts.case|default:"0" }})
+            <div class="type-tab {% if category == 'legal_doc' %}active{% endif %}" {% if category == 'legal_doc' %}aria-current="location"{% endif %}>
+              <a href="?{% current_query_string type="legal_doc" page=1 %}" class="wrapper">
+                Legal Documents ({{ counts.legal_doc|default:"0" }})
               </a>
             </div>
 

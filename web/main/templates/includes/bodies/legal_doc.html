@@ -1,0 +1,4 @@
+<section class="resource">
+    {% include section.resource.header_template with legal_doc=section.resource %}
+    <the-resource :editable="false" :resource="{{ body_json }}"></the-resource>
+</section>

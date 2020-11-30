@@ -12,7 +12,7 @@ from django.urls import reverse
 from django.utils.html import format_html
 from django.utils.safestring import mark_safe
 from simple_history.admin import SimpleHistoryAdmin
-from .utils import fix_after_rails, clone_model_instance, CapapiCommunicationException, parse_cap_decision_date
+from .utils import fix_after_rails, clone_model_instance, APICommunicationError, parse_cap_decision_date
 from .models import Case, Link, User, Casebook, Section, \
     Resource, ContentCollaborator, ContentAnnotation, TextBlock, ContentNode, \
     EmailWhitelist
@@ -356,7 +356,7 @@ def force_case_from_cap_id(cap_id):
         assert response.ok
     except (requests.RequestException, AssertionError) as e:
         msg = "Communication with CAPAPI failed: {}".format(str(e))
-        raise CapapiCommunicationException(msg)
+        raise APICommunicationError(msg)
 
     cap_case = response.json()
 
