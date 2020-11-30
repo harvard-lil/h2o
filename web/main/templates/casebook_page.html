@@ -32,7 +32,7 @@
             {% if section %}
             <header class="content">
                 {% include 'includes/breadcrumbs.html' with content=section %}
-                <h1 class="title">{{ section.title }}</h1>
+                {% if not section.provides_header %}<h1 class="title">{{ section.title }}</h1>{% endif %}
             </header>
             {% endif %}
             <header class="content">
@@ -70,12 +70,12 @@
                     </div>
                     {% endif %}
             </header>
-            {% include 'includes/action_buttons.html' %}
+                {% include 'includes/action_buttons.html' %}
             {% if section %}
-                {% if not editing %}
-                    {% include 'includes/headnote.html' with content=section %}
-                    {% include section.body_template %}
-                {% endif %}
+            {% if not editing %}
+            {% include 'includes/headnote.html' with content=section %}
+            {% endif %}
+            {% include section.body_template %}
             {% else %}
                 {% if not editing %}
                     {% include 'includes/headnote.html' with content=casebook %}

@@ -1,3 +1,4 @@
+from datetime import date
 import os
 import signal
 import subprocess
@@ -50,7 +51,7 @@ def run_frontend(port=None):
 @setup_django
 def create_search_index():
     """ Create (or recreate) the search_view materialized view """
-    from search.models import SearchIndex
+    from main.models import SearchIndex
     SearchIndex.create_search_index()
 
 
@@ -58,7 +59,7 @@ def create_search_index():
 @setup_django
 def refresh_search_index():
     """ Update an existing search_view materialized view; will fail if create_search_index hasn't been run once """
-    from search.models import SearchIndex
+    from main.models import SearchIndex
     SearchIndex.refresh_search_index()
 
 
@@ -129,6 +130,23 @@ def compare_sanitized_html():
                 sanitized_tree = parse_html_fragment(sanitized)
                 elements_equal(content_tree, sanitized_tree, tidy_style_attrs=True)
 
+
+@task
+@setup_django
+def load_uscode_index(index='uscode_index.jsonl', effective_date=date(2018,1,1)):
+    """
+    Import a jsonl file into the search index for US Code support
+    """
+    import json
+    from main.models import USCodeIndex
+    with open(index) as index_file:
+        entries = []
+        for line in index_file:
+            ind_dict = json.loads(line)
+            entries.append(USCodeIndex(citation=ind_dict['citation'], effective_date=effective_date, title=ind_dict['title'], gpo_id=ind_dict['gpo_id'], lii_url=ind_dict['lii_link']))
+        USCodeIndex.objects.bulk_create(entries)
+        for ind in USCodeIndex.objects.all():
+            ind.save()
 
 if __name__ == "__main__":
     # allow tasks to be run as "python fabfile.py task"

@@ -1,8 +1,8 @@
 <template>
   <div class="transmuter-holder">
   <select class="transmute-dropdown select-css" v-model="resource_type">
-    <option value="Case" v-if="item.resource_type === 'Case'">Case</option>
-    <option value="Temp" v-else>Case</option>
+    <option value="LegalDocument" v-if="item.resource_type === 'LegalDocument'">Legal Doc</option>
+    <option value="Temp" v-else>Legal Doc</option>
     <option value="Section">Section</option>
     <option value="TextBlock">Text</option>
     <option value="Link">Link</option>
@@ -45,7 +45,7 @@ export default {
       if (newVal === this.item.resource_type) {
         return;
       }
-      const data = { from: this.item.resource_type, to: newVal == 'Temp' ? 'Case' : newVal };
+      const data = { from: this.item.resource_type, to: newVal == 'Temp' ? 'LegalDocument' : newVal };
         Axios.patch(this.item.url, data).then(this.refreshTOC, this.refreshTOC);
     }
   }

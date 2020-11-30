@@ -23,7 +23,6 @@ handler500 = 'main.views.server_error'
 
 urlpatterns = [
     path('', include('main.urls')),
-    path('search/', include('search.urls')),
     path('django-admin/', admin_site.urls),
 ]
 

@@ -34,13 +34,17 @@ class UpdateAnnotationSerializer(serializers.ModelSerializer):
 class CaseSerializer(serializers.ModelSerializer):
     class Meta:
         model = models.Case
-        fields = ('id', 'content', 'name')
+        fields = ('id', 'content')
 
+class LegalDocumentSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = models.LegalDocument
+        fields = ('id', 'content')
 
 class TextBlockSerializer(serializers.ModelSerializer):
     class Meta:
         model = models.TextBlock
-        fields = ('id', 'content', 'name')
+        fields = ('id', 'content')
 
 class RecursiveField(serializers.Serializer):
     def to_representation(self, value):
@@ -48,13 +52,19 @@ class RecursiveField(serializers.Serializer):
         return serializer.data
 
 class SectionOutlineSerializer(serializers.ModelSerializer):
-    resource_type = serializers.CharField(allow_null=True, default='Section', initial='Section')
+    resource_type = serializers.SerializerMethodField()
     edit_url = serializers.URLField(source='get_preferred_url')
     url = serializers.URLField(source='get_absolute_url')
     citation = serializers.SerializerMethodField()
     decision_date = serializers.DateField(source='resource.decision_date', default=None)
     children = RecursiveField(many=True, allow_null=True, default=[])
     is_transmutable = serializers.BooleanField()
+
+    def get_resource_type(self, node):
+        if node.resource_type == 'LegalDocument':
+            return node.resource.doc_class
+        else:
+            return node.resource_type if node.resource_type else 'Section'
 
     def get_citation(self, node):
         if node.resource_type == 'Case':
@@ -281,3 +291,42 @@ class CollaboratorDeserializer(serializers.BaseSerializer):
 
     def update(self, instance, validated_data):
         raise NotImplementedError
+
+
+class LegalDocumentSourceSerializer(serializers.ModelSerializer):
+    short_description = serializers.SerializerMethodField()
+    long_description = serializers.SerializerMethodField()
+
+    def get_short_description(self, source):
+        return source.api_model().details['short_description']
+
+    def get_long_description(self, source):
+        return source.api_model().details['long_description']
+
+    class Meta:
+        model = models.LegalDocumentSource
+        fields = ('id', 'name', 'enabled', 'short_description', 'long_description')
+
+class LegalDocumentSearchParams:
+    def __init__(self, q=None, name=None, before_date=None, after_date=None, jurisdiction=None, citation=None, frontend_url=None):
+        self.q = q
+        self.name = name
+        self.before_date = before_date
+        self.after_date = after_date
+        self.jurisdiction = jurisdiction
+        self.citation = citation
+        self.frontend_url = frontend_url
+
+
+class LegalDocumentSearchParamsSerializer(serializers.Serializer):
+    q = serializers.CharField(max_length=1000, required=False)
+    name = serializers.CharField(max_length=1000, required=False)
+    before_date = serializers.DateField(required=False)
+    after_date = serializers.DateField(required=False)
+    jurisdiction = serializers.CharField(max_length=100, required=False)
+    citation = serializers.CharField(max_length=100, required=False)
+    frontend_url = serializers.URLField(required=False)
+
+    def create(self, validated_data):
+        return LegalDocumentSearchParams(**validated_data)
+

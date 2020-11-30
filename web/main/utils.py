@@ -21,7 +21,7 @@ from django.utils.http import urlsafe_base64_encode
 from .sanitize import sanitize
 
 
-class CapapiCommunicationException(Exception):
+class APICommunicationError(Exception):
     pass
 
 

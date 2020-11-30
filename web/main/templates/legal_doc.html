@@ -1,0 +1,17 @@
+{% extends 'base.html' %}
+
+{% block page_title %}{{ legal_doc.get_name }} | Legal Documents{% endblock %}
+
+{% block mainContent %}
+  <section class="casebook-public casebook">
+    <div class="content">
+      <div class="casebook-inner">
+          <div class="top-strip"></div>
+          {% include legal_doc.header_template %}
+          <section class="resource">
+          <the-resource :editable="false" :resource="{{ legal_doc.json }}"></the-resource>
+        </section>
+      </div>
+    </div>
+  </section>
+{% endblock %}

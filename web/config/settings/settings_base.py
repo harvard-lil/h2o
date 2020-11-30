@@ -23,7 +23,6 @@ INSTALLED_APPS = [
 
     # apps
     'main',
-    'search',
 
     # third party
     'django_extensions',
@@ -226,8 +225,11 @@ WEBPACK_LOADER = {
 CAPAPI_BASE_URL = 'https://api.case.law/v1/'
 CAPAPI_API_KEY = ''
 
+GPO_BASE_URL = 'https://api.govinfo.gov/'
+GPO_API_KEY = ''
+
 COURTLISTENER_BASE_URL = 'https://www.courtlistener.com/'
-COURTLISTENER_KEY = ''
+COURTLISTENER_KEY = 'dbf4c42fd8738053f9bf8ca572f89b136382a435'
 
 CRISPY_TEMPLATE_PACK = 'bootstrap3'
 CRISPY_FAIL_SILENTLY = False

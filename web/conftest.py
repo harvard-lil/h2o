@@ -14,8 +14,9 @@ from django.test.utils import CaptureQueriesContext
 from django.utils import timezone
 from django.db.backends import utils as django_db_utils
 
-from main.models import ContentNode, User, Casebook, Section, Resource, ContentCollaborator, Link, TextBlock, \
-    Case, ContentAnnotation
+from main.models import ContentNode, User, Casebook, Section, \
+                        Resource, ContentCollaborator, Link, TextBlock, \
+                        Case, ContentAnnotation, LegalDocument, LegalDocumentSource
 from main.utils import re_split_offsets
 
 from test.test_helpers import dump_casebook_outline
@@ -183,6 +184,88 @@ class PrivateCaseFactory(CaseFactory):
     public = False
 
 
+class MockSourceAPI():
+    details = {'name': 'Test',
+               'short_description':'The testing api mocks data',
+               'long_description':'The ',
+               'link':'https://www.govinfo.gov/app/collection/uscode'}
+
+    @staticmethod
+    def search(search_params):
+        return [{
+            'fullName':'Test Result 1',
+            'shortName': 'Test 1',
+            'fullCitations': '1 USC § 1',
+            'shortCitations': '1 USC § 1',
+            'effectiveDate': datetime(1901, 1, 1),
+            'url': 'https://opencasebook.org/legal_doc/1',
+            'id': 0
+        },
+                {
+            'fullName':'Test Result 2',
+            'shortName': 'Test 2',
+            'fullCitations': '1 USC § 2',
+            'shortCitations': '1 USC § 2',
+            'effectiveDate': datetime(1901, 1, 1),
+            'url': 'https://opencasebook.org/legal_doc/1',
+            'id': 1
+        },
+                {
+            'fullName':'Test Result 3',
+            'shortName': 'Test 3',
+            'fullCitations': '1 USC § 3',
+            'shortCitations': '1 USC § 3',
+            'effectiveDate': datetime(1901, 1, 1),
+            'url': 'https://opencasebook.org/legal_doc/1',
+            'id': 2
+        },
+        ]
+
+    @staticmethod
+    def pull(legal_doc_source, id):
+        code = LegalDocument(source=legal_doc_source,
+                             name="Test Doc 1",
+                             doc_class='Code',
+                             citations=["1 USC § 1"],
+                             effective_date=datetime(1901,1,1),
+                             publication_date=datetime(1999,1,1),
+                             updated_date=datetime.now(),
+                             source_ref=id,
+                             content="Test Doc 1 Content",
+                             metadata={})
+        return code
+
+    @staticmethod
+    def header_template(legal_document):
+        return 'empty_header.html'
+
+
+LegalDocumentSource.register_api(MockSourceAPI)
+
+@register_factory
+class LegalDocumentSourceFactory(factory.DjangoModelFactory):
+    class Meta:
+        model = LegalDocumentSource
+
+    name = 'Test'
+    date_added = datetime(1900, 1, 1)
+    last_updated = datetime(1902, 1, 1)
+
+@register_factory
+class LegalDocumentFactory(factory.DjangoModelFactory):
+    class Meta:
+        model = LegalDocument
+
+    source = factory.SubFactory(LegalDocumentSourceFactory)
+    name = factory.Sequence(lambda n: 'Legal Doc %s' % n)
+    citations = ['Adventures in criminality, 1 Fake 1, (2001)']
+    effective_date = datetime(1900, 1, 1)
+    publication_date = datetime(1901,1,1)
+    updated_date = datetime(1902, 1, 1)
+    source_ref = factory.Sequence(lambda n: {'id': n})
+    content = factory.Sequence(lambda n: 'Dubious legal claim %s' % n)
+    metadata = {}
+
 @register_factory
 class ResourceFactory(ContentNodeFactory):
     class Meta:
@@ -274,7 +357,9 @@ def annotations_factory(db):
             casebook = CasebookFactory()
             SectionFactory(casebook=casebook, ordinals=[1])
             ordinals = [1, 1]
-        resource_target = {'Case': CaseFactory, 'TextBlock': TextBlockFactory}[resource_type](content=html)
+        resource_target = {'Case': CaseFactory,
+                           'TextBlock': TextBlockFactory,
+                           'LegalDocument': LegalDocumentFactory}[resource_type](content=html)
         resource_type = resource_type
         resource = ResourceFactory(casebook=casebook, ordinals=ordinals, resource_type=resource_type, resource=resource_target)
 
@@ -421,6 +506,15 @@ def other_user(user_factory):
     """ A user who has no relationship to a given casebook. """
     return user_factory()
 
+
+@pytest.fixture
+def legal_doc_source(legal_document_source_factory):
+    lds = legal_document_source_factory()
+    return lds
+
+@pytest.fixture
+def legal_doc(legal_document_factory):
+    return legal_document_factory()
 
 @pytest.fixture
 def capapi_mock(requests_mock):
