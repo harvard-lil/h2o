@@ -413,7 +413,11 @@ def get_link_title(url):
         default_title = unquote(file_name.groups()[0])
     elif last_slug and last_slug.groups()[0]:
         default_title = unquote(last_slug.groups()[0])
-    resp = request('get',url)
+    resp = None
+    try:
+        resp = request('get',url)
+    except Exception:
+        return default_title
     if not resp.ok:
         return default_title
     body = PyQuery(resp.content)
