@@ -1352,7 +1352,7 @@ class ContentNode(EditTrackedModel, TimestampedModel, BigPkModel, MaterializedPa
             annotations.append((min(annotation.global_start_offset, max_valid_offset), True, annotation))
             annotations.append((min(annotation.global_end_offset, max_valid_offset), False, annotation))
         # sort by first two fields, so we're ordered by offset, then we get end tags and then start tags for a given offset
-        annotations.sort(key=lambda a: a[:2])
+        annotations.sort(key=lambda a: (a[0],not a[1]))
         # This SAX ContentHandler does the heavy lifting of stepping through each HTML tag and text string in the
         # source HTML and building a list of destination tags and text, inserting annotation tags or deleting text
         # as appropriate:
