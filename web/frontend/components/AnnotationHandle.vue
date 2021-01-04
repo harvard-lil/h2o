@@ -15,6 +15,7 @@
 <script>
 import ContextMenu from "./ContextMenu";
 import { Y_FIDELITY } from "../store/modules/annotations_ui.js";
+import _ from "lodash";
 
 export default {
   components: {
@@ -36,9 +37,8 @@ export default {
     }
   },
   methods: {
-    updateHeadY() {
+    updateHeadY: _.debounce(function() {
       const newHeadY = this.$el.getBoundingClientRect().top + window.scrollY;
-
       // Only update the headY if it's shifted by more than a certain
       // number of pixels. Small changes to the DOM can shift it by a
       // pixel or two, causing excessive updates and performance issues.
@@ -49,7 +49,7 @@ export default {
           {obj: this.uiState,
            vals: {headY: newHeadY}});
       }
-    }
+    }, 100)
   },
   mounted() {
     this.updateHeadY();
