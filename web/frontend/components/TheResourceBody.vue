@@ -44,6 +44,7 @@ export default {
     position: relative;
     counter-reset: index;
     @include serif-text($regular, 18px, 31px);
+
     /* hacks for misbehaving blockquotes */
     blockquote {
         span p {
@@ -85,6 +86,9 @@ export default {
         overflow-wrap: break-word;
         white-space: pre-wrap;
     }
+  h2 {
+    @include serif-text($regular, 20px, 24px);
+  }
 }
 .page-number, .page-label {
   font-size: small;

@@ -192,7 +192,7 @@ form.edit_content_resource, form.edit_content_section, form.edit_content_caseboo
 
 .casebook-inner {
   header.content{
-    padding: 24px 32px;
+    padding: 10px 32px;
 
     .form-control{
       font-size: 15px;
@@ -209,22 +209,23 @@ form.edit_content_resource, form.edit_content_section, form.edit_content_caseboo
   }
   header.casebook-header {
     margin-bottom: 2px;
-    padding: 20px 40px;
-    padding: 20px 40px 20px 40px;
+    padding: 20px 20px 20px 30px;
     background-color: $white;
-
     .casebook-title {
-        @include sans-serif($bold, 14px, 18px);
+      @include sans-serif($bold, 20px, 24px);
+      color: $dark-gray;
     }
   }
   header.content {
     background-color: $white;
-    h1.title {
-      margin: 0px;
+    .title {
+      margin: 0;
+      font-size: 32px;
+      line-height: 40px;
       @media (max-width: $screen-xs) {
         font-size: 18px;
+        line-height: 28px;
       }
-      font-size: 32px;
       .case {
         @include serif-text($regular, 43px, 51px);
         .title-metadata {
@@ -264,10 +265,12 @@ form.edit_content_resource, form.edit_content_section, form.edit_content_caseboo
         display: inline-block;
         line-height: 20px;
         color: $light-blue;
-        margin-left: 4px;
-        padding: 4px 8px;
-        line-height: 20px;
+        margin-left: 8px;
+        padding: 4px 8px 0 8px;
         border: none;
+        &:first-child {
+          margin-left: 0;
+        }
         &:focus {
           @include generic-focus-styles;
         }
@@ -328,7 +331,7 @@ form.edit_content_resource, form.edit_content_section, form.edit_content_caseboo
     align-items: center;
     flex-wrap: wrap;
     margin-top: 12px;
-
+    margin-bottom: 12px;
     .collaborators {
       display: inline-block;
       .add-collaborator {
@@ -368,7 +371,6 @@ form.edit_content_resource, form.edit_content_section, form.edit_content_caseboo
   .link-resource {
     position: relative;
     margin-bottom: 24px;
-    padding: 40px;
     background-color: $white;
   }
 
@@ -782,7 +784,7 @@ ul.settings-section {
             &.modified {
                 span.modified-alert {
                     background-color: $yellow;
-                    border-radius: 2rem; 
+                    border-radius: 2rem;
                     font-weight: 900;
                     font-size: large;
                     padding: 0.5rem 1rem;

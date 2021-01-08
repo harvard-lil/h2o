@@ -2,7 +2,7 @@
 
 .case-header {
     background-color: $white;
-    padding: 24px 32px;
+    padding: 24px 32px 10px 32px;
     @include serif-text($bold, 14px, 18px);
     line-height:unset;
     .title,
@@ -11,7 +11,12 @@
     .docketnumber,
     .court {
         text-align:center;
-        letter-spacing:1px;
+    }
+    .citation,
+    .decisiondate,
+    .docketnumber,
+    .court {
+        letter-spacing: 1px;
         padding: 4px;
     }
     .court {
@@ -23,7 +28,8 @@
         font-size: 18px;
     }
     .title {
-        @include serif-text($bold, 36px, 40px);
+        @include serif-text($bold, 27px, 33px);
+        padding: 20px 4px 10px 4px;
     }
 }
 
