@@ -89,8 +89,10 @@ const groupIntoAnnotation = (h, annotations, tuples) =>
     }
 
     let props = {startOffset: prevTuple[1],
-                 endOffset: last(childTuples)[2]};
-    
+                 endOffset: last(childTuples)[2],
+                 isHead: !annotation.used};
+    annotation.used = true;
+
     return [h(kindToComponent(annotation.kind),
               {key: `${annotation.id}/${props.startOffset}-${props.endOffset}`,
                props: {...props,

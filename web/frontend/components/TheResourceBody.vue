@@ -1,6 +1,7 @@
 <script>
 import { nodeToTuple,
          tupleToVNode } from "../libs/resource_node_parsing"
+import _ from "lodash";
 
 import SpacePreserver from "./SpacePreserver";
 import ElisionAnnotation from "./ElisionAnnotation";
@@ -32,7 +33,8 @@ export default {
     }
   },
   render(h) {
-    return tupleToVNode(h, this.$store.state.annotations.all)(nodeToTuple(this.body));
+    let annotations = _.cloneDeep(this.$store.state.annotations.all)
+    return tupleToVNode(h, annotations)(nodeToTuple(this.body));
   }
 };
 </script>

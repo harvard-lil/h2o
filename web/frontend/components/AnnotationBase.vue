@@ -25,7 +25,9 @@ export default {
     startOffset: {type: Number,
                   required: true},
     endOffset: {type: Number,
-                required: true}
+                required: true},
+    isHead: {type: Boolean,
+             required: true}
   },
   data: () => ({
     expandedDefault: true
@@ -36,9 +38,6 @@ export default {
     },
     isNew() {
       return Math.sign(this.annotation.id) == -1;
-    },
-    isHead() {
-      return this.startOffset == this.annotation.start_offset;
     },
     isTail() {
       return this.endOffset == this.annotation.end_offset;
