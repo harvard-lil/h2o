@@ -97,4 +97,4 @@ Contributions to this project should be made in individual forks and then merged
 
 ## License
 
-This codebase is Copyright 2019 The President and Fellows of Harvard College and is licensed under the open-source AGPLv3 for public use and modification. See [LICENSE](LICENSE) for details.
+This codebase is Copyright 2021 The President and Fellows of Harvard College and is licensed under the open-source AGPLv3 for public use and modification. See [LICENSE](LICENSE) for details.
