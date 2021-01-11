@@ -280,7 +280,8 @@ class InviteCollaboratorForm(forms.Form):
     helper = FormHelper()
 
     def save(self, request, commit=True):
-        email_address = self.cleaned_data.get('email', None)
+        [email_user, email_domain] = self.cleaned_data.get('email', None).split('@')
+        email_address = '@'.join([email_user, email_domain.lower()])
         casebook = Casebook.objects.get(id=self.cleaned_data.get('casebook', None))
 
         user = User.objects.filter(email_address=email_address).first()
