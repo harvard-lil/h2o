@@ -112,6 +112,7 @@ AUTH_PASSWORD_VALIDATORS = [
     },
 ]
 
+AUTHENTICATION_BACKENDS = ['main.authenticator.NormalizingAuthenticator']
 
 # Internationalization
 # https://docs.djangoproject.com/en/2.2/topics/i18n/
