@@ -24,7 +24,9 @@
 
 {% block submit_buttons_bottom %}
   {{ block.super }}
+  {% if original.capapi_id %}
   <div class="submit-row">
       <input type="submit" value="Update from case.law" name="_reimport_from_case_law">
   </div>
+  {% endif %}
 {% endblock %}
