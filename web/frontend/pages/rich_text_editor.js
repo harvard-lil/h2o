@@ -8,9 +8,9 @@ import 'tinymce/plugins/code';
 import 'tinymce/plugins/paste';
 
 function initRichTextEditor(element, code=false) {
-  let plugins = ['link', 'lists', 'image', 'table'];
+    let plugins = ['link', 'lists', 'image', 'table', 'paste'];
   // toolbar options: https://www.tiny.cloud/docs/advanced/editor-control-identifiers/#toolbarcontrols
-  let toolbar = 'undo redo removeformat | styleselect | h1 h2 | bold italic underline | numlist bullist indent outdent | table blockquote link image';
+  let toolbar = 'undo redo removeformat | styleselect | h1 h2 | bold italic underline | numlist bullist indent outdent | table blockquote link image removeformat';
   if (code){
     plugins.push('code');
     toolbar += ' | code';
@@ -26,7 +26,11 @@ function initRichTextEditor(element, code=false) {
     branding: false,
     toolbar: toolbar,
     contextmenu_never_use_native: false,
-    contextmenu:false
+      contextmenu:false,
+      paste_auto_cleanup_on_paste : true,
+      paste_remove_styles: true,
+      paste_remove_styles_if_webkit: true,
+      paste_strip_class_attributes: "all"
   });
 }
 
