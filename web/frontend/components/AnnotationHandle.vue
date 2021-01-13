@@ -38,15 +38,15 @@ export default {
   },
   methods: {
     updateHeadY: function() {
-      const newHeadY = self.$el.getBoundingClientRect().top + window.scrollY;
+      const newHeadY = this.$el.getBoundingClientRect().top + window.scrollY;
       // Only update the headY if it's shifted by more than a certain
       // number of pixels. Small changes to the DOM can shift it by a
       // pixel or two, causing excessive updates and performance issues.
       // We avoid those by rounding to a certain degree.
-      if (Math.abs(newHeadY - self.uiState.headY) > Y_FIDELITY) {
-        self.$store.commit(
+      if (Math.abs(newHeadY - this.uiState.headY) > Y_FIDELITY) {
+        this.$store.commit(
           'annotations_ui/update',
-          {obj: self.uiState,
+          {obj: this.uiState,
            vals: {headY: newHeadY}});
       }
     }

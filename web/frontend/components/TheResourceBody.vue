@@ -33,7 +33,8 @@ export default {
     }
   },
   render(h) {
-    let annotations = _.cloneDeep(this.$store.state.annotations.all)
+    let annotations = this.$store.state.annotations.all;
+    annotations.forEach(x => x.used = false);
     return tupleToVNode(h, annotations)(nodeToTuple(this.body));
   }
 };
