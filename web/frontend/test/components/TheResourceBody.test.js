@@ -48,15 +48,15 @@ describe('TheResourceBody', () => {
 
    ['wraps text in an annotation when the annotation entirely spans the text',
     '<div>%s</div>', ['foo bar'],
-    [DEFAULT_ANNOTATION]],
+    [cloneDeep(DEFAULT_ANNOTATION)]],
 
    ['wraps inline elements in an annotation when the annotation entirely spans the elements',
     '<div>%s</div>', ['<em>foo</em> <span>bar</span>'],
-    [DEFAULT_ANNOTATION]],
+    [cloneDeep(DEFAULT_ANNOTATION)]],
 
    ['wraps innerHTML of a block level element rather than wrapping the block element itself',
     '<div><h1>%s</h1></div>', ['foo bar'],
-    [DEFAULT_ANNOTATION]],
+    [cloneDeep(DEFAULT_ANNOTATION)]],
 
    ['splits text when an annotation starts midway through the text',
     '<div>f%s</div>', ['oo bar'],
@@ -76,11 +76,11 @@ describe('TheResourceBody', () => {
 
    ['preserves whitespace at beginning of annotated text',
     '<div>%s</div>', [' foo'],
-    [DEFAULT_ANNOTATION]],
+    [cloneDeep(DEFAULT_ANNOTATION)]],
 
    ['preserves whitespace at end of annotated text',
     '<div>%s</div>', ['foo '],
-    [DEFAULT_ANNOTATION]]
+    [cloneDeep(DEFAULT_ANNOTATION)]]
 
   ].forEach(([title, html, selection, annotations]) => {
     it(title, () => {
