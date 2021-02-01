@@ -2,7 +2,7 @@ pip-tools
 fabric3
 tqdm
 
-django==2.2.16
+django==2.2.18
 django-extensions
 djangorestframework
 django-crispy-forms # tidier custom model forms
