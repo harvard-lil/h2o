@@ -80,6 +80,7 @@ def search(request):
             facet_fields=['attribution', 'affiliation'],
             order_by=request.GET.get('sort')
         )
+        facets['affiliation'] = [x for x in facets.get('affiliation', []) if x]
         results.from_capapi = False
 
     if partial:
