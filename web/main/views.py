@@ -778,7 +778,7 @@ def sign_up(request):
         Received the welcome email after setting password:
         >>> assert len(mailoutbox) == 2
         >>> assert mailoutbox[1].subject == 'Welcome to H2O!'
-        >>> assert "Take a look at our user guide" in mailoutbox[1].body
+        >>> assert settings.GUIDE_URL in mailoutbox[1].body
     """
     form = SignupForm(request.POST or None, request=request)
     if request.method == 'POST':
