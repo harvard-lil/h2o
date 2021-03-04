@@ -147,6 +147,8 @@ GUIDE_URL = 'https://about.opencasebook.org/'
 BLOG_URL = 'https://about.opencasebook.org/blog/'
 VIDEO_URL = 'https://about.opencasebook.org/other-resources'
 TWITTER_URL= 'https://twitter.com/opencasebook'
+SEARCH_URL = 'https://opencasebook.org/search/'
+EDIT_URL = 'https://opencasebook.org/accounts/edit/'
 ACCESSIBILITY_POLICY_URL = 'https://accessibility.huit.harvard.edu/digital-accessibility-policy'
 CAPAPI_CASE_URL_FSTRING = 'https://api.case.law/v1/cases/{}/'
 CAPAPI_COURT_URL_FSTRING = 'https://api.case.law/v1/courts/?id={}'
@@ -164,6 +166,8 @@ TEMPLATE_VISIBLE_SETTINGS = (
     'BLOG_URL',
     'VIDEO_URL',
     'TWITTER_URL',
+    'SEARCH_URL',
+    'EDIT_URL',
     'ACCESSIBILITY_POLICY_URL'
 )
 

@@ -1,5 +1,6 @@
 from django.conf import settings
 from django.contrib.auth import views as auth_views
+from django.shortcuts import redirect
 from django.urls import path, register_converter, include
 from django.views.generic import RedirectView, TemplateView
 from rest_framework.urlpatterns import format_suffix_patterns
@@ -105,6 +106,9 @@ urlpatterns = format_suffix_patterns(drf_urlpatterns) + [
     # path('pages/privacy-policy/', RedirectView.as_view(pattern_name='privacy-policy', permanent=True)),
     # path('pages/terms-of-service/', RedirectView.as_view(pattern_name='terms-of-service', permanent=True)),
     # path('pages/faq/', RedirectView.as_view(pattern_name='faq', permanent=True)),
+
+    # redirects
+    path('subscribe', no_perms_test(lambda request: redirect('https://opencasebook.us1.list-manage.com/subscribe?u=894c9c0d9d7d7c5f8de8d76aa&id=89f2a23e12'))),
 ]
 fix_after_rails("some routes don't have end slashes for rails compatibility")
 fix_after_rails("remove pages/ from static pages URLs")
