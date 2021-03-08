@@ -1,7 +1,8 @@
 version: 2.1
 jobs:
   build:
-    machine: true
+    machine:
+      image: ubuntu-1604:202007-01
     working_directory: ~/project
     steps:
 
@@ -18,7 +19,9 @@ jobs:
       - run:
           name: "Flake8"
           command: |
-            export PYENV_VERSION=3.5.2  # use the version of python3 installed on circleci
+            pyenv versions
+            which pip
+            export PYENV_VERSION=3.8.3  # use the version of python3 installed on circleci
             pip install `egrep -o 'flake8==\S+' web/requirements.txt`  # install our version of flake8
             flake8 web/
 
@@ -73,6 +76,9 @@ jobs:
       - run:
           name: "Upload coverage"
           command: |
+            pyenv versions
+            which pip
+            export PYENV_VERSION=3.8.3  # use the version of python3 installed on circleci
             sudo pip install codecov
             codecov
 
