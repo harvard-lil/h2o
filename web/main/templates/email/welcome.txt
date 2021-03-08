@@ -2,14 +2,14 @@ Welcome to H2O!
 The H2O platform allows you to make open education resources that are dynamic, easy-to-share, and free for students and everyone else. We’re happy to have you with us as we promote open casebooks and more.
 
 Update your Profile
-If you are an educator, fill in your profile information and check the box to be verified as a professor. Once confirmed, you’ll have a green check mark next to your name and your casebooks will be surfaced in search results: https://opencasebook.org/accounts/edit/.
+If you are a professor, fill in your profile information and check the box to be verified. Once confirmed, you’ll have a green check mark next to your name and your casebooks will be surfaced in search results: https://opencasebook.org/accounts/edit/.
 
 Get Started
-To jump right into creating a new casebook or resource, log into H2O and click 'Create Casebook' at the top of the page. We also encourage you to browse our collection of existing casebooks which you can adapt for your own use with our ‘Clone’ feature, instead of starting from scratch: https://opencasebook.org/search/. 
+To jump right into creating a new casebook or resource, log in to H2O and click 'Create Casebook' at the top of the page. We also encourage you to browse our collection of existing casebooks which you can adapt for your own use with our ‘Clone’ feature, instead of starting from scratch: https://opencasebook.org/search/. 
 You can find tips for creating your first casebook with our help guides and video tutorials: {{ GUIDE_URL }}. 
 
 Stay Connected
-If you are an educator, be sure to follow us on Twitter ({{ TWITTER_URL }}) and keep up with our blog ({{ BLOG_URL }}). If you want to spread the word about open education resources for law, help us grow the H2O community by telling your colleagues about us, or by sharing out your finished casebooks so folks can see what H2O is all about. 
+If you are an educator, be sure to sign up for our newsletter (https://opencasebook.org/subscribe) and follow us on Twitter ({{ TWITTER_URL }}). If you want to spread the word about open education resources for law, help us grow the H2O community by telling your colleagues about us, or by sharing out your finished casebooks so folks can see what H2O is all about. 
 
 Have questions? Just reply to this email ({{ CONTACT_EMAIL }}).
 
