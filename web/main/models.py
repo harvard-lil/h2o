@@ -3021,7 +3021,7 @@ class Casebook(EditTrackedModel, TimestampedModel, BigPkModel, CasebookAndSectio
                 cloned_annotations.append((cloned_annotation, cloned_content_node))
 
             # clone resources
-            if old_content_node.resource_id and old_content_node.resource_type != 'Case':
+            if old_content_node.resource_id and old_content_node.resource_type not in {'Case', 'LegalDocument'}:
                 resource = old_content_node.resource
                 cloned_resource = clone_model_instance(resource)
                 cloned_resources[type(cloned_resource)].append((cloned_resource, cloned_content_node))
