@@ -474,7 +474,7 @@ class USCodeGPO():
             'fullCitations': result.citation,
             'shortCitations': result.citation,
             'effectiveDate': result.effective_date,
-            'url': result.lii_url,
+            'url': result.gpo_url,
             'id': result.gpo_id
         }
 
