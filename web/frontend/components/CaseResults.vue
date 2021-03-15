@@ -1,41 +1,38 @@
 <template>
 <div class="search-results">
-  <div v-for="source in searchResults" :key="source.id">
-    <div>
-      {{source.name}}: <i class="source-description">{{source.short_description}}</i>
-      <input type="checkbox" :checked="source.enabled" @change="internalToggleSource(source.id)"/>
+  <div class="search-alert" v-if="searchResults.allPending">
+    <div class="spinner-message">
+      <div>Searching</div>
     </div>
-    <div v-if="source.enabled">
-      <div class="search-alert" v-if="source.pendingCaseFetch">
-        <div class="spinner-message">
-          <div>Searching</div>
-        </div>
-        <loading-spinner></loading-spinner>
+    <loading-spinner></loading-spinner>
+  </div>
+  <div class="search-results-wrapper" v-else-if="searchResults.emptyResults">
+    <div class="search-alert">
+      <span>No legal documents found matching your search</span>
+    </div>
+  </div>
+  <div class="search-results-wrapper" v-else-if="searchResults.unRun">
+    <div class="search-alert">
+      <span>Click Search to run your search</span>
+    </div>
+  </div>
+  <div class="search-results-wrapper" v-else>
+    <div class="search-results-entry" v-for="c in searchResults.results" :key="c.id">
+      <div class="name-column">
+        <a v-on:click.stop.prevent="emitChoice(c)" class="wrapper">
+          <span :title="c.fullName">{{c.shortName}}</span>
+        </a>
       </div>
-      <div class="search-results-wrapper" v-else-if="source.emptyResults">
-        <div class="search-alert">
-          <span>No cases found matching your search</span>
-        </div>
+      <div class="cite-column">
+        <a v-on:click.stop.prevent="emitChoice(c)" class="wrapper">
+          <span :title="c.fullCitations">{{c.shortCitations}}</span>
+        </a>
       </div>
-      <div class="search-results-wrapper" v-else>
-        <div class="search-results-entry" v-for="c in source.results" :key="c.id">
-          <div class="name-column">
-            <a v-on:click.stop.prevent="emitChoice(c)" class="wrapper">
-              <span :title="c.fullName">{{c.shortName}}</span>
-            </a>
-          </div>
-          <div class="cite-column">
-            <a v-on:click.stop.prevent="emitChoice(c)" class="wrapper">
-              <span :title="c.fullCitations">{{c.shortCitations}}</span>
-            </a>
-          </div>
-          <div class="date-column">
-            <a v-on:click.stop.prevent="emitChoice(c)" class="wrapper">{{c.effectiveDate}}</a>
-          </div>
-          <div class="preview-column">
-            <a :href="c.url" target="_blank" rel="noopener noreferrer">{{ source.name }}</a>
-          </div>
-        </div>
+      <div class="date-column">
+        <a v-on:click.stop.prevent="emitChoice(c)" class="wrapper">{{c.effectiveDate}}</a>
+      </div>
+      <div class="preview-column">
+        <a :href="c.url" target="_blank" rel="noopener noreferrer">{{ c.sourceName }}</a>
       </div>
     </div>
   </div>
@@ -64,21 +61,7 @@ export default {
       return this.getSources();
     },
     searchResults: function() {
-      const tempResults = this.getSearch()(this.delayedObj);
-      if (!tempResults || !this.sources) return [];
-      let augmentedResults = this.sources.map(x => {
-        const results = tempResults[x.sourceIndex];
-        return {
-          ...x,
-          pendingCaseFetch: results && !_.isArray(results) && results === 'pending',
-          emptyResults: results && _.isArray(results) && results.length === 0,
-          disabled: results && !_.isArray(results) && results === 'disabled',
-          timeout: results && !_.isArray(results) && results === 'timeout',
-          results: results
-        }
-      });
-      augmentedResults.sort((a,b) => a.disabled < b.disabled)
-      return augmentedResults;
+      return this.getSearch()(this.delayedObj);
     }
   },
   methods: {
@@ -89,7 +72,6 @@ export default {
     },
     internalToggleSource: function(source_id) {
       this.toggleSource({source_id, queryObj: this.delayedObj});
-      console.log(source_id);
     }
   },
   mounted: function() {

@@ -23,7 +23,7 @@
         </header>
         <header class="content">
             {% include 'includes/breadcrumbs.html' with content=resource %}
-            {% if not resource.provides_header %}<h1 class="title">{{ resource.title }}</h1>{% endif %}
+            <h1 class="title">{{ resource.title }}</h1>
         </header>
         {% include 'includes/action_buttons.html' with content=resource %}
         {% include 'includes/headnote.html' with content=resource %}

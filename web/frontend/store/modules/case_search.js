@@ -26,7 +26,29 @@ const helpers = {
 const getters = {
   getSearch: state => queryObj => {
     const qKey = helpers.normalize(queryObj);
-    return state.searches[qKey];
+    let searches = state.searches[qKey];
+    if (!searches) return {unRun: true};
+    let results = [];
+    let sources = [];
+    let keys = _.keys(_.groupBy(searches.map(results => _.isArray(results) ? 'completed' : results), x => x)).filter(x => x !== 'disabled');
+    let allDisabled = keys.length === 0;
+    let allCompleted = keys.length === 1 && keys[0] === 'completed';
+    let allPending = keys.length === 1 && keys[0] === 'pending';
+    let mixedResults = keys.length > 1;
+    searches.forEach((search, index) => {
+      if (_.isArray(search) && search.length === 0) return;
+      let source = _.find(state.sources, ({id}) => id === search[0].source_id);
+      if (!source) return;
+      if (_.isArray(search)) {
+        source.status = 'completed';
+        results = results.concat(search.map(result => ({sourceName: source.name, ...result})));
+      } else {
+        source.status = source.status === 'timeout' ? 'disabled' : source.results;
+      }
+      sources.push(source);
+    });
+    let emptyResults = allCompleted && results.length === 0;
+    return {sources, results, allDisabled, allCompleted, allPending, mixedResults, emptyResults};
   },
   getSources: state => {
     return state.sources;
@@ -35,8 +57,13 @@ const getters = {
 
 const mutations = {
   setSources: (state, sources) => {
-    let internalSources = sources.map((x,i) => ({ ...x, sourceIndex:i }));
-    Vue.set(state, 'sources', internalSources);
+    sources.forEach((source, sourceIndex) => {
+      source.search_regexes.forEach(search_regex => {
+        search_regex.regex = new RegExp(search_regex.regex);
+      });
+      source.sourceIndex = sourceIndex;
+    });
+    Vue.set(state, 'sources', sources);
   },
   overwrite: (state, {queryObj, source, results}) => {
     const qKey = helpers.normalize(queryObj);
@@ -57,7 +84,7 @@ const mutations = {
   initializeSearch: (state, queryObj) => {
     const qKey = helpers.normalize(queryObj);
     if (!_.has(state.searches, qKey)) {
-      Vue.set(state.searches, qKey, state.sources.map(({enabled}) => enabled ? 'pending' : 'disabled'));
+      Vue.set(state.searches, qKey, state.sources.map(() => 'disabled'));
     }
   },
   toggleSourceEnabled: (state, sourceIndex) => {
@@ -66,7 +93,13 @@ const mutations = {
 };
 
 const actions = {
-  fetchForSource: ({state, commit, dispatch}, {queryObj, source}) => {
+  fetchForSource: ({state, commit, dispatch}, {queryObj, source }) => {
+    if (queryObj === {}) return;
+    commit('initializeSearch', queryObj);
+    let qKey = helpers.normalize(queryObj);
+    if (_.hasIn(state, ['searches', qKey]) &&
+        state.searches[qKey].length >= source.sourceIndex &&
+        !_.includes(['timeout', 'disabled'], state.searches[qKey][source.sourceIndex])) return;
     commit('setPending', {queryObj, source});
     const searchUrlRoot = searchUsingURL({sourceId: source.id});
     const url = `${searchUrlRoot}?${helpers.encodeQuery(queryObj)}`;
@@ -78,14 +111,9 @@ const actions = {
       }, console.error);
     dispatch('timeOutSearch', {queryObj, source});
   },
-  fetchForAllSources: ({state, commit, dispatch}, queryObj) => {
-    commit('initializeSearch', queryObj);
+  fetchForAllSources: ({state, commit, dispatch}, {queryObj}) => {
     for(let source of state.sources) {
-      if (source.enabled) {
-        dispatch('fetchForSource', {queryObj, source});
-      } else {
-        commit('setDisabled', {queryObj, source});
-      }
+      dispatch('fetchForSource', {queryObj, source});
     }
   },
   fetchSources: ({ state, commit, dispatch }) => {
@@ -98,7 +126,7 @@ const actions = {
   timeOutSearch: ({ state, commit }, {queryObj, source}) => {
     const searchTimeout = 30000;
     setTimeout(() => {
-      if (state.searches[helpers.normalize(queryObj)][source.id] === 'pending') {
+      if (state.searches[helpers.normalize(queryObj)][source.sourceIndex] === 'pending') {
         commit('scrub', {queryObj, source});
       }
     }, searchTimeout);

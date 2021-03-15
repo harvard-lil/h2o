@@ -337,7 +337,7 @@ def truncate_name(case_name):
     max_part_length = 40
     parts = vs_check.split(case_name)
     if len(parts) != 2:
-        return case_name[:max_part_length * 2 + 4] + ("..." if len(case_name) < (max_part_length * 2 + 4) else "")
+        return case_name[:max_part_length * 2 + 4] + ("..." if len(case_name) > (max_part_length * 2 + 4) else "")
     part_a = parts[0][:max_part_length] + ("..." if len(parts[0]) > max_part_length else "")
     part_b = parts[1][:max_part_length] + ("..." if len(parts[1]) > max_part_length else "")
     return part_a + " v. " + part_b
@@ -349,7 +349,17 @@ class CAP:
     details = {'name': 'CAP',
                'short_description':'CAP provides US Case law up to 2018',
                'long_description':'The Caselaw Access Project contains three hundred and sixty years of United States caselaw',
-               'link':'https://case.law/'}
+               'link':'https://case.law/',
+               'search_regexes': [
+                   {'name': 'US Case Law',
+                    'regex':r'\b[0-9]+ (?:[0-9A-Z][0-9a-z.]* )+[0-9]+\b'},
+                   {'name': 'US Case Law',
+                    'regex':'https://cite.case.law/.*'},
+                   {'name': 'US Case Law',
+                    'regex':r'( vs?[.]? )|(\bin re:\b)|(ex parte)',
+                    'fuzzy': True},
+               ]
+    }
 
 
     @staticmethod
@@ -459,7 +469,16 @@ class USCodeGPO():
     details = {'name': 'GPO',
                'short_description':'The GPO provides the USCode',
                'long_description':'The GPO provides section level access to the US Code',
-               'link':'https://www.govinfo.gov/app/collection/uscode'}
+               'link':'https://www.govinfo.gov/app/collection/uscode',
+               'search_regexes': [
+                   {'name': 'US Code',
+                    'regex': '[0-9]* U[.]?S[.]?C[.]? §§? [0-9]*(-[0-9]*)?'
+                   },
+                   {'name':'US Code',
+                    'regex':'https://www.law.cornell.edu/uscode/.*'
+                   }
+               ],
+    }
 
     @staticmethod
     def build_index():
@@ -493,6 +512,9 @@ class USCodeGPO():
     @staticmethod
     def search(search_params):
         # given standard search params return results
+        abbreviator = re.compile(r'\bUSC\b', re.IGNORECASE)
+        if search_params.q:
+            search_params.q = re.sub(abbreviator, 'U.S.C.', search_params.q)
         cite_matcher = re.compile('[0-9]+ U.S.C. § [0-9]+(-[0-9]+)?')
         if cite_matcher.match(search_params.q):
             search_params.citation = search_params.q
@@ -512,6 +534,53 @@ class USCodeGPO():
             search_fields['search_field'] = SearchQuery(search_params.q, config='english')
 
         return [USCodeGPO.convert_search_result(x) for x in USCodeIndex.objects.filter(**search_fields)[:30]]
+
+    @staticmethod
+    def parse_gpo_html(full_body):
+        any_field = re.compile('<!-- *field-(?P<field>(?:start|end):[^ ]+) *-->')
+        br = re.compile('<br */>')
+        comment = re.compile('<!-- .* -->')
+
+        def get_field(field_name, text, start_loc= 0):
+            start = re.compile(f'<!-- *field-start:{field_name} *-->')
+            end = re.compile(f'<!-- *field-end:{field_name} *-->')
+            start_match = start.search(text, start_loc)
+            if not start_match:
+                return {'start':None, 'end':None,'content':None}
+            end_matches = [x.span()[1] for x in end.finditer(text, start_match.span()[1])]
+            if not end_matches:
+                return {'start':None,'end':None,'content':None}
+            field_range = (start_match.span()[0],end_matches[-1])
+            return {'start':field_range[0],
+                    'end':field_range[1],
+                    'content':text[field_range[0]:field_range[1]]}
+
+        def strip_brs(text):
+            return br.sub('',text)
+
+        def span_contents(text):
+            return [x.text for x in PyQuery(text)("span") if x.text]
+
+        def strip_comments(text):
+            return comment.sub('', text)
+
+        def parse(text):
+            full_body = PyQuery(text)("body").html()
+            q = any_field.search(full_body)
+            header_section = full_body[:q.span()[0]]
+            header_lines = span_contents(header_section)
+            statute_body = get_field('statute', full_body)
+            notes_start = statute_body['end'] or 0
+            notes = get_field('notes', full_body, notes_start)
+            return {'header': header_lines,
+                    'body': strip_comments(strip_brs(statute_body['content'])) if statute_body['content'] else '' ,
+                    'notes': strip_comments(strip_brs(notes['content'])) if notes['content'] else ''}
+
+        parts = parse(full_body)
+        parts['combined_body'] = (parts['body'] or '') + ('\n<h4 class="notes-section">Notes</h4>\n' + parts['notes']) if parts['notes'] else ''
+        return parts
+
+
 
     @staticmethod
     def pull(legal_doc_source, id):
@@ -536,8 +605,9 @@ class USCodeGPO():
             msg = "Communication with GPO API failed: {}".format(str(e))
             raise APICommunicationError(msg)
         metadata = metadata_response.json()
+
         content = PyQuery(body_response.content)
-        body = re.sub('style="[^"]*"','',re.sub('<!-- .*? -->', '', content("body").html())).split('\n')
+
         effective_date = parser.parse(metadata['dateIssued'])
         publication_date = parser.parse(metadata['lastModified'])
         title_no = id.split("-")[2][5:]
@@ -547,18 +617,10 @@ class USCodeGPO():
         silcrow = '§' if single_leaf else '§§'
         sections = first_section if single_leaf else first_section + '-' + last_section
         citation = f"{title_no} U.S.C. {silcrow} {sections}"
-        header = []
-        body_offset = 0
-        for line in body:
-            body_offset += 1
-            if line != '':
-                if line.startswith('<span'):
-                    header.append(re.sub('<br */>','',re.sub('</span *>','',re.sub('<span *>','',line))))
-                else:
-                    break
-        focused_content = '\n'.join(body[body_offset:])
-        header.pop()
-        metadata['header'] = header
+
+        parsed_body = USCodeGPO.parse_gpo_html(content)
+        metadata['header'] = parsed_body['header']
+        formatted_body = parsed_body['combined_body']
         code = LegalDocument(source=legal_doc_source,
                              name=metadata['title'],
                              doc_class='Code',
@@ -567,7 +629,7 @@ class USCodeGPO():
                              publication_date=publication_date,
                              updated_date=datetime.now(),
                              source_ref=id,
-                             content=focused_content,
+                             content=formatted_body,
                              metadata=metadata)
         return code
 
@@ -672,9 +734,9 @@ class SearchIndex(models.Model):
         Get all cases:
         >>> assert dump_search_results(SearchIndex().search('legal_doc')) == (
         ...     [
-        ...         {'citations': 'Adventures in criminality, 1 Fake 1, (2001)', 'display_name': 'Legal Doc 0', 'jurisdiction': '', 'effective_date': '1900-01-01T00:00:00+00:00', 'effective_date_formatted': 'January   1, 1900'},
-        ...         {'citations': 'Adventures in criminality, 1 Fake 1, (2001)', 'display_name': 'Legal Doc 1', 'jurisdiction': '', 'effective_date': '1900-01-01T00:00:00+00:00', 'effective_date_formatted': 'January   1, 1900'},
-        ...         {'citations': 'Adventures in criminality, 1 Fake 1, (2001)', 'display_name': 'Legal Doc 2', 'jurisdiction': '', 'effective_date': '1900-01-01T00:00:00+00:00', 'effective_date_formatted': 'January   1, 1900'}
+        ...         {'citations': 'Adventures in criminality, 1 Fake 1, (2001)', 'display_name': 'Legal Doc 0', 'jurisdiction': None, 'effective_date': '1900-01-01T00:00:00+00:00', 'effective_date_formatted': 'January   1, 1900'},
+        ...         {'citations': 'Adventures in criminality, 1 Fake 1, (2001)', 'display_name': 'Legal Doc 1', 'jurisdiction': None, 'effective_date': '1900-01-01T00:00:00+00:00', 'effective_date_formatted': 'January   1, 1900'},
+        ...         {'citations': 'Adventures in criminality, 1 Fake 1, (2001)', 'display_name': 'Legal Doc 2', 'jurisdiction': None, 'effective_date': '1900-01-01T00:00:00+00:00', 'effective_date_formatted': 'January   1, 1900'}
         ...     ],
         ...     {'legal_doc': 3, 'user': 3, 'casebook': 3},
         ...     {}
@@ -742,7 +804,7 @@ class LegalDocumentSource(models.Model):
     date_added = models.DateField(blank=True, null=True)
     last_updated = models.DateField(blank=True, null=True)
     active = models.BooleanField(default=False)
-    enabled = models.BooleanField(default=False)
+    priority = models.IntegerField(null=True)
 
     source_apis = {}
 
@@ -771,7 +833,7 @@ class LegalDocument(NullableTimestampedModel, AnnotatedModel):
     doc_class = models.CharField(max_length=100, blank=True, null=True)
     citations = ArrayField(models.CharField(max_length=500, blank=True, null=True))
     # list of jurisdictions is currently in CaseSearcher.vue (room for improvement)
-    jurisdiction = models.CharField(max_length=20, blank=True)
+    jurisdiction = models.CharField(max_length=20, blank=True, null=True)
     # I think a tritemporal model is as simple as I can deal make this
     # When the document was made effective (may be before or after other dates)
     effective_date = models.DateTimeField(blank=True, null=True)

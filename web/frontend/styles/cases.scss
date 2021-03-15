@@ -1,10 +1,13 @@
 @import 'font-vars-and-mixins';
 
-.case-header {
+.legal-doc-header {
     background-color: $white;
     padding: 24px 32px 10px 32px;
     @include serif-text($bold, 14px, 18px);
     line-height:unset;
+}
+
+.case-header {
     .title,
     .citation,
     .decisiondate,

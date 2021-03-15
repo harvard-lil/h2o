@@ -23,11 +23,22 @@
         />
     </div>
     <div v-if="!showingLimits">
-      <a v-on:click.stop.prevent="showLimits">Limit search by date range and/or jurisdiction</a>
+      <a v-on:click.stop.prevent="showLimits">Advanced search options</a>
     </div>
     <div v-else>
       <div class="toggle-line">
-        <a v-on:click.stop.prevent="hideLimits">Disable limits on search</a>
+        <a v-on:click.stop.prevent="hideLimits">Basic search</a>
+      </div>
+      <div class="source-row">
+      <label>
+        Source:
+          <select class="form-control" v-model="chosenSource" @change="manualSource">
+            <option :value="source" v-for="source in getSources" :key="source.id">{{source.name}}</option>
+          </select>
+      </label>
+      <div class="about-source">
+        {{chosenSource.long_description}}
+      </div>
       </div>
       <div class="jurisdiction-row">
         <label>
@@ -66,8 +77,10 @@
 
 <script>
 import _ from "lodash";
+import pp from "libs/text_outline_parser";
 import { createNamespacedHelpers } from "vuex";
-const { mapActions } = createNamespacedHelpers("case_search");
+const { mapActions, mapGetters } = createNamespacedHelpers("case_search");
+
 
 const jurisdictions = [
   { val: "", name: "All Jurisdictions" },
@@ -140,9 +153,19 @@ export default {
   data: () => ({
     jurisdictions,
     showingLimits: false,
+    chosenSource: null,
+    overrideSource: false
   }),
+  watch: {
+    passThrough: function(newVal) {
+      
+    }
+  },
   methods: {
-    ...mapActions(["fetchForAllSources", "fetchSources"]),
+    ...mapActions(["fetchForAllSources", "fetchForSource", "fetchSources"]),
+    manualSource: function() {
+      this.overrideSource = true;
+    },
     showLimits: function() {
       this.showingLimits = true;
       this.updateValue(this.value);
@@ -192,7 +215,11 @@ export default {
     runCaseSearch: function runCaseSearch() {
       const searchQ = this.reformatDates();
       if (searchQ.query !== "") {
-        this.fetchForAllSources(searchQ);
+        if (this.showingLimits) {
+          this.fetchForSource({queryObj: searchQ, source: this.chosenSource})
+        } else {
+          this.fetchForAllSources({queryObj: searchQ});
+        }
         this.$emit("input", searchQ)
       }
     },
@@ -202,7 +229,18 @@ export default {
     emitChoice: function(c) {
       this.$emit("choose", c);
     },
+    guessSource: function(query) {
+      let {guesses} = pp.guessLineType(query, this.getSources);
+      if (guesses && guesses.length > 0) {
+        this.chosenSource = this.getSources[guesses[0].source.sourceIndex];
+      } else {
+        this.chosenSource = this.getSources[0]
+      }
+    },
     updateValue: function(newVal) {
+      if (!this.showingLimits) {
+        this.guessSource(newVal.query);
+      }
       this.$emit("input", this.cleaned(newVal));
     },
     cleaned: function(val) {
@@ -216,6 +254,7 @@ export default {
     }
   },
   computed: {
+    ...mapGetters(['getSources']),
     displayedSearchLabel: function() {
       return this.searchLabel || "";
     },
@@ -260,7 +299,7 @@ export default {
     }
   },
   mounted: function() {
-    this.fetchSources();
+    this.guessSource(this.value.query);
   }
 };
 </script>
@@ -278,5 +317,8 @@ export default {
         padding-top: 2rem;
         padding-bottom: 1rem;
     }
+}
+.about-source {
+    margin: 6px 0px;
 }
 </style>

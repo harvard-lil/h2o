@@ -98,6 +98,7 @@ import CaseResults from "./CaseResults";
 import Editor from "@tinymce/tinymce-vue";
 import Axios from "../config/axios";
 import _ from "lodash";
+import urls from "libs/urls";
 import { createNamespacedHelpers } from "vuex";
 const { mapActions } = createNamespacedHelpers("case_search");
 
@@ -152,6 +153,8 @@ export default {
   },
   methods: {
     ...mapActions(["fetch"]),
+    docImportUrl: urls.url('from_source'),
+    docAddUrl: urls.url('new_legal_doc'),
     displayModal: function displayModal() {
       this.showModal = true;
     },
@@ -200,21 +203,16 @@ export default {
       );
     },
     selectCase: function(c) {
-      const CAPAPI_LOADER_URL = "/cases/from_capapi";
+      let importUrl = this.docImportUrl({sourceId: c.source_id});
+      let addUrl = this.docAddUrl({casebookId: this.casebook});
       let formData = new FormData();
       formData.append("section", this.section);
-      const url = `/casebooks/${this.casebook}/new/case`;
       const handler = this.handleSubmitResponse;
       this.pendingSubmit = true;
-      if (c.h2o_case_id) {
-        formData.append("resource_id", c.h2o_case_id)
-        Axios.post(url, formData).then(handler, this.handleSubmitErrors); 
-      } else {
-        Axios.post(CAPAPI_LOADER_URL, { id: c.id }).then(resp => {
+      Axios.post(importUrl, { id: c.id }).then(resp => {
           formData.append("resource_id", resp.data.id)
-          Axios.post(url, formData).then(handler, this.handleSubmitErrors);
-        });
-      }
+          Axios.post(addUrl, formData).then(handler, this.handleSubmitErrors);
+      });
     },
     handleSubmitResponse: function handleSubmitResponse(response) {
       let location = response.request.responseURL;

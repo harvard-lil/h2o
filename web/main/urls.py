@@ -5,7 +5,7 @@ from django.urls import path, register_converter, include
 from django.views.generic import RedirectView, TemplateView
 from rest_framework.urlpatterns import format_suffix_patterns
 
-from .models import Casebook, Section, ContentNode, ContentAnnotation
+from .models import Casebook, Section, ContentNode, ContentAnnotation, LegalDocument
 from .test.test_permissions_helpers import no_perms_test
 from .url_converters import IdSlugConverter, OrdinalSlugConverter, register_model_converter
 from .utils import fix_after_rails
@@ -18,6 +18,7 @@ register_model_converter(Casebook)
 register_model_converter(Section)
 register_model_converter(ContentNode, 'resource')
 register_model_converter(ContentAnnotation, 'annotation')
+register_model_converter(LegalDocument)
 
 # these patterns will have optional format suffixes added, like '.json'
 drf_urlpatterns = [
@@ -56,7 +57,7 @@ urlpatterns = format_suffix_patterns(drf_urlpatterns) + [
 
     # legal_docs
     path('documents/fetch/<int:source>/', views.import_from_source, name='from_source'),
-    path('documents/<int:id>/', views.display_legal_doc, name='display_legal_doc'),
+    path('documents/<int:legal_doc_id>/', views.display_legal_doc, name='display_legal_doc'),
 
     # resources
     path('casebooks/<idslug:casebook_param>/resources/<ordslug:resource_param>/layout/', RedirectView.as_view(pattern_name='resource', permanent=True)),
@@ -74,6 +75,7 @@ urlpatterns = format_suffix_patterns(drf_urlpatterns) + [
     path('casebooks/<idslug:casebook_param>/new/text', views.new_text, name='new_text'),
     path('casebooks/<idslug:casebook_param>/new/link', views.new_link, name='new_link'),
     path('casebooks/<idslug:casebook_param>/new/case', views.new_case, name='new_case'),
+    path('casebooks/<idslug:casebook_param>/new/legaldoc', views.new_legal_doc, name='new_legal_doc'),
     path('casebooks/<idslug:casebook_param>/new/bulk', views.new_from_outline, name='new_from_outline'),
 
     path('casebooks/<idslug:casebook_param>/sections/<ordslug:section_param>/credits/', views.show_credits, name='show_resource_credits'),

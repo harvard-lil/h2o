@@ -9,7 +9,7 @@
       <div class="list-left">
         <div class="section-number">{{rootOrdinalDisplay}}</div>
         
-        <div class="resource-container" v-if="item.resource_type==='Case'">
+        <div class="resource-container" v-if="isLegalDoc">
           <a :href="url" class="section-title case-section-title">{{ item.title }}</a>
           <div class="case-metadata-container">
             <div class="resource-case">{{ item.citation }}</div>
@@ -120,70 +120,85 @@ import EntryAuditor from "./EntryAuditor";
 import EntryTransmuter from "./EntryTransmuter";
 import CollapseTriangle from "../CollapseTriangle";
 import Vue from "vue";
+import _ from "lodash";
+import pp from "../../libs/text_outline_parser";
 import { VueNestable, VueNestableHandle } from "@holtchesley/vue-nestable";
 import vClickOutside from "v-click-outside";
 import { createNamespacedHelpers } from "vuex";
 const { mapActions } = createNamespacedHelpers("table_of_contents");
+const { mapGetters } = createNamespacedHelpers("case_search");
 
 Vue.use(VueNestable);
 Vue.use(vClickOutside);
 
 export default {
-    components: {
-        EntryAuditor,
-        EntryTransmuter,
-        VueNestableHandle,
-        CollapseTriangle
+  components: {
+    EntryAuditor,
+    EntryTransmuter,
+    VueNestableHandle,
+    CollapseTriangle
+  },
+  props: ["item", "rootOrdinalDisplay", "editing"],
+  data: () => ({ showDelete: false }),
+  computed: {
+    ...mapGetters(['getSources']),
+    autoSpecifyCandidate: function() {
+      if (this.needsToSpecifyCase) {
+        let lineGuess = pp.guessLineType(this.item.title, this.getSources());
+        return lineGuess.guesses.length === 1;
+      } else {
+        return false;
+      }
     },
-    props: ["item", "rootOrdinalDisplay", "editing"],
-    data: () => ({ showDelete: false }),
-    computed: {
-        needsToSpecifyCase: function() {
-            return this.item.resource_type === 'Temp' && !this.item.audit;
-        },
-        collapsed: function() {
-            return this.item.collapsed;
-        },
-        url: function() {
-            return this.editing ?  this.item.edit_url : this.item.url;
-        },
-        dimmed: function() {
-            return !this.item.audit && this.$store.getters["globals/inAuditMode"]()
-                ? "dimmed"
-                : "";
-        },
-        animated: function() {
-            return this.item.audit ? "" : this.item.animationState;
-        },
-        animatingLoading: function() {
-            return this.animationState && this.animationState === "loading";
-        },
-        animatingLoaded: function() {
-            return this.animationState && this.animationState === "loaded";
-        },
-        isResource: function() {
-            return (
-                this.item.resource_type !== null &&
-                    this.item.resource_type !== "" &&
-                    this.item.resource_type !== "Section"
-            );
-        },
-        anchor: function() {
-            if (!this.item.url) return '';
-            const url_parts = this.item.url.split("/");
-            return url_parts[url_parts.length - 2];
-        },
-        casebook: function() {
-            return this.$store.getters["globals/casebook"]();
-        },
-        section: function() {
-            return this.$store.getters["globals/section"]();
+    needsToSpecifyCase: function() {
+      return this.item.resource_type === 'Temp' && !this.item.audit;
+    },
+    collapsed: function() {
+      return this.item.collapsed;
+    },
+    url: function() {
+      return this.editing ?  this.item.edit_url : this.item.url;
+    },
+    dimmed: function() {
+      return !this.item.audit && this.$store.getters["globals/inAuditMode"]()
+        ? "dimmed"
+        : "";
+    },
+    animated: function() {
+      return this.item.audit ? "" : this.item.animationState;
+    },
+    animatingLoading: function() {
+      return this.animationState && this.animationState === "loading";
+    },
+    animatingLoaded: function() {
+      return this.animationState && this.animationState === "loaded";
+    },
+    isResource: function() {
+      return (
+        this.item.resource_type !== null &&
+          this.item.resource_type !== "" &&
+          this.item.resource_type !== "Section"
+      );
+    },
+    anchor: function() {
+      if (!this.item.url) return '';
+      const url_parts = this.item.url.split("/");
+      return url_parts[url_parts.length - 2];
+    },
+    casebook: function() {
+      return this.$store.getters["globals/casebook"]();
+    },
+    section: function() {
+      return this.$store.getters["globals/section"]();
+    },
+    isLegalDoc: function() {
+      return _.has(this.item, 'citation') && this.item.citation;
     }
   },
-    methods: {
-        auditThisCase: function() {
-            this.$store.dispatch('table_of_contents/setAudit', {id: this.item.id });
-        },
+  methods: {
+    auditThisCase: function() {
+      this.$store.dispatch('table_of_contents/setAudit', {id: this.item.id });
+    },
     toggleSectionExpanded: function() {
       this.$store.dispatch('table_of_contents/toggleCollapsed', {id:this.item.id});
     },

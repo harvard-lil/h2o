@@ -67,9 +67,8 @@ class SectionOutlineSerializer(serializers.ModelSerializer):
             return node.resource_type if node.resource_type else 'Section'
 
     def get_citation(self, node):
-        if node.resource_type == 'Case':
-            if node.resource and node.resource.citations and len(node.resource.citations) > 0:
-                return node.resource.citations[0]['cite']
+        if node.resource_type == 'Case' or node.resource_type == 'LegalDocument':
+            return node.resource.cite_string
         return None
 
     class Meta:
@@ -296,6 +295,8 @@ class CollaboratorDeserializer(serializers.BaseSerializer):
 class LegalDocumentSourceSerializer(serializers.ModelSerializer):
     short_description = serializers.SerializerMethodField()
     long_description = serializers.SerializerMethodField()
+    search_regexes = serializers.SerializerMethodField()
+
 
     def get_short_description(self, source):
         return source.api_model().details['short_description']
@@ -303,9 +304,12 @@ class LegalDocumentSourceSerializer(serializers.ModelSerializer):
     def get_long_description(self, source):
         return source.api_model().details['long_description']
 
+    def get_search_regexes(self, source):
+        return source.api_model().details['search_regexes']
+
     class Meta:
         model = models.LegalDocumentSource
-        fields = ('id', 'name', 'enabled', 'short_description', 'long_description')
+        fields = ('id', 'name', 'short_description', 'long_description', 'search_regexes')
 
 class LegalDocumentSearchParams:
     def __init__(self, q=None, name=None, before_date=None, after_date=None, jurisdiction=None, citation=None, frontend_url=None):
