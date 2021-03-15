@@ -430,10 +430,8 @@ export default {
                     index = _.findIndex(casebookArray, matcher, index);
                 }
             }
-            console.log("Looking in Casebooks");
             removeFromArray(this.casebooks);
             for (const titleCasebooks of this.titles) {
-                console.log(`Looking in Title(${titleCasebooks.id})`)
                 removeFromArray(titleCasebooks.casebooks);
             }
         },

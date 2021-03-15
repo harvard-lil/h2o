@@ -57,7 +57,7 @@ function starts_with_numeral(line) {
   return enumeration_identification(line).numeral_stack.length > 0;
 }
 
-function merge_wrapped_lines(lines) {
+function _merge_wrapped_lines(lines) {
   // Check if the majority of lines end in numbers
   // If so, merge any lines that don't end in numbers into the previous line,
   // unless they start with one of the numeral prefixes above
@@ -230,15 +230,6 @@ function guess_line_depth(lines) {
   return guessed_lines;
 }
 
-const caseLike = /( vs?[.]? )|(\bin re:\b)|(ex parte)/i;
-const removeParenthetical = /\([^)]*\)/;
-const guessCitation = /[0-9]+\s+[a-zA-Z0-9 .]*\b\s*[0-9]+/;
-const guessCode = /[0-9]* U[.]?S[.]?C[.]? §§? [0-9]*(-[0-9]*)?/;
-const caseLawLink = /https?:\/\/cite\.case\.law\/[/0-9a-zA-Z_-]*/;
-function looksLikeCaseName(str) {
-  return !!(str.match(caseLike) || str.match(guessCitation) || str.match(guessCode) || str.match(caseLawLink));
-}
-
 const linkLike = /https?:\/\/(?:[\w]+\.)(?:\.?[\w]{2,})[^ ]*/;
 function looksLikeLink(str) {
   return !!(str.match(linkLike));
@@ -250,19 +241,6 @@ function extractLink(str) {
     return grabLink[0];
   }
   return str;
-}
-
-function extractCaseSearch(string) {
-  const ungarnished = string.replace(removeParenthetical, '');
-  let citeGuesses = ungarnished.match(guessCitation) || ungarnished.match(guessCode);
-  let caseLawGuesses = ungarnished.match(caseLawLink);
-  if (caseLawGuesses && caseLawGuesses.length === 1) {
-    return caseLawGuesses[0];
-  }
-  if (citeGuesses && citeGuesses.length === 1) {
-    return citeGuesses[0];
-  }
-  return ungarnished.trim();
 }
 
 function looksLikeSelfLink(line) {
@@ -278,30 +256,53 @@ function findSelfLinkMatch(line) {
       reverser: urls.reverser(urlName)
     }));
   let cands = urlFns.filter(u => u.match.exec(line)).map(u => u.reverser(line));
-  if (cands.length > 1) {
-    console.log(cands);
-  }
   return cands.length > 0 && cands[0];
 }
 
+function sourceMatches(line, source) {
+  return source.search_regexes.map(({name, regex, fuzzy}) => regex.test(line) && {
+    resource_type: 'Temp',
+    display_type: name,
+    source: _.pick(source, ['id', 'sourceIndex']),
+    query: regex.exec(line)[0],
+    fuzzy: !!fuzzy}).filter(x => x);
+}
 
-function guessLineType(line) {
-  if (looksLikeCaseName(line)) {
-    return {resource_type: 'Case', searchString: extractCaseSearch(line)};
-  } else if (looksLikeSelfLink(line)) {
+function guessLineType(line, sources) {
+  let sms = sources.map(source => sourceMatches(line, source)).filter(matches => matches.length > 0);
+  if (sms.length > 0) {
+    return {resource_type: 'Temp', guesses:_.flatten(sms)};
+  }
+  if (looksLikeSelfLink(line)) {
     let params = findSelfLinkMatch(line);
     if (_.has(params, 'caseId')) {
-      return {resource_type: 'Case', resource_id: params.caseId};
+      return {resource_type: 'Case',
+              display_type: 'Case',
+              resource_id: params.caseId};
     } else if (_.has(params, 'casebookId')) {
-      return {resource_type: 'Clone', casebookId: params.casebookId, sectionId: params.sectionId || params.resourceId, sectionOrd: params.sectionOrd || params.resourceOrd};
+      return {resource_type: 'Clone',
+              display_type: 'Clone',
+              casebookId: params.casebookId,
+              sectionId: params.sectionId || params.resourceId,
+              sectionOrd: params.sectionOrd || params.resourceOrd};
     } else if (_.has(params, 'titleSlug')) {
-        return {resource_type: 'Clone', userSlug: params.userSlug, titleSlug: params.titleSlug, ordSlug: params.ordSlug};
+      return {resource_type: 'Clone',
+              display_type: 'Clone',
+              userSlug: params.userSlug,
+              titleSlug: params.titleSlug,
+              ordSlug: params.ordSlug};
     }
-    return {resource_type: 'Link', url: extractLink(line)};
+    return {resource_type: 'Link',
+            display_type: 'Link',
+            url: extractLink(line)};
   } else if (looksLikeLink(line)) {
-    return {resource_type: 'Link', url: extractLink(line)};
+    return {resource_type: 'Link',
+            display_type: 'Link',
+            url: extractLink(line)};
   } else {
-    return {resource_type: 'TextBlock', title: line};
+    return {resource_type: 'TextBlock',
+            display_type: 'Text',
+            title: line};
   }
 }
 
@@ -311,13 +312,13 @@ function cleanDocLines(text) {
   // It works by parsing one line at a time
 
   let lines = text.split("\n").map(x => x.trim()).filter(x => x.length > 0);
-  let merged_lines = merge_wrapped_lines(lines);
+  let merged_lines = lines; // merge_wrapped_lines(lines);
   let enumerated_lines = merged_lines.map(enumeration_identification);
   let deep_lines = guess_line_depth(enumerated_lines);
   return deep_lines;
 }
 
-function structureOutline(lines) {
+function structureOutline(lines, sources) {
 
   function getPath(node, path) {
     if (path.length === 0 || !node) {
@@ -348,12 +349,12 @@ function structureOutline(lines) {
     }
 
     let currentNode = { title, resource_type: 'Temp', children: [] };
-    let lineGuess = guessLineType(title);
+      let lineGuess = guessLineType(title, sources);
     let hasChildren = next_depth > depth;
     if (hasChildren) {
       currentNode.resource_type = 'Section';
     } else {
-      _.merge(currentNode,lineGuess);
+      _.merge(currentNode,_.omit(lineGuess, ['guesses']));
     }
     stats[currentNode.resource_type] = _.get(stats, currentNode.resource_type, 0) + 1;
     let parent = getPath(root, path);
@@ -366,11 +367,9 @@ function structureOutline(lines) {
   return [root,stats];
 }
 
-
 export default {
   cleanDocLines,
   structureOutline,
-  guessLineType,
-  extractCaseSearch
+  guessLineType
 };
 

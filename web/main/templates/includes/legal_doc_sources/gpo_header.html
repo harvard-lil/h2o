@@ -1,7 +1,12 @@
-<header class="case-header">
+<header class="legal-doc-header uscode-header">
+    <p class="citation">
+        {{ legal_doc.cite_string }}
+    </p>
         {% for header_line in legal_doc.metadata.header %}
-    <p>
+    {% if not forloop.first %}
+    <p class="{% if forloop.counter == 3 %}title{% endif %}">
         {{ header_line }}
     </p>
-        {% endfor %}
+    {% endif %}
+    {% endfor %}
 </header>

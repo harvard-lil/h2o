@@ -9,7 +9,6 @@
 import CaseSearcher from "../CaseSearcher";
 import CaseResults from "../CaseResults";
 import Axios from "../../config/axios";
-import pp from "../../libs/text_outline_parser";
 
 export default {
   components: {
@@ -35,7 +34,8 @@ export default {
   methods: {
     selectCase: function(c) {
       const url = this.item.url;
-      const data = { from: "Temp", to: "LegalDocument", id: c.id,  source_id: c.source_id };
+      
+      const data = { from: "Temp", to: "LegalDocument", id: c.id,  source_id: c.source_id, title: c.shortName};
       Axios.patch(url, data).then(
         this.handleSubmitResponse,
         this.handleSubmitErrors
@@ -66,7 +66,7 @@ export default {
     }
   },
   mounted: function() {
-    this.searchOptions.query = pp.extractCaseSearch(this.item.title);
+    this.searchOptions.query = this.item.title;
   }
 };
 </script>

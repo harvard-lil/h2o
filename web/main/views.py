@@ -1262,9 +1262,16 @@ def edit_casebook(request, casebook):
     if request.method == 'POST' and form.is_valid():
         form.save()
     casebook.contents.prefetch_resources()
+    search_sources = LegalDocumentSource.objects
+    if not (request.user and request.user.is_superuser):
+        search_sources = search_sources.filter(active=True)
+    doc_sources = list(search_sources.order_by('priority').all())
+    serialized_sources = LegalDocumentSourceSerializer(doc_sources, many=True).data
+    search_sources_json = json.dumps(serialized_sources)
     return render_with_actions(request, 'casebook_page.html', {
         'casebook': casebook,
         'editing': True,
+        'search_sources_json': search_sources_json,
         'tabs': casebook.tabs_for_user(request.user, current_tab='Edit'),
         'casebook_color_class': casebook.casebook_color_indicator,
         'form': form
@@ -1468,7 +1475,35 @@ def new_case(request, casebook):
     fresh_resource.save()
     return HttpResponseRedirect(reverse('annotate_resource', args=[casebook, fresh_resource]))
 
+@perms_test(
+    {'method': 'post', 'args': ['casebook'],
+     'results': {403: ['casebook.testing_editor', 'other_user'], 'login': [None]}},
+    {'method': 'post', 'args': ['draft_casebook'],
+     'results': {400: ['draft_casebook.testing_editor'], 403: ['other_user'], 'login': [None]}},
+    {'method': 'post', 'args': ['private_casebook'],
+     'results': {400: ['private_casebook.testing_editor'], 403: ['other_user'], 'login': [None]}},
+)
+@require_http_methods(["POST"])
+@hydrate_params
+@user_has_perm('casebook', 'directly_editable_by')
+def new_legal_doc(request, casebook):
+    """
+    Creates a new LegalDoc as the last child of a casebook or section
+    """
 
+    if 'resource_id' not in request.POST:
+        return JsonResponse({'resource_id': [{'message': 'A resource id must be provided to use a case'}]}, status=status.HTTP_400_BAD_REQUEST)
+    doc_id = request.POST['resource_id']
+    doc = get_object_or_404(LegalDocument.objects.filter(id=doc_id))
+    parent_section_id = request.POST.get('section', None)
+    parent_section = Section.objects.get(id=parent_section_id) if parent_section_id else casebook
+    fresh_resource = Resource(title=doc.get_name(),
+                            casebook=casebook,
+                            ordinals=parent_section.content_tree__get_next_available_child_ordinals(),
+                            resource_id=doc.id,
+                            resource_type='LegalDocument')
+    fresh_resource.save()
+    return HttpResponseRedirect(reverse('annotate_resource', args=[casebook, fresh_resource]))
 
 def switch_node_type(request, casebook, content_node):
     """
@@ -1518,6 +1553,7 @@ def switch_node_type(request, casebook, content_node):
         elif new_type == 'LegalDocument':
             source_id = data.get('source_id', None)
             source_ref = data.get('id', None)
+            content_node.title = data.get('title', content_node.title)
             source = LegalDocumentSource.objects.get(id=int(source_id))
             if source and source_ref:
                 legal_doc = internal_doc_id_from_source(source, source_ref)
@@ -2097,19 +2133,19 @@ def import_from_source(request, source=None):
         return HttpResponseBadRequest("Request body should match {'id': &lsaquo;string&rsaquo'}")
 
     most_recent_doc = legal_doc_source.pull(id)
-    most_recent_saved_doc = LegalDocument.objects.filter(source=legal_doc_source, source_ref=id).order_by(['-effective_date','-publication_date'])
-    if most_recent_doc.effective_date > most_recent_saved_doc.effective_date:
-        most_recent_doc.save()
-        return JsonResponse({'id': most_recent_doc.id})
-    return JsonResponse({'id': most_recent_saved_doc.id})
+    most_recent_saved_doc = LegalDocument.objects.filter(source=legal_doc_source, source_ref=id).order_by('-effective_date','-publication_date').first()
+    if most_recent_saved_doc and most_recent_doc.effective_date <= most_recent_saved_doc.effective_date:
+        return JsonResponse({'id': most_recent_saved_doc.id})
+    most_recent_doc.save()
+    return JsonResponse({'id': most_recent_doc.id})
 
 
 
 @perms_test(
     {'args': ['legal_document.id'], 'results': {200: ['user', None]}},
 )
-def display_legal_doc(request, id=None):
-    legal_doc = get_object_or_404(LegalDocument, id=id)
+def display_legal_doc(request, legal_doc_id=None):
+    legal_doc = get_object_or_404(LegalDocument, id=legal_doc_id)
     legal_doc.json = json.dumps(LegalDocumentSerializer(legal_doc).data)
     return render(request, "legal_doc.html", {
         'legal_doc': legal_doc,
@@ -2373,7 +2409,7 @@ def search_sources(request):
     sources = LegalDocumentSource.objects
     if not (request.user and request.user.is_superuser):
         sources = sources.filter(active=True)
-    doc_sources = list(sources.all())
+    doc_sources = list(sources.order_by('priority').all())
     serialized = LegalDocumentSourceSerializer(doc_sources, many=True)
     return JsonResponse({'sources': serialized.data}, status=200)
 

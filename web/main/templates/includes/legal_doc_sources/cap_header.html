@@ -1,4 +1,4 @@
-<header class="case-header">
+<header class="case-header legal-doc-header">
     {% with md=legal_doc.metadata %}
     <div class="court"> {{ md.court.name }}</div>
     <h1 class="title">{% firstof section.title legal_doc.get_name %}</h1>

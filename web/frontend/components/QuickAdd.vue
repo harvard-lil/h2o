@@ -12,8 +12,8 @@
               @paste.prevent.stop="handlePaste"
               placeholder="Enter title here"
             />
-            <select v-model="resource_type" @change="manualResource" class="resource-type form-control">
-              <option :value="option.value" v-for="option in resource_type_options" v-bind:key="option.value">{{option.name}}</option>
+            <select v-model="resource_info" @change="manualResource" class="resource-type form-control">
+              <option :value="option.value" v-for="option in resource_info_options" v-bind:key="option.k">{{option.name}}</option>
             </select>
             <input
               type="submit"
@@ -41,20 +41,24 @@ import LoadingSpinner from "./LoadingSpinner";
 import Axios from "../config/axios";
 import pp from "libs/text_outline_parser";
 import urls from "libs/urls";
+import { createNamespacedHelpers } from "vuex";
 
-const optionsWithoutCloning = [{name: 'Section', value: 'Section'},
-                               {name: 'Search', value: 'Case'},
-                               {name: 'Text', value: 'TextBlock'},
-                               {name: 'Link', value: 'Link'}];
+const globals = createNamespacedHelpers("globals");
+const search = createNamespacedHelpers("case_search");
 
-const optionsWithCloning = optionsWithoutCloning.concat([{name: 'Clone', value: 'Clone'}]);
+const optionsWithoutCloning = [{name: 'Section', value: {resource_type: 'Section'}, k: 0},
+                               {name: 'Search',  value: {resource_type: 'Case'}, k: 1},
+                               {name: 'Text',    value: {resource_type: 'TextBlock'}, k: 2},
+                               {name: 'Link',    value: {resource_type: 'Link'}, k: 3}];
+
+const optionsWithCloning = optionsWithoutCloning.concat([{name: 'Clone', value: {resource_type: 'Clone'}}]);
 
 const data = function() {
   return {
     title: "",
-    resource_type: "Section",
+    resource_info: optionsWithoutCloning[0].value,
     manualResourceType: false,
-    resource_type_options: optionsWithoutCloning}
+    resource_info_options: optionsWithoutCloning}
 };
 const caseSearchDelay = 1000;
 
@@ -62,17 +66,19 @@ export default {
   components: {
     LoadingSpinner // eslint-disable-line vue/no-unused-components
   },
-  props: ["casebook", "section", "rootOrdinals"],
+  props: [],
   data: function() {
     return { ...data(), stats: {}, waitingFor: false, unWait: () => {} };
   },
   directives: {},
   computed: {
+    ...globals.mapGetters(['casebook', 'section']),
+    ...search.mapGetters(['getSources']),
     totalIdentified: function() {
       return _.values(this.stats).reduce((a, b) => a + b, 0);
     },
     lineInfo: function() {
-      return pp.guessLineType(this.title);
+      return pp.guessLineType(this.title, this.getSources);
     },
     desiredOrdinal: function() {
       const startOrdinal = /^[0-9]+(\.[0-9])* /;
@@ -84,23 +90,21 @@ export default {
     }
   },
   watch: {
-    resource_type: function(newVal) {
-      if (newVal === "Case") {
-        this.searchForCase();
-      }
-    },
-    title: function(newVal) {
-      if (this.resource_type === "Case") {
-        this.searchForCase();
-      }
-    },
     lineInfo: function() {
-      if (this.lineInfo.resource_type !== "Unknown" && !this.manualResourceType) {
-        this.resource_type = this.lineInfo.resource_type;
-        if (this.resource_type !== 'Clone') {
-          this.resource_type_options = optionsWithoutCloning;
+      if (this.lineInfo.resource_type !== "Unknown") {
+        if (this.lineInfo.resource_type === 'Temp') {
+          let k = 5;
+          let newOptions = this.lineInfo.guesses.map(guess => ({name: guess.display_type, value: guess, k:k++}));     
+          this.resource_info_options = _.concat(newOptions, optionsWithoutCloning);
+          if (!this.manualResourceType) {
+            this.resource_info = this.lineInfo.guesses[0];
+          }
         } else {
-          this.resource_type_options = optionsWithCloning;      
+          if (!this.manualResourceType) {
+          this.resource_info = this.lineInfo.resource_type;
+          }
+          let options = _.concat([{name: this.lineInfo.display_type, value: this.lineInfo.resource_type, k:5}],_.cloneDeep(optionsWithCloning));
+          this.resource_type_options = options;
         }
       }
     }
@@ -118,46 +122,33 @@ export default {
       this.waitingFor = false;
       this.unWait();
       this.unWait = () => {};
-    },
-    lowHangingCaseCheck: function(data) {
-      let query = _.get(data, 'data.0.searchString') || _.get(data, 'data.0.title');
-      
-      if (query) {
-        this.$store.dispatch("case_search/fetchForAllSources", { query });
-      }
+      this.manualResourceType = false;
     },
     handleSubmit: function() {
-      const data = {
-        section: this.section,
-        data: [{...this.lineInfo, title:this.title}]
-      };
-      if (data.data[0].resource_type === 'Unknown') { data.data[0].resource_type = 'Temp';}
-      if (data.data[0].resource_type === 'Link') {
-        if (!data.data[0].url) {
-          data.data[0].url = data.data[0].title;
+      let desiredSubset = _.pick(this.resource_info, ['resource_type', 'url', 'casebookId', 'resource_id', 'sectionId', 'sectionOrd', 'userSlug','titleSlug', 'ordSlug'])
+      let nodeData = {...desiredSubset, title:this.title}
+
+      if (nodeData.resource_type === 'Unknown') {
+        nodeData.resource_type = 'Temp';
+      }
+      if (nodeData.resource_type === 'Link') {
+        if (!nodeData.url) {
+          nodeData.url = nodeData.title;
         }
-        data.data[0].title = undefined;
+        nodeData.title = undefined;
       }
-      data.data[0].resource_type = this.resource_type;
-      if (this.resource_type === 'Case' && !_.has(data,'data.0.resource_id')) {
-        this.lowHangingCaseCheck(data);
-      }
+      const data = {
+        section: this.section(),
+        data: [nodeData]
+      };
       this.postData(data);
-      let k = {
-        Section: "sections",
-        Case: "cases",
-        Link: "links",
-        Text: "texts",
-        Temp: "temps"
-      }[this.resource_type];
-      this.stats[k] = _.get(this.stats, k, 0) + 1;
     },
     postData: function(data) {
-      return Axios.post(this.bulkAddUrl({casebookId:this.casebook}), data).then(this.handleSuccess, this.handleFailure);
+      return Axios.post(this.bulkAddUrl({casebookId:this.casebook()}), data).then(this.handleSuccess, this.handleFailure);
     },
     handleSuccess: function(resp) {
       this.$store.dispatch("table_of_contents/slowMerge", {
-        casebook: this.casebook,
+        casebook: this.casebook(),
         newToc: resp.data
       });
       this.resetForm();
@@ -172,11 +163,11 @@ export default {
       if ( pasted.indexOf("\n") >= 0) {
         this.waitingFor = "Parsing pasted text";
         let parsed = pp.cleanDocLines(pasted);
-        let [parsedJson, stats] = pp.structureOutline(parsed);
+        let [parsedJson, stats] = pp.structureOutline(parsed, this.getSources);
         _.keys(stats).map(k => {
           this.stats[k] = _.get(this.stats, k, 0) + stats[k];
         });
-        this.postData({ section: this.section,
+        this.postData({ section: this.section(),
                         data: parsedJson.children });
         this.title = "";
       } else {
@@ -184,7 +175,7 @@ export default {
       }
     },
     searchForCase: _.debounce(function searchForCase() {
-      const query = pp.extractCaseSearch(this.title);
+      let query = this.title;
       if (query) {
         this.$store.dispatch("case_search/fetchForAllSources", { query });
       }

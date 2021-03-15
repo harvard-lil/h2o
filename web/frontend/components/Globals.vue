@@ -4,14 +4,17 @@
 
 <script>
 import { createNamespacedHelpers } from "vuex";
-const { mapMutations } = createNamespacedHelpers("globals");
+const globalStore = createNamespacedHelpers("globals");
+const searchStore = createNamespacedHelpers("case_search");
 
 export default {
-    props: ["casebook","section"],
+    props: ['casebook','section', 'searchSources'],
     created: function() {
         this.setCasebook(this.casebook);
-        this.setSection(this.section);
+      this.setSection(this.section);
+      this.setSources(this.searchSources);
     },
-    methods: {...mapMutations(['setCasebook','setSection'])}
+  methods: {...globalStore.mapMutations(['setCasebook','setSection']),
+            ...searchStore.mapMutations(['setSources'])}
 }
 </script>

@@ -45,7 +45,8 @@ def frontend_urls(request):
                          '<slug:title_slug>'           : '_titleSlug',
                          '<ordslug:content_param>'     : '_nodeOrd',
                          'export.<file_type>'          : 'export.docx',
-                         '<int:source>'                : '_sourceId'
+                         '<int:source>'                : '_sourceId',
+                         '<int:legal_doc_id>'          : '_legalDocId'
         }
         return [replacements.get(x,x) for x in url.split('/')]
     global _frontend_urls

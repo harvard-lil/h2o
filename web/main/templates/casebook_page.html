@@ -32,13 +32,14 @@
             {% if section %}
             <header class="content">
                 {% include 'includes/breadcrumbs.html' with content=section %}
-                {% if not section.provides_header %}<h1 class="title">{{ section.title }}</h1>{% endif %}
+                <h1 class="title">{{ section.title }}</h1>
             </header>
             {% endif %}
             <header class="content">
-            <globals
-                :casebook="{{casebook.id}}"
-                {% if section %}:section="{{section.id}}"  {% endif %}
+                <globals
+                    :casebook="{{casebook.id}}"
+                    {% if section %}:section="{{section.id}}"  {% endif %}
+                    {% if search_sources_json %}:search-sources="{{search_sources_json}}"  {% endif %}
                 ></globals>
                 {% if editing %}
                     {% if section and section.is_temporary %}
@@ -84,7 +85,7 @@
             {% if not section.has_body and not section.is_temporary %}
                 {% include 'includes/table-of-contents.html'%}
                 {% if editing %}
-                    <quick-add casebook="{{casebook.id}}" section="{{section.id}}" />
+                    <quick-add />
                 {% endif %}
                 {% else %}
             {% endif %}

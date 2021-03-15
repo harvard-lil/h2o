@@ -9,34 +9,39 @@
 <script>
 import _ from "lodash";
 import _tinymce from 'tinymce/tinymce';
-import pp from "../libs/text_outline_parser";
 import PublishButton from "./PublishButton";
 import Axios from "../config/axios";
 import urls from "../libs/urls";
 import Vue from "vue";
+import { createNamespacedHelpers } from "vuex";
+import pp from "../libs/text_outline_parser";
+
+const { mapGetters } = createNamespacedHelpers("case_search");
+
+
 const bus = new Vue();
 
 Vue.component('DirtyForm',{
   data: () => ({fired: false}),
   props: ['cssClass', 'formMethod'],
-    mounted: function() {
+  mounted: function() {
     for(let k of this.$refs.form.elements) {
       if (k.id) {
-          k.addEventListener('input', this.emitDirty);
+        k.addEventListener('input', this.emitDirty);
       }
     }
     const self = this;
     setTimeout(() => {
-        window.tinyMCE.editors.forEach(editor => {
-            editor.on('input', self.emitDirty);
-        }, 100)
+      window.tinyMCE.editors.forEach(editor => {
+        editor.on('input', self.emitDirty);
+      }, 100)
     })
   },
   methods: {
-      emitDirty: function() {
-          if (this.fired) return;
-        bus.$emit('dirtiedForm', {})
-        this.fired = true;
+    emitDirty: function() {
+      if (this.fired) return;
+      bus.$emit('dirtiedForm', {})
+      this.fired = true;
     }
   },
   //template: '<div ref="parent"><slot></slot></div>'
@@ -54,7 +59,7 @@ export default {
       let form = document.querySelector('form.edit_content_resource') || document.querySelector('form.edit_content_section') || document.querySelector('form.edit_content_casebook');
       form.submit()
     },
-    bulkAddUrl: urls.url('new_from_outline'),    
+    bulkAddUrl: urls.url('new_from_outline'),
     startAudit: function() {
       let self = this;
       function slowSearches(nodes) {
@@ -64,8 +69,15 @@ export default {
           let node = closedNodes.pop();
           if (!node) return;
           if (_.has(node, "title")) {
-            let query = pp.extractCaseSearch(node.title);
-            self.$store.dispatch("case_search/fetch", { query });
+            let lineGuess = pp.guessLineType(node.title);
+            if (lineGuess.resource_type === 'Temp') {
+              lineGuess.guesses.forEach(({query, source}) => {
+                self.$store.dispatch("case_search/fetchForSource", {queryObj:{ query } ,source});
+              })
+            } else {
+              let queryObj = {query: node.title};
+              self.$store.dispatch("case_search/fetchForAllSources", { queryObj });
+            }
           }
           setTimeout(popAndSearch,delay);
         }
@@ -104,31 +116,41 @@ export default {
           this.$store.dispatch("table_of_contents/setAudit", { id });
         });
     },
+    handleSubmitResponse: function handleSubmitResponse(id) {
+      this.$store.dispatch("table_of_contents/clearAudit", {id});
+      this.$store.dispatch("table_of_contents/fetch", {
+        casebook: this.casebook,
+        subsection: this.section
+      });
+    },
+    handleSubmitErrors: function handleSubmitErrors(error) {
+      console.error(error);
+    }    
   },
   watch: {
     allSearchResults: function(newVal) {
+      console.log("Recalculating allSearchResults");
       const self = this;
-      newVal.forEach(({ url, id, results }) => {
-        function handleSubmitResponse(id) {
-          return (response) => {
-            self.$store.dispatch("table_of_contents/clearAudit", { id });
-            self.$store.dispatch("table_of_contents/fetch", {
-              casebook: self.casebook,
-              subsection: self.section
-            });
-          };
-        }
-        if (results && results !== "pending" && results.length === 1) {
-          const data = { from: "Temp", to: "Case", cap_id: results[0].id };
-          if (!_.has(self.autoAudited, id)) {
-            self.autoAudited[id] = true;
+      newVal.forEach(({ url, id, queryObj, searchResults }) => {
+        if (searchResults &&
+            _.has(searchResults, 'results') &&
+            _.isArray(searchResults.results) &&
+            searchResults.results.length === 1) {
+          let foundDoc = searchResults.results[0];
+          const data = { from: "Temp", to: "LegalDocument", id: foundDoc.id, source_id: foundDoc.source_id, title: foundDoc.shortName};
+          if (!_.has(this.autoAudited, id)) {
+            this.autoAudited[id] = true;
             Axios.patch(url, data).then(
-              handleSubmitResponse(id),
-              console.error
+              () => self.handleSubmitResponse(id),
+              this.handleSubmitError
             );
           }
         }
       });
+    },
+    "$store.state.case_search.searches": function(newVal) {
+      console.log("New Search Results");
+      console.log(newVal);
     },
     currentAuditId: function(newVal) {
       if (newVal === "None") {
@@ -140,7 +162,8 @@ export default {
     }
   },
   computed: {
-    inAuditMode: { 
+    ...mapGetters(['getSources', 'getSearch']),
+    inAuditMode: {
       get: function() {
         return this.$store.getters['globals/inAuditMode']();
       },
@@ -159,16 +182,36 @@ export default {
         this.casebook
       );
     },
-    allSearchResults: function() {
+    allNodesNeedingSearch: function() {
       let allNodes = [];
+      let self = this;
       this.needingAudit.forEach(id => {
         const node = this.$store.getters["table_of_contents/getNode"](id);
         if (node && node.resource_type === 'Temp') {
-          const query = pp.extractCaseSearch(node.title);
-          allNodes.push({url: node.url, id:node.id, results: this.$store.getters["case_search/getSearch"]({ query })});
+          if (_.has(node, "title")) {
+            let lineGuess = pp.guessLineType(node.title, this.getSources);
+            if (lineGuess.resource_type === 'Temp') {
+              lineGuess.guesses.forEach(guess => {
+                let query = guess.query;
+                let source = guess.source;
+                self.$store.dispatch("case_search/fetchForSource", {queryObj:{ query } ,source });
+              })
+              let queryObj = {query: lineGuess.guesses[0].query};
+              allNodes.push({url: node.url, id:node.id, queryObj});
+            } else {
+              let queryObj = {query: node.title};
+              self.$store.dispatch("case_search/fetchForAllSources", { queryObj });
+              allNodes.push({url: node.url, id:node.id, queryObj});
+            }
+          }
+
         }
       });
       return allNodes;
+    },
+    allSearchResults: function() {
+      return this.allNodesNeedingSearch.map(node => ({...node,
+                                                      searchResults: this.getSearch(node.queryObj)}));
     },
     allNodesSpecified: function() {
       return this.needingAudit.length === 0;
