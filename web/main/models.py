@@ -808,6 +808,9 @@ class LegalDocumentSource(models.Model):
 
     source_apis = {}
 
+    class Meta:
+        ordering = ['priority']
+
     @classmethod
     def register_api(cls, api):
         if api.details['name'] not in cls.source_apis:

@@ -15,7 +15,7 @@ from simple_history.admin import SimpleHistoryAdmin
 from .utils import fix_after_rails, clone_model_instance, APICommunicationError, parse_cap_decision_date
 from .models import Case, Link, User, Casebook, Section, \
     Resource, ContentCollaborator, ContentAnnotation, TextBlock, ContentNode, \
-    EmailWhitelist
+    EmailWhitelist, LegalDocumentSource, LegalDocument
 
 #
 # Helpers
@@ -182,6 +182,14 @@ class ResourceIdFilter(InputFilter):
         if value is not None:
             return queryset.filter(resource_id=value)
 
+class LegalDocumentSourceFilter(InputFilter):
+    parameter_name = 'doc-source'
+    title = 'Document (by source id)'
+
+    def queryset(self, request, queryset):
+        value = self.value()
+        if value is not None:
+            return queryset.filter(source_id=value)
 
 #
 # Inlines
@@ -560,7 +568,49 @@ class EmailWhitelistAdmin(BaseAdmin):
         return super(BaseAdmin, self).has_add_permission(request)
 
 
-## Courts
+class LegalDocumentSourceAdmin(BaseAdmin):
+    readonly_fields = []
+    list_select_related = []
+    list_display = ['id', 'name', 'active', 'priority', 'date_added', 'imported_documents']
+    list_filter = ['active']
+    search_fields = ['name']
+    raw_id_fields = []
+
+    def has_add_permission(self, request):
+        return super(BaseAdmin, self).has_add_permission(request)
+
+    def imported_documents(self, obj):
+        base_url = reverse('admin:main_legaldocument_changelist')
+        return format_html(f'<a href="{base_url}?resource_type=LegalDocument&doc-source={obj.id}">{obj.documents.count()}</a>')
+
+
+class LegalDocumentAdmin(BaseAdmin, SimpleHistoryAdmin):
+    readonly_fields = ['source_name', 'created_at', 'updated_at', 'content', 'metadata', 'source_ref', 'effective_date', 'publication_date', 'updated_date']
+    list_select_related = []
+    list_display = ['id', 'short_name', 'doc_class', 'related_resources', 'live_annotations_count', 'created_at', 'updated_at']
+    list_filter = ['doc_class', LegalDocumentSourceFilter]
+    search_fields = ['short_name', 'name']
+    raw_id_fields = []
+    exclude = ('annotations_count','source')
+
+    def has_add_permission(self, request):
+        return super(BaseAdmin, self).has_add_permission(request)
+
+    def related_resources(self, obj):
+        return format_html(
+            '<a href="{}?resource_type=LegalDocument&resource-id={}">{}</a>',
+            reverse('admin:main_resource_changelist'),
+            obj.id,
+            obj.related_resources().count()
+        )
+
+    def source_name(self, obj):
+        return obj.source.name
+
+    def live_annotations_count(self, obj):
+        return obj.related_annotations().count()
+    live_annotations_count.short_description = 'Annotations'
+
 
 # Register models on our CustomAdmin instance.
 admin_site.register(Casebook, CasebookAdmin)
@@ -574,3 +624,6 @@ admin_site.register(User, UserAdmin)
 admin_site.register(ContentCollaborator, CollaboratorsAdmin)
 admin_site.register(ContentNode, ContentNodeAdmin)
 admin_site.register(EmailWhitelist, EmailWhitelistAdmin)
+admin_site.register(LegalDocumentSource, LegalDocumentSourceAdmin)
+admin_site.register(LegalDocument, LegalDocumentAdmin)
+
