@@ -12,7 +12,7 @@
               @paste.prevent.stop="handlePaste"
               placeholder="Enter title here"
             />
-            <select v-model="resource_info" @change="manualResource" class="resource-type form-control">
+            <select v-model="resource_info" class="resource-type form-control">
               <option :value="option.value" v-for="option in resource_info_options" v-bind:key="option.k">{{option.name}}</option>
             </select>
             <input
@@ -57,7 +57,6 @@ const data = function() {
   return {
     title: "",
     resource_info: optionsWithoutCloning[0].value,
-    manualResourceType: false,
     resource_info_options: optionsWithoutCloning}
 };
 const caseSearchDelay = 1000;
@@ -94,15 +93,15 @@ export default {
       if (this.lineInfo.resource_type !== "Unknown") {
         if (this.lineInfo.resource_type === 'Temp') {
           let k = 5;
-          let newOptions = this.lineInfo.guesses.map(guess => ({name: guess.display_type, value: guess, k:k++}));     
+          let newOptions = _.chain(this.lineInfo.guesses)
+              .map(guess => ({name: guess.display_type, value: guess}))
+              .uniqBy(x => x.name)
+              .map(option => ({...option, k:k++}))
+              .value();
           this.resource_info_options = _.concat(newOptions, optionsWithoutCloning);
-          if (!this.manualResourceType) {
-            this.resource_info = this.lineInfo.guesses[0];
-          }
+          this.resource_info = this.lineInfo.guesses[0];
         } else {
-          if (!this.manualResourceType) {
           this.resource_info = this.lineInfo.resource_type;
-          }
           let options = _.concat([{name: this.lineInfo.display_type, value: this.lineInfo.resource_type, k:5}],_.cloneDeep(optionsWithCloning));
           this.resource_type_options = options;
         }
@@ -110,9 +109,6 @@ export default {
     }
   },
   methods: {
-    manualResource: function(event) {
-      this.manualResourceType = true;
-    },
     bulkAddUrl: urls.url('new_from_outline'),
     resetForm: function() {
       let resets = data();
