@@ -24,7 +24,7 @@ h4.paragraph-head {
 @for $indent from 1 through 5 {
     // code to execute on each loop
     p.statutory-body-#{$indent}em {
-        padding-left: (1+$indent)rem;
+        padding-left: #{1+$indent}rem;
     }
 }
 
