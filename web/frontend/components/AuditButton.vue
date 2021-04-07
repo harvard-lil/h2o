@@ -83,13 +83,13 @@ export default {
         }
         popAndSearch();
       }
-      
+
       if (this.allNodesSpecified) {
         return;
       }
       this.inAuditMode = true;
       // Kick off all searches
-      
+
       let nodes = this.needingAudit.map(this.$store.getters["table_of_contents/getNode"]);
       slowSearches(nodes);
       let target = this.needingAudit[0];
@@ -125,11 +125,10 @@ export default {
     },
     handleSubmitErrors: function handleSubmitErrors(error) {
       console.error(error);
-    }    
+    }
   },
   watch: {
     allSearchResults: function(newVal) {
-      console.log("Recalculating allSearchResults");
       const self = this;
       newVal.forEach(({ url, id, queryObj, searchResults }) => {
         if (searchResults &&
@@ -147,10 +146,6 @@ export default {
           }
         }
       });
-    },
-    "$store.state.case_search.searches": function(newVal) {
-      console.log("New Search Results");
-      console.log(newVal);
     },
     currentAuditId: function(newVal) {
       if (newVal === "None") {
@@ -177,9 +172,12 @@ export default {
     casebook: function() {
       return this.$store.getters["globals/casebook"]();
     },
+    section: function() {
+      return this.$store.getters["globals/section"]();
+    },
     needingAudit: function() {
       return this.$store.getters["table_of_contents/auditTargets"](
-        this.casebook
+        this.section || this.casebook
       );
     },
     allNodesNeedingSearch: function() {

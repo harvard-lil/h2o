@@ -1703,9 +1703,16 @@ def edit_section(request, casebook, section):
     if request.method == 'POST' and form.is_valid():
         form.save()
     section.contents.prefetch_resources()
+    search_sources = LegalDocumentSource.objects
+    if not (request.user and request.user.is_superuser):
+        search_sources = search_sources.filter(active=True)
+    doc_sources = list(search_sources.order_by('priority').all())
+    serialized_sources = LegalDocumentSourceSerializer(doc_sources, many=True).data
+    search_sources_json = json.dumps(serialized_sources)
     return render_with_actions(request, 'casebook_page.html', {
         'casebook': casebook,
         'section': section,
+        'search_sources_json': search_sources_json,
         'tabs': section.tabs_for_user(request.user, current_tab='Edit'),
         'casebook_color_class': casebook.casebook_color_indicator,
         'editing': True,
