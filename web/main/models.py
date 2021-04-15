@@ -352,7 +352,7 @@ class CAP:
                'link':'https://case.law/',
                'search_regexes': [
                    {'name': 'US Case Law',
-                    'regex':r'\b[0-9]+ (?:[0-9A-Z][0-9a-z.]* )+[0-9]+\b'},
+                    'regex':r'\b[0-9]+ (?:[0-9A-Z][0-9a-z.]*[ .])+[0-9]+\b'},
                    {'name': 'US Case Law',
                     'regex':'https://cite.case.law/.*'},
                    {'name': 'US Case Law',
@@ -361,10 +361,6 @@ class CAP:
                ]
     }
 
-
-    @staticmethod
-    def build_index():
-        pass
 
     @staticmethod
     def convert_search_result(result):
@@ -479,10 +475,6 @@ class USCodeGPO():
                    }
                ],
     }
-
-    @staticmethod
-    def build_index():
-        pass
 
     @staticmethod
     def convert_search_result(result):
@@ -637,6 +629,25 @@ class USCodeGPO():
     def header_template(legal_document):
         return 'gpo_header.html'
 
+
+class LegacyNoSearch():
+    details = {'name': 'LegacyDocument',
+               'short_description':'ERROR',
+               'long_description':'ERROR',
+               'link':'ERROR',
+               'search_regexes': []}
+
+    @staticmethod
+    def search(search_params):
+        return []
+
+    @staticmethod
+    def pull(legal_doc_source, id):
+        return None
+
+    @staticmethod
+    def header_template(legal_document):
+        return 'empty_header.html'
 
 
 def get_display_name_field(category):
@@ -805,6 +816,8 @@ class LegalDocumentSource(models.Model):
     last_updated = models.DateField(blank=True, null=True)
     active = models.BooleanField(default=False)
     priority = models.IntegerField(null=True)
+    search_class = models.CharField(max_length=100, blank=True, null=True)
+    short_description = models.CharField(max_length=140, blank=True, null=True)
 
     source_apis = {}
 
@@ -818,8 +831,8 @@ class LegalDocumentSource(models.Model):
 
     def api_model(self):
         # short_description, long_description, bulk_process, search(long_citation_json), import(id)
-        if self.name in self.source_apis:
-            return self.source_apis[self.name]
+        if self.search_class in self.source_apis:
+            return self.source_apis[self.search_class]
         raise ValueError(f"Missing API Model for {self.name}")
 
     def pull(self, id):
@@ -827,10 +840,11 @@ class LegalDocumentSource(models.Model):
 
 LegalDocumentSource.register_api(USCodeGPO)
 LegalDocumentSource.register_api(CAP)
+LegalDocumentSource.register_api(LegacyNoSearch)
 
 class LegalDocument(NullableTimestampedModel, AnnotatedModel):
     source = models.ForeignKey('LegalDocumentSource', on_delete='DO_NOTHING', related_name='documents')
-    short_name = models.CharField(max_length=100, blank=True, null=True)
+    short_name = models.CharField(max_length=150, blank=True, null=True)
     name = models.CharField(max_length=10000, blank=True, null=True)
     # The type of document: Case, Regulation, Code, Bill, etc.
     doc_class = models.CharField(max_length=100, blank=True, null=True)
@@ -1740,7 +1754,7 @@ class ContentNode(EditTrackedModel, TimestampedModel, BigPkModel, MaterializedPa
         else:
             return 'resource'
 
-    def export(self, include_annotations, file_type='docx'):
+    def export(self, include_annotations, file_type='docx', export_options=None):
         """
             Export this node and children as docx, or as html for conversion by pandoc.
 
@@ -1762,11 +1776,13 @@ class ContentNode(EditTrackedModel, TimestampedModel, BigPkModel, MaterializedPa
             template_name = 'export/tbd.html'
         else:
             template_name = 'export/node.html'
+
         html = render_to_string(template_name, {
             'is_export': True,
             'node': self,
             'children': children,
             'include_annotations': include_annotations,
+            'export_options': export_options
         })
         if file_type == 'html':
             return html
@@ -1805,7 +1821,7 @@ class ContentNode(EditTrackedModel, TimestampedModel, BigPkModel, MaterializedPa
         return mark_safe(inner_html(tree))
 
     @staticmethod
-    def update_tree_for_export(tree):
+    def update_tree_for_export(tree, export_options=None):
         """
             Prepare an lxml tree (annotated or un-annotated) for export.
         """
@@ -1823,7 +1839,7 @@ class ContentNode(EditTrackedModel, TimestampedModel, BigPkModel, MaterializedPa
 
         return tree
 
-    def content_for_export(self):
+    def content_for_export(self, export_options=None):
         r"""
             Return content as html for export to Pandoc, without annotations.
 
@@ -1833,10 +1849,10 @@ class ContentNode(EditTrackedModel, TimestampedModel, BigPkModel, MaterializedPa
             >>> assert resource.content_for_export() == output
         """
         tree = parse_html_fragment(self.resource.content)
-        self.update_tree_for_export(tree)
+        self.update_tree_for_export(tree, export_options)
         return mark_safe(inner_html(tree))
 
-    def annotated_content_for_export(self):
+    def annotated_content_for_export(self, export_options=None):
         r"""
             Return content as html for export to Pandoc, with annotations.
 
@@ -2118,10 +2134,10 @@ class ContentNode(EditTrackedModel, TimestampedModel, BigPkModel, MaterializedPa
         # clean up the output tree:
         remove_empty_tags(dest_tree)  # tree may contain empty tags from elide/replace annotations
         # apply general rules that are the same for annotated or un-annotated trees
-        self.update_tree_for_export(dest_tree)
+        self.update_tree_for_export(dest_tree, export_options)
         return mark_safe(inner_html(dest_tree))
 
-    def footnote_annotations(self):
+    def footnote_annotations(self, export_options=None):
         return mark_safe("".join(
             format_html('<span custom-style="Footnote Reference">{}</span> {} ', "*" * (i + 1), annotation.content)
             for i, annotation in
@@ -3281,7 +3297,7 @@ class Casebook(EditTrackedModel, TimestampedModel, BigPkModel, CasebookAndSectio
         collaborator_to_add = ContentCollaborator(user=user, casebook_id=self.id, **collaborator_kwargs)
         collaborator_to_add.save()
 
-    def export(self, include_annotations, file_type='docx'):
+    def export(self, include_annotations, file_type='docx', export_options=None):
         """
             Export this node and children as docx, or as html for conversion by pandoc.
 
@@ -3302,6 +3318,7 @@ class Casebook(EditTrackedModel, TimestampedModel, BigPkModel, CasebookAndSectio
             'is_export': True,
             'node': self,
             'children': children,
+            'export_options': export_options,
             'include_annotations': include_annotations,
         })
         if file_type == 'html':
