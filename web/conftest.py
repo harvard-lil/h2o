@@ -248,6 +248,7 @@ class LegalDocumentSourceFactory(factory.DjangoModelFactory):
         model = LegalDocumentSource
 
     name = 'Test'
+    search_class = 'Test'
     date_added = datetime(1900, 1, 1)
     last_updated = datetime(1902, 1, 1)
 

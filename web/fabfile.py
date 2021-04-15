@@ -154,3 +154,83 @@ if __name__ == "__main__":
     from fabric.main import main
     main()
 
+@task
+@setup_django
+def migrate_cases():
+    from datetime import timedelta
+    from itertools import groupby
+    from pyquery import PyQuery
+    from main.models import Case, LegalDocumentSource, LegalDocument, ContentNode
+    cap = LegalDocumentSource.objects.filter(name="CAP").get()
+    legacy = LegalDocumentSource.objects.filter(name="Legacy").get()
+
+    resource_map = {k:[x for x in v] for k,v in groupby(ContentNode.objects.filter(resource_type='Case').all(), lambda x:x.resource_id)}
+    used_cases = set(resource_map.keys())
+    resource_count = len([1 for x in resource_map.values() for y in x])
+    pre_res_count = ContentNode.objects.filter(resource_type='Case').count()
+    print(f"Migrating {len(used_cases)} cases and {resource_count}[{pre_res_count}] resources")
+    cases = list(Case.objects.filter(id__in=used_cases).all())
+    fully_imported = 0
+    legacy_docs = 0
+    odd_imported = 0
+    prior_ld_count = LegalDocument.objects.count()
+    res_count = 0
+    failed_import = 0
+    for case in tqdm(cases):
+        ld = None
+        if not case.capapi_id:
+            ld = LegalDocument.objects.create(source=legacy,
+                                              short_name=case.name_abbreviation,
+                                              name=case.name,
+                                              doc_class='Unknown',
+                                              citations=case.citations or [],
+                                              jurisdiction=case.jurisdiction_slug,
+                                              effective_date=case.decision_date,
+                                              publication_date=case.created_at,
+                                              updated_date=case.updated_at,
+                                              source_ref=f'Case-conversion-{case.id}',
+                                              content=case.content,
+                                              metadata={'oldCaseId': case.id})
+            legacy_docs += 1
+        else:
+            try:
+                ld = cap.api_model().pull(cap,case.capapi_id)
+                ld.save()
+            except Exception:
+                print(f"ERROR with CAPID: {case.capapi_id}")
+                failed_import += 1
+                continue
+            if not ld:
+                ld = LegalDocument.objects.create(source=legacy,
+                                                  short_name=case.name_abbreviation,
+                                                  name=case.name,
+                                                  doc_class='Case',
+                                                  citations=case.citations or [],
+                                                  jurisdiction=case.jurisdiction_slug,
+                                                  effective_date=case.decision_date,
+                                                  publication_date=case.created_at,
+                                                  updated_date=case.updated_at,
+                                                  source_ref=f'Case-conversion-{case.id}',
+                                                  content=case.content,
+                                                  metadata={'oldCaseId': case.id,
+                                                            'failedCapId':case.capapi_id})
+                failed_import += 1
+            else:
+                original_text = PyQuery(case.content).text()
+                new_text = PyQuery(ld.content).text()
+                if new_text != original_text:
+                    ld.publication_date = min(case.created_at.replace(tzinfo=None), ld.publication_date.replace(tzinfo=None) - timedelta(days=1))
+                    ld.updated_date     = min(case.updated_at.replace(tzinfo=None), ld.updated_date.replace(tzinfo=None)     - timedelta(days=1))
+                    ld.content = case.content
+                    ld.save()
+                    odd_imported += 1
+                else:
+                    fully_imported += 1
+        res_count += case.related_resources().update(resource_type='LegalDocument', resource_id=ld.id)
+    post_ld_count = LegalDocument.objects.count()
+    print(f"Created {legacy_docs} legacy, {odd_imported} kept content, {failed_import} failures, {fully_imported} CAP up-to-date legal docs")
+    print(f"Updated {res_count} resources")
+    print(f"Created {post_ld_count - prior_ld_count} legal docs")
+    post_res_count = ContentNode.objects.filter(resource_type='Case').count()
+    print(f"Resources: {pre_res_count} - {res_count} = {post_res_count}")
+

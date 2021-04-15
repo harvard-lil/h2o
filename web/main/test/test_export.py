@@ -83,7 +83,7 @@ def test_export(request, casebook_factory, section_factory, annotations_factory,
     for node in [casebook, section, resource]:
         for file_type in ['docx', 'html']:
             for include_annotations in [True, False]:
-                file_data = node.export(include_annotations=include_annotations, file_type=file_type)
+                file_data = node.export(include_annotations=include_annotations, file_type=file_type, export_options=None)
                 if file_type == 'html':
                     file_data = file_data.encode('utf8')
                 file_name = "export-%s-%s.%s" % (node.__class__.__name__.lower(), "with-annotations" if include_annotations else "no-annotations", file_type)
