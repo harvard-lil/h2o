@@ -32,12 +32,13 @@
       <div class="source-row">
       <label>
         Source:
-          <select class="form-control" v-model="chosenSource" @change="manualSource">
+          <select class="form-control" v-model="searchLimit">
+            <option :value="null">All Sources</option>
             <option :value="source" v-for="source in getSources" :key="source.id">{{source.name}}</option>
           </select>
       </label>
       <div class="about-source">
-        {{chosenSource.long_description}}
+        {{searchLimit ? searchLimit.long_description : 'Search all sources'}}
       </div>
       </div>
       <div class="jurisdiction-row">
@@ -163,9 +164,6 @@ export default {
   },
   methods: {
     ...mapActions(["fetchForAllSources", "fetchForSource", "fetchSources"]),
-    manualSource: function() {
-      this.overrideSource = true;
-    },
     showLimits: function() {
       this.showingLimits = true;
       this.updateValue(this.value);
@@ -215,8 +213,8 @@ export default {
     runCaseSearch: function runCaseSearch() {
       const searchQ = this.reformatDates();
       if (searchQ.query !== "") {
-        if (this.showingLimits) {
-          this.fetchForSource({queryObj: searchQ, source: this.chosenSource})
+        if (this.showingLimits && searchQ.searchLimit) {
+          this.fetchForSource({queryObj: searchQ, source: this.searchLimit})
         } else {
           this.fetchForAllSources({queryObj: searchQ});
         }
@@ -245,8 +243,8 @@ export default {
     },
     cleaned: function(val) {
       const validKeys = this.showingLimits
-        ? ["query", "jurisdiction", "before_date", "after_date"]
-        : ["query"];
+            ? ["query", "jurisdiction", "before_date", "after_date", "searchLimit"]
+            : ["query"];
       return _.pickBy(
         val,
         (v, k) => v && v !== "" && validKeys.indexOf(k) > -1
@@ -296,7 +294,16 @@ export default {
       set: function(val) {
         this.updateValue({ ...this.value, query: val });
       }
+    },
+    searchLimit: {
+      get: function() {
+        return this.value.searchLimit || null;
+      },
+      set: function(val) {
+        this.updateValue({ ...this.value, searchLimit: val });
+      }
     }
+
   },
   mounted: function() {
     this.guessSource(this.value.query);

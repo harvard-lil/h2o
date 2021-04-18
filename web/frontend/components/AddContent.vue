@@ -11,7 +11,7 @@
           <a
             v-bind:class="{ active: caseTab, 'search-tab': true }"
             v-on:click.stop.prevent="setTab('case')"
-          >Find Case</a>
+          >Find a Legal Document</a>
           <a
             v-bind:class="{ active: textTab, 'search-tab': true }"
             v-on:click.stop.prevent="setTab('text')"
@@ -29,7 +29,7 @@
             v-model="caseQueryObj"
             @choose="selectCase"
           />
-          <case-results :queryObj="caseQueryObj" @choose="selectCase" />
+          <case-results :queryObj="caseQueryObj" @choose="selectCase"/>
         </div>
         <div class="add-resource-body" v-else-if="textTab">
           <form ref="textForm" class="new-text" v-on:submit.stop.prevent="submitTextForm()">

@@ -12,13 +12,14 @@ const state = {
   searches: {}
 };
 
+
 const helpers = {
   normalize: function normalize(queryObj) {
-    const string = _.keys(queryObj).map(k => `${k}=${queryObj[k]}`).join(",");
+    const string = _.keys(queryObj).filter(x => x !== 'searchLimit').map(k => `${k}=${queryObj[k]}`).join(",");
     return string;
   },
   encodeQuery: function encodeQuery(queryObj) {
-    const string = _.keys(queryObj).map(k => `${k === 'query' ? 'q' : k }=${encodeURI(queryObj[k])}`).join("&");
+    const string = _.keys(queryObj).filter(x => x !== 'searchLimit').map(k => `${k === 'query' ? 'q' : k }=${encodeURI(queryObj[k])}`).join("&");
     return string;
   }
 };
@@ -26,6 +27,7 @@ const helpers = {
 const getters = {
   getSearch: state => queryObj => {
     const qKey = helpers.normalize(queryObj);
+    const searchLimit = _.get(queryObj, 'searchLimit', false);
     let searches = state.searches[qKey];
     if (!searches) return {unRun: true};
     let results = [];
@@ -41,7 +43,9 @@ const getters = {
       if (!source) return;
       if (_.isArray(search)) {
         source.status = 'completed';
-        results = results.concat(search.map(result => ({sourceName: source.name, ...result})));
+        if (!searchLimit || search[0].source_id == searchLimit.id) {
+          results = results.concat(search.map(result => ({sourceName: source.name, ...result})));
+        }
       } else {
         source.status = source.status === 'timeout' ? 'disabled' : source.results;
       }
