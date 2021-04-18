@@ -468,7 +468,7 @@ class USCodeGPO():
                'link':'https://www.govinfo.gov/app/collection/uscode',
                'search_regexes': [
                    {'name': 'US Code',
-                    'regex': '[0-9]* U[.]?S[.]?C[.]? §§? [0-9]*(-[0-9]*)?'
+                    'regex': '[0-9]* U[.]?S[.]?C[.]? §§? ?[0-9]*(-[0-9]*)?'
                    },
                    {'name':'US Code',
                     'regex':'https://www.law.cornell.edu/uscode/.*'
@@ -505,11 +505,15 @@ class USCodeGPO():
     def search(search_params):
         # given standard search params return results
         abbreviator = re.compile(r'\bUSC\b', re.IGNORECASE)
+        silcrow_spacer = re.compile(r'§([0-9])')
+        query = None
         if search_params.q:
             search_params.q = re.sub(abbreviator, 'U.S.C.', search_params.q)
-        cite_matcher = re.compile('[0-9]+ U.S.C. § [0-9]+(-[0-9]+)?')
+            search_params.q = silcrow_spacer.sub(r'§ \1', search_params.q)
+        cite_matcher = re.compile('[0-9]+ U.S.C. § ?[0-9]+(-[0-9]+)?')
         if cite_matcher.match(search_params.q):
             search_params.citation = search_params.q
+            query = SearchQuery(search_params.citation)
             search_params.q = None
         search_fields = {}
         if search_params.before_date:
@@ -523,9 +527,11 @@ class USCodeGPO():
         if search_params.q:
             if USCodeGPO.looks_like_url(search_params.q):
                 search_fields['lii_url'] = search_params.q
-            search_fields['search_field'] = SearchQuery(search_params.q, config='english')
+            query = SearchQuery(search_params.q, config='english')
+            search_fields['search_field'] = query
 
-        return [USCodeGPO.convert_search_result(x) for x in USCodeIndex.objects.filter(**search_fields)[:30]]
+        vector = SearchVector('citation', config='english', weight='A') + SearchVector('title', config='english', weight='B')
+        return [USCodeGPO.convert_search_result(x) for x in USCodeIndex.objects.filter(**search_fields).annotate(rank=SearchRank(vector, query)).order_by('repealed', '-rank')[:30]]
 
     @staticmethod
     def parse_gpo_html(full_body):
@@ -803,6 +809,7 @@ class USCodeIndex(models.Model):
     gpo_url = models.URLField(null=True)
     effective_date = models.DateField(blank=True, null=True)
     search_field = SearchVectorField(null=True)
+    repealed = models.BooleanField(null=True)
 
     def save(self, *args, **kwargs):
         self.search_field = (SearchVector('citation', weight='A')
