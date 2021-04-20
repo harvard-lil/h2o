@@ -109,10 +109,8 @@ blockquote + :not(blockquote) {
 }
 
 .footnote {
-  a {
-    float: left;
-    margin-top: -8px;
-	font-size: 16px;
+  a:after {
+      content: '.';
   }
 
   p, blockquote {
