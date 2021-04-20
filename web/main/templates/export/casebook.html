@@ -1,4 +1,5 @@
 <body>
+  {% include 'export/about.html' %}
   <div class="CasebookTitle" data-custom-style="Casebook Title">{{ node.title }}</div>
   {% if node.subtitle %}
     <div class="CasebookSubtitle" data-custom-style="Casebook Subtitle">{{ node.subtitle }}</div>
@@ -19,7 +20,11 @@
     {% endfor %}
   </div>
 
+  {% with is_child=True %}
   {% for child in children %}
     {% include "export/node.html" with index=forloop.counter node=child %}
   {% endfor %}
+  {% endwith %}
+
+  {% include 'export/credits.html' %}
 </body>

@@ -2172,7 +2172,7 @@ def export(request, node, file_type='docx'):
         Export casebook. File type can be 'docx' or 'html' (in which case we dump pre-pandoc html directly to the
         browser), and ?annotations=true will include annotations in the exported file.
     """
-    if file_type not in ('docx', 'html'):
+    if file_type not in ('docx', 'html', 'json'):
         raise Http404
 
     include_annotations = request.GET.get('annotations') == 'true'

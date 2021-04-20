@@ -41,6 +41,8 @@ yarn-debug.log*
 *.dump
 .byebug_history
 .tmp
+.venv
+python-shell.sh
 
 # IntelliJ IDEA
 *.iml

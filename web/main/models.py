@@ -425,6 +425,52 @@ class CAP:
         return [CAP.convert_search_result(x) for x in results]
 
     @staticmethod
+    def preprocess_body(body):
+        def style_page_no(_, pn):
+            pn.attrib['data-custom-style'] = 'Page Number'
+
+        body_parsed = PyQuery(body)
+        # Footnotes
+        for aside in body_parsed('aside').filter(lambda _, this: this.attrib.get('id', '').startswith('footnote') and len(PyQuery(this).children()) > 1).items():
+            link, first_p = [PyQuery(x) for x in aside.children()[:2]]
+            first_p.html(link.outer_html() + first_p.html())
+            link.remove()
+            aside.wrap('<div data-custom-style="Case Footnote Text"></div>')
+
+        for mark in body_parsed('.footnotemark').items():
+            # Can't just use wrap here, because it grabs some of the surrounding text
+            # This also inverts the tags, so the span appears inside the a tag
+            # ¯\_(ツ)_/¯
+            mark.html(f'<span data-custom-style="Case Footnote Reference">{mark.html()}</span>')
+
+        # Page nos
+        body_parsed('.page-label').each(style_page_no)
+
+
+        reformatted_body = body_parsed.html()
+        return reformatted_body
+
+    @staticmethod
+    def postprocess_content(body):
+        def unlink_page_nos(_, page_no):
+            page_no.tag = 'span'
+            page_no.attrib['data-custom-style'] = 'Page Number'
+
+        body_parsed = PyQuery(body)
+        # remove images
+        body_parsed.remove('img')
+
+        # Case Header styling
+        for pq in body_parsed('section.head-matter p, center, p[style="text-align:center"], p[align="center"]').items():
+            pq.wrap("<div data-custom-style='Case Header'></div>")
+        for el in body_parsed('section.head-matter h4, center h2, h2[style="text-align:center"], h2[align="center"]'):
+            el.tag = 'div'
+            el.attrib['data-custom-style'] = 'Case Header'
+
+        body_parsed('.page-label').each(unlink_page_nos)
+        return f'<div data-custom-style="Case Body">{body_parsed.html()}</div>'
+
+    @staticmethod
     def pull(legal_doc_source, id):
         if not settings.CAPAPI_API_KEY:
             raise APICommunicationError('To interact with CAP, CAPAPI_API_KEY must be set.')
@@ -440,8 +486,7 @@ class CAP:
             raise APICommunicationError(msg)
 
         metadata = response.json()
-        body = metadata.pop('casebody', {}).pop('data',None)
-
+        body = CAP.preprocess_body(metadata.pop('casebody', {}).pop('data',None))
         citations = [x.get('cite') for x in metadata['citations'] if 'cite' in x]
         case = LegalDocument(source=legal_doc_source,
                              short_name=metadata.get('name_abbreviation'),
@@ -1621,6 +1666,13 @@ class ContentNode(EditTrackedModel, TimestampedModel, BigPkModel, MaterializedPa
         res = ContentNode.objects.filter(**filter_map).exclude(id=self.id)
         return res
 
+    @property
+    def export_content(self):
+        if self.resource_type == 'LegalDocument':
+            api_model = self.resource.source.api_model()
+            if hasattr(api_model, 'postprocess_content'):
+                return api_model.postprocess_content(self.resource.content)
+        return self.resource.content
 
     @property
     def is_temporary(self):
@@ -1789,21 +1841,32 @@ class ContentNode(EditTrackedModel, TimestampedModel, BigPkModel, MaterializedPa
             'node': self,
             'children': children,
             'include_annotations': include_annotations,
-            'export_options': export_options
+            'export_options': export_options,
+            'export_date': datetime.now().strftime("%Y-%m-%d"),
         })
         if file_type == 'html':
             return html
 
         # convert to docx with pandoc
         with tempfile.NamedTemporaryFile(suffix='.docx') as pandoc_out:
-            command = [
-                'pandoc',
-                '--from', 'html',
-                '--to', 'docx',
-                '--reference-doc', os.path.join(settings.PANDOC_DIR, 'reference.docx'),
-                '--output', pandoc_out.name,
-                '--quiet'
-            ]
+            command = []
+            if file_type == 'json':
+                command = [
+                    'pandoc',
+                    '--from', 'html',
+                    '--to', 'json',
+                    '--output', pandoc_out.name,
+                    '--quiet'
+                ]
+            else:
+                command = [
+                    'pandoc',
+                    '--from', 'html',
+                    '--to', 'docx',
+                    '--reference-doc', os.path.join(settings.PANDOC_DIR, 'reference.docx'),
+                    '--output', pandoc_out.name,
+                    '--quiet'
+                ]
             if type(self) is Casebook:
                 command.extend(['--lua-filter', os.path.join(settings.PANDOC_DIR, 'table_of_contents.lua')])
             try:
@@ -1852,11 +1915,10 @@ class ContentNode(EditTrackedModel, TimestampedModel, BigPkModel, MaterializedPa
 
             >>> resource, *_ = [getfixture(f) for f in ['resource']]
             >>> resource.resource.content = '<center>Title</center><h2 align="center">Subtitle</h2><p>An image <img src=""></p>'
-            >>> output = '<div data-custom-style="Case Header"><center>Title</center></div><div align="center" data-custom-style="Case Header">Subtitle</div><p>An image </p>'
+            >>> output = '<center>Title</center><h2 align="center">Subtitle</h2><p>An image <img src=""></p>'
             >>> assert resource.content_for_export() == output
         """
-        tree = parse_html_fragment(self.resource.content)
-        self.update_tree_for_export(tree, export_options)
+        tree = parse_html_fragment(self.export_content)
         return mark_safe(inner_html(tree))
 
     def annotated_content_for_export(self, export_options=None):
@@ -1952,7 +2014,7 @@ class ContentNode(EditTrackedModel, TimestampedModel, BigPkModel, MaterializedPa
         # Start with a sorted list of the start and end insertion points for each annotation.
         # Each entry in the list is shaped like (annotation_offset, is_start_tag, annotation).
         # Clamp offsets to the max valid value, as we may have legacy invalid values in the database that are too large.
-        source_tree = parse_html_fragment(self.resource.content)
+        source_tree = parse_html_fragment(self.export_content)
         max_valid_offset = len(source_tree.text_content())
         annotations = []
         for annotation in self.annotations.all():
@@ -2141,7 +2203,6 @@ class ContentNode(EditTrackedModel, TimestampedModel, BigPkModel, MaterializedPa
         # clean up the output tree:
         remove_empty_tags(dest_tree)  # tree may contain empty tags from elide/replace annotations
         # apply general rules that are the same for annotated or un-annotated trees
-        self.update_tree_for_export(dest_tree, export_options)
         return mark_safe(inner_html(dest_tree))
 
     def footnote_annotations(self, export_options=None):
@@ -3326,6 +3387,7 @@ class Casebook(EditTrackedModel, TimestampedModel, BigPkModel, CasebookAndSectio
             'node': self,
             'children': children,
             'export_options': export_options,
+            'export_date': datetime.now().strftime("%Y-%m-%d"),
             'include_annotations': include_annotations,
         })
         if file_type == 'html':
@@ -3540,7 +3602,6 @@ class Resource(SectionAndResourceMixin, ContentNode):
         ogs = self.originating_authors
         cgs = self.primary_authors
         return ogs.difference(cgs)
-
 
 #
 # End ContentNode Proxies
