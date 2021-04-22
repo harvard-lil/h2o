@@ -1820,13 +1820,19 @@ class ContentNode(EditTrackedModel, TimestampedModel, BigPkModel, MaterializedPa
             Given:
             >>> full_casebook, assert_num_queries = [getfixture(f) for f in ['full_casebook', 'assert_num_queries']]
 
-            Export uses 5 queries: selecting descendant nodes, and prefetching ContentAnnotation, Case, TextBlock, and Link.
-            >>> with assert_num_queries(select=5):
+            Export uses 8 queries: selecting descendant nodes, and prefetching ContentAnnotation, Case, TextBlock, and Link, and provenance info
+            >>> with assert_num_queries(select=8):
             ...     file_data = full_casebook.export(include_annotations=True)
         """
         # prefetch all child nodes and related data
         children = list(self.contents.prefetch_resources().prefetch_related('annotations')) if type(
             self) is not Resource else None
+
+        current_collaborators = self.primary_authors
+        cloned_from = {cn.casebook for cn in self.ancestor_nodes.prefetch_related('casebook')
+                                                   .prefetch_related('casebook__contentcollaborator_set')
+                                                   .prefetch_related('casebook__contentcollaborator_set__user')
+                         if cn.casebook.primary_authors ^ current_collaborators}
 
         # render html
         if not self.resource_type or self.resource_type == 'Section':
@@ -1843,6 +1849,7 @@ class ContentNode(EditTrackedModel, TimestampedModel, BigPkModel, MaterializedPa
             'include_annotations': include_annotations,
             'export_options': export_options,
             'export_date': datetime.now().strftime("%Y-%m-%d"),
+            'cloned_from': cloned_from,
         })
         if file_type == 'html':
             return html
@@ -3372,14 +3379,19 @@ class Casebook(EditTrackedModel, TimestampedModel, BigPkModel, CasebookAndSectio
             Given:
             >>> full_casebook, assert_num_queries = [getfixture(f) for f in ['full_casebook', 'assert_num_queries']]
 
-            Export uses 5 queries: selecting descendant nodes, and prefetching ContentAnnotation, Case, TextBlock, and Link.
-            >>> with assert_num_queries(select=5):
+            Export uses 8 queries: selecting descendant nodes, and prefetching ContentAnnotation, Case, TextBlock, and Link, and provenance info.
+            >>> with assert_num_queries(select=8):
             ...     file_data = full_casebook.export(include_annotations=True)
         """
         # prefetch all child nodes and related data
         children = list(self.contents.prefetch_resources().prefetch_related('annotations')) if type(
             self) is not Resource else None
 
+        current_collaborators = self.primary_authors
+        cloned_from = {cn.casebook for cn in self.ancestor_nodes.prefetch_related('casebook')
+                                                   .prefetch_related('casebook__contentcollaborator_set')
+                                                   .prefetch_related('casebook__contentcollaborator_set__user')
+                         if cn.casebook.primary_authors ^ current_collaborators}
         # render html
         template_name = 'export/casebook.html'
         html = render_to_string(template_name, {
@@ -3389,6 +3401,7 @@ class Casebook(EditTrackedModel, TimestampedModel, BigPkModel, CasebookAndSectio
             'export_options': export_options,
             'export_date': datetime.now().strftime("%Y-%m-%d"),
             'include_annotations': include_annotations,
+            'cloned_from': cloned_from,
         })
         if file_type == 'html':
             return html
