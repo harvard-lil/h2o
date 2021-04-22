@@ -1828,7 +1828,7 @@ class ContentNode(EditTrackedModel, TimestampedModel, BigPkModel, MaterializedPa
         children = list(self.contents.prefetch_resources().prefetch_related('annotations')) if type(
             self) is not Resource else None
 
-        current_collaborators = self.primary_authors
+        current_collaborators = self.casebook.primary_authors
         cloned_from = {cn.casebook for cn in self.ancestor_nodes.prefetch_related('casebook')
                                                    .prefetch_related('casebook__contentcollaborator_set')
                                                    .prefetch_related('casebook__contentcollaborator_set__user')
@@ -3387,7 +3387,7 @@ class Casebook(EditTrackedModel, TimestampedModel, BigPkModel, CasebookAndSectio
         children = list(self.contents.prefetch_resources().prefetch_related('annotations')) if type(
             self) is not Resource else None
 
-        current_collaborators = self.primary_authors
+        current_collaborators = self.casebook.primary_authors
         cloned_from = {cn.casebook for cn in self.ancestor_nodes.prefetch_related('casebook')
                                                    .prefetch_related('casebook__contentcollaborator_set')
                                                    .prefetch_related('casebook__contentcollaborator_set__user')
