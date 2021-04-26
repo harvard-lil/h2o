@@ -51,8 +51,6 @@ const optionsWithoutCloning = [{name: 'Section', value: {resource_type: 'Section
                                {name: 'Text',    value: {resource_type: 'TextBlock'}, k: 2},
                                {name: 'Link',    value: {resource_type: 'Link'}, k: 3}];
 
-const optionsWithCloning = optionsWithoutCloning.concat([{name: 'Clone', value: {resource_type: 'Clone'}}]);
-
 const data = function() {
   return {
     title: "",
@@ -100,10 +98,14 @@ export default {
               .value();
           this.resource_info_options = _.concat(newOptions, optionsWithoutCloning);
           this.resource_info = this.lineInfo.guesses[0];
+        } else if (this.lineInfo.resource_type === 'Clone') {
+          let options = _.concat([{name: this.lineInfo.display_type, value: this.lineInfo, k:5}],_.cloneDeep(optionsWithoutCloning));
+          this.resource_info = options[0].value;
+          this.resource_info_options = options;
         } else {
-          this.resource_info = this.lineInfo.resource_type;
-          let options = _.concat([{name: this.lineInfo.display_type, value: this.lineInfo.resource_type, k:5}],_.cloneDeep(optionsWithCloning));
-          this.resource_type_options = options;
+          let options = _.concat([{name: this.lineInfo.display_type, value: this.lineInfo.resource_type, k:5}],_.cloneDeep(optionsWithoutCloning));
+          this.resource_info = options[0].value;
+          this.resource_info_options = options;
         }
       }
     }
