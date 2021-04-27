@@ -925,7 +925,7 @@ def show_related(request, casebook, section=None):
         if cn.resource_type == 'Case':
             return "cap-{}".format(cn.resource.capapi_id) if cn.resource.capapi_id else "h2o-".format(cn.resource_id)
         elif cn.resource_type == 'LegalDocument':
-            return "{}-{}".format(cn.source.name, cn.source_ref)
+            return "{}-{}".format(cn.resource.source.search_class, cn.resource.source_ref)
         else:
             root_cn = ContentNode.objects.filter(id=cn.provenance[0] if cn.provenance else cn.id).first()
             if not root_cn:
@@ -937,12 +937,23 @@ def show_related(request, casebook, section=None):
     subject = section if section else casebook
     contents = [x for x in subject.contents.prefetch_resources().all()] + ([section] if section else [])
     descendants = {x for x in subject.descendant_nodes.all()}
-    related_cases = {x for x in subject.related_cases.all() if x not in descendants}
-    related_map = {}
+    related_docs = {x for x in subject.related_docs.all() if x not in descendants}
+    related_map = dict()
     for cn in contents:
         root_key = get_root_key(cn)
         related_map[root_key] = [cn]
 
+    content_keys = {get_root_key(cn) for cn in contents if cn.resource_type == 'LegalDocument'}
+    related_casebooks = {cn.casebook for cn in descendants}.union({cn.casebook for cn in related_docs}).difference({casebook})
+    novel_docs = dict()
+    for cn in ContentNode.objects.filter(casebook__in=related_casebooks, resource_type='LegalDocument').prefetch_related('casebook').all():
+        if get_root_key(cn) not in content_keys:
+            if cn.resource in novel_docs:
+                novel_docs[cn.resource] += 1
+            else:
+                novel_docs[cn.resource] = 1
+
+    novel_docs = sorted([(k,v) for k,v in novel_docs.items()], key= lambda x: -x[1])
     for cn in descendants:
         root_key = get_root_key(cn)
         if root_key in related_map:
@@ -950,7 +961,7 @@ def show_related(request, casebook, section=None):
         else:
             logger.warn("Unknown relation: {} -- {}".format(cn.id, root_key))
             raise Http404
-    for cn in related_cases:
+    for cn in related_docs:
         root_key = get_root_key(cn)
         if root_key in related_map:
             related_map[root_key].append(cn)
@@ -967,10 +978,12 @@ def show_related(request, casebook, section=None):
         else:
             node_type = 'resource'
     params = {'related_content': related_content,
+              'related_casebooks': related_casebooks,
+              'novel_docs': novel_docs,
               'casebook': casebook,
               'section': section,
               'type': node_type,
-              'tabs': (section if section else casebook).tabs_for_user(request.user, current_tab='Credits'),
+              'tabs': (section if section else casebook).tabs_for_user(request.user, current_tab='Related'),
               'casebook_color_class': casebook.casebook_color_indicator,
               'edit_mode': casebook.directly_editable_by(request.user)}
     return render(request, 'casebook_page_related.html', params)

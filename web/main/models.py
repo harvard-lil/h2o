@@ -2417,21 +2417,19 @@ class ContentNode(EditTrackedModel, TimestampedModel, BigPkModel, MaterializedPa
         return ContentNode.objects.filter(id__in=ids).filter(casebook__state='Public')
 
     @property
-    def related_cases(self):
-        cases = None
-        if self.resource_type == 'Case':
-            cases = [self]
+    def related_docs(self):
+        docs = None
+        if self.resource_type == 'LegalDocument':
+            docs = [self]
         else:
-            cases = [x for x in self.contents.filter(resource_type='Case').prefetch_resources()]
-        cap_ids = []
-        res_ids = []
-        for case in cases:
-            if case.resource.capapi_id:
-                cap_ids.append(case.resource.capapi_id)
-            else:
-                res_ids.append(case.resource.id)
-        res_ids += [x.id for x in Case.objects.filter(capapi_id__in=cap_ids).all()]
-        return ContentNode.objects.filter(resource_type='Case',resource_id__in=res_ids).filter(casebook__state='Public')
+            docs = [x for x in self.contents.filter(resource_type='LegalDocument').prefetch_resources()]
+
+        src_refs = {(doc.resource.source_id, doc.resource.source_ref) for doc in docs}
+        legal_doc_sources = {src for src, _ in src_refs}
+        legal_doc_refs = {ref for _, ref in src_refs}
+
+        lds = {ld.id for ld in LegalDocument.objects.filter(source_id__in=legal_doc_sources, source_ref__in=legal_doc_refs).all() if (ld.source_id, ld.source_ref) in src_refs}
+        return ContentNode.objects.filter(resource_type='LegalDocument',resource_id__in=lds).filter(casebook__state='Public').prefetch_related('casebook')
 
 
 #
@@ -2860,18 +2858,15 @@ class Casebook(EditTrackedModel, TimestampedModel, BigPkModel, CasebookAndSectio
         return ContentNode.objects.filter(id__in=ids).filter(casebook__state='Public')
 
     @property
-    def related_cases(self):
-        cases = None
-        cases = [x for x in self.contents.filter(resource_type='Case').prefetch_resources()]
-        cap_ids = []
-        res_ids = []
-        for case in cases:
-            if case.resource.capapi_id:
-                cap_ids.append(case.resource.capapi_id)
-            else:
-                res_ids.append(case.resource.id)
-        res_ids += [x.id for x in Case.objects.filter(capapi_id__in=cap_ids).all()]
-        return ContentNode.objects.filter(resource_type='Case',resource_id__in=res_ids).filter(casebook__state="Public")
+    def related_docs(self):
+        docs = [x for x in self.contents.filter(resource_type='LegalDocument').prefetch_resources()]
+        src_refs = {(doc.resource.source_id, doc.resource.source_ref) for doc in docs}
+        legal_doc_sources = {src for src, _ in src_refs}
+        legal_doc_refs = {ref for _, ref in src_refs}
+
+        lds = {ld.id for ld in LegalDocument.objects.filter(source_id__in=legal_doc_sources, source_ref__in=legal_doc_refs).all() if (ld.source_id, ld.source_ref) in src_refs}
+        return ContentNode.objects.filter(resource_type='LegalDocument',resource_id__in=lds).filter(casebook__state='Public').prefetch_related('casebook')
+
 
     @property
     def previous_saves(self):
@@ -3540,6 +3535,7 @@ class Casebook(EditTrackedModel, TimestampedModel, BigPkModel, CasebookAndSectio
         tabs = [('Edit', reverse('edit_casebook', args=[self]), self.in_edit_state and self.editable_by(user)),
                 (read_tab, reverse('casebook', args=[self]), not self.is_archived),
                 ('Credits', reverse('show_credits', args=[self]), not self.is_archived),
+                ('Related', reverse('show_related', args=[self]), not self.is_archived and user.is_superuser),
                 ('Settings', reverse('casebook_settings', args=[self]), self.editable_by(user))]
         return [(n, l, n == current_tab) for n,l,c in tabs if c]
 
