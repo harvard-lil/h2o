@@ -179,11 +179,12 @@ def migrate_cases():
     for case in tqdm(cases):
         ld = None
         if not case.capapi_id:
+            cites = [x['cite'] for x in case.citations if 'cite' in x]
             ld = LegalDocument.objects.create(source=legacy,
                                               short_name=case.name_abbreviation,
                                               name=case.name,
                                               doc_class='Unknown',
-                                              citations=case.citations or [],
+                                              citations=cites,
                                               jurisdiction=case.jurisdiction_slug,
                                               effective_date=case.decision_date,
                                               publication_date=case.created_at,
@@ -201,11 +202,12 @@ def migrate_cases():
                 failed_import += 1
                 continue
             if not ld:
+                cites = [x['cite'] for x in case.citations if 'cite' in x]
                 ld = LegalDocument.objects.create(source=legacy,
                                                   short_name=case.name_abbreviation,
                                                   name=case.name,
                                                   doc_class='Case',
-                                                  citations=case.citations or [],
+                                                  citations=cites,
                                                   jurisdiction=case.jurisdiction_slug,
                                                   effective_date=case.decision_date,
                                                   publication_date=case.created_at,
