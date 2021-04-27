@@ -160,7 +160,7 @@ def migrate_cases():
     from datetime import timedelta
     from itertools import groupby
     from pyquery import PyQuery
-    from main.models import Case, LegalDocumentSource, LegalDocument, ContentNode
+    from main.models import Case, LegalDocumentSource, LegalDocument, ContentNode, ContentAnnotation
     cap = LegalDocumentSource.objects.filter(name="CAP").get()
     legacy = LegalDocumentSource.objects.filter(name="Legacy").get()
 
@@ -229,10 +229,11 @@ def migrate_cases():
                 else:
                     fully_imported += 1
         res_count += case.related_resources().update(resource_type='LegalDocument', resource_id=ld.id)
+        ld.refresh_from_db()
+        ContentAnnotation.update_annotations(ld.related_annotations(), case.content, ld.content)
     post_ld_count = LegalDocument.objects.count()
     print(f"Created {legacy_docs} legacy, {odd_imported} kept content, {failed_import} failures, {fully_imported} CAP up-to-date legal docs")
     print(f"Updated {res_count} resources")
     print(f"Created {post_ld_count - prior_ld_count} legal docs")
     post_res_count = ContentNode.objects.filter(resource_type='Case').count()
     print(f"Resources: {pre_res_count} - {res_count} = {post_res_count}")
-
