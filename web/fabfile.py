@@ -237,3 +237,36 @@ def migrate_cases():
     print(f"Created {post_ld_count - prior_ld_count} legal docs")
     post_res_count = ContentNode.objects.filter(resource_type='Case').count()
     print(f"Resources: {pre_res_count} - {res_count} = {post_res_count}")
+
+
+
+@task
+@setup_django
+def prune_unused_cases():
+    from tqdm import tqdm
+    from main.models import Case
+    total_deleted = 0
+    total_cases = Case.objects.all().count()
+    for case in tqdm(Case.objects.all(), desc="Checking Cases"):
+        if not case.related_resources().exists():
+            case.delete()
+            total_deleted += 1
+    print(f"Total deleted: {total_deleted}/{total_cases}")
+
+
+@task
+@setup_django
+def prune_old_casebooks(older_than=90):
+    from tqdm import tqdm
+    from main.models import Casebook
+    from datetime import datetime, timedelta
+    target_time = datetime.now() - timedelta(days=older_than)
+    total = 0
+    for cb in tqdm(Casebook.objects.filter(state='Previous').filter(updated_at__lt=target_time), desc="Checking Casebooks"):
+        if not cb.descendant_nodes.exists():
+            try:
+                cb.delete()
+                total += 1
+            except Exception:
+                print(f"Failed to delete {cb.id} - {cb.title}")
+    print(f"Deleted {total} casebooks")
