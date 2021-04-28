@@ -2762,7 +2762,7 @@ class Casebook(EditTrackedModel, TimestampedModel, BigPkModel, CasebookAndSectio
     @property
     def casebook(self):
         return self
-    
+
     @property
     def type(self):
         # TODO: In use in templates and tests; shouldn't be necessary. Consider refactoring.

@@ -587,7 +587,7 @@ class LegalDocumentSourceAdmin(BaseAdmin):
 class LegalDocumentAdmin(BaseAdmin, SimpleHistoryAdmin):
     readonly_fields = ['source_name', 'created_at', 'updated_at', 'content', 'metadata', 'source_ref', 'effective_date', 'publication_date', 'updated_date']
     list_select_related = []
-    list_display = ['id', 'short_name', 'doc_class', 'related_resources', 'live_annotations_count', 'created_at', 'updated_at']
+    list_display = ['id', 'short_name', 'source_name', 'doc_class', 'related_resources', 'live_annotations_count', 'created_at', 'updated_at']
     list_filter = ['doc_class', LegalDocumentSourceFilter]
     search_fields = ['short_name', 'name']
     raw_id_fields = []
