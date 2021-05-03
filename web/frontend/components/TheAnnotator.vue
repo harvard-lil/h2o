@@ -60,6 +60,7 @@ export default {
     ranges: null,
     content: null,
     showModal: false,
+    selection: null
   }),
   watch: {
     ranges() {
@@ -71,7 +72,7 @@ export default {
       const wrapperRect = this.$parent.$el.getBoundingClientRect();
       const viewportTop = window.scrollY - (wrapperRect.top + window.scrollY);
       const targetRect = this.ranges[1].getBoundingClientRect();
-
+      
       return Math.min(Math.max(targetRect.top - wrapperRect.top, viewportTop + 20),
                       targetRect.bottom - wrapperRect.top).toString(10) + "px";
     },
@@ -82,40 +83,57 @@ export default {
       return this.ranges &&
         !this.ranges[0].collapsed &&
         // Ensure that the selection is within the case-text wrapper
-        getClosestElement(this.ranges[0].commonAncestorContainer).closest(".case-text")
+      getClosestElement(this.ranges[0].commonAncestorContainer).closest(".case-text")
     },
     offsets() {
       if(!this.hasValidRanges) return;
-
+      
       const el = document.querySelector(".case-text");
-      return ["start", "end"].map((s, i) =>
+      
+      const ret = ["start", "end"].map((s, i) =>
         this.ranges[i][`${s}Offset`] + getOffsetWithinParent(el, this.ranges[i][`${s}Container`], this.contributesToOffsets)
       );
+      const sel_length = this.selection.toString().length;
+
+      let sp = (this.ranges[0].startContainer == this.ranges[0].commonAncestorContainer);
+      let ep = (this.ranges[1].endContainer == this.ranges[1].commonAncestorContainer);
+      
+      if (sp ? !ep : ep) {
+        // If the edge of a selection lies on an image, the offsets are calculated incorrectly
+        if (sp) {
+          ret[0] = ret[1] - sel_length;
+        } else {
+          ret[1] = ret[0] + sel_length;
+        }
+      }
+      return ret;
     },
   },
   methods: {
     ...mapActions(["create"]),
-
+    
     tempId() {
       return Math.floor(Math.random() * Math.floor(10000000)) * -1;
     },
-
+    
     // returns false if the text or element node is the child of an
     // element with a special attribute
     contributesToOffsets(node) {
+      console.log(node);
       return !getClosestElement(node).closest("[data-exclude-from-offset-calcs='true']")
     },
-
+    
     selectionchange(e, sel) {
       if(sel && !this.contributesToOffsets(sel.anchorNode)) return;
-
+      
       this.ranges =
         (!sel || sel.type != "Range")
         ? null
         : [sel.getRangeAt(0),
            sel.getRangeAt(sel.rangeCount-1)];
+      this.selection = sel;
     },
-
+    
     close() {
       document.getSelection().empty();
       this.ranges = null;
@@ -143,13 +161,13 @@ export default {
 @import "../styles/vars-and-mixins";
 
 #the-annotator {
-  user-select: none;
+    user-select: none;
 }
 .form {
-  display: flex;
-  flex-direction: column;
+    display: flex;
+    flex-direction: column;
 }
 .button {
-  margin-top: 1em;
+    margin-top: 1em;
 }
 </style>
