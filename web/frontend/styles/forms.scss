@@ -55,3 +55,18 @@ form .form-error-message {
 button.with-annotations{
   margin-right: 20px;
 }
+
+.mce-content-body img[alt=""]:before {
+    content: "Must provide a description for images.";
+    height: 10rem;
+    width: 200px;
+    position: absolute;
+    top: 100%;
+    transform: translateY(-50%);
+    padding: 10px;
+    border-radius: 10px;
+    background-color: black;
+    color: white;
+    text-align: center;
+    z-index: 100000;
+}

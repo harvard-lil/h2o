@@ -9,7 +9,7 @@
     <ul>
         {% for source in cloned_from %}
         <li>
-            <a href="https://opencasebook.org{{source.get_absolute_url}}" <span data-custom-style="Credit Title"> {{source.title}} </span></a>
+            <a href="https://opencasebook.org{{source.get_absolute_url}}"> <span data-custom-style="Credit Title"> {{source.title}} </span></a>
             by
             <span data-custom-style="Credit Authors">
                 {% for author in source.primary_authors %}

@@ -2,10 +2,11 @@ from django.conf import settings
 from django.contrib.auth import views as auth_views
 from django.shortcuts import redirect
 from django.urls import path, register_converter, include
+from django.urls.converters import UUIDConverter
 from django.views.generic import RedirectView, TemplateView
 from rest_framework.urlpatterns import format_suffix_patterns
 
-from .models import Casebook, Section, ContentNode, ContentAnnotation, LegalDocument
+from .models import Casebook, Section, ContentNode, ContentAnnotation, LegalDocument, SavedImage
 from .test.test_permissions_helpers import no_perms_test
 from .url_converters import IdSlugConverter, OrdinalSlugConverter, register_model_converter
 from .utils import fix_after_rails
@@ -19,6 +20,7 @@ register_model_converter(Section)
 register_model_converter(ContentNode, 'resource')
 register_model_converter(ContentAnnotation, 'annotation')
 register_model_converter(LegalDocument)
+register_model_converter(SavedImage,name='image_uuid', base=UUIDConverter, field='external_id')
 
 # these patterns will have optional format suffixes added, like '.json'
 drf_urlpatterns = [
@@ -106,6 +108,11 @@ urlpatterns = format_suffix_patterns(drf_urlpatterns) + [
     path('casebooks/<casebook:node>/export.<file_type>', views.export, name='export_casebook'),
     path('sections/<section:node>/export.<file_type>', views.export, name='export_section'),
     path('resources/<resource:node>/export.<file_type>', views.export, name='export_resource'),
+
+    # images
+    path('image/', no_perms_test(views.upload_image), name="upload_image"),
+    path('image/<image_uuid>', no_perms_test(views.view_image), name="image_url"),
+
     # canonical paths for static pages
     path('pages/about/', TemplateView.as_view(template_name='pages/about.html'), name='about'),
     path('pages/privacy-policy/', TemplateView.as_view(template_name='pages/privacy-policy.html'), name='privacy-policy'),

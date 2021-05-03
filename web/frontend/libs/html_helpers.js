@@ -23,6 +23,7 @@ const BLOCK_LEVEL_ELEMENTS = [
   "HEADER",
   "HGROUP",
   "HR",
+  "IMG",
   "LI",
   "MAIN",
   "NAV",
@@ -44,7 +45,7 @@ export const isText = (node) =>
   node.nodeType == document.TEXT_NODE;
 
 export const isBR = (node) =>
-  node.tagName == "BR";
+  node.tagName == "BR" || node.tagName == "IMG";
 
 export const getLength = (node) =>
   node.textContent.length;

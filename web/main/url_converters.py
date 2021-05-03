@@ -1,6 +1,7 @@
 from django.urls import register_converter
 from django.urls.converters import IntConverter
 
+
 from .models import Casebook, Section
 
 
@@ -71,8 +72,8 @@ class IdSlugConverter:
             id = value['id']
             slug = value.get('slug')
         else:
-            raise ValueError("Cannot create IdSlug from argument type %s" % type(value))
-        return str(id) + (("-%s" % slug) if slug else "")
+            raise ValueError(f"Cannot create IdSlug from argument type {type(value)}")
+        return str(id) + ((f"-{slug}") if slug else "")
 
 
 class OrdinalSlugConverter:
@@ -107,6 +108,6 @@ class OrdinalSlugConverter:
         elif isinstance(value, str):
             return value
         else:
-            raise ValueError("Cannot create OrdinalSlug from argument type %s" % type(value))
-        return '.'.join(str(i) for i in ordinals) + (("-%s" % slug) if slug else "")
+            raise ValueError(f"Cannot create OrdinalSlug from argument type {type(value)}")
+        return '.'.join(str(i) for i in ordinals) + ((f"-{slug}") if slug else "")
 

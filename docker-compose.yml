@@ -11,7 +11,7 @@ services:
     build:
       context: .
       dockerfile: ./docker/Dockerfile
-    image: h2o-python:0.42
+    image: h2o-python:0.43
     tty: true
     command: bash
     environment:
@@ -24,6 +24,25 @@ services:
     depends_on:
       - db
 
+  minio:
+    image: registry.lil.tools/minio/minio:RELEASE.2021-02-19T04-38-02Z
+    entrypoint:
+      - "/entrypoint.sh"
+    command:
+      - "server"
+      - "/data"
+    environment:
+      - MINIO_ACCESS_KEY=accesskey
+      - MINIO_SECRET_KEY=secretkey
+      - DATA_DIR=/data
+      - BUCKET=h2o.images
+    volumes:
+      - ./docker/minio/entrypoint.sh:/entrypoint.sh
+      - minio_data:/data:delegated
+    ports:
+      - "127.0.0.1:9000:9000"
+
 volumes:
   db_data:
   node_modules:
+  minio_data:

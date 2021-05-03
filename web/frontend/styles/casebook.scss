@@ -813,3 +813,18 @@ ul.settings-section {
 .form-control.force-min-width {
     min-width: 600px;
 }
+
+
+div.tox-toolbar__group {
+    outline: 2px solid red;
+}
+div.tox-toolbar__group:nth-child(2) button.tox-tbtn.tox-tbtn--select.tox-tbtn--disabled span{
+
+    color: black;
+
+    &:after {
+        content: '✓';
+        color: green;
+        font-weight: 900;
+    }
+}

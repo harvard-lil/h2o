@@ -47,6 +47,7 @@ from .utils import (block_level_elements, clone_model_instance, elements_equal,
                     parse_html_fragment, remove_empty_tags,
                     strip_trailing_block_level_whitespace, void_elements,
                     APICommunicationError, fix_after_rails)
+from .storages import get_s3_storage
 logger = logging.getLogger(__name__)
 
 #
@@ -425,7 +426,7 @@ class CAP:
         try:
             results = response.json()['results']
         except Exception:
-            results = None
+            results = []
         return [CAP.convert_search_result(x) for x in results]
 
     @staticmethod
@@ -459,9 +460,6 @@ class CAP:
 
         # Page nos
         body_parsed('.page-label').remove()
-
-        # remove images
-        body_parsed.remove('img')
 
         # vanillify citation links
         for link in body_parsed('a.citation'):
@@ -2021,12 +2019,11 @@ class ContentNode(EditTrackedModel, TimestampedModel, BigPkModel, MaterializedPa
         r"""
             Return headnote HTML prepared for pandoc export.
 
-            >>> assert Resource(headnote='<p>An image <img src=""></p>').headnote_for_export() == '<p>An image </p>'
+            >>> assert Resource(headnote='<p>An image <img src=""></p>').headnote_for_export() == '<p>An image <img src=""></p>'
         """
         if not self.headnote:
             return ''
         tree = parse_html_fragment(self.headnote)
-        PyQuery(tree).remove('img')
         return mark_safe(inner_html(tree))
 
     @staticmethod
@@ -2035,9 +2032,6 @@ class ContentNode(EditTrackedModel, TimestampedModel, BigPkModel, MaterializedPa
             Prepare an lxml tree (annotated or un-annotated) for export.
         """
         tree = PyQuery(tree)
-
-        # remove images
-        tree.remove('img')
 
         # Case Header styling
         for pq in tree('section.head-matter p, center, p[style="text-align:center"], p[align="center"]').items():
@@ -2905,12 +2899,11 @@ class Casebook(EditTrackedModel, TimestampedModel, BigPkModel, CasebookAndSectio
         r"""
             Return headnote HTML prepared for pandoc export.
 
-            >>> assert Resource(headnote='<p>An image <img src=""></p>').headnote_for_export() == '<p>An image </p>'
+            >>> assert Resource(headnote='<p>An image <img src=""></p>').headnote_for_export() == '<p>An image <img src=""></p>'
         """
         if not self.headnote:
             return ''
         tree = parse_html_fragment(self.headnote)
-        PyQuery(tree).remove('img')
         return mark_safe(inner_html(tree))
 
     @property
@@ -3926,6 +3919,21 @@ def update_user_login_fields(sender, request, user, **kwargs):
 
 user_logged_in.connect(update_user_login_fields)
 
+
+image_storage = get_s3_storage(bucket_name='h2o.images')
+
+class SavedImage(TimestampedModel):
+    name = models.CharField(max_length=255, null=True, blank=True)
+    external_id = models.UUIDField(unique=True)
+    image = models.FileField(storage=image_storage)
+    uploaded_by = models.ForeignKey('User', on_delete='DO_NOTHING', related_name='saved_images')
+
+    class Meta:
+        indexes = [models.Index(fields=['external_id'])]
+
+    @property
+    def url(self):
+        return reverse('image_url', args=[self.external_id])
 
 #
 # Legacy Tables: do these contain images and other assets that are referenced

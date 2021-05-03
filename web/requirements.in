@@ -8,6 +8,8 @@ djangorestframework
 django-crispy-forms # tidier custom model forms
 whitenoise          # static file serving
 django-webpack-loader   # serving frontend assets
+django-storages
+boto3
 
 # database
 psycopg2            # postgres connector
@@ -31,5 +33,5 @@ requests
 pyquery
 
 # Who knows?
-pip==20.2.2
+pip==20.3.4
 importlib-metadata==1.7.0

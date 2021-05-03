@@ -249,6 +249,12 @@ REST_FRAMEWORK = {
 
 PANDOC_DIR = os.path.join(os.path.dirname(BASE_DIR), 'services/pandoc')
 
+S3_STORAGE = {
+    'endpoint_url': 'http://minio:9000',
+    'access_key': 'accesskey',
+    'secret_key': 'secretkey'
+}
+
 PASSWORD_HASHERS = [
     # this is the standard recommended Django password hasher; first item on this list will be used for all new logins
     'django.contrib.auth.hashers.PBKDF2PasswordHasher',

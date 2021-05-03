@@ -1,5 +1,7 @@
+import imghdr
 import json
 import logging
+import uuid
 from collections import OrderedDict
 from functools import wraps
 from test.test_helpers import (assert_url_equal, check_response,
@@ -42,11 +44,12 @@ from .forms import (CasebookForm, CasebookSettingsTransitionForm, LinkForm,
                     InviteCollaboratorForm, CollaboratorFormSet)
 from .models import (Case, Casebook, CommonTitle, ContentAnnotation, ContentNode, LegalDocument,
                      LegalDocumentSource, Link, Resource, Section, SearchIndex, TextBlock, User,
-                     ContentCollaborator)
+                     ContentCollaborator, SavedImage)
 from .serializers import (AnnotationSerializer, CaseSerializer, CasebookListSerializer, CommonTitleSerializer,
                           NewAnnotationSerializer, NewCommonTitleSerializer, SectionOutlineSerializer,
                           TextBlockSerializer, LegalDocumentSerializer, LegalDocumentSourceSerializer,
                           LegalDocumentSearchParamsSerializer, UpdateAnnotationSerializer)
+from .storages import get_s3_storage
 from .test.test_permissions_helpers import (directly_editable_resource,
                                             directly_editable_section,
                                             no_perms_test,
@@ -1924,6 +1927,7 @@ def edit_resource(request, casebook, resource):
         'form': form,
         'embedded_resource_form': embedded_resource_form,
         'body_json': body_json,
+        'super': request.user.is_superuser
     })
 
 
@@ -2498,3 +2502,56 @@ def internal_search(request):
             'facets': facets,
             'category': category,
         })
+
+
+image_storage = get_s3_storage(bucket_name="h2o.images")
+
+@login_required
+def upload_image(request):
+    """
+    For use with the TinyMCE editor.
+
+    >>> import base64
+    >>> import io
+    >>> import json
+    >>> client = getfixture('client')
+    >>> user = getfixture('admin_user')
+    >>> img = io.BytesIO(base64.b64decode("iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNk+A8AAQUBAScY42YAAAAASUVORK5CYII="))
+    >>> img.name = 'Test.png'
+    >>> url = reverse('upload_image', args=[])
+    >>> res = client.post(url, {'image': img, 'name': 'Test'})
+    >>> assert(res.status_code==302 and res.url==f'/accounts/login/?next={url}')
+    >>> _ = img.seek(0)
+    >>> res = client.post(url, {'image':img, 'name': 'Test'}, as_user=user)
+    >>> assert(res.status_code == 200)
+    >>> assert('location' in json.loads(res.content))
+    """
+    # TinyMCE requires a response like {"location": [url]}
+    if not request.user.is_superuser:
+        raise Http404
+    if 'image' not in request.FILES:
+        return HttpResponseBadRequest("No image data")
+    image_file = request.FILES.get('image')
+    original_name = request.POST.get('name', None)
+    suffix = image_file.name[len(original_name):]
+    s3_uuid = uuid.uuid4()
+    image_file.name = str(s3_uuid) + suffix
+
+    if imghdr.what(image_file) not in {'jpeg', 'png', 'gif', 'webp'}:
+        return HttpResponseForbidden("Only JPEG, PNG, GIF, and WebP are supported at this time.")
+    saved_image = SavedImage(name=original_name,
+                             image=image_file,
+                             external_id=s3_uuid,
+                             uploaded_by=request.user)
+    saved_image.save()
+    return JsonResponse({"location": saved_image.url})
+
+
+def view_image(request, image_uuid):
+    """
+    Redirect to S3 with temp creds.
+
+    """
+    saved_image = get_object_or_404(SavedImage.objects.filter(external_id=image_uuid))
+    return HttpResponseRedirect(saved_image.image.url)
+
