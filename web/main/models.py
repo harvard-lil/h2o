@@ -325,7 +325,7 @@ class Case(NullableTimestampedModel, AnnotatedModel):
 
     @property
     def cite_string(self):
-        return ", ".join([x['cite'] for x in self.citations if 'cite' in x])
+        return ", ".join([x['cite'] for x in self.citations if 'cite' in x]) if self.citations else ''
 
 
 #
