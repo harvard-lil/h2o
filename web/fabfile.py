@@ -143,7 +143,8 @@ def load_uscode_index(index='uscode_index.jsonl', effective_date=date(2018,1,1))
         entries = []
         for line in index_file:
             ind_dict = json.loads(line)
-            entries.append(USCodeIndex(citation=ind_dict['citation'], effective_date=effective_date, title=ind_dict['title'], gpo_id=ind_dict['gpo_id'], lii_url=ind_dict['lii_link']))
+            repealed = ind_dict['title'].startswith("Repealed")
+            entries.append(USCodeIndex(citation=ind_dict['citation'], effective_date=effective_date, title=ind_dict['title'], gpo_id=ind_dict['gpo_id'], lii_url=ind_dict['lii_link'], repealed=repealed))
         USCodeIndex.objects.bulk_create(entries)
         for ind in USCodeIndex.objects.all():
             ind.save()
@@ -179,7 +180,7 @@ def migrate_cases():
     for case in tqdm(cases):
         ld = None
         if not case.capapi_id:
-            cites = [x['cite'] for x in case.citations if 'cite' in x]
+            cites = [x['cite'] for x in case.citations if 'cite' in x] if case.citations else []
             ld = LegalDocument.objects.create(source=legacy,
                                               short_name=case.name_abbreviation,
                                               name=case.name,
