@@ -157,7 +157,7 @@ if __name__ == "__main__":
 
 @task
 @setup_django
-def migrate_cases():
+def migrate_cases(max_cases=400):
     from datetime import timedelta
     from itertools import groupby
     from pyquery import PyQuery
@@ -177,14 +177,14 @@ def migrate_cases():
     prior_ld_count = LegalDocument.objects.count()
     res_count = 0
     failed_import = 0
-    for case in tqdm(cases):
+    for case in tqdm(cases[:max_cases]):
         ld = None
         if not case.capapi_id:
             cites = [x['cite'] for x in case.citations if 'cite' in x] if case.citations else []
             ld = LegalDocument.objects.create(source=legacy,
                                               short_name=case.name_abbreviation,
                                               name=case.name,
-                                              doc_class='Unknown',
+                                              doc_class='Case',
                                               citations=cites,
                                               jurisdiction=case.jurisdiction_slug,
                                               effective_date=case.decision_date,
