@@ -2387,6 +2387,7 @@ def new_from_outline(request, casebook=None):
                 node['resource_type'] = 'Temp'
             # resource_type may be 'Temp' for skipped nodes
             node.pop('searchString', None)
+            node.pop('display_type', None)
             if not skip_add_node:
                 content_nodes.append(ContentNode(**node))
         bulk_create_with_history(content_nodes, ContentNode, batch_size=500, default_change_reason="Bulk Create")
