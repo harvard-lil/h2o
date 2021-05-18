@@ -965,6 +965,19 @@ class LegalDocument(NullableTimestampedModel, AnnotatedModel):
         return ", ".join(self.citations)
 
 
+    # Utility functions
+
+    def has_bad_footnotes(self):
+        pq = PyQuery(self.content)
+        self_links = [a for a in pq('a') if a.attrib.get('href', '').startswith('#')]
+        for sl in self_links:
+            target_id = sl.attrib.get('href')[1:]
+            if not pq(f'[id="{target_id}"]'):
+                return True
+        return False
+
+
+
 class ContentAnnotationQueryset(models.QuerySet):
     def valid(self):
         """
