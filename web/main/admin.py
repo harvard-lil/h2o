@@ -588,13 +588,16 @@ class LegalDocumentSourceAdmin(BaseAdmin):
     def has_add_permission(self, request):
         return super(BaseAdmin, self).has_add_permission(request)
 
+    def formfield_for_dbfield(self, db_field, **kwargs):
+        return self.enable_richeditor_for_field('content', db_field, **kwargs)
+
     def imported_documents(self, obj):
         base_url = reverse('admin:main_legaldocument_changelist')
         return format_html(f'<a href="{base_url}?resource_type=LegalDocument&doc-source={obj.id}">{obj.documents.count()}</a>')
 
 
 class LegalDocumentAdmin(BaseAdmin, SimpleHistoryAdmin):
-    readonly_fields = ['source_name', 'created_at', 'updated_at', 'content', 'metadata', 'source_ref', 'effective_date', 'publication_date', 'updated_date']
+    readonly_fields = ['needs_fixing', 'source_name', 'created_at', 'updated_at', 'metadata', 'source_ref', 'effective_date', 'publication_date', 'updated_date']
     list_select_related = []
     list_display = ['id', 'short_name', 'source_name', 'doc_class', 'related_resources', 'live_annotations_count', 'created_at', 'updated_at']
     list_filter = ['doc_class', LegalDocumentSourceFilter]
@@ -612,6 +615,12 @@ class LegalDocumentAdmin(BaseAdmin, SimpleHistoryAdmin):
             obj.id,
             obj.related_resources().count()
         )
+
+    def formfield_for_dbfield(self, db_field, **kwargs):
+        return self.enable_richeditor_for_field('content', db_field, **kwargs)
+
+    def needs_fixing(self, obj):
+        return 'Footnotes' if obj.has_bad_footnotes() else "Passes checks"
 
     def source_name(self, obj):
         return obj.source.name
