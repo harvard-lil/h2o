@@ -1,3 +1,4 @@
+from datetime import timedelta
 from django_json_widget.widgets import JSONEditorWidget
 import requests
 from pyquery import PyQuery
@@ -432,23 +433,31 @@ class CaseAdmin(BaseAdmin, SimpleHistoryAdmin):
 
     def response_change(self, request, obj):
         if "_reimport_from_case_law" in request.POST:
-            cap_id = obj.capapi_id
-            case = force_case_from_cap_id(cap_id)
-            meta_matches = True
-            for att in ['name_abbreviation', 'name', 'docket_number', 'decision_date', 'attorneys', 'parties', 'opinions', 'citations', 'court_name']:
-                o_val = getattr(obj, att)
-                c_val = getattr(case, att)
-                if o_val != c_val and (bool(o_val) or bool(c_val)):
-                    meta_matches = False
-            case_matches = True
-            if PyQuery(case.content).text() != PyQuery(obj.content).text():
-                case_matches = False
-            if not (case_matches and meta_matches):
-                self.message_user(request, "Differences detected")
-                case.save()
-                return HttpResponseRedirect(reverse('admin:main_case_change', args=(case.id,)))
-            self.message_user(request, "No differences detected")
-            return HttpResponseRedirect(".")
+            case = obj
+            if not case.capapi_id:
+                self.message_user(request, "Cannot update a case without a CAP ID")
+                return HttpResponseRedirect(".")
+            cap = LegalDocumentSource.objects.filter(name="CAP").get()
+            try:
+                ld = cap.api_model().pull(cap,case.capapi_id)
+                ld.save()
+                original_text = PyQuery(case.content).text()
+                new_text = PyQuery(ld.content).text()
+                if new_text != original_text:
+                    ld.publication_date = min(case.created_at.replace(tzinfo=None),
+                                              ld.publication_date.replace(tzinfo=None) - timedelta(days=1))
+                    ld.updated_date     = min(case.updated_at.replace(tzinfo=None),
+                                              ld.updated_date.replace(tzinfo=None)     - timedelta(days=1))
+                    ld.content = case.content
+                    ld.save()
+                case.related_resources().update(resource_type='LegalDocument', resource_id=ld.id)
+                ld.refresh_from_db()
+                ContentAnnotation.update_annotations(ld.related_annotations(), case.content, ld.content)
+                self.message_user(request, "Re-imported successfully")
+                return HttpResponseRedirect(reverse(f'admin:{ld._meta.app_label}_{ld._meta.model_name}_change', args=[ld.id]))
+            except Exception:
+                self.message_user(request, "Error while attempting to update case")
+                return HttpResponseRedirect(".")
         return super().response_change(request, obj)
 
 
