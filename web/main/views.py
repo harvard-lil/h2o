@@ -2077,7 +2077,7 @@ def internal_case_id_from_cap_id(cap_id):
 
 def internal_doc_id_from_source(legal_doc_source, id):
     most_recent_doc = legal_doc_source.pull(id)
-    most_recent_saved_doc = LegalDocument.objects.filter(source=legal_doc_source, source_ref=id).order_by('-effective_date','-publication_date').first()
+    most_recent_saved_doc = legal_doc_source.most_recent_with_id(id)
     if not most_recent_saved_doc or most_recent_doc.effective_date > most_recent_saved_doc.effective_date:
         most_recent_doc.save()
         return most_recent_doc
