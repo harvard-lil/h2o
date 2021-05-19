@@ -426,8 +426,18 @@ class CAP:
 
     @staticmethod
     def preprocess_body(body):
+        return body
+
+    @staticmethod
+    def postprocess_content(body):
         def style_page_no(_, pn):
             pn.attrib['data-custom-style'] = 'Page Number'
+            pn.addprevious(lxml.etree.XML('<span> </span>'))
+            pn.addnext(lxml.etree.XML('<span> </span>'))
+
+        def unlink_page_nos(_, page_no):
+            page_no.tag = 'span'
+            page_no.attrib['data-custom-style'] = 'Page Number'
 
         body_parsed = PyQuery(body)
         # Footnotes
@@ -446,17 +456,6 @@ class CAP:
         # Page nos
         body_parsed('.page-label').each(style_page_no)
 
-
-        reformatted_body = body_parsed.html()
-        return reformatted_body
-
-    @staticmethod
-    def postprocess_content(body):
-        def unlink_page_nos(_, page_no):
-            page_no.tag = 'span'
-            page_no.attrib['data-custom-style'] = 'Page Number'
-
-        body_parsed = PyQuery(body)
         # remove images
         body_parsed.remove('img')
 
@@ -466,6 +465,11 @@ class CAP:
         for el in body_parsed('section.head-matter h4, center h2, h2[style="text-align:center"], h2[align="center"]'):
             el.tag = 'div'
             el.attrib['data-custom-style'] = 'Case Header'
+
+        # From cases.scss
+        hidden_classes = ['.parties', '.decisiondate', '.docketnumber', '.citation', '.syllabus', '.synopsis', '.court']
+        for hide_class in hidden_classes:
+            body_parsed.remove(hide_class)
 
         body_parsed('.page-label').each(unlink_page_nos)
         return f'<div data-custom-style="Case Body">{body_parsed.html()}</div>'
@@ -501,6 +505,33 @@ class CAP:
                              content=body,
                              metadata=metadata)
         return case
+
+    @staticmethod
+    def get_metadata(id):
+        try:
+            response = requests.get(
+                settings.CAPAPI_BASE_URL + "cases/%s/" % id,
+                {}
+            )
+            assert response.ok
+        except (requests.RequestException, AssertionError) as e:
+            msg = "Communication with CAPAPI failed: {}".format(str(e))
+            raise APICommunicationError(msg)
+
+        metadata = response.json()
+        citations = [x.get('cite') for x in metadata['citations'] if 'cite' in x]
+        data = {
+                'short_name'       : metadata.get('name_abbreviation'),
+                'name'             : metadata.get('name'),
+                'doc_class'        : 'Case',
+                'citations'        : citations,
+                'jurisdiction'     : metadata.get('jurisdiction', {}).get('slug', ''),
+                'effective_date'   : parser.parse(metadata.get('decision_date')),
+                'publication_date' : parser.parse(metadata.get('last_updated')),
+                'updated_date'     : datetime.now(),
+                'source_ref'       : str(id),
+                'metadata'         : metadata}
+        return data
 
     @staticmethod
     def header_template(legal_document):
@@ -624,7 +655,6 @@ class USCodeGPO():
         return parts
 
 
-
     @staticmethod
     def pull(legal_doc_source, id):
         # given a source_ref/API id return an (unsaved) LegalDocument
@@ -674,6 +704,55 @@ class USCodeGPO():
                              source_ref=id,
                              content=formatted_body,
                              metadata=metadata)
+        return code
+
+    @staticmethod
+    def get_metadata(id):
+        # given a source_ref/API id return an (unsaved) LegalDocument
+        if not settings.GPO_API_KEY:
+            raise APICommunicationError('To interact with the GPO API, a key must be set.')
+        try:
+            package_id = "-".join(id.split("-")[:3])
+            body_response = requests.get(
+                f"{settings.GPO_BASE_URL}packages/{package_id}/granules/{id}/htm",
+                {},
+                headers={'X-Api-Key': settings.GPO_API_KEY},
+            )
+            assert body_response.ok
+            metadata_response = requests.get(
+                f"{settings.GPO_BASE_URL}packages/{package_id}/granules/{id}/summary",
+                {},
+                headers={'X-Api-Key': settings.GPO_API_KEY},
+            )
+            assert metadata_response.ok
+        except (requests.RequestException, AssertionError) as e:
+            msg = "Communication with GPO API failed: {}".format(str(e))
+            raise APICommunicationError(msg)
+        metadata = metadata_response.json()
+
+        content = PyQuery(body_response.content)
+
+        effective_date = parser.parse(metadata['dateIssued'])
+        publication_date = parser.parse(metadata['lastModified'])
+        title_no = id.split("-")[2][5:]
+        first_section = metadata['leafRange']['from']
+        last_section = metadata['leafRange']['to']
+        single_leaf = first_section == last_section
+        silcrow = '§' if single_leaf else '§§'
+        sections = first_section if single_leaf else first_section + '-' + last_section
+        citation = f"{title_no} U.S.C. {silcrow} {sections}"
+
+        parsed_body = USCodeGPO.parse_gpo_html(content)
+        metadata['header'] = parsed_body['header']
+        code = {
+                'name'             : metadata['title'],
+                'doc_class'        : 'Code',
+                'citations'        : [citation],
+                'effective_date'   : effective_date,
+                'publication_date' : publication_date,
+                'updated_date'     : datetime.now(),
+                'source_ref'       : id,
+                'metadata'         : metadata}
         return code
 
     @staticmethod
@@ -890,6 +969,10 @@ class LegalDocumentSource(models.Model):
     def pull(self, id):
         return self.api_model().pull(self, id)
 
+    def most_recent_with_id(self, id):
+        return LegalDocument.objects.filter(source=self, source_ref=id).order_by('-effective_date','-publication_date').first()
+
+
 LegalDocumentSource.register_api(USCodeGPO)
 LegalDocumentSource.register_api(CAP)
 LegalDocumentSource.register_api(LegacyNoSearch)
@@ -966,6 +1049,10 @@ class LegalDocument(NullableTimestampedModel, AnnotatedModel):
 
 
     # Utility functions
+
+    def has_newer_version(self):
+        latest_meta = self.source.get_metadata(self.id)
+        return latest_meta.publication_date > self.publication_date
 
     def has_bad_footnotes(self):
         pq = PyQuery(self.content)
@@ -1683,8 +1770,11 @@ class ContentNode(EditTrackedModel, TimestampedModel, BigPkModel, MaterializedPa
     def export_content(self):
         if self.resource_type == 'LegalDocument':
             api_model = self.resource.source.api_model()
+            contents = self.resource.content
             if hasattr(api_model, 'postprocess_content'):
-                return api_model.postprocess_content(self.resource.content)
+                contents = api_model.postprocess_content(contents)
+            header = render_to_string(self.resource.header_template, {'legal_doc': self.resource})
+            return f'<div>{header}{contents}</div>'
         return self.resource.content
 
     @property
