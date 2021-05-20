@@ -471,8 +471,12 @@ class CAP:
         for hide_class in hidden_classes:
             body_parsed.remove(hide_class)
 
+        body_parsed('em [custom-style]').add_class('popup_raiser')
+
         body_parsed('.page-label').each(unlink_page_nos)
-        return f'<div data-custom-style="Case Body">{body_parsed.html()}</div>'
+        pop_target = '<span custom-style="Elision" class="popup_raiser">[ … ]</span>'
+        dumped_html = body_parsed.html().replace(pop_target, f"</em>{pop_target}<em>")
+        return f'<div data-custom-style="Case Body">{dumped_html}</div>'
 
     @staticmethod
     def pull(legal_doc_source, id):
