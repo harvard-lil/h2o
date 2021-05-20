@@ -1035,7 +1035,7 @@ class LegalDocument(NullableTimestampedModel, AnnotatedModel):
         super().save(*args, **kwargs)
 
     def get_name(self):
-        return self.name
+        return self.short_name or self.name
 
     def __str__(self):
         return self.get_name()
@@ -1773,7 +1773,7 @@ class ContentNode(EditTrackedModel, TimestampedModel, BigPkModel, MaterializedPa
             contents = self.resource.content
             if hasattr(api_model, 'postprocess_content'):
                 contents = api_model.postprocess_content(contents)
-            header = render_to_string(self.resource.header_template, {'legal_doc': self.resource})
+            header = render_to_string(self.resource.header_template, {'legal_doc': self.resource, 'resource': self})
             return f'<div>{header}{contents}</div>'
         return self.resource.content
 
