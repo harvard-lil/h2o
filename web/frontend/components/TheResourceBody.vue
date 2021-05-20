@@ -55,7 +55,7 @@ export default {
         }
     }
     /* paragraph numbers -- section.casebody handles HTML received from CAP */
-    > :not(section), > section.casebody h4, > section.casebody p, > section.casebody blockquote {
+    > :not(section,article),> article.opinion p, > section.casebody h4, > section.casebody p, > section.casebody blockquote {
         position: relative;
         &:not(.elision):not(.fully-elided) {
             &::before {
