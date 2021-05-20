@@ -465,8 +465,8 @@ class CAP:
         for el in body_parsed('section.head-matter h4, center h2, h2[style="text-align:center"], h2[align="center"]'):
             el.tag = 'div'
             el.attrib['data-custom-style'] = 'Case Header'
-
         # From cases.scss
+
         hidden_classes = ['.parties', '.decisiondate', '.docketnumber', '.citation', '.syllabus', '.synopsis', '.court']
         for hide_class in hidden_classes:
             body_parsed.remove(hide_class)
@@ -1772,24 +1772,23 @@ class ContentNode(EditTrackedModel, TimestampedModel, BigPkModel, MaterializedPa
                                 {'legal_doc': self.resource, 'resource': self})
         return ''
 
+    def export_postprocess(self, body):
+        if self.resource_type == 'LegalDocument':
+            api_model = self.resource.source.api_model()
+            if hasattr(api_model, 'postprocess_content'):
+                return api_model.postprocess_content(body)
+        return body
+
+    @property
+    def headerless_export_content(self):
+        return self.resource.content
+
     @property
     def export_content(self):
         if self.resource_type == 'LegalDocument':
             contents = self.resource.content
-            api_model = self.resource.source.api_model()
-            if hasattr(api_model, 'postprocess_content'):
-                contents = api_model.postprocess_content(contents)
             header = self.rendered_header()
-            return f'<div>{header}{contents}</div>'
-        return self.resource.content
-
-    def headerless_export_content(self):
-        if self.resource_type == 'LegalDocument':
-            contents = self.resource.content
-            api_model = self.resource.source.api_model()
-            if hasattr(api_model, 'postprocess_content'):
-                contents = api_model.postprocess_content(contents)
-            return f'<div>{contents}</div>'
+            return f'{header}{contents}'
         return self.resource.content
 
     @property
@@ -2068,13 +2067,13 @@ class ContentNode(EditTrackedModel, TimestampedModel, BigPkModel, MaterializedPa
             ...     [replace new content]is replaced[/replace]
             ...     [link http://example.com]is linked[/link]
             ... </p>'''
-            >>> expected = '''<div><p>
+            >>> expected = '''<p>
             ...     <span class="annotate">Has a note</span><span custom-style="Footnote Reference">*</span>
             ...     <span class="annotate highlighted" custom-style="Highlighted Text">is highlighted</span>
             ...     <span custom-style="Elision">[ … ]</span>
             ...     <span custom-style="Replacement Text">new content</span>
             ...     <a class="annotate" href="http://example.com">is linked</a><span custom-style="Footnote Reference">**</span>
-            ... </p></div>'''
+            ... </p>'''
             >>> assert_match(input, expected)
 
             Annotation spanning paragraphs:
@@ -2083,11 +2082,11 @@ class ContentNode(EditTrackedModel, TimestampedModel, BigPkModel, MaterializedPa
             ... <p>Some <em>text</em></p>
             ... <p>Some [/highlight] text</p>
             ... '''
-            >>> expected = '''<div>
+            >>> expected = '''
             ... <p>Some <span class="annotate highlighted" custom-style="Highlighted Text"> text</span></p>
             ... <p><span class="annotate highlighted" custom-style="Highlighted Text">Some </span><em><span class="annotate highlighted" custom-style="Highlighted Text">text</span></em></p>
             ... <p><span class="annotate highlighted" custom-style="Highlighted Text">Some </span> text</p>
-            ... </div>'''
+            ... '''
             >>> assert_match(input, expected)
 
             Deletion spanning paragraphs:
@@ -2096,42 +2095,42 @@ class ContentNode(EditTrackedModel, TimestampedModel, BigPkModel, MaterializedPa
             ... <p>Some <em>text</em> <br></p>
             ... <p>Some [/replace] text</p>
             ... '''
-            >>> expected = '''<div>
+            >>> expected = '''
             ... <p>Some <span custom-style="Replacement Text">new content</span></p><p> text</p>
-            ... </div>'''
+            ... '''
             >>> assert_match(input, expected)
 
             Void elements:
             >>> input = '''<p> [highlight] <br> [/highlight] </p>'''
-            >>> expected = '''<div><p> <span class="annotate highlighted" custom-style="Highlighted Text"> </span><br><span class="annotate highlighted" custom-style="Highlighted Text"> </span> </p></div>'''
+            >>> expected = '''<p> <span class="annotate highlighted" custom-style="Highlighted Text"> </span><br><span class="annotate highlighted" custom-style="Highlighted Text"> </span> </p>'''
             >>> assert_match(input, expected)
 
             Annotations with ambiguous placement:
             >>> input = '<p>First</p><p>[highlight]Second[/highlight]</p><p>Third</p>'
-            >>> expected = '<div><p>First</p><p><span class="annotate highlighted" custom-style="Highlighted Text">Second</span></p><p>Third</p></div>'
+            >>> expected = '<p>First</p><p><span class="annotate highlighted" custom-style="Highlighted Text">Second</span></p><p>Third</p>'
             >>> assert_match(input, expected)
             >>> input = '<p>First</p><p>[elide]Second[/elide]</p><p>Third</p>'
-            >>> expected = '<div><p>First</p><p><span custom-style="Elision">[ … ]</span></p><p>Third</p></div>'
+            >>> expected = '<p>First</p><p><span custom-style="Elision">[ … ]</span></p><p>Third</p>'
             >>> assert_match(input, expected)
             >>> input = '<p>[highlight]First[/highlight]</p><p>[highlight]Sec[/highlight][highlight]ond[/highlight]</p><p>[highlight]Third[/highlight]</p>'
-            >>> expected = '<div><p><span class="annotate highlighted" custom-style="Highlighted Text">First</span></p>' \
+            >>> expected = '<p><span class="annotate highlighted" custom-style="Highlighted Text">First</span></p>' \
             ...     '<p><span class="annotate highlighted" custom-style="Highlighted Text">Sec</span><span class="annotate highlighted" custom-style="Highlighted Text">ond</span></p>' \
-            ...     '<p><span class="annotate highlighted" custom-style="Highlighted Text">Third</span></p></div>'
+            ...     '<p><span class="annotate highlighted" custom-style="Highlighted Text">Third</span></p>'
             >>> assert_match(input, expected)
 
             Overlapping annotations:
             (Not sure if these can happen in practice, but they do work for export, at least in simple cases.)
             >>> input = '<p>[highlight]One [note my note]two[/highlight] three[/note]</p>'
-            >>> expected = '<div><p><span class="annotate highlighted" custom-style="Highlighted Text">One <span class="annotate">two</span></span>' \
-            ...     '<span class="annotate"> three</span><span custom-style="Footnote Reference">*</span></p></div>'
+            >>> expected = '<p><span class="annotate highlighted" custom-style="Highlighted Text">One <span class="annotate">two</span></span>' \
+            ...     '<span class="annotate"> three</span><span custom-style="Footnote Reference">*</span></p>'
             >>> assert_match(input, expected)
             >>> input = '<p>[highlight]One [elide]two[/highlight] three[/elide]</p>'
-            >>> expected = '<div><p><span class="annotate highlighted" custom-style="Highlighted Text">One <span custom-style="Elision">[ … ]</span></span></p></div>'
+            >>> expected = '<p><span class="annotate highlighted" custom-style="Highlighted Text">One <span custom-style="Elision">[ … ]</span></span></p>'
             >>> assert_match(input, expected)
 
             Annotations with invalid offsets are clamped:
             >>> input = '<p>[highlight]F[/highlight]oo</p>'
-            >>> expected = '<div><p><span class="annotate highlighted" custom-style="Highlighted Text">Foo</span></p></div>'
+            >>> expected = '<p><span class="annotate highlighted" custom-style="Highlighted Text">Foo</span></p>'
             >>> resource = annotations_factory('Case', input)[1]
             >>> _ = resource.annotations.update(global_end_offset=1000)  # move end offset past end of text
             >>> assert resource.annotated_content_for_export() == expected
@@ -2139,7 +2138,7 @@ class ContentNode(EditTrackedModel, TimestampedModel, BigPkModel, MaterializedPa
         # Start with a sorted list of the start and end insertion points for each annotation.
         # Each entry in the list is shaped like (annotation_offset, is_start_tag, annotation).
         # Clamp offsets to the max valid value, as we may have legacy invalid values in the database that are too large.
-        source_tree = parse_html_fragment(self.headerless_export_content())
+        source_tree = parse_html_fragment(self.headerless_export_content)
         max_valid_offset = len(source_tree.text_content())
         annotations = []
         for annotation in self.annotations.all():
@@ -2325,12 +2324,11 @@ class ContentNode(EditTrackedModel, TimestampedModel, BigPkModel, MaterializedPa
         lxml.sax.saxify(source_tree, handler)
         dest_tree = handler.get_output_tree()
 
+        
         # clean up the output tree:
         remove_empty_tags(dest_tree)  # tree may contain empty tags from elide/replace annotations
         # apply general rules that are the same for annotated or un-annotated trees
-        header = self.rendered_header()
-        annotated_body = inner_html(dest_tree)
-        return mark_safe(f"<div>{header}{annotated_body}</div>")
+        return mark_safe(self.rendered_header() + self.export_postprocess(inner_html(dest_tree)))
 
     def footnote_annotations(self, export_options=None):
         return mark_safe("".join(
