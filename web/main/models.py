@@ -307,6 +307,7 @@ class Case(NullableTimestampedModel, AnnotatedModel):
         cleanse_html_field(self, 'content')
         super().save(*args, **kwargs)
 
+    @property
     def get_name(self):
         return self.name_abbreviation if self.name_abbreviation else self.name
 
@@ -460,8 +461,8 @@ class CAP:
         body_parsed.remove('img')
 
         # Case Header styling
-        for pq in body_parsed('section.head-matter p, center, p[style="text-align:center"], p[align="center"]').items():
-            pq.wrap("<div data-custom-style='Case Header'></div>")
+        # for pq in body_parsed('section.head-matter p, center, p[style="text-align:center"], p[align="center"]').items():
+        #     pq.wrap("<div data-custom-style='Case Header'></div>")
         for el in body_parsed('section.head-matter h4, center h2, h2[style="text-align:center"], h2[align="center"]'):
             el.tag = 'div'
             el.attrib['data-custom-style'] = 'Case Header'
