@@ -458,7 +458,7 @@ class CAP:
             mark.html(f'<span data-custom-style="Case Footnote Reference">{mark.html()}</span>')
 
         # Page nos
-        body_parsed('.page-label').each(style_page_no)
+        body_parsed('.page-label').remove()
 
         # remove images
         body_parsed.remove('img')
@@ -477,7 +477,6 @@ class CAP:
 
         body_parsed('em [custom-style]').add_class('popup_raiser')
 
-        body_parsed('.page-label').each(unlink_page_nos)
         pop_target = '<span custom-style="Elision" class="popup_raiser">[ … ]</span>'
         dumped_html = body_parsed.html().replace(pop_target, f"</em>{pop_target}<em>")
         return f'<div data-custom-style="Case Body">{dumped_html}</div>'
