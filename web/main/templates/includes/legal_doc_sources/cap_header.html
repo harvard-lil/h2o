@@ -1,7 +1,7 @@
 <header class="case-header legal-doc-header" >
     {% with md=legal_doc.metadata %}
     <div class="court" data-custom-style="Case Header"> {{ md.court.name }}</div>
-    <h1 class="title" data-custom-style="Case Header">{{ legal_doc.get_name }}</h1>
+    <h1 class="title" data-custom-style="Case Header">{{ legal_doc.get_title }}</h1>
     <div class="citation" data-custom-style="Case Header"> {{legal_doc.cite_string}} </div>
     {% if md.docket_number %}<div class="docketnumber" data-custom-style="Case Header">{{ md.docket_number }}</div>{% endif %}
     {% if md.decision_date %}<div class="decisiondate" data-custom-style="Case Header">{{ md.decision_date }}</div>{% endif %}

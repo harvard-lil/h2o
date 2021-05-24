@@ -340,11 +340,11 @@ def annotations_factory(db):
         Return a factory function that makes annotated casebooks from brackets in HTML. Example:
 
         >>> _, annotations_factory = [getfixture(f) for f in ['reset_sequences', 'annotations_factory']]
-        >>> casebook, resource = annotations_factory('Case', '<p>[replace]This[/replace] [highlight]is[/highlight] [elide]a[/elide] [note]case[/note].</p>')
+        >>> casebook, resource = annotations_factory('LegalDocument', '<p>[replace]This[/replace] [highlight]is[/highlight] [elide]a[/elide] [note]case[/note].</p>')
         >>> assert dump_casebook_outline(casebook) == [
         ...       'Casebook<1>: Some Title 0',
         ...       ' Section<1>: Some Section 0',
-        ...       '  ContentNode<2> -> Case<1>: Foo Foo0 vs. Bar Bar0',
+        ...       '  ContentNode<2> -> LegalDocument<1>: Legal Doc 0',
         ...       '   ContentAnnotation<1>: replace 0-4',
         ...       '   ContentAnnotation<2>: highlight 5-7',
         ...       '   ContentAnnotation<3>: elide 8-9',

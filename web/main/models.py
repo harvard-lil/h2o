@@ -308,8 +308,11 @@ class Case(NullableTimestampedModel, AnnotatedModel):
         super().save(*args, **kwargs)
 
     @property
+    def get_title(self):
+        return self.name_abbreviation or self.name
+
     def get_name(self):
-        return self.name_abbreviation if self.name_abbreviation else self.name
+        return self.name_abbreviation or self.name
 
     def __str__(self):
         return self.get_name()
@@ -1038,6 +1041,10 @@ class LegalDocument(NullableTimestampedModel, AnnotatedModel):
         """
         cleanse_html_field(self, 'content')
         super().save(*args, **kwargs)
+
+    @property
+    def get_title(self):
+        return self.short_name or self.name
 
     def get_name(self):
         return self.short_name or self.name
