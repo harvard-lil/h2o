@@ -471,7 +471,7 @@ class CAP:
             el.attrib['data-custom-style'] = 'Case Header'
         # From cases.scss
 
-        hidden_classes = ['.parties', '.decisiondate', '.docketnumber', '.citation', '.syllabus', '.synopsis', '.court']
+        hidden_classes = ['.parties', '.decisiondate', '.docketnumber', '.citations', '.syllabus', '.synopsis', '.court']
         for hide_class in hidden_classes:
             body_parsed.remove(hide_class)
 
