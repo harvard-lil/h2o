@@ -463,6 +463,10 @@ class CAP:
         # remove images
         body_parsed.remove('img')
 
+        # vanillify citation links
+        for link in body_parsed('a.citation'):
+            link.tag = "span"
+
         # Case Header styling
         # for pq in body_parsed('section.head-matter p, center, p[style="text-align:center"], p[align="center"]').items():
         #     pq.wrap("<div data-custom-style='Case Header'></div>")
