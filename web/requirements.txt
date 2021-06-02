@@ -166,9 +166,9 @@ django-webpack-loader==0.7.0 \
     --hash=sha256:7a3c88201aa54481f9399465615cbe7b9aece8081496a6d0287b7cb8e232f447 \
     --hash=sha256:d28a276ed3d89e97a313b74967e373693f8b86afe629f4c91eea91c5b4f2ec20
     # via -r requirements.in
-django==2.2.23 \
-    --hash=sha256:12cfc045a4ccb2348719aaaa77b17e66a26bff9fc238b4c765a3e825ef92e414 \
-    --hash=sha256:2710bff9dd480cf886e38947ee00aea3d6b9b04b77a748e352e3ce447b0fe17f
+django==2.2.24 \
+    --hash=sha256:3339ff0e03dee13045aef6ae7b523edff75b6d726adf7a7a48f53d5a501f7db7 \
+    --hash=sha256:f2084ceecff86b1e631c2cd4107d435daf4e12f1efcdf11061a73bf0b5e95f92
     # via
     #   -r requirements.in
     #   djangorestframework
@@ -400,9 +400,9 @@ tqdm==4.56.0 \
     --hash=sha256:4621f6823bab46a9cc33d48105753ccbea671b68bab2c50a9f0be23d4065cb5a \
     --hash=sha256:fe3d08dd00a526850568d542ff9de9bbc2a09a791da3c334f3213d8d0bbbca65
     # via -r requirements.in
-urllib3==1.26.4 \
-    --hash=sha256:2f4da4594db7e1e110a944bb1b551fdf4e6c136ad42e4234131391e21eb5b0df \
-    --hash=sha256:e7b021f7241115872f92f43c6508082facffbd1c048e3c6e2bb9c2a157e28937
+urllib3==1.26.5 \
+    --hash=sha256:753a0374df26658f99d826cfe40394a686d05985786d946fbe4165b5148f5a7c \
+    --hash=sha256:a7acd0977125325f516bda9735fa7142b909a8d01e8b2e4c8108d0984e6e0098
     # via requests
 webencodings==0.5.1 \
     --hash=sha256:a0af1213f3c2226497a97e2b3aa01a7e4bee4f403f95be16fc9acd2947514a78 \
