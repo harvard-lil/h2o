@@ -141,7 +141,7 @@ function initRichTextEditor(element, code=false) {
     menubar: false,
     branding: false,
     toolbar: toolbar,
-    image_uploadtab: true,
+    image_uploadtab: SUP,
     images_upload_handler: handleUpload,
     images_upload_credentials: true,
     automatic_uploads: true,
