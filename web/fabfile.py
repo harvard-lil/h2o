@@ -7,6 +7,8 @@ import sys
 from tqdm import tqdm
 from fabric.decorators import task
 from fabric.operations import local
+import uuid
+from pyquery import PyQuery
 
 import django
 
@@ -162,7 +164,6 @@ def migrate_cases(max_cases=400):
     from itertools import groupby
     from pyquery import PyQuery
     from main.models import Case, LegalDocumentSource, LegalDocument, ContentNode, ContentAnnotation
-    
     cap = LegalDocumentSource.objects.filter(name="CAP").get()
     legacy = LegalDocumentSource.objects.filter(name="Legacy").get()
 
@@ -272,3 +273,101 @@ def prune_old_casebooks(older_than=90):
             except Exception:
                 print(f"Failed to delete {cb.id} - {cb.title}")
     print(f"Deleted {total} casebooks")
+
+
+
+def image_uuids(res):
+    if not res.content:
+        return None
+    pq = PyQuery(res.content)
+    for img in pq("img").items():
+        src = img.attr('src') or ''
+        i = 0
+        while i < len(src) and src[i] in {'.','/'}:
+            i += 1
+        src = src[i:]
+        if src.startswith('image/'):
+            src_uuid = uuid.UUID(src[6:])
+            yield src_uuid
+
+@task
+@setup_django
+def list_used_images(output="", in_db=False, in_html=True):
+    if output == "":
+        print("Must include output file (list_used_images:output=to_file.txt)")
+    from tqdm import tqdm
+    from main.models import SavedImage, LegalDocument, TextBlock
+
+    used_images = set()
+    if in_html != "False":
+        used_images = {src_uuid for tb in tqdm(TextBlock.objects.all(), desc="TextBlocks")
+                       for src_uuid in image_uuids(tb)}.union(
+                               {src_uuid for ld in tqdm(LegalDocument.objects.all(), desc="LegalDocs")
+                                for src_uuid in image_uuids(ld)})
+    if in_db is not False:
+        for si in SavedImage.objects.all():
+            used_images.add(si.external_id)
+    with open(output, 'w') as f:
+        for image in used_images:
+            f.write(str(image) + "\n")
+
+
+@task
+@setup_django
+def cleanup_images(keep_file=None, dry_run=True):
+    if dry_run == "False":
+        dry_run = False
+    import re
+    from main.storages import get_s3_storage
+    from main.models import SavedImage, LegalDocument, TextBlock
+
+    used_images = {src_uuid for tb in tqdm(TextBlock.objects.all(), desc="TextBlocks")
+                       for src_uuid in image_uuids(tb)}.union(
+                               {src_uuid for ld in tqdm(LegalDocument.objects.all(), desc="LegalDocs")
+                                for src_uuid in image_uuids(ld)})
+
+    s3_files_to_keep = {}
+    if keep_file:
+        with open(keep_file) as keeps:
+            s3_files_to_keep = {uuid.UUID(line.strip()) for line in keeps.readlines()}
+
+    s3 = get_s3_storage()
+    s3_files_to_check = {x for y in s3.listdir('/') for x in y}
+
+    uuid_re = re.compile('[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}')
+    to_cleanup = {}
+    for fname in s3_files_to_check:
+        matches = uuid_re.findall(fname)
+        if matches and len(matches) == 1:
+            to_cleanup[uuid.UUID(matches[0])] = fname
+
+    saved_images = {si.external_id: si for si in SavedImage.objects.all()}
+    has_saved_image = 0
+    no_saved_image = 0
+    kept_used = 0
+    kept_listed = 0
+    for external_id, file_name in to_cleanup.items():
+        if external_id in used_images:
+            kept_used += 1
+            continue
+        if external_id in s3_files_to_keep:
+            kept_listed += 1
+            continue
+        if external_id in saved_images:
+            has_saved_image += 1
+            si = saved_images[external_id]
+            if not dry_run:
+                si.image.delete(save=False)
+                si.delete()
+            else:
+                print(f"Delete Image: {external_id}")
+        else:
+            no_saved_image += 1
+            if not dry_run:
+                s3.delete(file_name)
+            else:
+                print(f"Delete: {file_name}")
+
+    print(f"Deleted {has_saved_image} SavedImages and {no_saved_image} orphaned images")
+    print(f"Kept {kept_listed} images from list and {kept_used} from html")
+    print(f"Total images: {len(to_cleanup)}")
