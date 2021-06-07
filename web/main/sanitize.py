@@ -1,4 +1,5 @@
 import bleach
+import re
 from functools import lru_cache
 
 """
@@ -29,6 +30,7 @@ def get_allow_lists():
         ol ul li
         blockquote
         strong em u s sub sup
+        iframe
         img
         table caption thead th tbody tr td
         hr
@@ -36,7 +38,7 @@ def get_allow_lists():
 
     # legacy tags
     allowed_tags |= get_words("""
-        a address b blockquote br center cite col colgroup dd del div dl dt em h1 h2 h3 h4 h5 h6 header hr i img li mark ol 
+        a address b blockquote br center cite col colgroup dd del div dl dt em h1 h2 h3 h4 h5 h6 header hr i iframe img li mark ol
         p pre small span strike strong sub sup table tbody td th thead time tr u ul wbr
     """)
 
@@ -67,6 +69,7 @@ def get_allow_lists():
         'h6': {'class', 'style'},
         'header': {'class'},
         'hr': {'class', 'style'},
+        'iframe': iframe_attributes,
         'img': {'align', 'alt', 'border', 'class', 'height', 'id', 'src', 'srcset', 'style', 'tabindex', 'title', 'width'},
         'li': {'id', 'value', 'dir', 'class', 'style'},
         'ol': {'type', 'start', 'class', 'style'},
@@ -114,6 +117,20 @@ def get_allow_lists():
     return allowed_tags, allowed_attributes, allowed_styles
 
 
+youtube_src = re.compile("//www.youtube.com/embed/[a-zA-Z0-9]*")
+vimeo_src = re.compile("//player.vimeo.com/video/[0-9]*([?].*)?")
+
+def iframe_attributes(tag, name, value):
+    """
+    Limit atts and src of iframes.
+    Only permit Vimeo and Youtube at this time
+    """
+    if name in {'height', 'width', 'allowfullscreen', 'title', 'allow', 'frameborder'}:
+        return True
+    if name == 'src':
+        return youtube_src.match(value) or vimeo_src.match(value)
+    return False
+
 def sanitize(html):
     """
         Remove non-allowed tags, attributes, and styles.
@@ -131,8 +148,11 @@ def sanitize(html):
         >>> assert sanitize('<p style="margin: 10px; foo: bar;">abc</p>') == '<p style="margin: 10px;">abc</p>'
     """
     allowed_tags, allowed_attributes, allowed_styles = get_allow_lists()
-    out = bleach.clean(html, tags=allowed_tags, attributes=allowed_attributes, styles=allowed_styles, strip=True)
-
+    out = bleach.clean(html,
+                       tags=allowed_tags,
+                       attributes=allowed_attributes,
+                       styles=allowed_styles,
+                       strip=True)
     # bleach currently doubles '<wbr>' into '<wbr></wbr>'. work around that edge case until we drop support for <wbr>
     # or bleach is fixed. see https://github.com/mozilla/bleach/issues/488
     out = out.replace('<wbr></wbr>', '<wbr>')

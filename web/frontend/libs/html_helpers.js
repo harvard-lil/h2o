@@ -23,6 +23,7 @@ const BLOCK_LEVEL_ELEMENTS = [
   "HEADER",
   "HGROUP",
   "HR",
+  "IFRAME",
   "IMG",
   "LI",
   "MAIN",
