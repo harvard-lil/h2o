@@ -6,6 +6,7 @@ import 'tinymce/plugins/image';
 import 'tinymce/plugins/table';
 import 'tinymce/plugins/code';
 import 'tinymce/plugins/paste';
+import 'tinymce/plugins/media';
 import Axios from '../config/axios';
 
 function handleUpload(blobInfo, success, failure, progress) {
@@ -124,7 +125,8 @@ function initRichTextEditor(element, code=false) {
   // toolbar options: https://www.tiny.cloud/docs/advanced/editor-control-identifiers/#toolbarcontrols
     let toolbar = 'undo redo removeformat | styleselect | h1 h2 | bold italic underline | numlist bullist indent outdent | table blockquote link image removeformat';
   if (SUP) {
-    toolbar += ' | checkAlly';
+      toolbar += ' | media checkAlly';
+      plugins.push('media');
   }
   if (code){
     plugins.push('code');
