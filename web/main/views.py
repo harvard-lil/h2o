@@ -45,7 +45,8 @@ from .forms import (CasebookForm, CasebookSettingsTransitionForm, LinkForm,
 from .models import (Case, Casebook, CommonTitle, ContentAnnotation, ContentNode, LegalDocument,
                      LegalDocumentSource, Link, Resource, Section, SearchIndex, TextBlock, User,
                      ContentCollaborator, SavedImage)
-from .serializers import (AnnotationSerializer, CaseSerializer, CasebookListSerializer, CommonTitleSerializer,
+from .serializers import (AnnotationSerializer, CaseSerializer, CasebookInfoSerializer,
+                          CasebookListSerializer, CommonTitleSerializer,
                           NewAnnotationSerializer, NewCommonTitleSerializer, SectionOutlineSerializer,
                           TextBlockSerializer, LegalDocumentSerializer, LegalDocumentSourceSerializer,
                           LegalDocumentSearchParamsSerializer, UpdateAnnotationSerializer)
@@ -392,6 +393,27 @@ class CasebookTOCView(APIView):
             'id': casebook.id,
             'children': SectionOutlineSerializer(toc, many=True).data
         }
+
+class CasebookInfoView(APIView):
+    @never_cache
+    @method_decorator(requires_csrf_token)
+    @method_decorator(perms_test([
+        {'args': ['full_casebook'],
+         'results': {200: [None, 'other_user', 'full_casebook.testing_editor']}},
+        {'args': ['full_private_casebook'],
+         'results': {200: ['full_private_casebook.testing_editor'],
+                     'login': [None],
+                     403: ['other_user']}},
+        {'args': ['full_casebook_with_draft.draft'],
+         'results': {200: ['full_casebook_with_draft.draft.testing_editor'],
+                     'login': [None],
+                     403: ['other_user']}},
+    ]))
+    @method_decorator(hydrate_params)
+    @method_decorator(user_has_perm('casebook', 'viewable_by'))
+    def get(self, request, casebook, format=None):
+        return Response(CasebookInfoSerializer(casebook).data)
+
 
 
 class SectionTOCView(APIView):
@@ -1901,14 +1923,14 @@ def edit_resource(request, casebook, resource):
                 resource.resource.refresh_from_db()
                 resource.refresh_from_db()
             else:
-                raise ValueError("Oops")
+                return server_error(request)
         else:
             if form.is_valid():
                 form.save()
                 resource.resource.refresh_from_db()
                 resource.refresh_from_db()
             else:
-                raise ValueError("Oops")
+                return server_error(request)
     if resource.resource_type == 'Case':
         body_json = json.dumps(CaseSerializer(resource.resource).data)
     elif resource.resource_type == 'TextBlock':

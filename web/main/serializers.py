@@ -334,3 +334,20 @@ class LegalDocumentSearchParamsSerializer(serializers.Serializer):
     def create(self, validated_data):
         return LegalDocumentSearchParams(**validated_data)
 
+
+class CasebookInfoSerializer(serializers.ModelSerializer):
+    id = serializers.IntegerField()
+    title = serializers.CharField()
+    subtitle = serializers.CharField()
+    headnote = serializers.CharField()
+    authors = serializers.SerializerMethodField()
+    created_at = serializers.DateTimeField()
+    updated_at = serializers.DateTimeField()
+
+    class Meta:
+        model = models.Casebook
+        fields = ('id', 'title', 'subtitle', 'headnote', 'authors', 'created_at', 'updated_at')
+
+    def get_authors(self, source):
+        return [author.display_name for author in source.primary_authors]
+

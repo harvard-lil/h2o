@@ -29,6 +29,7 @@ drf_urlpatterns = [
     path('resources/<resource:resource>/annotations', views.AnnotationListView.as_view(), name='annotation_list'),
     path('casebook/<idslug:casebook_param>/toc/<idslug:section_id>', views.SectionTOCView.as_view(), name='toc_list'),
     path('casebook/<idslug:casebook_param>/toc', views.CasebookTOCView.as_view(), name='casebook_toc_list'),
+    path('casebook/<idslug:casebook_param>/info', views.CasebookInfoView.as_view(), name='casebook_info'),
     path('api/titles/', no_perms_test(views.CommonTitleView.as_view()), name='new_title'),
     path('api/titles/<int:title_id>', no_perms_test(views.CommonTitleView.as_view()), name='edit_title'),
 ]
