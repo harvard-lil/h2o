@@ -46,6 +46,7 @@ from .utils import (block_level_elements, clone_model_instance, elements_equal,
                     looks_like_citation, normalize_newlines,
                     parse_html_fragment, remove_empty_tags,
                     strip_trailing_block_level_whitespace, void_elements,
+                    format_footnotes_for_export,
                     APICommunicationError, fix_after_rails)
 from .storages import get_s3_storage
 logger = logging.getLogger(__name__)
@@ -500,7 +501,7 @@ class CAP:
 
         metadata = response.json()
         body = CAP.preprocess_body(metadata.pop('casebody', {}).pop('data',None))
-        citations = [x.get('cite') for x in metadata['citations'] if 'cite' in x]
+        citations = [x.get('cite') for x in metadata.get('citations', []) if 'cite' in x]
         case = LegalDocument(source=legal_doc_source,
                              short_name=metadata.get('name_abbreviation'),
                              name=metadata.get('name'),
@@ -1794,6 +1795,8 @@ class ContentNode(EditTrackedModel, TimestampedModel, BigPkModel, MaterializedPa
 
     @property
     def headerless_export_content(self):
+        if self.resource_type == 'TextBlock':
+            return format_footnotes_for_export(self.resource.content)
         return self.resource.content
 
     @property
@@ -1802,6 +1805,8 @@ class ContentNode(EditTrackedModel, TimestampedModel, BigPkModel, MaterializedPa
             contents = self.resource.content
             header = self.rendered_header()
             return f'{header}{contents}'
+        elif self.resource_type == 'TextBlock':
+            return format_footnotes_for_export(self.resource.content)
         return self.resource.content
 
     @property

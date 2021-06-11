@@ -60,3 +60,23 @@ a {
         z-index: 100000;
     }
 }
+
+.footnote-ref {
+    font-size: 16px;
+    vertical-align: super;
+}
+
+.footnote-footer {
+    border-top: 1px solid black;
+
+    .footnote-body {
+    margin-left: 2rem;
+    .footnote-label {
+        &::after {
+            content: '.';
+        }
+        float:left;
+        margin-left:-1rem;
+    }
+}
+}

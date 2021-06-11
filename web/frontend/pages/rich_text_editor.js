@@ -7,116 +7,8 @@ import 'tinymce/plugins/table';
 import 'tinymce/plugins/code';
 import 'tinymce/plugins/paste';
 import 'tinymce/plugins/media';
-import Axios from '../config/axios';
-
-function handleUpload(blobInfo, success, failure, progress) {
-    const config = {
-        onUploadProgress: function onUploadProgress(event) {
-            progress(Math.round(event.loaded / event.total * 100));
-        }
-    };
-    let formData = new FormData();
-    formData.append('image', blobInfo.blob(), blobInfo.filename());
-    formData.append('name', blobInfo.name());
-    Axios.post('/image/', formData, config).then((response) => {
-        success(response.data.location);
-    }, (result) => failure(result, {remove: true}));
-}
-
-function firstInaccessibleImage(editor) {
-  let images = editor.getDoc().getElementsByTagName("IMG");
-  for(let ii= 0; ii < images.length; ii++) {
-    let image = images[ii];
-    if (!image.alt) {
-
-      //editor.execCommand('mceImage');
-      return image;
-    }
-  }
-  return null;
-}
-
-function checkAllyShip(editor) {
-  editor.ui.registry.addToggleButton('checkAlly', {
-    text: 'Check Accessibility',
-    classes: "a11y-check",
-    onSetup: function(api) {
-      function handleChange() {
-        let inaccessible = !!firstInaccessibleImage(editor);
-        console.log(`A11Y Check: ${inaccessible}`);
-        if (inaccessible) {
-          api.setActive(inaccessible);
-          api.setDisabled(false);
-        } else {
-          api.setActive(false);
-          api.setDisabled(true);
-        }
-      }
-      const dirtyWatcher = editor.on('Dirty', handleChange);
-      const changeWatcher = editor.on('change', handleChange);
-      return function() {
-        editor.off('Dirty', dirtyWatcher);
-        editor.off('change', changeWatcher);
-      };
-
-    },
-    onAction: function () {
-      let image = firstInaccessibleImage(editor);
-      if(image) {
-        editor.execCommand('mceSelectNode', false, image);
-      } else {
-        console.error("Oops!");
-      }
-    }});
-}
-
-function imageAltContextForm(editor) {
-  function isImage (node) {
-    return node.nodeName.toLowerCase() === 'img';
-  }
-
-  editor.ui.registry.addContextForm('image-alt', {
-    launch: {
-      type: 'contextformtogglebutton',
-      icon: 'accessibility-check'
-    },
-    label: 'description',
-    predicate: isImage,
-    position: 'node',
-    initValue: function (arg) {
-      return editor.selection.getNode().alt || defaultDescription;
-    },
-    commands: [
-      {
-        type: 'contextformtogglebutton',
-        tooltip: 'Save',
-        icon: 'save',
-        primary: true,
-        onAction: function (formApi) {
-          var value = formApi.getValue();
-          if (value !== defaultDescription) {
-            editor.selection.getNode().alt = value;
-            editor.setDirty(false);
-            editor.setDirty(true);
-          }
-          formApi.hide();
-        }
-      },
-      {
-        type: 'contextformtogglebutton',
-        icon: 'image',
-        tooltip: 'More image options',
-        active: true,
-        onAction: function (formApi) {
-          formApi.hide();
-          editor.execCommand('mceImage');
-        }
-      }
-    ]
-  });
-}
-
-const defaultDescription = 'Image description';
+import 'tinymce/plugins/noneditable';
+import {handleImageUpload, checkAllyShip, imageAltContextForm, installFootnotes} from '../libs/tinymce_extensions';
 
 const SUP = window.SUP;
 
@@ -125,8 +17,8 @@ function initRichTextEditor(element, code=false) {
   // toolbar options: https://www.tiny.cloud/docs/advanced/editor-control-identifiers/#toolbarcontrols
     let toolbar = 'undo redo removeformat | styleselect | h1 h2 | bold italic underline | numlist bullist indent outdent | table blockquote link image removeformat';
   if (SUP) {
-      toolbar += ' | media checkAlly';
-      plugins.push('media');
+    toolbar += ' | footnote media checkAlly';
+    plugins.push('media');
   }
   if (code){
     plugins.push('code');
@@ -135,16 +27,17 @@ function initRichTextEditor(element, code=false) {
   // Vue rebuilds the whole dom in between the call to init and tinymce actually doing the init
   // so we use a selector here until we use vue to init tinymce
   const selector=`${element.type}#${element.id}`;
+  const semanticStyles = 'img[alt=""] {outline: 4px solid red;}.footnote-ref {font-size: 16px;vertical-align: super;}.footnote-body {margin-left: 2rem;}.footnote-label {float:left;margin-left:-1rem;} .footnote-label::after{content: ".";} .footnote-footer {border-top: 1px solid black;}';
   tinymce.init({
     selector: selector,
     plugins: plugins,
     skin_url: '/static/tinymce_skin',
-    content_style: SUP ? 'img[alt=""] {outline: 4px solid red;}' : '',
+    content_style: SUP ? semanticStyles : '',
     menubar: false,
     branding: false,
     toolbar: toolbar,
     image_uploadtab: SUP,
-    images_upload_handler: handleUpload,
+    images_upload_handler: handleImageUpload,
     images_upload_credentials: true,
     automatic_uploads: true,
     contextmenu_never_use_native: false,
@@ -153,8 +46,10 @@ function initRichTextEditor(element, code=false) {
     paste_remove_styles: true,
     paste_remove_styles_if_webkit: true,
     paste_strip_class_attributes: "all",
+    extended_valid_elements: 'div[class|title|style|tabindex|id|class|data-custom-style],span[class|title|style|tabindex|id|class|data-custom-style]',
     setup: (editor) => {
       if (SUP) {
+        installFootnotes(editor);
         checkAllyShip(editor);
         imageAltContextForm(editor);
       }

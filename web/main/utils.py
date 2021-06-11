@@ -172,6 +172,16 @@ def parse_html_fragment(html_str):
 
     return el
 
+def format_footnotes_for_export(html_str):
+    """
+    Footnotes are stored in TextBlocks as
+    `<span class="footnote footnote-ref" data-custom-style="Footnote Reference" id="footnote-${data.id}-ref">${data.mark}</span>`
+    `<div class="footnote footnote-body" id="footnote-${data.id}"><p><span class="footnote-label" contenteditable="false">${data.mark}</span>${data.footnote}</p></div>`
+    """
+    pq = PyQuery(html_str)
+    pq(".footnote-label").append(". ")
+    return pq.outer_html()
+
 fix_after_rails("this is redundant of the BLOCK_LEVEL_ELEMENTS javascript array; one could feed the other once we move the asset pipeline over")
 block_level_elements = {
     'address', 'article', 'aside', 'blockquote', 'details', 'dialog', 'dd', 'div', 'dl', 'dt', 'fieldset', 'figcaption',

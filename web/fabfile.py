@@ -162,6 +162,7 @@ def migrate_cases(max_cases=400):
     from itertools import groupby
     from pyquery import PyQuery
     from main.models import Case, LegalDocumentSource, LegalDocument, ContentNode, ContentAnnotation
+    
     cap = LegalDocumentSource.objects.filter(name="CAP").get()
     legacy = LegalDocumentSource.objects.filter(name="Legacy").get()
 
