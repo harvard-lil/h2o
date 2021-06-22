@@ -318,6 +318,7 @@ def cleanup_images(keep_file=None, dry_run=True):
     if dry_run == "False":
         dry_run = False
     import re
+    from datetime import timedelta
     from main.storages import get_s3_storage
     from main.models import SavedImage, LegalDocument, TextBlock
 
@@ -332,7 +333,8 @@ def cleanup_images(keep_file=None, dry_run=True):
             s3_files_to_keep = {uuid.UUID(line.strip()) for line in keeps.readlines()}
 
     s3 = get_s3_storage()
-    s3_files_to_check = {x for y in s3.listdir('/') for x in y}
+    one_day = timedelta(days=1)
+    s3_files_to_check = {x['file_name'] for x in s3.augmented_listdir('/') if x['age'] > one_day}
 
     uuid_re = re.compile('[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}')
     to_cleanup = {}
