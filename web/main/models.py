@@ -148,7 +148,7 @@ class EditTrackedModel(models.Model):
             >>> assert t2.has_changed('content')            # assign to deferred field: has_changed == True (may not be correct!)
         """
         if field_name not in self.tracked_fields:
-            raise ValueError("%s is not in tracked_fields" % field_name)
+            raise ValueError(f"{field_name} is not in tracked_fields")
         if not self.pk:
             # if model hasn't been saved yet, report all fields as changed
             return True
@@ -222,11 +222,11 @@ def cleanse_html_field(model_instance, fieldname, sanitize_field=False):
         return value
 
     run_if_field_changed(normalize_newlines,
-                         "Normalizing newlines in {} {}".format(type(model_instance).__name__, fieldname))
+                         f"Normalizing newlines in {type(model_instance).__name__} {fieldname}")
     if sanitize_field:
-        run_if_field_changed(sanitize, "Sanitizing {} {}".format(type(model_instance).__name__, fieldname))
+        run_if_field_changed(sanitize, f"Sanitizing {type(model_instance).__name__} {fieldname}")
     run_if_field_changed(strip_trailing_block_level_whitespace,
-                         "Stripping trailing whitespace in {} {}".format(type(model_instance).__name__, fieldname))
+                         f"Stripping trailing whitespace in {type(model_instance).__name__} {fieldname}")
 
 
 class AnnotatedModel(EditTrackedModel):
@@ -246,7 +246,7 @@ class AnnotatedModel(EditTrackedModel):
 
     def save(self, *args, **kwargs):
         if self.pk and self.has_changed('content'):
-            logger.debug("Updating annotations for {}".format(type(self).__name__))
+            logger.debug(f"Updating annotations for {type(self).__name__}")
             ContentAnnotation.update_annotations(self.related_annotations(), self.original_state['content'],
                                                  self.content)
         super().save(*args, **kwargs)
@@ -397,7 +397,7 @@ class CAP:
             return {'id': id}
         elif len(frontend_split) == 3:
             reporter, volume, page = frontend_split
-            citation = "{} {} {}".format(volume, reporter.replace("-", " "), page)
+            citation = f"{volume} {reporter.replace('-', ' ')} {page}"
             return {'cite': citation}
         return {'frontend_url': frontend_url}
 
@@ -490,13 +490,13 @@ class CAP:
             raise APICommunicationError('To interact with CAP, CAPAPI_API_KEY must be set.')
         try:
             response = requests.get(
-                settings.CAPAPI_BASE_URL + "cases/%s/" % id,
+                settings.CAPAPI_BASE_URL + f"cases/{id}/",
                 {"full_case": "true", "body_format": "html"},
-                headers={'Authorization': 'Token %s' % settings.CAPAPI_API_KEY},
+                headers={'Authorization': f'Token {settings.CAPAPI_API_KEY}'}
             )
             assert response.ok
         except (requests.RequestException, AssertionError) as e:
-            msg = "Communication with CAPAPI failed: {}".format(str(e))
+            msg = f"Communication with CAPAPI failed: {str(e)}"
             raise APICommunicationError(msg)
 
         metadata = response.json()
@@ -520,12 +520,12 @@ class CAP:
     def get_metadata(id):
         try:
             response = requests.get(
-                settings.CAPAPI_BASE_URL + "cases/%s/" % id,
+                settings.CAPAPI_BASE_URL + f"cases/{id}/",
                 {}
             )
             assert response.ok
         except (requests.RequestException, AssertionError) as e:
-            msg = "Communication with CAPAPI failed: {}".format(str(e))
+            msg = f"Communication with CAPAPI failed: {str(e)}"
             raise APICommunicationError(msg)
 
         metadata = response.json()
@@ -685,7 +685,7 @@ class USCodeGPO():
             )
             assert metadata_response.ok
         except (requests.RequestException, AssertionError) as e:
-            msg = "Communication with GPO API failed: {}".format(str(e))
+            msg = f"Communication with GPO API failed: {str(e)}"
             raise APICommunicationError(msg)
         metadata = metadata_response.json()
 
@@ -736,7 +736,7 @@ class USCodeGPO():
             )
             assert metadata_response.ok
         except (requests.RequestException, AssertionError) as e:
-            msg = "Communication with GPO API failed: {}".format(str(e))
+            msg = f"Communication with GPO API failed: {str(e)}"
             raise APICommunicationError(msg)
         metadata = metadata_response.json()
 
@@ -796,7 +796,7 @@ def get_display_name_field(category):
         'casebook': 'title',
         'user': 'attribution'
     }
-    return 'metadata__%s' % display_name_fields[category]
+    return f'metadata__{display_name_fields[category]}'
 
 
 def dump_search_results(parts):
@@ -898,7 +898,7 @@ class SearchIndex(models.Model):
         if query_vector:
             base_query = base_query.filter(document=query_vector)
         for k, v in filters.items():
-            base_query = base_query.filter(**{'metadata__%s' % k: v})
+            base_query = base_query.filter(**{f'metadata__{k}': v})
 
         # get results
         results = base_query.filter(category=category).only('result_id', 'metadata')
@@ -930,7 +930,7 @@ class SearchIndex(models.Model):
         # get facets
         facets = {}
         for facet in facet_fields:
-            facet_param = 'metadata__%s' % facet
+            facet_param = f'metadata__{facet}'
             facets[facet] = base_query.filter(category=category).exclude(**{facet_param: ''}).order_by(facet_param).values_list(facet_param, flat=True).distinct()
 
         return results, counts, facets
@@ -1118,8 +1118,8 @@ class ContentAnnotation(TimestampedModel, BigPkModel):
         ordering = ['global_start_offset', 'id']
 
     def __str__(self):
-        return "%s %s-%s%s" % (self.kind, self.global_start_offset, self.global_end_offset,
-                               " with %s" % truncatechars(self.content, 20) if self.content else "")
+        content = f" with {truncatechars(self.content, 20)}" if self.content else ""
+        return f"{self.kind} {self.global_start_offset}-{self.global_end_offset}{content}"
 
     @staticmethod
     def text_from_html(html):
@@ -1372,7 +1372,7 @@ class MaterializedPathTreeMixin(models.Model):
         try:
             new_parent = common_parent_node.content_tree__get_descendant(new_ordinals[:-1])
         except IndexError:
-            raise ValueError("Invalid new ordinals; parent does not exist: %s" % new_ordinals)
+            raise ValueError(f"Invalid new ordinals; parent does not exist: {new_ordinals}")
         if new_parent.is_resource:
             raise ValueError('Cannot add descendant of Resource')
 
@@ -1380,7 +1380,7 @@ class MaterializedPathTreeMixin(models.Model):
         # (look up the location, instead of using self, so we have the copy where content_tree is populated)
         moved_node = common_parent_node.content_tree__get_descendant(old_ordinals)
         if moved_node != self:
-            raise ValueError("Unexpected element found at ordinal {}: {}".format(old_ordinals, moved_node))
+            raise ValueError(f"Unexpected element found at ordinal {old_ordinals}: {moved_node}")
         moved_node.content_tree__parent.content_tree__children.remove(moved_node)
 
         # add node to new location
@@ -1772,7 +1772,7 @@ class ContentNode(EditTrackedModel, TimestampedModel, BigPkModel, MaterializedPa
         # We want only nodes whose first ordinals match this section's.
         # That is, if this is section [2, 2], we want [2, 2, 1], [2, 2, 2, 7], etc.,
         # but not [2, 1, 1], [1,1], etc.
-        first_ordinals = "ordinals__0_{}".format(len(self.ordinals))
+        first_ordinals = f"ordinals__0_{len(self.ordinals)}"
         filter_map = {
             "casebook_id": self.casebook_id,
             first_ordinals: self.ordinals
@@ -1877,7 +1877,7 @@ class ContentNode(EditTrackedModel, TimestampedModel, BigPkModel, MaterializedPa
         return self.casebook.is_private and self.casebook.editable_by(user)
 
     def __str__(self):
-        return "{} ({})".format(self.title, self.id)
+        return f"{self.title} ({self.id})"
 
     @property
     def is_resource(self):
@@ -1894,7 +1894,7 @@ class ContentNode(EditTrackedModel, TimestampedModel, BigPkModel, MaterializedPa
         # We want only nodes whose first ordinals match this section's.
         # That is, if this is section [2, 2], we want [2, 2, 1], [2, 2, 2, 7], etc.,
         # but not [2, 1, 1], [1,1], etc.
-        first_ordinals = "ordinals__0_{}".format(len(self.ordinals))
+        first_ordinals = f"ordinals__0_{len(self.ordinals)}"
         filter_map = {
             "casebook_id": self.casebook_id,
             first_ordinals: self.ordinals
@@ -2015,9 +2015,9 @@ class ContentNode(EditTrackedModel, TimestampedModel, BigPkModel, MaterializedPa
                 response = subprocess.run(command, input=html.encode('utf8'), stderr=subprocess.PIPE,
                                           stdout=subprocess.PIPE)
             except subprocess.CalledProcessError as e:
-                raise Exception("Pandoc command failed: %s" % e.stderr[:100])
+                raise Exception(f"Pandoc command failed: {e.stderr[:100]}")
             if response.stderr:
-                raise Exception("Pandoc reported error: %s" % response.stderr[:100])
+                raise Exception(f"Pandoc reported error: {response.stderr[:100]}")
             return pandoc_out.read()
 
     def headnote_for_export(self):
@@ -2071,7 +2071,7 @@ class ContentNode(EditTrackedModel, TimestampedModel, BigPkModel, MaterializedPa
             ...         parse_html_fragment(annotated_html),
             ...         parse_html_fragment(expected_html),
             ...         ignore_trailing_whitespace=True
-            ...     ), "Expected:\n%s\nGot:\n%s" % (expected_html, annotated_html)
+            ...     ), f"Expected:\n{expected_html}\nGot:\n{annotated_html}"
 
             Basic format of all annotations:
             >>> input = '''<p>
@@ -2261,7 +2261,7 @@ class ContentNode(EditTrackedModel, TimestampedModel, BigPkModel, MaterializedPa
                                             {'class': 'annotate highlighted', 'custom-style': 'Highlighted Text'})
                                 close_tag = (self.out_handler.endElement, 'span')
                             else:
-                                raise ValueError("Unknown annotation kind '%s'" % kind)
+                                raise ValueError(f"Unknown annotation kind '{kind}'")
 
                             # emit the open tag itself:
                             self.out_ops.append(open_tag)
@@ -2889,7 +2889,7 @@ class Casebook(EditTrackedModel, TimestampedModel, BigPkModel, CasebookAndSectio
         return self.is_private and self.editable_by(user)
 
     def __str__(self):
-        return "{} ({})".format(self.title, self.id)
+        return f"{self.title} ({self.id})"
 
     @property
     def casebook(self):
@@ -3021,7 +3021,7 @@ class Casebook(EditTrackedModel, TimestampedModel, BigPkModel, CasebookAndSectio
         current_casebook.save_and_parent_cloned_resources(cloned_resources)
         for ccn in cloned_content_nodes:
             ccn.provenance.pop()
-        bulk_create_with_history(cloned_content_nodes, ContentNode, batch_size=500, default_change_reason="Restore from {}".format(self.id))
+        bulk_create_with_history(cloned_content_nodes, ContentNode, batch_size=500, default_change_reason=f"Restore from {self.id}")
         current_casebook.save_and_parent_cloned_annotations(cloned_annotations)
 
     def get_absolute_url(self):
@@ -3090,7 +3090,7 @@ class Casebook(EditTrackedModel, TimestampedModel, BigPkModel, CasebookAndSectio
 
             Given:
             >>> reset_sequences, full_casebook, assert_num_queries = [getfixture(i) for i in ['reset_sequences', 'full_casebook', 'assert_num_queries']]
-            >>> elena, john =  [User(attribution=name, email_address="{}@scotus.gov".format(name)) for name in ['Elena', 'John']]
+            >>> elena, john =  [User(attribution=name, email_address=f"{name}@scotus.gov") for name in ['Elena', 'John']]
             >>> elena.save()
             >>> john.save()
             >>> full_casebook.add_collaborator(elena, has_attribution=True)
@@ -3236,7 +3236,7 @@ class Casebook(EditTrackedModel, TimestampedModel, BigPkModel, CasebookAndSectio
 
             Attribution and cloning
             >>> casebook = getfixture('full_casebook')
-            >>> sonya, elena, john = [User(attribution=name, email_address="{}@scotus.gov".format(name)) for name in ['Sonya', 'Elena', 'John']]
+            >>> sonya, elena, john = [User(attribution=name, email_address=f"{name}@scotus.gov") for name in ['Sonya', 'Elena', 'John']]
             >>> sonya.save(); elena.save(); john.save()
             >>> casebook.add_collaborator(sonya, has_attribution=True)
             >>> casebook.save()
@@ -3548,9 +3548,9 @@ class Casebook(EditTrackedModel, TimestampedModel, BigPkModel, CasebookAndSectio
                 response = subprocess.run(command, input=html.encode('utf8'), stderr=subprocess.PIPE,
                                           stdout=subprocess.PIPE)
             except subprocess.CalledProcessError as e:
-                raise Exception("Pandoc command failed: %s" % e.stderr[:100])
+                raise Exception(f"Pandoc command failed: {e.stderr[:100]}")
             if response.stderr:
-                raise Exception("Pandoc reported error: %s" % response.stderr[:100])
+                raise Exception(f"Pandoc reported error: {response.stderr[:100]}")
             return pandoc_out.read()
 
     @property
@@ -3756,7 +3756,7 @@ class Link(NullableTimestampedModel):
     history = HistoricalRecords()
 
     def get_name(self):
-        return self.name if self.name else "Link to {}".format(urlparse(self.url).netloc)
+        return self.name if self.name else f"Link to {urlparse(self.url).netloc}"
 
     def __str__(self):
         return self.get_name()
@@ -3839,7 +3839,7 @@ def validate_unused_prefix(value):
                      'terms-of-service',
                      'faq',
                      'search']):
-        raise ValidationError('{} is already in use'.format(value))
+        raise ValidationError(f'{value} is already in use')
 
 
 

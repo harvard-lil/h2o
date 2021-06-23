@@ -74,8 +74,8 @@ def test_permissions(
     # all routes are required to have tests
     if not has_tests:
         raise Exception(
-            "View function or method for path %s is missing a @perms_test decorator. "
-            "Use @no_perms_test if you are sure your view doesn't need tests." % path)
+            f"View function or method for path {path} is missing a @perms_test decorator. "
+            "Use @no_perms_test if you are sure your view doesn't need tests.")
 
     # Helper method to fetch and return a particular fixture, like 'casebook' or 'casebook.testing_editor'.
     # Values are also stored in the `context` dictionary so they can be reused instead of recreated.

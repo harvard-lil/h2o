@@ -86,7 +86,7 @@ def test_export(request, casebook_factory, section_factory, annotations_factory,
                 file_data = node.export(include_annotations=include_annotations, file_type=file_type, export_options=None)
                 if file_type == 'html':
                     file_data = file_data.encode('utf8')
-                file_name = "export-%s-%s.%s" % (node.__class__.__name__.lower(), "with-annotations" if include_annotations else "no-annotations", file_type)
+                file_name = f"export-{node.__class__.__name__.lower()}-{'with-annotations' if include_annotations else 'no-annotations'}.{file_type}"
                 if write_files:
                     base_path.joinpath(file_name).write_bytes(file_data)
                 else:

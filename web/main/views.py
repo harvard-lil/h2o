@@ -324,7 +324,7 @@ def render_with_actions(request, template_name, context=None, content_type=None,
         context = {}
     if request.user and hasattr(request.user, 'casebooks') and 'section' in context:
         context['clone_section_targets'] = json.dumps([
-            {'title': "{} ({})".format(user_casebook.title, user_casebook.created_at.year),
+            {'title': f"{user_casebook.title} ({user_casebook.created_at.year})",
              'form_target': reverse('clone_nodes', args=[context['casebook'], context['section'], user_casebook])}
             for user_casebook in request.user.directly_editable_casebooks])
 
@@ -468,7 +468,7 @@ class SectionTOCView(APIView):
         try:
             section.content_tree__move_to(new_ordinals)
         except ValueError as e:
-            return HttpResponseBadRequest(b"Invalid ordinals: %s" % e.args[0].encode('utf8'))
+            return HttpResponseBadRequest(f"Invalid ordinals: {e.args[0]}".encode('utf8'))
         except IndexError:
             casebook.content_tree__repair()
 
@@ -949,16 +949,16 @@ def show_credits(request, casebook, section=None):
 def show_related(request, casebook, section=None):
     def get_root_key(cn):
         if cn.resource_type == 'Case':
-            return "cap-{}".format(cn.resource.capapi_id) if cn.resource.capapi_id else "h2o-".format(cn.resource_id)
+            return f"cap-{cn.resource.capapi_id}" if cn.resource.capapi_id else f"h2o-{cn.resource_id}"
         elif cn.resource_type == 'LegalDocument':
-            return "{}-{}".format(cn.resource.source.search_class, cn.resource.source_ref)
+            return f"{cn.resource.source.search_class}-{cn.resource.source_ref}"
         else:
             root_cn = ContentNode.objects.filter(id=cn.provenance[0] if cn.provenance else cn.id).first()
             if not root_cn:
                 raise Http404
             if cn.resource_type == 'TextBlock':
-                return "text-{}".format(root_cn.resource_id)
-        return "section-{}".format(root_cn.id)
+                return f"text-{root_cn.resource_id}"
+        return f"section-{root_cn.id}"
 
     subject = section if section else casebook
     contents = [x for x in subject.contents.prefetch_resources().all()] + ([section] if section else [])
@@ -985,14 +985,14 @@ def show_related(request, casebook, section=None):
         if root_key in related_map:
             related_map[root_key].append(cn)
         else:
-            logger.warn("Unknown relation: {} -- {}".format(cn.id, root_key))
+            logger.warn(f"Unknown relation: {cn.id} -- {root_key}")
             raise Http404
     for cn in related_docs:
         root_key = get_root_key(cn)
         if root_key in related_map:
             related_map[root_key].append(cn)
         else:
-            logger.warn("Unknown relation: {} -- {}".format(cn.id, root_key))
+            logger.warn(f"Unknown relation: {cn.id} -- {root_key}")
             raise Http404
 
     related_content = sorted(({'local': x[0], 'related':x[1:]} for x in related_map.values() if len(x) > 1), key=lambda x: x['local'].ordinals)
@@ -1614,7 +1614,7 @@ def switch_node_type(request, casebook, content_node):
             content_node.resource_id = text_block.id
             content_node.resource_type = new_type
             content_node.save()
-            logger.info("TB: {}, CN.rid: {}, OR: {}".format(text_block.id, content_node.resource_id, old_resource.id if old_resource else None))
+            logger.info(f"TB: {text_block.id}, CN.rid: {content_node.resource_id}, OR: {old_resource.id if old_resource else None}")
         elif new_type == 'Section':
             content_node.resource_type = new_type
             content_node.resource_id = None
@@ -1622,7 +1622,7 @@ def switch_node_type(request, casebook, content_node):
     except Exception:
         return HttpResponseBadRequest("Improperly formatted request")
     if old_resource:
-        logger.info("Deleting resource: {}".format(old_resource.id))
+        logger.info(f"Deleting resource: {old_resource.id}")
         old_resource.delete()
     return HttpResponseRedirect(content_node.get_preferred_url)
 
@@ -2028,7 +2028,7 @@ def reorder_node(request, casebook, section=None, node=None):
     try:
         node.content_tree__move_to(new_ordinals)
     except ValueError as e:
-        return HttpResponseBadRequest(b"Invalid ordinals: %s" % e.args[0].encode('utf8'))
+        return HttpResponseBadRequest(f"Invalid ordinals: {e.args[0]}".encode('utf8'))
 
     # redirect back where we came from
     if section:
@@ -2063,13 +2063,13 @@ def internal_case_id_from_cap_id(cap_id):
             raise APICommunicationError('To interact with CAP, CAPAPI_API_KEY must be set.')
         try:
             response = requests.get(
-                settings.CAPAPI_BASE_URL + "cases/%s/" % cap_id,
+                settings.CAPAPI_BASE_URL + f"cases/{cap_id}/",
                 {"full_case": "true", "body_format": "html"},
-                headers={'Authorization': 'Token %s' % settings.CAPAPI_API_KEY},
+                headers={'Authorization': f'Token {settings.CAPAPI_API_KEY}'},
             )
             assert response.ok
         except (requests.RequestException, AssertionError) as e:
-            msg = "Communication with CAPAPI failed: {}".format(str(e))
+            msg = f"Communication with CAPAPI failed: {str(e)}"
             raise APICommunicationError(msg)
 
         cap_case = response.json()
@@ -2125,7 +2125,7 @@ def from_capapi(request):
 
         Existing cases will be returned without hitting the CAP API:
         >>> response = client.post(url, json.dumps({'id': 9999}), content_type="application/json", as_user=user)
-        >>> check_response(response, content_includes='{"id": %s}' % existing_case.id, content_type='application/json')
+        >>> check_response(response, content_includes=f'{{"id": {existing_case.id}}}', content_type='application/json')
 
         Non-existing cases will be fetched and created:
         >>> response = client.post(url, json.dumps({'id': 12345}), content_type="application/json", as_user=user)
@@ -2162,7 +2162,7 @@ def import_from_source(request, source=None):
 
         Existing cases will be returned without hitting the CAP API:
         >>> response = client.post(url, json.dumps({'id': 9999}), content_type="application/json", as_user=user)
-        >>> check_response(response, content_includes='{"id": %s}' % existing_case.id, content_type='application/json')
+        >>> check_response(response, content_includes=f'{{"id": {existing_case.id}}}', content_type='application/json')
 
         Non-existing cases will be fetched and created:
         >>> response = client.post(url, json.dumps({'id': 12345}), content_type="application/json", as_user=user)
@@ -2225,10 +2225,7 @@ def export(request, node, file_type='docx'):
         return HttpResponse(response_data)
 
     # return docx
-    filename = "%s%s.docx" % (
-        Truncator(node.title).words(45, truncate='-'),
-        '_annotated' if include_annotations else ''
-    )
+    filename = f"{Truncator(node.title).words(45, truncate='-')}{'_annotated' if include_annotations else ''}.docx"
     return StringFileResponse(response_data, as_attachment=True, filename=filename)
 
 
