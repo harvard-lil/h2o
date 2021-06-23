@@ -1,4 +1,3 @@
-import imghdr
 import json
 import logging
 import uuid
@@ -30,6 +29,8 @@ from django.views.decorators.cache import never_cache
 from django.views.decorators.csrf import requires_csrf_token
 from django.views.decorators.http import require_http_methods, require_POST
 from pyquery import PyQuery
+from PIL import Image,UnidentifiedImageError
+
 from pytest import raises as assert_raises
 from rest_framework import status
 from rest_framework.response import Response
@@ -2549,7 +2550,7 @@ def upload_image(request):
     >>> assert('location' in json.loads(res.content))
     """
     # TinyMCE requires a response like {"location": [url]}
-    if not request.user.is_superuser:
+    if not (request.user.is_superuser or request.user.verified_professor):
         raise Http404
     if 'image' not in request.FILES:
         return HttpResponseBadRequest("No image data")
@@ -2559,7 +2560,9 @@ def upload_image(request):
     s3_uuid = uuid.uuid4()
     image_file.name = str(s3_uuid) + suffix
 
-    if imghdr.what(image_file) not in {'jpeg', 'png', 'gif', 'webp'}:
+    try:
+        Image.open(image_file, formats=["WEBP", "PNG", "JPEG", "GIF"])
+    except UnidentifiedImageError:
         return HttpResponseForbidden("Only JPEG, PNG, GIF, and WebP are supported at this time.")
     saved_image = SavedImage(name=original_name,
                              image=image_file,
