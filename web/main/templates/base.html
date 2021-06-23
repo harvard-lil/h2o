@@ -11,6 +11,7 @@
      {# frontend_urls is set by config.context_processors.frontend_urls #}
      const FRONTEND_URLS = {{ frontend_urls | safe}};
      window.SUP = {% if super %}true{% else %}false{% endif %};
+     window.VERIFIED = {% if request.user.verified_professor %}true{% else %}false{% endif %};
     </script>
     {% render_bundle 'main' %}
     <link rel="stylesheet" type="text/css" href="//fonts.googleapis.com/css?family=Lora|Sorts+Mill+Goudy"/>
