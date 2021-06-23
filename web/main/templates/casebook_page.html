@@ -55,10 +55,12 @@
                         </dirty-form>
                     {% endif %}
                 {% else %}
-                    {% if section and section.subtitle %}
-                    <h2 class="subtitle">
-                        {{ section.subtitle }}
-                    </h2>
+                    {% if section %}
+                        {% if section.subtitle %}
+                        <h2 class="subtitle">
+                            {{ section.subtitle }}
+                        </h2>
+                        {% endif %}
                     {% elif casebook.subtitle %}
                     <h2 class="subtitle">
                         {{ casebook.subtitle }}
