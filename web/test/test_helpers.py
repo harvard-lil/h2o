@@ -73,17 +73,17 @@ def dump_casebook_outline(casebook):
         ...     ' Section<9>: Some Section 8']
     """
     out = []
-    out.append("Casebook<%s>: %s" % (casebook.id, casebook.title))
+    out.append(f"Casebook<{casebook.id}>: {casebook.title}")
     for node in casebook.contents.prefetch_resources().prefetch_related('annotations'):
         node_type = node.type
         indent = " " * len(node.ordinals)
         if node_type == 'section':
-            out.append("%sSection<%s>: %s" % (indent, node.id, node.title))
+            out.append(f"{indent}Section<{node.id}>: {node.title}")
         elif node_type == 'resource':
             resource = node._resource
-            out.append("%sContentNode<%s> -> %s<%s>: %s" % (indent, node.id, type(resource).__name__, resource.id, resource.name))
+            out.append(f"{indent}ContentNode<{node.id}> -> {type(resource).__name__}<{resource.id}>: {resource.name}")
             for annotation in node.annotations.order_by('global_start_offset', 'id'):
-                out.append("%s ContentAnnotation<%s>: %s %s-%s" % (indent, annotation.id, annotation.kind, annotation.global_start_offset, annotation.global_end_offset))
+                out.append(f"{indent} ContentAnnotation<{annotation.id}>: {annotation.kind} {annotation.global_start_offset}-{annotation.global_end_offset}")
     return out
 
 
@@ -118,8 +118,8 @@ def dump_annotated_text(case_or_textblock):
     to_insert = list(zip(offsets, tags))
     for annotation in case_or_textblock.annotations.filter(global_start_offset__gte=0):
         to_insert.extend([
-            (annotation.global_start_offset, '[%s]' % annotation.kind),
-            (annotation.global_end_offset, '[/%s]' % annotation.kind),
+            (annotation.global_start_offset, f'[{annotation.kind}]'),
+            (annotation.global_end_offset, f'[/{annotation.kind}]'),
         ])
     content = "".join(text_strs)
     for offset, text in sorted(to_insert, reverse=True):

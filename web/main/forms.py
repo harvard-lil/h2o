@@ -172,7 +172,7 @@ class UserProfileForm(ModelForm):
                 'professor_verification_requested'
             ),
             Submit('submit', 'Save changes'),
-            HTML('<a href="%s" class="btn btn-default">Change your password</a>' % reverse('password_change')),
+            HTML(f'<a href="{reverse("password_change")}" class="btn btn-default">Change your password</a>'),
         )
         if self.instance.professor_verification_requested or self.instance.verified_professor:
             self.fields.pop('professor_verification_requested')
@@ -193,13 +193,10 @@ class UserProfileForm(ModelForm):
         # let admin know of professor verification requests
         user = self.instance
         if user.professor_verification_requested and 'professor_verification_requested' in self.changed_data:
-            message = "Verify %s: %s\nAffiliation: %s\nEmail address: %s" % (
-                user,
-                self.request.build_absolute_uri(reverse('h2oadmin:main_user_change', args=[user.id])),
-                user.affiliation,
-                user.email_address)
+            admin_user_link = self.request.build_absolute_uri(reverse('h2oadmin:main_user_change', args=[user.id]))
+            message = f"Verify {user}: {admin_user_link}\nAffiliation: {user.affiliation}\nEmail address: {user.email_address}"
             send_mail(
-                "H2O Professor Verification Request for %s" % user,
+                f"H2O Professor Verification Request for {user}",
                 message,
                 settings.DEFAULT_FROM_EMAIL,
                 settings.PROFESSOR_VERIFIER_EMAILS
@@ -219,7 +216,7 @@ class SignupForm(ModelForm):
         self.helper.layout = Layout(
             'email_address',
             Submit('submit', 'Sign up'),
-            HTML('<p class="help-block">By signing up for an account, you agree to our <a href="%s">Terms of Service</a>.</p>' % reverse('terms-of-service')),
+            HTML(f'<p class="help-block">By signing up for an account, you agree to our <a href="{reverse("terms-of-service")}">Terms of Service</a>.</p>')
         )
         self.fields['email_address'].help_text = '<p class="help-block">Registration is restricted to email addresses belonging to an educational or government institution. If your email address doesn\'t work and you believe it should, please <a href="mailto:info@opencasebook.org?subject=Whitelist%20University%20Email&body=Hello%20H2O,%A0Please%20whitelist%20my%20email%20domain.">Let us know</a></p>'
 

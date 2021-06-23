@@ -24,7 +24,7 @@ def assert_offsets_adjusted(before_str, after_str):
         adjusted_str = adjusted_str[:offset] + "*" + adjusted_str[offset:]
 
     # verify correct results
-    assert adjusted_str == after_str, "%s was adjusted to %s, not %s" % (before_str, adjusted_str, after_str)
+    assert adjusted_str == after_str, f"{before_str} was adjusted to {adjusted_str}, not {after_str}"
 
 
 class AbsoluteDelta(int):

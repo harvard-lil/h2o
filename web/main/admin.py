@@ -26,7 +26,7 @@ def edit_link(obj, as_str=False):
     """ Generate a link to the admin edit screen for the given object. """
     if not obj:
         return None
-    url = reverse('admin:%s_%s_change' % (obj._meta.app_label,  obj._meta.model_name), args=[obj.id])
+    url = reverse(f'admin:{obj._meta.app_label}_{obj._meta.model_name}_change', args=[obj.id])
     if as_str:
         return format_html('<a href="{}">→{} ({})</a>', url, obj, obj.id)
     else:
@@ -358,13 +358,13 @@ class AnnotationsAdmin(BaseAdmin, SimpleHistoryAdmin):
 def force_case_from_cap_id(cap_id):
     try:
         response = requests.get(
-            settings.CAPAPI_BASE_URL + "cases/%s/" % cap_id,
+            settings.CAPAPI_BASE_URL + "fcases/{cap_id}/",
             {"full_case": "true", "body_format": "html"},
-            headers={'Authorization': 'Token %s' % settings.CAPAPI_API_KEY},
+            headers={'Authorization': f'Token {settings.CAPAPI_API_KEY}'},
             )
         assert response.ok
     except (requests.RequestException, AssertionError) as e:
-        msg = "Communication with CAPAPI failed: {}".format(str(e))
+        msg = f"Communication with CAPAPI failed: {str(e)}"
         raise APICommunicationError(msg)
 
     cap_case = response.json()

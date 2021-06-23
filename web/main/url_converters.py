@@ -29,7 +29,7 @@ class ModelConverterMixin:
 def register_model_converter(model, name=None, field='pk', base=IntConverter, queryset=None):
     if name is None:
         name = model.__name__.lower()
-    converter_name = '{}Converter'.format(name.capitalize())
+    converter_name = f'{name.capitalize()}Converter'
     converter_class = type(
         converter_name,
         (ModelConverterMixin, base,),

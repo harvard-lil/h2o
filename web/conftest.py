@@ -80,9 +80,9 @@ class UserFactory(factory.DjangoModelFactory):
     class Meta:
         model = User
 
-    email_address = factory.Sequence(lambda n: 'user%s@example.com' % n)
-    attribution = factory.Sequence(lambda n: 'Some User %s' % n)
-    affiliation = factory.Sequence(lambda n: 'Affiliation %s' % n)
+    email_address = factory.Sequence(lambda n: f'user{n}@example.com')
+    attribution = factory.Sequence(lambda n: f'Some User {n}')
+    affiliation = factory.Sequence(lambda n: f'Affiliation {n}')
     is_active = True
 
 @register_factory
@@ -113,7 +113,7 @@ class CasebookFactory(factory.DjangoModelFactory):
 
     created_at = factory.LazyFunction(timezone.now)
     contentcollaborator_set = factory.RelatedFactory('conftest.ContentCollaboratorFactory', 'casebook', can_edit=True)
-    title = factory.Sequence(lambda n: 'Some Title %s' % n)
+    title = factory.Sequence(lambda n: f'Some Title {n}')
     state = Casebook.LifeCycle.PUBLISHED.value
 
 
@@ -129,7 +129,7 @@ class SectionFactory(ContentNodeFactory):
 
     casebook = factory.SubFactory(CasebookFactory)
     ordinals = [1]
-    title = factory.Sequence(lambda n: 'Some Section %s' % n)
+    title = factory.Sequence(lambda n: f'Some Section {n}')
 
 @register_factory
 class ContentCollaboratorFactory(factory.DjangoModelFactory):
@@ -146,9 +146,9 @@ class LinkFactory(factory.DjangoModelFactory):
     class Meta:
         model = Link
 
-    name = factory.Sequence(lambda n: 'Some Link Name %s' % n)
-    description = factory.Sequence(lambda n: 'Some Link Description %s' % n)
-    url = factory.Sequence(lambda n: 'https://example.com/%s' % n)
+    name = factory.Sequence(lambda n: f'Some Link Name {n}')
+    description = factory.Sequence(lambda n: f'Some Link Description {n}')
+    url = factory.Sequence(lambda n: f'https://example.com/{n}')
     public = True
 
 
@@ -157,9 +157,9 @@ class TextBlockFactory(factory.DjangoModelFactory):
     class Meta:
         model = TextBlock
 
-    name = factory.Sequence(lambda n: 'Some TextBlock Name %s' % n)
-    description = factory.Sequence(lambda n: 'Some TextBlock Description %s' % n)
-    content = factory.Sequence(lambda n: 'Some TextBlock Content %s' % n)
+    name = factory.Sequence(lambda n: f'Some TextBlock Name {n}')
+    description = factory.Sequence(lambda n: f'Some TextBlock Description {n}')
+    content = factory.Sequence(lambda n: f'Some TextBlock Content {n}')
     public = True
     created_via_import = False
 
@@ -169,11 +169,11 @@ class CaseFactory(factory.DjangoModelFactory):
     class Meta:
         model = Case
 
-    name_abbreviation = factory.Sequence(lambda n: 'Foo%s v. Bar%s' % (n, n))
-    name = factory.Sequence(lambda n: 'Foo Foo%s vs. Bar Bar%s' % (n, n))
+    name_abbreviation = factory.Sequence(lambda n: f'Foo{n} v. Bar{n}')
+    name = factory.Sequence(lambda n: f'Foo Foo{n} vs. Bar Bar{n}')
     public = True
     created_via_import = False
-    content = factory.Sequence(lambda n: 'Some Case Content %s' % n)
+    content = factory.Sequence(lambda n: f'Some Case Content {n}')
     decision_date = datetime(1900, 1, 1)
     capapi_id = 1
     citations = [{'cite': '1 Mass. 1'}, {'cite': '2 Jones 2'}]
@@ -258,13 +258,13 @@ class LegalDocumentFactory(factory.DjangoModelFactory):
         model = LegalDocument
 
     source = factory.SubFactory(LegalDocumentSourceFactory)
-    name = factory.Sequence(lambda n: 'Legal Doc %s' % n)
+    name = factory.Sequence(lambda n: f'Legal Doc {n}')
     citations = ['Adventures in criminality, 1 Fake 1, (2001)']
     effective_date = datetime(1900, 1, 1)
     publication_date = datetime(1901,1,1)
     updated_date = datetime(1902, 1, 1)
     source_ref = factory.Sequence(lambda n: {'id': n})
-    content = factory.Sequence(lambda n: 'Dubious legal claim %s' % n)
+    content = factory.Sequence(lambda n: f'Dubious legal claim {n}')
     metadata = {}
 
 @register_factory
@@ -382,11 +382,11 @@ def annotations_factory(db):
         while annotations:
             annotation_str, annotation_offset = annotations.pop(0)
             kind, content = (annotation_str[1:-1].split(" ", 1) + [None])[:2]
-            closing_annotation_str = '[/%s]' % kind
+            closing_annotation_str = f'[/{kind}]'
             try:
                 closing_index = next(i for i in range(len(annotations)) if annotations[i][0] == closing_annotation_str)
             except StopIteration:
-                raise Exception("Closing annotation %s not found." % closing_annotation_str)
+                raise Exception(f"Closing annotation {closing_annotation_str} not found.")
             _, closing_annotation_offset = annotations.pop(closing_index)
             ContentAnnotationFactory(resource=resource, kind=kind, content=content, global_start_offset=annotation_offset, global_end_offset=closing_annotation_offset)
 
@@ -630,10 +630,7 @@ def assert_num_queries(pytestconfig, monkeypatch):
             })
 
             if userland_stack_frame:
-                self.log_message("Previous SQL query called by %s:%s:\n%s" % (
-                    userland_stack_frame.filename,
-                    userland_stack_frame.lineno,
-                    userland_stack_frame.code_context[0].rstrip()))
+                self.log_message(f"Previous SQL query called by {userland_stack_frame.filename}:{userland_stack_frame.lineno}:\n{userland_stack_frame.code_context[0].rstrip()}")
 
         def execute(self, *args, **kwargs):
             try:
@@ -660,15 +657,15 @@ def assert_num_queries(pytestconfig, monkeypatch):
                 if query_type not in ('savepoint', 'release', 'set', 'show'):
                     query_counts[query_type] += 1
             if expected_counts != query_counts:
-                msg = "Unexpected queries: expected %s, got %s" % (expected_counts, dict(query_counts))
+                msg = f"Unexpected queries: expected {expected_counts}, got {dict(query_counts)}"
                 if pytestconfig.getoption('verbose') > 0:
                     msg += '\n\nQueries:\n========\n\n'
                     for q in context.captured_queries:
                         stack_frames = q['stack'] if pytestconfig.getoption("verbose") > 1 else [q['userland_stack_frame']] if q['userland_stack_frame'] else []
                         for stack_frame in stack_frames:
-                            msg += "%s:%s:\n%s\n" % (stack_frame.filename, stack_frame.lineno, stack_frame.code_context[0].rstrip())
+                            msg += f"{stack_frame.filename}:{stack_frame.lineno}:\n{stack_frame.code_context[0].rstrip()}\n"
                         short_sql = re.sub(r'\'.*?\'', "'<str>'", q['sql'], flags=re.DOTALL)
-                        msg += "%s\n\n" % short_sql
+                        msg += f"{short_sql}\n\n"
                 else:
                     msg += " (add -v option to show queries, or -v -v to show queries with full stack trace)"
                 pytest.fail(msg)
@@ -749,10 +746,10 @@ def client_with_raise_request_exception():
             # callback function.
             data = {}
             on_template_render = django.test.client.partial(django.test.client.store_rendered_templates, data)
-            signal_uid = "template-render-%s" % id(request)
+            signal_uid = f"template-render-{id(request)}"
             django.test.client.signals.template_rendered.connect(on_template_render, dispatch_uid=signal_uid)
             # Capture exceptions created by the handler.
-            exception_uid = "request-exception-%s" % id(request)
+            exception_uid = "request-exception-{id(request)}"
             django.test.client.got_request_exception.connect(self.store_exc_info, dispatch_uid=exception_uid)
             try:
                 try:

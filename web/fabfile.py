@@ -36,7 +36,7 @@ def setup_django(func):
 def run_django(port=None):
     if port is None:
         port = "0.0.0.0:8000" if os.environ.get('DOCKERIZED') else "127.0.0.1:8000"
-    local('python manage.py runserver %s' % port)
+    local(f'python manage.py runserver {port}')
 
 
 @task
@@ -80,7 +80,7 @@ def report_tags():
     sanitized_fields = ((TextBlock, 'content'), (ContentNode, 'headnote'))
 
     for model, field in sanitized_fields:
-        print("Getting tags from %s.%s" % (model.__name__, field))
+        print(f"Getting tags from {model.__name__}.{field}")
         for obj in tqdm(model.objects.exclude(**{field: ''}).exclude(**{field: None}), total=float("inf")):
             tree = parse_html_fragment(getattr(obj, field))
             for el in tree.iter():
@@ -99,7 +99,7 @@ def report_tags():
     print("Styles in use:")
     for tag in sorted(tag_styles.keys()):
         styles = tag_styles[tag]
-        print("%s[%s]" % (tag, ",".join(s for s in styles if s)))
+        print(f"{tag}[{','.join(s for s in styles if s)}]")
 
     print("Unique styles in use:")
     styles = set()
@@ -123,7 +123,7 @@ def compare_sanitized_html():
         (ContentNode, 'headnote'),
     )
     for model, field in sanitized_fields:
-        print("Getting tags from %s.%s" % (model.__name__, field))
+        print("Getting tags from {model.__name__}.{field}")
         for obj in tqdm(model.objects.exclude(**{field: ''}).exclude(**{field: None}).iterator(), total=float("inf")):
             content = getattr(obj, field)
             sanitized = sanitize(content)

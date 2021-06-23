@@ -107,7 +107,7 @@ def re_split_offsets(pattern, s):
         ...     ["A", "B", "C", "D"],
         ... )
     """
-    parts = re.split(r'(%s)' % pattern, s)
+    parts = re.split(f'({pattern})', s)
     strs = [parts[i] for i in range(0, len(parts), 2)]
     split_strs = [parts[i] for i in range(1, len(parts), 2)]
     split_offsets = [sum(len(s) for s in strs[:i+1]) for i in range(len(strs)-1)]
@@ -238,12 +238,12 @@ def elements_equal(e1, e2, ignore={}, ignore_trailing_whitespace=False, tidy_sty
         Optionally, munge "style" attributes for easier comparison.
     """
     if e1.tag != e2.tag:
-        raise exc_class("e1.tag != e2.tag (%s != %s)" % (e1.tag, e2.tag))
+        raise exc_class(f"e1.tag != e2.tag ({e1.tag} != {e2.tag})")
     if (e1.text and e1.text.translate(strip_whitespace)) != (e2.text and e2.text.translate(strip_whitespace)):
         diff = '\n'.join(difflib.ndiff([e1.text or ''], [e2.text or '']))
-        raise exc_class("e1.text != e2.text:\n%s" % diff)
+        raise exc_class(f"e1.text != e2.text:\n{diff}")
     if e1.tail != e2.tail:
-        exc = exc_class("e1.tail != e2.tail (%s != %s)" % (e1.tail, e2.tail))
+        exc = exc_class(f"e1.tail != e2.tail ({e1.tail} != {e2.tail})")
         if ignore_trailing_whitespace:
             if (e1.tail or '').strip() or (e2.tail or '').strip():
                 raise exc
@@ -257,13 +257,13 @@ def elements_equal(e1, e2, ignore={}, ignore_trailing_whitespace=False, tidy_sty
         e1_attrib['style'] = e1_attrib['style'].replace(' ', '').rstrip(';')
         e2_attrib['style'] = e2_attrib['style'].replace(' ', '').rstrip(';')
     if e1_attrib != e2_attrib:
-        diff = "\n".join(difflib.Differ().compare(["%s: %s" % i for i in sorted(e1_attrib.items())], ["%s: %s" % i for i in sorted(e2_attrib.items())]))
-        raise exc_class("e1.attrib != e2.attrib:\n%s" % diff)
+        diff = "\n".join(difflib.Differ().compare([f"{i}: {i}" % i for i in sorted(e1_attrib.items())], [f"{i}: {i}" for i in sorted(e2_attrib.items())]))
+        raise exc_class(f"e1.attrib != e2.attrib:\n{diff}")
     s1 = [i for i in e1 if i.tag.rsplit('}', 1)[-1] not in ignore.get('tags', ())]
     s2 = [i for i in e2 if i.tag.rsplit('}', 1)[-1] not in ignore.get('tags', ())]
     if len(s1) != len(s2):
         diff = "\n".join(difflib.Differ().compare([s.tag for s in s1], [s.tag for s in s2]))
-        raise exc_class("e1 children != e2 children:\n%s" % diff)
+        raise exc_class(f"e1 children != e2 children:\n{diff}")
     for c1, c2 in zip(s1, s2):
         elements_equal(c1, c2, ignore, ignore_trailing_whitespace, tidy_style_attrs, exc_class)
 
@@ -303,10 +303,10 @@ class StringFileResponse(HttpResponse):
             disposition = 'attachment' if as_attachment else 'inline'
             try:
                 filename.encode('ascii')
-                file_expr = 'filename="{}"'.format(filename)
+                file_expr = f'filename="{filename}"'
             except UnicodeEncodeError:
-                file_expr = "filename*=utf-8''{}".format(quote(filename))
-            self['Content-Disposition'] = '{}; {}'.format(disposition, file_expr)
+                file_expr = f"filename*=utf-8''{quote(filename)}"
+            self['Content-Disposition'] = f'{disposition}; {file_expr}'
         elif as_attachment:
             self['Content-Disposition'] = 'attachment'
 
@@ -359,7 +359,7 @@ def send_verification_email(request, user):
         default_token_generator.make_token(user),
     ]))
     message = "To activate your account, please click the link below or copy it to your web browser.  " \
-        "You will need to create a new password.\n\n%s" % verify_link
+        f"You will need to create a new password.\n\n{verify_link}"
     send_mail(
         "An H2O account has been created for you",
         message,
@@ -377,19 +377,19 @@ def send_invitation_email(request, receiving_user, casebook):
         default_token_generator.make_token(receiving_user),
     ]))
     inviting_user = request.user
-    message = """You have been invited by {} to collaborate on a casebook titled {}.
+    message = f"""You have been invited by {inviting_user.email_address} to collaborate on a casebook titled {casebook.title}.
 
-You can set up your account by choosing a password at {}.
+You can set up your account by choosing a password at {verify_link}.
 
-Access this casebook directly at {} or visit your dashboard at {} to see all of your casebooks.
+Access this casebook directly at {request.build_absolute_uri(casebook.get_absolute_url())} or visit your dashboard at {request.build_absolute_uri("/")} to see all of your casebooks.
 
 To learn more, please visit our help guide at https://about.opencasebook.org/. If you have questions, you can reach us at info@opencasebook.org.
 
 
 The H2O open casebook team
-Harvard Law School Library""".format(inviting_user.email_address, casebook.title, verify_link, request.build_absolute_uri(casebook.get_absolute_url()), request.build_absolute_uri("/"))
+Harvard Law School Library"""
     send_mail(
-        "{} has invited you to collaborate on a casebook".format(inviting_user.attribution),
+        f"{inviting_user.attribution} has invited you to collaborate on a casebook",
         message,
         settings.DEFAULT_FROM_EMAIL,
         [receiving_user.email_address],
@@ -399,16 +399,16 @@ Harvard Law School Library""".format(inviting_user.email_address, casebook.title
 def send_collaboration_email(request, receiving_user, casebook):
     # For already existing users, send a notice that they've been invited to collaborate
     inviting_user = request.user
-    message = """You have been invited by {} to collaborate on a casebook titled {}.
+    message = f"""You have been invited by {inviting_user.email_address} to collaborate on a casebook titled {casebook.title}.
 
-Access this casebook directly at {} or visit your dashboard at {} to see all of your casebooks.
+Access this casebook directly at { request.build_absolute_uri(casebook.get_absolute_url())} or visit your dashboard at {request.build_absolute_uri("/")} to see all of your casebooks.
 
 To learn more, please visit our help guide at https://about.opencasebook.org/. If you have questions, you can reach us at info@opencasebook.org.
 
 The H2O open casebook team
-Harvard Law School Library""".format(inviting_user.email_address, casebook.title, request.build_absolute_uri(casebook.get_absolute_url()), request.build_absolute_uri("/"))
+Harvard Law School Library"""
     send_mail(
-        "{} has invited you to collaborate on a casebook.".format(inviting_user.attribution),
+        f"{inviting_user.attribution} has invited you to collaborate on a casebook.",
         message,
         settings.DEFAULT_FROM_EMAIL,
         [receiving_user.email_address],
