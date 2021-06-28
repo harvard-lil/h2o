@@ -1,6 +1,12 @@
 <template>
   <div id="publish-button">
-    <button type="button" class="action publish one-line" @click="attemptPublish">Publish</button>
+    <button type="button" 
+            class="action publish one-line" 
+            :disabled="disabled"
+            :title="disabled ? 'Some resources are incomplete. Finalize Entries below.' : 'Publish'"
+            @click="attemptPublish">
+            Publish
+    </button>
     <Modal v-if="showModal" @close="showModal = false">
       <template slot="title">Confirm Publish</template>
       <template slot="body">
@@ -38,7 +44,7 @@ export default {
   components: {
     Modal
   },
-  props: {},
+  props: ['disabled'],
   data: () => ({
     showModal: false,
     csrftoken: getCookie("csrftoken")
@@ -81,6 +87,10 @@ export default {
 .casebook-actions button.action.clone-casebook-nodes {
   background-image: url('~static/images/ui/casebook/clone.svg');
   border: none;
+}
+
+.casebook-actions button.action.publish[disabled] {
+  filter: grayscale(1.0);    
 }
 
 ul.clone-target-list {
