@@ -10,13 +10,13 @@ import 'tinymce/plugins/media';
 import 'tinymce/plugins/noneditable';
 import {handleImageUpload, checkAllyShip, imageAltContextForm, installFootnotes} from '../libs/tinymce_extensions';
 
-const VERIFIED = window.VERIFIED;
+const ENHANCED = window.VERIFIED || window.SUP;
 
 function initRichTextEditor(element, code=false) {
     let plugins = ['link', 'lists', 'image', 'table', 'paste'];
   // toolbar options: https://www.tiny.cloud/docs/advanced/editor-control-identifiers/#toolbarcontrols
     let toolbar = 'undo redo removeformat | styleselect | h1 h2 | bold italic underline | numlist bullist indent outdent | table blockquote link image removeformat';
-  if (VERIFIED) {
+  if (ENHANCED) {
     toolbar += ' | footnote media checkAlly';
     plugins.push('media');
   }
@@ -36,7 +36,7 @@ function initRichTextEditor(element, code=false) {
     menubar: false,
     branding: false,
     toolbar: toolbar,
-    image_uploadtab: VERIFIED,
+    image_uploadtab: ENHANCED,
     images_upload_handler: handleImageUpload,
     images_upload_credentials: true,
     automatic_uploads: true,
@@ -48,7 +48,7 @@ function initRichTextEditor(element, code=false) {
     paste_strip_class_attributes: "all",
     extended_valid_elements: 'div[class|title|style|tabindex|id|class|data-custom-style],span[class|title|style|tabindex|id|class|data-custom-style]',
     setup: (editor) => {
-      if (VERIFIED) {
+      if (ENHANCED) {
         installFootnotes(editor);
         checkAllyShip(editor);
         imageAltContextForm(editor);
