@@ -1,8 +1,8 @@
 <template>
   <div id="audit-flow">
-    <button class="action one-line save" v-if="dirtyForm" v-on:click.stop.prevent="save">Save</button>
-    <publish-button v-else-if="allNodesSpecified"></publish-button>
-    <button class="action audit-casebook" v-on:click.stop.prevent="startAudit()" v-else>Finalize entries</button>
+    <button class="action one-line save" v-on:click.stop.prevent="save">Save</button>
+    <publish-button :disabled="!allNodesSpecified"></publish-button>
+    <button class="action audit-casebook" v-on:click.stop.prevent="startAudit()" v-if="!allNodesSpecified">Finalize entries</button>
   </div>
 </template>
 
@@ -12,48 +12,17 @@ import _tinymce from 'tinymce/tinymce';
 import PublishButton from "./PublishButton";
 import Axios from "../config/axios";
 import urls from "../libs/urls";
-import Vue from "vue";
 import { createNamespacedHelpers } from "vuex";
 import pp from "../libs/text_outline_parser";
 
 const { mapGetters } = createNamespacedHelpers("case_search");
 
-
-const bus = new Vue();
-
-Vue.component('DirtyForm',{
-  data: () => ({fired: false}),
-  props: ['cssClass', 'formMethod'],
-  mounted: function() {
-    for(let k of this.$refs.form.elements) {
-      if (k.id) {
-        k.addEventListener('input', this.emitDirty);
-      }
-    }
-    const self = this;
-    setTimeout(() => {
-      window.tinyMCE.editors.forEach(editor => {
-        editor.on('input', self.emitDirty);
-      }, 100)
-    })
-  },
-  methods: {
-    emitDirty: function() {
-      if (this.fired) return;
-      bus.$emit('dirtiedForm', {})
-      this.fired = true;
-    }
-  },
-  //template: '<div ref="parent"><slot></slot></div>'
-  template: '<form ref="form" :class="cssClass" :method="formMethod"><slot></slot></form>'
-})
-
 export default {
   components: {
     PublishButton
   },
-  data: () => ({autoAudited: {},
-                dirtyForm: false}),
+  data: () => ({autoAudited: {}
+                }),
   methods: {
     save: function() {
       let form = document.querySelector('form.edit_content_resource') || document.querySelector('form.edit_content_section') || document.querySelector('form.edit_content_casebook');
@@ -69,7 +38,7 @@ export default {
           let node = closedNodes.pop();
           if (!node) return;
           if (_.has(node, "title")) {
-            let lineGuess = pp.guessLineType(node.title);
+            let lineGuess = pp.guessLineType(node.title, self.getSources);
             if (lineGuess.resource_type === 'Temp') {
               lineGuess.guesses.forEach(({query, source}) => {
                 self.$store.dispatch("case_search/fetchForSource", {queryObj:{ query } ,source});
@@ -214,12 +183,6 @@ export default {
     allNodesSpecified: function() {
       return this.needingAudit.length === 0;
     }
-  },
-  created: function() {
-    const self = this;
-    bus.$on('dirtiedForm', () => {
-      self.dirtyForm = true;
-    })
   }
 };
 </script>

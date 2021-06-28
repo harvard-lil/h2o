@@ -43,16 +43,14 @@
                 ></globals>
                 {% if editing %}
                     {% if section and section.is_temporary %}
-                        <resource-type-picker></resource-type-picker>
-                        {% else %}
-                        <dirty-form
-                            css-class="edit_content_{% if section and section.has_body %}resource{% elif section%}section{% else %}casebook{% endif %}"
-                            form-method="{{ form.helper.form_method }}">
-                            {% crispy form %}
-                            {% if embedded_resource_form %}
-                            {% crispy embedded_resource_form %}
-                            {% endif %}
-                        </dirty-form>
+                <resource-type-picker></resource-type-picker>
+                {% else %}
+
+                <form class="edit_content_{% if section and section.has_body %}resource{% elif section%}section{% else %}casebook{% endif %}" method="{{ form.helper.form_method }}">
+                    {% crispy form %}
+                    {% if embedded_resource_form %}{% crispy embedded_resource_form %}{% endif %}
+                </form>
+
                     {% endif %}
                 {% else %}
                     {% if section %}
