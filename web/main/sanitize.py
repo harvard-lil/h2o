@@ -117,8 +117,8 @@ def get_allow_lists():
     return allowed_tags, allowed_attributes, allowed_styles
 
 
-youtube_src = re.compile("//www.youtube.com/embed/[a-zA-Z0-9]*")
-vimeo_src = re.compile("//player.vimeo.com/video/[0-9]*([?].*)?")
+youtube_src = re.compile("(?:https?:)?//www.youtube.com/embed/[a-zA-Z0-9]*")
+vimeo_src = re.compile("(?:https?:)?//player.vimeo.com/video/[0-9]*([?].*)?")
 
 def iframe_attributes(tag, name, value):
     """
