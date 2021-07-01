@@ -71,12 +71,12 @@
                     </div>
                     {% endif %}
             </header>
-                {% include 'includes/action_buttons.html' %}
-            {% if section %}
-            {% if not editing %}
-            {% include 'includes/headnote.html' with content=section %}
-            {% endif %}
-            {% include section.body_template %}
+            {% include 'includes/action_buttons.html' %}
+                {% if section %}
+                    {% if not editing %}
+                        {% include 'includes/headnote.html' with content=section %}
+                        {% include section.body_template %}
+                {% endif %}
             {% else %}
                 {% if not editing %}
                     {% include 'includes/headnote.html' with content=casebook %}

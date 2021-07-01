@@ -385,3 +385,71 @@ export function installFootnotes(editor) {
     footnoteIntegrity();
   });
 }
+
+
+
+export function getInitConfig(selector, enhanced, code) {
+
+  const semanticStyles = 'img[alt=""] {outline: 4px solid red;}.footnote-ref {font-size: 16px;vertical-align: super;}.footnote-body {margin-left: 2rem;}.footnote-label {float:left;margin-left:-1rem;} .footnote-label::after{content: ".";} .footnote-footer {border-top: 1px solid black;clear:both;}.image-center-large{width:80%;object-fit:contain;margin:0auto;display:block;}.image-center-medium{width:50%;object-fit:contain;margin:0 auto;display:block;}.image-left-medium{width:50%;object-fit:contain;margin:0 2rem;float:left;display:block;}.image-right-medium{width:50%;object-fit:contain;margin:0 2rem;float:right;display:block;}';
+
+  let plugins = ['link', 'lists', 'image', 'table', 'paste'];
+  // toolbar options: https://www.tiny.cloud/docs/advanced/editor-control-identifiers/#toolbarcontrols
+
+  let toolbar = 'undo redo removeformat | styleselect | h1 h2 | bold italic underline | numlist bullist indent outdent | table blockquote link image removeformat';
+  if (enhanced) {
+    toolbar += ' media footnote | checkAlly';
+    plugins.push('media');
+  }
+  if (code){
+    plugins.push('code');
+    toolbar += ' | code';
+  }
+
+  let extend_valid_elements = [['div', ['class', 'title', 'style', 'tabindex', 'id', 'class', 'data-custom-style']],
+                               ['span', ['class', 'title', 'style', 'tabindex', 'id', 'class', 'data-custom-style'],
+                                ['img', ['class', 'alt', 'title', 'id', 'data-custom-style']]]]
+      .map(x => `${x[0]}[${x[1].join('|')}]`)
+      .join(',');
+
+  let image_class_list = [{title: 'Large centered', value: 'image-center-large'},
+                          {title: 'Center aligned', value: 'image-center-medium'},
+                          {title: 'Left aligned', value: 'image-left-medium'},
+                          {title: 'Right aligned', value: 'image-right-medium'}
+                         ];
+  let config = {
+    height:'60vh',
+    plugins: plugins,
+    skin_url: '/static/tinymce_skin',
+    content_style: semanticStyles,
+    menubar: false,
+    branding: false,
+    toolbar: toolbar,
+    image_uploadtab: enhanced,
+    images_upload_handler: handleImageUpload,
+    images_upload_credentials: true,
+    image_dimensions: false,
+    image_caption: true,
+    image_class_list: image_class_list,
+    automatic_uploads: true,
+    contextmenu_never_use_native: false,
+    contextmenu:false,
+    paste_auto_cleanup_on_paste : true,
+    paste_remove_styles: true,
+    paste_remove_styles_if_webkit: true,
+    paste_strip_class_attributes: "all",
+    media_dimensions: false,
+    extended_valid_elements: extend_valid_elements,
+    setup: (editor) => {
+      if (enhanced) {
+        installFootnotes(editor);
+        checkAllyShip(editor);
+        imageAltContextForm(editor);
+      }
+    }
+  };
+
+  if (selector) {
+    config.selector = selector;
+  }
+  return config;
+}
