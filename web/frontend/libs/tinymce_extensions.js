@@ -428,7 +428,6 @@ export function getInitConfig(selector, enhanced, code) {
     images_upload_handler: handleImageUpload,
     images_upload_credentials: true,
     image_dimensions: false,
-    image_caption: true,
     image_class_list: image_class_list,
     automatic_uploads: true,
     contextmenu_never_use_native: false,
