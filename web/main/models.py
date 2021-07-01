@@ -46,7 +46,7 @@ from .utils import (block_level_elements, clone_model_instance, elements_equal,
                     looks_like_citation, normalize_newlines,
                     parse_html_fragment, remove_empty_tags,
                     strip_trailing_block_level_whitespace, void_elements,
-                    format_footnotes_for_export,
+                    format_footnotes_for_export, prefix_ids_hrefs,
                     APICommunicationError, fix_after_rails)
 from .storages import get_s3_storage
 logger = logging.getLogger(__name__)
@@ -1796,17 +1796,17 @@ class ContentNode(EditTrackedModel, TimestampedModel, BigPkModel, MaterializedPa
     @property
     def headerless_export_content(self):
         if self.resource_type == 'TextBlock':
-            return format_footnotes_for_export(self.resource.content)
-        return self.resource.content
+            return prefix_ids_hrefs(format_footnotes_for_export(self.resource.content), str(self.id))
+        return prefix_ids_hrefs(self.resource.content, str(self.id))
 
     @property
     def export_content(self):
         if self.resource_type == 'LegalDocument':
-            contents = self.resource.content
+            contents = prefix_ids_hrefs(self.resource.content, str(self.id))
             header = self.rendered_header()
             return f'{header}{contents}'
         elif self.resource_type == 'TextBlock':
-            return format_footnotes_for_export(self.resource.content)
+            return prefix_ids_hrefs(format_footnotes_for_export(self.resource.content), str(self.id))
         return self.resource.content
 
     @property
@@ -2097,20 +2097,18 @@ class ContentNode(EditTrackedModel, TimestampedModel, BigPkModel, MaterializedPa
             ... <p>Some [/highlight] text</p>
             ... '''
             >>> expected = '''
-            ... <p>Some <span class="annotate highlighted" custom-style="Highlighted Text"> text</span></p>
+            ... <div><p>Some <span class="annotate highlighted" custom-style="Highlighted Text"> text</span></p>
             ... <p><span class="annotate highlighted" custom-style="Highlighted Text">Some </span><em><span class="annotate highlighted" custom-style="Highlighted Text">text</span></em></p>
-            ... <p><span class="annotate highlighted" custom-style="Highlighted Text">Some </span> text</p>
+            ... <p><span class="annotate highlighted" custom-style="Highlighted Text">Some </span> text</p></div>
             ... '''
             >>> assert_match(input, expected)
 
             Deletion spanning paragraphs:
-            >>> input = '''
-            ... <p>Some [replace new content] text</p>
+            >>> input = '''<p>Some [replace new content] text</p>
             ... <p>Some <em>text</em> <br></p>
-            ... <p>Some [/replace] text</p>
-            ... '''
+            ... <p>Some [/replace] text</p>'''
             >>> expected = '''
-            ... <p>Some <span custom-style="Replacement Text">new content</span></p><p> text</p>
+            ... <div><p>Some <span custom-style="Replacement Text">new content</span></p><p> text</p></div>
             ... '''
             >>> assert_match(input, expected)
 
@@ -2121,15 +2119,15 @@ class ContentNode(EditTrackedModel, TimestampedModel, BigPkModel, MaterializedPa
 
             Annotations with ambiguous placement:
             >>> input = '<p>First</p><p>[highlight]Second[/highlight]</p><p>Third</p>'
-            >>> expected = '<p>First</p><p><span class="annotate highlighted" custom-style="Highlighted Text">Second</span></p><p>Third</p>'
+            >>> expected = '<div><p>First</p><p><span class="annotate highlighted" custom-style="Highlighted Text">Second</span></p><p>Third</p></div>'
             >>> assert_match(input, expected)
             >>> input = '<p>First</p><p>[elide]Second[/elide]</p><p>Third</p>'
-            >>> expected = '<p>First</p><p><span custom-style="Elision">[ … ]</span></p><p>Third</p>'
+            >>> expected = '<div><p>First</p><p><span custom-style="Elision">[ … ]</span></p><p>Third</p></div>'
             >>> assert_match(input, expected)
             >>> input = '<p>[highlight]First[/highlight]</p><p>[highlight]Sec[/highlight][highlight]ond[/highlight]</p><p>[highlight]Third[/highlight]</p>'
-            >>> expected = '<p><span class="annotate highlighted" custom-style="Highlighted Text">First</span></p>' \
+            >>> expected = '<div><p><span class="annotate highlighted" custom-style="Highlighted Text">First</span></p>' \
             ...     '<p><span class="annotate highlighted" custom-style="Highlighted Text">Sec</span><span class="annotate highlighted" custom-style="Highlighted Text">ond</span></p>' \
-            ...     '<p><span class="annotate highlighted" custom-style="Highlighted Text">Third</span></p>'
+            ...     '<p><span class="annotate highlighted" custom-style="Highlighted Text">Third</span></p></div>'
             >>> assert_match(input, expected)
 
             Overlapping annotations:

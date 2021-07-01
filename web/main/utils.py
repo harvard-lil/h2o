@@ -7,7 +7,6 @@ import mimetypes
 from pyquery import PyQuery
 import re
 from requests import request
-import string
 from urllib.parse import quote, unquote
 
 from django.contrib.auth.tokens import default_token_generator
@@ -178,6 +177,8 @@ def format_footnotes_for_export(html_str):
     `<span class="footnote footnote-ref" data-custom-style="Footnote Reference" id="footnote-${data.id}-ref">${data.mark}</span>`
     `<div class="footnote footnote-body" id="footnote-${data.id}"><p><span class="footnote-label" contenteditable="false">${data.mark}</span>${data.footnote}</p></div>`
     """
+    if not html_str:
+        return html_str
     pq = PyQuery(html_str)
     pq(".footnote-label").append(". ")
     return pq.outer_html()
@@ -192,6 +193,23 @@ block_level_elements = {
 void_elements = {
     'area', 'base', 'br', 'col', 'embed', 'hr', 'img', 'input', 'keygen', 'link', 'meta', 'param', 'source', 'track', 'wbr'
 }
+
+def prefix_ids_hrefs(html_str, prefix):
+    if not html_str:
+        return html_str
+    def prefix_id(_, el):
+        original_id = el.attrib['id']
+        el.attrib['id'] = f"{prefix}-{original_id}"
+
+    def prefix_href(_, el):
+
+        original_target = el.attrib['href'][1:]
+        el.attrib['href'] = f"#{prefix}-{original_target}"
+
+    pq = PyQuery(html_str)
+    pq("[id]").each(prefix_id)
+    pq("[href^='#']").each(prefix_href)
+    return pq.outer_html()
 
 
 def remove_empty_tags(tree, ignore_tags=void_elements):
@@ -229,7 +247,6 @@ def inner_html(tree):
         ''.join([html.tostring(child, encoding=str) for child in tree.iterchildren()])
 
 
-strip_whitespace = str.maketrans('','',string.whitespace)
 def elements_equal(e1, e2, ignore={}, ignore_trailing_whitespace=False, tidy_style_attrs=False, exc_class=ValueError):
     """
         Recursively compare two lxml Elements.
@@ -239,10 +256,14 @@ def elements_equal(e1, e2, ignore={}, ignore_trailing_whitespace=False, tidy_sty
     """
     if e1.tag != e2.tag:
         raise exc_class(f"e1.tag != e2.tag ({e1.tag} != {e2.tag})")
-    if (e1.text and e1.text.translate(strip_whitespace)) != (e2.text and e2.text.translate(strip_whitespace)):
+    e1t = (e1.text and e1.text.replace("\n","").strip()) or ''
+    e2t = (e2.text and e2.text.replace("\n","").strip()) or ''
+    if e1t != e2t:
         diff = '\n'.join(difflib.ndiff([e1.text or ''], [e2.text or '']))
         raise exc_class(f"e1.text != e2.text:\n{diff}")
-    if e1.tail != e2.tail:
+    e1tail = (e1.tail or '').strip()
+    e2tail = (e2.tail or '').strip()
+    if e1tail != e2tail:
         exc = exc_class(f"e1.tail != e2.tail ({e1.tail} != {e2.tail})")
         if ignore_trailing_whitespace:
             if (e1.tail or '').strip() or (e2.tail or '').strip():
