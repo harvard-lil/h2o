@@ -68,6 +68,7 @@ a {
 
 .footnote-footer {
     border-top: 1px solid black;
+    clear:both;
 
     .footnote-body {
     margin-left: 2rem;
@@ -79,4 +80,34 @@ a {
         margin-left:-1rem;
     }
 }
+}
+
+.image-center-large {
+    width: 80%;
+    object-fit: contain;
+    margin: 0 auto;
+    display: block;
+}
+
+.image-center-medium {
+    width: 50%;
+    object-fit: contain;
+    margin: 0 auto;
+    display: block;
+}
+
+.image-left-medium {
+    width: 50%;
+    object-fit: contain;
+    margin: 0 2rem;
+    float: left;
+    display: block;
+}
+
+.image-right-medium {
+    width: 50%;
+    object-fit: contain;
+    margin: 0 2rem;
+    float: right;
+    display: block;
 }

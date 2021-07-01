@@ -99,6 +99,7 @@ import Editor from "@tinymce/tinymce-vue";
 import Axios from "../config/axios";
 import _ from "lodash";
 import urls from "libs/urls";
+import { getInitConfig } from "libs/tinymce_extensions";
 import { createNamespacedHelpers } from "vuex";
 const { mapActions } = createNamespacedHelpers("case_search");
 
@@ -115,16 +116,7 @@ export default {
     showModal: false,
     currentTab: "case",
     caseQueryObj: {query: ""},
-    tinyMCEInitConfig: {
-      plugins: ["link", "lists", "image", "table"],
-      skin_url: "/static/tinymce_skin",
-      menubar: false,
-      branding: false,
-      contextmenu_never_use_native: false,
-      contextmenu:false,
-      toolbar:
-      "undo redo removeformat | styleselect | bold italic underline | numlist bullist indent outdent | table blockquote link image"
-    },
+    tinyMCEInitConfig: getInitConfig(false, true, false),
     textTitle: "",
     textContent: "",
     linkTarget: "",
