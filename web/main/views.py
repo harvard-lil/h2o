@@ -2217,8 +2217,9 @@ def export(request, node, file_type='docx'):
 
     include_annotations = request.GET.get('annotations') == 'true'
 
+    export_options = {'request': request}
     # get response data
-    response_data = node.export(include_annotations, file_type)
+    response_data = node.export(include_annotations, file_type, export_options=export_options)
 
     # return html
     if file_type == 'html':
@@ -2566,7 +2567,8 @@ def upload_image(request):
                              external_id=s3_uuid,
                              uploaded_by=request.user)
     saved_image.save()
-    return JsonResponse({"location": saved_image.url})
+    url = request.build_absolute_uri(saved_image.url)
+    return JsonResponse({"location": url})
 
 
 def view_image(request, image_uuid):

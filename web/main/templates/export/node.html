@@ -8,10 +8,11 @@
   <div class="SectionNumber" data-custom-style="Section Number" data-toc-idx="{{ index }}">{{ node.ordinal_string }}</div>
   <div class="SectionTitle" data-custom-style="Section Title">{{ node.title }}</div>
   {% if node.subtitle %}
-    <div class="SectionSubtitle" data-custom-style="Section Subtitle">{{ node.subtitle }}</div>
+  <div class="SectionSubtitle" data-custom-style="Section Subtitle">{{ node.subtitle }}</div>
   {% endif %}
   {% if node.headnote %}
-    <div class="SectionHeadnote" data-custom-style="Section Headnote">{{ node.headnote_for_export }}</div>
+  {% call_method node 'headnote_for_export' export_options=export_options as headnote %}
+  <div class="SectionHeadnote" data-custom-style="Section Headnote">{{ headnote }}</div>
   {% endif %}
 {% elif node.type == 'resource' %}
   <div class="ResourceNumber" data-custom-style="Resource Number" data-toc-idx="{{ index }}">{{ node.ordinal_string }}</div>

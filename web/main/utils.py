@@ -165,7 +165,9 @@ def parse_html_fragment(html_str):
     else:
         initial_spaces = ''
 
+    #It's here. This next line is the problem.
     el = html.fragment_fromstring(html_str, create_parent=True)
+
     if initial_spaces:
         el.text = initial_spaces + (el.text or '')
 
@@ -209,6 +211,54 @@ def prefix_ids_hrefs(html_str, prefix):
     pq = PyQuery(html_str)
     pq("[id]").each(prefix_id)
     pq("[href^='#']").each(prefix_href)
+    return pq.outer_html()
+
+
+def rich_text_export(html_str, request=None, id_prefix=''):
+    if not (html_str and request and id_prefix):
+        return html_str
+    pq = PyQuery(html_str)
+
+    # Footnote labels have an :after css pseudo element with '.' content
+    # To prevent editing of the label in a way that will be lost
+    pq(".footnote-label").append(". ")
+
+    # IDs that unique within a document may not be unique within multiple documents
+    # so we add a prefix
+    def prefix_id(_, el):
+        original_id = el.attrib['id']
+        el.attrib['id'] = f"{id_prefix}-{original_id}"
+
+    def prefix_href(_, el):
+        original_target = el.attrib['href'][1:]
+        el.attrib['href'] = f"#{id_prefix}-{original_target}"
+
+    pq("[id]").each(prefix_id)
+    pq("[href^='#']").each(prefix_href)
+
+    # Images need to have absolute urls
+    def absolute_src(_, el):
+        original_src = el.attrib['src']
+        el.attrib['src'] = request.build_absolute_uri(original_src)
+
+    pq("img[src]").each(absolute_src)
+
+    # Add Doc styling wrappers to images
+    def replace_in_parent(style,el):
+        original_html = el.parent().html(method="html")
+        src = el.outer_html()
+        replacement = f"<div data-custom-style='{style}'>{el.outer_html()}</div>"
+        el.parent().html(original_html.replace(src, replacement))
+
+    for el in pq("img.image-center-large").items():
+        replace_in_parent("Image Centered Large", el)
+    for el in pq("img.image-center-medium").items():
+        replace_in_parent("Image Centered Medium", el)
+    for el in pq("img.image-left-medium").items():
+        replace_in_parent("Image Left Medium", el)
+    for el in pq("img.image-right-medium").items():
+        replace_in_parent("Image Right Medium", el)
+
     return pq.outer_html()
 
 
