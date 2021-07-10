@@ -15,6 +15,7 @@ from urllib.parse import urlparse
 
 import lxml.etree
 import lxml.sax
+from lxml import html
 from django.conf import settings
 from django.contrib.auth import user_logged_in
 from django.contrib.auth.base_user import AbstractBaseUser, BaseUserManager
@@ -42,11 +43,11 @@ from simple_history.utils import bulk_create_with_history, bulk_update_with_hist
 from .differ import AnnotationUpdater
 from .sanitize import sanitize
 from .utils import (block_level_elements, clone_model_instance, elements_equal,
-                    get_ip_address, inner_html, looks_like_case_law_link,
+                    get_ip_address, looks_like_case_law_link,
                     looks_like_citation, normalize_newlines,
                     parse_html_fragment, remove_empty_tags,
                     strip_trailing_block_level_whitespace, void_elements,
-                    format_footnotes_for_export, prefix_ids_hrefs,
+                    rich_text_export, prefix_ids_hrefs,
                     APICommunicationError, fix_after_rails)
 from .storages import get_s3_storage
 logger = logging.getLogger(__name__)
@@ -1793,20 +1794,18 @@ class ContentNode(EditTrackedModel, TimestampedModel, BigPkModel, MaterializedPa
                 return api_model.postprocess_content(body)
         return body
 
-    @property
-    def headerless_export_content(self):
+    def headerless_export_content(self, request):
         if self.resource_type == 'TextBlock':
-            return prefix_ids_hrefs(format_footnotes_for_export(self.resource.content), str(self.id))
+            return rich_text_export(self.resource.content, request=request, id_prefix=str(self.id))
         return prefix_ids_hrefs(self.resource.content, str(self.id))
 
-    @property
-    def export_content(self):
+    def export_content(self, request):
         if self.resource_type == 'LegalDocument':
             contents = prefix_ids_hrefs(self.resource.content, str(self.id))
             header = self.rendered_header()
             return f'{header}{contents}'
         elif self.resource_type == 'TextBlock':
-            return prefix_ids_hrefs(format_footnotes_for_export(self.resource.content), str(self.id))
+            return rich_text_export(self.resource.content, request=request, id_prefix=str(self.id))
         return self.resource.content
 
     @property
@@ -2007,7 +2006,8 @@ class ContentNode(EditTrackedModel, TimestampedModel, BigPkModel, MaterializedPa
                     '--to', 'docx',
                     '--reference-doc', os.path.join(settings.PANDOC_DIR, 'reference.docx'),
                     '--output', pandoc_out.name,
-                    '--quiet'
+                    '--quiet',
+                    '--self-contained'
                 ]
             if type(self) is Casebook:
                 command.extend(['--lua-filter', os.path.join(settings.PANDOC_DIR, 'table_of_contents.lua')])
@@ -2020,7 +2020,7 @@ class ContentNode(EditTrackedModel, TimestampedModel, BigPkModel, MaterializedPa
                 raise Exception(f"Pandoc reported error: {response.stderr[:100]}")
             return pandoc_out.read()
 
-    def headnote_for_export(self):
+    def headnote_for_export(self, export_options=None):
         r"""
             Return headnote HTML prepared for pandoc export.
 
@@ -2028,8 +2028,8 @@ class ContentNode(EditTrackedModel, TimestampedModel, BigPkModel, MaterializedPa
         """
         if not self.headnote:
             return ''
-        tree = parse_html_fragment(self.headnote)
-        return mark_safe(inner_html(tree))
+        html = rich_text_export(self.headnote, request=export_options and export_options.get('request'), id_prefix=str(self.id))
+        return mark_safe(html)
 
     @staticmethod
     def update_tree_for_export(tree, export_options=None):
@@ -2056,8 +2056,8 @@ class ContentNode(EditTrackedModel, TimestampedModel, BigPkModel, MaterializedPa
             >>> output = '<center>Title</center><h2 align="center">Subtitle</h2><p>An image <img src=""></p>'
             >>> assert resource.content_for_export() == output
         """
-        tree = parse_html_fragment(self.export_content)
-        return mark_safe(inner_html(tree))
+        html = self.export_content(export_options and export_options.get('request'))
+        return mark_safe(html)
 
     def annotated_content_for_export(self, export_options=None):
         r"""
@@ -2150,8 +2150,9 @@ class ContentNode(EditTrackedModel, TimestampedModel, BigPkModel, MaterializedPa
         # Start with a sorted list of the start and end insertion points for each annotation.
         # Each entry in the list is shaped like (annotation_offset, is_start_tag, annotation).
         # Clamp offsets to the max valid value, as we may have legacy invalid values in the database that are too large.
-        source_tree = parse_html_fragment(self.headerless_export_content)
-        max_valid_offset = len(source_tree.text_content())
+        pq = PyQuery(self.headerless_export_content(export_options and export_options.get('request')))
+        source_tree = pq[0]
+        max_valid_offset = len("".join([x for x in pq[0].itertext()]))
         annotations = []
         for annotation in self.annotations.all():
             # equivalent test to self.annotation.valid(),but using all() lets us use prefetched querysets
@@ -2340,7 +2341,7 @@ class ContentNode(EditTrackedModel, TimestampedModel, BigPkModel, MaterializedPa
         # clean up the output tree:
         remove_empty_tags(dest_tree)  # tree may contain empty tags from elide/replace annotations
         # apply general rules that are the same for annotated or un-annotated trees
-        return mark_safe(self.rendered_header() + self.export_postprocess(inner_html(dest_tree)))
+        return mark_safe(self.rendered_header() + self.export_postprocess(html.tostring(dest_tree).decode('utf-8')))
 
     def footnote_annotations(self, export_options=None):
         return mark_safe("".join(
@@ -2898,7 +2899,7 @@ class Casebook(EditTrackedModel, TimestampedModel, BigPkModel, CasebookAndSectio
         # TODO: In use in templates and tests; shouldn't be necessary. Consider refactoring.
         return type(self).__name__.lower()
 
-    def headnote_for_export(self):
+    def headnote_for_export(self, export_options=None):
         r"""
             Return headnote HTML prepared for pandoc export.
 
@@ -2906,8 +2907,8 @@ class Casebook(EditTrackedModel, TimestampedModel, BigPkModel, CasebookAndSectio
         """
         if not self.headnote:
             return ''
-        tree = parse_html_fragment(self.headnote)
-        return mark_safe(inner_html(tree))
+        html = rich_text_export(self.headnote, request=export_options and export_options.get('request', None), id_prefix=str(self.id))
+        return mark_safe(html)
 
     @property
     def is_resource(self):
