@@ -247,7 +247,7 @@ def rich_text_export(html_str, request=None, id_prefix=''):
     def replace_in_parent(style,el):
         original_html = el.parent().html(method="html")
         src = el.outer_html()
-        replacement = f"<div data-custom-style='{style}'>{el.outer_html()}</div>"
+        replacement = f"</p><div data-custom-style='{style}'>{el.outer_html()}</div><p>"
         el.parent().html(original_html.replace(src, replacement))
 
     for el in pq("img.image-center-large").items():
@@ -258,6 +258,10 @@ def rich_text_export(html_str, request=None, id_prefix=''):
         replace_in_parent("Image Left Medium", el)
     for el in pq("img.image-right-medium").items():
         replace_in_parent("Image Right Medium", el)
+
+    # Insert a non-breaking space if the paragraph after an image is empty
+    # to prevent it from potentially overlapping with a following image
+    pq("div[data-custom-style]+p:empty").text(" \xa0 ")
 
     return pq.outer_html()
 
