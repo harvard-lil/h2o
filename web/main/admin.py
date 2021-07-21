@@ -7,6 +7,7 @@ from django.conf import settings
 from django.contrib import admin
 from django.contrib.auth.admin import UserAdmin as DjangoUserAdmin
 from django.contrib.postgres import fields
+from django.core.mail import send_mail
 from django.db.models import Q, Count
 from django.http import HttpResponseRedirect
 from django.urls import reverse
@@ -559,6 +560,21 @@ class UserAdmin(BaseAdmin, DjangoUserAdmin):
     def has_delete_permission(self, request, obj=None):
         return super(BaseAdmin, self).has_delete_permission(request, obj)
 
+    def response_change(self, request, obj):
+        if "_prof_verification" in request.POST:
+            user = obj
+            email_body = request.POST.get('verification_email_contents', None)
+            email_subject = request.POST.get('verification_subject', None)
+            email_from = settings.PROFESSOR_VERIFIER_EMAILS
+            email_to = user.email_address
+            try:
+                send_mail( email_subject, email_body, email_from, email_to, fail_silently=False)
+            except Exception:
+                self.message_user(request, "Email failed to send successfully")
+            user.verified_professor = True
+            user.save()
+            self.message_user(request, "Email sent, Professor Verified.")
+        return super().response_change(request, obj)
 
 
 class CollaboratorsAdmin(BaseAdmin):
