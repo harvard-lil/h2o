@@ -6,6 +6,7 @@ from django import forms
 from django.conf import settings
 from django.contrib import admin
 from django.contrib.auth.admin import UserAdmin as DjangoUserAdmin
+from django.contrib import messages
 from django.contrib.postgres import fields
 from django.core.mail import send_mail
 from django.db.models import Q, Count
@@ -568,9 +569,10 @@ class UserAdmin(BaseAdmin, DjangoUserAdmin):
             email_from = settings.PROFESSOR_VERIFIER_EMAILS
             email_to = user.email_address
             try:
-                send_mail( email_subject, email_body, email_from, email_to, fail_silently=False)
+                send_mail( email_subject, email_body, email_from, [email_to], fail_silently=False)
             except Exception:
-                self.message_user(request, "Email failed to send successfully")
+                messages.add_message(request, messages.WARNING, "Email failed to send successfully")
+                return HttpResponseRedirect('.')
             user.verified_professor = True
             user.save()
             self.message_user(request, "Email sent, Professor Verified.")
