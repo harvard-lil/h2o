@@ -566,7 +566,7 @@ class UserAdmin(BaseAdmin, DjangoUserAdmin):
             user = obj
             email_body = request.POST.get('verification_email_contents', None)
             email_subject = request.POST.get('verification_subject', None)
-            email_from = settings.PROFESSOR_VERIFIER_EMAILS
+            email_from = settings.DEFAULT_FROM_EMAIL
             email_to = user.email_address
             try:
                 send_mail( email_subject, email_body, email_from, [email_to], fail_silently=False)
