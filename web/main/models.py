@@ -1090,7 +1090,7 @@ class ContentAnnotationQueryset(models.QuerySet):
 
 class ContentAnnotation(TimestampedModel, BigPkModel):
     kind = models.CharField(max_length=255, choices=(
-    ('replace', 'replace'), ('highlight', 'highlight'), ('elide', 'elide'), ('note', 'note'), ('link', 'link')))
+        ('replace', 'replace'), ('highlight', 'highlight'), ('elide', 'elide'), ('note', 'note'), ('link', 'link'), ('correction','correction')))
     content = models.TextField(blank=True, null=True)
     global_start_offset = models.IntegerField(blank=True, null=True)
     global_end_offset = models.IntegerField(blank=True, null=True)
@@ -2079,6 +2079,7 @@ class ContentNode(EditTrackedModel, TimestampedModel, BigPkModel, MaterializedPa
             ...     [highlight]is highlighted[/highlight]
             ...     [elide]is elided[/elide]
             ...     [replace new content]is replaced[/replace]
+            ...     [correction replaced content]is replaced[/correction]
             ...     [link http://example.com]is linked[/link]
             ... </p>'''
             >>> expected = '''<p>
@@ -2086,6 +2087,7 @@ class ContentNode(EditTrackedModel, TimestampedModel, BigPkModel, MaterializedPa
             ...     <span class="annotate highlighted" custom-style="Highlighted Text">is highlighted</span>
             ...     <span custom-style="Elision">[ … ]</span>
             ...     <span custom-style="Replacement Text">new content</span>
+            ...     replaced content
             ...     <a class="annotate" href="http://example.com">is linked</a><span custom-style="Footnote Reference">**</span>
             ... </p>'''
             >>> assert_match(input, expected)
@@ -2150,7 +2152,10 @@ class ContentNode(EditTrackedModel, TimestampedModel, BigPkModel, MaterializedPa
         # Start with a sorted list of the start and end insertion points for each annotation.
         # Each entry in the list is shaped like (annotation_offset, is_start_tag, annotation).
         # Clamp offsets to the max valid value, as we may have legacy invalid values in the database that are too large.
-        pq = PyQuery(self.headerless_export_content(export_options and export_options.get('request')))
+        doc = self.headerless_export_content(export_options and export_options.get('request'))
+        if not doc:
+            return doc
+        pq = PyQuery(doc)
         source_tree = pq[0]
         max_valid_offset = len("".join([x for x in pq[0].itertext()]))
         annotations = []
@@ -2240,7 +2245,12 @@ class ContentNode(EditTrackedModel, TimestampedModel, BigPkModel, MaterializedPa
                             self.elide += 1
                         else:
                             self.elide = max(self.elide - 1, 0)  # decrement, but no lower than zero
-
+                    elif kind == 'correction':
+                        if is_start_tag:
+                            self.elide += 1
+                            self.addText(annotation.content or '')
+                        else:
+                            self.elide = max(self.elide - 1, 0)  # decrement, but no lower than zero
                     else:  # kind == 'link' or 'note' or 'highlight'
                         # link/note/highlight tags require wrapping all subsequent text in <span> tags.
                         # In addition to emitting the open tags themselves, also add the open and close tags to

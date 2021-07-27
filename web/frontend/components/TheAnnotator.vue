@@ -13,7 +13,8 @@
     </li>
     <li>
       <a id="create-replacement"
-         @click="input($event, 'replace')">Replace</a></li>
+         @click="input($event, 'replace')">Replace</a>
+    </li>
     <li>
       <a id="create-link"
          @click="input($event, 'link')">Add link</a>
@@ -22,6 +23,11 @@
       <a id="create-note"
          @click="input($event, 'note')">Add note</a>
     </li>
+    <li v-if="false">
+      <a id="create-correction"
+         @click="input($event, 'correction')">Correct Typo</a>
+    </li>
+
   </SideMenu>
 
   <Modal v-if="showModal"

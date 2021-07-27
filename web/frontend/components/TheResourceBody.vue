@@ -9,6 +9,7 @@ import ReplacementAnnotation from "./ReplacementAnnotation";
 import HighlightAnnotation from "./HighlightAnnotation";
 import LinkAnnotation from "./LinkAnnotation";
 import NoteAnnotation from "./NoteAnnotation";
+import CorrectionAnnotation from "./CorrectionAnnotation";
 import FootnoteLink from "./FootnoteLink";
 
 export default {
@@ -19,6 +20,7 @@ export default {
     HighlightAnnotation,
     LinkAnnotation,
     NoteAnnotation,
+    CorrectionAnnotation,
     FootnoteLink
   },
   props: {
