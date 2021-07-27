@@ -8,7 +8,7 @@ import _ from 'lodash';
 /////////////
 // Helpers //
 /////////////
-    
+
 const kindToComponent = (kind) =>
   ({elide: "elision",
     replace: "replacement"}[kind] || kind) + "-annotation";
@@ -35,7 +35,7 @@ export const nodesToTuples = (parentStart) =>
         [null, null, parentStart];
     return tuples.concat([nodeToTuple(node, prevEnd)]);
   };
-    
+
 export const splitTextAt = (breakpoints, [node, start, end]) =>
   breakpoints
     // remove any offsets that fall on or outside of the Text node
