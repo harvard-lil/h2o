@@ -2831,7 +2831,7 @@ class Casebook(EditTrackedModel, TimestampedModel, BigPkModel, CasebookAndSectio
         DRAFT = 'Draft' # This version is private, but a public version exists
         PUBLISHED = 'Public' # This version is public
         ARCHIVED = 'Archived' # This is retired, and is no longer public
-        REVISING = 'Revising' # A public and private (with edits) version of this casebook exist.
+        REVISING = 'Revising' # A public and private (with edits) version of this casebook exist. This is the public one
         PREVIOUS_SAVE = 'Previous' # A casebook that has been replaced with a merged draft
 
     state = models.CharField(
@@ -2926,7 +2926,8 @@ class Casebook(EditTrackedModel, TimestampedModel, BigPkModel, CasebookAndSectio
 
     @property
     def is_public(self):
-        return self.state == Casebook.LifeCycle.PUBLISHED.value
+        public_states = {x.value for x in [Casebook.LifeCycle.PUBLISHED, Casebook.LifeCycle.REVISING]}
+        return self.state in public_states
 
     @property
     def is_private(self):
@@ -3074,7 +3075,13 @@ class Casebook(EditTrackedModel, TimestampedModel, BigPkModel, CasebookAndSectio
 
     def allows_draft_creation_by(self, user):
         """See ContentNode.allows_draft_creation_by"""
-        return self.is_public and self.editable_by(user) and not self.has_draft
+        if not self.is_public:
+            return False
+        if not self.editable_by(user):
+            return False
+        if not self.can_transition_to(Casebook.LifeCycle.REVISING):
+            return False
+        return not self.has_draft
 
     def make_draft(self):
         """
@@ -3090,6 +3097,8 @@ class Casebook(EditTrackedModel, TimestampedModel, BigPkModel, CasebookAndSectio
             >>> assert (set((c.user) for c in full_casebook.contentcollaborator_set.all()) ==
             ...         set((c.user) for c in draft.contentcollaborator_set.all()))
         """
+        self.transition_to(Casebook.LifeCycle.REVISING)
+        self.save()
         return self.clone(draft_mode=True)
 
     @transaction.atomic
