@@ -46,10 +46,10 @@ import { createNamespacedHelpers } from "vuex";
 const globals = createNamespacedHelpers("globals");
 const search = createNamespacedHelpers("case_search");
 
-const optionsWithoutCloning = [{name: 'Section', value: {resource_type: 'Section'}, k: 0},
-                               {name: 'Search',  value: {resource_type: 'Case'}, k: 1},
-                               {name: 'Text',    value: {resource_type: 'TextBlock'}, k: 2},
-                               {name: 'Link',    value: {resource_type: 'Link'}, k: 3}];
+const optionsWithoutCloning = [{name: 'Section',        value: {resource_type: 'Section'}, k: 0},
+                               {name: 'Search',         value: {resource_type: 'Case'}, k: 1},
+                               {name: 'Custom Content', value: {resource_type: 'TextBlock'}, k: 2},
+                               {name: 'Link',           value: {resource_type: 'Link'}, k: 3}];
 
 const data = function() {
   return {
@@ -103,7 +103,7 @@ export default {
           this.resource_info = options[0].value;
           this.resource_info_options = options;
         } else {
-          let options = _.concat([{name: this.lineInfo.display_type, value: this.lineInfo.resource_type, k:5}],_.cloneDeep(optionsWithoutCloning));
+          let options = _.concat([{name: this.lineInfo.display_type, value: {resource_type: this.lineInfo.resource_type}, k:5}],_.cloneDeep(optionsWithoutCloning));
           this.resource_info = options[0].value;
           this.resource_info_options = options;
         }
@@ -203,7 +203,7 @@ export default {
             margin-left: 1rem;
         }
         .resource-type {
-            width: 14rem;
+            width: 20rem;
         }
         .create-button {
             width: 12rem;

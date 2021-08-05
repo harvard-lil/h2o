@@ -125,7 +125,6 @@ export default {
     // returns false if the text or element node is the child of an
     // element with a special attribute
     contributesToOffsets(node) {
-      console.log(node);
       return !getClosestElement(node).closest("[data-exclude-from-offset-calcs='true']")
     },
     

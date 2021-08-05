@@ -512,7 +512,7 @@ export default {
             font-size: 12px;
             font-weight: bold;
             height: 20px;
-            width: 72px;
+            width: 82px;
         }
     }
     &.confirm-delete {
