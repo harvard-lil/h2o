@@ -301,7 +301,7 @@ function guessLineType(line, sources) {
             url: extractLink(line)};
   } else {
     return {resource_type: 'TextBlock',
-            display_type: 'Text',
+            display_type: 'Custom Content',
             title: line};
   }
 }

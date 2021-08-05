@@ -61,10 +61,7 @@ class SectionOutlineSerializer(serializers.ModelSerializer):
     is_transmutable = serializers.BooleanField()
 
     def get_resource_type(self, node):
-        if node.resource_type == 'LegalDocument':
-            return node.resource.doc_class
-        else:
-            return node.resource_type if node.resource_type else 'Section'
+        return node.doc_class
 
     def get_citation(self, node):
         if node.resource_type == 'Case' or node.resource_type == 'LegalDocument':

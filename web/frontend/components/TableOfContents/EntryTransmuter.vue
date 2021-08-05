@@ -4,7 +4,7 @@
     <option value="LegalDocument" v-if="item.resource_type === 'LegalDocument'">Legal Doc</option>
     <option value="Temp" v-else>Legal Doc</option>
     <option value="Section">Section</option>
-    <option value="TextBlock">Text</option>
+    <option value="TextBlock">Custom Content</option>
     <option value="Link">Link</option>
   </select>
 </div>
@@ -13,13 +13,18 @@
 <script>
 import urls from "libs/urls";
 import Axios from "../../config/axios";
+import _ from 'lodash';
 
 export default {
     data: () => ({ resource_type: "" }),
     props: ["item"],
     mounted: function() {
         if (this.item.resource_type) {
-            this.resource_type = this.item.resource_type;
+            if (_.includes(['Text', 'Multimedia'],this.item.resource_type)) {
+                this.resource_type = 'TextBlock';
+            } else {
+                this.resource_type = this.item.resource_type;
+            }
         } else {
             this.resource_type = 'Section';
         }
@@ -42,7 +47,7 @@ export default {
       this.resource_type = newVal.resource_type;
     },
     resource_type: function(newVal) {
-      if (newVal === this.item.resource_type) {
+      if (newVal === this.item.resource_type || (_.includes(['Text', 'Multimedia'],this.item.resource_type) && newVal == 'TextBlock')) {
         return;
       }
       const data = { from: this.item.resource_type, to: newVal == 'Temp' ? 'LegalDocument' : newVal };

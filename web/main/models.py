@@ -1652,6 +1652,7 @@ class ContentNode(EditTrackedModel, TimestampedModel, BigPkModel, MaterializedPa
     headnote = models.TextField(blank=True, null=True)
     # legacy field: https://github.com/harvard-lil/h2o/issues/1044
     raw_headnote = models.TextField(blank=True, null=True)
+    headnote_doc_class = models.CharField(max_length=40, blank=True, null=True)
     copy_of = models.ForeignKey(
         'self',
         on_delete=models.SET_NULL,
@@ -1837,6 +1838,28 @@ class ContentNode(EditTrackedModel, TimestampedModel, BigPkModel, MaterializedPa
                 'TextBlock': 'includes/bodies/text_block.html',
                 'LegalDocument':'includes/bodies/legal_doc.html'}[self.resource_type]
 
+    def identify_headnote_type(self):
+        if not self.headnote:
+            return 'Text'
+        pq = PyQuery(self.headnote)
+        if pq('embed') or pq('img') or pq('iframe'):
+            return 'Multimedia'
+        return 'Text'
+
+    @property
+    def doc_class(self):
+        if not self.resource_type or self.resource_type == 'Section':
+            return 'Section'
+        if self.resource_type == 'TextBlock':
+            if self.resource.doc_class == 'Text' and self.headnote_doc_class == 'Text':
+                return 'Text'
+            return (self.resource.doc_class != 'Text' and self.resource.doc_class) or \
+                   (self.headnote_doc_class != 'Text' and self.resource.doc_class) or \
+                   'Text'
+        if self.resource_type == 'LegalDocument':
+            return self.resource.doc_class
+        return self.resource_type
+
     def save(self, *args, **kwargs):
         r"""
             Override save to include the cleanup of user-supplied HTML.
@@ -1855,6 +1878,7 @@ class ContentNode(EditTrackedModel, TimestampedModel, BigPkModel, MaterializedPa
             >>> assert node.headnote == cleaned_html
         """
         cleanse_html_field(self, 'headnote', True)
+        self.headnote_doc_class = self.identify_headnote_type()
         super().save(*args, **kwargs)
 
     ##
@@ -3798,6 +3822,7 @@ class TextBlock(NullableTimestampedModel, AnnotatedModel):
     description = models.CharField(max_length=5242880, blank=True, null=True)
     content = models.CharField(max_length=5242880, blank=True, null=False, default="")
     public = models.BooleanField(default=True, blank=True, null=True)
+    doc_class = models.CharField(max_length=40, blank=True, null=True)
     created_via_import = models.BooleanField(default=False)
     history = HistoricalRecords()
 
@@ -3811,6 +3836,14 @@ class TextBlock(NullableTimestampedModel, AnnotatedModel):
     def get_name(self):
         """For consistency, expose name via this method, which is exposed by Link and Case objects"""
         return self.name
+
+    def identify_type(self):
+        if not self.content:
+            return 'Text'
+        pq = PyQuery(self.content)
+        if pq('embed') or pq('iframe') or pq('img'):
+            return 'Multimedia'
+        return 'Text'
 
     def save(self, *args, **kwargs):
         r"""
@@ -3835,6 +3868,7 @@ class TextBlock(NullableTimestampedModel, AnnotatedModel):
             >>> assert caplog.record_tuples[3][2] == 'Updating annotations for TextBlock'
         """
         cleanse_html_field(self, 'content', True)
+        self.doc_class = self.identify_type()
         super().save(*args, **kwargs)
 
     def related_resources(self):
