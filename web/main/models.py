@@ -1854,7 +1854,7 @@ class ContentNode(EditTrackedModel, TimestampedModel, BigPkModel, MaterializedPa
             if self.resource.doc_class == 'Text' and self.headnote_doc_class == 'Text':
                 return 'Text'
             return (self.resource.doc_class != 'Text' and self.resource.doc_class) or \
-                   (self.headnote_doc_class != 'Text' and self.resource.doc_class) or \
+                   (self.headnote_doc_class != 'Text' and self.headnote_doc_class) or \
                    'Text'
         if self.resource_type == 'LegalDocument':
             return self.resource.doc_class
