@@ -15,7 +15,7 @@
           <a
             v-bind:class="{ active: textTab, 'search-tab': true }"
             v-on:click.stop.prevent="setTab('text')"
-          >Create Text</a>
+          >Create Custom Content</a>
           <a
             v-bind:class="{ active: linkTab, 'search-tab': true }"
             v-on:click.stop.prevent="setTab('link')"
@@ -35,7 +35,7 @@
           <form ref="textForm" class="new-text" v-on:submit.stop.prevent="submitTextForm()">
             <div v-bind:class="{'form-group': true, 'has-error': errors.name}">
               <label class="title">
-                Text title
+                Title
                 <input
                   class="form-control"
                   name="name"
@@ -50,7 +50,7 @@
             </div>
             <div v-bind:class="{'form-group': true, 'has-error': errors.content}">
               <label class="textarea">
-                Text body
+                Body
                 <editor
                   ref="text_body"
                   name="content"
