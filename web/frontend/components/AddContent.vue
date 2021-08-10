@@ -52,9 +52,6 @@
               <label class="textarea">
                 Body
                 <editor
-                  ref="text_body"
-                  name="content"
-                  :init="tinyMCEInitConfig"
                   v-model="textContent"
                 ></editor>
                 <span class="help-block has-error" v-if="errors.content">
@@ -95,13 +92,15 @@
 import Modal from "./Modal";
 import CaseSearcher from "./CaseSearcher";
 import CaseResults from "./CaseResults";
-import Editor from "@tinymce/tinymce-vue";
+import Editor from "./TinyMCEEditor";
+
+
 import Axios from "../config/axios";
 import _ from "lodash";
 import urls from "libs/urls";
-import { getInitConfig } from "libs/tinymce_extensions";
 import { createNamespacedHelpers } from "vuex";
 const { mapActions } = createNamespacedHelpers("case_search");
+
 
 export default {
   components: {
@@ -116,7 +115,6 @@ export default {
     showModal: false,
     currentTab: "case",
     caseQueryObj: {query: ""},
-    tinyMCEInitConfig: getInitConfig(false, true, false),
     textTitle: "",
     textContent: "",
     linkTarget: "",

@@ -31,12 +31,7 @@
             <div v-bind:class="{'form-group': true, 'has-error': errors.content}">
               <label class="textarea">
                 Text body
-                <editor
-                  ref="text_body"
-                  name="content"
-                  :init="tinyMCEInitConfig"
-                  v-model="textContent"
-                ></editor>
+                <editor v-model="textContent"></editor>
                 <span class="help-block has-error" v-if="errors.content">
                   <strong>{{errors.content[0].message}}</strong>
                 </span>
@@ -74,7 +69,7 @@
 <script>
 import CaseSearcher from "./CaseSearcher";
 import CaseResults from "./CaseResults";
-import Editor from "@tinymce/tinymce-vue";
+import Editor from "./TinyMCEEditor";
 import Axios from "../config/axios";
 import _ from "lodash";
 import { createNamespacedHelpers } from "vuex";
@@ -90,14 +85,6 @@ export default {
     showModal: false,
     currentTab: "case",
     caseQueryObj: { query: "" },
-    tinyMCEInitConfig: {
-      plugins: ["link", "lists", "image", "table"],
-      skin_url: "/static/tinymce_skin",
-      menubar: false,
-      branding: false,
-      toolbar:
-        "undo redo removeformat | styleselect | bold italic underline | numlist bullist indent outdent | table blockquote link image"
-    },
     textTitle: "",
     textContent: "",
     linkTarget: "",
