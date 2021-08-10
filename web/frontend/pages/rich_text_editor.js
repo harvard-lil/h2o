@@ -1,4 +1,5 @@
 import tinymce from 'tinymce/tinymce';
+window.tinymce = tinymce;
 import 'tinymce/themes/silver';
 import 'tinymce/plugins/link';
 import 'tinymce/plugins/lists';
@@ -18,7 +19,7 @@ function initRichTextEditor(element, code=false) {
   const selector=`${element.type}#${element.id}`;
   let config = getInitConfig(selector, ENHANCED, code);
 
-  tinymce.init(config);
+  return tinymce.init(config);
 }
 
 for (const textArea of document.querySelectorAll('.richtext-editor'))
