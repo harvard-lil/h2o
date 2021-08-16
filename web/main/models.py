@@ -3194,6 +3194,7 @@ class Casebook(EditTrackedModel, TimestampedModel, BigPkModel, CasebookAndSectio
         # state
         # parent.state stays public
         draft.state = Casebook.LifeCycle.PREVIOUS_SAVE.value
+        parent.state = Casebook.LifeCycle.PUBLISHED.value
 
         # update relations
         # draft
