@@ -1124,6 +1124,13 @@ class CasebookView(View):
                 return HttpResponseRedirect(reverse('casebook_settings', args=[casebook]))
             else:
                 return login_required_response(request)
+        
+        if casebook.is_previous_save:
+            parent = casebook.version_tree__parent()
+            url = reverse('casebook', args=[parent])
+            if parent.draft and parent.draft.directly_editable_by(request.user):
+                url = reverse('edit_casebook', args=[parent.draft])
+            return HttpResponseRedirect(url)
 
         contents = casebook.contents.prefetch_resources()
         return render_with_actions(request, 'casebook_page.html', {
