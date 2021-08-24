@@ -1,6 +1,6 @@
 <template>
   <div id="audit-flow">
-    <button class="action one-line save" v-on:click.stop.prevent="save">Save</button>
+    <button v-if="!noSave" class="action one-line save" v-on:click.stop.prevent="save">Save</button>
     <publish-button :disabled="!allNodesSpecified"></publish-button>
     <button class="action audit-casebook" v-on:click.stop.prevent="startAudit()" v-if="!allNodesSpecified">Finalize entries</button>
   </div>
@@ -21,6 +21,7 @@ export default {
   components: {
     PublishButton
   },
+  props: ['noSave'],
   data: () => ({autoAudited: {}
                 }),
   methods: {

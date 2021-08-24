@@ -213,7 +213,7 @@ def actions(request, context):
         >>> for o in [with_draft, with_draft_section, with_draft_resource]:
         ...     check_response(
         ...         client.get(o.get_absolute_url(), as_user=with_draft.testing_editor),
-        ...         content_includes='actions="exportable,cloneable,can_view_existing_draft"'
+        ...         content_includes='actions="exportable,cloneable,publishable,can_view_existing_draft"'
         ...     )
 
         When a collaborator views the "preview" page of a private, never published casebook, or
@@ -298,7 +298,7 @@ def actions(request, context):
                 view in ['casebook', 'section', 'resource', 'edit_casebook'] and \
                 node.permits_cloning
 
-    publishable = node.can_publish and (view == 'edit_casebook' or (node.is_private and view in ['casebook', 'section', 'resource']) or node.is_draft)
+    publishable = node.can_publish and (view in ['edit_casebook', 'casebook', 'section', 'resource']) or node.is_draft
 
     actions = OrderedDict([
         ('exportable', True),
