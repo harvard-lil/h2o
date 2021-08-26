@@ -14,8 +14,8 @@ RUN curl -o nodejs.deb https://deb.nodesource.com/node_12.x/pool/main/n/nodejs/n
     && rm nodejs.deb
 
 # Install Pandoc, for export
-RUN wget https://github.com/jgm/pandoc/releases/download/2.8.1/pandoc-2.8.1-1-amd64.deb \
-    && dpkg -i pandoc-2.8.1-1-amd64.deb
+RUN wget https://github.com/jgm/pandoc/releases/download/2.14.2/pandoc-2.14.2-1-amd64.deb \
+    && dpkg -i pandoc-2.14.2-1-amd64.deb
 
 RUN mkdir -p /app/web
 WORKDIR /app/web
