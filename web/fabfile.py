@@ -373,3 +373,13 @@ def cleanup_images(keep_file=None, dry_run=True):
     print(f"Deleted {has_saved_image} SavedImages and {no_saved_image} orphaned images")
     print(f"Kept {kept_listed} images from list and {kept_used} from html")
     print(f"Total images: {len(to_cleanup)}")
+
+
+@task
+@setup_django
+def list_exports():
+    from main.models import Casebook
+    from django.urls import reverse
+    public = {Casebook.LifeCycle.PUBLISHED.value, Casebook.LifeCycle.REVISING.value}
+    for cb in Casebook.objects.filter(state__in=public).all():
+        print(reverse('export_casebook', args=[cb, 'docx']))
