@@ -134,7 +134,7 @@ function Div(div)
                 toc_entry,
                 inner_div.attributes['depth'],
                 inner_div.attributes['idx'],
-                inner_div.attributes['title'],
+                inner_div.attributes['data-title'],
                 inner_div.attributes['idx']
               ))
               return nil
