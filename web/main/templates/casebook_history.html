@@ -1,0 +1,41 @@
+{% extends 'base.html' %}
+
+{% load crispy_forms_tags %}
+{% block page_title %} {% if mode %}{{mode}} | {% endif %} {{casebook.title}} {% if section %}: {{ section.title }} {% endif %} {% endblock %}
+
+
+{% block banner %}
+{% include 'includes/preview_banner.html' %}
+{% endblock %}
+
+{% block mainContent %}
+{% include 'includes/casebook_page_tabs.html' %}
+<section id="casebook-history" class="casebook {{casebook_color_class}}">
+    <div class="content">
+        <div class="casebook-inner">
+            <div class="top-strip"></div>
+            <div class="history-body">
+            <h2> Change history</h2>
+            {% if casebook.edit_log.exists %}
+            <ul class="history-list">
+                {% for log_cluster in casebook.grouped_edit_log %}
+                <li>
+                  <span class="history-date">{{log_cluster.0.entry_date | date:"F jS"}}</span>
+                    <ul>
+                        {% for log_entry in log_cluster %}
+                        <li>
+                            <span class="history-entry">
+                                {{ log_entry.description_line }}
+                            </span>
+                        </li>
+                        {% endfor %}
+                    </ul>
+                </li>
+                {% endfor %}
+            </ul>
+            {% endif %}
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock %}

@@ -2678,7 +2678,7 @@ class SectionAndResourceMixin(models.Model):
             >>> casebook, s_1, r_1_1, r_1_2, r_1_3, s_1_4, r_1_4_1, r_1_4_2, r_1_4_3, s_2 = full_casebook_parts_factory()
 
             Delete a section in a section (and children, including one case, one text block, and one link/default), no reordering required:
-            >>> with assert_num_queries(delete=5, select=13, update=1, insert=8):
+            >>> with assert_num_queries(delete=5, select=15, update=1, insert=8):
             ...     deleted = s_1_4.delete()
             >>> assert deleted == (6, {'main.Section': 1, 'main.ContentAnnotation': 2, 'main.ContentNode': 3})
             >>> assert dump_content_tree(casebook) == [
@@ -2694,7 +2694,7 @@ class SectionAndResourceMixin(models.Model):
             ...         node.refresh_from_db()
 
             Delete the first section in the book (and children, including one case, one text block, and one link/default), triggering reordering:
-            >>> with assert_num_queries(delete=5, select=12, update=1, insert=8):
+            >>> with assert_num_queries(delete=5, select=14, update=1, insert=8):
             ...     deleted = s_1.delete()
             >>> assert deleted == (6, {'main.Section': 1, 'main.ContentAnnotation': 2, 'main.ContentNode': 3})
             >>> assert dump_content_tree(casebook) == [
@@ -2710,7 +2710,7 @@ class SectionAndResourceMixin(models.Model):
             >>> casebook, s_1, r_1_1, r_1_2, r_1_3, s_1_4, r_1_4_1, r_1_4_2, r_1_4_3, s_2 = getfixture('full_casebook_parts')
 
             Delete a case resource in the middle of a section:
-            >>> with assert_num_queries(delete=2, select=4, update=1, insert=3):
+            >>> with assert_num_queries(delete=2, select=5, update=1, insert=3):
             ...     deleted = r_1_2.delete()
             >>> assert deleted == (3, {'main.Resource': 1, 'main.ContentAnnotation': 2})
             >>> assert dump_content_tree(casebook) == [
@@ -2733,7 +2733,7 @@ class SectionAndResourceMixin(models.Model):
 
             Delete a text resource at the beginning of a section:
             >>> r_1_4_1.refresh_from_db()
-            >>> with assert_num_queries(delete=2, select=6, update=1, insert=2):
+            >>> with assert_num_queries(delete=2, select=7, update=1, insert=2):
             ...     deleted = r_1_4_1.delete()
             >>> assert deleted == (2, {'main.Resource': 1, 'main.TextBlock': 1})
             >>> assert dump_content_tree(casebook) == [
@@ -2752,7 +2752,7 @@ class SectionAndResourceMixin(models.Model):
 
             Delete a link/default resource at the end of a section:
             >>> r_1_4_3.refresh_from_db()
-            >>> with assert_num_queries(delete=2, select=6, update=1, insert=2):
+            >>> with assert_num_queries(delete=2, select=7, update=1, insert=2):
             ...     deleted = r_1_4_3.delete()
             >>> assert deleted == (2, {'main.Resource': 1, 'main.Link': 1})
             >>> assert dump_content_tree(casebook) == [
@@ -2834,6 +2834,59 @@ class CommonTitle(BigPkModel):
 
     def public_casebooks(self):
         return Casebook.objects.filter(common_title=self).exclude(state=Casebook.LifeCycle.ARCHIVED.value).exclude(state=Casebook.LifeCycle.DRAFT.value).exclude(state=Casebook.LifeCycle.PREVIOUS_SAVE.value)
+
+
+class CasebookEditLogManager(models.Manager):
+    def get_queryset(self):
+        return super().get_queryset()
+
+
+
+
+class CasebookEditLog(BigPkModel):
+    casebook = models.ForeignKey('Casebook',
+        on_delete=models.DO_NOTHING,
+        blank=False,
+        null=False,
+        related_name='edit_log'
+    )
+
+    entry_date = models.DateTimeField(auto_now_add=True, blank=False, null=False)
+    class ChangeType(Enum):
+        REMOVED = "Removed"
+        ADDED = "Added"
+        EDITED = "Edited"
+        ANNOTATED = "Annotated"
+        ORIGINAL_PUBLISH = "First"
+
+    change = models.CharField(
+      max_length=10,
+      choices=[(tag.value, tag.name) for tag in ChangeType]
+    )
+    # This is a pointer to the content we direct people to on the history page. 
+    # It may result in a redirect if there's been more than one edit. Updated on GC.
+    content = models.ForeignKey('ContentNode',
+        on_delete=models.SET_NULL,
+        blank=True,
+        null=True,
+        related_name='edit_log'
+    )
+
+    @property
+    def description_line(self):
+        line = ""
+        if self.change == CasebookEditLog.ChangeType.REMOVED.value:
+            line = f"Removed {self.content.title} from <a href='{self.content.get_absolute_url(self)}'>{self.content.content_tree__parent.title}</a>"
+        elif self.change == CasebookEditLog.ChangeType.ADDED.value:
+            line = f"Added <a href='{self.content.get_absolute_url()}'>{self.content.title}</a>"
+        elif self.change == CasebookEditLog.ChangeType.EDITED.value:
+            line = f"Edited <a href='{self.content.get_absolute_url()}'>{self.content.title}</a>"
+        elif self.change == CasebookEditLog.ChangeType.ANNOTATED.value:
+            line = f"Annotations changed on <a href='{self.content.get_absolute_url()}'>{self.content.title}</a>"
+        elif self.change ==  CasebookEditLog.ChangeType.ORIGINAL_PUBLISH.value:
+            line = "Casebook first published."
+        return mark_safe(line)
+
 
 class Casebook(EditTrackedModel, TimestampedModel, BigPkModel, CasebookAndSectionMixin, TrackedCloneable):
     old_casebook = models.ForeignKey('ContentNode', on_delete=models.DO_NOTHING,blank=True,null=True,related_name='replacement_casebook')
@@ -2986,7 +3039,7 @@ class Casebook(EditTrackedModel, TimestampedModel, BigPkModel, CasebookAndSectio
             >>> assert Casebook.objects.exists()
             >>> assert ContentNode.objects.exists()
             >>> assert ContentAnnotation.objects.exists()
-            >>> with assert_num_queries(delete=12, select=18, insert=36):
+            >>> with assert_num_queries(delete=12, select=20, insert=36):
             ...     deleted = casebook.delete()
             >>> assert not Casebook.objects.exists()
             >>> assert not ContentNode.objects.exists()
@@ -3147,7 +3200,7 @@ class Casebook(EditTrackedModel, TimestampedModel, BigPkModel, CasebookAndSectio
             >>> draft.title = "New Title"
             >>> draft.save()
             >>> Section(casebook=draft, ordinals=[3], title="New Section").save()
-            >>> with assert_num_queries(select=2, update=3, insert=3):
+            >>> with assert_num_queries(select=10, update=3, insert=3):
             ...     new_casebook = draft.merge_draft()
             >>> assert new_casebook == full_casebook
             >>> expected = [
@@ -3204,16 +3257,41 @@ class Casebook(EditTrackedModel, TimestampedModel, BigPkModel, CasebookAndSectio
 
         # content nodes
 
-        to_publish = [x for x in draft.contents.all()]
-        to_retire = [cn for cn in parent.contents.all()]
+        to_publish = [cn for cn in draft.contents.all().prefetch_resources().prefetch_related('annotations')]
+        to_retire = [cn for cn in parent.contents.all().prefetch_resources().prefetch_related('annotations')]
+        swap_map = {}
+        significant_edits = []
         for content_node in to_publish:
             if content_node.provenance:
-                content_node.provenance.pop()
+                previous_cn = content_node.provenance.pop()
+                swap_map[previous_cn] = content_node
+            else:
+                # If there's no provenance, it's a new node
+                if content_node.is_resource:
+                    this_edit = CasebookEditLog(casebook=parent, content=content_node, change=CasebookEditLog.ChangeType.ADDED.value)
+                    significant_edits.append(this_edit)
             content_node.casebook = parent
         for content_node in to_retire:
+            if content_node.id in swap_map:
+                original = swap_map.pop(content_node.id)
+                content_node.provenance.append(original.id)
+                if original.is_resource:
+                    if (original.resource_type == 'Link' and original.resource.url != content_node.resource.url) or \
+                        (original.resource_type != 'Link' and original.resource.content != content_node.resource.content):
+                        this_edit = CasebookEditLog(casebook=parent, content=original, change=CasebookEditLog.ChangeType.EDITED.value)
+                        significant_edits.append(this_edit)
+                    original_annotations = {(x.global_start_offset, x.global_end_offset, x.content) for x in original.annotations.all()}
+                    new_annotations = {(x.global_start_offset, x.global_end_offset, x.content) for x in content_node.annotations.all()}
+                    if original_annotations != new_annotations:
+                        this_edit = CasebookEditLog(casebook=parent, content=original, change=CasebookEditLog.ChangeType.ANNOTATED.value)
+                        significant_edits.append(this_edit)
+            else:
+                this_edit = CasebookEditLog(casebook=parent, content=content_node, change=CasebookEditLog.ChangeType.REMOVED.value)
+                significant_edits.append(this_edit)
             content_node.casebook = draft
 
         bulk_update_with_history(to_publish + to_retire, ContentNode, ['casebook_id', 'provenance'], batch_size=500, default_change_reason="Draft Merge")
+        CasebookEditLog.objects.bulk_create(significant_edits)
         draft._change_reason = "Draft Merge"
         draft.save()
         parent._change_reason = "Draft Merge"
@@ -3416,7 +3494,6 @@ class Casebook(EditTrackedModel, TimestampedModel, BigPkModel, CasebookAndSectio
     @property
     def is_previous_save(self):
         return self.state == Casebook.LifeCycle.PREVIOUS_SAVE.value
-
 
     @property
     def can_depublish(self):
@@ -3710,12 +3787,44 @@ class Casebook(EditTrackedModel, TimestampedModel, BigPkModel, CasebookAndSectio
                 (read_tab, reverse('casebook', args=[self]), not self.is_archived),
                 ('Credits', reverse('show_credits', args=[self]), not self.is_archived),
                 ('Related', reverse('show_related', args=[self]), not self.is_archived and user.is_superuser),
+                ('History', reverse('casebook_history', args=[self]), self.viewable_by(user)),
                 ('Settings', reverse('casebook_settings', args=[self]), self.editable_by(user))]
         return [(n, l, n == current_tab) for n,l,c in tabs if c]
 
     @property
     def revising(self):
         return self.draft_of
+    
+    @property
+    def grouped_edit_log(self):
+        def change_priority(entry):
+            return [CasebookEditLog.ChangeType.ORIGINAL_PUBLISH.value,
+                    CasebookEditLog.ChangeType.ADDED.value,
+                    CasebookEditLog.ChangeType.REMOVED.value,
+                    CasebookEditLog.ChangeType.EDITED.value,
+                    CasebookEditLog.ChangeType.ANNOTATED.value].index(entry.change)
+
+        qs = self.edit_log.order_by('-entry_date')
+        last_date = (None, None, None)
+        results = []
+        log_line = {}
+        for entry in qs.all():
+            current_date = (entry.entry_date.year, entry.entry_date.month, entry.entry_date.day)
+            if last_date == (None,None,None):
+                last_date = current_date
+            if current_date != last_date:
+                results.append(list(log_line.values()))
+                log_line = {}
+                last_date = current_date
+            current_entry = log_line.get(entry.content and entry.content.title, None)
+            if not current_entry:
+                log_line[entry.content and entry.content.title] = entry
+            elif current_entry.change == CasebookEditLog.ChangeType.REMOVED.value and entry.change == CasebookEditLog.ChangeType.ADDED.value:
+                log_line.pop(entry.content and entry.content.title)
+            else:
+                log_line[entry.content and entry.content.title] = min([current_entry,entry], key=change_priority)
+        results.append(list(log_line.values()))
+        return results
 
 
 class SectionManager(models.Manager):

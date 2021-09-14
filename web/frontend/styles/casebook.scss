@@ -828,3 +828,22 @@ div.tox-toolbar__group:nth-child(2) button.tox-tbtn.tox-tbtn--select.tox-tbtn--d
         font-weight: 900;
     }
 }
+
+
+.history-body {
+  background-color: white;
+  padding: 2rem;
+  .history-list {
+    list-style: none;
+    .history-date {
+      font-size: large;
+    }
+    > li {
+      padding-top: 1rem;
+
+    }
+    ul {
+      list-style: none;
+    }
+  }
+}

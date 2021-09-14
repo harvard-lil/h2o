@@ -43,7 +43,7 @@ from .forms import (CasebookForm, CasebookSettingsTransitionForm, LinkForm,
                     NewTextBlockForm, ResourceForm, SectionForm, SignupForm,
                     TextBlockForm, UserProfileForm,
                     InviteCollaboratorForm, CollaboratorFormSet)
-from .models import (Case, Casebook, CommonTitle, ContentAnnotation, ContentNode, LegalDocument,
+from .models import (Case, Casebook, CasebookEditLog, CommonTitle, ContentAnnotation, ContentNode, LegalDocument,
                      LegalDocumentSource, Link, Resource, Section, SearchIndex, TextBlock, User,
                      ContentCollaborator, SavedImage)
 from .serializers import (AnnotationSerializer, CaseSerializer, CasebookInfoSerializer,
@@ -1015,6 +1015,17 @@ def show_related(request, casebook, section=None):
     return render(request, 'casebook_page_related.html', params)
 
 
+@no_perms_test
+@hydrate_params
+@user_has_perm('casebook', 'viewable_by')
+def casebook_history(request, casebook):
+    params = {'casebook': casebook,
+              'tabs': casebook.tabs_for_user(request.user, current_tab='History'),
+              'casebook_color_class': casebook.casebook_color_indicator,
+              'edit_mode': casebook.directly_editable_by(request.user)
+    }
+    return render(request, 'casebook_history.html', params)
+
 @requires_csrf_token
 @no_perms_test
 @hydrate_params
@@ -1195,13 +1206,13 @@ class CasebookView(View):
             casebook = casebook.merge_draft()
         else:
             casebook.state = Casebook.LifeCycle.PUBLISHED.value
+            CasebookEditLog.objects.create(casebook=casebook, change=CasebookEditLog.ChangeType.ORIGINAL_PUBLISH.value)
             casebook.save()
 
         # The javascript that makes these PATCH requests expects a redirect
         # to the published casebook.
         # https://github.com/harvard-lil/h2o/issues/1050
         return HttpResponseRedirect(reverse('casebook', args=[casebook]))
-
 
 @perms_test(
     {'method': 'post', 'args': ['casebook'],
@@ -1797,6 +1808,26 @@ class ResourceView(View):
             if request.user.is_authenticated and casebook.contentcollaborator_set.filter(user=request.user, can_edit=True).exists():
                 return HttpResponseRedirect(reverse('casebook_settings', args=[casebook]))
             else:
+                if casebook.is_previous_save:
+                    if not casebook.provenance:
+                        return login_required_response(request)        
+                    current_casebook = Casebook.objects.filter(id=casebook.provenance[-1]).get()
+                    if not resource:
+                        return HttpResponseRedirect(casebook.get_absolute_url())
+                    casebook.content_tree__load()
+                    current_node = resource
+                    while current_node:
+                        time_step = current_node.provenance and ContentNode.objects.filter(id=current_node.provenance[-1]).first()
+                        if time_step:
+                            if time_step.casebook == current_casebook:
+                                return HttpResponseRedirect(time_step.get_absolute_url())
+                            else:
+                                current_node = time_step
+                                next
+                        else:
+                            current_node.content_tree__load()
+                            current_node = current_node.content_tree__parent
+                    return HttpResponseRedirect(casebook.get_absolute_url())
                 return login_required_response(request)
         # canonical redirect
         section = resource
