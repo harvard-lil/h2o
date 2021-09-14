@@ -96,6 +96,7 @@ urlpatterns = format_suffix_patterns(drf_urlpatterns) + [
     path('casebooks/<idslug:casebook_param>/credits/', views.show_credits, name='show_credits'),
     path('casebooks/<idslug:casebook_param>/related/', views.show_related, name='show_related'),
     path('casebooks/<idslug:casebook_param>/settings/', views.casebook_settings, name='casebook_settings'),
+    path('casebooks/<idslug:casebook_param>/history/', views.casebook_history, name='casebook_history'),
     path('casebooks/<idslug:casebook_param>/outline/', views.casebook_outline, name='casebook_outline'),
 
     # TODO: we temporarily need to list with and without trailing slash, to handle POSTs without slashes
