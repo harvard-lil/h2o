@@ -22,6 +22,11 @@
           </div>
         </header>
         <header class="content">
+            <globals
+              :casebook="{{casebook.id}}"
+              {% if section %}:section="{{section.id}}"  {% endif %}
+              {% if search_sources_json %}:search-sources="{{search_sources_json}}"  {% endif %}
+            ></globals>
             {% include 'includes/breadcrumbs.html' with content=resource %}
             <h1 class="title">{{ resource.title }}</h1>
         </header>
