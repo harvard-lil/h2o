@@ -2011,10 +2011,19 @@ def annotate_resource(request, casebook, resource):
         # let's redirect instead.
         return HttpResponseRedirect(reverse('edit_resource', args=[resource.casebook, resource]))
 
+    search_sources = LegalDocumentSource.objects
+    if not (request.user and request.user.is_superuser):
+        search_sources = search_sources.filter(active=True)
+    doc_sources = list(search_sources.order_by('priority').all())
+    serialized_sources = LegalDocumentSourceSerializer(doc_sources, many=True).data
+    search_sources_json = json.dumps(serialized_sources)
+
     body_json = resource.json
     return render_with_actions(request, 'resource_annotate.html', {
+        'casebook': casebook,
         'resource': resource,
         'include_vuejs': resource.resource_type in ['Case', 'TextBlock'],
+        'search_sources_json': search_sources_json,
         'editing': True,
         'edit_mode': True,
         'body_json': body_json

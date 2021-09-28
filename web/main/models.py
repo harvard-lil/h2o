@@ -3007,6 +3007,25 @@ class Casebook(EditTrackedModel, TimestampedModel, BigPkModel, CasebookAndSectio
         return self.state in public_states
 
     @property
+    def public_version(self):
+        if self.state == Casebook.LifeCycle.PUBLISHED.value:
+            return self
+        elif self.state == Casebook.LifeCycle.REVISING.value:
+            return self
+        elif self.state == Casebook.LifeCycle.DRAFT.value:
+            prior_id = self.provenance and self.provenance[-1]
+            return Casebook.objects.filter(id=prior_id).first()
+        elif self.state == Casebook.LifeCycle.ARCHIVED.value:
+            return None
+        elif self.state == Casebook.LifeCycle.NEWLY_CLONED.value:
+            return None
+        elif self.state == Casebook.LifeCycle.PRIVATELY_EDITING.value:
+            return None
+        elif self.state == Casebook.LifeCycle.PREVIOUS_SAVE.value:
+            pub_id = self.provenance and self.provenance[-1]
+            return Casebook.objects.filter(id=pub_id).first()
+
+    @property
     def is_private(self):
         return not self.is_public
 
@@ -3039,11 +3058,13 @@ class Casebook(EditTrackedModel, TimestampedModel, BigPkModel, CasebookAndSectio
             >>> assert Casebook.objects.exists()
             >>> assert ContentNode.objects.exists()
             >>> assert ContentAnnotation.objects.exists()
-            >>> with assert_num_queries(delete=12, select=20, insert=36):
+            >>> assert CasebookEditLog.objects.exists()
+            >>> with assert_num_queries(delete=14, select=20, insert=36):
             ...     deleted = casebook.delete()
             >>> assert not Casebook.objects.exists()
             >>> assert not ContentNode.objects.exists()
             >>> assert not ContentAnnotation.objects.exists()
+            >>> assert not CasebookEditLog.objects.exists()
             >>> assert casebook.contentcollaborator_set.count() == 0
         """
         if self.draft:
@@ -3051,6 +3072,7 @@ class Casebook(EditTrackedModel, TimestampedModel, BigPkModel, CasebookAndSectio
         self._delete_related_links_and_text_blocks()
         self.contents.all().delete()
         self.contentcollaborator_set.all().delete()
+        self.edit_log.all().delete()
         return super().delete(*args, **kwargs)
 
     @property
@@ -3184,7 +3206,7 @@ class Casebook(EditTrackedModel, TimestampedModel, BigPkModel, CasebookAndSectio
             Merge draft casebook back into parent, and delete draft.
 
             Given:
-            >>> reset_sequences, full_casebook, assert_num_queries = [getfixture(i) for i in ['reset_sequences', 'full_casebook', 'assert_num_queries']]
+            >>> reset_sequences, full_casebook, assert_num_queries, legal_document_factory = [getfixture(i) for i in ['reset_sequences', 'full_casebook', 'assert_num_queries', 'legal_document_factory']]
             >>> elena, john =  [User(attribution=name, email_address=f"{name}@scotus.gov") for name in ['Elena', 'John']]
             >>> elena.save()
             >>> john.save()
@@ -3200,7 +3222,13 @@ class Casebook(EditTrackedModel, TimestampedModel, BigPkModel, CasebookAndSectio
             >>> draft.title = "New Title"
             >>> draft.save()
             >>> Section(casebook=draft, ordinals=[3], title="New Section").save()
-            >>> with assert_num_queries(select=10, update=3, insert=3):
+            >>> ld = legal_document_factory()
+            >>> Resource(title='New TextBlock',
+            ...          casebook=draft,
+            ...          ordinals=[3,1],
+            ...          resource_id=ld.id,
+            ...          resource_type="LegalDocument").save()
+            >>> with assert_num_queries(select=11, update=3, insert=4):
             ...     new_casebook = draft.merge_draft()
             >>> assert new_casebook == full_casebook
             >>> expected = [
@@ -3218,13 +3246,14 @@ class Casebook(EditTrackedModel, TimestampedModel, BigPkModel, CasebookAndSectio
             ...       '    ContentAnnotation<12>: replace 0-10',
             ...       '   ContentNode<26> -> Link<6>: Some Link Name 1',
             ...       ' Section<27>: Some Section 8',
-            ...       ' Section<28>: New Section'
+            ...       ' Section<28>: New Section',
+            ...       '  ContentNode<29> -> LegalDocument<1>: Legal Doc 0'
             ... ]
             >>> assert dump_casebook_outline(new_casebook) == expected
 
             The original copy_of attributes from the published version are preserved:
             >>> full_casebook.refresh_from_db()
-            >>> assert original_provenances + [[]] == [x.provenance for x in full_casebook.contents.all()]
+            >>> assert original_provenances + [[], []] == [x.provenance for x in full_casebook.contents.all()]
 
             Clones of the original casebook have proper attribution
             >>> assert elena in second_casebook.attributed_authors

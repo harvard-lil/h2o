@@ -383,3 +383,25 @@ def list_exports():
     public = {Casebook.LifeCycle.PUBLISHED.value, Casebook.LifeCycle.REVISING.value}
     for cb in Casebook.objects.filter(state__in=public).all():
         print(reverse('export_casebook', args=[cb, 'docx']))
+
+@task
+@setup_django
+def casebook_garbage_collect(older_than_days=180, dry_run=False):
+    from main.models import ContentNode, Casebook
+    from datetime import datetime, timedelta
+    older_than_days = int(older_than_days)
+    dry_run = bool(dry_run)
+    living_casebook_states = {Casebook.LifeCycle.PUBLISHED.value, Casebook.LifeCycle.REVISING.value, Casebook.LifeCycle.DRAFT.value, Casebook.LifeCycle.NEWLY_CLONED.value, Casebook.LifeCycle.PRIVATELY_EDITING.value}
+    newest_save = datetime.now() - timedelta(days=older_than_days)
+    cbs = list(Casebook.objects.filter(state=Casebook.LifeCycle.PREVIOUS_SAVE.value, updated_at__lte=newest_save).prefetch_related('contents').all())
+    cn_ids = {cn.id for cb in cbs for cn in cb.contents.all()}
+    referenced_nodes = {prov for cn in ContentNode.objects.filter(provenance__overlap=list(cn_ids), casebook__state__in=list(living_casebook_states)).select_related('casebook').all() for prov in cn.provenance}
+    count = 0
+    for cb in cbs:
+        if {x.id for x in cb.contents.all()}.intersection(referenced_nodes):
+            continue
+        if not dry_run:
+            #cb.delete()
+            print("Actually deleted!")
+        count += 1
+    print(f"Deleted {count}/{len(cbs)} previous saves older than {older_than_days} days old")

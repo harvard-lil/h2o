@@ -14,7 +14,7 @@ from django.test.utils import CaptureQueriesContext
 from django.utils import timezone
 from django.db.backends import utils as django_db_utils
 
-from main.models import ContentNode, User, Casebook, Section, \
+from main.models import ContentNode, User, Casebook, CasebookEditLog, Section, \
                         Resource, ContentCollaborator, Link, TextBlock, \
                         Case, ContentAnnotation, LegalDocument, LegalDocumentSource
 from main.utils import re_split_offsets
@@ -106,6 +106,8 @@ class ContentNodeFactory(factory.DjangoModelFactory):
     provenance=[]
 
 
+
+
 @register_factory
 class CasebookFactory(factory.DjangoModelFactory):
     class Meta:
@@ -116,6 +118,15 @@ class CasebookFactory(factory.DjangoModelFactory):
     title = factory.Sequence(lambda n: f'Some Title {n}')
     state = Casebook.LifeCycle.PUBLISHED.value
 
+@register_factory
+class CasebookEditLogFactory(factory.DjangoModelFactory):
+    class Meta:
+        model = CasebookEditLog
+
+    casebook = factory.SubFactory(CasebookFactory)
+    entry_date = factory.LazyFunction(timezone.now)
+    change = CasebookEditLog.ChangeType.ORIGINAL_PUBLISH.value
+    content = None
 
 @register_factory
 class PrivateCasebookFactory(CasebookFactory):
@@ -417,6 +428,7 @@ def full_casebook_parts_factory(db):
     def factory(state=Casebook.LifeCycle.PUBLISHED.value):
         user = UserFactory()
         casebook = CasebookFactory(contentcollaborator_set__user=user, state=state)
+        _ = CasebookEditLogFactory(casebook=casebook)
         s_1 = SectionFactory(casebook=casebook, ordinals=[1])
         r_1_1 = ResourceFactory(casebook=casebook, ordinals=[1, 1], resource_type='TextBlock')
         r_1_2 = case_resource = ResourceFactory(casebook=casebook, ordinals=[1, 2], resource_type='Case')
