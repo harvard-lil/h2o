@@ -401,7 +401,6 @@ def casebook_garbage_collect(older_than_days=180, dry_run=False):
         if {x.id for x in cb.contents.all()}.intersection(referenced_nodes):
             continue
         if not dry_run:
-            #cb.delete()
-            print("Actually deleted!")
+            cb.delete()
         count += 1
     print(f"Deleted {count}/{len(cbs)} previous saves older than {older_than_days} days old")

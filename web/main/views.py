@@ -1,3 +1,4 @@
+from datetime import datetime
 import json
 import logging
 import uuid
@@ -5,8 +6,8 @@ from collections import OrderedDict
 from functools import wraps
 from test.test_helpers import (assert_url_equal, check_response,
                                dump_content_tree_children)
-import requests
 
+import requests
 from django.conf import settings
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
@@ -15,10 +16,10 @@ from django.core.exceptions import PermissionDenied
 from django.core.validators import URLValidator
 from django.db import transaction
 from django.db.models import Q
-from django.forms import modelformset_factory, HiddenInput
+from django.forms import HiddenInput, modelformset_factory
 from django.http import (Http404, HttpResponse, HttpResponseBadRequest,
-                         HttpResponseRedirect, HttpResponseServerError,
-                         HttpResponseForbidden, JsonResponse)
+                         HttpResponseForbidden, HttpResponseRedirect,
+                         HttpResponseServerError, JsonResponse)
 from django.shortcuts import get_object_or_404, render
 from django.urls import reverse
 from django.utils.decorators import method_decorator
@@ -28,29 +29,33 @@ from django.views import View
 from django.views.decorators.cache import never_cache
 from django.views.decorators.csrf import requires_csrf_token
 from django.views.decorators.http import require_http_methods, require_POST
+from PIL import Image, UnidentifiedImageError
 from pyquery import PyQuery
-from PIL import Image,UnidentifiedImageError
-
 from pytest import raises as assert_raises
 from rest_framework import status
+from rest_framework.exceptions import ValidationError
 from rest_framework.response import Response
 from rest_framework.views import APIView
-from rest_framework.exceptions import ValidationError
 from simple_history.utils import bulk_create_with_history
 
-
-from .forms import (CasebookForm, CasebookSettingsTransitionForm, LinkForm,
+from .forms import (CasebookForm, CasebookSettingsTransitionForm,
+                    CollaboratorFormSet, InviteCollaboratorForm, LinkForm,
                     NewTextBlockForm, ResourceForm, SectionForm, SignupForm,
-                    TextBlockForm, UserProfileForm,
-                    InviteCollaboratorForm, CollaboratorFormSet)
-from .models import (Case, Casebook, CasebookEditLog, CommonTitle, ContentAnnotation, ContentNode, LegalDocument,
-                     LegalDocumentSource, Link, Resource, Section, SearchIndex, TextBlock, User,
-                     ContentCollaborator, SavedImage)
-from .serializers import (AnnotationSerializer, CaseSerializer, CasebookInfoSerializer,
-                          CasebookListSerializer, CommonTitleSerializer,
-                          NewAnnotationSerializer, NewCommonTitleSerializer, SectionOutlineSerializer,
-                          TextBlockSerializer, LegalDocumentSerializer, LegalDocumentSourceSerializer,
-                          LegalDocumentSearchParamsSerializer, UpdateAnnotationSerializer)
+                    TextBlockForm, UserProfileForm)
+from .models import (Case, Casebook, CasebookEditLog, CasebookFollow,
+                     CommonTitle, ContentAnnotation, ContentCollaborator,
+                     ContentNode, LegalDocument, LegalDocumentSource, Link,
+                     Resource, SavedImage, SearchIndex, Section, TextBlock,
+                     User)
+from .serializers import (AnnotationSerializer, CasebookInfoSerializer,
+                          CasebookListSerializer, CaseSerializer,
+                          CommonTitleSerializer,
+                          LegalDocumentSearchParamsSerializer,
+                          LegalDocumentSerializer,
+                          LegalDocumentSourceSerializer,
+                          NewAnnotationSerializer, NewCommonTitleSerializer,
+                          SectionOutlineSerializer, TextBlockSerializer,
+                          UpdateAnnotationSerializer)
 from .storages import get_s3_storage
 from .test.test_permissions_helpers import (directly_editable_resource,
                                             directly_editable_section,
@@ -60,9 +65,9 @@ from .test.test_permissions_helpers import (directly_editable_resource,
                                             post_directly_editable_resource,
                                             viewable_resource,
                                             viewable_section)
-from .utils import (APICommunicationError, StringFileResponse,
-                    fix_after_rails, parse_cap_decision_date,
-                    send_verification_email, get_link_title)
+from .utils import (APICommunicationError, StringFileResponse, fix_after_rails,
+                    get_link_title, parse_cap_decision_date,
+                    send_verification_email)
 
 logger = logging.getLogger('django')
 ### helpers ###
@@ -197,7 +202,7 @@ def actions(request, context):
         >>> for o in [published, published_section, published_resource]:
         ...     check_response(
         ...         client.get(o.get_absolute_url()),
-        ...         content_includes='actions="exportable"'
+        ...         content_includes='actions="exportable,can_follow"'
         ...     )
 
         When a collaborator views a published casebook WITHOUT a draft, or
@@ -300,6 +305,12 @@ def actions(request, context):
 
     publishable = node.can_publish and (view in ['edit_casebook', 'casebook', 'section', 'resource']) or node.is_draft
 
+    can_follow = False
+    can_unfollow = False
+    if not (request.user in node.casebook.all_collaborators):
+        can_unfollow = node.followed_by(request.user)
+        can_follow = not can_unfollow
+        
     actions = OrderedDict([
         ('exportable', True),
         ('cloneable', cloneable),
@@ -312,7 +323,9 @@ def actions(request, context):
         ('can_create_draft',
          view in ['casebook', 'resource', 'section'] and node.allows_draft_creation_by(request.user)),
         ('can_view_existing_draft',
-         view in ['casebook', 'resource', 'section'] and node.has_draft and node.editable_by(request.user))
+         view in ['casebook', 'resource', 'section'] and node.has_draft and node.editable_by(request.user)),
+        ('can_follow', can_follow ),
+        ('can_unfollow', can_unfollow)
     ])
     # for ease of testing, include a list of truthy actions
     actions['action_list'] = ','.join([a for a in actions if actions[a]])
@@ -1019,12 +1032,37 @@ def show_related(request, casebook, section=None):
 @hydrate_params
 @user_has_perm('casebook', 'viewable_by')
 def casebook_history(request, casebook):
+    if request.user:
+        cb_follow = CasebookFollow.objects.filter(user=request.user, casebook=casebook).first()
+        if cb_follow:
+            cb_follow.updated_at = datetime.now()
+            cb_follow.save()
     params = {'casebook': casebook,
               'tabs': casebook.tabs_for_user(request.user, current_tab='History'),
               'casebook_color_class': casebook.casebook_color_indicator,
               'edit_mode': casebook.directly_editable_by(request.user)
     }
     return render(request, 'casebook_history.html', params)
+
+@requires_csrf_token
+@perms_test(
+    {'method': 'post', 'args': ['casebook'],
+     'results': {302: ['other_user']}},
+    {'method': 'post', 'args': ['draft_casebook'],
+     'results': {403: ['other_user']}},
+)
+@require_POST
+@login_required
+@hydrate_params
+def follow_casebook(request, casebook):
+    if request.user in casebook.all_collaborators or not casebook.is_public:
+        return HttpResponseForbidden("You cannot follow a casebook you are a collaborator on.")
+    check = CasebookFollow.objects.filter(user=request.user,casebook=casebook).first()
+    if check:
+        check.delete()
+    else:
+        CasebookFollow.objects.create(user=request.user,casebook=casebook)
+    return HttpResponseRedirect(request.META.get('HTTP_REFERER', casebook.get_absolute_url()))
 
 @requires_csrf_token
 @no_perms_test

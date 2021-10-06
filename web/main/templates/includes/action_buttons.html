@@ -51,4 +51,17 @@
   {% if exportable %}
     <a class="action one-line export export-{{ section.is_annotated|yesno:"has,no" }}-annotations" role="button" rel="nofollow" href="#">Export</a>
   {% endif %}
+  {% if can_follow %}
+  <form class="follow_casebook" method="post" action="{% url 'follow_casebook' casebook %}">
+    <button class="action follow-casebook" data-disable-with="Follow" type="submit">Follow</button>
+    {% csrf_token %}
+</form>
+  {% endif %}
+  {% if can_unfollow %}
+  <form class="unfollow_casebook" method="post" action="{% url 'follow_casebook' casebook %}">
+    <button class="action unfollow-casebook" data-disable-with="Unfollow" type="submit">Unfollow</button>
+    {% csrf_token %}
+</form>
+
+  {% endif %}
 </aside>

@@ -181,6 +181,12 @@ main > header.casebook {
     &.cancel {
       background-image: url('~static/images/ui/casebook/cancel-icon.svg');
     }
+    &.follow-casebook {
+      background-image: url('~static/images/ui/casebook/follow.svg');
+    }
+    &.unfollow-casebook {
+      background-image: url('~static/images/ui/casebook/unfollow.svg');
+    }
   }
 }
 

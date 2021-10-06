@@ -203,3 +203,19 @@ div.dashboard-link {
   }
 }
 
+.alert-pip-holder {
+  position: relative;
+  .alert-pip {
+    position: absolute;
+    top: -1rem;
+    right: 0;
+    background-color: red;
+    color: white;
+    padding: 6px;
+    text-align: center;
+    z-index: 1;
+    border-radius: 100%;
+    box-shadow: 1px 1px 1px black;
+    min-width: 3rem;
+  }
+}

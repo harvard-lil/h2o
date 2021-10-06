@@ -1,5 +1,4 @@
 {% extends 'base.html' %}
-
 {% block custom_skip_target %}{% endblock %}
 
 {% block mainContent %}
@@ -7,7 +6,53 @@
 <section class="dashboard" style="margin-top: 15px;">
   <p id="main" tabindex="-1" class="sr-only">Main Content</p>
   <div class="content">
-      <dashboard :casebook-list="{{casebooks}}"> </dashboard>
+    <dashboard :casebook-list="{{casebooks}}"> </dashboard>
   </div>
+  {% if user.follows %}
+  <div class="content">
+    <h2 class="casebooks">My Follows</h2>
+    <hr class="owned" />
+    <div class="content-browser">
+
+      <div class="content-clickable">
+        {% for casebook in user.follows %}
+        {% if casebook.is_public %}
+        <div class="padded">
+          {% if casebook.new_updates > 0 %}
+          <div class="alert-pip-holder">
+            <a href="{% url 'casebook_history' casebook %}" class="alert-pip">{{casebook.new_updates}}</a>
+          </div>
+          {% endif %}
+          <a href="{{casebook.get_absolute_url}}">
+            <div class="content-page public">
+              <div class="casebook-info">
+                <div class="state"></div>
+                <div class="title">{{ casebook.title }}</div>
+                {% if casebook.subtitle %}
+                <div class="subtitle">{{ casebook.subtitle }}</div>
+                {% endif %}
+              </div>
+
+              <div class="author-info">
+                <div class="owner">
+                  <ul>
+                    {% for author in casebook.primary_authors %}
+                    <li {% if author.verified_professor %}class="verified-prof" {% endif %}>
+                      {{ author.display_name }}
+                    </li>
+                    {% endfor %}
+                  </ul>
+                </div>
+              </div>
+            </div>
+          </a>
+        </div>
+        {% endif %}
+        {% endfor %}
+
+      </div>
+    </div>
+  </div>
+  {% endif %}
 </section>
 {% endblock %}
