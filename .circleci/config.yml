@@ -73,14 +73,14 @@ jobs:
       # Upload coverage to Codecov
       # Recommended approach is to use an orb: https://circleci.com/blog/making-code-coverage-easy-to-see-with-the-codecov-orb/
       # Currently using python package instead of orb, because of https://github.com/codecov/codecov-circleci-orb/issues/12
-      - run:
-          name: "Upload coverage"
-          command: |
-            pyenv versions
-            which pip
-            export PYENV_VERSION=3.8.3  # use the version of python3 installed on circleci
-            sudo pip install codecov
-            codecov
+      # - run:
+      #     name: "Upload coverage"
+      #     command: |
+      #       pyenv versions
+      #       which pip
+      #       export PYENV_VERSION=3.8.3  # use the version of python3 installed on circleci
+      #       sudo pip install codecov
+      #       codecov
 
       # Commit built assets if necessary, then deploy via Salt reactor
       - run:
