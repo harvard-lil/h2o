@@ -1175,6 +1175,19 @@ class ContentAnnotation(TimestampedModel, BigPkModel):
         if to_update:
             bulk_update_with_history(to_update, ContentAnnotation, ['global_start_offset', 'global_end_offset'], batch_size=500, default_change_reason="Automated Shift")
 
+class CasebookFollow(TimestampedModel, BigPkModel):
+    user = models.ForeignKey('User',
+                             on_delete=models.CASCADE,
+                             )
+    casebook = models.ForeignKey(
+        'Casebook',
+        on_delete=models.DO_NOTHING,
+        blank=True,
+        null=True
+    )
+    class Meta:
+        unique_together = (('user', 'casebook'),)
+
 class ContentCollaborator(TimestampedModel, BigPkModel):
     has_attribution = models.BooleanField(default=False)
     can_edit = models.BooleanField(default=False)
@@ -3639,6 +3652,9 @@ class Casebook(EditTrackedModel, TimestampedModel, BigPkModel, CasebookAndSectio
     def all_collaborators(self):
         return set([c.user for c in self.contentcollaborator_set.all()])
 
+    def followed_by(self, user):
+        return user in set(x.user for x in self.casebookfollow_set.all())
+
     def has_collaborator(self, user):
         # filter in the client to allow .prefetch_related('contentcollaborator_set__user') to work:
         return any(c.user_id == user.id for c in self.contentcollaborator_set.all() if c.can_edit)
@@ -4097,6 +4113,15 @@ class User(NullableTimestampedModel, PermissionsMixin, AbstractBaseUser):
     @property
     def current_collaborators(self):
         return User.objects.filter(contentcollaborator__casebook__contentcollaborator__user=self)
+
+    @property
+    def follows(self):
+        followed_casebooks = []
+        for cb_follow in self.casebookfollow_set.order_by('created_at').prefetch_related('casebook').prefetch_related('casebook__edit_log').all():
+            cb = cb_follow.casebook
+            cb.new_updates = len([x for x in cb.edit_log.all() if x.entry_date >= cb_follow.updated_at])
+            followed_casebooks.append(cb)
+        return followed_casebooks
 
 
 def update_user_login_fields(sender, request, user, **kwargs):
