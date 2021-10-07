@@ -233,10 +233,12 @@ GPO_BASE_URL = 'https://api.govinfo.gov/'
 GPO_API_KEY = ''
 
 COURTLISTENER_BASE_URL = 'https://www.courtlistener.com/'
-COURTLISTENER_KEY = 'dbf4c42fd8738053f9bf8ca572f89b136382a435'
+COURTLISTENER_KEY = ''
 
 CRISPY_TEMPLATE_PACK = 'bootstrap3'
 CRISPY_FAIL_SILENTLY = False
+
+MAX_EXPORT_ATTEMPTS = 3
 
 # Temporary: this is the name of the CSRF header used by the Rails app's AJAX requests
 CSRF_HEADER_NAME = 'HTTP_X_CSRF_TOKEN'

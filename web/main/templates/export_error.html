@@ -1,0 +1,13 @@
+{% extends 'base.html' %}
+
+{% block page_title %}Export error{% endblock %}
+
+{% block mainContent %}
+<div class="content">
+  <div class="pages-content">
+    <h1>Export error</h1>
+    <p>We're having trouble exporting this casebook currently. Our team has been notified and we're looking into the issue.</p>
+    <p>For now, you can <a href="{{casebook.get_absolute_url}}">return to the casebook</a></p>
+  </div>
+</div>
+{% endblock %}

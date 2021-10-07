@@ -2305,7 +2305,10 @@ def export(request, node, file_type='docx'):
     export_options = {'request': request}
     # get response data
     response_data = node.export(include_annotations, file_type, export_options=export_options)
-
+    if response_data is None:
+        return render(request, 'export_error.html', {
+            'casebook': node
+        })
     # return html
     if file_type == 'html':
         return HttpResponse(response_data)
