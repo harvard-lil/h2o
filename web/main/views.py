@@ -1032,7 +1032,7 @@ def show_related(request, casebook, section=None):
 @hydrate_params
 @user_has_perm('casebook', 'viewable_by')
 def casebook_history(request, casebook):
-    if request.user:
+    if request.user and request.user.id:
         cb_follow = CasebookFollow.objects.filter(user=request.user, casebook=casebook).first()
         if cb_follow:
             cb_follow.updated_at = datetime.now()
