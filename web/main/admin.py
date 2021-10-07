@@ -176,6 +176,24 @@ class CasebookStateFilter(admin.SimpleListFilter):
         value = self.value()
         return queryset.filter(state=value) if value else queryset
 
+class CasebookExportFailsFilter(admin.SimpleListFilter):
+    title = 'export failures'
+    parameter_name = 'export_fails'
+
+    def lookups(self, request, model_admin):
+        return [('No failures', 'No failures'),('Some failures','Some failures'),('Locked', 'Locked')]
+
+    def queryset(self, request, queryset):
+        val = self.value()
+        if (not val):
+            return queryset
+        if val == 'No failures':
+            return queryset.filter(export_fails=0)
+        if val == 'Some failures':
+            return queryset.filter(export_fails__gt=0)
+        if val == 'Locked':
+            return queryset.filter(export_fails__gte=settings.MAX_EXPORT_ATTEMPTS)
+        return queryset
 class ResourceIdFilter(InputFilter):
     parameter_name = 'resource-id'
     title = 'Resource (by id)'
@@ -231,10 +249,10 @@ class AnnotationInline(admin.TabularInline):
 
 class CasebookAdmin(BaseAdmin, SimpleHistoryAdmin):
     list_display = ['id', 'title', 'source', 'created_at', 'updated_at', 'state']
-    list_filter = [CollaboratorNameFilter, CollaboratorIdFilter, CasebookStateFilter]
+    list_filter = [CollaboratorNameFilter, CollaboratorIdFilter, CasebookStateFilter, CasebookExportFailsFilter]
     search_fields = ['title']
 
-    fields = ['title', 'subtitle', 'source', 'provenance', 'headnote', 'created_at', 'updated_at' ,'draft', 'state']
+    fields = ['title', 'subtitle', 'source', 'provenance', 'headnote', 'created_at', 'updated_at' ,'draft', 'state', 'export_fails']
     readonly_fields = ['created_at', 'updated_at', 'provenance', 'source']
     raw_id_fields = ['collaborators', 'draft']
     inlines = [CollaboratorInline]

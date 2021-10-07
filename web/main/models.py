@@ -2944,6 +2944,7 @@ class Casebook(EditTrackedModel, TimestampedModel, BigPkModel, CasebookAndSectio
         null=True,
         related_name='casebooks'
     )
+    export_fails = models.IntegerField(default=0)
 
     tracked_fields = ['headnote']
 
@@ -3675,6 +3676,8 @@ class Casebook(EditTrackedModel, TimestampedModel, BigPkModel, CasebookAndSectio
             ...     file_data = full_casebook.export(include_annotations=True)
         """
         # prefetch all child nodes and related data
+        if self.export_embargoed():
+            return None
         children = list(self.contents.prefetch_resources().prefetch_related('annotations')) if type(
             self) is not Resource else None
 
@@ -3713,10 +3716,25 @@ class Casebook(EditTrackedModel, TimestampedModel, BigPkModel, CasebookAndSectio
                 response = subprocess.run(command, input=html.encode('utf8'), stderr=subprocess.PIPE,
                                           stdout=subprocess.PIPE)
             except subprocess.CalledProcessError as e:
+                self.inc_export_fails()
                 raise Exception(f"Pandoc command failed: {e.stderr[:100]}")
             if response.stderr:
+                self.inc_export_fails()
                 raise Exception(f"Pandoc reported error: {response.stderr[:100]}")
+            if self.export_fails > 0:
+                self.reset_export_fails()
             return pandoc_out.read()
+
+    def inc_export_fails(self):
+        # This function is used to avoid making a copy of the casebook via CasebookHistory
+        Casebook.objects.filter(id=self.id).update(export_fails= F('export_fails') +1)
+
+    def reset_export_fails(self):
+        # This function is used to avoid making a copy of the casebook via CasebookHistory
+        Casebook.objects.filter(id=self.id).update(export_fails=0)
+
+    def export_embargoed(self):
+        return self.export_fails >= settings.MAX_EXPORT_ATTEMPTS
 
     @property
     def testing_editor(self):
