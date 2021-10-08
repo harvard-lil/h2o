@@ -88,7 +88,7 @@ jobs:
           name: "Deploy"
           command: |
             if [[ "$CIRCLE_PULL_REQUEST" == "" && "$CIRCLE_BRANCH" == "develop" ]] ; then
-                sudo apt-get update && sudo apt-get install -y ca-certificates
+                sudo apt-get update && sudo apt-get install -y libgnutls-openssl27 libgnutls30 && sudo apt-get install -y ca-certificates
                 if [[ `git status web/static/dist/ web/webpack-stats.json --porcelain` ]] ; then
                     git config user.email "lil@law.harvard.edu"
                     git config user.name "Circle CI"
