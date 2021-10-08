@@ -2644,10 +2644,6 @@ class CasebookAndSectionMixin(models.Model):
             cls.objects.filter(id__in=ids).delete()
 
     @property
-    def attributed_authors(self):
-        return self.primary_authors.union(self.originating_authors)
-
-    @property
     def originating_authors(self):
         """
         Every attributed author for any ancestor of a contentnode contained in the section
@@ -2914,6 +2910,11 @@ class Casebook(EditTrackedModel, TimestampedModel, BigPkModel, CasebookAndSectio
     @property
     def contentcollaborator_set(self):
         return self.contentcollaborator_set
+
+    @property
+    def attributed_authors(self):
+        primary_set = set(self.primary_authors)
+        return self.primary_authors + [x for x in self.originating_authors if x not in primary_set]
 
     class LifeCycle(Enum):
         PRIVATELY_EDITING = 'Fresh' # There is no public version of this casebook
@@ -3647,7 +3648,15 @@ class Casebook(EditTrackedModel, TimestampedModel, BigPkModel, CasebookAndSectio
     # Collaborators
     @property
     def primary_authors(self):
-        return set([c.user for c in self.contentcollaborator_set.all() if c.has_attribution and c.user.attribution != 'Anonymous'])
+        uniq = set()
+        authors = []
+        for collab in self.contentcollaborator_set.order_by('id').all():
+            if not collab.has_attribution or collab.user.attribution == 'Anonymous':
+                continue
+            if collab.user.id not in uniq:
+                uniq.add(collab.user.id)
+                authors.append(collab.user)
+        return authors
 
     @property
     def all_collaborators(self):
@@ -3937,16 +3946,12 @@ class Resource(SectionAndResourceMixin, ContentNode):
                         .select_related('casebook')
                         .prefetch_related('casebook__contentcollaborator_set__user')
                         .all()
-                    for collaborator in cn.casebook.contentcollaborator_set.all() if collaborator.has_attribution and collaborator.user.attribution != 'Anonymous']
+                    for collaborator in cn.casebook.contentcollaborator_set.order_by('id').all() if collaborator.has_attribution and collaborator.user.attribution != 'Anonymous']
         return set(users)
 
     @property
     def primary_authors(self):
         return self.casebook.primary_authors
-
-    @property
-    def attributed_authors(self):
-        return self.primary_authors.union(self.originating_authors)
 
     @property
     def has_non_current_authors(self):
