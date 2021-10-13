@@ -20,7 +20,7 @@
             <ul class="history-list">
                 {% for log_cluster in casebook.grouped_edit_log %}
                 <li>
-                  <span class="history-date">{{log_cluster.0.entry_date | date:"F jS"}}</span>
+                  <span class="history-date">{{log_cluster.0.entry_date | date:"F jS, Y"}}</span>
                     <ul>
                         {% for log_entry in log_cluster %}
                         <li>
