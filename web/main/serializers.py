@@ -30,12 +30,6 @@ class UpdateAnnotationSerializer(serializers.ModelSerializer):
         model = models.ContentAnnotation
         fields = ('id','content')
 
-
-class CaseSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = models.Case
-        fields = ('id', 'content')
-
 class LegalDocumentSerializer(serializers.ModelSerializer):
     class Meta:
         model = models.LegalDocument
@@ -64,7 +58,7 @@ class SectionOutlineSerializer(serializers.ModelSerializer):
         return node.doc_class
 
     def get_citation(self, node):
-        if node.resource_type == 'Case' or node.resource_type == 'LegalDocument':
+        if node.resource_type == 'LegalDocument':
             return node.resource.cite_string
         return None
 

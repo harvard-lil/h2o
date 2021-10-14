@@ -47,7 +47,7 @@ const globals = createNamespacedHelpers("globals");
 const search = createNamespacedHelpers("case_search");
 
 const optionsWithoutCloning = [{name: 'Section',        value: {resource_type: 'Section'}, k: 0},
-                               {name: 'Search',         value: {resource_type: 'Case'}, k: 1},
+                               {name: 'Search',         value: {resource_type: 'LegalDocument'}, k: 1},
                                {name: 'Custom Content', value: {resource_type: 'TextBlock'}, k: 2},
                                {name: 'Link',           value: {resource_type: 'Link'}, k: 3}];
 

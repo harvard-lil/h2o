@@ -32,9 +32,6 @@
         </header>
         {% include 'includes/action_buttons.html' with content=resource %}
         {% include 'includes/headnote.html' with content=resource %}
-        {% if resource.resource_type == 'Case' %}
-        {% include 'includes/case_header.html' with case=resource.resource %}
-        {% endif %}
         {% if resource.resource_type == 'LegalDocument' %}
         {% include resource.resource.header_template with legal_doc=resource.resource %}
         {% endif %}
