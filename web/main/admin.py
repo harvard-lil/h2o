@@ -4,7 +4,7 @@ from django.contrib import admin, messages
 from django.contrib.auth.admin import UserAdmin as DjangoUserAdmin
 from django.contrib.postgres import fields
 from django.core.mail import send_mail
-from django.db.models import Count, Q
+from django.db.models import Count
 from django.http import HttpResponseRedirect
 from django.urls import reverse
 from django.utils.html import format_html
@@ -149,7 +149,7 @@ class CollaboratorNameFilter(InputFilter):
     def queryset(self, request, queryset):
         value = self.value()
         if value is not None:
-            users = User.objects.filter(Q(title__icontains=value) | Q(attribution__icontains=value))
+            users = User.objects.filter(attribution__icontains=value)
             return queryset.filter(casebook__collaborators__in=users)
 
 class CollaboratorIdFilter(InputFilter):
