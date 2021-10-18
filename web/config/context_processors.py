@@ -30,7 +30,6 @@ def frontend_urls(request):
                          '<ordslug:resource_param>'    : '_resourceOrd',
                          '<ordslug:section_param>'     : '_sectionOrd',
                          '<ordslug:node_param>'        : '_nodeOrd',
-                         '<int:case_id>'               : '_caseId',
                          '<casebook:node>'             : '_casebookId',
                          '<section:node>'              : '_sectionId',
                          '<resource:node>'             : '_resourceId',

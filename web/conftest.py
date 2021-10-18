@@ -16,7 +16,7 @@ from django.db.backends import utils as django_db_utils
 
 from main.models import ContentNode, User, Casebook, CasebookEditLog, Section, \
                         Resource, ContentCollaborator, Link, TextBlock, \
-                        Case, ContentAnnotation, LegalDocument, LegalDocumentSource
+                        ContentAnnotation, LegalDocument, LegalDocumentSource
 from main.utils import re_split_offsets
 
 from test.test_helpers import dump_casebook_outline
@@ -175,26 +175,6 @@ class TextBlockFactory(factory.DjangoModelFactory):
     created_via_import = False
 
 
-@register_factory
-class CaseFactory(factory.DjangoModelFactory):
-    class Meta:
-        model = Case
-
-    name_abbreviation = factory.Sequence(lambda n: f'Foo{n} v. Bar{n}')
-    name = factory.Sequence(lambda n: f'Foo Foo{n} vs. Bar Bar{n}')
-    public = True
-    created_via_import = False
-    content = factory.Sequence(lambda n: f'Some Case Content {n}')
-    decision_date = datetime(1900, 1, 1)
-    capapi_id = 1
-    citations = [{'cite': '1 Mass. 1'}, {'cite': '2 Jones 2'}]
-
-
-@register_factory
-class PrivateCaseFactory(CaseFactory):
-    public = False
-
-
 class MockSourceAPI():
     details = {'name': 'Test',
                'short_description':'The testing api mocks data',
@@ -285,12 +265,12 @@ class ResourceFactory(ContentNodeFactory):
         exclude = ('resource',)
 
     casebook = factory.SubFactory(CasebookFactory)
-    resource_type = 'Case'
+    resource_type = 'LegalDocument'
 
     @factory.lazy_attribute
     def resource(self):
-        if self.resource_type == 'Case':
-            return CaseFactory()
+        if self.resource_type == 'LegalDocument':
+            return LegalDocumentFactory()
         elif self.resource_type == 'Link':
             return LinkFactory()
         else:
@@ -369,8 +349,7 @@ def annotations_factory(db):
             casebook = CasebookFactory()
             SectionFactory(casebook=casebook, ordinals=[1])
             ordinals = [1, 1]
-        resource_target = {'Case': CaseFactory,
-                           'TextBlock': TextBlockFactory,
+        resource_target = {'TextBlock': TextBlockFactory,
                            'LegalDocument': LegalDocumentFactory}[resource_type](content=html)
         resource_type = resource_type
         resource = ResourceFactory(casebook=casebook, ordinals=ordinals, resource_type=resource_type, resource=resource_target)
@@ -413,13 +392,13 @@ def full_casebook_parts_factory(db):
             - casebook
                 - section
                     - resource -> textblock
-                    - resource -> case
+                    - resource -> legaldocument
                         - annotation
                         - annotation
                     - resource -> link
                     - section
                          - resource -> textblock
-                         - resource -> case
+                         - resource -> legaldocument
                              - annotation
                              - annotation
                          - resource -> link
@@ -431,15 +410,15 @@ def full_casebook_parts_factory(db):
         _ = CasebookEditLogFactory(casebook=casebook)
         s_1 = SectionFactory(casebook=casebook, ordinals=[1])
         r_1_1 = ResourceFactory(casebook=casebook, ordinals=[1, 1], resource_type='TextBlock')
-        r_1_2 = case_resource = ResourceFactory(casebook=casebook, ordinals=[1, 2], resource_type='Case')
-        ContentAnnotationFactory(resource=case_resource)
-        ContentAnnotationFactory(resource=case_resource, kind='elide')
+        r_1_2 = legaldocument_resource = ResourceFactory(casebook=casebook, ordinals=[1, 2], resource_type='LegalDocument')
+        ContentAnnotationFactory(resource=legaldocument_resource)
+        ContentAnnotationFactory(resource=legaldocument_resource, kind='elide')
         r_1_3 = ResourceFactory(casebook=casebook, ordinals=[1, 3], resource_type='Link')
         s_1_4 = SectionFactory(casebook=casebook,  ordinals=[1, 4])
         r_1_4_1 = ResourceFactory(casebook=casebook, ordinals=[1, 4, 1], resource_type='TextBlock')
-        r_1_4_2 = case_resource = ResourceFactory(casebook=casebook, ordinals=[1, 4, 2], resource_type='Case')
-        ContentAnnotationFactory(resource=case_resource, kind='note')
-        ContentAnnotationFactory(resource=case_resource, kind='replace')
+        r_1_4_2 = legaldocument_resource = ResourceFactory(casebook=casebook, ordinals=[1, 4, 2], resource_type='LegalDocument')
+        ContentAnnotationFactory(resource=legaldocument_resource, kind='note')
+        ContentAnnotationFactory(resource=legaldocument_resource, kind='replace')
         r_1_4_3 = ResourceFactory(casebook=casebook, ordinals=[1, 4, 3], resource_type='Link')
         s_2 = SectionFactory(casebook=casebook, ordinals=[2])
         return [casebook, s_1, r_1_1, r_1_2, r_1_3, s_1_4, r_1_4_1, r_1_4_2, r_1_4_3, s_2]

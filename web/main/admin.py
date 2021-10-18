@@ -1,12 +1,7 @@
-from datetime import timedelta
-from django_json_widget.widgets import JSONEditorWidget
-import requests
-from pyquery import PyQuery
 from django import forms
 from django.conf import settings
-from django.contrib import admin
+from django.contrib import admin, messages
 from django.contrib.auth.admin import UserAdmin as DjangoUserAdmin
-from django.contrib import messages
 from django.contrib.postgres import fields
 from django.core.mail import send_mail
 from django.db.models import Count
@@ -14,11 +9,14 @@ from django.http import HttpResponseRedirect
 from django.urls import reverse
 from django.utils.html import format_html
 from django.utils.safestring import mark_safe
+from django_json_widget.widgets import JSONEditorWidget
 from simple_history.admin import SimpleHistoryAdmin
-from .utils import fix_after_rails, clone_model_instance, APICommunicationError, parse_cap_decision_date
-from .models import Case, Link, User, Casebook, Section, \
-    Resource, ContentCollaborator, ContentAnnotation, TextBlock, ContentNode, \
-    EmailWhitelist, LegalDocumentSource, LegalDocument
+
+from .models import (Casebook, ContentAnnotation, ContentCollaborator,
+                     ContentNode, EmailWhitelist, LegalDocument,
+                     LegalDocumentSource, Link, Resource, Section, TextBlock,
+                     User)
+from .utils import (clone_model_instance, fix_after_rails)
 
 #
 # Helpers
@@ -374,113 +372,6 @@ class AnnotationsAdmin(BaseAdmin, SimpleHistoryAdmin):
 
 
 ## Resources
-
-def force_case_from_cap_id(cap_id):
-    try:
-        response = requests.get(
-            settings.CAPAPI_BASE_URL + "fcases/{cap_id}/",
-            {"full_case": "true", "body_format": "html"},
-            headers={'Authorization': f'Token {settings.CAPAPI_API_KEY}'},
-            )
-        assert response.ok
-    except (requests.RequestException, AssertionError) as e:
-        msg = f"Communication with CAPAPI failed: {str(e)}"
-        raise APICommunicationError(msg)
-
-    cap_case = response.json()
-
-    # parse html:
-    parsed = PyQuery(cap_case['casebody']['data'])
-
-    # create case:
-    case = Case(
-        # our db metadata
-        created_via_import=True,
-        public=True,
-        capapi_id=cap_id,
-        # cap case metadata
-        court_name=cap_case['court']['name'],
-        name_abbreviation=cap_case['name_abbreviation'],
-        name=cap_case['name'],
-        docket_number=cap_case['docket_number'],
-        citations=cap_case['citations'],
-        decision_date=parse_cap_decision_date(cap_case['decision_date']),
-        # cap case html
-        content=cap_case['casebody']['data'],
-        attorneys=[el.text() for el in parsed('.attorneys').items()],
-        # TODO: copying a Rails bug. Using a dict here is incorrect, as the same data-type can appear more than once:
-        # https://github.com/harvard-lil/h2o/issues/1041
-        opinions={el.attr('data-type'): el('.author').text() for el in parsed('.opinion').items()},
-    )
-    return case
-
-
-class CaseAdmin(BaseAdmin, SimpleHistoryAdmin):
-    readonly_fields = ['created_at', 'updated_at']
-    list_select_related = []
-    list_display = ['id', 'name_abbreviation', 'public', 'capapi_link', 'created_via_import', 'related_resources', 'live_annotations_count', 'created_at', 'updated_at']
-    list_filter = ['public', 'created_via_import']
-    search_fields = ['name_abbreviation', 'name']
-    raw_id_fields = []
-    exclude = ('annotations_count',)
-
-    def has_add_permission(self, request):
-        return super(BaseAdmin, self).has_add_permission(request)
-
-    def formfield_for_dbfield(self, db_field, **kwargs):
-        return self.enable_richeditor_for_field('content', db_field, **kwargs)
-
-    def capapi_link(self, obj):
-        if obj.capapi_id:
-            return  format_html(
-                '<a target="_blank" href="{}">{}</a>',
-                settings.CAPAPI_CASE_URL_FSTRING.format(obj.capapi_id),
-                obj.capapi_id
-            )
-    capapi_link.short_description = 'capapi id'
-
-    def related_resources(self, obj):
-        return format_html(
-            '<a href="{}?resource_type=Case&resource-id={}">{}</a>',
-            reverse('admin:main_resource_changelist'),
-            obj.id,
-            obj.related_resources().count()
-        )
-
-    def live_annotations_count(self, obj):
-        return obj.related_annotations().count()
-    live_annotations_count.short_description = 'Annotations'
-
-    def response_change(self, request, obj):
-        if "_reimport_from_case_law" in request.POST:
-            case = obj
-            if not case.capapi_id:
-                self.message_user(request, "Cannot update a case without a CAP ID")
-                return HttpResponseRedirect(".")
-            cap = LegalDocumentSource.objects.filter(name="CAP").get()
-            try:
-                ld = cap.api_model().pull(cap,case.capapi_id)
-                ld.save()
-                original_text = PyQuery(case.content).text()
-                new_text = PyQuery(ld.content).text()
-                if new_text != original_text:
-                    ld.publication_date = min(case.created_at.replace(tzinfo=None),
-                                              ld.publication_date.replace(tzinfo=None) - timedelta(days=1))
-                    ld.updated_date     = min(case.updated_at.replace(tzinfo=None),
-                                              ld.updated_date.replace(tzinfo=None)     - timedelta(days=1))
-                    ld.content = case.content
-                    ld.save()
-                case.related_resources().update(resource_type='LegalDocument', resource_id=ld.id)
-                ld.refresh_from_db()
-                ContentAnnotation.update_annotations(ld.related_annotations(), case.content, ld.content)
-                self.message_user(request, "Re-imported successfully")
-                return HttpResponseRedirect(reverse(f'admin:{ld._meta.app_label}_{ld._meta.model_name}_change', args=[ld.id]))
-            except Exception:
-                self.message_user(request, "Error while attempting to update case")
-                return HttpResponseRedirect(".")
-        return super().response_change(request, obj)
-
-
 class LinkAdmin(BaseAdmin, SimpleHistoryAdmin):
     readonly_fields = ['created_at', 'updated_at']
     list_display = ['id', 'name', 'url', 'public', 'related_resources', 'created_at', 'updated_at', 'content_type']
@@ -671,7 +562,6 @@ admin_site.register(Casebook, CasebookAdmin)
 admin_site.register(Section, SectionAdmin)
 admin_site.register(Resource, ResourceAdmin)
 admin_site.register(ContentAnnotation, AnnotationsAdmin)
-admin_site.register(Case, CaseAdmin)
 admin_site.register(Link, LinkAdmin)
 admin_site.register(TextBlock, TextBlockAdmin)
 admin_site.register(User, UserAdmin)

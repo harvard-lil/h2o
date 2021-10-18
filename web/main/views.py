@@ -1,13 +1,12 @@
-from datetime import datetime
 import json
 import logging
 import uuid
 from collections import OrderedDict
+from datetime import datetime
 from functools import wraps
 from test.test_helpers import (assert_url_equal, check_response,
                                dump_content_tree_children)
 
-import requests
 from django.conf import settings
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
@@ -30,7 +29,6 @@ from django.views.decorators.cache import never_cache
 from django.views.decorators.csrf import requires_csrf_token
 from django.views.decorators.http import require_http_methods, require_POST
 from PIL import Image, UnidentifiedImageError
-from pyquery import PyQuery
 from pytest import raises as assert_raises
 from rest_framework import status
 from rest_framework.exceptions import ValidationError
@@ -42,14 +40,12 @@ from .forms import (CasebookForm, CasebookSettingsTransitionForm,
                     CollaboratorFormSet, InviteCollaboratorForm, LinkForm,
                     NewTextBlockForm, ResourceForm, SectionForm, SignupForm,
                     TextBlockForm, UserProfileForm)
-from .models import (Case, Casebook, CasebookEditLog, CasebookFollow,
-                     CommonTitle, ContentAnnotation, ContentCollaborator,
-                     ContentNode, LegalDocument, LegalDocumentSource, Link,
-                     Resource, SavedImage, SearchIndex, Section, TextBlock,
-                     User)
+from .models import (Casebook, CasebookEditLog, CasebookFollow, CommonTitle,
+                     ContentAnnotation, ContentCollaborator, ContentNode,
+                     LegalDocument, LegalDocumentSource, Link, Resource,
+                     SavedImage, SearchIndex, Section, TextBlock, User)
 from .serializers import (AnnotationSerializer, CasebookInfoSerializer,
-                          CasebookListSerializer, CaseSerializer,
-                          CommonTitleSerializer,
+                          CasebookListSerializer, CommonTitleSerializer,
                           LegalDocumentSearchParamsSerializer,
                           LegalDocumentSerializer,
                           LegalDocumentSourceSerializer,
@@ -65,8 +61,7 @@ from .test.test_permissions_helpers import (directly_editable_resource,
                                             post_directly_editable_resource,
                                             viewable_resource,
                                             viewable_section)
-from .utils import (APICommunicationError, StringFileResponse, fix_after_rails,
-                    get_link_title, parse_cap_decision_date,
+from .utils import (StringFileResponse, fix_after_rails, get_link_title,
                     send_verification_email)
 
 logger = logging.getLogger('django')
@@ -961,9 +956,7 @@ def show_credits(request, casebook, section=None):
 @user_has_perm('casebook', 'viewable_by')
 def show_related(request, casebook, section=None):
     def get_root_key(cn):
-        if cn.resource_type == 'Case':
-            return f"cap-{cn.resource.capapi_id}" if cn.resource.capapi_id else f"h2o-{cn.resource_id}"
-        elif cn.resource_type == 'LegalDocument':
+        if cn.resource_type == 'LegalDocument':
             return f"{cn.resource.source.search_class}-{cn.resource.source_ref}"
         else:
             root_cn = ContentNode.objects.filter(id=cn.provenance[0] if cn.provenance else cn.id).first()
@@ -1401,8 +1394,7 @@ def new_section(request, casebook):
     Creates a new section as a last child of the given casebook+section
 
         Given:
-        >>> client, case_factory = [getfixture(i) for i in ['client', 'case_factory']]
-        >>> case = case_factory()
+        >>> client = getfixture('client')
         >>> casebook, s_1, r_1_1, r_1_2, r_1_3, s_1_4, r_1_4_1, r_1_4_2, r_1_4_3, s_2 = getfixture('full_casebook_parts')
         >>> casebook.state = Casebook.LifeCycle.PRIVATELY_EDITING.value
         >>> casebook.save()
@@ -1449,8 +1441,7 @@ def new_text(request, casebook):
 
 
     Given:
-        >>> client, case_factory = [getfixture(i) for i in ['client', 'case_factory']]
-        >>> case = case_factory()
+        >>> client = getfixture('client')
         >>> casebook, s_1, r_1_1, r_1_2, r_1_3, s_1_4, r_1_4_1, r_1_4_2, r_1_4_3, s_2 = getfixture('full_casebook_parts')
         >>> casebook.state = Casebook.LifeCycle.PRIVATELY_EDITING.value
         >>> casebook.save()
@@ -1490,8 +1481,7 @@ def new_link(request, casebook):
     Creates a new Link as the last child of a casebook or section
 
     Given:
-        >>> client, case_factory = [getfixture(i) for i in ['client', 'case_factory']]
-        >>> case = case_factory()
+        >>> client = getfixture('client')
         >>> casebook, s_1, r_1_1, r_1_2, r_1_3, s_1_4, r_1_4_1, r_1_4_2, r_1_4_3, s_2 = getfixture('full_casebook_parts')
         >>> casebook.state = Casebook.LifeCycle.PRIVATELY_EDITING.value
         >>> casebook.save()
@@ -1520,55 +1510,6 @@ def new_link(request, casebook):
         return create_from_form(casebook, parent_section, form)
     else:
         return JsonResponse(form.errors.get_json_data(), status=status.HTTP_400_BAD_REQUEST)
-
-
-@perms_test(
-    {'method': 'post', 'args': ['casebook'],
-     'results': {403: ['casebook.testing_editor', 'other_user'], 'login': [None]}},
-    {'method': 'post', 'args': ['draft_casebook'],
-     'results': {400: ['draft_casebook.testing_editor'], 403: ['other_user'], 'login': [None]}},
-    {'method': 'post', 'args': ['private_casebook'],
-     'results': {400: ['private_casebook.testing_editor'], 403: ['other_user'], 'login': [None]}},
-)
-@require_http_methods(["POST"])
-@hydrate_params
-@user_has_perm('casebook', 'directly_editable_by')
-def new_case(request, casebook):
-    """
-    Creates a new Case as the last child of a casebook or section
-
-    Given:
-        >>> client, case_factory = [getfixture(i) for i in ['client', 'case_factory']]
-        >>> case = case_factory()
-        >>> casebook, s_1, r_1_1, r_1_2, r_1_3, s_1_4, r_1_4_1, r_1_4_2, r_1_4_3, s_2 = getfixture('full_casebook_parts')
-        >>> casebook.state = Casebook.LifeCycle.PRIVATELY_EDITING.value
-        >>> casebook.save()
-        >>> url = reverse('new_case', args=[casebook])
-        >>> data = {'resource_id': case.id}
-        >>> response = client.post(url, data, as_user=casebook.testing_editor, follow=True)
-        >>> check_response(response)
-        >>> r_3 = casebook.contents.last()
-        >>> assert r_3.resource
-        >>> assert r_3.ordinals == [3]
-        >>> assert r_3.resource == case
-        >>> assert r_3.title == case.get_name()
-        >>> assert dump_content_tree_children(casebook) == [s_1, s_2, r_3]
-        >>> assert_url_equal(response, r_3.get_edit_or_absolute_url(editing=True))
-
-    """
-    if 'resource_id' not in request.POST:
-        return JsonResponse({'resource_id': [{'message': 'A resource id must be provided to use a case'}]}, status=status.HTTP_400_BAD_REQUEST)
-    case_id = request.POST['resource_id']
-    case = get_object_or_404(Case.objects.filter(id=case_id))
-    parent_section_id = request.POST.get('section', None)
-    parent_section = Section.objects.get(id=parent_section_id) if parent_section_id else casebook
-    fresh_resource = Resource(title=case.get_name(),
-                            casebook=casebook,
-                            ordinals=parent_section.content_tree__get_next_available_child_ordinals(),
-                            resource_id=case.id,
-                            resource_type='Case')
-    fresh_resource.save()
-    return HttpResponseRedirect(reverse('annotate_resource', args=[casebook, fresh_resource]))
 
 @perms_test(
     {'method': 'post', 'args': ['casebook'],
@@ -1634,18 +1575,7 @@ def switch_node_type(request, casebook, content_node):
             old_resource = content_node.resource
         else:
             old_resource = None
-        if new_type == 'Case':
-            cap_id = data.get('cap_id', None)
-            h2o_case_id = data.get('h2o_case_id', None)
-            if not (cap_id or h2o_case_id) :
-                content_node.resource_type = 'Temp'
-                content_node.resource_id = None
-            else:
-                internal_id = h2o_case_id or internal_case_id_from_cap_id(cap_id)
-                content_node.resource_id = internal_id
-                content_node.resource_type = new_type
-            content_node.save()
-        elif new_type == 'LegalDocument':
+        if new_type == 'LegalDocument':
             source_id = data.get('source_id', None)
             source_ref = data.get('id', None)
             content_node.title = data.get('title', content_node.title)
@@ -1873,9 +1803,7 @@ class ResourceView(View):
         if request.path != canonical:
             return HttpResponseRedirect(canonical)
 
-        if section.resource_type == 'Case':
-            body_json = json.dumps(CaseSerializer(section.resource).data)
-        elif section.resource_type == 'TextBlock':
+        if section.resource_type == 'TextBlock':
             body_json = json.dumps(TextBlockSerializer(section.resource).data)
         elif section.resource_type == 'LegalDocument':
             body_json = json.dumps(LegalDocumentSerializer(section.resource).data)
@@ -1940,8 +1868,8 @@ def edit_resource(request, casebook, resource):
         Given:
         >>> private, with_draft, client = [getfixture(f) for f in ['full_private_casebook', 'full_casebook_with_draft', 'client']]
         >>> draft = with_draft.draft
-        >>> private_resources = {'TextBlock': private.contents.all()[1], 'Case': private.contents.all()[2], 'Link': private.contents.all()[3]}
-        >>> draft_resources = {'TextBlock': draft.contents.all()[1], 'Case': draft.contents.all()[2], 'Link': draft.contents.all()[3]}
+        >>> private_resources = {'TextBlock': private.contents.all()[1], 'LegalDocument': private.contents.all()[2], 'Link': private.contents.all()[3]}
+        >>> draft_resources = {'TextBlock': draft.contents.all()[1], 'LegalDocument': draft.contents.all()[2], 'Link': draft.contents.all()[3]}
 
         Users can edit resources in their unpublished and draft casebooks:
         >>> for resource in [*private_resources.values(), *draft_resources.values()]:
@@ -2008,9 +1936,7 @@ def edit_resource(request, casebook, resource):
                 resource.refresh_from_db()
             else:
                 return server_error(request)
-    if resource.resource_type == 'Case':
-        body_json = json.dumps(CaseSerializer(resource.resource).data)
-    elif resource.resource_type == 'TextBlock':
+    if resource.resource_type == 'TextBlock':
         body_json = json.dumps(TextBlockSerializer(resource.resource).data)
     elif resource.resource_type == 'LegalDocument':
         body_json = json.dumps(LegalDocumentSerializer(resource.resource).data)
@@ -2037,9 +1963,7 @@ def edit_resource(request, casebook, resource):
 def annotate_resource(request, casebook, resource):
     # NB: The Rails app does NOT redirect here to a canonical URL; it silently accepts any slug.
     # Duplicating that here.
-    if resource.resource_type == 'Case':
-        resource.json = json.dumps(CaseSerializer(resource.resource).data)
-    elif resource.resource_type == 'TextBlock':
+    if resource.resource_type == 'TextBlock':
         resource.json = json.dumps(TextBlockSerializer(resource.resource).data)
     elif resource.resource_type == 'LegalDocument':
         resource.json = json.dumps(LegalDocumentSerializer(resource.resource).data)
@@ -2060,7 +1984,7 @@ def annotate_resource(request, casebook, resource):
     return render_with_actions(request, 'resource_annotate.html', {
         'casebook': casebook,
         'resource': resource,
-        'include_vuejs': resource.resource_type in ['Case', 'TextBlock'],
+        'include_vuejs': resource.resource_type in ['LegalDocument', 'TextBlock'],
         'search_sources_json': search_sources_json,
         'editing': True,
         'edit_mode': True,
@@ -2121,72 +2045,6 @@ def reorder_node(request, casebook, section=None, node=None):
     else:
         return HttpResponseRedirect(reverse('edit_casebook', args=[casebook]))
 
-
-@perms_test(
-    {'args': ['case.id'], 'results': {200: ['user', None]}},
-    {'args': ['private_case.id'], 'results': {403: ['user', None]}},
-)
-def case(request, case_id):
-    case = get_object_or_404(Case, id=case_id)
-    if not case.public:
-        raise PermissionDenied
-
-    case.json = json.dumps(CaseSerializer(case).data)
-    return render(request, 'case.html', {
-        'case': case,
-        'include_vuejs': True
-    })
-
-
-def internal_case_id_from_cap_id(cap_id):
-    # try to fetch existing case:
-    case = Case.objects.filter(capapi_id=cap_id, public=True).order_by('-id').first()
-
-    if not case:
-        # fetch from CAP:
-        if not settings.CAPAPI_API_KEY:
-            raise APICommunicationError('To interact with CAP, CAPAPI_API_KEY must be set.')
-        try:
-            response = requests.get(
-                settings.CAPAPI_BASE_URL + f"cases/{cap_id}/",
-                {"full_case": "true", "body_format": "html"},
-                headers={'Authorization': f'Token {settings.CAPAPI_API_KEY}'},
-            )
-            assert response.ok
-        except (requests.RequestException, AssertionError) as e:
-            msg = f"Communication with CAPAPI failed: {str(e)}"
-            raise APICommunicationError(msg)
-
-        cap_case = response.json()
-
-        # parse html:
-        parsed = PyQuery(cap_case['casebody']['data'])
-
-        # create case:
-        case = Case(
-            # our db metadata
-            created_via_import=True,
-            public=True,
-            capapi_id=cap_id,
-
-            # cap case metadata
-            court_name=cap_case['court']['name'],
-            name_abbreviation=cap_case['name_abbreviation'],
-            name=cap_case['name'],
-            docket_number=cap_case['docket_number'],
-            citations=cap_case['citations'],
-            decision_date=parse_cap_decision_date(cap_case['decision_date']),
-
-            # cap case html
-            content=cap_case['casebody']['data'],
-            attorneys=[el.text() for el in parsed('.attorneys').items()],
-            # TODO: copying a Rails bug. Using a dict here is incorrect, as the same data-type can appear more than once:
-            # https://github.com/harvard-lil/h2o/issues/1041
-            opinions={el.attr('data-type'): el('.author').text() for el in parsed('.opinion').items()},
-        )
-        case.save()
-    return case.id
-
 def internal_doc_id_from_source(legal_doc_source, id):
     most_recent_doc = legal_doc_source.pull(id)
     most_recent_saved_doc = legal_doc_source.most_recent_with_id(id)
@@ -2194,42 +2052,6 @@ def internal_doc_id_from_source(legal_doc_source, id):
         most_recent_doc.save()
         return most_recent_doc
     return most_recent_saved_doc
-
-
-@perms_test({'method': 'post', 'results': {400: ['user'], 'login': [None]}})
-@require_POST
-@login_required
-def from_capapi(request):
-    """
-        Given a posted CAP ID, return the internal ID for the same case, first ingesting the case from CAP if necessary.
-
-        Given:
-        >>> capapi_mock, client, user, case_factory = [getfixture(i) for i in ['capapi_mock', 'client', 'user', 'case_factory']]
-        >>> url = reverse('from_capapi')
-        >>> existing_case = case_factory(capapi_id=9999)
-
-        Existing cases will be returned without hitting the CAP API:
-        >>> response = client.post(url, json.dumps({'id': 9999}), content_type="application/json", as_user=user)
-        >>> check_response(response, content_includes=f'{{"id": {existing_case.id}}}', content_type='application/json')
-
-        Non-existing cases will be fetched and created:
-        >>> response = client.post(url, json.dumps({'id': 12345}), content_type="application/json", as_user=user)
-        >>> check_response(response, content_type='application/json')
-        >>> case = Case.objects.get(id=json.loads(response.content.decode())['id'])
-        >>> assert case.name_abbreviation == "1-800 Contacts, Inc. v. Lens.Com, Inc."
-        >>> assert case.opinions == {"majority": "HARTZ, Circuit Judge."}
-    """
-    # parse ID from request:
-    try:
-        data = json.loads(request.body.decode("utf-8"))
-        cap_id = int(data['id'])
-    except Exception:
-        return HttpResponseBadRequest("Request body should match {'id': &lsaquo;int&rsaquo'}")
-
-    case_id = internal_case_id_from_cap_id(cap_id)
-
-    return JsonResponse({'id': case_id})
-
 
 @perms_test({'method': 'post',
              'args': ["legal_doc_source.id"],
@@ -2241,20 +2063,19 @@ def import_from_source(request, source=None):
         Given a posted CAP ID, return the internal ID for the same case, first ingesting the case from CAP if necessary.
 
         Given:
-        >>> capapi_mock, client, user, case_factory = [getfixture(i) for i in ['capapi_mock', 'client', 'user', 'case_factory']]
-        >>> url = reverse('from_capapi')
-        >>> existing_case = case_factory(capapi_id=9999)
+        >>> capapi_mock, client, user, legal_document_factory = [getfixture(i) for i in ['capapi_mock', 'client', 'user', 'legal_document_factory']]
+        >>> existing_doc = legal_document_factory(source_ref=9999)
+        >>> url = reverse('from_source', args=[existing_doc.source.id])
 
         Existing cases will be returned without hitting the CAP API:
         >>> response = client.post(url, json.dumps({'id': 9999}), content_type="application/json", as_user=user)
-        >>> check_response(response, content_includes=f'{{"id": {existing_case.id}}}', content_type='application/json')
+        >>> check_response(response, content_includes=f'{{"id": {existing_doc.id+1}}}', content_type='application/json')
 
         Non-existing cases will be fetched and created:
         >>> response = client.post(url, json.dumps({'id': 12345}), content_type="application/json", as_user=user)
         >>> check_response(response, content_type='application/json')
-        >>> case = Case.objects.get(id=json.loads(response.content.decode())['id'])
-        >>> assert case.name_abbreviation == "1-800 Contacts, Inc. v. Lens.Com, Inc."
-        >>> assert case.opinions == {"majority": "HARTZ, Circuit Judge."}
+        >>> doc = LegalDocument.objects.get(id=json.loads(response.content.decode())['id'])
+        >>> assert doc.name == 'Test Doc 1'
     """
     legal_doc_source = get_object_or_404(LegalDocumentSource.objects.filter(id=source))
     # parse ID from request:
@@ -2360,7 +2181,7 @@ def new_from_outline(request, casebook=None):
         >>> casebook, client = [getfixture(f) for f in ['full_private_casebook', 'client']]
         >>> orig = getfixture('full_private_casebook')
         >>> textblock = {'title': 'Test TextBlock', 'subtitle': 'Test TextBlock subtitle', 'headnote': 'Test TextBlock headnote', 'resource_type':'TextBlock'}
-        >>> case = {'title': 'Test Case', 'subtitle': 'Test Case subtitle', 'headnote': 'Test Case headnote', 'resource_type':'Case', 'cap_id': 1}
+        >>> case = {'title': 'Test Case', 'subtitle': 'Test Case subtitle', 'headnote': 'Test Case headnote', 'resource_type':'LegalDocument'}
         >>> section = {'title': 'Test Section', 'subtitle': 'Test Section subtitle', 'headnote':'Test Section headnote', 'children':[textblock, case]}
         >>> data = {'data':[section,textblock]}
         >>> payload = json.dumps(data)
@@ -2371,13 +2192,11 @@ def new_from_outline(request, casebook=None):
         >>> check_response(response, status_code=200, content_type='application/json')
         >>> casebook.refresh_from_db()
         >>> contents = [{'title':x.title,'subtitle':x.subtitle,'headnote':x.headnote,'resource_type':x.resource_type, 'ordinals':x.ordinals} for x in casebook.contents.all()]
-        >>> assert contents[9:] == [ \
+        >>> assert contents[9:] == [\
             {'title': 'Test Section', 'subtitle': 'Test Section subtitle', 'headnote': 'Test Section headnote', 'resource_type': 'Section', 'ordinals': [3]}, \
             {'title': 'Test TextBlock', 'subtitle': 'Test TextBlock subtitle', 'headnote': 'Test TextBlock headnote', 'resource_type': 'TextBlock', 'ordinals': [3, 1]}, \
-            {'title': 'Test Case', 'subtitle': 'Test Case subtitle', 'headnote': 'Test Case headnote', 'resource_type': 'Case', 'ordinals': [3, 2]}, \
+            {'title': 'Test Case', 'subtitle': 'Test Case subtitle', 'headnote': 'Test Case headnote', 'resource_type': 'Temp', 'ordinals': [3, 2]}, \
             {'title': 'Test TextBlock', 'subtitle': 'Test TextBlock subtitle', 'headnote': 'Test TextBlock headnote', 'resource_type': 'TextBlock', 'ordinals': [4]}]
-
-
     """
 
     def unnest_with_ordinals(ordinals, nodes):
@@ -2458,15 +2277,9 @@ def new_from_outline(request, casebook=None):
                 skip_add_node = True
                 content_node_annotations += cloned_annotations
 
-            elif node['resource_type'] == 'Case':
+            elif node['resource_type'] == 'LegalDocument':
                 node.pop('searchString', None)
-                if 'cap_id' not in node and 'resource_id' not in node:
-                    node['resource_type'] = 'Temp'
-                elif 'resource_id' in node:
-                    case = Case.objects.get(id=int(node['resource_id']))
-                    node['title'] = case.name_abbreviation or case.name
-                else:
-                    node['resource_id'] = internal_case_id_from_cap_id(node.pop('cap_id'))
+                node['resource_type'] = 'Temp'
             elif node['resource_type'] == 'TextBlock':
                 text_block = TextBlock(name=node['title'][0:250])
                 text_block.save()

@@ -256,84 +256,6 @@ class AnnotatedModel(EditTrackedModel):
 # Models
 #
 
-class Case(NullableTimestampedModel, AnnotatedModel):
-    name_abbreviation = models.CharField(max_length=150)
-    name = models.CharField(max_length=10000, blank=True, null=True)
-    decision_date = models.DateField(blank=True, null=True)
-    public = models.BooleanField(default=False, blank=True, null=True)
-    created_via_import = models.BooleanField(default=False)
-    capapi_id = models.IntegerField(blank=True, null=True)
-    attorneys = JSONField(blank=True, null=True)
-    parties = JSONField(blank=True, null=True)
-    opinions = JSONField(blank=True, null=True)
-    citations = JSONField(blank=True, null=True)
-    docket_number = models.CharField(max_length=20000, blank=True, null=True)
-    header_html = models.CharField(max_length=15360, blank=True, null=True)
-    content = models.CharField(max_length=5242880)
-    court_name = models.CharField(max_length=1024, blank=True, null=True)
-    jurisdiction_id = models.IntegerField(blank=True, null=True)
-    jurisdiction_slug = models.CharField(max_length=20, blank=True)
-    history = HistoricalRecords()
-
-    class Meta:
-        indexes = [
-            GinIndex(fields=['citations']),
-            models.Index(fields=['created_at']),
-            models.Index(fields=['decision_date']),
-            models.Index(fields=['name_abbreviation']),
-            models.Index(fields=['public']),
-            models.Index(fields=['updated_at'])
-        ]
-
-    def save(self, *args, **kwargs):
-        r"""
-            Override save to ensure Case HTML is cleansed and annotations are
-            repositioned on save.
-
-            Given:
-            >>> annotations_factory, caplog = [getfixture(f) for f in ['annotations_factory', 'caplog']]
-            >>> html_with_annotations =     '<p>\n  <em>[note]Keep foo[/note] [highlight]delete bar[/highlight] [elide]keep baz[/elide] buzz</em>\n</p><p>bam</p>'
-            >>> new_html =                  '<p>Prepended</p>\n\n<p>\n  <em invalid-attr="invalid">Keep foo <invalid>keep baz</invalid> buzz add boo</em>\n</p>'
-            >>> new_case_html_with_annotations = '<p>Prepended</p><p>\n  <em invalid-attr="invalid">[note]Keep foo[/note] <invalid>[elide]keep baz</invalid>[/elide] buzz add boo</em>\n</p>'
-
-            On save, Case HTML is cleansed (but not sanitized), and then annotations are updated:
-            >>> _, case = annotations_factory('Case', html_with_annotations)
-            >>> case.resource.content = new_html
-            >>> with caplog.at_level(logging.DEBUG):
-            ...     case.resource.save()
-            >>> assert dump_annotated_text(case) == new_case_html_with_annotations
-            >>> assert len(caplog.record_tuples) == 3
-            >>> assert caplog.record_tuples[0][2] == 'Normalizing newlines in Case content'
-            >>> assert caplog.record_tuples[1][2] == 'Stripping trailing whitespace in Case content'
-            >>> assert caplog.record_tuples[2][2] == 'Updating annotations for Case'
-        """
-        cleanse_html_field(self, 'content')
-        super().save(*args, **kwargs)
-
-    @property
-    def get_title(self):
-        return self.name_abbreviation or self.name
-
-    def get_name(self):
-        return self.name_abbreviation or self.name
-
-    def __str__(self):
-        return self.get_name()
-
-    def related_resources(self):
-        return Resource.objects.filter(resource_id=self.id, resource_type='Case')
-
-    @property
-    def prefer_meta_header(self):
-        """
-        When we think that a case has come from CAP, we try to show the verified metadata (name, citations, decision date, court) that has been cleaned.
-        """
-        return self.created_via_import
-
-    @property
-    def cite_string(self):
-        return ", ".join([x['cite'] for x in self.citations if 'cite' in x]) if self.citations else ''
-
 
 #
 # Legal Doc Source Types
@@ -1253,9 +1175,7 @@ class ContentNodeQueryset(models.QuerySet):
             self._prefetch_resources_done = True
             if not self._result_cache:
                 return
-            case_query, textblock_query, link_query, legal_doc_query = self._prefetch_resources
-            if case_query is None:
-                case_query = Case.objects.all()
+            _, textblock_query, link_query, legal_doc_query = self._prefetch_resources
             if textblock_query is None:
                 textblock_query = TextBlock.objects.all()
             if link_query is None:
@@ -1263,7 +1183,7 @@ class ContentNodeQueryset(models.QuerySet):
             if legal_doc_query is None:
                 legal_doc_query = LegalDocument.objects.all()
             resources = {}
-            for resource_type, query in (('Case', case_query), ('TextBlock', textblock_query), ('Link', link_query), ('LegalDocument', legal_doc_query)):
+            for resource_type, query in (('TextBlock', textblock_query), ('Link', link_query), ('LegalDocument', legal_doc_query)):
                 for obj in query.filter(
                         id__in=[obj.resource_id for obj in self._result_cache if obj.resource_type == resource_type]):
                     resources[(resource_type, obj.id)] = obj
@@ -1727,8 +1647,8 @@ class ContentNode(EditTrackedModel, TimestampedModel, BigPkModel, MaterializedPa
             https://docs.djangoproject.com/en/2.2/topics/db/models/#querysets-still-return-the-model-that-was-requested
 
             Given:
-            >>> casebook, section, resource_factory, case_factory = [getfixture(i) for i in ['casebook', 'section', 'resource_factory', 'case_factory']]
-            >>> resource = resource_factory(casebook=casebook, resource_type='Case', resource_id=case_factory().id)
+            >>> casebook, section, resource_factory, legal_document_factory = [getfixture(i) for i in ['casebook', 'section', 'resource_factory', 'legal_document_factory']]
+            >>> resource = resource_factory(casebook=casebook, resource_type='Case', resource_id=legal_document_factory().id)
 
             ContentNode queries return the appropriate proxy models:
         """
@@ -1992,7 +1912,7 @@ class ContentNode(EditTrackedModel, TimestampedModel, BigPkModel, MaterializedPa
             >>> full_casebook, assert_num_queries = [getfixture(f) for f in ['full_casebook', 'assert_num_queries']]
 
             Export uses 8 queries: selecting descendant nodes, and prefetching ContentAnnotation, Case, TextBlock, and Link, and provenance info
-            >>> with assert_num_queries(select=8):
+            >>> with assert_num_queries(select=10):
             ...     file_data = full_casebook.export(include_annotations=True)
         """
         # prefetch all child nodes and related data
@@ -2090,7 +2010,7 @@ class ContentNode(EditTrackedModel, TimestampedModel, BigPkModel, MaterializedPa
 
             >>> resource, *_ = [getfixture(f) for f in ['resource']]
             >>> resource.resource.content = '<center>Title</center><h2 align="center">Subtitle</h2><p>An image <img src=""></p>'
-            >>> output = '<center>Title</center><h2 align="center">Subtitle</h2><p>An image <img src=""></p>'
+            >>> output = '<header class="case-header">\n</header>\n<div><center>Title</center><h2 align="center">Subtitle</h2><p>An image <img src=""></p></div>'
             >>> assert resource.content_for_export() == output
         """
         html = self.export_content(export_options and export_options.get('request'))
@@ -2103,7 +2023,7 @@ class ContentNode(EditTrackedModel, TimestampedModel, BigPkModel, MaterializedPa
             Given:
             >>> annotations_factory, *_ = [getfixture(f) for f in ['annotations_factory']]
             >>> def assert_match(source_html, expected_html):
-            ...     annotated_html = annotations_factory('Case', source_html)[1].annotated_content_for_export()
+            ...     annotated_html = annotations_factory('LegalDocument', source_html)[1].annotated_content_for_export()
             ...     assert elements_equal(
             ...         parse_html_fragment(annotated_html),
             ...         parse_html_fragment(expected_html),
@@ -2119,7 +2039,8 @@ class ContentNode(EditTrackedModel, TimestampedModel, BigPkModel, MaterializedPa
             ...     [correction replaced content]is replaced[/correction]
             ...     [link http://example.com]is linked[/link]
             ... </p>'''
-            >>> expected = '''<p>
+            >>> expected = '''<header class="case-header">
+            ...     </header><p>
             ...     <span class="annotate">Has a note</span><span custom-style="Footnote Reference">*</span>
             ...     <span class="annotate highlighted" custom-style="Highlighted Text">is highlighted</span>
             ...     <span custom-style="Elision">[ … ]</span>
@@ -2135,7 +2056,8 @@ class ContentNode(EditTrackedModel, TimestampedModel, BigPkModel, MaterializedPa
             ... <p>Some <em>text</em></p>
             ... <p>Some [/highlight] text</p>
             ... '''
-            >>> expected = '''
+            >>> expected = '''<header class="case-header">
+            ...     </header>
             ... <div><p>Some <span class="annotate highlighted" custom-style="Highlighted Text"> text</span></p>
             ... <p><span class="annotate highlighted" custom-style="Highlighted Text">Some </span><em><span class="annotate highlighted" custom-style="Highlighted Text">text</span></em></p>
             ... <p><span class="annotate highlighted" custom-style="Highlighted Text">Some </span> text</p></div>
@@ -2146,25 +2068,30 @@ class ContentNode(EditTrackedModel, TimestampedModel, BigPkModel, MaterializedPa
             >>> input = '''<p>Some [replace new content] text</p>
             ... <p>Some <em>text</em> <br></p>
             ... <p>Some [/replace] text</p>'''
-            >>> expected = '''
+            >>> expected = '''<header class="case-header">
+            ...     </header>
             ... <div><p>Some <span custom-style="Replacement Text">new content</span></p><p> text</p></div>
             ... '''
             >>> assert_match(input, expected)
 
             Void elements:
             >>> input = '''<p> [highlight] <br> [/highlight] </p>'''
-            >>> expected = '''<p> <span class="annotate highlighted" custom-style="Highlighted Text"> </span><br><span class="annotate highlighted" custom-style="Highlighted Text"> </span> </p>'''
+            >>> expected = '''<header class="case-header">
+            ...     </header><p> <span class="annotate highlighted" custom-style="Highlighted Text"> </span><br><span class="annotate highlighted" custom-style="Highlighted Text"> </span> </p>'''
             >>> assert_match(input, expected)
 
             Annotations with ambiguous placement:
             >>> input = '<p>First</p><p>[highlight]Second[/highlight]</p><p>Third</p>'
-            >>> expected = '<div><p>First</p><p><span class="annotate highlighted" custom-style="Highlighted Text">Second</span></p><p>Third</p></div>'
+            >>> expected = '<header class="case-header">\
+            ...     </header><div><p>First</p><p><span class="annotate highlighted" custom-style="Highlighted Text">Second</span></p><p>Third</p></div>'
             >>> assert_match(input, expected)
             >>> input = '<p>First</p><p>[elide]Second[/elide]</p><p>Third</p>'
-            >>> expected = '<div><p>First</p><p><span custom-style="Elision">[ … ]</span></p><p>Third</p></div>'
+            >>> expected = '<header class="case-header">\
+            ...     </header><div><p>First</p><p><span custom-style="Elision">[ … ]</span></p><p>Third</p></div>'
             >>> assert_match(input, expected)
             >>> input = '<p>[highlight]First[/highlight]</p><p>[highlight]Sec[/highlight][highlight]ond[/highlight]</p><p>[highlight]Third[/highlight]</p>'
-            >>> expected = '<div><p><span class="annotate highlighted" custom-style="Highlighted Text">First</span></p>' \
+            >>> expected = '<header class="case-header">\
+            ...     </header><div><p><span class="annotate highlighted" custom-style="Highlighted Text">First</span></p>' \
             ...     '<p><span class="annotate highlighted" custom-style="Highlighted Text">Sec</span><span class="annotate highlighted" custom-style="Highlighted Text">ond</span></p>' \
             ...     '<p><span class="annotate highlighted" custom-style="Highlighted Text">Third</span></p></div>'
             >>> assert_match(input, expected)
@@ -2172,17 +2099,17 @@ class ContentNode(EditTrackedModel, TimestampedModel, BigPkModel, MaterializedPa
             Overlapping annotations:
             (Not sure if these can happen in practice, but they do work for export, at least in simple cases.)
             >>> input = '<p>[highlight]One [note my note]two[/highlight] three[/note]</p>'
-            >>> expected = '<p><span class="annotate highlighted" custom-style="Highlighted Text">One <span class="annotate">two</span></span>' \
+            >>> expected = '<header class="case-header">\n</header><p><span class="annotate highlighted" custom-style="Highlighted Text">One <span class="annotate">two</span></span>' \
             ...     '<span class="annotate"> three</span><span custom-style="Footnote Reference">*</span></p>'
             >>> assert_match(input, expected)
             >>> input = '<p>[highlight]One [elide]two[/highlight] three[/elide]</p>'
-            >>> expected = '<p><span class="annotate highlighted" custom-style="Highlighted Text">One <span custom-style="Elision">[ … ]</span></span></p>'
+            >>> expected = '<header class="case-header">\n</header><p><span class="annotate highlighted" custom-style="Highlighted Text">One <span custom-style="Elision">[ … ]</span></span></p>'
             >>> assert_match(input, expected)
 
             Annotations with invalid offsets are clamped:
             >>> input = '<p>[highlight]F[/highlight]oo</p>'
-            >>> expected = '<p><span class="annotate highlighted" custom-style="Highlighted Text">Foo</span></p>'
-            >>> resource = annotations_factory('Case', input)[1]
+            >>> expected = '<header class="case-header">\n</header>\n<p><span class="annotate highlighted" custom-style="Highlighted Text">Foo</span></p>'
+            >>> resource = annotations_factory('LegalDocument', input)[1]
             >>> _ = resource.annotations.update(global_end_offset=1000)  # move end offset past end of text
             >>> assert resource.annotated_content_for_export() == expected
         """
@@ -2553,7 +2480,7 @@ class ContentNode(EditTrackedModel, TimestampedModel, BigPkModel, MaterializedPa
             >>> resource.clone_to(to_casebook)
             >>> v = dump_casebook_outline(to_casebook)[-7:]
             >>> assert dump_casebook_outline(to_casebook)[-7:] == [
-            ...   '   ContentNode<16> -> Case<4>: Foo Foo3 vs. Bar Bar3',
+            ...   '   ContentNode<16> -> LegalDocument<4>: Legal Doc 3',
             ...   '    ContentAnnotation<7>: note 0-10',
             ...   '    ContentAnnotation<8>: replace 0-10',
             ...   '   ContentNode<17> -> Link<4>: Some Link Name 3',
@@ -3243,26 +3170,26 @@ class Casebook(EditTrackedModel, TimestampedModel, BigPkModel, CasebookAndSectio
             ...          ordinals=[3,1],
             ...          resource_id=ld.id,
             ...          resource_type="LegalDocument").save()
-            >>> with assert_num_queries(select=11, update=3, insert=4):
+            >>> with assert_num_queries(select=10, update=3, insert=4):
             ...     new_casebook = draft.merge_draft()
             >>> assert new_casebook == full_casebook
             >>> expected = [
             ...       'Casebook<1>: New Title',
             ...       ' Section<19>: Some Section 0',
             ...       '  ContentNode<20> -> TextBlock<5>: Some TextBlock Name 0',
-            ...       '  ContentNode<21> -> Case<1>: Foo Foo0 vs. Bar Bar0',
+            ...       '  ContentNode<21> -> LegalDocument<1>: Legal Doc 0',
             ...       '   ContentAnnotation<9>: highlight 0-10',
             ...       '   ContentAnnotation<10>: elide 0-10',
             ...       '  ContentNode<22> -> Link<5>: Some Link Name 0',
             ...       '  Section<23>: Some Section 4',
             ...       '   ContentNode<24> -> TextBlock<6>: Some TextBlock Name 1',
-            ...       '   ContentNode<25> -> Case<2>: Foo Foo1 vs. Bar Bar1',
+            ...       '   ContentNode<25> -> LegalDocument<2>: Legal Doc 1',
             ...       '    ContentAnnotation<11>: note 0-10',
             ...       '    ContentAnnotation<12>: replace 0-10',
             ...       '   ContentNode<26> -> Link<6>: Some Link Name 1',
             ...       ' Section<27>: Some Section 8',
             ...       ' Section<28>: New Section',
-            ...       '  ContentNode<29> -> LegalDocument<1>: Legal Doc 0'
+            ...       '  ContentNode<29> -> LegalDocument<3>: Legal Doc 2'
             ... ]
             >>> assert dump_casebook_outline(new_casebook) == expected
 
@@ -3355,13 +3282,13 @@ class Casebook(EditTrackedModel, TimestampedModel, BigPkModel, CasebookAndSectio
             ...   'Casebook<1>: Some Title 0',
             ...   ' Section<1>: Some Section 0',
             ...   '  ContentNode<2> -> TextBlock<1>: Some TextBlock Name 0',
-            ...   '  ContentNode<3> -> Case<1>: Foo Foo0 vs. Bar Bar0',
+            ...   '  ContentNode<3> -> LegalDocument<1>: Legal Doc 0',
             ...   '   ContentAnnotation<1>: highlight 0-10',
             ...   '   ContentAnnotation<2>: elide 0-10',
             ...   '  ContentNode<4> -> Link<1>: Some Link Name 0',
             ...   '  Section<5>: Some Section 4',
             ...   '   ContentNode<6> -> TextBlock<2>: Some TextBlock Name 1',
-            ...   '   ContentNode<7> -> Case<2>: Foo Foo1 vs. Bar Bar1',
+            ...   '   ContentNode<7> -> LegalDocument<2>: Legal Doc 1',
             ...   '    ContentAnnotation<3>: note 0-10',
             ...   '    ContentAnnotation<4>: replace 0-10',
             ...   '   ContentNode<8> -> Link<2>: Some Link Name 1',
@@ -3378,13 +3305,13 @@ class Casebook(EditTrackedModel, TimestampedModel, BigPkModel, CasebookAndSectio
             ...      'Casebook<2>: Some Title 0',
             ...      ' Section<10>: Some Section 0',
             ...      '  ContentNode<11> -> TextBlock<3>: Some TextBlock Name 0',
-            ...      '  ContentNode<12> -> Case<1>: Foo Foo0 vs. Bar Bar0',
+            ...      '  ContentNode<12> -> LegalDocument<1>: Legal Doc 0',
             ...      '   ContentAnnotation<5>: highlight 0-10',
             ...      '   ContentAnnotation<6>: elide 0-10',
             ...      '  ContentNode<13> -> Link<3>: Some Link Name 0',
             ...      '  Section<14>: Some Section 4',
             ...      '   ContentNode<15> -> TextBlock<4>: Some TextBlock Name 1',
-            ...      '   ContentNode<16> -> Case<2>: Foo Foo1 vs. Bar Bar1',
+            ...      '   ContentNode<16> -> LegalDocument<2>: Legal Doc 1',
             ...      '    ContentAnnotation<7>: note 0-10',
             ...      '    ContentAnnotation<8>: replace 0-10',
             ...      '   ContentNode<17> -> Link<4>: Some Link Name 1',
@@ -3680,8 +3607,8 @@ class Casebook(EditTrackedModel, TimestampedModel, BigPkModel, CasebookAndSectio
             Given:
             >>> full_casebook, assert_num_queries = [getfixture(f) for f in ['full_casebook', 'assert_num_queries']]
 
-            Export uses 8 queries: selecting descendant nodes, and prefetching ContentAnnotation, Case, TextBlock, and Link, and provenance info.
-            >>> with assert_num_queries(select=8):
+            Export uses 8 queries: selecting descendant nodes, and prefetching ContentAnnotation, LegalDocument, TextBlock, and Link, and provenance info.
+            >>> with assert_num_queries(select=10):
             ...     file_data = full_casebook.export(include_annotations=True)
         """
         # prefetch all child nodes and related data
@@ -4012,7 +3939,7 @@ class TextBlock(NullableTimestampedModel, AnnotatedModel):
         ]
 
     def get_name(self):
-        """For consistency, expose name via this method, which is exposed by Link and Case objects"""
+        """For consistency, expose name via this method, which is exposed by Link"""
         return self.name
 
     def identify_type(self):

@@ -60,13 +60,13 @@ def dump_casebook_outline(casebook):
         ...     'Casebook<1>: Some Title 0',
         ...     ' Section<1>: Some Section 0',
         ...     '  ContentNode<2> -> TextBlock<1>: Some TextBlock Name 0',
-        ...     '  ContentNode<3> -> Case<1>: Foo Foo0 vs. Bar Bar0',
+        ...     '  ContentNode<3> -> LegalDocument<1>: Legal Doc 0',
         ...     '   ContentAnnotation<1>: highlight 0-10',
         ...     '   ContentAnnotation<2>: elide 0-10',
         ...     '  ContentNode<4> -> Link<1>: Some Link Name 0',
         ...     '  Section<5>: Some Section 4',
         ...     '   ContentNode<6> -> TextBlock<2>: Some TextBlock Name 1',
-        ...     '   ContentNode<7> -> Case<2>: Foo Foo1 vs. Bar Bar1',
+        ...     '   ContentNode<7> -> LegalDocument<2>: Legal Doc 1',
         ...     '    ContentAnnotation<3>: note 0-10',
         ...     '    ContentAnnotation<4>: replace 0-10',
         ...     '   ContentNode<8> -> Link<2>: Some Link Name 1',
@@ -107,11 +107,11 @@ def dump_content_tree_children(node):
 
 def dump_annotated_text(case_or_textblock):
     """
-        Return an annotated Case or TextBlock as html with annotation [brackets]. Example:
+        Return an annotated LegalDocument or TextBlock as html with annotation [brackets]. Example:
 
         >>> annotations_factory, *_ = [getfixture(f) for f in ['annotations_factory']]
         >>> html = '<p>[replace]This[/replace] [highlight]is[/highlight] [elide]a[/elide] [note]case[/note].</p>'
-        >>> casebook, case = annotations_factory('Case', html)
+        >>> casebook, case = annotations_factory('LegalDocument', html)
         >>> assert dump_annotated_text(case) == html
     """
     text_strs, offsets, tags = re_split_offsets(r'<[^>]+?>', case_or_textblock.resource.content)

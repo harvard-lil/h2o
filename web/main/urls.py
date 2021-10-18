@@ -77,7 +77,6 @@ urlpatterns = format_suffix_patterns(drf_urlpatterns) + [
     path('casebooks/<idslug:casebook_param>/new/section', views.new_section, name='new_section'),
     path('casebooks/<idslug:casebook_param>/new/text', views.new_text, name='new_text'),
     path('casebooks/<idslug:casebook_param>/new/link', views.new_link, name='new_link'),
-    path('casebooks/<idslug:casebook_param>/new/case', views.new_case, name='new_case'),
     path('casebooks/<idslug:casebook_param>/new/legaldoc', views.new_legal_doc, name='new_legal_doc'),
     path('casebooks/<idslug:casebook_param>/new/bulk', views.new_from_outline, name='new_from_outline'),
 
@@ -104,9 +103,6 @@ urlpatterns = format_suffix_patterns(drf_urlpatterns) + [
     path('casebooks/<idslug:casebook_param>/', views.CasebookView.as_view(), name='casebook'),
     path('casebooks/<idslug:casebook_param>', no_perms_test(views.CasebookView.as_view())),
     path('casebooks/new', views.new_casebook, name='new_casebook'),
-    # cases
-    path('cases/from_capapi', views.from_capapi, name='from_capapi'),
-    path('cases/<int:case_id>/', views.case, name='case'),
     # export
     path('casebooks/<casebook:node>/export.<file_type>', views.export, name='export_casebook'),
     path('sections/<section:node>/export.<file_type>', views.export, name='export_section'),
