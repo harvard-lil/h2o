@@ -3617,11 +3617,11 @@ class Casebook(EditTrackedModel, TimestampedModel, BigPkModel, CasebookAndSectio
         children = list(self.contents.prefetch_resources().prefetch_related('annotations')) if type(
             self) is not Resource else None
 
-        current_collaborators = self.casebook.primary_authors
+        current_collaborators = set(self.casebook.primary_authors)
         cloned_from = {cn.casebook for cn in self.ancestor_nodes.prefetch_related('casebook')
                                                    .prefetch_related('casebook__contentcollaborator_set')
                                                    .prefetch_related('casebook__contentcollaborator_set__user')
-                         if cn.casebook.primary_authors ^ current_collaborators}
+                         if set(cn.casebook.primary_authors) ^ current_collaborators}
         # render html
         template_name = 'export/casebook.html'
         html = render_to_string(template_name, {

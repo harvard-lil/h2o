@@ -289,15 +289,17 @@ def list_exports():
 def casebook_garbage_collect(older_than_days=180, dry_run=False):
     from main.models import ContentNode, Casebook
     from datetime import datetime, timedelta
+    from tqdm import tqdm
     older_than_days = int(older_than_days)
     dry_run = bool(dry_run)
     living_casebook_states = {Casebook.LifeCycle.PUBLISHED.value, Casebook.LifeCycle.REVISING.value, Casebook.LifeCycle.DRAFT.value, Casebook.LifeCycle.NEWLY_CLONED.value, Casebook.LifeCycle.PRIVATELY_EDITING.value}
     newest_save = datetime.now() - timedelta(days=older_than_days)
+    print(f"Preparing to {'check' if dry_run else 'delete'} previously saves of casebooks older than {older_than_days} days old.")
     cbs = list(Casebook.objects.filter(state=Casebook.LifeCycle.PREVIOUS_SAVE.value, updated_at__lte=newest_save).prefetch_related('contents').all())
     cn_ids = {cn.id for cb in cbs for cn in cb.contents.all()}
     referenced_nodes = {prov for cn in ContentNode.objects.filter(provenance__overlap=list(cn_ids), casebook__state__in=list(living_casebook_states)).select_related('casebook').all() for prov in cn.provenance}
     count = 0
-    for cb in cbs:
+    for cb in tqdm(cbs, desc="Filtering ContentNodes"):
         if {x.id for x in cb.contents.all()}.intersection(referenced_nodes):
             continue
         if not dry_run:
