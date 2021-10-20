@@ -66,20 +66,8 @@ class SectionOutlineSerializer(serializers.ModelSerializer):
         model = models.ContentNode
         fields = ('title', 'id', 'resource_type', 'edit_url', 'url', 'citation', 'decision_date', 'children', 'is_transmutable')
 
-
-class CasebookListAuthorSerializer(serializers.RelatedField):
-    def to_representation(self, collaborator):
-        return {'can_edit': collaborator.can_edit,
-                'has_attribution': collaborator.has_attribution,
-                'attribution': collaborator.user.attribution,
-                'public_url': collaborator.user.public_url,
-                'verified_professor': collaborator.user.verified_professor,
-                'titles': [x.common_title.public_url for x in  collaborator.user.casebooks.all() if x.common_title]
-        }
-
-
 class CasebookListSerializer(serializers.ModelSerializer):
-    authors = CasebookListAuthorSerializer(many=True, read_only=True, source='contentcollaborator_set')
+    authors = serializers.SerializerMethodField()
     url = serializers.SerializerMethodField()
     settings_url = serializers.SerializerMethodField()
     edit_url = serializers.SerializerMethodField()
@@ -105,6 +93,17 @@ class CasebookListSerializer(serializers.ModelSerializer):
             user = request.user
             return casebook.editable_by(user)
         return False
+
+    def get_authors(self, casebook):
+        def to_representation(collaborator):
+            return {'can_edit': collaborator.can_edit,
+                'has_attribution': collaborator.has_attribution,
+                'attribution': collaborator.user.attribution,
+                'public_url': collaborator.user.public_url,
+                'verified_professor': collaborator.user.verified_professor,
+                'titles': [x.common_title.public_url for x in  collaborator.user.casebooks.all() if x.common_title]
+            }
+        return [to_representation(x) for x in casebook.contentcollaborator_set.order_by('id').all()]
 
 
     class Meta:
