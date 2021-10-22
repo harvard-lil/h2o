@@ -78,10 +78,38 @@ class ResourceForm(ContentNodeForm):
     when appropriate, a LinkForm or TextBlockForm, inside it.
     See https://django-crispy-forms.readthedocs.io/en/latest/crispy_tag_forms.html#rendering-several-forms-with-helpers
     """
+    does_display_ordinals = forms.BooleanField(label="Number this section in the table of contents", required=False)
+    class Meta:
+        model = ContentNode
+        fields = ['title', 'subtitle','does_display_ordinals','headnote']
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
+        self.helper.layout = Layout(
+            Field('title', placeholder='Enter a concise title.'),
+            Field('subtitle', placeholder='Subtitle (optional)'),
+            Div(
+                Field('does_display_ordinals'),
+                css_class="visible-in-form"
+                ),
+            Div(
+                HTML('<h5 id="headnote-label">Headnote</h5>'),
+                Field('headnote',
+                    css_class='richtext-editor',
+                    aria_labelledby='headnote-label',
+                    placeholder='Enter any additional context about this casebook or section.'
+                ),
+            )
+        )
         self.helper.form_class = 'edit_content_resource'
+
+    def save(self, commit=True):
+        super(ContentNodeForm, self).save()
+        cn = self.instance
+        if 'does_display_ordinals' in self.changed_data:
+            cn.content_tree__load()
+            (cn.content_tree__parent or cn.casebook).content_tree__repair()
+        return cn
 
 
 class LinkForm(ModelForm):
@@ -138,6 +166,7 @@ class TextBlockForm(ModelForm):
         # labeled using aria-labelledby
         self.fields['content'].label = False
         self.helper.disable_csrf = True  # handled independently
+
 
 
 class NewTextBlockForm(ModelForm):

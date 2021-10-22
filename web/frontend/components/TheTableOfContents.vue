@@ -486,9 +486,7 @@ export default {
             display: inline;
             margin-right: 10px;
         }
-        .section-number:after {
-            content: counters(item, ".") " ";
-        }
+        .section-number:after {}
         .section-title {
             @include sans-serif($bold, 14px, 14px);
             display: inline-block;

@@ -103,6 +103,8 @@ class ContentNodeFactory(factory.DjangoModelFactory):
 
     created_at = factory.LazyFunction(timezone.now)
     ordinals=[]
+    display_ordinals=[]
+    does_display_ordinals=True
     provenance=[]
 
 
@@ -140,6 +142,7 @@ class SectionFactory(ContentNodeFactory):
 
     casebook = factory.SubFactory(CasebookFactory)
     ordinals = [1]
+    display_ordinals = [1]
     title = factory.Sequence(lambda n: f'Some Section {n}')
 
 @register_factory
@@ -276,6 +279,11 @@ class ResourceFactory(ContentNodeFactory):
         else:
             return TextBlockFactory()
 
+    does_display_ordinals=True
+    @factory.post_generation
+    def show_ordinals(obj, create, extracted, **kwargs):
+        obj.display_ordinals = obj.ordinals
+
     resource_id = factory.SelfAttribute('resource.id')
     title = factory.LazyAttribute(lambda o: o.resource.get_name())
 
@@ -343,16 +351,15 @@ def annotations_factory(db):
         ... ]
     """
     def factory(resource_type, html, casebook=None, ordinals=None):
-
         # create casebook, resource, resource_target, and annotations
         if not casebook:
             casebook = CasebookFactory()
-            SectionFactory(casebook=casebook, ordinals=[1])
+            SectionFactory(casebook=casebook, ordinals=[1], display_ordinals=[1])
             ordinals = [1, 1]
         resource_target = {'TextBlock': TextBlockFactory,
                            'LegalDocument': LegalDocumentFactory}[resource_type](content=html)
         resource_type = resource_type
-        resource = ResourceFactory(casebook=casebook, ordinals=ordinals, resource_type=resource_type, resource=resource_target)
+        resource = ResourceFactory(casebook=casebook, ordinals=ordinals,display_ordinals=ordinals, resource_type=resource_type, resource=resource_target)
 
         # retrieve the processed, cleansed html of the saved resource
         processed_html = resource.resource.content
@@ -408,19 +415,19 @@ def full_casebook_parts_factory(db):
         user = UserFactory()
         casebook = CasebookFactory(contentcollaborator_set__user=user, state=state)
         _ = CasebookEditLogFactory(casebook=casebook)
-        s_1 = SectionFactory(casebook=casebook, ordinals=[1])
-        r_1_1 = ResourceFactory(casebook=casebook, ordinals=[1, 1], resource_type='TextBlock')
-        r_1_2 = legaldocument_resource = ResourceFactory(casebook=casebook, ordinals=[1, 2], resource_type='LegalDocument')
+        s_1 = SectionFactory(casebook=casebook, ordinals=[1], display_ordinals=[1])
+        r_1_1 = ResourceFactory(casebook=casebook, ordinals=[1, 1], display_ordinals=[1, 1], resource_type='TextBlock')
+        r_1_2 = legaldocument_resource = ResourceFactory(casebook=casebook, ordinals=[1, 2], display_ordinals=[1, 2], resource_type='LegalDocument')
         ContentAnnotationFactory(resource=legaldocument_resource)
         ContentAnnotationFactory(resource=legaldocument_resource, kind='elide')
-        r_1_3 = ResourceFactory(casebook=casebook, ordinals=[1, 3], resource_type='Link')
-        s_1_4 = SectionFactory(casebook=casebook,  ordinals=[1, 4])
-        r_1_4_1 = ResourceFactory(casebook=casebook, ordinals=[1, 4, 1], resource_type='TextBlock')
-        r_1_4_2 = legaldocument_resource = ResourceFactory(casebook=casebook, ordinals=[1, 4, 2], resource_type='LegalDocument')
+        r_1_3 = ResourceFactory(casebook=casebook, ordinals=[1, 3], display_ordinals=[1, 3], resource_type='Link')
+        s_1_4 = SectionFactory(casebook=casebook,  ordinals=[1, 4], display_ordinals=[1, 4])
+        r_1_4_1 = ResourceFactory(casebook=casebook, ordinals=[1, 4, 1], display_ordinals=[1, 4, 1], resource_type='TextBlock')
+        r_1_4_2 = legaldocument_resource = ResourceFactory(casebook=casebook, ordinals=[1, 4, 2], display_ordinals=[1, 4, 2], resource_type='LegalDocument')
         ContentAnnotationFactory(resource=legaldocument_resource, kind='note')
         ContentAnnotationFactory(resource=legaldocument_resource, kind='replace')
-        r_1_4_3 = ResourceFactory(casebook=casebook, ordinals=[1, 4, 3], resource_type='Link')
-        s_2 = SectionFactory(casebook=casebook, ordinals=[2])
+        r_1_4_3 = ResourceFactory(casebook=casebook, ordinals=[1, 4, 3], display_ordinals=[1, 4, 3], resource_type='Link')
+        s_2 = SectionFactory(casebook=casebook, ordinals=[2], display_ordinals=[2])
         return [casebook, s_1, r_1_1, r_1_2, r_1_3, s_1_4, r_1_4_1, r_1_4_2, r_1_4_3, s_2]
     return factory
 

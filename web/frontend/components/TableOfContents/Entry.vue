@@ -7,7 +7,7 @@
   <component :is="editing ? 'vue-nestable-handle' : 'div'" v-bind:item="item">
     <div v-bind:class="{'listing':true, 'resource':true, 'temporary': item.resource_type == 'Temp', 'editing': 'editing'}" v-if="isResource">
       <div class="list-left">
-        <div class="section-number">{{rootOrdinalDisplay}}</div>
+        <div class="section-number">{{ item.ordinal_string }}</div>
         
         <div class="resource-container" v-if="isLegalDoc">
           <a :href="url" class="section-title case-section-title">{{ item.title }}</a>
@@ -71,7 +71,7 @@
           >
           <collapse-triangle :collapsed="collapsed" />
         </button>
-        <div class="section-number">{{rootOrdinalDisplay}}</div>
+        <div class="section-number">{{ item.ordinal_string }}</div>
         <div class="section-container">
           <!--      -->
           <div class="section-title">

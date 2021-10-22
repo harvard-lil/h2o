@@ -1369,9 +1369,11 @@ def edit_casebook(request, casebook):
 @transaction.atomic
 def create_from_form(casebook, parent_section, form):
     fresh_body = form.save()
+    ordinals,display_ordinals = parent_section.content_tree__get_next_available_child_ordinals()
     fresh_resource = Resource(title=fresh_body.get_name(),
                             casebook=casebook,
-                            ordinals=parent_section.content_tree__get_next_available_child_ordinals(),
+                            ordinals=ordinals,
+                            display_ordinals=display_ordinals,
                             resource_id=fresh_body.id,
                             resource_type=type(fresh_body).__name__)
     fresh_resource.save()
@@ -2193,10 +2195,10 @@ def new_from_outline(request, casebook=None):
         >>> casebook.refresh_from_db()
         >>> contents = [{'title':x.title,'subtitle':x.subtitle,'headnote':x.headnote,'resource_type':x.resource_type, 'ordinals':x.ordinals} for x in casebook.contents.all()]
         >>> assert contents[9:] == [\
-            {'title': 'Test Section', 'subtitle': 'Test Section subtitle', 'headnote': 'Test Section headnote', 'resource_type': 'Section', 'ordinals': [3]}, \
-            {'title': 'Test TextBlock', 'subtitle': 'Test TextBlock subtitle', 'headnote': 'Test TextBlock headnote', 'resource_type': 'TextBlock', 'ordinals': [3, 1]}, \
-            {'title': 'Test Case', 'subtitle': 'Test Case subtitle', 'headnote': 'Test Case headnote', 'resource_type': 'Temp', 'ordinals': [3, 2]}, \
-            {'title': 'Test TextBlock', 'subtitle': 'Test TextBlock subtitle', 'headnote': 'Test TextBlock headnote', 'resource_type': 'TextBlock', 'ordinals': [4]}]
+             {'title': 'Test Section', 'subtitle': 'Test Section subtitle', 'headnote': 'Test Section headnote', 'resource_type': 'Section', 'ordinals': [3]}, \
+             {'title': 'Test TextBlock', 'subtitle': 'Test TextBlock subtitle', 'headnote': 'Test TextBlock headnote', 'resource_type': 'TextBlock', 'ordinals': [3, 1]}, \
+             {'title': 'Test Case', 'subtitle': 'Test Case subtitle', 'headnote': 'Test Case headnote', 'resource_type': 'Temp', 'ordinals': [3, 2]}, \
+             {'title': 'Test TextBlock', 'subtitle': 'Test TextBlock subtitle', 'headnote': 'Test TextBlock headnote', 'resource_type': 'TextBlock', 'ordinals': [4]}]
     """
 
     def unnest_with_ordinals(ordinals, nodes):
