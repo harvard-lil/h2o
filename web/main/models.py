@@ -3774,7 +3774,7 @@ class Casebook(EditTrackedModel, TimestampedModel, BigPkModel, CasebookAndSectio
             Casebook.LifeCycle.DRAFT.value: 'casebook-draft',
             Casebook.LifeCycle.PUBLISHED.value: 'casebook-public casebook-preview',
             Casebook.LifeCycle.ARCHIVED.value: 'casebook-archived',
-            Casebook.LifeCycle.REVISING.value: 'casebook-draft',
+            Casebook.LifeCycle.REVISING.value: 'casebook-public',
             Casebook.LifeCycle.PREVIOUS_SAVE.value: 'casebook-archived'
         }[self.state]
 

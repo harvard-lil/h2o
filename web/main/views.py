@@ -197,7 +197,7 @@ def actions(request, context):
         >>> for o in [published, published_section, published_resource]:
         ...     check_response(
         ...         client.get(o.get_absolute_url()),
-        ...         content_includes='actions="exportable,can_follow"'
+        ...         content_includes='actions="exportable"'
         ...     )
 
         When a collaborator views a published casebook WITHOUT a draft, or
@@ -298,11 +298,11 @@ def actions(request, context):
                 view in ['casebook', 'section', 'resource', 'edit_casebook'] and \
                 node.permits_cloning
 
-    publishable = node.can_publish and (view in ['edit_casebook', 'casebook', 'section', 'resource']) or node.is_draft
+    publishable = node.editable_by(request.user) and node.can_publish and (view in ['edit_casebook', 'casebook', 'section', 'resource']) or node.is_draft
 
     can_follow = False
     can_unfollow = False
-    if not (request.user in node.casebook.all_collaborators):
+    if request.user and request.user.is_authenticated and not (request.user in node.casebook.all_collaborators):
         can_unfollow = node.followed_by(request.user)
         can_follow = not can_unfollow
         
