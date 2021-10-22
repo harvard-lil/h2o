@@ -1196,6 +1196,8 @@ class MaterializedPathTreeMixin(models.Model):
     class Meta:
         abstract = True
     ordinals = ArrayField(models.IntegerField(), default=list)
+    display_ordinals = ArrayField(models.IntegerField(), default=list)
+    does_display_ordinals = models.BooleanField(default=True)
 
     ##
     # Content tree methods
@@ -1211,10 +1213,13 @@ class MaterializedPathTreeMixin(models.Model):
         """
         self.content_tree__load()
         prefix = self.ordinals if self.ordinals else []
-        return prefix + [max([x.ordinals[-1] for x in self.content_tree__children] or [0]) + 1]
+        next_ordinal = prefix + [max([x.ordinals[-1] for x in self.content_tree__children] or [0]) + 1]
+        next_display_ordinal = prefix + [max([x.ordinals[-1] for x in self.content_tree__children if x.does_display_ordinals] or [0]) + 1]
+        return [next_ordinal, next_display_ordinal]
 
     def content_tree__move_to(self, new_ordinals):
         """
+
             Move this node to a new place in the content tree. This is the main entrypoint for content tree work; the
             other functions mostly just enable this one.
 
@@ -1332,6 +1337,15 @@ class MaterializedPathTreeMixin(models.Model):
 
             >>> with assert_num_queries(select=1):
             ...     casebook.content_tree__repair()
+
+            >>> casebook, s_1, r_1_1, r_1_2, r_1_3, s_1_4, r_1_4_1, r_1_4_2, r_1_4_3, s_2 = getfixture('full_casebook_parts')
+            >>> r_1_1.does_display_ordinals = False
+            >>> r_1_1.save()
+            >>> casebook.content_tree__repair()
+            >>> calculated_ordinals = [x.ordinals for x in casebook.contents.all()]
+            >>> assert calculated_ordinals == [[1], [1, 1], [1, 2], [1, 3], [1, 4], [1, 4, 1], [1, 4, 2], [1, 4, 3], [2]]
+           >>> calculated_strings = [x.ordinal_string() for x in casebook.contents.all()]
+           >>> assert calculated_strings == ['1', '', '1.1', '1.2', '1.3', '1.3.1', '1.3.2', '1.3.3', '2']
         """
         self.content_tree__load()
         self.content_tree__store()
@@ -1407,7 +1421,7 @@ class MaterializedPathTreeMixin(models.Model):
         """
         parents = []
         parent = last_child = None
-        for node in [self] + list(self.sub_sections.all()):
+        for node in [self] + list(self.contents.all()):
             if last_child and node.content_tree__is_descendant_of(last_child):
                 parents.append(parent)
                 parent = last_child
@@ -1437,7 +1451,7 @@ class MaterializedPathTreeMixin(models.Model):
             [self] is included because we don't know whether self.ordinals has changed or not.
         """
         to_update = [self] + list(self.content_tree__update_ordinals())
-        bulk_update_with_history(to_update, ContentNode, ['ordinals'], batch_size=500, default_change_reason="Tree Repair")
+        bulk_update_with_history(to_update, ContentNode, ['ordinals', 'display_ordinals'], batch_size=500, default_change_reason="Tree Repair")
 
 
     def content_tree__update_ordinals(self):
@@ -1453,12 +1467,18 @@ class MaterializedPathTreeMixin(models.Model):
 
             When we move a node, return only nodes with changed ordinals:
             >>> s_2.content_tree__children.insert(0, s_1.content_tree__children.pop(2))  # move r_1_3 from s_1 to beginning of s_2
-            >>> assert set(casebook.content_tree__update_ordinals()) == {r_1_3, s_1_4, r_1_4_2, r_1_4_3, r_1_4_1}
+            >>> new_ordinals = set(casebook.content_tree__update_ordinals())
+            >>> assert new_ordinals == {r_1_3, s_1_4, r_1_4_2, r_1_4_3, r_1_4_1}
         """
+        current_display_ordinal = 0
         for i, node in enumerate(self.content_tree__children):
             correct_ordinals = self.ordinals + [i + 1]
-            if node.ordinals != correct_ordinals:
+            if node.does_display_ordinals:
+                current_display_ordinal += 1
+            current_display_ordinals = self.display_ordinals + [current_display_ordinal]
+            if node.ordinals != correct_ordinals or not (node.display_ordinals) or node.display_ordinals != current_display_ordinals:
                 node.ordinals = correct_ordinals
+                node.display_ordinals = self.display_ordinals + [current_display_ordinal]
                 yield node
             if node.content_tree__children:
                 yield from node.content_tree__update_ordinals()
@@ -1502,6 +1522,9 @@ class MaterializedPathTreeMixin(models.Model):
         A human-friendly rendering of the "ordinals" field.
         Might be more appropriate as a templatetag.
         """
+        return '.'.join(str(o) for o in self.display_ordinals) if self.does_display_ordinals else ''
+
+    def ordinal_coordinate(self):
         return '.'.join(str(o) for o in self.ordinals)
 
     def ordinals_with_urls(self, editing=False):
@@ -1509,19 +1532,14 @@ class MaterializedPathTreeMixin(models.Model):
         A helper method for assembling Sections' and Resources' breadcrumb links.
         Might be more appropriate as a templatetag.
         """
-        return_value = []
-        ordinals = []
-        for o in self.ordinals:
-            ordinals.append(o)
-            return_value.append({
-                'ordinal': o,
-                'ordinals': [*ordinals],
+        return [{'ordinal':display_ordinal,
+                'ordinals':self.display_ordinals[:index+1],
                 'url': ContentNode.objects.get(
                     casebook_id=self.casebook_id,
-                    ordinals=ordinals
-                ).get_edit_or_absolute_url(editing)
-            })
-        return return_value
+                    ordinals=self.ordinals[:index+1]
+                ).get_edit_or_absolute_url(editing)}
+                for index, display_ordinal in enumerate(self.display_ordinals)]
+
 
 
 class TrackedCloneable(models.Model):
@@ -3030,6 +3048,10 @@ class Casebook(EditTrackedModel, TimestampedModel, BigPkModel, CasebookAndSectio
         return ContentNode.objects.filter(casebook=self, ordinals__len=1)
 
     @property
+    def sub_sections(self):
+        return self.children
+
+    @property
     def descendant_nodes(self):
         ids = [cn.id for cn in self.contents.all()]
         return ContentNode.objects.filter(provenance__overlap=ids).filter(casebook__state='Public')
@@ -3684,7 +3706,7 @@ class Casebook(EditTrackedModel, TimestampedModel, BigPkModel, CasebookAndSectio
         top_level_children = []
         for content_node in self.contents.order_by('ordinals').all():
             content_node._content_tree__children = []
-            ordinal_to_node_map[content_node.ordinal_string()] = content_node
+            ordinal_to_node_map[content_node.ordinal_coordinate()] = content_node
             parent_ords = [o for o in content_node.ordinals[:-1]]
             parent_key = '.'.join(map(str,parent_ords))
             while parent_key and parent_key not in ordinal_to_node_map:
@@ -3725,7 +3747,7 @@ class Casebook(EditTrackedModel, TimestampedModel, BigPkModel, CasebookAndSectio
             Update ordinals in the database for any that need to change, based on nodes that have been moved within
             content_tree__children. It is not valid to add nodes from outside, as their tree values will not be populated.
         """
-        bulk_update_with_history(contents, ContentNode, ['ordinals'], batch_size=500, default_change_reason="Tree Repair")
+        bulk_update_with_history(contents, ContentNode, ['ordinals', 'display_ordinals'], batch_size=500, default_change_reason="Tree Repair")
 
     def content_tree__repair(self):
         self.content_tree__load()
@@ -3744,12 +3766,17 @@ class Casebook(EditTrackedModel, TimestampedModel, BigPkModel, CasebookAndSectio
 
             When we move a node, return only nodes with changed ordinals:
             >>> s_2.content_tree__children.insert(0, s_1.content_tree__children.pop(2))  # move r_1_3 from s_1 to beginning of s_2
-            >>> assert set(casebook.content_tree__update_ordinals()) == {r_1_3, s_1_4, r_1_4_2, r_1_4_3, r_1_4_1}
+            >>> new_ordinals = set(casebook.content_tree__update_ordinals())
+            >>> assert new_ordinals == {r_1_3, s_1_4, r_1_4_2, r_1_4_3, r_1_4_1}
         """
+        current_display_ordinal = 0
         for i, node in enumerate(self.content_tree__children):
             correct_ordinals = [i + 1]
-            if node.ordinals != correct_ordinals:
+            if node.does_display_ordinals:
+                current_display_ordinal += 1
+            if node.ordinals != correct_ordinals or not(node.display_ordinals) or node.display_ordinals[-1] != current_display_ordinal:
                 node.ordinals = correct_ordinals
+                node.display_ordinals = [current_display_ordinal]
                 yield node
             if node.content_tree__children:
                 yield from node.content_tree__update_ordinals()

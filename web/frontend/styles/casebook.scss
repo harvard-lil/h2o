@@ -194,6 +194,12 @@ form.edit_content_resource, form.edit_content_section, form.edit_content_caseboo
   label {
     @extend .sr-only;
   }
+  div.visible-in-form label {
+      position: unset;
+      width: unset;
+      height: unset;
+      padding-left:20px;
+  }
 }
 
 .casebook-inner {

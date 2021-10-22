@@ -64,7 +64,7 @@ class SectionOutlineSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = models.ContentNode
-        fields = ('title', 'id', 'resource_type', 'edit_url', 'url', 'citation', 'decision_date', 'children', 'is_transmutable')
+        fields = ('title', 'id', 'resource_type', 'edit_url', 'url', 'citation', 'decision_date', 'children', 'is_transmutable', 'ordinal_string')
 
 class CasebookListSerializer(serializers.ModelSerializer):
     authors = serializers.SerializerMethodField()
