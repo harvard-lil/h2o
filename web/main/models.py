@@ -3570,7 +3570,7 @@ class Casebook(EditTrackedModel, TimestampedModel, BigPkModel, TrackedCloneable)
         collaborator_to_add = ContentCollaborator(user=user, casebook_id=self.id, **collaborator_kwargs)
         collaborator_to_add.save()
 
-    def export(self, include_annotations, file_type='docx', export_options=None):
+    def export(self, include_annotations, file_type='docx', export_options=None, experimental=False):
         """
             Export this node and children as docx, or as html for conversion by pandoc.
 
@@ -3592,44 +3592,119 @@ class Casebook(EditTrackedModel, TimestampedModel, BigPkModel, TrackedCloneable)
                                                    .prefetch_related('casebook__contentcollaborator_set')
                                                    .prefetch_related('casebook__contentcollaborator_set__user')
                          if set(cn.casebook.primary_authors) ^ current_collaborators}
-        # render html
-        template_name = 'export/casebook.html'
-        html = render_to_string(template_name, {
-            'is_export': True,
-            'node': self,
-            'children': children,
-            'export_options': export_options,
-            'export_date': datetime.now().strftime("%Y-%m-%d"),
-            'include_annotations': include_annotations,
-            'cloned_from': cloned_from,
-        })
-        if file_type == 'html':
-            return html
 
-        # convert to docx with pandoc
-        with tempfile.NamedTemporaryFile(suffix='.docx') as pandoc_out:
-            command = [
-                'pandoc',
-                '--from', 'html',
-                '--to', 'docx',
-                '--reference-doc', os.path.join(settings.PANDOC_DIR, 'reference.docx'),
-                '--output', pandoc_out.name,
-                '--quiet'
-            ]
-            if type(self) is Casebook:
-                command.extend(['--lua-filter', os.path.join(settings.PANDOC_DIR, 'table_of_contents.lua')])
-            try:
-                response = subprocess.run(command, input=html.encode('utf8'), stderr=subprocess.PIPE,
-                                          stdout=subprocess.PIPE)
-            except subprocess.CalledProcessError as e:
-                self.inc_export_fails()
-                raise Exception(f"Pandoc command failed: {e.stderr[:100]}")
-            if response.stderr:
-                self.inc_export_fails()
-                raise Exception(f"Pandoc reported error: {response.stderr[:100]}")
-            if self.export_fails > 0:
-                self.reset_export_fails()
-            return pandoc_out.read()
+        if experimental or settings.FORCE_EXPERIMENTAL_EXPORT:
+            from docx import Document
+            from docx.enum.section import WD_SECTION
+
+            document = Document(os.path.join(settings.PANDOC_DIR, 'template.docx'))
+
+            # the first section doesn't need to be added; you are already in the first section.
+            # so, if you immediately add an WD_SECTION.ODD_PAGE section, the imaginary cursor is
+            # writing on page 3.
+
+            # conventions, abstracted from the typset Torts! PDF produced by Jordi:
+            # - "chapters" (e.g. ordinal 5) should start on an odd page
+            # - top-level chaper sub-"sections" (e.g. ordinal 5.2) should start on a new page, even or odd
+            # - more deeply nested sub-"sections" (e.g. ordinal 4.1.2) should be continuous
+            # - resources inside sections (of any kind) (4.1.1, 4.1.2.1) should be continuous
+            # but, those conventions don't apply across the board
+            # - lots of casebooks begin with Resources, not Sections
+            # - textblocks seem to want special handling: if not in a section, might be a stand-alone chapter,
+            #   or, if it is the first content in a chapter, might be an intro, etc.
+            # this should probably be configurable.
+            #...easy enough to have node-by-node setting, but could clutter the UI.
+            #...and/or, we ought to be able to abstract out a few common patterns that authors can opt to apply to their export or not
+            # we might consider enhancing the data model to distinguish between frontmatter, endmatter, book parts, chapters, and chapter sub-sections,
+            #...in addition to having non-numbered resources, for easier handling of page breaks and page headers and footers
+
+            # the first doc section is an H2O preamble, with instructions
+
+            # the second section is the casebook title page
+            # its reverse is copyright info and stuff
+
+            # the next section is the table of contents
+
+            # then we get into the book's contents....
+            #....except, what do we do if the casebook itself has a headnote????
+            #....in the HTML version, that is displayed above the TOC.
+            #....but that's very unusual e.g., https://www.bookcoverdesigner.com/book-interior-content/
+            #....so, we probably need to ask authors how they want that text treated as well during export:
+            #....a Preface, just after the TOC? (probably our default)
+            #....a sub-subtitle on the title page (https://opencasebook.org/casebooks/523-advanced-constitutional-law/)
+            #....what else might make sense? let's look at some casebook headnotes and see how they are used.
+
+            # but okay now we get into the contents
+            # for node in casebook nodes:
+
+            #     ADD THE SECTION
+            #     if node.is_chapter:
+            #         start_type = WD_SECTION.ODD_PAGE
+            #     elif node.is_top_level_section:
+            #         start_type = WD_SECTION.NEW_PAGE
+            #     else:
+            #         start_type = WD_SECTION.CONTINUOUS
+            #     document.add_section(start_type)
+
+            #     CONFIGURE ITS PAGE HEADER
+            #     There are three header properties on Section: .header, .even_page_header, and .first_page_header
+            #     Any existing even page header definitions are preserved when .odd_and_even_pages_header_footer is False; they are simply not rendered by Word. Assigning True to .odd_and_even_pages_header_footer does not automatically create new even header definition
+            #     Assigning True to .different_first_page_header_footer does not automatically create a new first page header definition
+            #     https://python-docx.readthedocs.io/en/latest/dev/analysis/features/header.html?highlight=even#header-and-footer
+
+            #     ADD ITS TITLE
+
+            #     ADD ITS CONTENT
+            #     ...and now, again, what do we do about author-provided headnotes? page break or not? probably not. special header if multipage? probably not.
+            #     This is where annotation placement and footnotes come in.
+
+            # and then the book's endmatter, which right now is just credits
+
+            # save and return
+            with tempfile.NamedTemporaryFile(suffix='.docx') as tmp:
+                document.save(tmp)
+                tmp.seek(0)
+                return tmp.read()
+
+        else:
+            # render html
+            template_name = 'export/casebook.html'
+            html = render_to_string(template_name, {
+                'is_export': True,
+                'node': self,
+                'children': children,
+                'export_options': export_options,
+                'export_date': datetime.now().strftime("%Y-%m-%d"),
+                'include_annotations': include_annotations,
+                'cloned_from': cloned_from,
+            })
+            if file_type == 'html':
+                return html
+
+            # convert to docx with pandoc
+            with tempfile.NamedTemporaryFile(suffix='.docx') as pandoc_out:
+                command = [
+                    'pandoc',
+                    '--from', 'html',
+                    '--to', 'docx',
+                    '--reference-doc', os.path.join(settings.PANDOC_DIR, 'reference.docx'),
+                    '--output', pandoc_out.name,
+                    '--quiet'
+                ]
+                if type(self) is Casebook:
+                    command.extend(['--lua-filter', os.path.join(settings.PANDOC_DIR, 'table_of_contents.lua')])
+                try:
+                    response = subprocess.run(command, input=html.encode('utf8'), stderr=subprocess.PIPE,
+                                              stdout=subprocess.PIPE)
+                except subprocess.CalledProcessError as e:
+                    self.inc_export_fails()
+                    raise Exception(f"Pandoc command failed: {e.stderr[:100]}")
+                if response.stderr:
+                    self.inc_export_fails()
+                    raise Exception(f"Pandoc reported error: {response.stderr[:100]}")
+                if self.export_fails > 0:
+                    self.reset_export_fails()
+                return pandoc_out.read()
 
     def inc_export_fails(self):
         # This function is used to avoid making a copy of the casebook via CasebookHistory
