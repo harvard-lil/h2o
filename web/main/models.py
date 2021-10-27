@@ -3602,13 +3602,19 @@ class Casebook(EditTrackedModel, TimestampedModel, BigPkModel, TrackedCloneable)
 
             document = Document(os.path.join(settings.PANDOC_DIR, 'template.docx'))
 
+            def add_section(start_style, vertical_alignment='top'):
+                document.add_section(start_style)._sectPr.append(etree.fromstring(f'<w:vAlign w:val="{vertical_alignment}" xmlns:w="http://schemas.openxmlformats.org/wordprocessingml/2006/main"/>'))
+
+            def author_string():
+                return get_text_list([author.display_name for author in self.primary_authors], 'and')
+
             # the first section doesn't need to be added; you are already in the first section.
             # so, if you immediately add an WD_SECTION.ODD_PAGE section, the imaginary cursor is
             # writing on page 3.
 
             # conventions, abstracted from the typset Torts! PDF produced by Jordi:
             # - "chapters" (e.g. ordinal 5) should start on an odd page
-            # - top-level chaper sub-"sections" (e.g. ordinal 5.2) should start on a new page, even or odd
+            # - top-level chapter sub-"sections" (e.g. ordinal 5.2) should start on a new page, even or odd
             # - more deeply nested sub-"sections" (e.g. ordinal 4.1.2) should be continuous
             # - resources inside sections (of any kind) (4.1.1, 4.1.2.1) should be continuous
             # but, those conventions don't apply across the board
@@ -3623,16 +3629,19 @@ class Casebook(EditTrackedModel, TimestampedModel, BigPkModel, TrackedCloneable)
 
             # the first doc section is an H2O preamble, with instructions
 
-            # the next section is the title page
-            document.add_section(WD_SECTION.NEXT_PAGE)
+            # the next, if we want one, is a half-title page, but I think we don't
+            # the next is the title page
+            add_section(WD_SECTION.ODD_PAGE, 'bottom')
             document.add_paragraph(self.title, style="Casebook Title")
             if self.subtitle:
                 document.add_paragraph(self.subtitle, style="Casebook Subtitle")
-            document.add_paragraph(get_text_list([author.display_name for author in self.primary_authors], 'and'), style="Casebook Authors")
-            document.sections[1]._sectPr.append(etree.fromstring('<w:vAlign w:val="bottom" xmlns:w="http://schemas.openxmlformats.org/wordprocessingml/2006/main"/>'))
+            document.add_paragraph(author_string(), style="Casebook Authors")
 
-            # its reverse is copyright info and stuff
-            # document.add_section(WD_SECTION.NEXT_PAGE)
+            # on the reverse is copyright info
+            add_section(WD_SECTION.EVEN_PAGE, 'bottom')
+            document.add_paragraph(f"© {author_string()}")
+            document.add_paragraph("This work is licensed to the public under a Creative Commons Attribution NonCommercial-Share Alike 3.0 license (international):")
+            document.add_paragraph("http://creativecommons.org/licenses/by-nc-sa/3.0/us/")
 
             # the next section is the table of contents
 
