@@ -1653,8 +1653,10 @@ class ContentNode(EditTrackedModel, TimestampedModel, BigPkModel, MaterializedPa
             ContentNode queries return the appropriate proxy models:
         """
         values_dict = dict(zip(field_names, values))
-        if not values_dict['old_casebook_id']:
-            # subclass = Casebook
+        if not values_dict['casebook_id'] or values_dict['old_casebook_id']:
+            # Casebook used to be a subclass of ContentNode.
+            # Now it is its own model, but these legacy ContentNodes have been retained.
+            # Return them unchanged.
             subclass = ContentNode
         elif not values_dict['resource_id']:
             subclass = Section
