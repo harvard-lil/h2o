@@ -2618,7 +2618,7 @@ class SectionAndResourceMixin(models.Model):
             Delete a section in a section (and children, including one case, one text block, and one link/default), no reordering required:
             >>> with assert_num_queries(delete=5, select=15, update=1, insert=8):
             ...     deleted = s_1_4.delete()
-            >>> assert deleted == (6, {'main.Section': 1, 'main.ContentAnnotation': 2, 'main.ContentNode': 3})
+            >>> assert deleted == (6, {'main.Section': 1, 'main.ContentAnnotation': 2, 'main.Resource': 3})
             >>> assert dump_content_tree(casebook) == [
             ...         [s_1, casebook, [
             ...             [r_1_1, s_1, []],
@@ -2634,7 +2634,7 @@ class SectionAndResourceMixin(models.Model):
             Delete the first section in the book (and children, including one case, one text block, and one link/default), triggering reordering:
             >>> with assert_num_queries(delete=5, select=14, update=1, insert=8):
             ...     deleted = s_1.delete()
-            >>> assert deleted == (6, {'main.Section': 1, 'main.ContentAnnotation': 2, 'main.ContentNode': 3})
+            >>> assert deleted == (6, {'main.Section': 1, 'main.ContentAnnotation': 2, 'main.Resource': 3})
             >>> assert dump_content_tree(casebook) == [
             ...         [s_2, casebook, []],
             ... ]
