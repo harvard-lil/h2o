@@ -1647,10 +1647,11 @@ class ContentNode(EditTrackedModel, TimestampedModel, BigPkModel, MaterializedPa
             https://docs.djangoproject.com/en/2.2/topics/db/models/#querysets-still-return-the-model-that-was-requested
 
             Given:
-            >>> casebook, section, resource_factory, legal_document_factory = [getfixture(i) for i in ['casebook', 'section', 'resource_factory', 'legal_document_factory']]
-            >>> resource = resource_factory(casebook=casebook, resource_type='Case', resource_id=legal_document_factory().id)
+            >>> section, resource = [getfixture(i) for i in ['section', 'resource']]
 
             ContentNode queries return the appropriate proxy models:
+            >>> assert type(ContentNode.objects.get(id=section.id)) is Section
+            >>> assert type(ContentNode.objects.get(id=resource.id)) is Resource
         """
         values_dict = dict(zip(field_names, values))
         if not values_dict['casebook_id'] or values_dict['old_casebook_id']:
