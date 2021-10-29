@@ -2482,17 +2482,17 @@ class ContentNode(EditTrackedModel, TimestampedModel, BigPkModel, MaterializedPa
             >>> resource.clone_to(to_casebook)
             >>> v = dump_casebook_outline(to_casebook)[-7:]
             >>> assert dump_casebook_outline(to_casebook)[-7:] == [
-            ...   '   ContentNode<16> -> LegalDocument<4>: Legal Doc 3',
-            ...   '    ContentAnnotation<7>: note 0-10',
-            ...   '    ContentAnnotation<8>: replace 0-10',
-            ...   '   ContentNode<17> -> Link<4>: Some Link Name 3',
-            ...   ' Section<18>: Some Section 17',
             ...   ' Section<19>: Some Section 4',
-            ...   ' ContentNode<20> -> TextBlock<5>: Some TextBlock Name 0'
+            ...   '  ContentNode<20> -> TextBlock<5>: Some TextBlock Name 1',
+            ...   '  ContentNode<21> -> LegalDocument<2>: Legal Doc 1',
+            ...   '   ContentAnnotation<9>: note 0-10',
+            ...   '   ContentAnnotation<10>: replace 0-10',
+            ...   '  ContentNode<22> -> Link<5>: Some Link Name 1',
+            ...   ' ContentNode<23> -> TextBlock<6>: Some TextBlock Name 0'
             ... ]
 
             Ordinals are properly updated:
-            >>> assert [node.ordinals for node in list(to_casebook.contents.all())] == [node.ordinals for node in list(from_casebook.contents.all())] + [[3], [4]]
+            >>> assert [node.ordinals for node in list(to_casebook.contents.all())[-5:]] == [[3], [3, 1], [3, 2], [3, 3], [4]]
         """
         contents = list(self.contents) if type(self) is Section or type(self) is Casebook else []
         target_casebook.clone_nodes(([self] if type(self) is not Casebook else []) + contents, append=True)
