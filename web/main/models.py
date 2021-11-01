@@ -1593,7 +1593,7 @@ class ContentNode(EditTrackedModel, TimestampedModel, BigPkModel, MaterializedPa
         null=True,
         related_name='clones',
     )
-    history = HistoricalRecords()
+    history = HistoricalRecords(inherit=True)
 
     # Some fields are only used by certain subsets of ContentNodes
     # https://github.com/harvard-lil/h2o/issues/1035
@@ -2617,7 +2617,7 @@ class SectionAndResourceMixin(models.Model):
             >>> casebook, s_1, r_1_1, r_1_2, r_1_3, s_1_4, r_1_4_1, r_1_4_2, r_1_4_3, s_2 = full_casebook_parts_factory()
 
             Delete a section in a section (and children, including one case, one text block, and one link/default), no reordering required:
-            >>> with assert_num_queries(delete=5, select=15, update=1, insert=8):
+            >>> with assert_num_queries(delete=5, select=15, update=1, insert=9):
             ...     deleted = s_1_4.delete()
             >>> assert deleted == (6, {'main.Section': 1, 'main.ContentAnnotation': 2, 'main.Resource': 3})
             >>> assert dump_content_tree(casebook) == [
@@ -2633,7 +2633,7 @@ class SectionAndResourceMixin(models.Model):
             ...         node.refresh_from_db()
 
             Delete the first section in the book (and children, including one case, one text block, and one link/default), triggering reordering:
-            >>> with assert_num_queries(delete=5, select=14, update=1, insert=8):
+            >>> with assert_num_queries(delete=5, select=14, update=1, insert=9):
             ...     deleted = s_1.delete()
             >>> assert deleted == (6, {'main.Section': 1, 'main.ContentAnnotation': 2, 'main.Resource': 3})
             >>> assert dump_content_tree(casebook) == [
@@ -2649,7 +2649,7 @@ class SectionAndResourceMixin(models.Model):
             >>> casebook, s_1, r_1_1, r_1_2, r_1_3, s_1_4, r_1_4_1, r_1_4_2, r_1_4_3, s_2 = getfixture('full_casebook_parts')
 
             Delete a case resource in the middle of a section:
-            >>> with assert_num_queries(delete=2, select=5, update=1, insert=3):
+            >>> with assert_num_queries(delete=2, select=5, update=1, insert=4):
             ...     deleted = r_1_2.delete()
             >>> assert deleted == (3, {'main.Resource': 1, 'main.ContentAnnotation': 2})
             >>> assert dump_content_tree(casebook) == [
@@ -2672,7 +2672,7 @@ class SectionAndResourceMixin(models.Model):
 
             Delete a text resource at the beginning of a section:
             >>> r_1_4_1.refresh_from_db()
-            >>> with assert_num_queries(delete=2, select=7, update=1, insert=2):
+            >>> with assert_num_queries(delete=2, select=7, update=1, insert=3):
             ...     deleted = r_1_4_1.delete()
             >>> assert deleted == (2, {'main.Resource': 1, 'main.TextBlock': 1})
             >>> assert dump_content_tree(casebook) == [
@@ -2691,7 +2691,7 @@ class SectionAndResourceMixin(models.Model):
 
             Delete a link/default resource at the end of a section:
             >>> r_1_4_3.refresh_from_db()
-            >>> with assert_num_queries(delete=2, select=7, update=1, insert=2):
+            >>> with assert_num_queries(delete=2, select=7, update=1, insert=3):
             ...     deleted = r_1_4_3.delete()
             >>> assert deleted == (2, {'main.Resource': 1, 'main.Link': 1})
             >>> assert dump_content_tree(casebook) == [
