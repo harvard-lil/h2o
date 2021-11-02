@@ -3754,7 +3754,7 @@ class Casebook(EditTrackedModel, TimestampedModel, BigPkModel, CasebookAndSectio
             what should that node's ordinals be?
         """
         self.content_tree__load()
-        return [max([x.ordinals[-1] for x in self.content_tree__children] or [0]) + 1]
+        return [[max([x.ordinals[-1] for x in self.content_tree__children] or [0]) + 1], [max([x.display_ordinals[-1] for x in self.content_tree__children] or [0]) + 1]]
 
     def content_tree__store(self):
         contents = [x for x in self.content_tree__update_ordinals()]

@@ -1418,7 +1418,9 @@ def new_section(request, casebook):
     parent_section = Section.objects.get(id=parent_section_id) if parent_section_id else casebook
     if form.is_valid():
         fresh_section = form.save(commit=False)
-        fresh_section.ordinals = parent_section.content_tree__get_next_available_child_ordinals()
+        ordinals,display_ordinals = parent_section.content_tree__get_next_available_child_ordinals()
+        fresh_section.ordinals = ordinals
+        fresh_section.display_ordinals = display_ordinals
         fresh_section.casebook = casebook
         fresh_section.save()
         return HttpResponseRedirect(fresh_section.get_edit_url())
@@ -1535,9 +1537,11 @@ def new_legal_doc(request, casebook):
     doc = get_object_or_404(LegalDocument.objects.filter(id=doc_id))
     parent_section_id = request.POST.get('section', None)
     parent_section = Section.objects.get(id=parent_section_id) if parent_section_id else casebook
+    ordinals, display_ordinals = parent_section.content_tree__get_next_available_child_ordinals(),
     fresh_resource = Resource(title=doc.get_name(),
                             casebook=casebook,
-                            ordinals=parent_section.content_tree__get_next_available_child_ordinals(),
+                            ordinals=ordinals,
+                            display_ordinals=display_ordinals,
                             resource_id=doc.id,
                             resource_type='LegalDocument')
     fresh_resource.save()
@@ -2245,9 +2249,7 @@ def new_from_outline(request, casebook=None):
 
     @transaction.atomic
     def add_sections_and_resources(parent_section, nodes):
-        start_ordinal = (
-            parent_section.content_tree__get_next_available_child_ordinals()
-        )
+        start_ordinal, _ = parent_section.content_tree__get_next_available_child_ordinals()
         all_nodes = list(unnest_with_ordinals(start_ordinal, nodes))
         content_nodes = []
         content_node_annotations = []
