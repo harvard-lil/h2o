@@ -305,7 +305,7 @@ def actions(request, context):
     if request.user and request.user.is_authenticated and not (request.user in node.casebook.all_collaborators):
         can_unfollow = node.followed_by(request.user)
         can_follow = not can_unfollow
-        
+
     actions = OrderedDict([
         ('exportable', True),
         ('cloneable', cloneable),
@@ -991,14 +991,14 @@ def show_related(request, casebook, section=None):
         if root_key in related_map:
             related_map[root_key].append(cn)
         else:
-            logger.warn(f"Unknown relation: {cn.id} -- {root_key}")
+            logger.warning(f"Unknown relation: {cn.id} -- {root_key}")
             raise Http404
     for cn in related_docs:
         root_key = get_root_key(cn)
         if root_key in related_map:
             related_map[root_key].append(cn)
         else:
-            logger.warn(f"Unknown relation: {cn.id} -- {root_key}")
+            logger.warning(f"Unknown relation: {cn.id} -- {root_key}")
             raise Http404
 
     related_content = sorted(({'local': x[0], 'related':x[1:]} for x in related_map.values() if len(x) > 1), key=lambda x: x['local'].ordinals)
@@ -1780,7 +1780,7 @@ class ResourceView(View):
             else:
                 if casebook.is_previous_save:
                     if not casebook.provenance:
-                        return login_required_response(request)        
+                        return login_required_response(request)
                     current_casebook = Casebook.objects.filter(id=casebook.provenance[-1]).get()
                     if not resource:
                         return HttpResponseRedirect(casebook.get_absolute_url())
@@ -1945,10 +1945,23 @@ def edit_resource(request, casebook, resource):
     else:
         body_json = ''
 
+
+    # Check to see if an update to a case is available
+    case_has_update = False
+    checked_case_for_updates = False
+    can_check_for_updates = False
+    if resource.resource_type == 'LegalDocument' and request.user.is_superuser:
+        can_check_for_updates = True
+        case_has_update = resource.resource.has_newer_version()
+        checked_case_for_updates = resource.resource.source.name != 'Legacy'
+
     return render_with_actions(request, 'casebook_page.html', {
         'casebook': casebook,
         'section': resource,
         'editing': True,
+        'case_has_update':case_has_update,
+        'can_check_for_updates': can_check_for_updates,
+        'checked_case_for_updates': checked_case_for_updates,
         'tabs': resource.tabs_for_user(request.user, current_tab='Edit'),
         'casebook_color_class': casebook.casebook_color_indicator,
         'form': form,
@@ -2106,6 +2119,25 @@ def display_legal_doc(request, legal_doc_id=None):
         'legal_doc': legal_doc,
         'include_vuejs': True
     })
+
+
+@perms_test(
+    {'args': ['resource'], 'results': {403: ['user', None]}},
+)
+def update_legal_doc(request, node=None):
+    if not node:
+        raise Http404
+    if not request.user.is_superuser:
+        return HttpResponseForbidden({})
+    original_legal_doc = node.resource
+    new_legal_doc = original_legal_doc.get_latest_version()
+    if new_legal_doc == original_legal_doc:
+        return HttpResponseRedirect(reverse('edit_section', args=[node.casebook, node]))
+    new_legal_doc.save()
+    ContentAnnotation.update_annotations(node.annotations.all(), original_legal_doc.content, new_legal_doc.content)
+    node.resource_id = new_legal_doc.id
+    node.save()
+    return HttpResponseRedirect(reverse('annotate_resource', args=[node.casebook, node]))
 
 @method_decorator(perms_test(
     {'args': ['casebook', '"docx"'], 'results': {200: [None, 'other_user', 'casebook.testing_editor']}},

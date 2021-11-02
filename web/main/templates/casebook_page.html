@@ -46,10 +46,25 @@
                 <resource-type-picker></resource-type-picker>
                 {% else %}
 
+                {% if can_check_for_updates %}
+                <hr />
+                {% if case_has_update %}
+                
+                <a href="{% url 'update_legal_doc' section %}">Update this Legal Document</a>
+
+                {% elif checked_case_for_updates %}
+                No updates to case.
+                {% else %}
+                Could not check for case updates (Legacy document).
+                {% endif %}
+                <hr />
+                {% endif %}
+                
                 <form class="edit_content_{% if section and section.has_body %}resource{% elif section%}section{% else %}casebook{% endif %}" method="{{ form.helper.form_method }}">
                     {% crispy form %}
                     {% if embedded_resource_form %}{% crispy embedded_resource_form %}{% endif %}
                 </form>
+
 
                     {% endif %}
                 {% else %}
