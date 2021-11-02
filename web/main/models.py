@@ -899,6 +899,10 @@ class LegalDocumentSource(models.Model):
             return self.source_apis[self.search_class]
         raise ValueError(f"Missing API Model for {self.name}")
 
+    def get_metadata(self, id):
+        api_model = self.api_model()
+        return (hasattr(api_model, 'get_metadata') and api_model.get_metadata(id)) or None
+
     def pull(self, id):
         return self.api_model().pull(self, id)
 
@@ -988,8 +992,19 @@ class LegalDocument(NullableTimestampedModel, AnnotatedModel):
     # Utility functions
 
     def has_newer_version(self):
-        latest_meta = self.source.get_metadata(self.id)
-        return latest_meta.publication_date > self.publication_date
+        latest_downloaded = self.source.most_recent_with_id(self.source_ref)
+        if latest_downloaded.publication_date > self.publication_date:
+            return True
+        if self.source.name == 'Legacy':
+            return False
+        latest_meta = self.source.get_metadata(self.source_ref)
+        return latest_meta and latest_meta['publication_date'] > timezone.utc.localize(self.publication_date)
+
+    def get_latest_version(self, only_local=False):
+        latest_version = self.source.most_recent_with_id(self.source_ref) if only_local else self.source.pull(self.source_ref)
+        if latest_version.publication_date <= timezone.utc.localize(self.publication_date):
+            return self
+        return latest_version
 
     def has_bad_footnotes(self):
         pq = PyQuery(self.content)

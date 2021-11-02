@@ -61,6 +61,7 @@ urlpatterns = format_suffix_patterns(drf_urlpatterns) + [
     # legal_docs
     path('documents/fetch/<int:source>/', views.import_from_source, name='from_source'),
     path('documents/<int:legal_doc_id>/', views.display_legal_doc, name='display_legal_doc'),
+    path('documents/update/<resource:node>/', views.update_legal_doc, name='update_legal_doc'),
 
     # resources
     path('casebooks/<idslug:casebook_param>/resources/<ordslug:resource_param>/layout/', RedirectView.as_view(pattern_name='resource', permanent=True)),
