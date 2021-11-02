@@ -138,14 +138,14 @@ def hydrate_params(func):
                     ContentNode.objects
                     .filter(**cb_param)
                     .select_related('casebook'), ordinals=param_value['ordinals'])
-                kwargs[key] = temp_obj.as_proxy()
+                kwargs[key] = temp_obj
                 kwargs['casebook'] = kwargs[key].casebook
             else:
                 temp_obj = get_object_or_404(
                     ContentNode.objects
                     .filter(**cb_param)
                     .select_related('casebook'), id=param_value['id'])
-                kwargs[key] = temp_obj.as_proxy()
+                kwargs[key] = temp_obj
                 kwargs['casebook'] = kwargs[key].casebook
         return func(request, *args, **kwargs)
 
