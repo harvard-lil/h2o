@@ -1671,37 +1671,6 @@ class ContentNode(EditTrackedModel, TimestampedModel, BigPkModel, MaterializedPa
         ]
         ordering = ['ordinals']
 
-    @classmethod
-    def from_db(cls, db, field_names, values):
-        """
-            Return Casebooks, Sections, and Resources instead of ContentNodes,
-            for more intuitive resolution of relationships and for tidiness.
-            Directly contradicts the docs:
-            https://docs.djangoproject.com/en/2.2/topics/db/models/#querysets-still-return-the-model-that-was-requested
-
-            Given:
-            >>> casebook, section, resource_factory, legal_document_factory = [getfixture(i) for i in ['casebook', 'section', 'resource_factory', 'legal_document_factory']]
-            >>> resource = resource_factory(casebook=casebook, resource_type='Case', resource_id=legal_document_factory().id)
-
-            ContentNode queries return the appropriate proxy models:
-        """
-        values_dict = dict(zip(field_names, values))
-        if not values_dict['old_casebook_id']:
-            # subclass = Casebook
-            subclass = ContentNode
-        elif not values_dict['resource_id']:
-            subclass = Section
-        else:
-            subclass = Resource
-        return models.Model.from_db.__func__(subclass, db, field_names, values)
-
-    def as_proxy(self):
-        if not self.resource_type or self.resource_type == 'Section':
-            self.__class__ = Section
-        else:
-            self.__class__ = Resource
-        return self
-
     _resource_prefetched = False
     _resource = None
 
@@ -2513,17 +2482,17 @@ class ContentNode(EditTrackedModel, TimestampedModel, BigPkModel, MaterializedPa
             >>> resource.clone_to(to_casebook)
             >>> v = dump_casebook_outline(to_casebook)[-7:]
             >>> assert dump_casebook_outline(to_casebook)[-7:] == [
-            ...   '   ContentNode<16> -> LegalDocument<4>: Legal Doc 3',
-            ...   '    ContentAnnotation<7>: note 0-10',
-            ...   '    ContentAnnotation<8>: replace 0-10',
-            ...   '   ContentNode<17> -> Link<4>: Some Link Name 3',
-            ...   ' Section<18>: Some Section 17',
             ...   ' Section<19>: Some Section 4',
-            ...   ' ContentNode<20> -> TextBlock<5>: Some TextBlock Name 0'
+            ...   '  ContentNode<20> -> TextBlock<5>: Some TextBlock Name 1',
+            ...   '  ContentNode<21> -> LegalDocument<2>: Legal Doc 1',
+            ...   '   ContentAnnotation<9>: note 0-10',
+            ...   '   ContentAnnotation<10>: replace 0-10',
+            ...   '  ContentNode<22> -> Link<5>: Some Link Name 1',
+            ...   ' ContentNode<23> -> TextBlock<6>: Some TextBlock Name 0'
             ... ]
 
             Ordinals are properly updated:
-            >>> assert [node.ordinals for node in list(to_casebook.contents.all())] == [node.ordinals for node in list(from_casebook.contents.all())] + [[3], [4]]
+            >>> assert [node.ordinals for node in list(to_casebook.contents.all())[-5:]] == [[3], [3, 1], [3, 2], [3, 3], [4]]
         """
         contents = list(self.contents) if type(self) is Section or type(self) is Casebook else []
         target_casebook.clone_nodes(([self] if type(self) is not Casebook else []) + contents, append=True)
