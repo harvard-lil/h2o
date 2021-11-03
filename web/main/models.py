@@ -2832,7 +2832,7 @@ class CasebookEditLog(BigPkModel):
       max_length=10,
       choices=[(tag.value, tag.name) for tag in ChangeType]
     )
-    # This is a pointer to the content we direct people to on the history page. 
+    # This is a pointer to the content we direct people to on the history page.
     # It may result in a redirect if there's been more than one edit. Updated on GC.
     content = models.ForeignKey('ContentNode',
         on_delete=models.SET_NULL,
@@ -3755,7 +3755,8 @@ class Casebook(EditTrackedModel, TimestampedModel, BigPkModel, CasebookAndSectio
             what should that node's ordinals be?
         """
         self.content_tree__load()
-        return [[max([x.ordinals[-1] for x in self.content_tree__children] or [0]) + 1], [max([x.display_ordinals[-1] for x in self.content_tree__children] or [0]) + 1]]
+        return [[max([x.ordinals[-1] for x in self.content_tree__children] or [0]) + 1],
+                [max([x.display_ordinals[-1] for x in self.content_tree__children] or [0]) + 1]]
 
     def content_tree__store(self):
         contents = [x for x in self.content_tree__update_ordinals()]

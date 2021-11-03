@@ -23,11 +23,10 @@
       <a id="create-note"
          @click="input($event, 'note')">Add note</a>
     </li>
-    <li v-if="false">
+    <li>
       <a id="create-correction"
-         @click="input($event, 'correction')">Correct Typo</a>
+         @click="input($event, 'correction')">Correction</a>
     </li>
-
   </SideMenu>
 
   <Modal v-if="showModal"

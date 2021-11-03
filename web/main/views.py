@@ -1537,7 +1537,7 @@ def new_legal_doc(request, casebook):
     doc = get_object_or_404(LegalDocument.objects.filter(id=doc_id))
     parent_section_id = request.POST.get('section', None)
     parent_section = Section.objects.get(id=parent_section_id) if parent_section_id else casebook
-    ordinals, display_ordinals = parent_section.content_tree__get_next_available_child_ordinals(),
+    ordinals, display_ordinals = parent_section.content_tree__get_next_available_child_ordinals()
     fresh_resource = Resource(title=doc.get_name(),
                             casebook=casebook,
                             ordinals=ordinals,
