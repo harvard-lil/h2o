@@ -2845,6 +2845,7 @@ class CasebookEditLog(BigPkModel):
     def description_line(self):
         line = ""
         if self.change == CasebookEditLog.ChangeType.REMOVED.value:
+            self.content.content_tree__load()
             line = f"Removed {self.content.title} from <a href='{self.content.get_absolute_url()}'>{self.content.content_tree__parent.title}</a>"
         elif self.change == CasebookEditLog.ChangeType.ADDED.value:
             line = f"Added <a href='{self.content.get_absolute_url()}'>{self.content.title}</a>"
