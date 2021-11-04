@@ -2384,11 +2384,6 @@ class ContentNode(EditTrackedModel, TimestampedModel, BigPkModel, MaterializedPa
     def is_annotated(self):
         """
         While only Resources can be annotated, it is useful to know if a
-        Casebook or Section contains Resources that have been annotated,
-        and it is useful to have a single interface for finding Casebooks,
-        Sections, and Resources associated with annotations.
-
-        This method should be implemented by all children.
         Section contains Resources that have been annotated,
         and it is useful to have a single interface for finding
         Sections and Resources associated with annotations.
@@ -2546,10 +2541,6 @@ class CasebookAndSectionMixin(models.Model):
 
     class Meta:
         abstract = True
-
-    def is_annotated(self):
-        """See ContentNode.is_annotated"""
-        return any(node.annotations for node in self.contents.prefetch_related('annotations'))
 
     def get_edit_or_absolute_url(self, editing=False):
         """See ContentNode.get_edit_or_absolute_url"""
@@ -2937,6 +2928,9 @@ class Casebook(EditTrackedModel, TimestampedModel, BigPkModel, CasebookAndSectio
     @property
     def is_private(self):
         return not self.is_public
+
+    def is_annotated(self):
+        return any(node.annotations for node in self.contents.prefetch_related('annotations'))
 
     def get_edit_or_absolute_url(self, editing=False):
         """See ContentNode.get_edit_or_absolute_url"""
