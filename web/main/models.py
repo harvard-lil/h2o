@@ -2731,32 +2731,6 @@ class SectionAndResourceMixin(models.Model):
             return_dict[k] = return_dict.get(k,0) + v
         return (return_total + child_total, return_dict)
 
-    @property
-    def is_public(self):
-        """See ContentNode.is_public"""
-        return self.casebook.is_public
-
-    def editable_by(self, user):
-        """See ContentNode.editable_by"""
-        return self.casebook.editable_by(user)
-
-    @property
-    def permits_cloning(self):
-        """See ContentNode.permits_cloning"""
-        return self.casebook.permits_cloning
-
-    @property
-    def has_draft(self):
-        """See ContentNode.has_draft"""
-        return self.casebook.has_draft
-
-    def allows_draft_creation_by(self, user):
-        """See ContentNode.allows_draft_creation_by"""
-        return self.casebook.allows_draft_creation_by(user)
-
-    def get_draft_url(self):
-        """See ContentNode.get_draft_url"""
-        return self.casebook.get_draft_url()
 
 class CommonTitle(BigPkModel):
     name = models.CharField(max_length=300, blank=False, null=False)
