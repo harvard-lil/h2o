@@ -3834,15 +3834,9 @@ class Casebook(EditTrackedModel, TimestampedModel, BigPkModel, CasebookAndSectio
         return results
 
 
-class SectionManager(models.Manager):
-    def get_queryset(self):
-        return super().get_queryset()
-
 class Section(CasebookAndSectionMixin, SectionAndResourceMixin, ContentNode):
     class Meta:
         proxy = True
-
-    objects = SectionManager()
 
     def get_absolute_url(self):
         """See ContentNode.get_absolute_url"""
