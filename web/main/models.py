@@ -2406,8 +2406,6 @@ class ContentNode(EditTrackedModel, TimestampedModel, BigPkModel, MaterializedPa
         from URLs that include slugs AND from urls that omit slugs,
         instruct Django how to calculate the canonical URL for each object.
         https://docs.djangoproject.com/en/2.2/ref/models/instances/#get-absolute-url
-
-        This method should be implemented by all children.
         """
         if self.resource_id or self.resource_type == 'Temp':
             return reverse('resource', args=[self.casebook, self])
@@ -2419,8 +2417,6 @@ class ContentNode(EditTrackedModel, TimestampedModel, BigPkModel, MaterializedPa
         A convenience method, for retrieving the edit URL of a
         Section, or Resource without having to specify the view name,
         which is useful in shared templates.
-
-        This method should be implemented by all children.
         """
         if self.resource_id or self.resource_type == 'Temp':
             return reverse('edit_resource', args=[self.casebook, self])
@@ -3830,14 +3826,6 @@ class Casebook(EditTrackedModel, TimestampedModel, BigPkModel, CasebookAndSectio
 class Section(CasebookAndSectionMixin, SectionAndResourceMixin, ContentNode):
     class Meta:
         proxy = True
-
-    def get_absolute_url(self):
-        """See ContentNode.get_absolute_url"""
-        return reverse('section', args=[self.casebook, self])
-
-    def get_edit_url(self):
-        """See ContentNode.get_edit_url"""
-        return reverse('edit_section', args=[self.casebook, self])
 
     @property
     def children(self):
