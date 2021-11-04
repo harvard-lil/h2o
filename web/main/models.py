@@ -988,7 +988,6 @@ class LegalDocument(NullableTimestampedModel, AnnotatedModel):
     def cite_string(self):
         return ", ".join(self.citations)
 
-
     # Utility functions
 
     def has_newer_version(self):
@@ -1296,8 +1295,6 @@ class MaterializedPathTreeMixin(models.Model):
             >>> assert r_1_4_2.ordinals == [1, 4, 2]  # note that this is, correctly, different from the value provided, because parent moved
 
             Enforce some rules:
-            >>> with assert_raises(ValueError, match='Cannot move casebook node'):
-            ...     casebook.content_tree__move_to([2])
             >>> with assert_raises(ValueError, match='Cannot move node to root'):
             ...     s_1.content_tree__move_to([])
             >>> with assert_raises(ValueError, match='Cannot add descendant of Resource'):
@@ -1310,8 +1307,8 @@ class MaterializedPathTreeMixin(models.Model):
             return
         if len(new_ordinals) < 1:
             raise ValueError("Cannot move node to root")
-        if type(self) is Casebook:
-            raise ValueError("Cannot move casebook node")
+        if self.is_legacy_casebook_node:
+            raise ValueError("Cannot move legacy casebook node")
         if new_ordinals[:len(self.ordinals)] == self.ordinals:
             raise ValueError("Cannot move a node inside itself")
 
@@ -1507,13 +1504,15 @@ class MaterializedPathTreeMixin(models.Model):
             >>> assert Section(ordinals=[1,1]).content_tree__is_descendant_of(Section(ordinals=[1]))
             >>> assert Resource(ordinals=[1,2,3]).content_tree__is_descendant_of(Section(ordinals=[1]))
         """
-        return False if type(self) is Casebook else self.ordinals[:len(parent.ordinals)] == parent.ordinals
+        return self.ordinals[:len(parent.ordinals)] == parent.ordinals
 
     def content_tree__get_same_tree_node_from_ordinals(self, ordinals):
-        """ Fetch a node from the database, with the given ordinals, that is part of the same tree as self. """
-        casebook_id = self.id if type(self) == Casebook else self.casebook_id
+        """
+            Fetch a node from the database with the given ordinals that is part of the same tree as self,
+            or the root of the tree, the node's Casebook.
+        """
         return ContentNode.objects.get(ordinals=ordinals,
-                                       casebook_id=casebook_id) if ordinals else Casebook.objects.get(id=casebook_id)
+                                       casebook_id=self.casebook_id) if ordinals else Casebook.objects.get(id=self.casebook_id)
 
     def content_tree__get_descendant(self, ordinals):
         """
@@ -1630,7 +1629,7 @@ class ContentNode(EditTrackedModel, TimestampedModel, BigPkModel, MaterializedPa
     # Some fields are only used by certain subsets of ContentNodes
     # https://github.com/harvard-lil/h2o/issues/1035
 
-    # casebooks only
+    # legacy casebook nodes only
     public = models.BooleanField(default=False)
     draft_mode_of_published_casebook = models.BooleanField(blank=True, null=True,
                                                            help_text='Unknown (None) or True; never False')
@@ -1836,6 +1835,10 @@ class ContentNode(EditTrackedModel, TimestampedModel, BigPkModel, MaterializedPa
         return f"{self.title} ({self.id})"
 
     @property
+    def is_legacy_casebook_node(self):
+        return not self.ordinals
+
+    @property
     def is_resource(self):
         return self.resource_id is not None
 
@@ -1964,8 +1967,6 @@ class ContentNode(EditTrackedModel, TimestampedModel, BigPkModel, MaterializedPa
                     '--quiet',
                     '--self-contained'
                 ]
-            if type(self) is Casebook:
-                command.extend(['--lua-filter', os.path.join(settings.PANDOC_DIR, 'table_of_contents.lua')])
             try:
                 response = subprocess.run(command, input=html.encode('utf8'), stderr=subprocess.PIPE,
                                           stdout=subprocess.PIPE)
@@ -2388,6 +2389,9 @@ class ContentNode(EditTrackedModel, TimestampedModel, BigPkModel, MaterializedPa
         Sections, and Resources associated with annotations.
 
         This method should be implemented by all children.
+        Section contains Resources that have been annotated,
+        and it is useful to have a single interface for finding
+        Sections and Resources associated with annotations.
         """
         if self.resource_id:
             return self.annotations.count() > 0
@@ -2398,7 +2402,7 @@ class ContentNode(EditTrackedModel, TimestampedModel, BigPkModel, MaterializedPa
 
     def get_absolute_url(self):
         """
-        Since Casebooks, Sections, and Resources can all be accessed
+        Since Sections, and Resources can all be accessed
         from URLs that include slugs AND from urls that omit slugs,
         instruct Django how to calculate the canonical URL for each object.
         https://docs.djangoproject.com/en/2.2/ref/models/instances/#get-absolute-url
@@ -2412,7 +2416,7 @@ class ContentNode(EditTrackedModel, TimestampedModel, BigPkModel, MaterializedPa
 
     def get_edit_url(self):
         """
-        A convenience method, for retrieving the edit URL of a Casebook,
+        A convenience method, for retrieving the edit URL of a
         Section, or Resource without having to specify the view name,
         which is useful in shared templates.
 
@@ -3763,9 +3767,6 @@ class Casebook(EditTrackedModel, TimestampedModel, BigPkModel, CasebookAndSectio
                 yield node
             if node.content_tree__children:
                 yield from node.content_tree__update_ordinals()
-
-    def content_tree__move_to(self,arg):
-        raise ValueError('Cannot move casebook node')
 
     @property
     def in_edit_state(self):
