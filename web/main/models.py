@@ -2774,13 +2774,6 @@ class CommonTitle(BigPkModel):
         return Casebook.objects.filter(common_title=self).exclude(state=Casebook.LifeCycle.ARCHIVED.value).exclude(state=Casebook.LifeCycle.DRAFT.value).exclude(state=Casebook.LifeCycle.PREVIOUS_SAVE.value)
 
 
-class CasebookEditLogManager(models.Manager):
-    def get_queryset(self):
-        return super().get_queryset()
-
-
-
-
 class CasebookEditLog(BigPkModel):
     casebook = models.ForeignKey('Casebook',
         on_delete=models.DO_NOTHING,
