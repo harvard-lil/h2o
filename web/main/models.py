@@ -1543,8 +1543,7 @@ class MaterializedPathTreeMixin(models.Model):
 
     def ordinals_with_urls(self, editing=False):
         """
-        A helper method for assembling Sections' and Resources' breadcrumb links.
-        Might be more appropriate as a templatetag.
+        A helper method for assembling ContentNodes' breadcrumb links.
         """
         return [{'ordinal':display_ordinal,
                 'ordinals':self.display_ordinals[:index+1],
@@ -2428,14 +2427,6 @@ class ContentNode(EditTrackedModel, TimestampedModel, BigPkModel, MaterializedPa
         return self.casebook.get_draft_url
 
     def get_edit_or_absolute_url(self, editing=False):
-        """
-        This is a convenience method, currently used only when building
-        the Table of Contents. It probably will no longer be helpful,
-        when the editable Table of Contents is rendered via Vue. But
-        for now...
-
-        This method should be implemented by all children.
-        """
         if self.resource_id:
             if editing:
                 if self.annotatable:
@@ -2541,12 +2532,6 @@ class CasebookAndSectionMixin(models.Model):
 
     class Meta:
         abstract = True
-
-    def get_edit_or_absolute_url(self, editing=False):
-        """See ContentNode.get_edit_or_absolute_url"""
-        if editing:
-            return self.get_edit_url()
-        return self.get_absolute_url()
 
     def _delete_related_links_and_text_blocks(self):
         """
