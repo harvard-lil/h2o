@@ -1533,8 +1533,7 @@ class MaterializedPathTreeMixin(models.Model):
 
     def ordinal_string(self):
         """
-        A human-friendly rendering of the "ordinals" field.
-        Might be more appropriate as a templatetag.
+        A human-friendly rendering of the "display_ordinals" field.
         """
         return '.'.join(str(o) for o in self.display_ordinals) if self.does_display_ordinals else ''
 
