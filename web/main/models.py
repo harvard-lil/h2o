@@ -2347,6 +2347,9 @@ class ContentNode(EditTrackedModel, TimestampedModel, BigPkModel, MaterializedPa
     ##
     # Methods specialized by children
     ##
+    @property
+    def primary_authors(self):
+        return self.casebook.primary_authors
 
     @property
     def is_public(self):
@@ -3786,9 +3789,7 @@ class Section(CasebookAndSectionMixin, SectionAndResourceMixin, ContentNode):
     def children(self):
         return self._content_tree__children
 
-    @property
-    def primary_authors(self):
-        return self.casebook.primary_authors
+
 
 class ResourceManager(models.Manager):
     def get_queryset(self):
