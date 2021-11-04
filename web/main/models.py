@@ -232,7 +232,7 @@ def cleanse_html_field(model_instance, fieldname, sanitize_field=False):
 
 class AnnotatedModel(EditTrackedModel):
     """
-        Abstract base class for Case and TextBlock resource types, which can be annotated. Ensures that annotation
+        Abstract base class for LegalDocument and TextBlock resource types, which can be annotated. Ensures that annotation
         offsets will be updated when the text contents of this resource are modified.
     """
 
@@ -1164,12 +1164,12 @@ class ContentNodeQueryset(models.QuerySet):
     _prefetch_resources_done = False
     _prefetch_resources = None
 
-    def prefetch_resources(self, case_query=None, textblock_query=None, link_query=None, legal_doc_query=None):
+    def prefetch_resources(self, textblock_query=None, link_query=None, legal_doc_query=None):
         """
             Return cloned queryset with attributes to trigger prefetching in _fetch_all.
         """
         clone = self._chain()
-        clone._prefetch_resources = [case_query, textblock_query, link_query, legal_doc_query]
+        clone._prefetch_resources = [textblock_query, link_query, legal_doc_query]
         return clone
 
     def _clone(self):
@@ -1190,7 +1190,7 @@ class ContentNodeQueryset(models.QuerySet):
             self._prefetch_resources_done = True
             if not self._result_cache:
                 return
-            _, textblock_query, link_query, legal_doc_query = self._prefetch_resources
+            textblock_query, link_query, legal_doc_query = self._prefetch_resources
             if textblock_query is None:
                 textblock_query = TextBlock.objects.all()
             if link_query is None:
@@ -1556,7 +1556,6 @@ class MaterializedPathTreeMixin(models.Model):
                 for index, display_ordinal in enumerate(self.display_ordinals)]
 
 
-
 class TrackedCloneable(models.Model):
     class Meta:
         abstract = True
@@ -1654,9 +1653,9 @@ class ContentNode(EditTrackedModel, TimestampedModel, BigPkModel, MaterializedPa
         null=True,
         related_name='contents'
     )
-    # resources only
-    # These fields define a relationship with a Case, Link, Textblock, or LegalDocument
-    # not yet described/available via the Django ORM
+
+    # This field, together with resource_id, defines a relationship with Link, Textblock, or LegalDocument.
+    # May also be blank, 'Section', or 'Temp'.
     # https://github.com/harvard-lil/h2o/issues/1035
     resource_type = models.CharField(max_length=255, blank=True, null=True)
     resource_id = models.BigIntegerField(blank=True, null=True)
@@ -1677,7 +1676,7 @@ class ContentNode(EditTrackedModel, TimestampedModel, BigPkModel, MaterializedPa
     @property
     def resource(self):
         """
-        Resource nodes are each related to one Case, TextBlock, or Link object,
+        Resource nodes are each related to one LegalDocument, TextBlock, or Link object,
         which has historically been referred to as the node's "resource."
 
         (Resource objects might more accurately be called "ResourceWrapper"
@@ -1691,7 +1690,7 @@ class ContentNode(EditTrackedModel, TimestampedModel, BigPkModel, MaterializedPa
         if hasattr(self,'_resource_prefetched') and not self._resource_prefetched:
             if not self.resource_id:
                 return None
-            if self.resource_type in ['Case', 'TextBlock', 'Link', 'LegalDocument']:
+            if self.resource_type in ['TextBlock', 'Link', 'LegalDocument']:
                 # so fancy...
                 self._resource = globals()[self.resource_type].objects.get(id=self.resource_id)
                 self._resource_prefetched = True
@@ -1768,8 +1767,7 @@ class ContentNode(EditTrackedModel, TimestampedModel, BigPkModel, MaterializedPa
     def body_template(self):
         if not self.has_body:
             return 'includes/bodies/empty.html'
-        return {'Case': 'includes/bodies/case.html',
-                'Link': 'includes/bodies/link.html',
+        return {'Link': 'includes/bodies/link.html',
                 'TextBlock': 'includes/bodies/text_block.html',
                 'LegalDocument':'includes/bodies/legal_doc.html'}[self.resource_type]
 
@@ -1841,7 +1839,6 @@ class ContentNode(EditTrackedModel, TimestampedModel, BigPkModel, MaterializedPa
     def is_resource(self):
         return self.resource_id is not None
 
-
     @property
     def sub_sections(self):
         """
@@ -1864,7 +1861,7 @@ class ContentNode(EditTrackedModel, TimestampedModel, BigPkModel, MaterializedPa
         """
         Only particular kinds of resources can be annotated.
         """
-        return self.type == 'resource' and self.resource_type in ['Case', 'TextBlock', 'LegalDocument']
+        return self.type == 'resource' and self.resource_type in ['TextBlock', 'LegalDocument']
 
     def get_annotate_url(self):
         """
@@ -1873,7 +1870,7 @@ class ContentNode(EditTrackedModel, TimestampedModel, BigPkModel, MaterializedPa
         """
         if self.annotatable:
             return reverse('annotate_resource', args=[self.casebook, self])
-        raise ValueError('Only Resources (Case and TextBlock) can be annotated.')
+        raise ValueError('Only Resources (LegalDocument and TextBlock) can be annotated.')
 
     @property
     def get_preferred_url(self):
@@ -1885,7 +1882,7 @@ class ContentNode(EditTrackedModel, TimestampedModel, BigPkModel, MaterializedPa
         User has edit permission?
          Section:
           - Return the layout url.
-          Case/Text:
+          LegalDocument/Text:
           - Return the annotate url.
           Link/Temp:
           - Return the edit url.
@@ -1898,7 +1895,6 @@ class ContentNode(EditTrackedModel, TimestampedModel, BigPkModel, MaterializedPa
 
     @property
     def type(self):
-        # TODO: In use in templates and tests; shouldn't be necessary. Consider refactoring.
         if not self.resource_type or self.resource_type == 'Section':
             return 'section'
         elif self.resource_type == 'Temp':

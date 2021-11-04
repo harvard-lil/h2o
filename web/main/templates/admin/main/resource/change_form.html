@@ -24,12 +24,5 @@
       </a>
       {% endwith %}
     </div>
-    {% if original.resource_type == 'Case' %}
-    <div class="form-row">
-      <a target="_blank" href="{% url 'admin:view_on_site' content_type_id original.pk %}">
-        View in H2O
-      </a>
-    </div>
-    {% endif %}
   </div>
 {% endblock %}
