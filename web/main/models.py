@@ -1465,7 +1465,6 @@ class MaterializedPathTreeMixin(models.Model):
         to_update = [self] + list(self.content_tree__update_ordinals())
         bulk_update_with_history(to_update, ContentNode, ['ordinals', 'display_ordinals'], batch_size=500, default_change_reason="Tree Repair")
 
-
     def content_tree__update_ordinals(self):
         """
             Recursively fix ordinals for all descendants that have been moved in the content tree, based on their
@@ -2462,7 +2461,6 @@ class ContentNode(EditTrackedModel, TimestampedModel, BigPkModel, MaterializedPa
             enumerate(a for a in self.annotations.all() if a.global_start_offset >= 0 and a.kind in ('note', 'link'))
         ))
 
-
     def is_transmutable(self):
         if self.headnote and len(self.headnote) > 0 or self.provenance:
             return False
@@ -2660,7 +2658,6 @@ class ContentNode(EditTrackedModel, TimestampedModel, BigPkModel, MaterializedPa
                 ('Credits', reverse('show_resource_credits', args=[self.casebook, self]), True)]
         return [(n, l, n == current_tab) for n,l,c in tabs if c]
 
-
     @property
     def descendant_nodes(self):
         ids = [cn.id for cn in self.contents.all()] + [self.id]
@@ -2685,7 +2682,6 @@ class ContentNode(EditTrackedModel, TimestampedModel, BigPkModel, MaterializedPa
 
         lds = {ld.id for ld in LegalDocument.objects.filter(source_id__in=legal_doc_sources, source_ref__in=legal_doc_refs).all() if (ld.source_id, ld.source_ref) in src_refs}
         return ContentNode.objects.filter(resource_type='LegalDocument',resource_id__in=lds).filter(casebook__state='Public').prefetch_related('casebook')
-
 
 #
 # Start ContentNode Proxies
@@ -2737,7 +2733,7 @@ class CasebookEditLog(BigPkModel):
       max_length=10,
       choices=[(tag.value, tag.name) for tag in ChangeType]
     )
-    # This is a pointer to the content we direct people to on the history page. 
+    # This is a pointer to the content we direct people to on the history page.
     # It may result in a redirect if there's been more than one edit. Updated on GC.
     content = models.ForeignKey('ContentNode',
         on_delete=models.SET_NULL,
@@ -2844,7 +2840,6 @@ class Casebook(EditTrackedModel, TimestampedModel, BigPkModel, TrackedCloneable)
         if (not (self.is_archived or self.is_previous_save)) and (self.is_public or user.is_superuser):
             return True
         return bool(self.contentcollaborator_set.filter(user_id=user.id).first())
-
 
     def directly_editable_by(self, user):
         """
@@ -3774,7 +3769,7 @@ class Casebook(EditTrackedModel, TimestampedModel, BigPkModel, TrackedCloneable)
     @property
     def revising(self):
         return self.draft_of
-    
+
     @property
     def grouped_edit_log(self):
         def change_priority(entry):
