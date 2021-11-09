@@ -1499,7 +1499,7 @@ def new_link(request, casebook):
         >>> assert all([isinstance(r_1_5.resource, Link), r_1_5.resource.url == data['url']])
         >>> assert r_1_5.title == r_1_5.resource.get_name()
         >>> assert dump_content_tree_children(s_1) == [r_1_1, r_1_2, r_1_3, s_1_4, r_1_5]
-        >>> assert_url_equal(response, r_1_5.get_edit_or_absolute_url(editing=True))
+        >>> assert_url_equal(response, r_1_5.get_edit_url())
 
     """
     form = LinkForm(request.POST or None)
