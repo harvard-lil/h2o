@@ -2352,6 +2352,32 @@ class ContentNode(EditTrackedModel, TimestampedModel, BigPkModel, MaterializedPa
         return self.casebook.primary_authors
 
     @property
+    def originating_authors(self):
+        if self.type == 'Section':
+            originating_nodes = set([cloned_node for child_content in self.contents.all() for cloned_node in child_content.provenance])
+        else:
+            if not self.provenance:
+                return set()
+            originating_nodes = set(self.provenance)
+        users = [collaborator.user for cn in
+                    ContentNode.objects.filter(id__in=originating_nodes)
+                        .select_related('casebook')
+                        .prefetch_related('casebook__contentcollaborator_set__user')
+                        .all()
+                    for collaborator in cn.casebook.contentcollaborator_set.order_by('id').all() if collaborator.has_attribution and collaborator.user.attribution != 'Anonymous']
+        return set(users)
+
+    @property
+    def has_non_current_authors(self):
+        return len(self.non_current_authors) > 0
+
+    @property
+    def non_current_authors(self):
+        ogs = self.originating_authors
+        cgs = self.primary_authors
+        return ogs.difference(cgs)
+
+    @property
     def is_public(self):
         return self.casebook.is_public
 
@@ -2546,29 +2572,6 @@ class CasebookAndSectionMixin(models.Model):
         for cls, ids in to_delete.items():
             cls.objects.filter(id__in=ids).delete()
 
-    @property
-    def originating_authors(self):
-        """
-        Every attributed author for any ancestor of a contentnode contained in the section
-        """
-        originating_node = set([cloned_node for child_content in self.contents.all() for cloned_node in child_content.provenance])
-        users = [collaborator.user for cn in
-                    ContentNode.objects.filter(id__in=originating_node)
-                        .select_related('casebook')
-                        .prefetch_related('casebook__contentcollaborator_set__user')
-                        .all()
-                    for collaborator in cn.casebook.contentcollaborator_set.all() if collaborator.has_attribution and collaborator.user.attribution != 'Anonymous']
-        return set(users)
-
-    @property
-    def has_non_current_authors(self):
-        return len(self.non_current_authors) > 0
-
-    @property
-    def non_current_authors(self):
-        ogs = self.originating_authors
-        cgs = self.primary_authors
-        return ogs.difference(cgs)
 
 class SectionAndResourceMixin(models.Model):
     """
@@ -3536,6 +3539,30 @@ class Casebook(EditTrackedModel, TimestampedModel, BigPkModel, CasebookAndSectio
         return authors
 
     @property
+    def has_non_current_authors(self):
+        return len(self.non_current_authors) > 0
+
+    @property
+    def non_current_authors(self):
+        ogs = self.originating_authors
+        cgs = self.primary_authors
+        return ogs.difference(cgs)
+
+    @property
+    def originating_authors(self):
+        """
+        Every attributed author for any ancestor of a contentnode contained in the section
+        """
+        originating_node = set([cloned_node for child_content in self.contents.all() for cloned_node in child_content.provenance])
+        users = [collaborator.user for cn in
+                    ContentNode.objects.filter(id__in=originating_node)
+                        .select_related('casebook')
+                        .prefetch_related('casebook__contentcollaborator_set__user')
+                        .all()
+                    for collaborator in cn.casebook.contentcollaborator_set.all() if collaborator.has_attribution and collaborator.user.attribution != 'Anonymous']
+        return set(users)
+
+    @property
     def all_collaborators(self):
         return set([c.user for c in self.contentcollaborator_set.all()])
 
@@ -3799,32 +3826,6 @@ class Resource(SectionAndResourceMixin, ContentNode):
 
     objects = ResourceManager()
 
-    @property
-    def originating_authors(self):
-        if not self.provenance:
-            return set()
-        originating_node = set(self.provenance)
-        users = [collaborator.user for cn in
-                    ContentNode.objects.filter(id__in=originating_node)
-                        .select_related('casebook')
-                        .prefetch_related('casebook__contentcollaborator_set__user')
-                        .all()
-                    for collaborator in cn.casebook.contentcollaborator_set.order_by('id').all() if collaborator.has_attribution and collaborator.user.attribution != 'Anonymous']
-        return set(users)
-
-    @property
-    def primary_authors(self):
-        return self.casebook.primary_authors
-
-    @property
-    def has_non_current_authors(self):
-        return len(self.non_current_authors) > 0
-
-    @property
-    def non_current_authors(self):
-        ogs = self.originating_authors
-        cgs = self.primary_authors
-        return ogs.difference(cgs)
 
 #
 # End ContentNode Proxies
