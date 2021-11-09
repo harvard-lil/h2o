@@ -2039,10 +2039,6 @@ def reorder_node(request, casebook, section=None, node=None):
         >>> assert dump_content_tree_children(s_1_4) == [r_1_4_3, r_1_4_1, r_1_4_2]
         >>> assert_url_equal(response, s_1.get_edit_url())
     """
-    # TODO: having separate endpoints for casebook and section pages is only necessary to enable the change-and-redirect
-    # behavior of the current javascript. When the casebook edit page is rendered with Vue, this endpoint can just
-    # return success or failure, and the same endpoint will work for both casebook and section pages.
-    # https://github.com/harvard-lil/h2o/issues/1050
 
     # parse request:
     try:
