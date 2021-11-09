@@ -1356,8 +1356,8 @@ class MaterializedPathTreeMixin(models.Model):
             >>> casebook.content_tree__repair()
             >>> calculated_ordinals = [x.ordinals for x in casebook.contents.all()]
             >>> assert calculated_ordinals == [[1], [1, 1], [1, 2], [1, 3], [1, 4], [1, 4, 1], [1, 4, 2], [1, 4, 3], [2]]
-           >>> calculated_strings = [x.ordinal_string() for x in casebook.contents.all()]
-           >>> assert calculated_strings == ['1', '', '1.1', '1.2', '1.3', '1.3.1', '1.3.2', '1.3.3', '2']
+            >>> calculated_strings = [x.ordinal_string() for x in casebook.contents.all()]
+            >>> assert calculated_strings == ['1', '', '1.1', '1.2', '1.3', '1.3.1', '1.3.2', '1.3.3', '2']
         """
         self.content_tree__load()
         self.content_tree__store()
