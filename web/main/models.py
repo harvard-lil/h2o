@@ -1676,7 +1676,7 @@ class ContentNode(EditTrackedModel, TimestampedModel, BigPkModel, MaterializedPa
         Resource nodes are each related to one LegalDocument, TextBlock, or Link object,
         which has historically been referred to as the node's "resource."
 
-        (Resource objects might more accurately be called "ResourceWrapper"
+        (Resource nodes might more accurately be called "ResourceWrapper"
         objects, or similar.)
 
         This method retrieves the node's related resource, in the manner one
@@ -1955,10 +1955,6 @@ class ContentNode(EditTrackedModel, TimestampedModel, BigPkModel, MaterializedPa
                 to_delete[type(resource._resource)].append(resource.resource_id)
         for cls, ids in to_delete.items():
             cls.objects.filter(id__in=ids).delete()
-
-    ##
-    # Methods common to all ContentNodes
-    ##
 
     def get_slug(self):
         return slugify(self.title)
@@ -2489,9 +2485,6 @@ class ContentNode(EditTrackedModel, TimestampedModel, BigPkModel, MaterializedPa
             elif self.resource_type == 'Link':
                 return True
 
-    ##
-    # Methods specialized by children
-    ##
     @property
     def primary_authors(self):
         return self.casebook.primary_authors
@@ -2696,6 +2689,19 @@ class ContentNode(EditTrackedModel, TimestampedModel, BigPkModel, MaterializedPa
 
 #
 # Start ContentNode Proxies
+#
+
+class Section(ContentNode):
+    class Meta:
+        proxy = True
+
+
+class Resource(ContentNode):
+    class Meta:
+        proxy = True
+
+#
+# End ContentNode Proxies
 #
 
 
@@ -2907,7 +2913,6 @@ class Casebook(EditTrackedModel, TimestampedModel, BigPkModel, TrackedCloneable)
         return any(node.annotations for node in self.contents.prefetch_related('annotations'))
 
     def get_edit_or_absolute_url(self, editing=False):
-        """See ContentNode.get_edit_or_absolute_url"""
         if editing:
             return self.get_edit_url()
         return self.get_absolute_url()
@@ -3801,20 +3806,6 @@ class Casebook(EditTrackedModel, TimestampedModel, BigPkModel, TrackedCloneable)
         results.append(list(log_line.values()))
         return results
 
-
-class Section(ContentNode):
-    class Meta:
-        proxy = True
-
-
-class Resource(ContentNode):
-    class Meta:
-        proxy = True
-
-
-#
-# End ContentNode Proxies
-#
 
 class Link(NullableTimestampedModel):
     name = models.CharField(max_length=1024, blank=True, null=True)
