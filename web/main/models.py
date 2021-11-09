@@ -2856,11 +2856,6 @@ class Casebook(EditTrackedModel, TimestampedModel, BigPkModel, TrackedCloneable)
     def casebook(self):
         return self
 
-    @property
-    def type(self):
-        # TODO: In use in templates and tests; shouldn't be necessary. Consider refactoring.
-        return type(self).__name__.lower()
-
     def headnote_for_export(self, export_options=None):
         r"""
             Return headnote HTML prepared for pandoc export.
@@ -2871,10 +2866,6 @@ class Casebook(EditTrackedModel, TimestampedModel, BigPkModel, TrackedCloneable)
             return ''
         html = rich_text_export(self.headnote, request=export_options and export_options.get('request', None), id_prefix=str(self.id))
         return mark_safe(html)
-
-    @property
-    def is_resource(self):
-        return False
 
     @property
     def is_public(self):
