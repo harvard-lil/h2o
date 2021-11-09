@@ -2698,23 +2698,6 @@ class ContentNode(EditTrackedModel, TimestampedModel, BigPkModel, MaterializedPa
 # Start ContentNode Proxies
 #
 
-class CasebookAndSectionMixin(models.Model):
-    """
-    Methods shared by Casebooks and Sections
-    """
-
-    class Meta:
-        abstract = True
-
-
-class SectionAndResourceMixin(models.Model):
-    """
-    Methods shared by Sections and Resources
-    """
-
-    class Meta:
-        abstract = True
-
 
 class CommonTitle(BigPkModel):
     name = models.CharField(max_length=300, blank=False, null=False)
@@ -2775,7 +2758,7 @@ class CasebookEditLog(BigPkModel):
         return mark_safe(line)
 
 
-class Casebook(EditTrackedModel, TimestampedModel, BigPkModel, CasebookAndSectionMixin, TrackedCloneable):
+class Casebook(EditTrackedModel, TimestampedModel, BigPkModel, TrackedCloneable):
     old_casebook = models.ForeignKey('ContentNode', on_delete=models.DO_NOTHING,blank=True,null=True,related_name='replacement_casebook')
     title = models.CharField(max_length=10000, default="Untitled")
     subtitle = models.CharField(max_length=10000, blank=True, null=True)
@@ -3822,26 +3805,14 @@ class Casebook(EditTrackedModel, TimestampedModel, BigPkModel, CasebookAndSectio
         return results
 
 
-class Section(CasebookAndSectionMixin, SectionAndResourceMixin, ContentNode):
+class Section(ContentNode):
     class Meta:
         proxy = True
 
-    @property
-    def children(self):
-        return self._content_tree__children
 
-
-
-class ResourceManager(models.Manager):
-    def get_queryset(self):
-        return super().get_queryset().filter(casebook__isnull=False, resource_id__isnull=False)
-
-
-class Resource(SectionAndResourceMixin, ContentNode):
+class Resource(ContentNode):
     class Meta:
         proxy = True
-
-    objects = ResourceManager()
 
 
 #
