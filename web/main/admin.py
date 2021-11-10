@@ -523,8 +523,28 @@ class LegalDocumentSourceAdmin(BaseAdmin):
         return format_html(f'<a href="{base_url}?resource_type=LegalDocument&doc-source={obj.id}">{obj.documents.count()}</a>')
 
 
+class LegalDocumentForm(forms.ModelForm):
+    """Override to so that metadata displays with a view-only JSON widget"""
+
+    class Meta:
+        model = LegalDocument
+        fields = '__all__'
+        widgets = {
+            'metadata': JSONEditorWidget(options={
+                'mode': 'view',
+                'modes': ['view']
+            }),
+        }
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.fields.get('metadata').disabled = True
+
+
 class LegalDocumentAdmin(BaseAdmin, SimpleHistoryAdmin):
-    readonly_fields = ['needs_fixing', 'source_name', 'created_at', 'updated_at', 'metadata', 'source_ref', 'effective_date', 'publication_date', 'updated_date']
+    form = LegalDocumentForm
+
+    readonly_fields = ['needs_fixing', 'source_name', 'created_at', 'updated_at', 'source_ref', 'effective_date', 'publication_date', 'updated_date']
     list_select_related = []
     list_display = ['id', 'short_name', 'source_name', 'doc_class', 'related_resources', 'live_annotations_count', 'created_at', 'updated_at']
     list_filter = ['doc_class', LegalDocumentSourceFilter]
