@@ -75,7 +75,7 @@ def get_allow_lists():
         'ol': {'type', 'start', 'class', 'style'},
         'p': {'title', 'dir', 'class', 'id', 'lang', 'style'},
         'pre': {'id', 'style'},
-        'span': {'title', 'id', 'lang', 'class', 'style', 'data-custom-style'},
+        'span': {'title', 'id', 'lang', 'class', 'style', 'data-custom-style', 'data-extra-export-offset'},
         'strike': {'style'},
         'strong': {'id', 'class', 'style'},
         'sup': {'id', 'class', 'style'},

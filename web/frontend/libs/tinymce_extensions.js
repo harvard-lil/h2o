@@ -179,7 +179,7 @@ export function installFootnotes(editor) {
         let labelDom = bodyDom.getElementsByClassName('footnote-label');
         if(! labelDom || labelDom.length == 0) {
           if (bodyDom.firstChild) {
-            labelDom = editor.dom.createFragment(`<span class="footnote-label">${mark}</span>`);
+            labelDom = editor.dom.createFragment(`<span class="footnote-label" data-extra-export-offset="2">${mark}</span>`);
             bodyDom.firstChild.prepend(labelDom);
           }
         } else {
@@ -257,7 +257,7 @@ export function installFootnotes(editor) {
   function createFootnote(data) {
     data.id = uuid();
     let refHTML = `<span class="footnote footnote-ref" data-custom-style="Footnote Reference" id="footnote-${data.id}-ref">${data.mark}</span>`;
-    let bodyNode = editor.dom.createFragment(`<div class="footnote footnote-body" id="footnote-${data.id}"><p><span class="footnote-label" contenteditable="false">${data.mark}</span>${data.footnote}</p></div>`);
+    let bodyNode = editor.dom.createFragment(`<div class="footnote footnote-body" id="footnote-${data.id}"><p><span class="footnote-label" data-extra-export-offset="2" contenteditable="false">${data.mark}</span>${data.footnote}</p></div>`);
 
     let footer = getFooter();
     footer.appendChild(bodyNode);
@@ -267,7 +267,7 @@ export function installFootnotes(editor) {
   function updateFootnote(data) {
     let {refNode, bodyNode} = getFootnoteNodePair(data.id);
     refNode.innerText = data.mark;
-    let bodyContent = editor.dom.createFragment(`<p><span class="footnote-label" contenteditable="false">${data.mark}</span>${data.footnote}</p>`);
+    let bodyContent = editor.dom.createFragment(`<p><span class="footnote-label" data-extra-export-offset="2" contenteditable="false">${data.mark}</span>${data.footnote}</p>`);
     while(bodyNode.firstChild) {bodyNode.firstChild.remove();}
     bodyNode.appendChild(bodyContent);
   }

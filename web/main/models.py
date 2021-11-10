@@ -2404,6 +2404,9 @@ class ContentNode(EditTrackedModel, TimestampedModel, BigPkModel, MaterializedPa
                 """ Handle opening elements from the source HTML. """
                 if self.omitTag(name[1]):
                     return
+                if attributes and (None, 'data-extra-export-offset') in attributes:
+                    extra_offset = int(attributes.getValueByQName('data-extra-export-offset'))
+                    self.offset -= extra_offset
                 self.addTag((self.out_handler.startElement, name[1], {k[1]: v for k, v in attributes.items()}))
 
             def endElementNS(self, name, qname):
