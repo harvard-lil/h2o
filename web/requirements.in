@@ -34,5 +34,4 @@ requests
 pyquery
 
 # Who knows?
-pip==20.3.4
 importlib-metadata==1.7.0
