@@ -28,7 +28,7 @@ def edit_link(obj, as_str=False):
         return None
     url = reverse(f'admin:{obj._meta.app_label}_{obj._meta.model_name}_change', args=[obj.id])
     if as_str:
-        return format_html('<a href="{}">→{} ({})</a>', url, obj, obj.id)
+        return format_html('<a href="{}">→{}</a>', url, obj)
     else:
         return format_html('<a href="{}">→{}</a>', url, obj.id)
 
