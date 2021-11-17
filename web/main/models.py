@@ -991,11 +991,11 @@ class LegalDocument(NullableTimestampedModel, AnnotatedModel):
     # Utility functions
 
     def has_newer_version(self):
+        if self.source.name == 'Legacy':
+            return False
         latest_downloaded = self.source.most_recent_with_id(self.source_ref)
         if latest_downloaded.publication_date > self.publication_date:
             return True
-        if self.source.name == 'Legacy':
-            return False
         latest_meta = self.source.get_metadata(self.source_ref)
         return latest_meta and latest_meta['publication_date'] > timezone.utc.localize(self.publication_date)
 
