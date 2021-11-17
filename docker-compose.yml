@@ -1,11 +1,13 @@
 version: '3'
 services:
   db:
-    image: registry.lil.tools/library/postgres:9.6.16
+    image: registry.lil.tools/library/postgres:12.8
     volumes:
-      - db_data:/var/lib/postgresql/data:delegated
+      - db_data_12:/var/lib/postgresql/data:delegated
     ports:
       - "127.0.0.1:54320:5432"
+    environment:
+      - POSTGRES_PASSWORD=example
 
   web:
     build:
@@ -43,6 +45,6 @@ services:
       - "127.0.0.1:9000:9000"
 
 volumes:
-  db_data:
+  db_data_12:
   node_modules:
   minio_data:
