@@ -22,6 +22,6 @@ WORKDIR /app/web
 
 # pip
 COPY web/requirements.txt /app/web
-RUN pip install pip==19.3.1 \
+RUN pip install pip==21.3.1 \
     && pip install -r requirements.txt \
     && rm requirements.txt
