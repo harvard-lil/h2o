@@ -20,13 +20,15 @@
       <w:sz w:val="22"/>
     </w:rPr>
   </w:style>
-    <w:style w:type="paragraph" w:styleId="BodyText">
+  <w:style w:type="paragraph" w:styleId="BodyText">
     <w:name w:val="Body Text" />
     <w:basedOn w:val="Normal" />
     <w:link w:val="BodyTextChar" />
     <w:pPr>
       <!-- H2O override spacing -->
       <w:spacing w:after="120" w:before="120" w:line="360" w:lineRule="auto"/>
+      <!-- H2O override justification -->
+      <w:jc w:val="both"/>
     </w:pPr>
     <w:qFormat />
   </w:style>
@@ -35,6 +37,10 @@
     <w:basedOn w:val="BodyText" />
     <w:next w:val="BodyText" />
     <w:qFormat />
+    <w:pPr>
+      <!-- H2O override spacing -->
+      <w:spacing w:before="360"/>
+    </w:pPr>
   </w:style>
   <w:style w:type="paragraph" w:customStyle="1" w:styleId="Compact">
     <w:name w:val="Compact" />
@@ -766,6 +772,70 @@
       <w:smallCaps/>
     </w:rPr>
   </w:style>
+  <w:style w:customStyle="1" w:styleId="ChapterNumber" w:type="paragraph">
+    <w:name w:val="Chapter Number"/>
+    <w:basedOn w:val="Normal"/>
+    <w:qFormat/>
+    <w:pPr>
+      <w:keepNext/>
+      <w:keepLines/>
+      <w:spacing w:before="5720"/>
+      <w:jc w:val="center"/>
+    </w:pPr>
+    <w:rPr>
+      <w:b/>
+      <w:color w:themeColor="text1" w:themeTint="BF" w:val="404040"/>
+      <w:sz w:val="72"/>
+    </w:rPr>
+  </w:style>
+  <w:style w:customStyle="1" w:styleId="ChapterTitle" w:type="paragraph">
+    <w:name w:val="Chapter Title"/>
+    <w:basedOn w:val="Normal"/>
+    <w:qFormat/>
+    <w:pPr>
+      <w:keepNext/>
+      <w:keepLines/>
+      <w:jc w:val="center"/>
+    </w:pPr>
+    <w:rPr>
+      <w:sz w:val="44"/>
+    </w:rPr>
+  </w:style>
+  <w:style w:customStyle="1" w:styleId="ChapterSubtitle" w:type="paragraph">
+    <w:name w:val="Chapter Subtitle"/>
+    <w:basedOn w:val="ChapterTitle"/>
+    <w:autoRedefine/>
+    <w:qFormat/>
+    <w:pPr>
+      <w:keepNext/>
+      <w:keepLines/>
+      <w:spacing w:line="360" w:lineRule="auto"/>
+    </w:pPr>
+    <w:rPr>
+      <w:sz w:val="32"/>
+    </w:rPr>
+  </w:style>
+  <w:style w:customStyle="1" w:styleId="ChapterHeadnote" w:type="paragraph">
+    <w:name w:val="Chapter Headnote"/>
+    <w:basedOn w:val="CaseText"/>
+    <w:qFormat/>
+  </w:style>
+  <w:style w:customStyle="1" w:styleId="LeadingResourceNumber" w:type="paragraph">
+    <w:name w:val="Leading Resource Number"/>
+    <w:basedOn w:val="ChapterNumber"/>
+  </w:style>
+  <w:style w:customStyle="1" w:styleId="LeadingResourceTitle" w:type="paragraph">
+    <w:name w:val="Leading Resource Title"/>
+    <w:basedOn w:val="ChapterTitle"/>
+  </w:style>
+  <w:style w:customStyle="1" w:styleId="LeadingResourceSubtitle" w:type="paragraph">
+    <w:name w:val="Leading Resource Subtitle"/>
+    <w:basedOn w:val="ChapterSubtitle"/>
+  </w:style>
+  <w:style w:customStyle="1" w:styleId="LeadingResourceHeadnote" w:type="paragraph">
+    <w:name w:val="Leading Resource Headnote"/>
+    <w:basedOn w:val="ChapterHeadnote"/>
+  </w:style>
   <w:style w:customStyle="1" w:styleId="SectionNumber" w:type="paragraph">
     <w:name w:val="Section Number"/>
     <w:basedOn w:val="Normal"/>
@@ -808,6 +878,51 @@
   </w:style>
   <w:style w:customStyle="1" w:styleId="SectionHeadnote" w:type="paragraph">
     <w:name w:val="Section Headnote"/>
+    <w:basedOn w:val="CaseText"/>
+    <w:qFormat/>
+  </w:style>
+    <w:style w:customStyle="1" w:styleId="SubsectionNumber" w:type="paragraph">
+    <w:name w:val="Subsection Number"/>
+    <w:basedOn w:val="Normal"/>
+    <w:qFormat/>
+    <w:pPr>
+      <w:keepNext/>
+      <w:keepLines/>
+      <w:spacing w:before="240"/>
+    </w:pPr>
+    <w:rPr>
+      <w:b/>
+      <w:color w:themeColor="text1" w:themeTint="BF" w:val="404040"/>
+    </w:rPr>
+  </w:style>
+  <w:style w:customStyle="1" w:styleId="SubsectionTitle" w:type="paragraph">
+    <w:name w:val="Subsection Title"/>
+    <w:basedOn w:val="Normal"/>
+    <w:qFormat/>
+    <w:pPr>
+      <w:keepNext/>
+      <w:keepLines/>
+    </w:pPr>
+    <w:rPr>
+      <w:sz w:val="42"/>
+    </w:rPr>
+  </w:style>
+  <w:style w:customStyle="1" w:styleId="SubsectionSubtitle" w:type="paragraph">
+    <w:name w:val="Subsection Subtitle"/>
+    <w:basedOn w:val="SubsectionTitle"/>
+    <w:autoRedefine/>
+    <w:qFormat/>
+    <w:pPr>
+      <w:keepNext/>
+      <w:keepLines/>
+      <w:spacing w:line="360" w:lineRule="auto"/>
+    </w:pPr>
+    <w:rPr>
+      <w:sz w:val="32"/>
+    </w:rPr>
+  </w:style>
+  <w:style w:customStyle="1" w:styleId="SubsectionHeadnote" w:type="paragraph">
+    <w:name w:val="Subsection Headnote"/>
     <w:basedOn w:val="CaseText"/>
     <w:qFormat/>
   </w:style>
