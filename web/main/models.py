@@ -3596,6 +3596,9 @@ class Casebook(EditTrackedModel, TimestampedModel, BigPkModel, TrackedCloneable)
         if experimental or settings.FORCE_EXPERIMENTAL_EXPORT:
             from docx import Document
             from docx.enum.section import WD_SECTION
+            from lxml import etree
+
+            from django.utils.text import get_text_list
 
             document = Document(os.path.join(settings.PANDOC_DIR, 'template.docx'))
 
@@ -3620,8 +3623,16 @@ class Casebook(EditTrackedModel, TimestampedModel, BigPkModel, TrackedCloneable)
 
             # the first doc section is an H2O preamble, with instructions
 
-            # the second section is the casebook title page
+            # the next section is the title page
+            document.add_section(WD_SECTION.NEXT_PAGE)
+            document.add_paragraph(self.title, style="Casebook Title")
+            if self.subtitle:
+                document.add_paragraph(self.subtitle, style="Casebook Subtitle")
+            document.add_paragraph(get_text_list([author.display_name for author in self.primary_authors], 'and'), style="Casebook Authors")
+            document.sections[1]._sectPr.append(etree.fromstring('<w:vAlign w:val="bottom" xmlns:w="http://schemas.openxmlformats.org/wordprocessingml/2006/main"/>'))
+
             # its reverse is copyright info and stuff
+            # document.add_section(WD_SECTION.NEXT_PAGE)
 
             # the next section is the table of contents
 
