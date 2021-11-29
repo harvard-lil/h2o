@@ -306,3 +306,43 @@ def casebook_garbage_collect(older_than_days=180, dry_run=False):
             cb.delete()
         count += 1
     print(f"Deleted {count}/{len(cbs)} previous saves older than {older_than_days} days old")
+
+
+@task
+@setup_django
+def export_node(node_id=None, casebook_id=None, ordinals=None, annotations=True, file_name="temporary_export.docx", memory=False):
+    from time import time
+    import tracemalloc
+    from main.models import ContentNode
+    from django.template.defaultfilters import filesizeformat
+    content_node = None
+
+    try:
+        if node_id:
+            content_node_id = int(node_id)
+            content_node = ContentNode.objects.get(id=content_node_id)
+        else:
+            casebook_id = int(casebook_id)
+            ords = list(map(int, ordinals.split(".")))
+            content_node = ContentNode.objects.get(casebook_id=casebook_id, ordinals=ords)
+    except ContentNode.DoesNotExist:
+        print(f"Couldn't find content node with node_id={node_id} or casebook_id={casebook_id} and ordinals={ordinals}")
+        return
+    include_annotations = annotations != "False"
+    if memory == "True":
+        tracemalloc.start()
+    before = time()
+
+    # Replace
+    file_contents = content_node.export(include_annotations)
+
+    after = time()
+    if memory == "True":
+        current, peak = tracemalloc.get_traced_memory()
+        print(f"Current memory usage is {current / 10**6}MB; Peak was {peak / 10**6}MB")
+        tracemalloc.stop()
+
+    with open(file_name, "wb") as f:
+        f.write(file_contents)
+
+    print(f"Generated export file ({filesizeformat(len(file_contents))}) in {round(after-before,2)} seconds.")
