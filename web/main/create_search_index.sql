@@ -44,7 +44,7 @@ UNION ALL
         LEFT JOIN main_contentcollaborator cc ON cc.casebook_id = c.id AND cc.has_attribution = true
         LEFT JOIN main_user u ON cc.user_id = u.id
     WHERE
-        state = 'Public' AND
+        state IN ('Public','Revising') AND
         u.verified_professor = true
     GROUP BY c.id
 UNION ALL
