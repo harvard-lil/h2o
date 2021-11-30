@@ -1817,7 +1817,7 @@ class ContentNode(EditTrackedModel, TimestampedModel, BigPkModel, MaterializedPa
         if depth == 1:
             if self.doc_class in ['Section', 'Text', 'Multimedia']:
                 return 'Chapter'
-            return 'LeadingResource'
+            return 'Leading Resource'
         elif self.doc_class == 'Section':
             if depth == 2:
                 return 'Section'
