@@ -308,12 +308,12 @@ class SectionAdmin(BaseAdmin, SimpleHistoryAdmin):
 
 
 class ContentNodeAdmin(BaseAdmin, SimpleHistoryAdmin):
-    readonly_fields = ['created_at', 'updated_at', 'casebook_link', 'provenance', 'resource_id', 'resource_type', 'ordinals']
+    readonly_fields = ['created_at', 'updated_at', 'casebook_link', 'provenance', 'resource_id', 'resource_type', 'ordinals', 'display_ordinals']
     list_select_related = ['casebook']
-    list_display = ['id', 'casebook_link', 'title', 'ordinals', 'resource_type', 'resource_id', 'annotation_count', 'created_at', 'updated_at']
+    list_display = ['id', 'casebook_link', 'title', 'ordinals', 'display_ordinals', 'resource_type', 'resource_id', 'annotation_count', 'created_at', 'updated_at']
     list_filter = [CasebookIdFilter, 'resource_type', ResourceIdFilter]
     search_fields = ['title', 'casebook__title']
-    fields = ['casebook', 'ordinals', 'title', 'subtitle', 'provenance', 'headnote', 'created_at', 'updated_at']
+    fields = ['casebook', 'ordinals', 'display_ordinals', 'title', 'subtitle', 'provenance', 'headnote', 'created_at', 'updated_at']
     raw_id_fields = ['casebook']
     inlines = [AnnotationInline]
 
