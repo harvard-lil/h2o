@@ -2079,7 +2079,7 @@ class ContentNode(EditTrackedModel, TimestampedModel, BigPkModel, MaterializedPa
         else:
             return 'resource'
 
-    def export(self, include_annotations, file_type='docx', export_options=None, is_child=False):
+    def export(self, include_annotations, file_type='docx', export_options=None, is_child=False, experimental=False):
         """
             Export this node and children as docx, or as html for conversion by pandoc.
 

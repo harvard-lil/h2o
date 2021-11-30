@@ -2156,10 +2156,11 @@ def export(request, node, file_type='docx'):
         raise Http404
 
     include_annotations = request.GET.get('annotations') == 'true'
+    experimental = request.GET.get('experimental') == 'true' and request.user.is_superuser
 
     export_options = {'request': request}
     # get response data
-    response_data = node.export(include_annotations, file_type, export_options=export_options)
+    response_data = node.export(include_annotations, file_type, export_options=export_options, experimental=experimental)
     if response_data is None:
         return render(request, 'export_error.html', {
             'casebook': node
@@ -2169,7 +2170,7 @@ def export(request, node, file_type='docx'):
         return HttpResponse(response_data)
 
     # return docx
-    filename = f"{Truncator(node.title).words(45, truncate='-')}{'_annotated' if include_annotations else ''}.docx"
+    filename = f"{Truncator(node.title).words(45, truncate='-')}{'_annotated' if include_annotations else ''}{'_experimental' if experimental else ''}.docx"
     return StringFileResponse(response_data, as_attachment=True, filename=filename)
 
 
