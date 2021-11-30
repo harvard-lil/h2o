@@ -5,6 +5,11 @@
 {{ block.super }}
 <div class="module aligned">
     <div class="form-row">
+        <label>Has newer version:</label><div class="readonly">{{ original.has_newer_version }}</div>
+    </div>
+</div>
+<div class="module aligned">
+    <div class="form-row">
         <label>Annotations:</label><div class="readonly">{{ original.related_annotations.count }}</div>
     </div>
 </div>
