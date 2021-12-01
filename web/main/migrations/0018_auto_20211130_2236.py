@@ -5,17 +5,11 @@ from django.db import migrations
 from django.db.models import F, Func, Value
 from django.utils import timezone
 
-
-# these are identical, except they order the html attributes differently
-STANDARD_CAP_FOOTNOTES = [
-    r'<a id="ref_footnote_[\d]+_[\d]+" class="footnotemark" href="#footnote_[\d]+_[\d]+">.*<aside',
-    r'<a class="footnotemark" href="#footnote_[\d]+_[\d]+" id="ref_footnote_[\d]+_[\d]+">.*<aside'
-]
-
+from main.models import CAP
 
 def add_footnote_metadata(apps, schema_editor):
     LegalDocument = apps.get_model('main', 'LegalDocument')
-    for i, regex in enumerate(STANDARD_CAP_FOOTNOTES):
+    for i, regex in enumerate(CAP.details['footnote_regexes']):
         rows = LegalDocument.objects.filter(content__regex=regex).update(metadata=Func(
             F("metadata"),
             Value(["html_info"]),
