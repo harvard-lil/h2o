@@ -287,9 +287,13 @@ class CAP:
                    {'name': 'US Case Law',
                     'regex':r'( vs?[.]? )|(\bin re:\b)|(ex parte)',
                     'fuzzy': True},
+               ],
+               'footnote_regexes': [
+                    # these are identical, except they order the html attributes differently
+                    r'<a id="ref_footnote_[\d]+_[\d]+" class="footnotemark" href="#footnote_[\d]+_[\d]+">.*<aside',
+                    r'<a class="footnotemark" href="#footnote_[\d]+_[\d]+" id="ref_footnote_[\d]+_[\d]+">.*<aside'
                ]
     }
-
 
     @staticmethod
     def convert_search_result(result):
@@ -425,6 +429,17 @@ class CAP:
         metadata = response.json()
         body = CAP.preprocess_body(metadata.pop('casebody', {}).pop('data',None))
         citations = [x.get('cite') for x in metadata.get('citations', []) if 'cite' in x]
+
+        # annotate metadata with details about the case's HTML, for convenience
+        metadata['html_info'] = {'source': 'cap'}
+        for regex in CAP.details['footnote_regexes']:
+            if re.search(regex, body, re.DOTALL):
+                metadata['html_info']['footnotes'] = {
+                    'style': 'cap',
+                    'regex': regex,
+                    'last_checked_timestamp': datetime.now().timestamp()
+                }
+                break
         case = LegalDocument(source=legal_doc_source,
                              short_name=metadata.get('name_abbreviation'),
                              name=metadata.get('name'),
@@ -483,6 +498,7 @@ class USCodeGPO():
                     'regex':'https://www.law.cornell.edu/uscode/.*'
                    }
                ],
+               'footnote_regexes': []
     }
 
     @staticmethod
@@ -698,7 +714,8 @@ class LegacyNoSearch():
                'short_description':'ERROR',
                'long_description':'ERROR',
                'link':'ERROR',
-               'search_regexes': []}
+               'search_regexes': [],
+               'footnote_regexes': []}
 
     @staticmethod
     def search(search_params):
