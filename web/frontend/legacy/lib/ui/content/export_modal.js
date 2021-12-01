@@ -5,12 +5,13 @@ import urls from 'libs/urls';
 
 delegate(document, 'a.action.export', 'click', (e) => {
   e.preventDefault();
+  const experimental = e.target.classList.contains('export-experimental');
   // window.app is the Vue instance
   if((window.app && app.$store.getters['annotations/getCount'] > 0) ||
      (!window.app && e.target.classList.contains('export-has-annotations'))){
-    showExportModal(e);
+    showExportModal(e, experimental);
   } else {
-    downloadFile();
+    downloadFile(undefined, experimental);
   }
 });
 
@@ -28,7 +29,7 @@ function export_casebook_path(casebookId) {
     return url({casebookId});
 }
 
-function downloadFile (includeAnnotations) {
+function downloadFile (includeAnnotations, experimental=false) {
   if(typeof includeAnnotations === "undefined"){
     includeAnnotations = "true";
   }
@@ -38,15 +39,17 @@ function downloadFile (includeAnnotations) {
   } else if (pageInfo.sectionId)  {
     window.location.assign(section_export_path(pageInfo.sectionId) + (includeAnnotations === "true"? '?annotations=true' : '?annotations=false'));
   } else {
-    window.location.assign(export_casebook_path(pageInfo.casebookId) + (includeAnnotations === "true" ? '?annotations=true' : '?annotations=false'));
+    window.location.assign(export_casebook_path(pageInfo.casebookId)
+      + (includeAnnotations === "true" ? '?annotations=true' : '?annotations=false')
+      + (experimental ? '&experimental=true' : ''));
   }
 }
 
-function showExportModal (e) {
+function showExportModal (e, experimental=false) {
   new ExportModal('export-modal', e.target, {
     'click #export-modal': (e) => { if (e.target.id === 'export-modal') this.destroy()},
     'click .export': (e) => {
-      downloadFile(e.target.value);
+      downloadFile(e.target.value, experimental);
       document.querySelector('button.close').click()
     }
   });

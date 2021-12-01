@@ -1789,6 +1789,42 @@ class ContentNode(EditTrackedModel, TimestampedModel, BigPkModel, MaterializedPa
             return self.resource.doc_class
         return self.resource_type
 
+    def get_export_class(self):
+        """
+        This is an experiment, attempting to infer book structure from a node's type and location in the content tree,
+        for easier handling of page breaks, page headers and footers, and the application of word styles.
+
+        Conventions, abstracted from the typeset Torts! PDF produced by Jordi:
+        - "chapters" (e.g. ordinal 5) should start on an odd page... and chapters may be sections or textblocks
+        - top-level chapter "sections" (e.g. ordinal 5.2) should start on a new page, even or odd
+        - more deeply nested sub-"sections" (e.g. ordinal 4.1.2) should be continuous
+        - resources inside sections (of any kind) (4.1.1, 4.1.2.1) should be continuous
+
+        But, those conventions don't apply across the board.
+        - some casebooks have cases at the top level
+        - sometimes textblocks in sections seem to be introductions or conclusions to their wrapper; sometimes stand-alone resources
+
+        More thought is needed here.
+        Should probably be configurable?
+        - easy enough to have node-by-node setting, but could clutter the UI.
+        - and/or, we ought to be able to abstract out can capture a few common patterns that authors can opt to apply to their export or not,
+          e.g., an arg to this method.
+        Or, we might consider enhancing the data model to distinguish between frontmatter, endmatter, book parts, chapters, and chapter sections, etc.
+        """
+        depth = len(self.ordinals)
+        if not depth:
+            raise NotImplementedError
+        if depth == 1:
+            if self.doc_class in ['Section', 'Text', 'Multimedia']:
+                return 'Chapter'
+            return 'Leading Resource'
+        elif self.doc_class == 'Section':
+            if depth == 2:
+                return 'Section'
+            return 'Subsection'
+        return 'Resource'
+
+
     def save(self, *args, **kwargs):
         r"""
             Override save to include the cleanup of user-supplied HTML.
@@ -2043,7 +2079,7 @@ class ContentNode(EditTrackedModel, TimestampedModel, BigPkModel, MaterializedPa
         else:
             return 'resource'
 
-    def export(self, include_annotations, file_type='docx', export_options=None):
+    def export(self, include_annotations, file_type='docx', export_options=None, is_child=False, experimental=False):
         """
             Export this node and children as docx, or as html for conversion by pandoc.
 
@@ -2074,6 +2110,7 @@ class ContentNode(EditTrackedModel, TimestampedModel, BigPkModel, MaterializedPa
 
         html = render_to_string(template_name, {
             'is_export': True,
+            'is_child': is_child,
             'node': self,
             'children': children,
             'include_annotations': include_annotations,
@@ -3570,7 +3607,7 @@ class Casebook(EditTrackedModel, TimestampedModel, BigPkModel, TrackedCloneable)
         collaborator_to_add = ContentCollaborator(user=user, casebook_id=self.id, **collaborator_kwargs)
         collaborator_to_add.save()
 
-    def export(self, include_annotations, file_type='docx', export_options=None):
+    def export(self, include_annotations, file_type='docx', export_options=None, experimental=False):
         """
             Export this node and children as docx, or as html for conversion by pandoc.
 
@@ -3592,44 +3629,151 @@ class Casebook(EditTrackedModel, TimestampedModel, BigPkModel, TrackedCloneable)
                                                    .prefetch_related('casebook__contentcollaborator_set')
                                                    .prefetch_related('casebook__contentcollaborator_set__user')
                          if set(cn.casebook.primary_authors) ^ current_collaborators}
-        # render html
-        template_name = 'export/casebook.html'
-        html = render_to_string(template_name, {
-            'is_export': True,
-            'node': self,
-            'children': children,
-            'export_options': export_options,
-            'export_date': datetime.now().strftime("%Y-%m-%d"),
-            'include_annotations': include_annotations,
-            'cloned_from': cloned_from,
-        })
-        if file_type == 'html':
-            return html
 
-        # convert to docx with pandoc
-        with tempfile.NamedTemporaryFile(suffix='.docx') as pandoc_out:
-            command = [
-                'pandoc',
-                '--from', 'html',
-                '--to', 'docx',
-                '--reference-doc', os.path.join(settings.PANDOC_DIR, 'reference.docx'),
-                '--output', pandoc_out.name,
-                '--quiet'
-            ]
-            if type(self) is Casebook:
-                command.extend(['--lua-filter', os.path.join(settings.PANDOC_DIR, 'table_of_contents.lua')])
-            try:
-                response = subprocess.run(command, input=html.encode('utf8'), stderr=subprocess.PIPE,
-                                          stdout=subprocess.PIPE)
-            except subprocess.CalledProcessError as e:
-                self.inc_export_fails()
-                raise Exception(f"Pandoc command failed: {e.stderr[:100]}")
-            if response.stderr:
-                self.inc_export_fails()
-                raise Exception(f"Pandoc reported error: {response.stderr[:100]}")
-            if self.export_fails > 0:
-                self.reset_export_fails()
-            return pandoc_out.read()
+        if experimental or settings.FORCE_EXPERIMENTAL_EXPORT:
+            from docx import Document
+            from docx.enum.section import WD_SECTION
+            from lxml import etree
+            from pyquery import PyQuery as pq
+
+            from django.utils.text import get_text_list
+
+            document = Document(os.path.join(settings.PANDOC_DIR, 'template.docx'))
+
+            def add_section(start_style, vertical_alignment='top'):
+                document.add_section(start_style)._sectPr.append(etree.fromstring(f'<w:vAlign w:val="{vertical_alignment}" xmlns:w="http://schemas.openxmlformats.org/wordprocessingml/2006/main"/>'))
+
+            def author_string():
+                return get_text_list([author.display_name for author in self.primary_authors], 'and')
+
+            def add_titles(node, node_type):
+                if hasattr(node, 'ordinals'):
+                    document.add_paragraph(node.ordinal_string(), style=f"{node_type} Number")
+                document.add_paragraph(node.title, style=f"{node_type} Title")
+                if node.subtitle:
+                    document.add_paragraph(node.subtitle, style=f"{node_type} Subtitle")
+
+            # the first section doesn't need to be added; you are already in the first section.
+            # so, if you immediately add an WD_SECTION.ODD_PAGE section, the imaginary cursor is
+            # writing on page 3.
+
+            # the first doc section is an H2O preamble, with instructions
+            document.add_paragraph('(Placeholder for the preamble)')
+
+            # the next, if we want one, is a half-title page, but I think we don't
+            # the next is the title page
+            add_section(WD_SECTION.ODD_PAGE, 'bottom')
+            add_titles(self, 'Casebook')
+            document.add_paragraph(author_string(), style="Casebook Authors")
+
+            # on the reverse is copyright info
+            add_section(WD_SECTION.EVEN_PAGE, 'bottom')
+            document.add_paragraph(f"© {author_string()}")
+            document.add_paragraph("This work is licensed to the public under a Creative Commons Attribution NonCommercial-Share Alike 3.0 license (international):")
+            document.add_paragraph("http://creativecommons.org/licenses/by-nc-sa/3.0/us/")
+
+            # the next section is the table of contents
+
+            # then we get into the book's contents....
+            #....the first item of which is probably the casebook's headnote.
+            #....in the HTML version, that is displayed above the TOC,
+            #....but that's very unusual e.g., https://www.bookcoverdesigner.com/book-interior-content/
+            #....So, we probably need to ask authors how they want that text treated during export,
+            #....but might default to a Preface, just after the TOC.
+            #....With this casebook, it's a sub-subtitle (https://opencasebook.org/casebooks/523-advanced-constitutional-law/)
+            #....What else might make sense? let's look at some casebook headnotes and see how they are used.
+
+            # but okay now we get into the actual contents
+            for child in children:
+                child_type = child.get_export_class()
+
+                # ADD THE SECTION
+                if child_type in ['Chapter', 'Leading Resource']:
+                    start_type = WD_SECTION.ODD_PAGE
+                elif child_type == 'Section':
+                    start_type = WD_SECTION.NEW_PAGE
+                elif child_type == 'Subsection':
+                    start_type = WD_SECTION.CONTINUOUS
+                else:
+                    start_type = WD_SECTION.CONTINUOUS
+                add_section(start_type)
+
+                # CONFIGURE ITS PAGE HEADER
+                # There are three header properties on Section: .header, .even_page_header, and .first_page_header
+                # Any existing even page header definitions are preserved when .odd_and_even_pages_header_footer is False; they are simply not rendered by Word. Assigning True to .odd_and_even_pages_header_footer does not automatically create new even header definition
+                # Assigning True to .different_first_page_header_footer does not automatically create a new first page header definition
+                # https://python-docx.readthedocs.io/en/latest/dev/analysis/features/header.html?highlight=even#header-and-footer
+
+                # CONFIGURE ITS PAGE NUMBERS
+                # This is where we can specify if its pages numbers should be arabic, roman, etc.,
+                # and whether the counting should start fresh or should be contiguous with the last section.
+
+                # ADD ITS TITLE
+                # (This is also where we will need to place the bookmark for the TOC)
+                add_titles(child, child_type)
+
+                # ADD ITS CONTENT
+
+                # First, again, goes author-provided headnotes:
+                # - page break or not? probably not.
+                # - how do we do the page headers, if this is in a chapter, and is multi-page?
+
+                # Then, if the node has it's own content, it goes here, potentially with annotations and formatted footnotes.
+                if child.has_body:
+                    # for now, just dump some text in, to give the textbook content.
+                    paragraphs = pq(parse_html_fragment(child.export_content(None))).text().split('\n')
+                    document.add_paragraph(paragraphs[0], style=f"First Paragraph")
+                    for p in paragraphs[1:]:
+                        document.add_paragraph(p, style=f"Body Text")
+
+
+            # and finally, the book's endmatter, which right now is just credits
+
+            # save and return
+            with tempfile.NamedTemporaryFile(suffix='.docx') as tmp:
+                document.save(tmp)
+                tmp.seek(0)
+                return tmp.read()
+
+        else:
+            # render html
+            template_name = 'export/casebook.html'
+            html = render_to_string(template_name, {
+                'is_export': True,
+                'node': self,
+                'children': children,
+                'export_options': export_options,
+                'export_date': datetime.now().strftime("%Y-%m-%d"),
+                'include_annotations': include_annotations,
+                'cloned_from': cloned_from,
+            })
+            if file_type == 'html':
+                return html
+
+            # convert to docx with pandoc
+            with tempfile.NamedTemporaryFile(suffix='.docx') as pandoc_out:
+                command = [
+                    'pandoc',
+                    '--from', 'html',
+                    '--to', 'docx',
+                    '--reference-doc', os.path.join(settings.PANDOC_DIR, 'reference.docx'),
+                    '--output', pandoc_out.name,
+                    '--quiet'
+                ]
+                if type(self) is Casebook:
+                    command.extend(['--lua-filter', os.path.join(settings.PANDOC_DIR, 'table_of_contents.lua')])
+                try:
+                    response = subprocess.run(command, input=html.encode('utf8'), stderr=subprocess.PIPE,
+                                              stdout=subprocess.PIPE)
+                except subprocess.CalledProcessError as e:
+                    self.inc_export_fails()
+                    raise Exception(f"Pandoc command failed: {e.stderr[:100]}")
+                if response.stderr:
+                    self.inc_export_fails()
+                    raise Exception(f"Pandoc reported error: {response.stderr[:100]}")
+                if self.export_fails > 0:
+                    self.reset_export_fails()
+                return pandoc_out.read()
 
     def inc_export_fails(self):
         # This function is used to avoid making a copy of the casebook via CasebookHistory

@@ -301,7 +301,9 @@ lxml==4.6.3 \
     --hash=sha256:f2380a6376dfa090227b663f9678150ef27543483055cc327555fb592c5967e2 \
     --hash=sha256:f8380c03e45cf09f8557bdaa41e1fa7c81f3ae22828e1db470ab2a6c96d8bc23 \
     --hash=sha256:f90ba11136bfdd25cae3951af8da2e95121c9b9b93727b1b896e3fa105b2f586
-    # via pyquery
+    # via
+    #   pyquery
+    #   python-docx
 mccabe==0.6.1 \
     --hash=sha256:ab8a6258860da4b6677da4bd2fe5dc2c659cff31b3ee4f7f5d64e79735b80d42 \
     --hash=sha256:dd8d182285a0fe56bace7f45b5e7d1a6ebcbf524e8f3bd87eb0f125271b8831f
@@ -464,6 +466,9 @@ python-dateutil==2.8.1 \
     # via
     #   botocore
     #   faker
+python-docx==0.8.11 \
+    --hash=sha256:1105d233a0956dd8dd1e710d20b159e2d72ac3c301041b95f4d4ceb3e0ebebc4
+    # via -r requirements.in
 pytz==2021.1 \
     --hash=sha256:83a4a90894bf38e243cf052c8b58f381bfe9a7a483f6a9cab140bc7f702ac4da \
     --hash=sha256:eb10ce3e7736052ed3623d49975ce333bcd712c7bb19a58b9e2089d4057d0798
