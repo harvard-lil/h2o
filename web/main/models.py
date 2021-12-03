@@ -1301,6 +1301,16 @@ class MaterializedPathTreeMixin(models.Model):
             ...     r_1_4_2.content_tree__move_to([1, 1, 1])
             >>> with assert_raises(ValueError, match='Cannot move a node inside itself'):
             ...     s_1.content_tree__move_to([1, 1, 1])
+
+            Move a node to the top level of the casebook:
+            >>> r_1_4_3.refresh_from_db()
+            >>> r_1_4_3.content_tree__move_to([1])
+            >>> casebook.refresh_from_db()
+            >>> assert dump_content_tree(casebook)[0] == [r_1_4_3, casebook, []]
+            >>> assert dump_content_tree(casebook)[1][0] == s_1
+            >>> assert dump_content_tree(casebook)[2][0] == s_2
+            >>> s_1_4.refresh_from_db()
+            >>> assert dump_content_tree(s_1_4)[0][0] == r_1_4_2
         """
         # check rules
         if new_ordinals == self.ordinals:
@@ -2908,6 +2918,12 @@ class Casebook(EditTrackedModel, TimestampedModel, BigPkModel, TrackedCloneable)
             return ''
         html = rich_text_export(self.headnote, request=export_options and export_options.get('request', None), id_prefix=str(self.id))
         return mark_safe(html)
+
+
+    @property
+    def is_resource(self):
+        # This method is called by ContentNode.content_tree__move_to, if the target parent is a Casebook and not a ContentNode.
+        return False
 
     @property
     def is_public(self):
