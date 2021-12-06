@@ -2157,10 +2157,11 @@ def export(request, node, file_type='docx'):
 
     include_annotations = request.GET.get('annotations') == 'true'
     experimental = request.GET.get('experimental') == 'true' and request.user.is_superuser
+    aws_lambda = request.GET.get('aws_lambda') == 'true' and request.user.is_superuser
 
     export_options = {'request': request}
     # get response data
-    response_data = node.export(include_annotations, file_type, export_options=export_options, experimental=experimental)
+    response_data = node.export(include_annotations, file_type, export_options=export_options, experimental=experimental, aws_lambda=aws_lambda)
     if response_data is None:
         return render(request, 'export_error.html', {
             'casebook': node

@@ -6,12 +6,13 @@ import urls from 'libs/urls';
 delegate(document, 'a.action.export', 'click', (e) => {
   e.preventDefault();
   const experimental = e.target.classList.contains('export-experimental');
+  const aws_lambda = e.target.classList.contains('export-lambda');
   // window.app is the Vue instance
   if((window.app && app.$store.getters['annotations/getCount'] > 0) ||
      (!window.app && e.target.classList.contains('export-has-annotations'))){
-    showExportModal(e, experimental);
+    showExportModal(e, experimental, aws_lambda);
   } else {
-    downloadFile(undefined, experimental);
+    downloadFile(undefined, experimental, aws_lambda);
   }
 });
 
@@ -29,7 +30,7 @@ function export_casebook_path(casebookId) {
     return url({casebookId});
 }
 
-function downloadFile (includeAnnotations, experimental=false) {
+function downloadFile (includeAnnotations, experimental=false, aws_lambda=false) {
   if(typeof includeAnnotations === "undefined"){
     includeAnnotations = "true";
   }
@@ -41,15 +42,16 @@ function downloadFile (includeAnnotations, experimental=false) {
   } else {
     window.location.assign(export_casebook_path(pageInfo.casebookId)
       + (includeAnnotations === "true" ? '?annotations=true' : '?annotations=false')
-      + (experimental ? '&experimental=true' : ''));
+      + (experimental ? '&experimental=true' : '')
+      + (aws_lambda ? '&aws_lambda=true' : ''));
   }
 }
 
-function showExportModal (e, experimental=false) {
+function showExportModal (e, experimental=false, aws_lambda=false) {
   new ExportModal('export-modal', e.target, {
     'click #export-modal': (e) => { if (e.target.id === 'export-modal') this.destroy()},
     'click .export': (e) => {
-      downloadFile(e.target.value, experimental);
+      downloadFile(e.target.value, experimental, aws_lambda);
       document.querySelector('button.close').click()
     }
   });
