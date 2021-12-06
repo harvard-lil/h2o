@@ -2106,7 +2106,7 @@ class ContentNode(EditTrackedModel, TimestampedModel, BigPkModel, MaterializedPa
         else:
             return 'resource'
 
-    def export(self, include_annotations, file_type='docx', export_options=None, is_child=False, experimental=False):
+    def export(self, include_annotations, file_type='docx', export_options=None, is_child=False, experimental=False, aws_lambda=False):
         """
             Export this node and children as docx, or as html for conversion by pandoc.
 
@@ -2147,6 +2147,9 @@ class ContentNode(EditTrackedModel, TimestampedModel, BigPkModel, MaterializedPa
         })
         if file_type == 'html':
             return html
+
+        if aws_lambda or settings.FORCE_AWS_LAMBDA_EXPORT:
+            pass
 
         # convert to docx with pandoc
         with tempfile.NamedTemporaryFile(suffix='.docx') as pandoc_out:
@@ -3640,7 +3643,7 @@ class Casebook(EditTrackedModel, TimestampedModel, BigPkModel, TrackedCloneable)
         collaborator_to_add = ContentCollaborator(user=user, casebook_id=self.id, **collaborator_kwargs)
         collaborator_to_add.save()
 
-    def export(self, include_annotations, file_type='docx', export_options=None, experimental=False):
+    def export(self, include_annotations, file_type='docx', export_options=None, experimental=False, aws_lambda=False):
         """
             Export this node and children as docx, or as html for conversion by pandoc.
 
@@ -3782,6 +3785,40 @@ class Casebook(EditTrackedModel, TimestampedModel, BigPkModel, TrackedCloneable)
             })
             if file_type == 'html':
                 return html
+
+            if aws_lambda or settings.FORCE_AWS_LAMBDA_EXPORT:
+                storage = get_s3_storage(bucket_name=settings.EXPORT_BUCKET)
+                with tempfile.NamedTemporaryFile(suffix='.html') as inputfile:
+
+                    # temporarily save the html source to s3, where the lambda can access it
+                    filename = f"casebook-{self.id}-{inputfile.name.split('/')[-1]}"
+                    inputfile.write(bytes(html, 'utf-8'))
+                    inputfile.seek(0)
+                    storage.save(filename, inputfile)
+
+                    # trigger the lambda and wait for the produced file
+                    try:
+                        response = requests.post(
+                            settings.AWS_LAMBDA_EXPORT_URL,
+                            timeout=settings.AWS_LAMBDA_EXPORT_TIMEOUT,
+                            json={
+                                'filename': filename,
+                                'is_casebook': type(self) is Casebook
+                            }
+                        )
+                        assert response.ok, f"Status: {response.status_code}. Content: {response.content}"
+                        assert not response.headers.get('X-Amz-Function-Error') and response.headers['Content-Type'] == 'application/zip', response.text
+                    except (requests.RequestException, AssertionError) as e:
+                        self.inc_export_fails()
+                        raise Exception(f"AWS Lambda export failed: {str(e)}")
+                    finally:
+                        # remove the source html from s3
+                        storage.delete(filename)
+
+                    # return the docx to the user
+                    if self.export_fails > 0:
+                        self.reset_export_fails()
+                    return response.content
 
             # convert to docx with pandoc
             with tempfile.NamedTemporaryFile(suffix='.docx') as pandoc_out:

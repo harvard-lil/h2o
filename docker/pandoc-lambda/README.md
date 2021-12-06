@@ -7,15 +7,15 @@
 
 ## ...after code changes
 
-For convenience during local development, changes to `function/app.py` are synced to the running container. You should see any changes you make instantaneous on subsequent invocations of the function without having to do anything.
+For convenience during local development, changes to `function/app.py` are synced to the running container, but you have to restart the local Lambda emulator for it to pick them up. Run `docker-compose restart pandoc-lambda`.
 
-But, for those changes to work in actual AWS Lambda, you'll need to bundle the final version of your code in the Docker image before pushing to AWS.
+To deploy your changes to production you'll need to bundle the final version of your code into the Docker image and push it to AWS.
 
-Increment the image number in `docker-compose.yml` and re-run `docker-compose up -d`. That will produce a newly-tagged image that includes your code, which we'll push to AWS.
+Increment the image number in `docker-compose.yml` and re-run `docker-compose up -d`. That will produce a newly-tagged image that includes your code.
 
 (We probably want to script this, adding it to our CI pipeline, similar to how CAP builds and pushes dev images to our registry.)
 
-## with new python requirements, including `awslambdaric`
+## ...with new python requirements, including `awslambdaric`
 
 Add new packages or pin versions in `requirements.in`. Then, follow the instructions in `docker-compose.yml` to recompile `requirements.txt` and update the Docker image.
 

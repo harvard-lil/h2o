@@ -242,6 +242,9 @@ CRISPY_FAIL_SILENTLY = False
 
 MAX_EXPORT_ATTEMPTS = 3
 FORCE_EXPERIMENTAL_EXPORT = False
+FORCE_AWS_LAMBDA_EXPORT = False
+AWS_LAMBDA_EXPORT_URL = "http://pandoc-lambda:8080/2015-03-31/functions/function/invocations"
+AWS_LAMBDA_EXPORT_TIMEOUT = 60 * 3
 
 # Temporary: this is the name of the CSRF header used by the Rails app's AJAX requests
 CSRF_HEADER_NAME = 'HTTP_X_CSRF_TOKEN'
@@ -259,6 +262,7 @@ S3_STORAGE = {
     'access_key': 'accesskey',
     'secret_key': 'secretkey'
 }
+EXPORT_BUCKET = 'h2o.exports'
 
 PASSWORD_HASHERS = [
     # this is the standard recommended Django password hasher; first item on this list will be used for all new logins
