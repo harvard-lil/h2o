@@ -3,6 +3,7 @@ import os
 import subprocess
 import tempfile
 
+
 def handler(event, context):
 
     input_s3_key = event['filename']
@@ -12,9 +13,9 @@ def handler(event, context):
 
         # get the source html
         s3 = boto3.resource('s3',
-          endpoint_url=os.environ['S3_ENDPOINT_URL'],
-          aws_access_key_id=os.environ['AWS_ACCESS_KEY_ID'],
-          aws_secret_access_key=os.environ['AWS_SECRET_ACCESS_KEY'],
+            endpoint_url=os.environ['S3_ENDPOINT_URL'],
+            aws_access_key_id=os.environ['AWS_ACCESS_KEY_ID'],
+            aws_secret_access_key=os.environ['AWS_SECRET_ACCESS_KEY'],
         )
         s3.Bucket(os.environ['EXPORT_BUCKET']).download_fileobj(input_s3_key, pandoc_in)
         pandoc_in.seek(0)
