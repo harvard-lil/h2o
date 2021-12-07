@@ -20,7 +20,6 @@ def handler(event, context):
         pandoc_in.seek(0)
 
         # convert to docx with pandoc
-        html = '<p>hello world</p>'
         with tempfile.NamedTemporaryFile(suffix='.docx') as pandoc_out:
             command = [
                 'pandoc',
