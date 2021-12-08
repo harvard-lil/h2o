@@ -50,9 +50,10 @@ services:
       context: ./docker/pandoc-lambda
       args:
         lambda-rie-cache-buster: 9af4d93c-23f9-4cb1-99c4-b9af89f94668
-    image: h2o-pandoc-lambda:0.1
+    image: h2o-pandoc-lambda:0.2
     tty: true
     environment:
+      - USE_S3_CREDENTIALS=True
       - AWS_ACCESS_KEY_ID=accesskey
       - AWS_SECRET_ACCESS_KEY=secretkey
       - S3_ENDPOINT_URL=http://minio:9000
