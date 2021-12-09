@@ -9,3 +9,12 @@ except ImportError as e:
         from .settings_dev import *  # noqa
     else:
         raise
+
+def validate_settings(settings):
+    if settings['AWS_LAMBDA_EXPORT_FUNCTION_ARN']:
+        parsed = settings['AWS_LAMBDA_EXPORT_FUNCTION_ARN'].split(':')
+        assert parsed[0:3] == ['arn', 'aws', 'lambda'] and parsed[5] == 'function', 'AWS_LAMBDA_EXPORT_FUNCTION_ARN must be a valid ARN'
+        settings['AWS_LAMBDA_EXPORT_FUNCTION_REGION'] = parsed[3]
+        settings['AWS_LAMBDA_EXPORT_FUNCTION_NAME'] = parsed[6]
+
+validate_settings(globals())

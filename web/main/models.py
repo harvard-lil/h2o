@@ -1,4 +1,8 @@
+import base64
+from botocore.config import Config
+from botocore.exceptions import BotoCoreError, ClientError as BotoClientError
 from dateutil import parser
+import json
 import logging
 import os
 from pathlib import Path
@@ -3787,7 +3791,7 @@ class Casebook(EditTrackedModel, TimestampedModel, BigPkModel, TrackedCloneable)
                 return html
 
             if aws_lambda or settings.FORCE_AWS_LAMBDA_EXPORT:
-                storage = get_s3_storage(bucket_name=settings.EXPORT_BUCKET)
+                storage = get_s3_storage(bucket_name=settings.AWS_LAMBDA_EXPORT_BUCKET, storage_settings=settings.AWS_LAMBDA_EXPORT_STORAGE_SETTINGS)
                 with tempfile.NamedTemporaryFile(suffix='.html') as inputfile:
 
                     # temporarily save the html source to s3, where the lambda can access it
@@ -3798,17 +3802,40 @@ class Casebook(EditTrackedModel, TimestampedModel, BigPkModel, TrackedCloneable)
 
                     # trigger the lambda and wait for the produced file
                     try:
-                        response = requests.post(
-                            settings.AWS_LAMBDA_EXPORT_URL,
-                            timeout=settings.AWS_LAMBDA_EXPORT_TIMEOUT,
-                            json={
-                                'filename': filename,
-                                'is_casebook': type(self) is Casebook
+                        if settings.AWS_LAMBDA_EXPORT_FUNCTION_ARN:
+                            session = storage._connections.connection.session
+                            lambda_client = session.client('lambda', settings.AWS_LAMBDA_EXPORT_FUNCTION_REGION, config=Config(read_timeout=settings.AWS_LAMBDA_EXPORT_TIMEOUT))
+                            raw_response = lambda_client.invoke(
+                                FunctionName=settings.AWS_LAMBDA_EXPORT_FUNCTION_NAME,
+                                LogType='Tail',
+                                Payload=bytes(json.dumps({"filename": filename, "is_casebook": True}), 'utf-8')
+                            )
+                            response = {
+                                'status_code': raw_response['ResponseMetadata']['HTTPStatusCode'],
+                                'headers': raw_response['ResponseMetadata']['HTTPHeaders'],
+                                'content': raw_response['Payload'],
+                                'get_text': lambda: raw_response['Payload'].read()
                             }
-                        )
-                        assert response.ok, f"Status: {response.status_code}. Content: {response.content}"
-                        assert not response.headers.get('X-Amz-Function-Error') and response.headers['Content-Type'] == 'application/zip', response.text
-                    except (requests.RequestException, AssertionError) as e:
+                            logger.info(base64.b64decode(raw_response['LogResult']))
+                        else:
+                            raw_response = requests.post(
+                                settings.AWS_LAMBDA_EXPORT_URL,
+                                timeout=settings.AWS_LAMBDA_EXPORT_TIMEOUT,
+                                json={
+                                    'filename': filename,
+                                    'is_casebook': type(self) is Casebook
+                                }
+                            )
+                            response = {
+                                'status_code': raw_response.status_code,
+                                'headers': {k.lower():v for k,v in raw_response.headers.items()},
+                                'log': None,
+                                'content': raw_response.content,
+                                'get_text': lambda: raw_response.text
+                            }
+                        assert response['status_code'] == 200, f"Status: {response['status_code']}. Content: {response['get_text']()}"
+                        assert not response['headers'].get('x-amz-function-error') and response['headers']['content-type'] in ['application/zip', 'application/octet-stream'], f"x-amz-function-error: {response['headers'].get('x-amz-function-error')}, content-type:{response['headers']['content-type']}, {response['get_text']()}"
+                    except (BotoCoreError, BotoClientError, requests.RequestException, AssertionError) as e:
                         self.inc_export_fails()
                         raise Exception(f"AWS Lambda export failed: {str(e)}")
                     finally:
@@ -3818,7 +3845,7 @@ class Casebook(EditTrackedModel, TimestampedModel, BigPkModel, TrackedCloneable)
                     # return the docx to the user
                     if self.export_fails > 0:
                         self.reset_export_fails()
-                    return response.content
+                    return response['content']
 
             # convert to docx with pandoc
             with tempfile.NamedTemporaryFile(suffix='.docx') as pandoc_out:

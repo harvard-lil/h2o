@@ -243,9 +243,6 @@ CRISPY_FAIL_SILENTLY = False
 
 MAX_EXPORT_ATTEMPTS = 3
 FORCE_EXPERIMENTAL_EXPORT = False
-FORCE_AWS_LAMBDA_EXPORT = False
-AWS_LAMBDA_EXPORT_URL = "http://pandoc-lambda:8080/2015-03-31/functions/function/invocations"
-AWS_LAMBDA_EXPORT_TIMEOUT = 60 * 3
 
 # Temporary: this is the name of the CSRF header used by the Rails app's AJAX requests
 CSRF_HEADER_NAME = 'HTTP_X_CSRF_TOKEN'
@@ -258,12 +255,19 @@ REST_FRAMEWORK = {
 
 PANDOC_DIR = os.path.join(os.path.dirname(BASE_DIR), 'services/pandoc')
 
+AWS_S3_SESSION_PROFILE = None
 S3_STORAGE = {
     'endpoint_url': 'http://minio:9000',
     'access_key': 'accesskey',
     'secret_key': 'secretkey'
 }
-EXPORT_BUCKET = 'h2o.exports'
+FORCE_AWS_LAMBDA_EXPORT = False
+AWS_LAMBDA_EXPORT_URL = "http://pandoc-lambda:8080/2015-03-31/functions/function/invocations"
+AWS_LAMBDA_EXPORT_TIMEOUT = 60 * 4
+AWS_LAMBDA_EXPORT_BUCKET = 'h2o.exports'
+AWS_LAMBDA_EXPORT_STORAGE_SETTINGS = S3_STORAGE
+# NB: AWS_EXPORT_LAMBDA_FUNCTION_ARN is post-processed into AWS_LAMBDA_EXPORT_FUNCTION_REGION and AWS_LAMBDA_EXPORT_FUNCTION_NAME
+AWS_LAMBDA_EXPORT_FUNCTION_ARN = None
 
 PASSWORD_HASHERS = [
     # this is the standard recommended Django password hasher; first item on this list will be used for all new logins
