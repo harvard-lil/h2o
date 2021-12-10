@@ -3825,7 +3825,7 @@ class Casebook(EditTrackedModel, TimestampedModel, BigPkModel, TrackedCloneable)
                                 'content': raw_response['Payload'],
                                 'get_text': lambda: raw_response['Payload'].read()
                             }
-                            lambda_log_str = str(base64.b64decode(raw_response['LogResult']), 'utf-8').replace('\n', '; ', 2).replace('\t', ', ', 4).strip()
+                            lambda_log_str = str(base64.b64decode(raw_response['LogResult']), 'utf-8').strip().replace('\n', '; ').replace('\t', ', ')
                             logger.info(f"Exporting Casebook 4227: Lambda logs \"{lambda_log_str}\"")
                         else:
                             raw_response = requests.post(
