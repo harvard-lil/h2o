@@ -3661,6 +3661,7 @@ class Casebook(EditTrackedModel, TimestampedModel, BigPkModel, TrackedCloneable)
         """
         # prefetch all child nodes and related data
         if self.export_embargoed():
+            logger.info(f"Exporting Casebook {self.id}: attempt rejected (too many previous failures)")
             return None
         children = list(self.contents.prefetch_resources().prefetch_related('annotations')) if type(
             self) is not Resource else None
@@ -3778,6 +3779,7 @@ class Casebook(EditTrackedModel, TimestampedModel, BigPkModel, TrackedCloneable)
 
         else:
             # render html
+            logger.info(f"Exporting Casebook {self.id}: serializing to HTML")
             template_name = 'export/casebook.html'
             html = render_to_string(template_name, {
                 'is_export': True,
@@ -3792,6 +3794,7 @@ class Casebook(EditTrackedModel, TimestampedModel, BigPkModel, TrackedCloneable)
                 return html
 
             if aws_lambda or settings.FORCE_AWS_LAMBDA_EXPORT:
+                logger.info(f"Exporting Casebook {self.id}: uploading source")
                 storage = get_s3_storage(bucket_name=settings.AWS_LAMBDA_EXPORT_BUCKET, storage_settings=settings.AWS_LAMBDA_EXPORT_STORAGE_SETTINGS)
                 with tempfile.NamedTemporaryFile(suffix='.html') as inputfile:
 
@@ -3803,6 +3806,7 @@ class Casebook(EditTrackedModel, TimestampedModel, BigPkModel, TrackedCloneable)
 
                     # trigger the lambda and wait for the produced file
                     try:
+                        logger.info(f"Exporting Casebook {self.id}: triggering lambda")
                         if settings.AWS_LAMBDA_EXPORT_FUNCTION_ARN:
                             session = storage._connections.connection.session
                             lambda_client = session.client('lambda', settings.AWS_LAMBDA_EXPORT_FUNCTION_REGION, config=Config(read_timeout=settings.AWS_LAMBDA_EXPORT_TIMEOUT))
@@ -3817,7 +3821,8 @@ class Casebook(EditTrackedModel, TimestampedModel, BigPkModel, TrackedCloneable)
                                 'content': raw_response['Payload'],
                                 'get_text': lambda: raw_response['Payload'].read()
                             }
-                            logger.info(base64.b64decode(raw_response['LogResult']))
+                            lambda_log_str = str(base64.b64decode(raw_response['LogResult']), 'utf-8').replace('\n', '; ', 2).replace('\t', ', ', 4).strip()
+                            logger.info(f"Exporting Casebook 4227: Lambda logs \"{lambda_log_str}\"")
                         else:
                             raw_response = requests.post(
                                 settings.AWS_LAMBDA_EXPORT_URL,
@@ -3849,6 +3854,7 @@ class Casebook(EditTrackedModel, TimestampedModel, BigPkModel, TrackedCloneable)
                     return response['content']
 
             # convert to docx with pandoc
+            logger.info(f"Exporting Casebook {self.id}: launching pandoc subprocess")
             with tempfile.NamedTemporaryFile(suffix='.docx') as pandoc_out:
                 command = [
                     'pandoc',
