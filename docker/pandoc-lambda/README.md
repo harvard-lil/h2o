@@ -35,10 +35,16 @@ Change the target version number in `Dockerfile`, increment the image number in 
 The general outline is that we build an image, tag it, push it to ECR, and then deploy the new image to the lambda, something like this, starting in this directory:
 
 ```
-docker build -t pandoc-lambda:0.3 .
-docker tag pandoc-lambda:0.3 123456789012.dkr.ecr.us-east-1.amazonaws.com/pandoc-lambda:0.3
-aws ecr get-login-password --region us-east-1 --profile mfa | docker login --username AWS --password-stdin 123456789012.dkr.ecr.us-east-1.amazonaws.com
-docker push 123456789012.dkr.ecr.us-east-1.amazonaws.com/pandoc-lambda:0.3
+IMG=pandoc-lambda
+TAG=`git rev-parse --short HEAD`
+ACCT=123456789012
+REGION=us-east-1
+PROFILE=mfa
+FUNC=h2o-export
+ARN=arn:aws:lambda:$REGION:$ACCT:function:$FUNC
+docker build -t $IMG:$TAG .
+docker tag $IMG:$TAG $ACCT.dkr.ecr.$REGION.amazonaws.com/$IMG:$TAG
+aws ecr get-login-password --region $REGION --profile $PROFILE | docker login --username AWS --password-stdin $ACCT.dkr.ecr.$REGION.amazonaws.com
+docker push $ACCT.dkr.ecr.$REGION.amazonaws.com/$IMG:$TAG
+aws lambda update-function-code --function-name $ARN --image-uri `docker image inspect $IMG:$TAG | jq -r '.[0].RepoDigests[0]'` --profile $PROFILE
 ```
-
-Then, deploy the new image in the Lambda web interface. (Coming up: CLI instructions for this last step; possibly also tagging using commit hash.)
