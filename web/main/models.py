@@ -184,6 +184,7 @@ def cleanse_html_field(model_instance, fieldname, sanitize_field=False):
 
         By default, line endings are normalized and whitespace is cleaned up:
         >>> node.headnote = same_after_cleansing
+        >>> caplog.clear()
         >>> with caplog.at_level(logging.DEBUG):
         ...     cleanse_html_field(node, 'headnote')
         >>> assert len(caplog.record_tuples) == 2
@@ -194,6 +195,7 @@ def cleanse_html_field(model_instance, fieldname, sanitize_field=False):
 
         Optionally, sanitize the field to remove potentially dangerous HTML before cleaning up whitespace:
         >>> node.headnote = same_after_cleansing
+        >>> caplog.clear()
         >>> with caplog.at_level(logging.DEBUG):
         ...     cleanse_html_field(node, 'headnote', True)
         >>> assert len(caplog.record_tuples) == 3
@@ -205,6 +207,7 @@ def cleanse_html_field(model_instance, fieldname, sanitize_field=False):
 
         If the field is the same after normalizing or sanitizing, stop processing:
         >>> node.headnote = same_after_normalizing
+        >>> caplog.clear()
         >>> with caplog.at_level(logging.DEBUG):
         ...     cleanse_html_field(node, 'headnote', True)
         >>> assert len(caplog.record_tuples) == 1
@@ -982,6 +985,7 @@ class LegalDocument(NullableTimestampedModel, AnnotatedModel):
             On save, Case HTML is cleansed (but not sanitized), and then annotations are updated:
             >>> _, legal_doc = annotations_factory('LegalDocument', html_with_annotations)
             >>> legal_doc.resource.content = new_html
+            >>> caplog.clear()
             >>> with caplog.at_level(logging.DEBUG):
             ...     legal_doc.resource.save()
             >>> assert dump_annotated_text(legal_doc) == new_doc_html_with_annotations
@@ -4129,6 +4133,7 @@ class TextBlock(NullableTimestampedModel, AnnotatedModel):
             On save, TextBlock HTML is cleansed and annotations are updated afterwards:
             >>> _, textblock = annotations_factory('TextBlock', html_with_annotations)
             >>> textblock.resource.content = new_html
+            >>> caplog.clear()
             >>> with caplog.at_level(logging.DEBUG):
             ...     textblock.resource.save()
             >>> assert dump_annotated_text(textblock) == new_textblock_html_with_annotations

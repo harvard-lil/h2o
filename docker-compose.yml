@@ -20,6 +20,8 @@ services:
     - DOCKERIZED=true
     volumes:
       - .:/app:delegated
+      # Uncomment to share your local AWS config with the h2o container
+      # - ~/.aws:/root/.aws
     ports:
       - "127.0.0.1:8000:8000"
       - "127.0.0.1:8080:8080"

@@ -39,5 +39,6 @@ EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
 ADMINS = [('John', 'john@example.com'), ('Mary', 'mary@example.com')]
 
 LOGGING['loggers']['main'] = {
+    'level': 'DEBUG',
     'handlers': ['console', 'file']
 }
