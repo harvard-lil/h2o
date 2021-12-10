@@ -31,4 +31,14 @@ Change the target version number in `Dockerfile`, increment the image number in 
 
 
 ## Deploying to AWS Lambda
-TBD
+
+The general outline is that we build an image, tag it, push it to ECR, and then deploy the new image to the lambda, something like this, starting in this directory:
+
+```
+docker build -t pandoc-lambda:0.3 .
+docker tag pandoc-lambda:0.3 123456789012.dkr.ecr.us-east-1.amazonaws.com/pandoc-lambda:0.3
+aws ecr get-login-password --region us-east-1 --profile mfa | docker login --username AWS --password-stdin 123456789012.dkr.ecr.us-east-1.amazonaws.com
+docker push 123456789012.dkr.ecr.us-east-1.amazonaws.com/pandoc-lambda:0.3
+```
+
+Then, deploy the new image in the Lambda web interface. (Coming up: CLI instructions for this last step; possibly also tagging using commit hash.)
