@@ -1,5 +1,6 @@
 import boto3
 import os
+import signal
 import subprocess
 import tempfile
 
@@ -41,6 +42,17 @@ def handler(event, context):
                 raise Exception(f"Pandoc command failed: {e.stderr[:100]}")
             if response.stderr:
                 raise Exception(f"Pandoc reported error: {response.stderr[:100]}")
+            try:
+                response.check_returncode()
+            except subprocess.CalledProcessError as e:
+                if e.returncode < 0:
+                    try:
+                        sig_string = str(signal.Signals(-e.returncode))
+                    except ValueError:
+                        sig_string = f"unknown signal {-e.returncode}"
+                else:
+                    sig_string = f"non-zero exit status {e.returncode}"
+                raise Exception(f"Pandoc command exited with {sig_string}")
             if not os.path.getsize(pandoc_out.name) > 0:
                 raise Exception(f"Pandoc produced no output.")
             return pandoc_out.read()

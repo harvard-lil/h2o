@@ -8,6 +8,7 @@ import os
 from pathlib import Path
 import re
 import requests
+import signal
 import subprocess
 import tempfile
 from datetime import datetime
@@ -3868,6 +3869,18 @@ class Casebook(EditTrackedModel, TimestampedModel, BigPkModel, TrackedCloneable)
                 if response.stderr:
                     self.inc_export_fails()
                     raise Exception(f"Pandoc reported error: {response.stderr[:100]}")
+                try:
+                    response.check_returncode()
+                except subprocess.CalledProcessError as e:
+                    self.inc_export_fails()
+                    if e.returncode < 0:
+                        try:
+                            sig_string = str(signal.Signals(-e.returncode))
+                        except ValueError:
+                            sig_string = f"unknown signal {-e.returncode}"
+                    else:
+                        sig_string = f"non-zero exit status {e.returncode}"
+                    raise Exception(f"Pandoc command exited with {sig_string}")
                 if self.export_fails > 0:
                     self.reset_export_fails()
                 return pandoc_out.read()
