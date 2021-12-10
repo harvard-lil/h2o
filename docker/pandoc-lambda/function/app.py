@@ -41,8 +41,6 @@ def handler(event, context):
                 raise Exception(f"Pandoc command failed: {e.stderr[:100]}")
             if response.stderr:
                 raise Exception(f"Pandoc reported error: {response.stderr[:100]}")
-            pandoc_out.flush()
-            if not pandoc_out.tell() > 0:
+            if not os.path.getsize(pandoc_out.name) > 0:
                 raise Exception(f"Pandoc produced no output.")
-            pandoc_out.seek(0)
             return pandoc_out.read()
