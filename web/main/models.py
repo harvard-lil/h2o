@@ -1,4 +1,5 @@
 import base64
+import boto3
 from botocore.config import Config
 from botocore.exceptions import BotoCoreError, ClientError as BotoClientError
 from dateutil import parser
@@ -3798,10 +3799,13 @@ class Casebook(EditTrackedModel, TimestampedModel, BigPkModel, TrackedCloneable)
                 return html
 
             if aws_lambda or settings.FORCE_AWS_LAMBDA_EXPORT:
+                export_settings = settings.AWS_LAMBDA_EXPORT_SETTINGS
                 logger.info(f"Exporting Casebook {self.id}: uploading source")
-                storage = get_s3_storage(bucket_name=settings.AWS_LAMBDA_EXPORT_BUCKET, storage_settings=settings.AWS_LAMBDA_EXPORT_STORAGE_SETTINGS)
+                storage = get_s3_storage(
+                    bucket_name=export_settings['bucket_name'],
+                    config={k:v for k,v in export_settings.items() if k in ['endpoint_url', 'secret_key', 'access_key'] and v}
+                )
                 with tempfile.NamedTemporaryFile(suffix='.html') as inputfile:
-
                     # temporarily save the html source to s3, where the lambda can access it
                     filename = f"casebook-{self.id}-{inputfile.name.split('/')[-1]}"
                     inputfile.write(bytes(html, 'utf-8'))
@@ -3811,13 +3815,17 @@ class Casebook(EditTrackedModel, TimestampedModel, BigPkModel, TrackedCloneable)
                     # trigger the lambda and wait for the produced file
                     try:
                         logger.info(f"Exporting Casebook {self.id}: triggering lambda")
-                        if settings.AWS_LAMBDA_EXPORT_FUNCTION_ARN:
-                            session = storage._connections.connection.session
-                            lambda_client = session.client('lambda', settings.AWS_LAMBDA_EXPORT_FUNCTION_REGION, config=Config(read_timeout=settings.AWS_LAMBDA_EXPORT_TIMEOUT))
+                        if export_settings.get('function_arn'):
+                            lambda_client = boto3.client(
+                                'lambda',
+                                export_settings['function_region'],
+                                config=Config(read_timeout=settings.AWS_LAMBDA_EXPORT_TIMEOUT),
+                                **({'aws_access_key_id': export_settings['access_key'], 'aws_secret_access_key': export_settings['secret_key']} if export_settings['access_key'] else {})
+                            )
                             raw_response = lambda_client.invoke(
-                                FunctionName=settings.AWS_LAMBDA_EXPORT_FUNCTION_NAME,
+                                FunctionName=export_settings['function_name'],
                                 LogType='Tail',
-                                Payload=bytes(json.dumps({"filename": filename, "is_casebook": True}), 'utf-8')
+                                Payload=bytes(json.dumps({"filename": filename, "is_casebook": type(self) is Casebook}), 'utf-8')
                             )
                             response = {
                                 'status_code': raw_response['ResponseMetadata']['HTTPStatusCode'],
@@ -3829,7 +3837,7 @@ class Casebook(EditTrackedModel, TimestampedModel, BigPkModel, TrackedCloneable)
                             logger.info(f"Exporting Casebook 4227: Lambda logs \"{lambda_log_str}\"")
                         else:
                             raw_response = requests.post(
-                                settings.AWS_LAMBDA_EXPORT_URL,
+                                export_settings['function_url'],
                                 timeout=settings.AWS_LAMBDA_EXPORT_TIMEOUT,
                                 json={
                                     'filename': filename,

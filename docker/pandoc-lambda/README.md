@@ -10,28 +10,23 @@ Run `docker-compose logs -f pandoc-lambda` to watch requests come in and review 
 
 ### ...locally, against a function already deployed to AWS Lambda
 
-This takes a little doing.
+First, obtain AWS credentials that will let you 1) trigger the function by name and 2) write to and delete from the appropriate S3 bucket... and nothing else, lest you accidentally wreak havoc on our production systems.
 
-First, connect to the LIL Algo VPN.
-
-Then, you'll need the right AWS permissions. You need to be able trigger the function by name and to be able to write to the appropriate S3 bucket. Make sure you are set up to use those credentials locally via the AWS command line tools and a properly configured "profile".
-
-Then, you need to share those credentials with the H2O docker container. Comment in the `~/.aws` volume in `docker-compose.yml` and re-run `docker-compose up -d`.
-
-Next, add some settings to your local H2O's `settings.py`:
+Then, add the following to your local H2O's `settings.py`:
 ```
-FORCE_AWS_LAMBDA_EXPORT = True
-AWS_S3_SESSION_PROFILE=<the-profile-name>
-AWS_LAMBDA_EXPORT_BUCKET=<the-bucket-name>
-AWS_LAMBDA_EXPORT_STORAGE_SETTINGS = {}
-AWS_LAMBDA_EXPORT_FUNCTION_ARN=<the-correct-arn>
+AWS_LAMBDA_EXPORT_SETTINGS = {
+    'bucket_name': <the-bucket-name>,
+    'access_key': <the-aws-access-key>,
+    'secret_key': <the-aws-secret-key>,
+    'function_arn': <the-already-deployed-lambda-function's-arn>
+}
 ```
 
-As above, decide whether you want to send all casebook exports to the lambda (add `FORCE_AWS_LAMBDA_EXPORT = True` to `settings.py`) or if you prefer to log in as an administrator and click the "AWS Lambda Export" button.
+Connect to the VPN.
 
-Have your phone handy. Click the export button and watch the dev console. Immediately after you see `Exporting Casebook {casebook.id}: uploading source`, you will be prompted to enter an MFA code. Enter it and press return and the process will continue. You should see `Exporting Casebook {casebook.id}: triggering lambda` a second or two later. If you don't, you might need to press return a second time. (I'm not sure why that happens occasionally...)
+Then, as above, decide whether you want to send all casebook exports to the lambda (add `FORCE_AWS_LAMBDA_EXPORT = True` to `settings.py`) or if you prefer to log in as an administrator and click the "AWS Lambda Export" button.
 
-When the lambda returns, you should see its log printed to the console and should be served a DOCX in your browser. Or, failing that, you should at least be given a decent error message.
+When the lambda returns, you should see its log printed to the console and should be served a DOCX... or, failing that, at least be given an instructive error message.
 
 
 ## Updating the image...
