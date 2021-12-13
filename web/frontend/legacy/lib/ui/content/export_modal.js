@@ -36,9 +36,13 @@ function downloadFile (includeAnnotations, experimental=false, aws_lambda=false)
   }
   let pageInfo = document.querySelector('main > header').dataset;
   if (pageInfo.resourceId)  {
-    window.location.assign(resource_export_path(pageInfo.resourceId) + (includeAnnotations === "true" ? '?annotations=true' : '?annotations=false'));
+    window.location.assign(resource_export_path(pageInfo.resourceId)
+      + (includeAnnotations === "true" ? '?annotations=true' : '?annotations=false')
+      + (aws_lambda ? '&aws_lambda=true' : ''));
   } else if (pageInfo.sectionId)  {
-    window.location.assign(section_export_path(pageInfo.sectionId) + (includeAnnotations === "true"? '?annotations=true' : '?annotations=false'));
+    window.location.assign(section_export_path(pageInfo.sectionId)
+      + (includeAnnotations === "true"? '?annotations=true' : '?annotations=false')
+      + (aws_lambda ? '&aws_lambda=true' : ''));
   } else {
     window.location.assign(export_casebook_path(pageInfo.casebookId)
       + (includeAnnotations === "true" ? '?annotations=true' : '?annotations=false')
