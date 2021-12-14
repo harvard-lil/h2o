@@ -534,8 +534,9 @@ def get_link_title(url):
 
 def export_via_pandoc(obj, html, file_type):
     export_type = obj.__class__.__name__
+    log_line_prefix = f"Exporting {export_type} {obj.id}"
 
-    logger.info(f"Exporting {export_type} {obj.id}: launching pandoc subprocess")
+    logger.info(f"{log_line_prefix}: launching pandoc subprocess")
     with tempfile.NamedTemporaryFile(suffix=f'.{file_type}') as pandoc_out:
         command = []
         if file_type == 'json':
@@ -592,8 +593,9 @@ def export_via_pandoc(obj, html, file_type):
 def export_via_aws_lambda(obj, html, file_type):
     export_settings = settings.AWS_LAMBDA_EXPORT_SETTINGS
     export_type = obj.__class__.__name__
+    log_line_prefix = f"Exporting {export_type} {obj.id}"
 
-    logger.info(f"Exporting {export_type} {obj.id}: uploading source")
+    logger.info(f"{log_line_prefix}: uploading source")
     storage = get_s3_storage(
         bucket_name=export_settings['bucket_name'],
         config={k:v for k,v in export_settings.items() if k in ['endpoint_url', 'secret_key', 'access_key'] and v}
@@ -607,7 +609,7 @@ def export_via_aws_lambda(obj, html, file_type):
 
         # trigger the lambda and wait for the produced file
         try:
-            logger.info(f"Exporting {export_type} {obj.id}: triggering lambda")
+            logger.info(f"{log_line_prefix}: triggering lambda")
             if export_settings.get('function_arn'):
                 lambda_client = boto3.client(
                     'lambda',
@@ -627,7 +629,7 @@ def export_via_aws_lambda(obj, html, file_type):
                     'get_text': lambda: raw_response['Payload'].read()
                 }
                 lambda_log_str = str(base64.b64decode(raw_response['LogResult']), 'utf-8').strip().replace('\n', '; ').replace('\t', ', ')
-                logger.info(f"Exporting Casebook 4227: Lambda logs \"{lambda_log_str}\"")
+                logger.info(f"{log_line_prefix}: Lambda logs \"{lambda_log_str}\"")
             else:
                 raw_response = requests.post(
                     export_settings['function_url'],
