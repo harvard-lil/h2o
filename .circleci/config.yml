@@ -24,6 +24,7 @@ jobs:
             export PYENV_VERSION=3.8.3  # use the version of python3 installed on circleci
             pip install `egrep -o 'flake8==\S+' web/requirements.txt`  # install our version of flake8
             flake8 web/
+            flake8 docker/pandoc-lambda/function/
 
       # Docker image building and caching
       # This block shaves a minute or two off of the test runtime by using cached docker images.

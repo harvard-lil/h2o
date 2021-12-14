@@ -1,12 +1,23 @@
+import base64
+import boto3
+from botocore.config import Config
+from botocore.exceptions import BotoCoreError, ClientError as BotoClientError
 from copy import deepcopy
 from datetime import datetime, date
 import difflib
-import html as   python_html
+from docx import Document
+from docx.enum.section import WD_SECTION
+import html as python_html
+import json
 from lxml import etree, html
 import mimetypes
+import os
 from pyquery import PyQuery
 import re
-from requests import request
+import requests
+import signal
+import subprocess
+import tempfile
 from urllib.parse import quote, unquote
 
 from django.contrib.auth.tokens import default_token_generator
@@ -17,8 +28,13 @@ from django.template import Context, RequestContext, engines
 from django.urls import reverse
 from django.utils.encoding import force_bytes
 from django.utils.http import urlsafe_base64_encode
+from django.utils.text import get_text_list
 
 from .sanitize import sanitize
+from .storages import get_s3_storage
+
+import logging
+logger = logging.getLogger(__name__)
 
 
 class APICommunicationError(Exception):
@@ -502,7 +518,7 @@ def get_link_title(url):
         default_title = unquote(last_slug.groups()[0])
     resp = None
     try:
-        resp = request('get',url, verify=False)
+        resp = requests.get(url, verify=False)
     except Exception:
         return default_title
     if not resp or not resp.ok:
@@ -514,3 +530,234 @@ def get_link_title(url):
     if not title:
         return default_title
     return title[0].text
+
+
+def export_via_pandoc(obj, html, file_type):
+    export_type = obj.__class__.__name__
+    log_line_prefix = f"Exporting {export_type} {obj.id}"
+
+    logger.info(f"{log_line_prefix}: launching pandoc subprocess")
+    with tempfile.NamedTemporaryFile(suffix=f'.{file_type}') as pandoc_out:
+        command = []
+        if file_type == 'json':
+            command = [
+                'pandoc',
+                '--from', 'html',
+                '--to', 'json',
+                '--output', pandoc_out.name,
+                '--quiet'
+            ]
+        else:
+            command = [
+                'pandoc',
+                '--from', 'html',
+                '--to', 'docx',
+                '--reference-doc', os.path.join(settings.PANDOC_DIR, 'reference.docx'),
+                '--output', pandoc_out.name,
+                '--quiet',
+                '--self-contained'
+            ]
+        if export_type == 'Casebook':
+            command.extend(['--lua-filter', os.path.join(settings.PANDOC_DIR, 'table_of_contents.lua')])
+
+        try:
+            response = subprocess.run(command, input=html.encode('utf8'), stderr=subprocess.PIPE,
+                                      stdout=subprocess.PIPE)
+        except subprocess.CalledProcessError as e:
+            if export_type == 'Casebook':
+                obj.inc_export_fails()
+            raise Exception(f"Pandoc command failed: {e.stderr[:100]}")
+        if response.stderr:
+            if export_type == 'Casebook':
+                obj.inc_export_fails()
+            raise Exception(f"Pandoc reported error: {response.stderr[:100]}")
+        try:
+            response.check_returncode()
+        except subprocess.CalledProcessError as e:
+            if export_type == 'Casebook':
+                obj.inc_export_fails()
+            if e.returncode < 0:
+                try:
+                    sig_string = str(signal.Signals(-e.returncode))
+                except ValueError:
+                    sig_string = f"unknown signal {-e.returncode}"
+            else:
+                sig_string = f"non-zero exit status {e.returncode}"
+            raise Exception(f"Pandoc command exited with {sig_string}")
+
+        if export_type == 'Casebook' and obj.export_fails > 0:
+            obj.reset_export_fails()
+        return pandoc_out.read()
+
+
+def export_via_aws_lambda(obj, html, file_type):
+    export_settings = settings.AWS_LAMBDA_EXPORT_SETTINGS
+    export_type = obj.__class__.__name__
+    log_line_prefix = f"Exporting {export_type} {obj.id}"
+
+    logger.info(f"{log_line_prefix}: uploading source")
+    storage = get_s3_storage(
+        bucket_name=export_settings['bucket_name'],
+        config=dict(access_key=export_settings['access_key'], secret_key=export_settings['secret_key'], **({'endpoint_url':  export_settings['endpoint_url']} if export_settings.get('endpoint_url') else {}))
+    )
+    with tempfile.NamedTemporaryFile(suffix='.html') as inputfile:
+        # temporarily save the html source to s3, where the lambda can access it
+        filename = f"{export_type.lower()}-{obj.id}-{inputfile.name.split('/')[-1]}"
+        inputfile.write(bytes(html, 'utf-8'))
+        inputfile.seek(0)
+        storage.save(filename, inputfile)
+
+        # trigger the lambda and wait for the produced file
+        try:
+            logger.info(f"{log_line_prefix}: triggering lambda")
+            if export_settings.get('function_arn'):
+                lambda_client = boto3.client(
+                    'lambda',
+                    export_settings['function_region'],
+                    aws_access_key_id=export_settings['access_key'],
+                    aws_secret_access_key=export_settings['secret_key'],
+                    config=Config(read_timeout=settings.AWS_LAMBDA_EXPORT_TIMEOUT)
+                )
+                raw_response = lambda_client.invoke(
+                    FunctionName=export_settings['function_name'],
+                    LogType='Tail',
+                    Payload=bytes(json.dumps({"filename": filename, "is_casebook": export_type == 'Casebook'}), 'utf-8')
+                )
+                response = {
+                    'status_code': raw_response['ResponseMetadata']['HTTPStatusCode'],
+                    'headers': raw_response['ResponseMetadata']['HTTPHeaders'],
+                    'content': raw_response['Payload'],
+                    'get_text': lambda: raw_response['Payload'].read()
+                }
+                lambda_log_str = str(base64.b64decode(raw_response['LogResult']), 'utf-8').strip().replace('\n', '; ').replace('\t', ', ')
+                logger.info(f"{log_line_prefix}: Lambda logs \"{lambda_log_str}\"")
+            else:
+                raw_response = requests.post(
+                    export_settings['function_url'],
+                    timeout=settings.AWS_LAMBDA_EXPORT_TIMEOUT,
+                    json={
+                        'filename': filename,
+                        'is_casebook': export_type == 'Casebook'
+                    }
+                )
+                response = {
+                    'status_code': raw_response.status_code,
+                    'headers': {k.lower():v for k,v in raw_response.headers.items()},
+                    'log': None,
+                    'content': raw_response.content,
+                    'get_text': lambda: raw_response.text
+                }
+            assert response['status_code'] == 200, f"Status: {response['status_code']}. Content: {response['get_text']()}"
+            assert not response['headers'].get('x-amz-function-error') and response['headers']['content-type'] in ['application/zip', 'application/octet-stream'], f"x-amz-function-error: {response['headers'].get('x-amz-function-error')}, content-type:{response['headers']['content-type']}, {response['get_text']()}"
+        except (BotoCoreError, BotoClientError, requests.RequestException, AssertionError) as e:
+            if export_type == 'Casebook':
+                obj.inc_export_fails()
+            raise Exception(f"AWS Lambda export failed: {str(e)}")
+        finally:
+            # remove the source html from s3
+            storage.delete(filename)
+
+        # return the docx to the user
+        if export_type == 'Casebook' and obj.export_fails > 0:
+            obj.reset_export_fails()
+        return response['content']
+
+
+def export_via_python_docx(obj, children):
+
+    document = Document(os.path.join(settings.PANDOC_DIR, 'template.docx'))
+
+    def add_section(start_style, vertical_alignment='top'):
+        document.add_section(start_style)._sectPr.append(etree.fromstring(f'<w:vAlign w:val="{vertical_alignment}" xmlns:w="http://schemas.openxmlformats.org/wordprocessingml/2006/main"/>'))
+
+    def author_string():
+        return get_text_list([author.display_name for author in obj.primary_authors], 'and')
+
+    def add_titles(node, node_type):
+        if hasattr(node, 'ordinals'):
+            document.add_paragraph(node.ordinal_string(), style=f"{node_type} Number")
+        document.add_paragraph(node.title, style=f"{node_type} Title")
+        if node.subtitle:
+            document.add_paragraph(node.subtitle, style=f"{node_type} Subtitle")
+
+    # the first section doesn't need to be added; you are already in the first section.
+    # so, if you immediately add an WD_SECTION.ODD_PAGE section, the imaginary cursor is
+    # writing on page 3.
+
+    # the first doc section is an H2O preamble, with instructions
+    document.add_paragraph('(Placeholder for the preamble)')
+
+    # the next, if we want one, is a half-title page, but I think we don't
+    # the next is the title page
+    add_section(WD_SECTION.ODD_PAGE, 'bottom')
+    add_titles(obj, 'Casebook')
+    document.add_paragraph(author_string(), style="Casebook Authors")
+
+    # on the reverse is copyright info
+    add_section(WD_SECTION.EVEN_PAGE, 'bottom')
+    document.add_paragraph(f"© {author_string()}")
+    document.add_paragraph("This work is licensed to the public under a Creative Commons Attribution NonCommercial-Share Alike 3.0 license (international):")
+    document.add_paragraph("http://creativecommons.org/licenses/by-nc-sa/3.0/us/")
+
+    # the next section is the table of contents
+
+    # then we get into the book's contents....
+    #....the first item of which is probably the casebook's headnote.
+    #....in the HTML version, that is displayed above the TOC,
+    #....but that's very unusual e.g., https://www.bookcoverdesigner.com/book-interior-content/
+    #....So, we probably need to ask authors how they want that text treated during export,
+    #....but might default to a Preface, just after the TOC.
+    #....With this casebook, it's a sub-subtitle (https://opencasebook.org/casebooks/523-advanced-constitutional-law/)
+    #....What else might make sense? let's look at some casebook headnotes and see how they are used.
+
+    # but okay now we get into the actual contents
+    for child in children:
+        child_type = child.get_export_class()
+
+        # ADD THE SECTION
+        if child_type in ['Chapter', 'Leading Resource']:
+            start_type = WD_SECTION.ODD_PAGE
+        elif child_type == 'Section':
+            start_type = WD_SECTION.NEW_PAGE
+        elif child_type == 'Subsection':
+            start_type = WD_SECTION.CONTINUOUS
+        else:
+            start_type = WD_SECTION.CONTINUOUS
+        add_section(start_type)
+
+        # CONFIGURE ITS PAGE HEADER
+        # There are three header properties on Section: .header, .even_page_header, and .first_page_header
+        # Any existing even page header definitions are preserved when .odd_and_even_pages_header_footer is False; they are simply not rendered by Word. Assigning True to .odd_and_even_pages_header_footer does not automatically create new even header definition
+        # Assigning True to .different_first_page_header_footer does not automatically create a new first page header definition
+        # https://python-docx.readthedocs.io/en/latest/dev/analysis/features/header.html?highlight=even#header-and-footer
+
+        # CONFIGURE ITS PAGE NUMBERS
+        # This is where we can specify if its pages numbers should be arabic, roman, etc.,
+        # and whether the counting should start fresh or should be contiguous with the last section.
+
+        # ADD ITS TITLE
+        # (This is also where we will need to place the bookmark for the TOC)
+        add_titles(child, child_type)
+
+        # ADD ITS CONTENT
+
+        # First, again, goes author-provided headnotes:
+        # - page break or not? probably not.
+        # - how do we do the page headers, if this is in a chapter, and is multi-page?
+
+        # Then, if the node has it's own content, it goes here, potentially with annotations and formatted footnotes.
+        if child.has_body:
+            # for now, just dump some text in, to give the textbook content.
+            paragraphs = PyQuery(parse_html_fragment(child.export_content(None))).text().split('\n')
+            document.add_paragraph(paragraphs[0], style=f"First Paragraph")
+            for p in paragraphs[1:]:
+                document.add_paragraph(p, style=f"Body Text")
+
+
+    # and finally, the book's endmatter, which right now is just credits
+
+    # save and return
+    with tempfile.NamedTemporaryFile(suffix='.docx') as tmp:
+        document.save(tmp)
+        tmp.seek(0)
+        return tmp.read()

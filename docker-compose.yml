@@ -38,11 +38,32 @@ services:
       - MINIO_SECRET_KEY=secretkey
       - DATA_DIR=/data
       - BUCKET=h2o.images
+      - EXPORT_BUCKET=h2o.exports
     volumes:
       - ./docker/minio/entrypoint.sh:/entrypoint.sh
       - minio_data:/data:delegated
     ports:
       - "127.0.0.1:9000:9000"
+
+  pandoc-lambda:
+    build:
+      context: ./docker/pandoc-lambda
+      args:
+        lambda-rie-cache-buster: 9af4d93c-23f9-4cb1-99c4-b9af89f94668
+    image: h2o-pandoc-lambda:0.5
+    tty: true
+    environment:
+      - USE_S3_CREDENTIALS=True
+      - AWS_ACCESS_KEY_ID=accesskey
+      - AWS_SECRET_ACCESS_KEY=secretkey
+      - S3_ENDPOINT_URL=http://minio:9000
+      - EXPORT_BUCKET=h2o.exports
+    # To update requirements from requirements.in: uncomment the below line and re-run `docker-compose up -d`.
+    # After a few seconds, a newly-compiled requirements.txt will sync to ./docker/pandoc-lambda/function!
+    # Then, put back the comment, increment the image number, and run `docker-compose up -d` again, to rebuild with the new requirements.
+    # command: 'pip-compile --generate-hashes'
+    volumes:
+      - ./docker/pandoc-lambda/function/:/function
 
 volumes:
   db_data_12:

@@ -1,11 +1,8 @@
 from dateutil import parser
 import logging
-import os
 from pathlib import Path
 import re
 import requests
-import subprocess
-import tempfile
 from datetime import datetime
 from enum import Enum
 from os.path import commonprefix
@@ -48,8 +45,10 @@ from .utils import (block_level_elements, clone_model_instance, elements_equal,
                     parse_html_fragment, remove_empty_tags,
                     strip_trailing_block_level_whitespace, void_elements,
                     rich_text_export, prefix_ids_hrefs,
-                    APICommunicationError, fix_after_rails)
+                    APICommunicationError, fix_after_rails,
+                    export_via_aws_lambda, export_via_pandoc, export_via_python_docx)
 from .storages import get_s3_storage
+
 logger = logging.getLogger(__name__)
 
 #
@@ -179,6 +178,7 @@ def cleanse_html_field(model_instance, fieldname, sanitize_field=False):
 
         By default, line endings are normalized and whitespace is cleaned up:
         >>> node.headnote = same_after_cleansing
+        >>> caplog.clear()
         >>> with caplog.at_level(logging.DEBUG):
         ...     cleanse_html_field(node, 'headnote')
         >>> assert len(caplog.record_tuples) == 2
@@ -189,6 +189,7 @@ def cleanse_html_field(model_instance, fieldname, sanitize_field=False):
 
         Optionally, sanitize the field to remove potentially dangerous HTML before cleaning up whitespace:
         >>> node.headnote = same_after_cleansing
+        >>> caplog.clear()
         >>> with caplog.at_level(logging.DEBUG):
         ...     cleanse_html_field(node, 'headnote', True)
         >>> assert len(caplog.record_tuples) == 3
@@ -200,6 +201,7 @@ def cleanse_html_field(model_instance, fieldname, sanitize_field=False):
 
         If the field is the same after normalizing or sanitizing, stop processing:
         >>> node.headnote = same_after_normalizing
+        >>> caplog.clear()
         >>> with caplog.at_level(logging.DEBUG):
         ...     cleanse_html_field(node, 'headnote', True)
         >>> assert len(caplog.record_tuples) == 1
@@ -977,6 +979,7 @@ class LegalDocument(NullableTimestampedModel, AnnotatedModel):
             On save, Case HTML is cleansed (but not sanitized), and then annotations are updated:
             >>> _, legal_doc = annotations_factory('LegalDocument', html_with_annotations)
             >>> legal_doc.resource.content = new_html
+            >>> caplog.clear()
             >>> with caplog.at_level(logging.DEBUG):
             ...     legal_doc.resource.save()
             >>> assert dump_annotated_text(legal_doc) == new_doc_html_with_annotations
@@ -2106,7 +2109,7 @@ class ContentNode(EditTrackedModel, TimestampedModel, BigPkModel, MaterializedPa
         else:
             return 'resource'
 
-    def export(self, include_annotations, file_type='docx', export_options=None, is_child=False, experimental=False):
+    def export(self, include_annotations, file_type='docx', export_options=None, is_child=False, experimental=False, aws_lambda=False):
         """
             Export this node and children as docx, or as html for conversion by pandoc.
 
@@ -2148,35 +2151,9 @@ class ContentNode(EditTrackedModel, TimestampedModel, BigPkModel, MaterializedPa
         if file_type == 'html':
             return html
 
-        # convert to docx with pandoc
-        with tempfile.NamedTemporaryFile(suffix='.docx') as pandoc_out:
-            command = []
-            if file_type == 'json':
-                command = [
-                    'pandoc',
-                    '--from', 'html',
-                    '--to', 'json',
-                    '--output', pandoc_out.name,
-                    '--quiet'
-                ]
-            else:
-                command = [
-                    'pandoc',
-                    '--from', 'html',
-                    '--to', 'docx',
-                    '--reference-doc', os.path.join(settings.PANDOC_DIR, 'reference.docx'),
-                    '--output', pandoc_out.name,
-                    '--quiet',
-                    '--self-contained'
-                ]
-            try:
-                response = subprocess.run(command, input=html.encode('utf8'), stderr=subprocess.PIPE,
-                                          stdout=subprocess.PIPE)
-            except subprocess.CalledProcessError as e:
-                raise Exception(f"Pandoc command failed: {e.stderr[:100]}")
-            if response.stderr:
-                raise Exception(f"Pandoc reported error: {response.stderr[:100]}")
-            return pandoc_out.read()
+        if aws_lambda or settings.FORCE_AWS_LAMBDA_EXPORT:
+            return export_via_aws_lambda(self, html, file_type)
+        return export_via_pandoc(self, html, file_type)
 
     def headnote_for_export(self, export_options=None):
         r"""
@@ -3640,7 +3617,7 @@ class Casebook(EditTrackedModel, TimestampedModel, BigPkModel, TrackedCloneable)
         collaborator_to_add = ContentCollaborator(user=user, casebook_id=self.id, **collaborator_kwargs)
         collaborator_to_add.save()
 
-    def export(self, include_annotations, file_type='docx', export_options=None, experimental=False):
+    def export(self, include_annotations, file_type='docx', export_options=None, experimental=False, aws_lambda=False):
         """
             Export this node and children as docx, or as html for conversion by pandoc.
 
@@ -3653,6 +3630,7 @@ class Casebook(EditTrackedModel, TimestampedModel, BigPkModel, TrackedCloneable)
         """
         # prefetch all child nodes and related data
         if self.export_embargoed():
+            logger.info(f"Exporting Casebook {self.id}: attempt rejected (too many previous failures)")
             return None
         children = list(self.contents.prefetch_resources().prefetch_related('annotations')) if type(
             self) is not Resource else None
@@ -3664,112 +3642,11 @@ class Casebook(EditTrackedModel, TimestampedModel, BigPkModel, TrackedCloneable)
                          if set(cn.casebook.primary_authors) ^ current_collaborators}
 
         if experimental or settings.FORCE_EXPERIMENTAL_EXPORT:
-            from docx import Document
-            from docx.enum.section import WD_SECTION
-            from lxml import etree
-            from pyquery import PyQuery as pq
-
-            from django.utils.text import get_text_list
-
-            document = Document(os.path.join(settings.PANDOC_DIR, 'template.docx'))
-
-            def add_section(start_style, vertical_alignment='top'):
-                document.add_section(start_style)._sectPr.append(etree.fromstring(f'<w:vAlign w:val="{vertical_alignment}" xmlns:w="http://schemas.openxmlformats.org/wordprocessingml/2006/main"/>'))
-
-            def author_string():
-                return get_text_list([author.display_name for author in self.primary_authors], 'and')
-
-            def add_titles(node, node_type):
-                if hasattr(node, 'ordinals'):
-                    document.add_paragraph(node.ordinal_string(), style=f"{node_type} Number")
-                document.add_paragraph(node.title, style=f"{node_type} Title")
-                if node.subtitle:
-                    document.add_paragraph(node.subtitle, style=f"{node_type} Subtitle")
-
-            # the first section doesn't need to be added; you are already in the first section.
-            # so, if you immediately add an WD_SECTION.ODD_PAGE section, the imaginary cursor is
-            # writing on page 3.
-
-            # the first doc section is an H2O preamble, with instructions
-            document.add_paragraph('(Placeholder for the preamble)')
-
-            # the next, if we want one, is a half-title page, but I think we don't
-            # the next is the title page
-            add_section(WD_SECTION.ODD_PAGE, 'bottom')
-            add_titles(self, 'Casebook')
-            document.add_paragraph(author_string(), style="Casebook Authors")
-
-            # on the reverse is copyright info
-            add_section(WD_SECTION.EVEN_PAGE, 'bottom')
-            document.add_paragraph(f"© {author_string()}")
-            document.add_paragraph("This work is licensed to the public under a Creative Commons Attribution NonCommercial-Share Alike 3.0 license (international):")
-            document.add_paragraph("http://creativecommons.org/licenses/by-nc-sa/3.0/us/")
-
-            # the next section is the table of contents
-
-            # then we get into the book's contents....
-            #....the first item of which is probably the casebook's headnote.
-            #....in the HTML version, that is displayed above the TOC,
-            #....but that's very unusual e.g., https://www.bookcoverdesigner.com/book-interior-content/
-            #....So, we probably need to ask authors how they want that text treated during export,
-            #....but might default to a Preface, just after the TOC.
-            #....With this casebook, it's a sub-subtitle (https://opencasebook.org/casebooks/523-advanced-constitutional-law/)
-            #....What else might make sense? let's look at some casebook headnotes and see how they are used.
-
-            # but okay now we get into the actual contents
-            for child in children:
-                child_type = child.get_export_class()
-
-                # ADD THE SECTION
-                if child_type in ['Chapter', 'Leading Resource']:
-                    start_type = WD_SECTION.ODD_PAGE
-                elif child_type == 'Section':
-                    start_type = WD_SECTION.NEW_PAGE
-                elif child_type == 'Subsection':
-                    start_type = WD_SECTION.CONTINUOUS
-                else:
-                    start_type = WD_SECTION.CONTINUOUS
-                add_section(start_type)
-
-                # CONFIGURE ITS PAGE HEADER
-                # There are three header properties on Section: .header, .even_page_header, and .first_page_header
-                # Any existing even page header definitions are preserved when .odd_and_even_pages_header_footer is False; they are simply not rendered by Word. Assigning True to .odd_and_even_pages_header_footer does not automatically create new even header definition
-                # Assigning True to .different_first_page_header_footer does not automatically create a new first page header definition
-                # https://python-docx.readthedocs.io/en/latest/dev/analysis/features/header.html?highlight=even#header-and-footer
-
-                # CONFIGURE ITS PAGE NUMBERS
-                # This is where we can specify if its pages numbers should be arabic, roman, etc.,
-                # and whether the counting should start fresh or should be contiguous with the last section.
-
-                # ADD ITS TITLE
-                # (This is also where we will need to place the bookmark for the TOC)
-                add_titles(child, child_type)
-
-                # ADD ITS CONTENT
-
-                # First, again, goes author-provided headnotes:
-                # - page break or not? probably not.
-                # - how do we do the page headers, if this is in a chapter, and is multi-page?
-
-                # Then, if the node has it's own content, it goes here, potentially with annotations and formatted footnotes.
-                if child.has_body:
-                    # for now, just dump some text in, to give the textbook content.
-                    paragraphs = pq(parse_html_fragment(child.export_content(None))).text().split('\n')
-                    document.add_paragraph(paragraphs[0], style=f"First Paragraph")
-                    for p in paragraphs[1:]:
-                        document.add_paragraph(p, style=f"Body Text")
-
-
-            # and finally, the book's endmatter, which right now is just credits
-
-            # save and return
-            with tempfile.NamedTemporaryFile(suffix='.docx') as tmp:
-                document.save(tmp)
-                tmp.seek(0)
-                return tmp.read()
+            return export_via_python_docx(self, children)
 
         else:
             # render html
+            logger.info(f"Exporting Casebook {self.id}: serializing to HTML")
             template_name = 'export/casebook.html'
             html = render_to_string(template_name, {
                 'is_export': True,
@@ -3783,30 +3660,9 @@ class Casebook(EditTrackedModel, TimestampedModel, BigPkModel, TrackedCloneable)
             if file_type == 'html':
                 return html
 
-            # convert to docx with pandoc
-            with tempfile.NamedTemporaryFile(suffix='.docx') as pandoc_out:
-                command = [
-                    'pandoc',
-                    '--from', 'html',
-                    '--to', 'docx',
-                    '--reference-doc', os.path.join(settings.PANDOC_DIR, 'reference.docx'),
-                    '--output', pandoc_out.name,
-                    '--quiet'
-                ]
-                if type(self) is Casebook:
-                    command.extend(['--lua-filter', os.path.join(settings.PANDOC_DIR, 'table_of_contents.lua')])
-                try:
-                    response = subprocess.run(command, input=html.encode('utf8'), stderr=subprocess.PIPE,
-                                              stdout=subprocess.PIPE)
-                except subprocess.CalledProcessError as e:
-                    self.inc_export_fails()
-                    raise Exception(f"Pandoc command failed: {e.stderr[:100]}")
-                if response.stderr:
-                    self.inc_export_fails()
-                    raise Exception(f"Pandoc reported error: {response.stderr[:100]}")
-                if self.export_fails > 0:
-                    self.reset_export_fails()
-                return pandoc_out.read()
+            if aws_lambda or settings.FORCE_AWS_LAMBDA_EXPORT:
+                return export_via_aws_lambda(self, html, file_type)
+            return export_via_pandoc(self, html, file_type)
 
     def inc_export_fails(self):
         # This function is used to avoid making a copy of the casebook via CasebookHistory
@@ -4046,6 +3902,7 @@ class TextBlock(NullableTimestampedModel, AnnotatedModel):
             On save, TextBlock HTML is cleansed and annotations are updated afterwards:
             >>> _, textblock = annotations_factory('TextBlock', html_with_annotations)
             >>> textblock.resource.content = new_html
+            >>> caplog.clear()
             >>> with caplog.at_level(logging.DEBUG):
             ...     textblock.resource.save()
             >>> assert dump_annotated_text(textblock) == new_textblock_html_with_annotations

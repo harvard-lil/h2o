@@ -169,7 +169,8 @@ TEMPLATE_VISIBLE_SETTINGS = (
     'SEARCH_URL',
     'EDIT_URL',
     'ACCESSIBILITY_POLICY_URL',
-    'FORCE_EXPERIMENTAL_EXPORT'
+    'FORCE_EXPERIMENTAL_EXPORT',
+    'FORCE_AWS_LAMBDA_EXPORT'
 )
 
 LOGGING = {
@@ -240,9 +241,6 @@ COURTLISTENER_KEY = ''
 CRISPY_TEMPLATE_PACK = 'bootstrap3'
 CRISPY_FAIL_SILENTLY = False
 
-MAX_EXPORT_ATTEMPTS = 3
-FORCE_EXPERIMENTAL_EXPORT = False
-
 # Temporary: this is the name of the CSRF header used by the Rails app's AJAX requests
 CSRF_HEADER_NAME = 'HTTP_X_CSRF_TOKEN'
 CSRF_FAILURE_VIEW = 'main.views.csrf_failure'
@@ -258,6 +256,22 @@ S3_STORAGE = {
     'endpoint_url': 'http://minio:9000',
     'access_key': 'accesskey',
     'secret_key': 'secretkey'
+}
+
+MAX_EXPORT_ATTEMPTS = 3
+FORCE_EXPERIMENTAL_EXPORT = False
+FORCE_AWS_LAMBDA_EXPORT = False
+AWS_LAMBDA_EXPORT_TIMEOUT = 60 * 4
+AWS_LAMBDA_EXPORT_SETTINGS = {
+    # required
+    'bucket_name': 'h2o.exports',
+    'access_key': S3_STORAGE['access_key'],
+    'secret_key': S3_STORAGE['secret_key'],
+    # required: 'function_arn' OR 'function_url'
+    'function_arn': None,
+    'function_url': "http://pandoc-lambda:8080/2015-03-31/functions/function/invocations",
+    # optional: if unset, URL is automatically constructed by boto3
+    'endpoint_url': S3_STORAGE['endpoint_url']
 }
 
 PASSWORD_HASHERS = [

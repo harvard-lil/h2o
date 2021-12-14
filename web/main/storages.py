@@ -33,12 +33,10 @@ class S3Storage(S3Boto3Storage):
         return files
 
 
-
-def get_s3_storage(bucket_name='h2o.images'):
-    # We're planning on supporting multiple storage solutions. I'm adding this
-    # unnecessary layer of abstraction now, to hopefully encourage design decisions
-    # that will make it easier to support multiple and customer-specific storages later.
+def get_s3_storage(bucket_name='h2o.images', config=None):
+    if config is None:
+        config = settings.S3_STORAGE
     return S3Storage(
-        **settings.S3_STORAGE,
+        **config,
         bucket_name=bucket_name
     )
