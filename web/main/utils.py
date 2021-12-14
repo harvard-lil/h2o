@@ -598,7 +598,7 @@ def export_via_aws_lambda(obj, html, file_type):
     logger.info(f"{log_line_prefix}: uploading source")
     storage = get_s3_storage(
         bucket_name=export_settings['bucket_name'],
-        config={k:v for k,v in export_settings.items() if k in ['endpoint_url', 'secret_key', 'access_key'] and v}
+        config=dict(access_key=export_settings['access_key'], secret_key=export_settings['secret_key'], **({'endpoint_url':  export_settings['endpoint_url']} if export_settings.get('endpoint_url') else {}))
     )
     with tempfile.NamedTemporaryFile(suffix='.html') as inputfile:
         # temporarily save the html source to s3, where the lambda can access it
@@ -614,8 +614,9 @@ def export_via_aws_lambda(obj, html, file_type):
                 lambda_client = boto3.client(
                     'lambda',
                     export_settings['function_region'],
-                    config=Config(read_timeout=settings.AWS_LAMBDA_EXPORT_TIMEOUT),
-                    **({'aws_access_key_id': export_settings['access_key'], 'aws_secret_access_key': export_settings['secret_key']} if export_settings['access_key'] else {})
+                    aws_access_key_id=export_settings['access_key'],
+                    aws_secret_access_key=export_settings['secret_key'],
+                    config=Config(read_timeout=settings.AWS_LAMBDA_EXPORT_TIMEOUT)
                 )
                 raw_response = lambda_client.invoke(
                     FunctionName=export_settings['function_name'],

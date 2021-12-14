@@ -265,12 +265,11 @@ AWS_LAMBDA_EXPORT_TIMEOUT = 60 * 4
 AWS_LAMBDA_EXPORT_SETTINGS = {
     # required
     'bucket_name': 'h2o.exports',
+    'access_key': S3_STORAGE['access_key'],
+    'secret_key': S3_STORAGE['secret_key'],
     # required: 'function_arn' OR 'function_url'
     'function_arn': None,
     'function_url': "http://pandoc-lambda:8080/2015-03-31/functions/function/invocations",
-    # optional: if absent, boto3 looks for credentials as per https://boto3.amazonaws.com/v1/documentation/api/latest/guide/credentials.html#configuring-credentials
-    'access_key': S3_STORAGE['access_key'],
-    'secret_key': S3_STORAGE['secret_key'],
     # optional: if unset, URL is automatically constructed by boto3
     'endpoint_url': S3_STORAGE['endpoint_url']
 }
