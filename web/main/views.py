@@ -2158,10 +2158,13 @@ def export(request, node, file_type='docx'):
     include_annotations = request.GET.get('annotations') == 'true'
     experimental = request.GET.get('experimental') == 'true' and request.user.is_superuser
     aws_lambda = request.GET.get('aws_lambda') == 'true' and request.user.is_superuser
+    docx_footnotes = request.GET.get('docx_footnotes') == 'true' and request.user.is_superuser
 
     export_options = {'request': request}
+    export_options['docx_footnotes'] = docx_footnotes
+
     # get response data
-    response_data = node.export(include_annotations, file_type, export_options=export_options, experimental=experimental, aws_lambda=aws_lambda)
+    response_data = node.export(include_annotations, file_type, export_options=export_options, experimental=experimental, aws_lambda=aws_lambda, docx_footnotes=docx_footnotes)
     if response_data is None:
         return render(request, 'export_error.html', {
             'casebook': node
