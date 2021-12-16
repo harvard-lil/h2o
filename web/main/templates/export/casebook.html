@@ -1,15 +1,19 @@
 {% load call_method %}
 <body>
-  {% include 'export/about.html' %}
   <div class="CasebookTitle" data-custom-style="Casebook Title">{{ node.title }}</div>
   {% if node.subtitle %}
   <div class="CasebookSubtitle" data-custom-style="Casebook Subtitle">{{ node.subtitle }}</div>
   {% endif %}
   {% if node.headnote %}
-  {% call_method node 'headnote_for_export' export_options=export_options as headnote %}
-  
-    <div class="CasebookHeadnote" data-custom-style="Casebook Headnote">{{ headnote }}</div>
+    {% call_method node 'headnote_for_export' export_options=export_options as headnote %}
+      {% if headnote|striptags|length < 325 %}
+        <div class="CasebookBlurb" data-custom-style="Casebook Blurb">{{ headnote|striptags }}</div>
+      {% else %}
+        <div class="CasebookHeadnoteTitle" data-custom-style="Casebook Headnote Title">Headnote</div>
+        <div class="CasebookHeadnote" data-custom-style="Casebook Headnote">{{ headnote }}</div>
+      {% endif %}
   {% endif %}
+  {% include 'export/about.html' %}
 
   {% comment %}
     Note: the contents of this TOC div is manually converted to XML during the export
