@@ -21,7 +21,7 @@
       <select class="form-control select required" name="school" aria-label="Filter by School" id="search_school">
         <option {% if not request.GET.school %}selected {% endif %}value="">All Schools</option>
         {% for school in facets.affiliation %}
-          <option {% if request.GET.school == school %}selected {% endif %}value="{{ school }}">{{ school }}</option>
+          <option {% if request.GET.school and request.GET.school == school %}selected {% endif %}value="{{ school }}">{{ school }}</option>
         {% endfor %}
       </select>
     </div>
