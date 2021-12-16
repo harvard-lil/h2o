@@ -1626,32 +1626,7 @@
             <w:u w:val="single"/>
         </w:rPr>
     </w:style>
-    <w:style w:type="paragraph" w:customStyle="1" w:styleId="AboutPageTitle">
-        <w:name w:val="Cover Page Title"/>
-        <w:basedOn w:val="HStruct04Title"/>
-        <w:qFormat/>
-        <w:rsid w:val="00211E78"/>
-        <w:pPr>
-            <w:pageBreakBefore/>
-            <w:spacing w:before="1920"/>
-            <w:ind w:left="720"/>
-        </w:pPr>
-    </w:style>
-    <w:style w:type="paragraph" w:customStyle="1" w:styleId="AboutPageSubtitle">
-        <w:name w:val="AboutPage Subtitle"/>
-        <w:basedOn w:val="HStruct04Subtitle"/>
-        <w:qFormat/>
-        <w:rsid w:val="00DE0602"/>
-        <w:pPr>
-            <w:spacing w:before="120" w:after="1440"/>
-            <w:ind w:left="1440"/>
-        </w:pPr>
-        <w:rPr>
-            <w:color w:val="5A771D"/>
-            <w:sz w:val="19"/>
-            <w:szCs w:val="19"/>
-        </w:rPr>
-    </w:style>
+
     <w:style w:type="paragraph" w:customStyle="1" w:styleId="CreditTitle">
         <w:name w:val="Credit Title"/>
         <w:basedOn w:val="CreditAuthors"/>
@@ -1665,30 +1640,33 @@
             <w:u w:val="single"/>
         </w:rPr>
     </w:style>
+    <w:style w:type="paragraph" w:customStyle="1" w:styleId="AboutPageTitle">
+        <w:name w:val="About Page Title"/>
+        <w:basedOn w:val="HStruct04Title"/>
+        <w:qFormat/>
+        <w:rsid w:val="00211E78"/>
+        <w:pPr>
+            <w:color w:val="5A771D"/>
+            <w:pageBreakBefore/>
+            <w:spacing w:before="1920"/>
+            <w:ind w:left="1440"/>
+        </w:pPr>
+    </w:style>
     <w:style w:type="character" w:customStyle="1" w:styleId="AboutPageLink">
-        <w:name w:val="Cover Page Link"/>
+        <w:name w:val="About Page Link"/>
         <w:basedOn w:val="DefaultParagraphFont"/>
         <w:uiPriority w:val="1"/>
         <w:qFormat/>
         <w:rsid w:val="00C32332"/>
         <w:rPr>
-            <w:color w:val="D96955"/>
+            <w:color w:val="5A771D"/>
             <w:sz w:val="20"/>
             <w:szCs w:val="20"/>
             <w:u w:val="single"/>
         </w:rPr>
     </w:style>
-    <w:style w:type="paragraph" w:customStyle="1" w:styleId="AboutPageInstructionsTitle">
-        <w:name w:val="Cover Page Instructions Title"/>
-        <w:basedOn w:val="HStruct04Title"/>
-        <w:qFormat/>
-        <w:rsid w:val="00DE0602"/>
-        <w:pPr>
-            <w:spacing w:before="240" w:after="240"/>
-        </w:pPr>
-    </w:style>
-    <w:style w:type="paragraph" w:customStyle="1" w:styleId="AboutPageInstructionsInstructions">
-        <w:name w:val="Instructions"/>
+    <w:style w:type="paragraph" w:customStyle="1" w:styleId="AboutPageInstructions">
+        <w:name w:val="About Page Instructions"/>
         <w:basedOn w:val="HierarchyLevel3-4-5HeaderText"/>
         <w:qFormat/>
         <w:rsid w:val="004118BE"/>
@@ -1696,21 +1674,6 @@
             <w:spacing w:before="240" w:after="240" w:line="300" w:lineRule="auto"/>
             <w:ind w:left="1440"/>
         </w:pPr>
-    </w:style>
-    <w:style w:type="paragraph" w:customStyle="1" w:styleId="AboutPageInstructionsbullets">
-        <w:name w:val="Instructions bullets"/>
-        <w:basedOn w:val="HierarchyLevel3-4-5HeaderText"/>
-        <w:qFormat/>
-        <w:rsid w:val="003409FF"/>
-        <w:pPr>
-            <w:numPr>
-                <w:numId w:val="19"/>
-            </w:numPr>
-            <w:spacing w:before="40" w:after="40"/>
-        </w:pPr>
-        <w:rPr>
-            <w:rFonts w:ascii="Century Gothic" w:hAnsi="Century Gothic"/>
-        </w:rPr>
     </w:style>
     <w:style w:type="table" w:styleId="TableGrid">
         <w:name w:val="Table Grid"/>

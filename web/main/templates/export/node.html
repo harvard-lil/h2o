@@ -58,6 +58,6 @@
     {% include 'export/credits.html' %}
 {% endif %}
 
-{#{% if not is_child %}#}
-{#{% include 'export/about.html' %}#}
-{#{% endif %}#}
+{% if not is_child %}
+{% include 'export/about.html' %}
+{% endif %}
