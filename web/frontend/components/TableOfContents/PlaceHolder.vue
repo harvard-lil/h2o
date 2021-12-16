@@ -2,7 +2,7 @@
   <div v-if="editing">
     <div class="listing empty">
       <div class="add-content-link">
-        This casebook is empty.
+        This {{nodeType}} is empty.
       </div>
     </div>
   </div>
@@ -10,6 +10,6 @@
 
 <script>
 export default {
-    props: ["editing"]
+    props: ["editing", "nodeType"]
 }
 </script>

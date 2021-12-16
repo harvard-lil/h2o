@@ -10,7 +10,7 @@
                    v-if="dataReady"
                    >
          <div slot="placeholder">
-         <placeholder :editing="editing" />
+         <placeholder :editing="editing" :node-type="nodeType" />
          </div>
          <template v-slot="{item}">
          <entry :item="item"
@@ -65,6 +65,9 @@ export default {
       return this.rootOrdinals !== ""
         ? this.rootOrdinals + "."
         : this.rootOrdinals;
+    },
+    nodeType: function() {
+        return this.section ? "section" : "casebook";
     },
     toc: {
       get: function() {
