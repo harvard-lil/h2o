@@ -12,6 +12,447 @@ xmlns:wp="http://schemas.openxmlformats.org/drawingml/2006/wordprocessingDrawing
   <w:body>
     <w:p>
       <w:pPr>
+        <w:pStyle w:val="invisibleseparator" />
+      </w:pPr>
+      <w:r>
+        <w:t xml:space="preserve">invisibleseparator</w:t>
+      </w:r>
+    </w:p>
+    <w:p>
+      <w:pPr>
+        <w:pStyle w:val="CasebookTitle" />
+      </w:pPr>
+      <w:r>
+        <w:t xml:space="preserve">CasebookTitle</w:t>
+      </w:r>
+    </w:p>
+    <w:p>
+      <w:pPr>
+        <w:pStyle w:val="CasebookSubtitle" />
+      </w:pPr>
+      <w:r>
+        <w:t xml:space="preserve">CasebookSubtitle</w:t>
+      </w:r>
+    </w:p>
+    <w:p>
+      <w:pPr>
+        <w:pStyle w:val="CasebookAuthor" />
+      </w:pPr>
+      <w:r>
+        <w:t xml:space="preserve">CasebookAuthor</w:t>
+      </w:r>
+    </w:p>
+    <w:p>
+      <w:pPr>
+        <w:pStyle w:val="SectionNumber" />
+      </w:pPr>
+      <w:r>
+        <w:t xml:space="preserve">SectionNumber</w:t>
+      </w:r>
+    </w:p>
+    <w:p>
+      <w:pPr>
+        <w:pStyle w:val="SectionTitle" />
+      </w:pPr>
+      <w:r>
+        <w:t xml:space="preserve">SectionTitle</w:t>
+      </w:r>
+    </w:p>
+    <w:p>
+      <w:pPr>
+        <w:pStyle w:val="SectionSubtitle" />
+      </w:pPr>
+      <w:r>
+        <w:t xml:space="preserve">SectionSubtitle</w:t>
+      </w:r>
+    </w:p>
+    <w:p>
+      <w:pPr>
+        <w:pStyle w:val="SectionHeadnote" />
+      </w:pPr>
+      <w:r>
+        <w:t xml:space="preserve">SectionHeadnote</w:t>
+      </w:r>
+    </w:p>
+    <w:p>
+      <w:pPr>
+        <w:pStyle w:val="ResourceNumber" />
+      </w:pPr>
+      <w:r>
+        <w:t xml:space="preserve">ResourceNumber</w:t>
+      </w:r>
+    </w:p>
+    <w:p>
+      <w:pPr>
+        <w:pStyle w:val="ResourceTitle" />
+      </w:pPr>
+      <w:r>
+        <w:t xml:space="preserve">ResourceTitle</w:t>
+      </w:r>
+    </w:p>
+    <w:p>
+      <w:pPr>
+        <w:pStyle w:val="ResourceSubtitle" />
+      </w:pPr>
+      <w:r>
+        <w:t xml:space="preserve">ResourceSubtitle</w:t>
+      </w:r>
+    </w:p>
+    <w:p>
+      <w:pPr>
+        <w:pStyle w:val="ResourceHeadnote" />
+      </w:pPr>
+      <w:r>
+        <w:t xml:space="preserve">ResourceHeadnote</w:t>
+      </w:r>
+    </w:p>
+    <w:p>
+      <w:pPr>
+        <w:pStyle w:val="ChapterNumber" />
+      </w:pPr>
+      <w:r>
+        <w:t xml:space="preserve">ChapterNumber</w:t>
+      </w:r>
+    </w:p>
+    <w:p>
+      <w:pPr>
+        <w:pStyle w:val="ChapterTitle" />
+      </w:pPr>
+      <w:r>
+        <w:t xml:space="preserve">ChapterTitle</w:t>
+      </w:r>
+    </w:p>
+    <w:p>
+      <w:pPr>
+        <w:pStyle w:val="ChapterSubtitle" />
+      </w:pPr>
+      <w:r>
+        <w:t xml:space="preserve">ChapterSubtitle</w:t>
+      </w:r>
+    </w:p>
+    <w:p>
+      <w:pPr>
+        <w:pStyle w:val="ChapterHeadnote" />
+      </w:pPr>
+      <w:r>
+        <w:t xml:space="preserve">ChapterHeadnote</w:t>
+      </w:r>
+    </w:p>
+    <w:p>
+      <w:pPr>
+        <w:pStyle w:val="AcknowledgementsHeader" />
+      </w:pPr>
+      <w:r>
+        <w:t xml:space="preserve">AcknowledgementsHeader</w:t>
+      </w:r>
+    </w:p>
+    <w:p>
+      <w:pPr>
+        <w:pStyle w:val="AcknowledgementsSubhead" />
+      </w:pPr>
+      <w:r>
+        <w:t xml:space="preserve">AcknowledgementsSubhead</w:t>
+      </w:r>
+    </w:p>
+    <w:p>
+      <w:pPr>
+        <w:pStyle w:val="CaseHeader" />
+      </w:pPr>
+      <w:r>
+        <w:t xml:space="preserve">CaseHeader</w:t>
+      </w:r>
+    </w:p>
+    <w:p>
+      <w:pPr>
+        <w:pStyle w:val="CaseText" />
+      </w:pPr>
+      <w:r>
+        <w:t xml:space="preserve">CaseText</w:t>
+      </w:r>
+    </w:p>
+    <w:p>
+      <w:pPr>
+        <w:pStyle w:val="Elision" />
+      </w:pPr>
+      <w:r>
+        <w:t xml:space="preserve">Elision</w:t>
+      </w:r>
+    </w:p>
+    <w:p>
+      <w:pPr>
+        <w:pStyle w:val="ReplacementText" />
+      </w:pPr>
+      <w:r>
+        <w:t xml:space="preserve">ReplacementText</w:t>
+      </w:r>
+    </w:p>
+    <w:p>
+      <w:pPr>
+        <w:pStyle w:val="HighlightedText" />
+      </w:pPr>
+      <w:r>
+        <w:t xml:space="preserve">HighlightedText</w:t>
+      </w:r>
+    </w:p>
+    <w:p>
+      <w:pPr>
+        <w:pStyle w:val="CreditAuthors" />
+      </w:pPr>
+      <w:r>
+        <w:t xml:space="preserve">CreditAuthors</w:t>
+      </w:r>
+    </w:p>
+    <w:p>
+      <w:pPr>
+        <w:pStyle w:val="CaseBody" />
+      </w:pPr>
+      <w:r>
+        <w:t xml:space="preserve">CaseBody</w:t>
+      </w:r>
+    </w:p>
+    <w:p>
+      <w:pPr>
+        <w:pStyle w:val="CasebookHeadnote" />
+      </w:pPr>
+      <w:r>
+        <w:t xml:space="preserve">CasebookHeadnote</w:t>
+      </w:r>
+    </w:p>
+    <w:p>
+      <w:pPr>
+        <w:pStyle w:val="Credits" />
+      </w:pPr>
+      <w:r>
+        <w:t xml:space="preserve">Credits</w:t>
+      </w:r>
+    </w:p>
+    <w:p>
+      <w:pPr>
+        <w:pStyle w:val="ResourceLink" />
+      </w:pPr>
+      <w:r>
+        <w:t xml:space="preserve">ResourceLink</w:t>
+      </w:r>
+    </w:p>
+    <w:p>
+      <w:pPr>
+        <w:pStyle w:val="CaseFootnoteReference" />
+      </w:pPr>
+      <w:r>
+        <w:t xml:space="preserve">CaseFootnoteReference</w:t>
+      </w:r>
+    </w:p>
+    <w:p>
+      <w:pPr>
+        <w:pStyle w:val="SourceCode" />
+      </w:pPr>
+      <w:r>
+        <w:t xml:space="preserve">SourceCode</w:t>
+      </w:r>
+    </w:p>
+    <w:p>
+      <w:pPr>
+        <w:pStyle w:val="Header" />
+      </w:pPr>
+      <w:r>
+        <w:t xml:space="preserve">Header</w:t>
+      </w:r>
+    </w:p>
+    <w:p>
+      <w:pPr>
+        <w:pStyle w:val="CreditTitle" />
+      </w:pPr>
+      <w:r>
+        <w:t xml:space="preserve">CreditTitle</w:t>
+      </w:r>
+    </w:p>
+
+    <w:p>
+      <w:pPr>
+        <w:pStyle w:val="HStruct01Title" />
+      </w:pPr>
+      <w:r>
+        <w:t xml:space="preserve">HStruct01Title</w:t>
+      </w:r>
+    </w:p>
+    <w:p>
+      <w:pPr>
+        <w:pStyle w:val="HStruct01Subtitle" />
+      </w:pPr>
+      <w:r>
+        <w:t xml:space="preserve">HStruct01Subtitle</w:t>
+      </w:r>
+    </w:p>
+    <w:p>
+      <w:pPr>
+        <w:pStyle w:val="HStruct02Title" />
+      </w:pPr>
+      <w:r>
+        <w:t xml:space="preserve">HStruct02Title</w:t>
+      </w:r>
+    </w:p>
+    <w:p>
+      <w:pPr>
+        <w:pStyle w:val="HStruct02Subtitle" />
+      </w:pPr>
+      <w:r>
+        <w:t xml:space="preserve">HStruct02Subtitle</w:t>
+      </w:r>
+    </w:p>
+    <w:p>
+      <w:pPr>
+        <w:pStyle w:val="HStruct03Title" />
+      </w:pPr>
+      <w:r>
+        <w:t xml:space="preserve">HStruct03Title</w:t>
+      </w:r>
+    </w:p>
+    <w:p>
+      <w:pPr>
+        <w:pStyle w:val="HStruct03Subtitle" />
+      </w:pPr>
+      <w:r>
+        <w:t xml:space="preserve">HStruct03Subtitle</w:t>
+      </w:r>
+    </w:p>
+    <w:p>
+      <w:pPr>
+        <w:pStyle w:val="HStruct04Title" />
+      </w:pPr>
+      <w:r>
+        <w:t xml:space="preserve">HStruct04Title</w:t>
+      </w:r>
+    </w:p>
+    <w:p>
+      <w:pPr>
+        <w:pStyle w:val="HStruct04Subtitle" />
+      </w:pPr>
+      <w:r>
+        <w:t xml:space="preserve">HStruct04Subtitle</w:t>
+      </w:r>
+    </w:p>
+    <w:p>
+      <w:pPr>
+        <w:pStyle w:val="HStruct05Title" />
+      </w:pPr>
+      <w:r>
+        <w:t xml:space="preserve">HStruct05Title</w:t>
+      </w:r>
+    </w:p>
+    <w:p>
+      <w:pPr>
+        <w:pStyle w:val="HStruct05Subtitle" />
+      </w:pPr>
+      <w:r>
+        <w:t xml:space="preserve">HStruct05Subtitle</w:t>
+      </w:r>
+    </w:p>
+    <w:p>
+      <w:pPr>
+        <w:pStyle w:val="FootnoteLabeledCase" />
+      </w:pPr>
+      <w:r>
+        <w:t xml:space="preserve">FootnoteLabeledCase</w:t>
+      </w:r>
+    </w:p>
+    <w:p>
+      <w:pPr>
+        <w:pStyle w:val="FootnoteLabeledLink" />
+      </w:pPr>
+      <w:r>
+        <w:t xml:space="preserve">FootnoteLabeledLink</w:t>
+      </w:r>
+    </w:p>
+    <w:p>
+      <w:pPr>
+        <w:pStyle w:val="Revision" />
+      </w:pPr>
+      <w:r>
+        <w:t xml:space="preserve">Revision</w:t>
+      </w:r>
+    </w:p>
+    <w:p>
+      <w:pPr>
+        <w:pStyle w:val="FontFamilyDefaultTitleandStructure" />
+      </w:pPr>
+      <w:r>
+        <w:t xml:space="preserve">FontFamilyDefaultTitleandStructure</w:t>
+      </w:r>
+    </w:p>
+    <w:p>
+      <w:pPr>
+        <w:pStyle w:val="FontFamilyDefaultCaseContentBody" />
+      </w:pPr>
+      <w:r>
+        <w:t xml:space="preserve">FontFamilyDefaultCaseContentBody</w:t>
+      </w:r>
+    </w:p>
+    <w:p>
+      <w:pPr>
+        <w:pStyle w:val="FontFamilyDefaultSourceCode" />
+      </w:pPr>
+      <w:r>
+        <w:t xml:space="preserve">FontFamilyDefaultSourceCode</w:t>
+      </w:r>
+    </w:p>
+    <w:p>
+      <w:pPr>
+        <w:pStyle w:val="DefaultParagraphFont" />
+      </w:pPr>
+      <w:r>
+        <w:t xml:space="preserve">DefaultParagraphFont</w:t>
+      </w:r>
+    </w:p>
+    <w:p>
+      <w:pPr>
+        <w:pStyle w:val="Bibliography" />
+      </w:pPr>
+      <w:r>
+        <w:t xml:space="preserve">Bibliography</w:t>
+      </w:r>
+    </w:p>
+    <w:p>
+      <w:pPr>
+        <w:pStyle w:val="Quote" />
+      </w:pPr>
+      <w:r>
+        <w:t xml:space="preserve">Quote</w:t>
+      </w:r>
+    </w:p>
+    <w:p>
+      <w:pPr>
+        <w:pStyle w:val="Figure" />
+      </w:pPr>
+      <w:r>
+        <w:t xml:space="preserve">Figure</w:t>
+      </w:r>
+    </w:p>
+    <w:p>
+      <w:pPr>
+        <w:pStyle w:val="CaptionedFigure" />
+      </w:pPr>
+      <w:r>
+        <w:t xml:space="preserve">CaptionedFigure</w:t>
+      </w:r>
+    </w:p>
+    <w:p>
+      <w:pPr>
+        <w:pStyle w:val="TOCHeading" />
+      </w:pPr>
+      <w:r>
+        <w:t xml:space="preserve">TOCHeading</w:t>
+      </w:r>
+    </w:p>
+    <w:p>
+      <w:pPr>
+        <w:pStyle w:val="Footer" />
+      </w:pPr>
+      <w:r>
+        <w:t xml:space="preserve">Footer</w:t>
+      </w:r>
+    </w:p>
+    <w:p>
+      <w:pPr>
         <w:pStyle w:val="Title" />
       </w:pPr>
       <w:r>
@@ -169,6 +610,66 @@ Heading 9
       </w:r>
       <w:bookmarkEnd w:id="29" />
     </w:p>
+
+
+          <w:p>
+      <w:pPr>
+        <w:pStyle w:val="Subheading1" />
+      </w:pPr>
+      <w:r>
+        <w:t xml:space="preserve">Subheading 1</w:t>
+      </w:r>
+    </w:p>
+    <w:p>
+      <w:pPr>
+        <w:pStyle w:val="Subheading2" />
+      </w:pPr>
+      <w:r>
+        <w:t xml:space="preserve">Subheading 2</w:t>
+      </w:r>
+    </w:p>
+    <w:p>
+      <w:pPr>
+        <w:pStyle w:val="Subheading3" />
+      </w:pPr>
+      <w:r>
+        <w:t xml:space="preserve">Subheading 3</w:t>
+      </w:r>
+    </w:p>
+    <w:p>
+      <w:pPr>
+        <w:pStyle w:val="Subheading4" />
+      </w:pPr>
+      <w:r>
+        <w:t xml:space="preserve">Subheading 4</w:t>
+      </w:r>
+    </w:p>
+    <w:p>
+      <w:pPr>
+        <w:pStyle w:val="Subheading5" />
+      </w:pPr>
+      <w:r>
+        <w:t xml:space="preserve">Subheading 5</w:t>
+      </w:r>
+    </w:p>
+    <w:p>
+      <w:pPr>
+        <w:pStyle w:val="Subheading6" />
+      </w:pPr>
+      <w:r>
+        <w:t xml:space="preserve">Subheading 6</w:t>
+      </w:r>
+    </w:p>
+    <w:p>
+      <w:pPr>
+        <w:pStyle w:val="Subheading7" />
+      </w:pPr>
+      <w:r>
+        <w:t xml:space="preserve">Subheading 7</w:t>
+      </w:r>
+    </w:p>
+
+
     <w:p>
       <w:pPr>
         <w:pStyle w:val="FirstParagraph" />
@@ -242,6 +743,7 @@ Footnote.
         </w:rPr>
         <w:footnoteReference w:id="31" />
       </w:r>
+
     </w:p>
     <w:p>
       <w:pPr>
