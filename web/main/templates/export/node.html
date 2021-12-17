@@ -1,8 +1,8 @@
 {% load call_method %}
 
 
-
-{% if node.type == 'section' and index == 1 %}
+{% if '.' not in node.ordinal_string %}
+    <div data-custom-style="Head Separator">&nbsp</div>
     <div class="ChapterNumber" data-custom-style="Chapter Number" data-toc-idx="{{ index }}">{{ node.ordinal_string }}</div>
     <div class="ChapterTitle" data-custom-style="Chapter Title">{{ node.title }}</div>
   {% if node.subtitle %}
@@ -12,8 +12,8 @@
     {% call_method node 'headnote_for_export' export_options=export_options as headnote %}
     <div class="ChapterHeadnote" data-custom-style="Chapter Headnote">{{ headnote }}</div>
   {% endif %}
-  <div data-custom-style="invisibleseparator">&nbsp</div>
 {% elif node.type == 'section' %}
+  <div data-custom-style="Head Separator">&nbsp</div>
   <div class="SectionNumber" data-custom-style="Section Number" data-toc-idx="{{ index }}">{{ node.ordinal_string }}</div>
   <div class="SectionTitle" data-custom-style="Section Title">{{ node.title }}</div>
   {% if node.subtitle %}
@@ -23,8 +23,8 @@
     {% call_method node 'headnote_for_export' export_options=export_options as headnote %}
     <div class="SectionHeadnote" data-custom-style="Section Headnote">{{ headnote }}</div>
   {% endif %}
-  <div data-custom-style="invisibleseparator">&nbsp</div>
 {% elif node.type == 'resource' %}
+  <div data-custom-style="Head Separator">&nbsp</div>
   <div class="ResourceNumber" data-custom-style="Resource Number" data-toc-idx="{{ index }}">{{ node.ordinal_string }}</div>
   <div class="ResourceTitle" data-custom-style="Resource Title">{{ node.title }}</div>
   {% if node.subtitle %}
@@ -51,7 +51,6 @@
         {% endif %}
     </div>
     {% endif %}
-  <div data-custom-style="invisibleseparator">&nbsp</div>
   {% endif %}
 
     {% if not is_child %}
