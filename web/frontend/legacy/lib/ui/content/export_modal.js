@@ -7,12 +7,13 @@ delegate(document, 'a.action.export', 'click', (e) => {
   e.preventDefault();
   const experimental = e.target.classList.contains('export-experimental');
   const aws_lambda = e.target.classList.contains('export-lambda');
+  const docx_footnotes = e.target.classList.contains('export-docx-footnotes');
   // window.app is the Vue instance
   if((window.app && app.$store.getters['annotations/getCount'] > 0) ||
      (!window.app && e.target.classList.contains('export-has-annotations'))){
-    showExportModal(e, experimental, aws_lambda);
+    showExportModal(e, experimental, aws_lambda, docx_footnotes);
   } else {
-    downloadFile(undefined, experimental, aws_lambda);
+    downloadFile(undefined, experimental, aws_lambda, docx_footnotes);
   }
 });
 
@@ -30,7 +31,7 @@ function export_casebook_path(casebookId) {
     return url({casebookId});
 }
 
-function downloadFile (includeAnnotations, experimental=false, aws_lambda=false) {
+function downloadFile (includeAnnotations, experimental=false, aws_lambda=false, docx_footnotes) {
   if(typeof includeAnnotations === "undefined"){
     includeAnnotations = "true";
   }
@@ -38,24 +39,27 @@ function downloadFile (includeAnnotations, experimental=false, aws_lambda=false)
   if (pageInfo.resourceId)  {
     window.location.assign(resource_export_path(pageInfo.resourceId)
       + (includeAnnotations === "true" ? '?annotations=true' : '?annotations=false')
-      + (aws_lambda ? '&aws_lambda=true' : ''));
+      + (aws_lambda ? '&aws_lambda=true' : '')
+      + (docx_footnotes ? '&aws_lambda=false&docx_footnotes=true' : ''));
   } else if (pageInfo.sectionId)  {
     window.location.assign(section_export_path(pageInfo.sectionId)
       + (includeAnnotations === "true"? '?annotations=true' : '?annotations=false')
-      + (aws_lambda ? '&aws_lambda=true' : ''));
+      + (aws_lambda ? '&aws_lambda=true' : '')
+      + (docx_footnotes ? '&aws_lambda=false&docx_footnotes=true' : ''));
   } else {
     window.location.assign(export_casebook_path(pageInfo.casebookId)
       + (includeAnnotations === "true" ? '?annotations=true' : '?annotations=false')
       + (experimental ? '&experimental=true' : '')
-      + (aws_lambda ? '&aws_lambda=true' : ''));
+      + (aws_lambda ? '&aws_lambda=true' : '')
+      + (docx_footnotes ? '&aws_lambda=false&docx_footnotes=true' : ''));
   }
 }
 
-function showExportModal (e, experimental=false, aws_lambda=false) {
+function showExportModal (e, experimental=false, aws_lambda=false, docx_footnotes=false) {
   new ExportModal('export-modal', e.target, {
     'click #export-modal': (e) => { if (e.target.id === 'export-modal') this.destroy()},
     'click .export': (e) => {
-      downloadFile(e.target.value, experimental, aws_lambda);
+      downloadFile(e.target.value, experimental, aws_lambda, docx_footnotes);
       document.querySelector('button.close').click()
     }
   });

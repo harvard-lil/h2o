@@ -48,15 +48,23 @@
     </form>
       {% endif %}
   {% endif %}
+    
   {% if exportable %}
     <a class="action one-line export export-{{ section.is_annotated|yesno:"has,no" }}-annotations" role="button" rel="nofollow" href="#">Export</a>
+
     {% if not resource and not section and request.user.is_superuser and not FORCE_EXPERIMENTAL_EXPORT %}
-      <a class="action one-line export export-experimental export-{{ section.is_annotated|yesno:"has,no" }}-annotations" role="button" rel="nofollow" href="#">Experimental Export</a>
+      <a class="action one-line export export-experimental export-{{ section.is_annotated|yesno:"has,no" }}-annotations" role="button" rel="nofollow" href="#">DocXport (TOC Only)</a>
+
     {% endif %}
-    {% if request.user.is_superuser and not FORCE_AWS_LAMBDA_EXPORT %}
+      {% if request.user.is_superuser%}
+      {% if not FORCE_AWS_LAMBDA_EXPORT %}
       <a class="action one-line export export-lambda export-{{ section.is_annotated|yesno:"has,no" }}-annotations" role="button" rel="nofollow" href="#">AWS Lambda Export</a>
+      {% else %}
+      <a class="action one-line export export-docx-footnotes export-{{ section.is_annotated|yesno:"has,no" }}-annotations" role="button" rel="nofollow" href="#">Styled Export</a>
+      {% endif%}
     {% endif %}
   {% endif %}
+
   {% if can_follow %}
   <form class="follow_casebook" method="post" action="{% url 'follow_casebook' casebook %}">
     <button class="action follow-casebook" data-disable-with="Follow" type="submit">Follow</button>
