@@ -744,7 +744,7 @@ def export_via_aws_lambda(obj, html, file_type):
         # trigger the lambda and wait for the produced file
         try:
             logger.info(f"{log_line_prefix}: triggering lambda")
-            lamdba_event_config = {
+            lambda_event_config = {
                 "filename": filename,
                 "is_casebook": export_type == 'Casebook',
                 "options": {"word_footnotes": settings.FORCE_DOCX_FOOTNOTES}
@@ -760,7 +760,7 @@ def export_via_aws_lambda(obj, html, file_type):
                 raw_response = lambda_client.invoke(
                     FunctionName=export_settings['function_name'],
                     LogType='Tail',
-                    Payload=bytes(json.dumps(lamdba_event_config, 'utf-8'))
+                    Payload=bytes(json.dumps(lambda_event_config),'utf-8')
                 )
                 response = {
                     'status_code': raw_response['ResponseMetadata']['HTTPStatusCode'],
@@ -774,7 +774,7 @@ def export_via_aws_lambda(obj, html, file_type):
                 raw_response = requests.post(
                     export_settings['function_url'],
                     timeout=settings.AWS_LAMBDA_EXPORT_TIMEOUT,
-                    json=lamdba_event_config
+                    json=lambda_event_config
                 )
                 response = {
                     'status_code': raw_response.status_code,
