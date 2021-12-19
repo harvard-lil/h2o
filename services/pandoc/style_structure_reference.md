@@ -1,156 +1,161 @@
--- Character --
-
-* **DefaultParagraphFont
-**  * **BodyTextChar** [ based on: DefaultParagraphFont ] *[ linked to: BodyText ]*
-    * **BodyTextFirstIndentChar** [ based on: BodyTextChar ] *[ linked to: BodyTextFirstIndent ]*
-    * **CaseFootnoteReference** [ based on: BodyTextChar ]
-  * **CaptionChar** [ based on: DefaultParagraphFont ] *[ linked to: Caption ]*
-    * **FootnoteReference** [ based on: CaptionChar ]
-    * **VerbatimChar** [ based on: CaptionChar ] *[ linked to: SourceCode ]*
-  * **CoverPageLink** [ based on: DefaultParagraphFont ]
-  * **Elision** [ based on: DefaultParagraphFont ]
-    * **ReplacementText** [ based on: Elision ]
-  * **FollowedHyperlink** [ based on: DefaultParagraphFont ]
-  * **FooterChar** [ based on: DefaultParagraphFont ] *[ linked to: Footer ]*
-  * **HStruct01TitleChar** [ based on: DefaultParagraphFont ] *[ linked to: HStruct01Title ]*
-    * **HStruct04TitleChar** [ based on: HStruct01TitleChar ] *[ linked to: HStruct04Title ]*
-  * **HeaderChar** [ based on: DefaultParagraphFont ]
-  * **HeaderChar1** [ based on: DefaultParagraphFont ] *[ linked to: Header ]*
-  * **Heading1Char** [ based on: DefaultParagraphFont ] *[ linked to: Heading1 ]*
-    * **CoverPageTitleChar** [ based on: Heading1Char ] *[ linked to: CoverPageTitle ]*
-  * **Heading2Char** [ based on: DefaultParagraphFont ] *[ linked to: Heading2 ]*
-  * **Heading3Char** [ based on: DefaultParagraphFont ] *[ linked to: Heading3 ]*
-  * **Heading4Char** [ based on: DefaultParagraphFont ] *[ linked to: Heading4 ]*
-  * **Heading5Char** [ based on: DefaultParagraphFont ] *[ linked to: Heading5 ]*
-  * **Heading6Char** [ based on: DefaultParagraphFont ] *[ linked to: Heading6 ]*
-  * **Heading7Char** [ based on: DefaultParagraphFont ] *[ linked to: Heading7 ]*
-  * **PageNumber** [ based on: DefaultParagraphFont ]
-  * **UnresolvedMention** [ based on: DefaultParagraphFont ]
-* **HierarchyNumeral
-*** HighlightedText
-* **Hyperlink
-
---** Numbering --
-
-* **CurrentList1
-*** CurrentList2
-* **CurrentList3
-*** CurrentList4
-* **NoList
-
---** Paragraph --
-
-* **CoverPageTitle**  *[ linked to: CoverPageTitleChar ]*
-* **FontFamilyDefaultCaseContentBody
-**  * **BodyText** [ based on: FontFamilyDefaultCaseContentBody ] *[ linked to: BodyTextChar ]*
-    * **BodyTextFirstIndent** [ based on: BodyText ] *[ linked to: BodyTextFirstIndentChar ]*
-    * **CaseBody** [ based on: BodyText ]
-      * **Abstract** [ based on: CaseBody ]
-      * **Author** [ based on: CaseBody ]
-      * **Date** [ based on: CaseBody ]
-      * **Figure** [ based on: CaseBody ]
-        * **CaptionedFigure** [ based on: Figure ]
-    * **CaseText** [ based on: BodyText ]
-    * **Compact** [ based on: BodyText ]
-      * **Instructions** [ based on: Compact ]
-      * **InstructionsListHeaders** [ based on: Compact ]
-      * **Instructionsbullets** [ based on: Compact ]
-    * **Credits** [ based on: BodyText ]
-    * **Definition** [ based on: BodyText ]
-      * **DefinitionTerm** [ based on: Definition ]
-      * **ImageCenteredLarge** [ based on: Definition ]
-      * **ImageCenteredMedium** [ based on: Definition ]
-      * **ImageLeftMedium** [ based on: Definition ]
-      * **ImageRightMedium** [ based on: Definition ]
-    * **FirstParagraph** [ based on: BodyText ]
-      * **CoverpageSubtitle** [ based on: FirstParagraph ]
-        * **CoverPageInstructionsTitle** [ based on: CoverpageSubtitle ]
-    * **Footer** [ based on: BodyText ] *[ linked to: FooterChar ]*
-    * **Quote** [ based on: BodyText ]
-      * **BlockText** [ based on: Quote ]
-  * **FootnoteText** [ based on: FontFamilyDefaultCaseContentBody ]
-    * **FootnoteLabeledLink** [ based on: FootnoteText ]
-      * **FootnoteLabeledCase** [ based on: FootnoteLabeledLink ]
-* **FontFamilyDefaultSourceCode
-**  * **SourceCode** [ based on: FontFamilyDefaultSourceCode ] *[ linked to: VerbatimChar ]*
-* **FontFamilyDefaultTitleandStructure
-**  * **Bibliography** [ based on: FontFamilyDefaultTitleandStructure ]
-  * **Caption** [ based on: FontFamilyDefaultTitleandStructure ] *[ linked to: CaptionChar ]*
-    * **ImageCaption** [ based on: Caption ]
-    * **TableCaption** [ based on: Caption ]
-  * **HStruct01Title** [ based on: FontFamilyDefaultTitleandStructure ] *[ linked to: HStruct01TitleChar ]*
-    * **CasebookTitle** [ based on: HStruct01Title ]
-    * **HStruct01Subtitle** [ based on: HStruct01Title ]
-      * **CasebookSubtitle** [ based on: HStruct01Subtitle ]
-      * **HStruct02Subtitle** [ based on: HStruct01Subtitle ]
-      * **HStruct03Subtitle** [ based on: HStruct01Subtitle ]
-        * **ChapterSubtitle** [ based on: HStruct03Subtitle ]
-      * **HStruct04Subtitle** [ based on: HStruct01Subtitle ]
-        * **HStruct05Subtitle** [ based on: HStruct04Subtitle ]
-          * **AcknowledgementsSubtitle** [ based on: HStruct05Subtitle ]
-          * **CreditAuthors** [ based on: HStruct05Subtitle ]
-            * **CreditTitle** [ based on: CreditAuthors ]
-          * **ResourceSubtitle** [ based on: HStruct05Subtitle ]
-            * **ResourceLink** [ based on: ResourceSubtitle ]
-        * **SectionSubtitle** [ based on: HStruct04Subtitle ]
-      * **Header** [ based on: HStruct01Subtitle ] *[ linked to: HeaderChar1 ]*
-      * **Subtitle** [ based on: HStruct01Subtitle ]
-    * **HStruct02Title** [ based on: HStruct01Title ]
-      * **AcknowledgementsTitle** [ based on: HStruct02Title ]
-      * **CasebookHeadnoteTitle** [ based on: HStruct02Title ]
-      * **HierarchyLevel1-2HeaderText** [ based on: HStruct02Title ]
-        * **CasebookBlurb** [ based on: HierarchyLevel1-2HeaderText ]
-        * **HierarchyLevel3-4-5HeaderText** [ based on: HierarchyLevel1-2HeaderText ]
-          * **CasebookHeadnote** [ based on: HierarchyLevel3-4-5HeaderText ]
-          * **ChapterHeadnote** [ based on: HierarchyLevel3-4-5HeaderText ]
-          * **SectionHeadnote** [ based on: HierarchyLevel3-4-5HeaderText ]
-            * **ResourceHeadnote** [ based on: SectionHeadnote ]
-      * **TOCHeading** [ based on: HStruct02Title ]
-    * **HStruct03Title** [ based on: HStruct01Title ]
-      * **ChapterTitle** [ based on: HStruct03Title ]
-        * **ChapterNumber** [ based on: ChapterTitle ]
-      * **SectionTitle** [ based on: HStruct03Title ]
-        * **SectionNumber** [ based on: SectionTitle ]
-    * **HStruct04Title** [ based on: HStruct01Title ] *[ linked to: HStruct04TitleChar ]*
-      * **CasebookAuthor** [ based on: HStruct04Title ]
-    * **HStruct05Title** [ based on: HStruct01Title ]
-      * **ResourceTitle** [ based on: HStruct05Title ]
-        * **ResourceNumber** [ based on: ResourceTitle ]
-    * **Title** [ based on: HStruct01Title ]
-  * **Heading1** [ based on: FontFamilyDefaultTitleandStructure ] *[ linked to: Heading1Char ]*
-    * **Subheading1** [ based on: Heading1 ]
-    * **Heading2** [ based on: Heading1 ] *[ linked to: Heading2Char ]*
-      * **Subheading2** [ based on: Heading2 ]
-      * **Heading3** [ based on: Heading2 ] *[ linked to: Heading3Char ]*
-        * **Subheading3** [ based on: Heading3 ]
-        * **CaseHeader** [ based on: Heading3 ]
-        * **Heading4** [ based on: Heading3 ] *[ linked to: Heading4Char ]*
-          * **Subheading4** [ based on: Heading4 ]
-          * **Heading5** [ based on: Heading4 ] *[ linked to: Heading5Char ]*
-            * **Heading6** [ based on: Heading5 ] *[ linked to: Heading6Char ]*
-              * **Heading7** [ based on: Heading6 ] *[ linked to: Heading7Char ]*
-                * **Heading8** [ based on: Heading7 ]
-                  * **Heading9** [ based on: Heading8 ]
-            * **Subheading5** [ based on: Heading5 ]
-              * **Subheading6** [ based on: Subheading5 ]
-                * **Subheading7** [ based on: Subheading6 ]
-  * **TOC1** [ based on: FontFamilyDefaultTitleandStructure ]
-    * **TOC2** [ based on: TOC1 ]
-      * **TOC3** [ based on: TOC2 ]
-        * **TOC4** [ based on: TOC3 ]
-          * **TOC5** [ based on: TOC4 ]
-            * **TOC6** [ based on: TOC5 ]
-              * **TOC7** [ based on: TOC6 ]
-                * **TOC8** [ based on: TOC7 ]
-                  * **TOC9** [ based on: TOC8 ]
-* **InstructionsHeadline
-*** Normal
-* **Revision
-*** invisibleseparator
-
--- Table --
-
-* **Table
-*** TableNormal
-  * **PlainTable4** [ based on: TableNormal ]
-  * **TableGrid** [ based on: TableNormal ]
+* Latent
+* Lost
+* Paragraph
+  * Font Family: Default Title and Structure  
+    * heading 1 basedOn: FontFamilyDefaultTitleandStructure 
+      * heading 2 basedOn: Heading1 
+        * heading 3 basedOn: Heading2 
+          * Case Header basedOn: Heading3 
+          * heading 4 basedOn: Heading3 
+            * heading 5 basedOn: Heading4 
+              * heading 6 basedOn: Heading5 
+                * heading 7 basedOn: Heading6 
+                  * heading 8 basedOn: Heading7 
+                    * heading 9 basedOn: Heading8 
+              * Subheading 5 basedOn: Heading5 
+                * Subheading 6 basedOn: Subheading5 
+                  * Subheading 7 basedOn: Subheading6 
+            * Subheading 4 basedOn: Heading4 
+          * Subheading 3 basedOn: Heading3 
+        * Subheading 2 basedOn: Heading2 
+      * Subheading 1 basedOn: Heading1 
+    * H Struct 01 Title basedOn: FontFamilyDefaultTitleandStructure link HStruct01TitleChar
+      * H Struct 02 Title basedOn: HStruct01Title 
+        * Hierarchy Level 1-2 Header Text basedOn: HStruct02Title 
+          * Hierarchy Level 3-4-5 Header Text basedOn: HierarchyLevel1-2HeaderText 
+            * Casebook Headnote basedOn: HierarchyLevel3-4-5HeaderText 
+            * About Page Instructions basedOn: HierarchyLevel3-4-5HeaderText 
+            * Chapter Headnote basedOn: HierarchyLevel3-4-5HeaderText 
+            * Section Headnote basedOn: HierarchyLevel3-4-5HeaderText 
+              * Resource Headnote basedOn: SectionHeadnote 
+          * Casebook Blurb basedOn: HierarchyLevel1-2HeaderText 
+        * Casebook Headnote Title basedOn: HStruct02Title 
+        * Acknowledgements Title basedOn: HStruct02Title 
+        * TOC Heading basedOn: HStruct02Title 
+      * H Struct 03 Title basedOn: HStruct01Title 
+        * Chapter Title basedOn: HStruct03Title 
+          * Chapter Number basedOn: ChapterTitle 
+        * Section Title basedOn: HStruct03Title 
+          * Section Number basedOn: SectionTitle 
+      * H Struct 04 Title basedOn: HStruct01Title 
+        * Casebook Author basedOn: HStruct04Title 
+        * About Page Title basedOn: HStruct04Title 
+      * H Struct 05 Title basedOn: HStruct01Title 
+        * Resource Title basedOn: HStruct05Title 
+          * Resource Number basedOn: ResourceTitle 
+      * H Struct 01 Subtitle basedOn: HStruct01Title 
+        * H Struct 02 Subtitle basedOn: HStruct01Subtitle 
+        * H Struct 03 Subtitle basedOn: HStruct01Subtitle 
+          * Chapter Subtitle basedOn: HStruct03Subtitle 
+        * H Struct 04 Subtitle basedOn: HStruct01Subtitle 
+          * H Struct 05 Subtitle basedOn: HStruct04Subtitle 
+            * Acknowledgements Subtitle basedOn: HStruct05Subtitle 
+            * Credit Authors basedOn: HStruct05Subtitle 
+              * Credit Title basedOn: CreditAuthors 
+            * Resource Subtitle basedOn: HStruct05Subtitle 
+              * Resource Link basedOn: ResourceSubtitle 
+          * Section Subtitle basedOn: HStruct04Subtitle 
+        * Casebook Subtitle basedOn: HStruct01Subtitle 
+        * Subtitle basedOn: HStruct01Subtitle 
+        * header basedOn: HStruct01Subtitle link HeaderChar
+      * Casebook Title basedOn: HStruct01Title 
+      * Title basedOn: HStruct01Title 
+    * toc 1 basedOn: FontFamilyDefaultTitleandStructure 
+      * toc 2 basedOn: TOC1 
+        * toc 3 basedOn: TOC2 
+          * toc 4 basedOn: TOC3 
+            * toc 5 basedOn: TOC4 
+              * toc 6 basedOn: TOC5 
+                * toc 7 basedOn: TOC6 
+                  * toc 8 basedOn: TOC7 
+                    * toc 9 basedOn: TOC8 
+    * Bibliography basedOn: FontFamilyDefaultTitleandStructure 
+    * caption basedOn: FontFamilyDefaultTitleandStructure link CaptionChar
+      * Table Caption basedOn: Caption 
+      * Image Caption basedOn: Caption 
+  * Font Family: Default Case Content Body  
+    * Body Text basedOn: FontFamilyDefaultCaseContentBody link BodyTextChar
+      * Body Text First Indent basedOn: BodyText link BodyTextFirstIndentChar
+      * First Paragraph basedOn: BodyText 
+      * Compact basedOn: BodyText 
+      * Case Body basedOn: BodyText 
+        * Author basedOn: CaseBody 
+        * Date basedOn: CaseBody 
+        * Abstract basedOn: CaseBody 
+        * Figure basedOn: CaseBody 
+          * Captioned Figure basedOn: Figure 
+      * Credits basedOn: BodyText 
+      * Quote basedOn: BodyText 
+        * Block Text basedOn: Quote 
+      * Definition basedOn: BodyText 
+        * Definition Term basedOn: Definition 
+        * Image Centered Large basedOn: Definition 
+        * Image Left Medium basedOn: Definition 
+        * Image Right Medium basedOn: Definition 
+        * Image Centered Medium basedOn: Definition 
+      * footer basedOn: BodyText link FooterChar
+    * footnote text basedOn: FontFamilyDefaultCaseContentBody 
+      * Footnote Labeled Link basedOn: FootnoteText 
+        * Footnote Labeled Case basedOn: FootnoteLabeledLink 
+  * Font Family: Default Source Code  
+    * Source Code basedOn: FontFamilyDefaultSourceCode link VerbatimChar
+  * Normal  
+  * Head Separator  
+* Character
+  * Default Paragraph Font  
+    * Body Text Char basedOn: DefaultParagraphFont link BodyText
+      * Body Text First Indent Char basedOn: BodyTextChar link BodyTextFirstIndent
+      * Case Footnote Reference basedOn: BodyTextChar 
+    * Unresolved Mention basedOn: DefaultParagraphFont 
+    * H Struct 01 Title Char basedOn: DefaultParagraphFont link HStruct01Title
+    * Header Char basedOn: DefaultParagraphFont link Header
+    * Footer Char basedOn: DefaultParagraphFont link Footer
+    * FollowedHyperlink basedOn: DefaultParagraphFont 
+    * page number basedOn: DefaultParagraphFont 
+    * Caption Char basedOn: DefaultParagraphFont link Caption
+      * Verbatim Char basedOn: CaptionChar link SourceCode
+      * footnote reference basedOn: CaptionChar 
+  * Elision  
+    * Replacement Text basedOn: Elision 
+  * Highlighted Text  
+  * Hyperlink  
+  * AlertTok  
+  * AnnotationTok  
+  * AttributeTok  
+  * BaseNTok  
+  * BuiltInTok  
+  * CharTok  
+  * CommentTok  
+  * CommentVarTok  
+  * ControlFlowTok  
+  * DataTypeTok  
+  * DocumentationTok  
+  * ErrorTok  
+  * ExtensionTok  
+  * FloatTok  
+  * FunctionTok  
+  * ImportTok  
+  * InformationTok  
+  * KeywordTok  
+  * NormalTok  
+  * OperatorTok  
+  * OtherTok  
+  * PreprocessorTok  
+  * RegionMarkerTok  
+  * SpecialCharTok  
+  * SpecialSTringTok  
+  * StringTok  
+  * VariableTok  
+  * VerbatimStringTok  
+  * WarningTok  
+* Table
+  * Table  
+  * Normal Table  
+    * Plain Table 4 basedOn: TableNormal 
+    * Table Grid basedOn: TableNormal 
+* Numbering
+  * No List  
+  * Current List1  
+  * Current List2  
+  * Current List3  
+  * Current List4  
