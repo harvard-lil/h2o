@@ -364,7 +364,7 @@ class CAP:
         return body
 
     @staticmethod
-    def postprocess_content(body):
+    def postprocess_content(body, postfix_id, export_options=None):
         def style_page_no(_, pn):
             pn.attrib['data-custom-style'] = 'Page Number'
             pn.addprevious(lxml.etree.XML('<span> </span>'))
@@ -376,17 +376,20 @@ class CAP:
 
         body_parsed = PyQuery(body)
         # Footnotes
-        for aside in body_parsed('aside').filter(lambda _, this: this.attrib.get('id', '').startswith('footnote') and len(PyQuery(this).children()) > 1).items():
+        for aside in body_parsed('aside.footnote').filter(lambda _, this: len(PyQuery(this).children()) > 1).items():
             link, first_p = [PyQuery(x) for x in aside.children()[:2]]
             first_p.html(link.outer_html() + first_p.html())
             link.remove()
-            aside.wrap('<div data-custom-style="Case Footnote Text"></div>')
+            footnote_text_style = "Case Footnote Text" + (f"-{postfix_id}" if export_options and export_options.get('docx_footnotes', False) else "")
+            aside.wrap(f'<div data-custom-style="{footnote_text_style}"></div>')
 
         for mark in body_parsed('.footnotemark').items():
             # Can't just use wrap here, because it grabs some of the surrounding text
             # This also inverts the tags, so the span appears inside the a tag
             # ¯\_(ツ)_/¯
-            mark.html(f'<span data-custom-style="Case Footnote Reference">{mark.html()}</span>')
+
+            footnote_style = "Case Footnote Reference" + (f"-{postfix_id}" if export_options and export_options.get('docx_footnotes', False) else "")
+            mark.html(f'<span data-custom-style="{footnote_style}">{mark.html()}</span>')
 
         # Page nos
         body_parsed('.page-label').remove()
@@ -407,9 +410,9 @@ class CAP:
         for hide_class in hidden_classes:
             body_parsed.remove(hide_class)
 
-        body_parsed('em [custom-style]').add_class('popup_raiser')
+        body_parsed('em [data-custom-style]').add_class('popup_raiser')
 
-        pop_target = '<span custom-style="Elision" class="popup_raiser">[ … ]</span>'
+        pop_target = '<span data-custom-style="Elision" class="popup_raiser">[ … ]</span>'
         dumped_html = body_parsed.html().replace(pop_target, f"</em>{pop_target}<em>")
         return f'<div data-custom-style="Case Body">{dumped_html}</div>'
 
@@ -1748,11 +1751,11 @@ class ContentNode(EditTrackedModel, TimestampedModel, BigPkModel, MaterializedPa
                                 {'legal_doc': self.resource, 'resource': self})
         return ''
 
-    def export_postprocess(self, body):
+    def export_postprocess(self, body, export_options=None):
         if self.resource_type == 'LegalDocument':
             api_model = self.resource.source.api_model()
             if hasattr(api_model, 'postprocess_content'):
-                return api_model.postprocess_content(body)
+                return api_model.postprocess_content(body, self.id, export_options=export_options)
         return body
 
     def headerless_export_content(self, request):
@@ -2109,7 +2112,7 @@ class ContentNode(EditTrackedModel, TimestampedModel, BigPkModel, MaterializedPa
         else:
             return 'resource'
 
-    def export(self, include_annotations, file_type='docx', export_options=None, is_child=False, experimental=False, aws_lambda=False):
+    def export(self, include_annotations, file_type='docx', export_options=None, is_child=False, experimental=None, aws_lambda=None, docx_footnotes=None):
         """
             Export this node and children as docx, or as html for conversion by pandoc.
 
@@ -2121,6 +2124,10 @@ class ContentNode(EditTrackedModel, TimestampedModel, BigPkModel, MaterializedPa
             ...     file_data = full_casebook.export(include_annotations=True)
         """
         # prefetch all child nodes and related data
+        experimental = experimental if experimental is not None else settings.FORCE_EXPERIMENTAL_EXPORT
+        aws_lambda = aws_lambda if aws_lambda is not None else settings.FORCE_AWS_LAMBDA_EXPORT
+        docx_footnotes = docx_footnotes if aws_lambda is not None else settings.FORCE_DOCX_FOOTNOTES
+
         children = list(self.contents.prefetch_resources().prefetch_related('annotations')) if type(
             self) is not Resource else None
 
@@ -2137,7 +2144,6 @@ class ContentNode(EditTrackedModel, TimestampedModel, BigPkModel, MaterializedPa
             template_name = 'export/tbd.html'
         else:
             template_name = 'export/node.html'
-
         html = render_to_string(template_name, {
             'is_export': True,
             'is_child': is_child,
@@ -2151,9 +2157,11 @@ class ContentNode(EditTrackedModel, TimestampedModel, BigPkModel, MaterializedPa
         if file_type == 'html':
             return html
 
-        if aws_lambda or settings.FORCE_AWS_LAMBDA_EXPORT:
+        if aws_lambda:
             return export_via_aws_lambda(self, html, file_type)
-        return export_via_pandoc(self, html, file_type)
+
+        # There's a bit here that's duplicated in app.py, that we should get rid of after lambda confidence.
+        return export_via_pandoc(self, html, file_type, docx_footnotes=docx_footnotes)
 
     def headnote_for_export(self, export_options=None):
         r"""
@@ -2217,16 +2225,18 @@ class ContentNode(EditTrackedModel, TimestampedModel, BigPkModel, MaterializedPa
             ...     [correction replaced content]is replaced[/correction]
             ...     [link http://example.com]is linked[/link]
             ... </p>'''
-            >>> expected = '''<header class="case-header">
+            >>> content_node = annotations_factory('LegalDocument', input)[1]
+            >>> output_html = content_node.annotated_content_for_export()
+            >>> expected = f'''<header class="case-header">
             ...     </header><p>
-            ...     <span class="annotate">Has a note</span><span custom-style="Footnote Reference">*</span>
-            ...     <span class="annotate highlighted" custom-style="Highlighted Text">is highlighted</span>
-            ...     <span custom-style="Elision">[ … ]</span>
-            ...     <span custom-style="Replacement Text">new content</span>
+            ...     <span class="annotate">Has a note</span><span data-custom-style="Footnote Reference">*</span>
+            ...     <span class="annotate highlighted" data-custom-style="Highlighted Text">is highlighted</span>
+            ...     <span data-custom-style="Elision">[ … ]</span>
+            ...     <span data-custom-style="Replacement Text">new content</span>
             ...     replaced content
-            ...     <a class="annotate" href="http://example.com">is linked</a><span custom-style="Footnote Reference">**</span>
+            ...     <a class="annotate" href="http://example.com">is linked</a><span data-custom-style="Footnote Reference">**</span>
             ... </p>'''
-            >>> assert_match(input, expected)
+            >>> assert elements_equal(parse_html_fragment(output_html), parse_html_fragment(expected),ignore_trailing_whitespace=True), f"Expected:\n{expected}\nGot:\n{output_html}"
 
             Annotation spanning paragraphs:
             >>> input = '''
@@ -2236,9 +2246,9 @@ class ContentNode(EditTrackedModel, TimestampedModel, BigPkModel, MaterializedPa
             ... '''
             >>> expected = '''<header class="case-header">
             ...     </header>
-            ... <div><p>Some <span class="annotate highlighted" custom-style="Highlighted Text"> text</span></p>
-            ... <p><span class="annotate highlighted" custom-style="Highlighted Text">Some </span><em><span class="annotate highlighted" custom-style="Highlighted Text">text</span></em></p>
-            ... <p><span class="annotate highlighted" custom-style="Highlighted Text">Some </span> text</p></div>
+            ... <div><p>Some <span class="annotate highlighted" data-custom-style="Highlighted Text"> text</span></p>
+            ... <p><span class="annotate highlighted" data-custom-style="Highlighted Text">Some </span><em><span class="annotate highlighted" data-custom-style="Highlighted Text">text</span></em></p>
+            ... <p><span class="annotate highlighted" data-custom-style="Highlighted Text">Some </span> text</p></div>
             ... '''
             >>> assert_match(input, expected)
 
@@ -2248,45 +2258,48 @@ class ContentNode(EditTrackedModel, TimestampedModel, BigPkModel, MaterializedPa
             ... <p>Some [/replace] text</p>'''
             >>> expected = '''<header class="case-header">
             ...     </header>
-            ... <div><p>Some <span custom-style="Replacement Text">new content</span></p><p> text</p></div>
+            ... <div><p>Some <span data-custom-style="Replacement Text">new content</span></p><p> text</p></div>
             ... '''
             >>> assert_match(input, expected)
 
             Void elements:
             >>> input = '''<p> [highlight] <br> [/highlight] </p>'''
             >>> expected = '''<header class="case-header">
-            ...     </header><p> <span class="annotate highlighted" custom-style="Highlighted Text"> </span><br><span class="annotate highlighted" custom-style="Highlighted Text"> </span> </p>'''
+            ...     </header><p> <span class="annotate highlighted" data-custom-style="Highlighted Text"> </span><br><span class="annotate highlighted" data-custom-style="Highlighted Text"> </span> </p>'''
             >>> assert_match(input, expected)
 
             Annotations with ambiguous placement:
             >>> input = '<p>First</p><p>[highlight]Second[/highlight]</p><p>Third</p>'
             >>> expected = '<header class="case-header">\
-            ...     </header><div><p>First</p><p><span class="annotate highlighted" custom-style="Highlighted Text">Second</span></p><p>Third</p></div>'
+            ...     </header><div><p>First</p><p><span class="annotate highlighted" data-custom-style="Highlighted Text">Second</span></p><p>Third</p></div>'
             >>> assert_match(input, expected)
             >>> input = '<p>First</p><p>[elide]Second[/elide]</p><p>Third</p>'
             >>> expected = '<header class="case-header">\
-            ...     </header><div><p>First</p><p><span custom-style="Elision">[ … ]</span></p><p>Third</p></div>'
+            ...     </header><div><p>First</p><p><span data-custom-style="Elision">[ … ]</span></p><p>Third</p></div>'
             >>> assert_match(input, expected)
             >>> input = '<p>[highlight]First[/highlight]</p><p>[highlight]Sec[/highlight][highlight]ond[/highlight]</p><p>[highlight]Third[/highlight]</p>'
             >>> expected = '<header class="case-header">\
-            ...     </header><div><p><span class="annotate highlighted" custom-style="Highlighted Text">First</span></p>' \
-            ...     '<p><span class="annotate highlighted" custom-style="Highlighted Text">Sec</span><span class="annotate highlighted" custom-style="Highlighted Text">ond</span></p>' \
-            ...     '<p><span class="annotate highlighted" custom-style="Highlighted Text">Third</span></p></div>'
+            ...     </header><div><p><span class="annotate highlighted" data-custom-style="Highlighted Text">First</span></p>' \
+            ...     '<p><span class="annotate highlighted" data-custom-style="Highlighted Text">Sec</span><span class="annotate highlighted" data-custom-style="Highlighted Text">ond</span></p>' \
+            ...     '<p><span class="annotate highlighted" data-custom-style="Highlighted Text">Third</span></p></div>'
             >>> assert_match(input, expected)
 
             Overlapping annotations:
             (Not sure if these can happen in practice, but they do work for export, at least in simple cases.)
             >>> input = '<p>[highlight]One [note my note]two[/highlight] three[/note]</p>'
-            >>> expected = '<header class="case-header">\n</header><p><span class="annotate highlighted" custom-style="Highlighted Text">One <span class="annotate">two</span></span>' \
-            ...     '<span class="annotate"> three</span><span custom-style="Footnote Reference">*</span></p>'
-            >>> assert_match(input, expected)
+            >>> content_node = annotations_factory('LegalDocument', input)[1]
+            >>> output_html = content_node.annotated_content_for_export()
+
+            >>> expected = f'<header class="case-header">\n</header><p><span class="annotate highlighted" data-custom-style="Highlighted Text">One <span class="annotate">two</span></span>' \
+            ...     f'<span class="annotate"> three</span><span data-custom-style="Footnote Reference">*</span></p>'
+            >>> assert elements_equal(parse_html_fragment(output_html), parse_html_fragment(expected),ignore_trailing_whitespace=True), f"Expected:\n{expected}\nGot:\n{output_html}"
             >>> input = '<p>[highlight]One [elide]two[/highlight] three[/elide]</p>'
-            >>> expected = '<header class="case-header">\n</header><p><span class="annotate highlighted" custom-style="Highlighted Text">One <span custom-style="Elision">[ … ]</span></span></p>'
+            >>> expected = '<header class="case-header">\n</header><p><span class="annotate highlighted" data-custom-style="Highlighted Text">One <span data-custom-style="Elision">[ … ]</span></span></p>'
             >>> assert_match(input, expected)
 
             Annotations with invalid offsets are clamped:
             >>> input = '<p>[highlight]F[/highlight]oo</p>'
-            >>> expected = '<header class="case-header">\n</header>\n<p><span class="annotate highlighted" custom-style="Highlighted Text">Foo</span></p>'
+            >>> expected = '<header class="case-header">\n</header>\n<p><span class="annotate highlighted" data-custom-style="Highlighted Text">Foo</span></p>'
             >>> resource = annotations_factory('LegalDocument', input)[1]
             >>> _ = resource.annotations.update(global_end_offset=1000)  # move end offset past end of text
             >>> assert resource.annotated_content_for_export() == expected
@@ -2312,6 +2325,8 @@ class ContentNode(EditTrackedModel, TimestampedModel, BigPkModel, MaterializedPa
         # This SAX ContentHandler does the heavy lifting of stepping through each HTML tag and text string in the
         # source HTML and building a list of destination tags and text, inserting annotation tags or deleting text
         # as appropriate:
+
+        postfix_id = self.id
         class AnnotationContentHandler(lxml.sax.ContentHandler):
             def __init__(self):
                 # internal state:
@@ -2381,7 +2396,7 @@ class ContentNode(EditTrackedModel, TimestampedModel, BigPkModel, MaterializedPa
                         # overlapping elision ranges correctly (though those shouldn't happen in practice).
                         if is_start_tag:
                             self.out_ops.append((self.out_handler.startElement, 'span', {
-                                'custom-style': 'Elision' if kind == 'elide' else 'Replacement Text'}))
+                                'data-custom-style': 'Elision' if kind == 'elide' else 'Replacement Text'}))
                             self.addText(annotation.content or '' if kind == 'replace' else '[ … ]')
                             self.out_ops.append((self.out_handler.endElement, 'span'))
                             self.elide += 1
@@ -2409,7 +2424,7 @@ class ContentNode(EditTrackedModel, TimestampedModel, BigPkModel, MaterializedPa
                                 close_tag = (self.out_handler.endElement, 'span')
                             elif kind == 'highlight':
                                 open_tag = (self.out_handler.startElement, 'span',
-                                            {'class': 'annotate highlighted', 'custom-style': 'Highlighted Text'})
+                                            {'class': 'annotate highlighted', 'data-custom-style': 'Highlighted Text'})
                                 close_tag = (self.out_handler.endElement, 'span')
                             else:
                                 raise ValueError(f"Unknown annotation kind '{kind}'")
@@ -2432,8 +2447,9 @@ class ContentNode(EditTrackedModel, TimestampedModel, BigPkModel, MaterializedPa
                             # emit the footnote marker:
                             if kind == 'note' or kind == 'link':
                                 self.footnote_index += 1
+                                footnote_ref = "Footnote Reference" + (f"-{postfix_id}" if export_options and export_options.get('docx_footnotes', False) else "")
                                 self.out_ops.append(
-                                    (self.out_handler.startElement, 'span', {'custom-style': 'Footnote Reference'}))
+                                    (self.out_handler.startElement, 'span', {'data-custom-style': footnote_ref}))
                                 self.addText('*' * self.footnote_index)
                                 self.out_ops.append((self.out_handler.endElement, 'span'))
 
@@ -2492,15 +2508,16 @@ class ContentNode(EditTrackedModel, TimestampedModel, BigPkModel, MaterializedPa
         lxml.sax.saxify(source_tree, handler)
         dest_tree = handler.get_output_tree()
 
-        
         # clean up the output tree:
         remove_empty_tags(dest_tree)  # tree may contain empty tags from elide/replace annotations
         # apply general rules that are the same for annotated or un-annotated trees
-        return mark_safe(self.rendered_header() + self.export_postprocess(html.tostring(dest_tree).decode('utf-8')))
+        return mark_safe(self.rendered_header() + self.export_postprocess(html.tostring(dest_tree).decode('utf-8'), export_options=export_options))
 
     def footnote_annotations(self, export_options=None):
+        postfix_id=self.id
+        style = "Footnote Text" + (f"-{postfix_id}" if export_options and export_options.get('docx_footnotes', False) else "")
         return mark_safe("".join(
-            format_html('<span custom-style="Footnote Reference">{}</span> {} ', "*" * (i + 1), annotation.content)
+            format_html('<div data-custom-style="{}"><span data-custom-style="Footnote Ref">{}</span> {} </div>',style, "*" * (i + 1), annotation.content)
             for i, annotation in
             enumerate(a for a in self.annotations.all() if a.global_start_offset >= 0 and a.kind in ('note', 'link'))
         ))
@@ -3617,7 +3634,7 @@ class Casebook(EditTrackedModel, TimestampedModel, BigPkModel, TrackedCloneable)
         collaborator_to_add = ContentCollaborator(user=user, casebook_id=self.id, **collaborator_kwargs)
         collaborator_to_add.save()
 
-    def export(self, include_annotations, file_type='docx', export_options=None, experimental=False, aws_lambda=False):
+    def export(self, include_annotations, file_type='docx', export_options=None, experimental=None, aws_lambda=None, docx_footnotes=None):
         """
             Export this node and children as docx, or as html for conversion by pandoc.
 
@@ -3628,6 +3645,10 @@ class Casebook(EditTrackedModel, TimestampedModel, BigPkModel, TrackedCloneable)
             >>> with assert_num_queries(select=10):
             ...     file_data = full_casebook.export(include_annotations=True)
         """
+        experimental = experimental if experimental is not None else settings.FORCE_EXPERIMENTAL_EXPORT
+        aws_lambda = aws_lambda if aws_lambda is not None else settings.FORCE_AWS_LAMBDA_EXPORT
+        docx_footnotes = docx_footnotes if aws_lambda is not None else settings.FORCE_DOCX_FOOTNOTES
+
         # prefetch all child nodes and related data
         if self.export_embargoed():
             logger.info(f"Exporting Casebook {self.id}: attempt rejected (too many previous failures)")
@@ -3641,7 +3662,7 @@ class Casebook(EditTrackedModel, TimestampedModel, BigPkModel, TrackedCloneable)
                                                    .prefetch_related('casebook__contentcollaborator_set__user')
                          if set(cn.casebook.primary_authors) ^ current_collaborators}
 
-        if experimental or settings.FORCE_EXPERIMENTAL_EXPORT:
+        if experimental:
             return export_via_python_docx(self, children)
 
         else:
@@ -3660,9 +3681,9 @@ class Casebook(EditTrackedModel, TimestampedModel, BigPkModel, TrackedCloneable)
             if file_type == 'html':
                 return html
 
-            if aws_lambda or settings.FORCE_AWS_LAMBDA_EXPORT:
+            if aws_lambda:
                 return export_via_aws_lambda(self, html, file_type)
-            return export_via_pandoc(self, html, file_type)
+            return export_via_pandoc(self, html, file_type, docx_footnotes=docx_footnotes)
 
     def inc_export_fails(self):
         # This function is used to avoid making a copy of the casebook via CasebookHistory

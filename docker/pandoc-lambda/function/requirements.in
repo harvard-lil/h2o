@@ -2,3 +2,5 @@ pip-tools
 
 awslambdaric    # AWS Lambda Runtime Interface Client
 boto3           # S3 file transfers
+lxml            # Word editing
+python-docx
