@@ -136,7 +136,6 @@ def handler(event, context):
         s3_config['aws_secret_access_key'] = os.environ['AWS_SECRET_ACCESS_KEY']
 
     with tempfile.NamedTemporaryFile(suffix='.docx') as pandoc_in:
-
         # get the source html
         s3 = boto3.resource('s3', **s3_config)
         s3.Bucket(os.environ['EXPORT_BUCKET']).download_fileobj(input_s3_key, pandoc_in)
@@ -154,6 +153,7 @@ def handler(event, context):
             ]
             if is_casebook:
                 command.extend(['--lua-filter', 'table_of_contents.lua'])
+                #command.extend(['--lua-filter', 'sections.lua'])
             try:
                 response = subprocess.run(command, input=pandoc_in.read(), stderr=subprocess.PIPE,
                                           stdout=subprocess.PIPE)
@@ -172,9 +172,7 @@ def handler(event, context):
                 else:
                     sig_string = f"non-zero exit status {e.returncode}"
                 ss = "Pandoc command exited with " + str(sig_string)
-                print(ss)
                 pandoc_out.seek(0,0)
-                print(response.stderr)
                 raise Exception(ss)
             if not os.path.getsize(pandoc_out.name) > 0:
                 raise Exception(f"Pandoc produced no output.")
