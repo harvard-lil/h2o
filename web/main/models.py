@@ -46,7 +46,7 @@ from .utils import (block_level_elements, clone_model_instance, elements_equal,
                     strip_trailing_block_level_whitespace, void_elements,
                     rich_text_export, prefix_ids_hrefs,
                     APICommunicationError, fix_after_rails,
-                    export_via_aws_lambda, export_via_pandoc, export_via_python_docx)
+                    export_via_aws_lambda)
 from .storages import get_s3_storage
 
 logger = logging.getLogger(__name__)
@@ -2112,7 +2112,7 @@ class ContentNode(EditTrackedModel, TimestampedModel, BigPkModel, MaterializedPa
         else:
             return 'resource'
 
-    def export(self, include_annotations, file_type='docx', export_options=None, is_child=False, experimental=None, aws_lambda=None, docx_footnotes=None):
+    def export(self, include_annotations, file_type='docx', export_options=None, is_child=False,  docx_footnotes=None):
         """
             Export this node and children as docx, or as html for conversion by pandoc.
 
@@ -2124,9 +2124,7 @@ class ContentNode(EditTrackedModel, TimestampedModel, BigPkModel, MaterializedPa
             ...     file_data = full_casebook.export(include_annotations=True)
         """
         # prefetch all child nodes and related data
-        experimental = experimental if experimental is not None else settings.FORCE_EXPERIMENTAL_EXPORT
-        aws_lambda = aws_lambda if aws_lambda is not None else settings.FORCE_AWS_LAMBDA_EXPORT
-        docx_footnotes = docx_footnotes if aws_lambda is not None else settings.FORCE_DOCX_FOOTNOTES
+        docx_footnotes = docx_footnotes if docx_footnotes is not None else settings.FORCE_DOCX_FOOTNOTES
 
         children = list(self.contents.prefetch_resources().prefetch_related('annotations')) if type(
             self) is not Resource else None
@@ -2157,11 +2155,7 @@ class ContentNode(EditTrackedModel, TimestampedModel, BigPkModel, MaterializedPa
         if file_type == 'html':
             return html
 
-        if aws_lambda:
-            return export_via_aws_lambda(self, html, file_type)
-
-        # There's a bit here that's duplicated in app.py, that we should get rid of after lambda confidence.
-        return export_via_pandoc(self, html, file_type, docx_footnotes=docx_footnotes)
+        return export_via_aws_lambda(self, html, file_type, docx_footnotes=docx_footnotes)
 
     def headnote_for_export(self, export_options=None):
         r"""
@@ -3634,7 +3628,7 @@ class Casebook(EditTrackedModel, TimestampedModel, BigPkModel, TrackedCloneable)
         collaborator_to_add = ContentCollaborator(user=user, casebook_id=self.id, **collaborator_kwargs)
         collaborator_to_add.save()
 
-    def export(self, include_annotations, file_type='docx', export_options=None, experimental=None, aws_lambda=None, docx_footnotes=None):
+    def export(self, include_annotations, file_type='docx', export_options=None, docx_footnotes=None):
         """
             Export this node and children as docx, or as html for conversion by pandoc.
 
@@ -3645,9 +3639,7 @@ class Casebook(EditTrackedModel, TimestampedModel, BigPkModel, TrackedCloneable)
             >>> with assert_num_queries(select=10):
             ...     file_data = full_casebook.export(include_annotations=True)
         """
-        experimental = experimental if experimental is not None else settings.FORCE_EXPERIMENTAL_EXPORT
-        aws_lambda = aws_lambda if aws_lambda is not None else settings.FORCE_AWS_LAMBDA_EXPORT
-        docx_footnotes = docx_footnotes if aws_lambda is not None else settings.FORCE_DOCX_FOOTNOTES
+        docx_footnotes = docx_footnotes if docx_footnotes is not None else settings.FORCE_DOCX_FOOTNOTES
 
         # prefetch all child nodes and related data
         if self.export_embargoed():
@@ -3662,28 +3654,22 @@ class Casebook(EditTrackedModel, TimestampedModel, BigPkModel, TrackedCloneable)
                                                    .prefetch_related('casebook__contentcollaborator_set__user')
                          if set(cn.casebook.primary_authors) ^ current_collaborators}
 
-        if experimental:
-            return export_via_python_docx(self, children)
+        # render html
+        logger.info(f"Exporting Casebook {self.id}: serializing to HTML")
+        template_name = 'export/casebook.html'
+        html = render_to_string(template_name, {
+            'is_export': True,
+            'node': self,
+            'children': children,
+            'export_options': export_options,
+            'export_date': datetime.now().strftime("%Y-%m-%d"),
+            'include_annotations': include_annotations,
+            'cloned_from': cloned_from,
+        })
+        if file_type == 'html':
+            return html
 
-        else:
-            # render html
-            logger.info(f"Exporting Casebook {self.id}: serializing to HTML")
-            template_name = 'export/casebook.html'
-            html = render_to_string(template_name, {
-                'is_export': True,
-                'node': self,
-                'children': children,
-                'export_options': export_options,
-                'export_date': datetime.now().strftime("%Y-%m-%d"),
-                'include_annotations': include_annotations,
-                'cloned_from': cloned_from,
-            })
-            if file_type == 'html':
-                return html
-
-            if aws_lambda:
-                return export_via_aws_lambda(self, html, file_type)
-            return export_via_pandoc(self, html, file_type, docx_footnotes=docx_footnotes)
+        return export_via_aws_lambda(self, html, file_type, docx_footnotes=docx_footnotes)
 
     def inc_export_fails(self):
         # This function is used to avoid making a copy of the casebook via CasebookHistory
