@@ -2160,7 +2160,7 @@ def export(request, node, file_type='docx'):
     export_options = {'request': request}
     export_options['docx_footnotes'] = docx_footnotes
     # get response data
-    response_data = node.export(include_annotations, file_type, docx_footnotes = docx_footnotes)
+    response_data = node.export(include_annotations, file_type, export_options=export_options, docx_footnotes = docx_footnotes)
     if response_data is None:
         return render(request, 'export_error.html', {
             'casebook': node
