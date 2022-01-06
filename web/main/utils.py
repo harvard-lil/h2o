@@ -5,22 +5,15 @@ from botocore.exceptions import BotoCoreError, ClientError as BotoClientError
 from copy import deepcopy
 from datetime import datetime, date
 import difflib
-from docx import Document
-from docx.enum.section import WD_SECTION
 import html as python_html
-import io
 import json
 from lxml import etree, html
 import mimetypes
-import os
 from pyquery import PyQuery
 import re
 import requests
-import signal
-import subprocess
 import tempfile
 from urllib.parse import quote, unquote
-from docx.oxml import OxmlElement, parse_xml
 
 
 from django.contrib.auth.tokens import default_token_generator
@@ -31,7 +24,6 @@ from django.template import Context, RequestContext, engines
 from django.urls import reverse
 from django.utils.encoding import force_bytes
 from django.utils.http import urlsafe_base64_encode
-from django.utils.text import get_text_list
 
 from .sanitize import sanitize
 from .storages import get_s3_storage
@@ -543,188 +535,7 @@ def get_link_title(url):
         return default_title
     return title[0].text
 
-# This code is duplicated in pandoc-lambda/app.py and this copy should be removed after lambda-confidence
-def lift_footnote(doc, footnotes_part, ref, texts, id, author=False):
-    id_att = '{http://schemas.openxmlformats.org/wordprocessingml/2006/main}id'
-    custom_mark_att = '{http://schemas.openxmlformats.org/wordprocessingml/2006/main}customMarkFollows'
-    footnote = OxmlElement("w:footnote")
-    footnote.attrib[id_att] = id
-    doc_insert = OxmlElement("w:footnoteReference")
-    doc_insert.attrib[custom_mark_att] = "1"
-    doc_insert.attrib[id_att] = id
-
-    # Content
-    for t in texts:
-        footnote.append(t)
-
-    # Insert into the footnotes file
-    footnotes_part.element.append(footnote)
-
-    # Insert the reference into the doc
-    ref.insert(1,doc_insert)
-
-# This code is duplicated in pandoc-lambda/app.py and this copy should be removed after lambda-confidence
-def promote_case_footnotes(doc):
-    val_att = '{http://schemas.openxmlformats.org/wordprocessingml/2006/main}val'
-    author_footnotes = {}
-
-    for ref in doc.element.xpath("//*[*/w:rStyle[starts-with(@w:val,'FootnoteReference')]]"):
-        mark_text = ref.text
-        style_node = ref.xpath(".//w:rStyle[starts-with(@w:val,'FootnoteReference')]")[0]
-        node_id = style_node.attrib[val_att][18:]
-        mark_id = f"{node_id}-{mark_text}"
-        if mark_id not in author_footnotes:
-            author_footnotes[mark_id] = {'id':mark_id, 'mark': mark_text, 'refs': [], 'texts': []}
-        style_node.attrib[val_att] = 'FootnoteReference'
-        author_footnotes[mark_id]['refs'].append(ref)
-
-    for text_el in doc.element.xpath("//w:p[w:pPr/w:pStyle[starts-with(@w:val,'FootnoteText')]]"):
-        mark_text = text_el.xpath(".//*[*/w:rStyle]/w:t")[0].text
-        node_id = text_el.xpath(".//w:pStyle[starts-with(@w:val, 'FootnoteText')]/@w:val")[0][13:]
-        mark_id = f'{node_id}-{mark_text}'
-        if mark_id not in author_footnotes:
-            author_footnotes[mark_id] = {'id':mark_id, 'mark': mark_text, 'refs': [], 'texts': []}
-        mark_el = text_el.xpath("./w:pPr/w:pStyle[starts-with(@w:val,'FootnoteText')]")[0]
-        mark_el.attrib[val_att] = 'FootnoteText'
-        for style in text_el.xpath(".//w:pStyle[starts-with(@w:val, 'FootnoteText')]"):
-            style.attrib[val_att] = 'FootnoteText'
-        for style in text_el.xpath(".//w:rStyle[starts-with(@w:val, 'FootnoteRef')]"):
-            style.attrib[val_att] = 'FootnoteReference'
-        author_footnotes[mark_id]['texts'].append([text_el])
-
-
-    case_footnotes = {}
-
-    for ref in doc.element.xpath("//*[*/w:rStyle[starts-with(@w:val,'CaseFootnoteReference')]]"):
-        mark_text = ref.text
-        node = ref.xpath(".//w:rStyle[starts-with(@w:val,'CaseFootnoteReference')]")[0]
-        node_id = node.attrib[val_att][22:]
-        mark_id = f'{node_id}-{mark_text}'
-        if mark_id not in case_footnotes:
-            case_footnotes[mark_id] = {'id':mark_id, 'mark': mark_text, 'refs': [], 'texts': []}
-        node.attrib[val_att] = "FootnoteReference"
-        parent = ref.getparent()
-        gp = parent.getparent()
-        gp.replace(parent, ref)
-        case_footnotes[mark_id]['refs'].append(ref)
-
-    for footnote_start in doc.element.xpath("//*[*/*[starts-with(@w:val,'CaseFootnoteText')] and .//w:hyperlink]"):
-        mark_text = footnote_start.xpath(".//*[*/w:rStyle]/w:t")[0].text
-        node_id = footnote_start.xpath(".//w:pStyle[starts-with(@w:val, 'CaseFootnoteText')]/@w:val")[0][17:]
-
-        current_stack = [footnote_start]
-        next_footnote_candidate = footnote_start.getnext()
-        style = next_footnote_candidate.xpath(".//w:pStyle/@w:val")
-        link = next_footnote_candidate.xpath(".//w:hyperlink//text()")
-        while next_footnote_candidate is not None and style and style[0] != 'CaseBody' and not link:
-            current_stack.append(next_footnote_candidate)
-            next_footnote_candidate = next_footnote_candidate.getnext()
-            if next_footnote_candidate.tag == '{http://schemas.openxmlformats.org/wordprocessingml/2006/main}bookmarkStart':
-                break
-            style = next_footnote_candidate.xpath(".//w:pStyle/@w:val")
-            if style:
-                style_node = next_footnote_candidate.xpath(".//w:pStyle[starts-with(@w:val,'CaseFootnoteText')]")
-                if style_node:
-                    style_node[0].attrib[val_att] = 'CaseFootnoteText'
-            link = next_footnote_candidate.xpath(".//w:hyperlink//text()")
-        mark_id = f'{node_id}-{mark_text}'
-        if mark_id not in case_footnotes:
-            case_footnotes[mark_id] = {'id':mark_id, 'mark': mark_text, 'refs': [], 'texts': []}
-        hl = footnote_start.getchildren()[1]
-        footnote_start.xpath(".//w:rStyle")[0].attrib[val_att] = 'FootnoteReference'
-        footnote_start.replace(hl, hl.getchildren()[0])
-        case_footnotes[mark_id]['texts'].append(current_stack)
-
-    # extract refs and footnotes here.
-    fid = 1
-
-    footnote_part = next(f for f in doc.part.package.parts if f.partname=='/word/footnotes.xml')
-    footnote_part.element = parse_xml(footnote_part.blob)
-    for val in author_footnotes.values():
-        for ref,texts in zip(val['refs'], val['texts']):
-            fid += 1
-            lift_footnote(doc, footnote_part, ref, texts, f"{fid}", author=True)
-
-    for val in case_footnotes.values():
-        for ref,texts in zip(val['refs'], val['texts']):
-            fid += 1
-            lift_footnote(doc, footnote_part, ref, texts, f"{fid}", author=False)
-    footnote_part._blob = b'<?xml version="1.0" encoding="UTF-8" standalone="yes"?>' + etree.tostring(footnote_part.element)
-    print(footnote_part._blob.decode("utf-8"))
-    for x in doc.styles.element.xpath("//w:style[starts-with(@w:styleId,'FootnoteText-')]"):
-        doc.styles.element.remove(x)
-    for x in doc.styles.element.xpath("//w:style[starts-with(@w:styleId,'FootnoteReference-')]"):
-        doc.styles.element.remove(x)
-    return doc
-
-
-def export_via_pandoc(obj, html, file_type, docx_footnotes=False):
-    export_type = obj.__class__.__name__
-    log_line_prefix = f"Exporting {export_type} {obj.id}"
-
-    logger.info(f"{log_line_prefix}: launching pandoc subprocess")
-    with tempfile.NamedTemporaryFile(suffix=f'.{file_type}') as pandoc_out:
-        command = []
-        if file_type == 'json':
-            command = [
-                'pandoc',
-                '--from', 'html',
-                '--to', 'json',
-                '--output', pandoc_out.name,
-                '--quiet'
-            ]
-        else:
-            command = [
-                'pandoc',
-                '--from', 'html',
-                '--to', 'docx',
-                '--reference-doc', os.path.join(settings.PANDOC_DIR, 'reference.docx'),
-                '--output', pandoc_out.name,
-                '--quiet',
-                '--self-contained'
-            ]
-        if export_type == 'Casebook':
-            command.extend(['--lua-filter', os.path.join(settings.PANDOC_DIR, 'table_of_contents.lua')])
-
-        try:
-            response = subprocess.run(command, input=html.encode('utf8'), stderr=subprocess.PIPE,
-                                      stdout=subprocess.PIPE)
-        except subprocess.CalledProcessError as e:
-            if export_type == 'Casebook':
-                obj.inc_export_fails()
-            raise Exception(f"Pandoc command failed: {e.stderr[:100]}")
-        if response.stderr:
-            if export_type == 'Casebook':
-                obj.inc_export_fails()
-            raise Exception(f"Pandoc reported error: {response.stderr[:100]}")
-        try:
-            response.check_returncode()
-        except subprocess.CalledProcessError as e:
-            if export_type == 'Casebook':
-                obj.inc_export_fails()
-            if e.returncode < 0:
-                try:
-                    sig_string = str(signal.Signals(-e.returncode))
-                except ValueError:
-                    sig_string = f"unknown signal {-e.returncode}"
-            else:
-                sig_string = f"non-zero exit status {e.returncode}"
-            raise Exception(f"Pandoc command exited with {sig_string}")
-
-        if export_type == 'Casebook' and obj.export_fails > 0:
-            obj.reset_export_fails()
-
-        if docx_footnotes:
-            doc = Document(pandoc_out)
-            promote_case_footnotes(doc)
-            output = io.BytesIO()
-            doc.save(output)
-            output.seek(0,0)
-            return output.read()
-        return pandoc_out.read()
-
-
-def export_via_aws_lambda(obj, html, file_type):
+def export_via_aws_lambda(obj, html, file_type, docx_footnotes=None):
     export_settings = settings.AWS_LAMBDA_EXPORT_SETTINGS
     export_type = obj.__class__.__name__
     log_line_prefix = f"Exporting {export_type} {obj.id}"
@@ -747,7 +558,7 @@ def export_via_aws_lambda(obj, html, file_type):
             lambda_event_config = {
                 "filename": filename,
                 "is_casebook": export_type == 'Casebook',
-                "options": {"word_footnotes": settings.FORCE_DOCX_FOOTNOTES}
+                "options": {"word_footnotes": settings.FORCE_DOCX_FOOTNOTES if docx_footnotes is None else docx_footnotes}
             }
             if export_settings.get('function_arn'):
                 lambda_client = boto3.client(
@@ -797,104 +608,4 @@ def export_via_aws_lambda(obj, html, file_type):
         if export_type == 'Casebook' and obj.export_fails > 0:
             obj.reset_export_fails()
         return response['content']
-
-
-def export_via_python_docx(obj, children):
-
-    document = Document(os.path.join(settings.PANDOC_DIR, 'template.docx'))
-
-    def add_section(start_style, vertical_alignment='top'):
-        document.add_section(start_style)._sectPr.append(etree.fromstring(f'<w:vAlign w:val="{vertical_alignment}" xmlns:w="http://schemas.openxmlformats.org/wordprocessingml/2006/main"/>'))
-
-    def author_string():
-        return get_text_list([author.display_name for author in obj.primary_authors], 'and')
-
-    def add_titles(node, node_type):
-        if hasattr(node, 'ordinals'):
-            document.add_paragraph(node.ordinal_string(), style=f"{node_type} Number")
-        document.add_paragraph(node.title, style=f"{node_type} Title")
-        if node.subtitle:
-            document.add_paragraph(node.subtitle, style=f"{node_type} Subtitle")
-
-    # the first section doesn't need to be added; you are already in the first section.
-    # so, if you immediately add an WD_SECTION.ODD_PAGE section, the imaginary cursor is
-    # writing on page 3.
-
-    # the first doc section is an H2O preamble, with instructions
-    document.add_paragraph('(Placeholder for the preamble)')
-
-    # the next, if we want one, is a half-title page, but I think we don't
-    # the next is the title page
-    add_section(WD_SECTION.ODD_PAGE, 'bottom')
-    add_titles(obj, 'Casebook')
-    document.add_paragraph(author_string(), style="Casebook Authors")
-
-    # on the reverse is copyright info
-    add_section(WD_SECTION.EVEN_PAGE, 'bottom')
-    document.add_paragraph(f"© {author_string()}")
-    document.add_paragraph("This work is licensed to the public under a Creative Commons Attribution NonCommercial-Share Alike 3.0 license (international):")
-    document.add_paragraph("http://creativecommons.org/licenses/by-nc-sa/3.0/us/")
-
-    # the next section is the table of contents
-
-    # then we get into the book's contents....
-    #....the first item of which is probably the casebook's headnote.
-    #....in the HTML version, that is displayed above the TOC,
-    #....but that's very unusual e.g., https://www.bookcoverdesigner.com/book-interior-content/
-    #....So, we probably need to ask authors how they want that text treated during export,
-    #....but might default to a Preface, just after the TOC.
-    #....With this casebook, it's a sub-subtitle (https://opencasebook.org/casebooks/523-advanced-constitutional-law/)
-    #....What else might make sense? let's look at some casebook headnotes and see how they are used.
-
-    # but okay now we get into the actual contents
-    for child in children:
-        child_type = child.get_export_class()
-
-        # ADD THE SECTION
-        if child_type in ['Chapter', 'Leading Resource']:
-            start_type = WD_SECTION.ODD_PAGE
-        elif child_type == 'Section':
-            start_type = WD_SECTION.NEW_PAGE
-        elif child_type == 'Subsection':
-            start_type = WD_SECTION.CONTINUOUS
-        else:
-            start_type = WD_SECTION.CONTINUOUS
-        add_section(start_type)
-
-        # CONFIGURE ITS PAGE HEADER
-        # There are three header properties on Section: .header, .even_page_header, and .first_page_header
-        # Any existing even page header definitions are preserved when .odd_and_even_pages_header_footer is False; they are simply not rendered by Word. Assigning True to .odd_and_even_pages_header_footer does not automatically create new even header definition
-        # Assigning True to .different_first_page_header_footer does not automatically create a new first page header definition
-        # https://python-docx.readthedocs.io/en/latest/dev/analysis/features/header.html?highlight=even#header-and-footer
-
-        # CONFIGURE ITS PAGE NUMBERS
-        # This is where we can specify if its pages numbers should be arabic, roman, etc.,
-        # and whether the counting should start fresh or should be contiguous with the last section.
-
-        # ADD ITS TITLE
-        # (This is also where we will need to place the bookmark for the TOC)
-        add_titles(child, child_type)
-
-        # ADD ITS CONTENT
-
-        # First, again, goes author-provided headnotes:
-        # - page break or not? probably not.
-        # - how do we do the page headers, if this is in a chapter, and is multi-page?
-
-        # Then, if the node has it's own content, it goes here, potentially with annotations and formatted footnotes.
-        if child.has_body:
-            # for now, just dump some text in, to give the textbook content.
-            paragraphs = PyQuery(parse_html_fragment(child.export_content(None))).text().split('\n')
-            document.add_paragraph(paragraphs[0], style=f"First Paragraph")
-            for p in paragraphs[1:]:
-                document.add_paragraph(p, style=f"Body Text")
-
-
-    # and finally, the book's endmatter, which right now is just credits
-
-    # save and return
-    with tempfile.NamedTemporaryFile(suffix='.docx') as tmp:
-        document.save(tmp)
-        tmp.seek(0)
-        return tmp.read()
 
