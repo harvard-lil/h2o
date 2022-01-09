@@ -68,7 +68,8 @@ def promote_case_footnotes(doc):
         node.attrib[val_att] = "FootnoteReference"
         parent = ref.getparent()
         gp = parent.getparent()
-        gp.replace(parent, ref)
+        if gp:
+            gp.replace(parent, ref)
         case_footnotes[mark_id]['refs'].append(ref)
 
     for footnote_start in doc.element.xpath("//*[*/*[starts-with(@w:val,'CaseFootnoteText')] and .//w:hyperlink]"):
