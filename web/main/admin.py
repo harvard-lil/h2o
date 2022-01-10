@@ -15,7 +15,7 @@ from simple_history.admin import SimpleHistoryAdmin
 from .models import (Casebook, ContentAnnotation, ContentCollaborator,
                      ContentNode, EmailWhitelist, LegalDocument,
                      LegalDocumentSource, Link, Resource, Section, TextBlock,
-                     User)
+                     User, LiveSettings)
 from .utils import (clone_model_instance, fix_after_rails)
 
 #
@@ -576,6 +576,18 @@ class LegalDocumentAdmin(BaseAdmin, SimpleHistoryAdmin):
         return obj.related_annotations().count()
     live_annotations_count.short_description = 'Annotations'
 
+class LiveSettingsAdmin(BaseAdmin):
+    readonly_fields = []
+    list_select_related = []
+    list_display = ['id', 'prevent_exports']
+    list_filter = []
+    search_fields = []
+    raw_id_fields = []
+    def has_add_permission(self, request):
+        return LiveSettings.load().id is None and super(BaseAdmin, self).has_add_permission(request)
+
+
+
 
 # Register models on our CustomAdmin instance.
 admin_site.register(Casebook, CasebookAdmin)
@@ -590,4 +602,4 @@ admin_site.register(ContentNode, ContentNodeAdmin)
 admin_site.register(EmailWhitelist, EmailWhitelistAdmin)
 admin_site.register(LegalDocumentSource, LegalDocumentSourceAdmin)
 admin_site.register(LegalDocument, LegalDocumentAdmin)
-
+admin_site.register(LiveSettings, LiveSettingsAdmin)
