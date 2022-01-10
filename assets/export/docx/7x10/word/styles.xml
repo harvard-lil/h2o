@@ -94,8 +94,8 @@
             <w:iCs/>
             <w:color w:val="000000" w:themeColor="text1"/>
             <w:spacing w:val="5"/>
-            <w:sz w:val="20"/>
-            <w:szCs w:val="18"/>
+            <w:sz w:val="16"/>
+            <w:szCs w:val="14"/>
 
         </w:rPr>
     </w:style>
@@ -174,7 +174,7 @@
         <w:qFormat/>
         <w:rPr>
             <w:b/>
-            <w:sz w:val="20"/>
+            <w:sz w:val="16"/>
         </w:rPr>
     </w:style>
     <w:style w:type="paragraph" w:customStyle="1" w:styleId="CaseBody">
@@ -183,7 +183,7 @@
         <w:uiPriority w:val="8"/>
         <w:qFormat/>
         <w:rPr>
-            <w:sz w:val="22"/>
+            <w:sz w:val="16"/>
         </w:rPr>
     </w:style>
 
@@ -562,8 +562,8 @@
         <w:basedOn w:val="HierarchyLevel1-2HeaderText"/>
         <w:semiHidden/>
         <w:rPr>
-            <w:sz w:val="20"/>
-            <w:szCs w:val="22"/>
+            <w:sz w:val="16"/>
+            <w:szCs w:val="14"/>
         </w:rPr>
     </w:style>
 
@@ -909,7 +909,7 @@
         <w:rPr>
             <w:i w:val="0"/>
             <w:color w:val="auto"/>
-            <w:sz w:val="22"/>
+            <w:sz w:val="16"/>
         </w:rPr>
     </w:style>
     <w:style w:type="paragraph" w:customStyle="1" w:styleId="SourceCode">
@@ -928,7 +928,7 @@
             <w:ind w:left="360"/>
         </w:pPr>
         <w:rPr>
-            <w:sz w:val="18"/>
+            <w:sz w:val="14"/>
         </w:rPr>
     </w:style>
     <w:style w:type="paragraph" w:customStyle="1" w:styleId="DefinitionTerm">
@@ -956,11 +956,12 @@
     <w:style w:type="paragraph" w:styleId="Caption">
         <w:name w:val="caption"/>
         <w:basedOn w:val="FontFamilyDefaultTitleandStructure"/>
-        <w:link w:val="CaptionChar"/>
         <w:uiPriority w:val="30"/>
         <w:rPr>
-            <w:i/>
+            <w:rFonts w:ascii="Courier New" w:hAnsi="Courier New" w:cs="Courier New"/>
             <w:sz w:val="16"/>
+            <w:szCs w:val="14"/>
+            <w:i/>
         </w:rPr>
     </w:style>
     <w:style w:type="paragraph" w:customStyle="1" w:styleId="TableCaption">
@@ -1209,7 +1210,6 @@
     <w:style w:type="paragraph" w:styleId="Footer">
         <w:name w:val="footer"/>
         <w:basedOn w:val="BodyText"/>
-        <w:link w:val="FooterChar"/>
         <w:uiPriority w:val="99"/>
         <w:pPr>
             <w:tabs>
@@ -1217,12 +1217,19 @@
                 <w:tab w:val="right" w:pos="9360"/>
             </w:tabs>
         </w:pPr>
+        <w:rPr>
+            <w:rFonts w:ascii="Baskerville" w:hAnsi="Baskerville"/>
+            <w:bCs/>
+            <w:iCs/>
+            <w:color w:val="000000" w:themeColor="text1"/>
+            <w:spacing w:val="5"/>
+            <w:szCs w:val="18"/>
+        </w:rPr>
     </w:style>
 
     <w:style w:type="paragraph" w:styleId="Header">
         <w:name w:val="header"/>
         <w:basedOn w:val="FontFamilyDefaultTitleandStructure"/>
-        <w:link w:val="HeaderChar"/>
         <w:uiPriority w:val="50"/>
         <w:rsid w:val="006019C2"/>
         <w:pPr>
@@ -1234,8 +1241,9 @@
             <w:jc w:val="center"/>
         </w:pPr>
         <w:rPr>
-            <w:spacing w:val="3"/>
             <w:sz w:val="16"/>
+            <w:rFonts w:ascii="Century Gothic" w:hAnsi="Century Gothic" w:cs="Arial (Headings CS)"/>
+            <w:spacing w:val="3"/>
         </w:rPr>
     </w:style>
 
@@ -1282,7 +1290,6 @@
         <w:rPr>
             <w:b/>
             <w:spacing w:val="-5"/>
-            <w:kern w:val="13"/>
             <w:sz w:val="13"/>
         </w:rPr>
     </w:style>
@@ -1295,7 +1302,7 @@
         <w:uiPriority w:val="60"/>
         <w:semiHidden/>
         <w:rPr>
-            <w:sz w:val="18"/>
+            <w:sz w:val="14"/>
         </w:rPr>
     </w:style>
     <w:style w:type="paragraph" w:customStyle="1" w:styleId="FootnoteLabeledLink">
@@ -1336,8 +1343,8 @@
             <w:snapToGrid w:val="0"/>
         </w:pPr>
         <w:rPr>
-            <w:sz w:val="2"/>
-            <w:szCs w:val="2"/>
+            <w:sz w:val="1"/>
+            <w:szCs w:val="1"/>
         </w:rPr>
     </w:style>
 
@@ -1372,7 +1379,7 @@
             <w:iCs/>
             <w:color w:val="000000" w:themeColor="text1"/>
             <w:spacing w:val="5"/>
-            <w:szCs w:val="18"/>
+            <w:szCs w:val="16"/>
         </w:rPr>
     </w:style>
     <w:style w:type="character" w:customStyle="1" w:styleId="BodyTextFirstIndentChar">
@@ -1387,8 +1394,8 @@
             <w:iCs/>
             <w:color w:val="000000" w:themeColor="text1"/>
             <w:spacing w:val="5"/>
-            <w:sz w:val="18"/>
-            <w:szCs w:val="18"/>
+            <w:sz w:val="16"/>
+            <w:szCs w:val="16"/>
         </w:rPr>
     </w:style>
 
@@ -1407,7 +1414,6 @@
     <w:style w:type="character" w:customStyle="1" w:styleId="VerbatimChar">
         <!-- used in source code, pre, etc -->
         <w:name w:val="Verbatim Char"/>
-        <w:basedOn w:val="CaptionChar"/>
         <w:link w:val="SourceCode"/>
         <w:uiPriority w:val="50"/>
         <w:semiHidden/>
@@ -1415,8 +1421,8 @@
         <w:rPr>
             <w:rFonts w:ascii="Courier New" w:hAnsi="Courier New" w:cs="Courier New"/>
             <w:i w:val="0"/>
-            <w:sz w:val="18"/>
-            <w:szCs w:val="24"/>
+            <w:sz w:val="16"/>
+            <w:szCs w:val="14"/>
             <w:shd w:val="clear" w:color="auto" w:fill="E0EBFF"/>
         </w:rPr>
     </w:style>
@@ -1454,7 +1460,6 @@
             <w:b w:val="1"/>
             <w:i w:val="0"/>
             <w:color w:val="5A771D"/>
-            <w:sz w:val="22"/>
         </w:rPr>
     </w:style>
     <w:style w:type="character" w:customStyle="1" w:styleId="ReplacementText">
@@ -1467,7 +1472,6 @@
             <w:b w:val="0"/>
             <w:i/>
             <w:color w:val="5A771D"/>
-            <w:sz w:val="20"/>
             <w:u w:val="dotted"/>
         </w:rPr>
     </w:style>
@@ -1499,50 +1503,6 @@
 
         </w:rPr>
     </w:style>
-    <w:style w:type="character" w:styleId="FootnoteReference">
-        <w:name w:val="footnote reference"/>
-        <w:basedOn w:val="CaptionChar"/>
-        <w:uiPriority w:val="99"/>
-        <w:semiHidden/>
-        <w:rPr>
-            <w:rFonts w:ascii="Century Gothic" w:hAnsi="Century Gothic"/>
-            <w:i/>
-            <w:sz w:val="16"/>
-            <w:szCs w:val="24"/>
-            <w:u w:val="none"/>
-            <w:vertAlign w:val="superscript"/>
-        </w:rPr>
-    </w:style>
-
-    <!-- header and footer character styles -->
-    <w:style w:type="character" w:customStyle="1" w:styleId="HeaderChar">
-        <w:name w:val="Header Char"/>
-        <w:basedOn w:val="DefaultParagraphFont"/>
-        <w:link w:val="Header"/>
-        <w:uiPriority w:val="99"/>
-        <w:semiHidden/>
-        <w:rPr>
-            <w:rFonts w:ascii="Century Gothic" w:hAnsi="Century Gothic"
-                      w:cs="Arial (Headings CS)"/>
-            <w:spacing w:val="3"/>
-            <w:szCs w:val="60"/>
-        </w:rPr>
-    </w:style>
-    <w:style w:type="character" w:customStyle="1" w:styleId="FooterChar">
-        <w:name w:val="Footer Char"/>
-        <w:basedOn w:val="DefaultParagraphFont"/>
-        <w:link w:val="Footer"/>
-        <w:uiPriority w:val="99"/>
-        <w:semiHidden/>
-        <w:rPr>
-            <w:rFonts w:ascii="Baskerville" w:hAnsi="Baskerville"/>
-            <w:bCs/>
-            <w:iCs/>
-            <w:color w:val="000000" w:themeColor="text1"/>
-            <w:spacing w:val="5"/>
-            <w:szCs w:val="18"/>
-        </w:rPr>
-    </w:style>
 
 
     <!-- misc element-specific -->
@@ -1565,19 +1525,6 @@
         <w:rPr>
             <w:color w:val="D96955" w:themeColor="followedHyperlink"/>
             <w:u w:val="single"/>
-        </w:rPr>
-    </w:style>
-    <w:style w:type="character" w:styleId="PageNumber">
-        <w:name w:val="page number"/>
-        <w:aliases w:val="Page Number Frontmatter"/>
-        <w:basedOn w:val="DefaultParagraphFont"/>
-        <w:semiHidden/>
-        <w:uiPriority w:val="99"/>
-        <w:rPr>
-            <w:rFonts w:ascii="Baskerville" w:hAnsi="Baskerville"/>
-            <w:b w:val="0"/>
-            <w:i/>
-            <w:sz w:val="16"/>
         </w:rPr>
     </w:style>
     <w:style w:type="character" w:customStyle="1" w:styleId="CaptionChar">

@@ -30,15 +30,17 @@
   {% if node.subtitle %}
     <div class="ResourceSubtitle" data-custom-style="Resource Subtitle">{{ node.subtitle }}</div>
   {% endif %}
-  {% if node.headnote %}
-    <div class="ResourceHeadnote" data-custom-style="Resource Headnote">{{ node.headnote_for_export }}</div>
-  {% endif %}
-
   {% if node.resource_type == 'Link' %}
     <div data-custom-style="Resource Link">
       <a href="{{ node.resource.url }}" target="_blank">{{ node.resource.url }}</a>
     </div>
   {% elif node.is_resource %}  {# case or textblock #}
+
+  {% if node.headnote %}
+    <div class="ResourceHeadnote" data-custom-style="Resource Headnote">{{ node.headnote_for_export }}</div>
+  {% endif %}
+
+
     <div class="ResourceBody">
         {% if include_annotations %}
         {% call_method node 'annotated_content_for_export' export_options=export_options as contents %}

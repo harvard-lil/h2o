@@ -12,7 +12,7 @@ xmlns:wp="http://schemas.openxmlformats.org/drawingml/2006/wordprocessingDrawing
   <w:body>
     <w:p>
         <w:pPr>
-            <w:pStyle w:val="invisibleseparator" />
+            <w:pStyle w:val="Head Separator" />
             <w:sectPr>
                 <w:headerReference w:type="even" r:id="rId41"/>
                 <w:headerReference w:type="default" r:id="rId42"/>

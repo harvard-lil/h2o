@@ -10,10 +10,10 @@
     <Relationship Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/comments" Id="rId8" Target="comments.xml"/>
     <Relationship Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/hyperlink" Id="rId30" Target="http://example.com" TargetMode="External"/>
 
-    <Relationship Id="rId41" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/header" Target="header1.xml"/>
-    <Relationship Id="rId42" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/header" Target="header2.xml"/>
-    <Relationship Id="rId43" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/header" Target="header3.xml"/>
+    <Relationship Id="rId41" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/header" Target="header_even.xml"/>
+    <Relationship Id="rId42" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/header" Target="header_odd.xml"/>
+    <Relationship Id="rId43" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/header" Target="header_blank.xml"/>
 
-    <Relationship Id="rId51" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/footer" Target="footer1.xml"/>
-    <Relationship Id="rId52" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/footer" Target="footer2.xml"/>
+    <Relationship Id="rId51" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/footer" Target="footer_blank.xml"/>
+    <Relationship Id="rId52" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/footer" Target="footer_title.xml"/>
 </Relationships>

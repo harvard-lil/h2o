@@ -1,20 +1,4 @@
 toc_prefix = [[
-    <w:p>
-      <w:pPr>
-        <w:pStyle w:val="Normal"/>
-        <w:sectPr>
-          <w:type w:val="continuous"/>
-          <w:pgSz w:w="10080" w:h="1900"/>
-          <w:pgMar w:top="1080" w:right="1080" w:bottom="1080" w:left="1080" w:header="720" w:footer="720" w:gutter="720"/>
-          <w:pgNumType w:fmt="lowerRoman"/>
-          <w:cols w:space="720"/>
-          <w:docGrid w:linePitch="326"/>
-        </w:sectPr>
-      </w:pPr>
-      <w:r>
-        <w:t></w:t>
-      </w:r>
-    </w:p>
     <w:sdt>
       <w:sdtPr>
         <w:docPartObj>
@@ -60,34 +44,7 @@ toc_suffix = [[
         </w:p>
       </w:sdtContent>
     </w:sdt>
-    <w:p>
-      <w:pPr>
-        <w:pStyle w:val="HeadSeparator"/>
-        <w:sectPr>
-          <w:type w:val="continuous"/>
-          <w:pgSz w:w="10080" w:h="14400"/>
-          <w:pgMar w:top="1080" w:right="1080" w:bottom="1080" w:left="1080" w:header="720" w:footer="720" w:gutter="720"/>
-          <w:pgNumType w:fmt="lowerRoman"/>
-          <w:cols w:space="720"/>
-          <w:docGrid w:linePitch="326"/>
-        </w:sectPr>
-      </w:pPr>
-      <w:r>
-        <w:t> </w:t>
-      </w:r>
-    </w:p>
 ]]
-
---toc_suffix = [[
---        <w:p>
---          <w:r>
---            <w:fldChar w:fldCharType="end"/>
---          </w:r>
---        </w:p>
---      </w:sdtContent>
---    </w:sdt>
---]]
-
 
 toc_entry = [[
     <w:p>

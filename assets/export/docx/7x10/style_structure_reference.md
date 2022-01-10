@@ -69,10 +69,10 @@
                 * toc 8 basedOn: TOC7 
                   * toc 9 basedOn: TOC8 
     * Bibliography basedOn: FontFamilyDefaultTitleandStructure 
-    * caption basedOn: FontFamilyDefaultTitleandStructure link CaptionChar
+    * caption basedOn: FontFamilyDefaultTitleandStructure 
       * Table Caption basedOn: Caption 
       * Image Caption basedOn: Caption 
-    * header basedOn: FontFamilyDefaultTitleandStructure link HeaderChar
+    * header basedOn: FontFamilyDefaultTitleandStructure 
       * Even Header basedOn: Header 
       * Header: PageNumber basedOn: Header 
   * Font Family: Default Case Content Body  
@@ -95,7 +95,7 @@
         * Image Left Medium basedOn: Definition 
         * Image Right Medium basedOn: Definition 
         * Image Centered Medium basedOn: Definition 
-      * footer basedOn: BodyText link FooterChar
+      * footer basedOn: BodyText 
     * footnote text basedOn: FontFamilyDefaultCaseContentBody 
       * Footnote Labeled Link basedOn: FootnoteText 
         * Footnote Labeled Case basedOn: FootnoteLabeledLink 
@@ -110,13 +110,9 @@
       * Case Footnote Reference basedOn: BodyTextChar 
     * Unresolved Mention basedOn: DefaultParagraphFont 
     * H Struct 01 Title Char basedOn: DefaultParagraphFont link HStruct01Title
-    * Header Char basedOn: DefaultParagraphFont link Header
-    * Footer Char basedOn: DefaultParagraphFont link Footer
     * FollowedHyperlink basedOn: DefaultParagraphFont 
-    * page number basedOn: DefaultParagraphFont 
     * Caption Char basedOn: DefaultParagraphFont link Caption
-      * Verbatim Char basedOn: CaptionChar link SourceCode
-      * footnote reference basedOn: CaptionChar 
+  * Verbatim Char  link SourceCode
   * Elision  
     * Replacement Text basedOn: Elision 
   * Highlighted Text  
