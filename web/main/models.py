@@ -2120,10 +2120,14 @@ class ContentNode(EditTrackedModel, TimestampedModel, BigPkModel, MaterializedPa
             >>> full_casebook, assert_num_queries = [getfixture(f) for f in ['full_casebook', 'assert_num_queries']]
 
             Export uses 8 queries: selecting descendant nodes, and prefetching ContentAnnotation, Case, TextBlock, and Link, and provenance info
-            >>> with assert_num_queries(select=10):
+            >>> with assert_num_queries(select=11):
             ...     file_data = full_casebook.export(include_annotations=True)
         """
         # prefetch all child nodes and related data
+        if LiveSettings.load().prevent_exports:
+            logger.info(f"Exporting Casebook {self.id}: attempt rejected (too many previous failures)")
+            return None
+
         docx_footnotes = docx_footnotes if docx_footnotes is not None else settings.FORCE_DOCX_FOOTNOTES
 
         children = list(self.contents.prefetch_resources().prefetch_related('annotations')) if type(
@@ -3636,13 +3640,13 @@ class Casebook(EditTrackedModel, TimestampedModel, BigPkModel, TrackedCloneable)
             >>> full_casebook, assert_num_queries = [getfixture(f) for f in ['full_casebook', 'assert_num_queries']]
 
             Export uses 8 queries: selecting descendant nodes, and prefetching ContentAnnotation, LegalDocument, TextBlock, and Link, and provenance info.
-            >>> with assert_num_queries(select=10):
+            >>> with assert_num_queries(select=11):
             ...     file_data = full_casebook.export(include_annotations=True)
         """
         docx_footnotes = docx_footnotes if docx_footnotes is not None else settings.FORCE_DOCX_FOOTNOTES
 
         # prefetch all child nodes and related data
-        if self.export_embargoed():
+        if self.export_embargoed() or LiveSettings.load().prevent_exports:
             logger.info(f"Exporting Casebook {self.id}: attempt rejected (too many previous failures)")
             return None
         children = list(self.contents.prefetch_resources().prefetch_related('annotations')) if type(
@@ -4052,6 +4056,28 @@ class SavedImage(TimestampedModel):
     def url(self):
         return reverse('image_url', args=[self.external_id])
 
+
+
+class EmailWhitelist(models.Model):
+    university_name = models.CharField(max_length=255, blank=True, null=True)
+    university_url = models.URLField(max_length=1024)
+    email_domain = models.CharField(max_length=255, blank=True, null=True)
+
+class LiveSettings(models.Model):
+    prevent_exports = models.BooleanField(blank=False, default=False, null=False)
+
+    def save(self, *args, **kwargs):
+        LiveSettings.objects.exclude(id=self.id).delete()
+        super().save(*args, **kwargs)
+
+    @classmethod
+    def load(cls):
+        try:
+            return LiveSettings.objects.get()
+        except LiveSettings.DoesNotExist:
+            return LiveSettings()
+
+
 #
 # Legacy Tables: do these contain images and other assets that are referenced
 # in casebooks, that COULD be displayed if we migrate properly? Keeping them
@@ -4117,9 +4143,3 @@ class Media(models.Model):
     class Meta:
         db_table = 'medias'
 
-
-
-class EmailWhitelist(models.Model):
-    university_name = models.CharField(max_length=255, blank=True, null=True)
-    university_url = models.URLField(max_length=1024)
-    email_domain = models.CharField(max_length=255, blank=True, null=True)
