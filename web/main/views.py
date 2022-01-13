@@ -2154,17 +2154,13 @@ def export(request, node, file_type='docx'):
     """
     if file_type not in ('docx', 'html', 'json'):
         raise Http404
-    experimental, aws_lambda, docx_footnotes = [request.GET.get(var) == 'true' if request.user.is_superuser and var in request.GET else default
-                                                for var, default in
-                                                [('experimental', settings.FORCE_EXPERIMENTAL_EXPORT),
-                                                ('aws_lambda', settings.FORCE_AWS_LAMBDA_EXPORT),
-                                                ('docx_footnotes', settings.FORCE_DOCX_FOOTNOTES)]]
+    docx_footnotes = request.GET.get('docx_footnotes') == 'true' if 'docx_footnotes' in request.GET else settings.FORCE_DOCX_FOOTNOTES
     include_annotations = request.GET.get('annotations') == 'true'
 
     export_options = {'request': request}
     export_options['docx_footnotes'] = docx_footnotes
     # get response data
-    response_data = node.export(include_annotations, file_type, export_options=export_options, experimental=experimental, aws_lambda=aws_lambda, docx_footnotes=docx_footnotes)
+    response_data = node.export(include_annotations, file_type, export_options=export_options, docx_footnotes = docx_footnotes)
     if response_data is None:
         return render(request, 'export_error.html', {
             'casebook': node
@@ -2174,7 +2170,7 @@ def export(request, node, file_type='docx'):
         return HttpResponse(response_data)
 
     # return docx
-    filename = f"{Truncator(node.title).words(45, truncate='-')}{'_annotated' if include_annotations else ''}{'_experimental' if experimental else ''}.docx"
+    filename = f"{Truncator(node.title).words(45, truncate='-')}{'_annotated' if include_annotations else ''}.docx"
     return StringFileResponse(response_data, as_attachment=True, filename=filename)
 
 
