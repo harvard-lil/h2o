@@ -73,7 +73,6 @@
       * Table Caption basedOn: Caption 
       * Image Caption basedOn: Caption 
     * header basedOn: FontFamilyDefaultTitleandStructure 
-      * Even Header basedOn: Header 
       * Header: PageNumber basedOn: Header 
   * Font Family: Default Case Content Body  
     * Body Text basedOn: FontFamilyDefaultCaseContentBody link BodyTextChar
@@ -102,7 +101,12 @@
   * Font Family: Default Source Code  
     * Source Code basedOn: FontFamilyDefaultSourceCode link VerbatimChar
   * Normal  
+  * Front Matter End  
   * Head Separator  
+  * Head Field Separator  
+  * Head End  
+  * Node Start  
+  * Node End  
 * Character
   * Default Paragraph Font  
     * Body Text Char basedOn: DefaultParagraphFont link BodyText

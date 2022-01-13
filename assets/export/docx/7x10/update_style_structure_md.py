@@ -1,7 +1,7 @@
 import sys
 from docx import Document
 import contextlib
-from distutils.util import strtobool
+
 
 def main(input_path, output_path):
 
@@ -96,12 +96,4 @@ if __name__ == '__main__':
     if (not output_path.endswith('.md') and output_path != 'print') or not input_path.endswith('.docx'):
         raise Exception(f"Input path is {input_path} (needs to be *.docx) and output path is {output_path} (needs to be *.md or print.")
 
-    print(f"\nprint the markdown hierarchy from {input_path} for styles to {output_path if output_path.endswith('md') else 'print'}? (y/N)")
-    try:
-        if not strtobool(input().lower()):
-            print("Exiting")
-            sys.exit(1)
-    except ValueError:
-        print("Exiting")
-        sys.exit(1)
     main(input_path, output_path)
