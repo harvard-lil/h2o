@@ -321,22 +321,22 @@ def handler(event, context):
                 else:
                     sig_string = f"non-zero exit status {e.returncode}"
                 ss = "Pandoc command exited with " + str(sig_string)
+                print(ss)
                 pandoc_out.seek(0,0)
+                print(response.stderr)
                 raise Exception(ss)
             if not os.path.getsize(pandoc_out.name) > 0:
                 raise Exception(f"Pandoc produced no output.")
 
-            if options.get('word_footnotes', False):
+            if options.get('word_footnotes', False) or options.get('docx_sections', True):
                 doc = Document(pandoc_out)
-                promote_case_footnotes(doc)
+                if options.get('word_footnotes', False):
+                    promote_case_footnotes(doc)
+                if options.get('docx_sections', True):
+                    sectionizer(doc)
                 output = io.BytesIO()
                 doc.save(output)
                 output.seek(0,0)
                 return output.read()
 
-            doc = Document(pandoc_out)
-            sectionizer(doc)
-            output = io.BytesIO()
-            doc.save(output)
-            output.seek(0, 0)
-            return output.read()
+            return pandoc_out.read()
