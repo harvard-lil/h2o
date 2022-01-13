@@ -125,7 +125,8 @@ def promote_case_footnotes(doc):
     return doc
 
 
-def sectionizer(doc, doc_w=10080, doc_h=14400, paracols=2, internal_margin=720, external_margin=1080):
+
+def sectionizer(doc, doc_w=10080, doc_h=14400, paracols=2, internal_margin=720, external_margin=1080, big_margin=1440):
     """
         Adds section breaks for headers, footers, columns, etc.
 
@@ -143,14 +144,8 @@ def sectionizer(doc, doc_w=10080, doc_h=14400, paracols=2, internal_margin=720, 
     doc_h = Twips(doc_h)
     internal_margin = Twips(internal_margin)
     external_margin = Twips(external_margin)
+    big_margin = Twips(big_margin)
 
-    topper_styles = ['Resource Number', 'Resource Title', 'Resource Link', 'Resource Subtitle', 'Casebook Number',
-                     'Casebook Title', 'Casebook Link', 'Casebook Subtitle', 'Section Number', 'Section Title',
-                     'Section Link', 'Section Subtitle', 'Chapter Number', 'Chapter Title', 'Chapter Link',
-                     'Chapter Subtitle', 'Heading 1', 'Heading 2', 'Heading 3', 'Heading 4', 'Heading 5', 'Heading 6',
-                     'Heading 7', 'Heading 8', 'Heading 9', 'Subheading 1', 'Subheading 2', 'Subheading 3',
-                     'Subheading 4', 'Subheading 5', 'Subheading 6', 'Subheading 7', 'Subheading 8', 'Subheading 9',
-                     'Case Header', 'Head Separator']
     # See which rIDs pandoc gave our headers and footers. These values come
     rels = doc.part.rels
     headers_and_footers = { rels[rid].target_ref.replace('.xml', '') : rels[rid]
@@ -160,87 +155,121 @@ def sectionizer(doc, doc_w=10080, doc_h=14400, paracols=2, internal_margin=720, 
       (rels[rid].target_ref.startswith('header') or rels[rid].target_ref.startswith('footer'))
     }
 
-    def section_break(destination, headers_footers=False, frontmatter=False, chapter=False, paragraph=False):
-        if destination == 'docwide':
+    body_element = doc.element.xpath('/w:document/w:body')[0]
+
+    def section_break(destination, frontmatter=False, chapter=False, paragraph=False):
+        """ Assembles the section break, appends it to the appropriate graf, properly discards the empty wrapper,
+        because it gives a hoot and won't pollute. """
+
+        # The doc itself should have an existing default section attached to body, not a paragraph
+        if destination == 'doc-wide':
             sec = doc.sections[0]
         else:
             sec = doc.add_section()
             destination._element.xpath('w:pPr')[0].append(sec._sectPr)
-
-        if destination == 'docwide' or headers_footers or frontmatter:
-            sec._sectPr.add_footerReference(WD_HEADER_FOOTER_INDEX.EVEN_PAGE, headers_and_footers['footer_blank'].rId)
-            sec._sectPr.add_footerReference(WD_HEADER_FOOTER_INDEX.PRIMARY, headers_and_footers['footer_blank'].rId)
-            sec._sectPr.add_headerReference(WD_HEADER_FOOTER_INDEX.EVEN_PAGE, headers_and_footers['header_even'].rId)
-            sec._sectPr.add_headerReference(WD_HEADER_FOOTER_INDEX.PRIMARY, headers_and_footers['header_odd'].rId)
-            sec._sectPr.xpath('w:pgNumType')[0].set(qn('w:fmt'), str("lowerRoman"))
-
-            if not frontmatter:
-                sec._sectPr.xpath('w:pgNumType')[0].set(qn('w:fmt'), str("decimal"))
-            else:
-                sec.different_first_page_header_footer = True
-                sec._sectPr.add_footerReference(WD_HEADER_FOOTER_INDEX.FIRST_PAGE,
-                                                        headers_and_footers['footer_title'].rId)
-                sec._sectPr.add_headerReference(WD_HEADER_FOOTER_INDEX.FIRST_PAGE,
-                                                        headers_and_footers['header_blank'].rId)
-        if paragraph and paracols != 1:
-            colsEl = sec._sectPr.xpath('w:cols')
-            if colsEl:
-                colsEl[0].set(qn('w:num'), str(paracols))
-            else:
-                colsEl = OxmlElement('w:cols')
-                colsEl.set(qn('w:num'), str(paracols))
-                sec._sectPr.insert_element_before(
-                    colsEl, 'w:formProt', 'w:vAlign', 'w:noEndnote', 'w:titlePg',
-                    'w:textDirection', 'w:bidi', 'w:rtlGutter', 'w:docGrid',
-                    'w:printerSettings', 'w:sectPrChange'
-                )
+            body_element.remove(doc.paragraphs[-1]._element)
 
         sec.start_type = WD_SECTION_START.CONTINUOUS if not chapter else WD_SECTION_START.ODD_PAGE
-
         sec.bottom_margin = internal_margin
-        sec.gutter = internal_margin
-        sec.header_distance = internal_margin
+        sec.gutter = internal_margin // 2
+        sec.header_distance = external_margin
         sec.left_margin = external_margin
         sec.orientation = WD_ORIENTATION.PORTRAIT
         sec.page_height = doc_h
         sec.page_width = doc_w
         sec.right_margin = external_margin
-        sec.top_margin = internal_margin
+        sec.top_margin = big_margin
 
+        # don't need any of this stuff for just a block of paragraphs. There's defintiely a better way to differentiate
+        # who does and doesn't need headers
+        if not paragraph:
+            sec._sectPr.add_footerReference(WD_HEADER_FOOTER_INDEX.EVEN_PAGE, headers_and_footers['footer_blank'].rId)
+            sec._sectPr.add_footerReference(WD_HEADER_FOOTER_INDEX.PRIMARY, headers_and_footers['footer_blank'].rId)
+            sec._sectPr.add_headerReference(WD_HEADER_FOOTER_INDEX.EVEN_PAGE, headers_and_footers['header_even'].rId)
+            sec._sectPr.add_headerReference(WD_HEADER_FOOTER_INDEX.PRIMARY, headers_and_footers['header_odd'].rId)
 
-    section_break("docwide") # set the values in the section-wide sectpr
-    grafs = [p.style.name for p in doc.paragraphs] # many times more performant than navigating the xml directly
+            if frontmatter or destination == 'doc-wide':
+                sec.different_first_page_header_footer = True
+                sec._sectPr.add_footerReference(WD_HEADER_FOOTER_INDEX.FIRST_PAGE,
+                                                        headers_and_footers['footer_title'].rId)
+                sec._sectPr.add_headerReference(WD_HEADER_FOOTER_INDEX.FIRST_PAGE,
+                                                        headers_and_footers['header_blank'].rId)
 
-    # The Head Separator will always separate paragraph text and body text. Sections Breaks contain layout information
-    # to be associated with the previous (sectPr = section previous) paragraphs
-    i = 0
-    first_flag = True
-    while i < len(grafs):
-        if grafs[i] == 'Head Separator':
-            if first_flag: # this will find the end of the frontmatter section
-                section_break(doc.paragraphs[i], headers_footers=True, frontmatter=True, chapter=False, paragraph=False)
-                # set frontmatter section
-                first_flag = False
+        # cols value and pgNumType are special cases— they're not supported by python-docx
+        pgNumType_value = "lowerRoman" if frontmatter else 'decimal'
+        pgNumType_query= sec._sectPr.xpath('.//w:pgNumType')
+        if len(pgNumType_query) > 0:
+            pgNumType_query[0].set(qn('w:fmt'), pgNumType_value)
+            if frontmatter:
+                pgNumType_query[0].set(qn('w:start'), "0")
+            elif len(doc.sections) == 2:
+                pgNumType_query[0].set(qn('w:start'), "1")
+        else:
+            pgNumTypeEl = OxmlElement('w:pgNumType')
+            if frontmatter:
+                pgNumTypeEl.set(qn('w:start'), "0")
+            elif len(doc.sections) == 2:
+                pgNumTypeEl.set(qn('w:start'), "1")
+            pgNumTypeEl.set(qn('w:pgNumType'), pgNumType_value)
+            sec._sectPr.insert_element_before(
+                pgNumTypeEl, 'w:formProt', 'w:vAlign', 'w:noEndnote', 'w:titlePg',
+                'w:textDirection', 'w:bidi', 'w:rtlGutter', 'w:docGrid',
+                'w:printerSettings', 'w:sectPrChange'
+            )
 
-            # set paragraph section
-            section_break(doc.paragraphs[i], headers_footers=False, frontmatter=False, chapter=False, paragraph=True)
+        cols_value = str(paracols) if paragraph else "1"
+        cols_query = sec._sectPr.xpath('w:cols')
+        if len(cols_query) > 0:
+            cols_query[0].set(qn('w:num'), cols_value)
+        else:
+            cols_element = OxmlElement('w:cols')
+            cols_element.set(qn('w:num'), cols_value)
+            sec._sectPr.insert_element_before(
+                cols_element, 'w:pgNumType', 'w:formProt', 'w:vAlign', 'w:noEndnote', 'w:titlePg',
+                'w:textDirection', 'w:bidi', 'w:rtlGutter', 'w:docGrid',
+                'w:printerSettings', 'w:sectPrChange'
+            )
 
-            chapter_flag = False
-            while grafs[i] in topper_styles:
-                i += 1
-                if grafs[i].startswith("Chapter") and not chapter_flag:
-                    chapter_flag = True
-                elif not grafs[i].startswith("Chapter") and chapter_flag:
-                    section_break(doc.paragraphs[i - 1], headers_footers=False, frontmatter=False, chapter=True, paragraph=False)
-                    chapter_flag = False
-            if chapter_flag:
-                section_break(doc.paragraphs[i - 1], headers_footers=False, frontmatter=False, chapter=True, paragraph=False)
+    # the number of body styles we use consistently is much smaller than the number of section topper styles, but the
+    # values are more predictable. Body text can get unexpected style names handed down from pandoc
+    topper_styles = [ 'About Page Title', 'Acknowledgements Subtitle', 'Acknowledgements Title',
+                      'Node End', 'Node Start',
+                      'Head Separator', 'Head End', 'Head Field Separator',
+                      'Casebook Headnote', 'Casebook Headnote Title', 'Casebook Link', 'Casebook Number',
+                      'Casebook Subtitle', 'Casebook Title',
+                      'Chapter Headnote', 'Chapter Link', 'Chapter Number', 'Chapter Subtitle', 'Chapter Title',
+                      'Section Headnote', 'Section Link', 'Section Number', 'Section Subtitle', 'Section Title',
+                      'Resource Headnote', 'Resource Link', 'Resource Number', 'Resource Subtitle', 'Resource Title',
+                      'Case Header',
+                      'Heading 1', 'Heading 2', 'Heading 3', 'Heading 4', 'Heading 5', 'Heading 6', 'Heading 7',
+                      'Heading 8', 'Heading 9',
+                      'Subheading 1', 'Subheading 2', 'Subheading 3', 'Subheading 4', 'Subheading 5', 'Subheading 6',
+                      'Subheading 7', 'Subheading 8', 'Subheading 9']
+
+    section_break("doc-wide") # set the values in the section-wide sectpr
+
+    # this is like twice as fast as navigating the xml or the docx object
+    grafs = [p.style.name for p in doc.paragraphs]
+    for i, p in enumerate(grafs):
+        if p == 'Front Matter End':
+            section_break(doc.paragraphs[i], frontmatter=True, chapter=False, paragraph=False)
+        elif p == 'Node End' and (grafs[i - 1] not in topper_styles):
+            section_break(doc.paragraphs[i], frontmatter=False, chapter=False, paragraph=True)
+        elif p == 'Node End':
+            section_break(doc.paragraphs[i], frontmatter=False, chapter=False, paragraph=False)
+        elif p == 'Head End':
+            if grafs[i - 1].startswith('Chapter'):
+                section_break(doc.paragraphs[i-1], frontmatter=False, chapter=True, paragraph=False)
+            if grafs[i + 1] == 'Case Header':
+                continue
             else:
-                section_break(doc.paragraphs[i - 1], headers_footers=False, frontmatter=False, chapter=False, paragraph=False)
-        i += 1
+                section_break(doc.paragraphs[i], frontmatter=False, chapter=False, paragraph=False)
+        elif p == 'Case Header':
+            if grafs[i + 1] == 'Case Header':
+                continue
+            else:
+                section_break(doc.paragraphs[i], frontmatter=False, chapter=False, paragraph=False)
     return doc
-
-
 
 
 def handler(event, context):
@@ -299,9 +328,14 @@ def handler(event, context):
             if options.get('word_footnotes', False):
                 doc = Document(pandoc_out)
                 promote_case_footnotes(doc)
-                sectionizer(doc)
                 output = io.BytesIO()
                 doc.save(output)
                 output.seek(0,0)
                 return output.read()
-            return sectionizer(pandoc_out.read())
+
+            doc = Document(pandoc_out)
+            sectionizer(doc)
+            output = io.BytesIO()
+            doc.save(output)
+            output.seek(0, 0)
+            return output.read()
