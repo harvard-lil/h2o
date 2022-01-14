@@ -32,9 +32,9 @@
         * Casebook Headnote Title basedOn: HStruct02Title 
         * Acknowledgements Title basedOn: HStruct02Title 
         * TOC Heading basedOn: HStruct02Title 
-      * H Struct 03 Title basedOn: HStruct01Title 
-        * Chapter Title basedOn: HStruct03Title 
+        * Chapter Title basedOn: HStruct02Title 
           * Chapter Number basedOn: ChapterTitle 
+      * H Struct 03 Title basedOn: HStruct01Title 
         * Section Title basedOn: HStruct03Title 
           * Section Number basedOn: SectionTitle 
       * H Struct 04 Title basedOn: HStruct01Title 
@@ -45,8 +45,8 @@
           * Resource Number basedOn: ResourceTitle 
       * H Struct 01 Subtitle basedOn: HStruct01Title 
         * H Struct 02 Subtitle basedOn: HStruct01Subtitle 
+          * Chapter Subtitle basedOn: HStruct02Subtitle 
         * H Struct 03 Subtitle basedOn: HStruct01Subtitle 
-          * Chapter Subtitle basedOn: HStruct03Subtitle 
         * H Struct 04 Subtitle basedOn: HStruct01Subtitle 
           * H Struct 05 Subtitle basedOn: HStruct04Subtitle 
             * Acknowledgements Subtitle basedOn: HStruct05Subtitle 
@@ -103,6 +103,7 @@
   * Normal  
   * Front Matter End  
   * Head Separator  
+  * Chapter Spacer  
   * Head Field Separator  
   * Head End  
   * Node Start  

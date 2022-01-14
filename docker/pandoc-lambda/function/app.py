@@ -72,7 +72,7 @@ def promote_case_footnotes(doc):
         node.attrib[val_att] = "FootnoteReference"
         parent = ref.getparent()
         gp = parent.getparent()
-        if gp:
+        if len(gp) > 0: # 'if gp' triggers a warning and I saw a similar test behave unpredictably
             gp.replace(parent, ref)
         case_footnotes[mark_id]['refs'].append(ref)
 
@@ -127,7 +127,7 @@ def promote_case_footnotes(doc):
 
 
 
-def sectionizer(doc, doc_w=10080, doc_h=14400, paracols=2, internal_margin=720, external_margin=1080, big_margin=1440):
+def sectionizer(doc, doc_w_twips=10080, doc_h_twips=14400, paracols=2, internal_margin_twips=720, external_margin_twips=1080, big_margin_twips=1440):
     """
         Adds section breaks for headers, footers, columns, etc.
 
@@ -141,11 +141,11 @@ def sectionizer(doc, doc_w=10080, doc_h=14400, paracols=2, internal_margin=720, 
             Number of columns in non-header paragraph text. There is no way to specify # of cols in a style
     """
 
-    doc_w = Twips(doc_w)
-    doc_h = Twips(doc_h)
-    internal_margin = Twips(internal_margin)
-    external_margin = Twips(external_margin)
-    big_margin = Twips(big_margin)
+    doc_w = Twips(doc_w_twips)
+    doc_h = Twips(doc_h_twips)
+    internal_margin = Twips(internal_margin_twips)
+    external_margin = Twips(external_margin_twips)
+    big_margin = Twips(big_margin_twips)
 
     # See which rIDs pandoc gave our headers and footers. These values come
     rels = doc.part.rels
@@ -158,7 +158,7 @@ def sectionizer(doc, doc_w=10080, doc_h=14400, paracols=2, internal_margin=720, 
 
     body_element = doc.element.xpath('/w:document/w:body')[0]
 
-    def section_break(destination, frontmatter=False, chapter=False, paragraph=False):
+    def section_break(destination, frontmatter=False, chapter=False, section=False, paragraph=False):
         """ Assembles the section break, appends it to the appropriate graf, properly discards the empty wrapper,
         because it gives a hoot and won't pollute. """
 
@@ -170,7 +170,13 @@ def sectionizer(doc, doc_w=10080, doc_h=14400, paracols=2, internal_margin=720, 
             destination._element.xpath('w:pPr')[0].append(sec._sectPr)
             body_element.remove(doc.paragraphs[-1]._element)
 
-        sec.start_type = WD_SECTION_START.CONTINUOUS if not chapter else WD_SECTION_START.ODD_PAGE
+        if chapter:
+            sec.start_type = WD_SECTION_START.ODD_PAGE
+        elif section:
+            sec.start_type = WD_SECTION_START.NEW_PAGE
+        else:
+            sec.start_type = WD_SECTION_START.CONTINUOUS
+
         sec.bottom_margin = internal_margin
         sec.gutter = internal_margin // 2
         sec.header_distance = external_margin
@@ -225,6 +231,7 @@ def sectionizer(doc, doc_w=10080, doc_h=14400, paracols=2, internal_margin=720, 
         else:
             cols_element = OxmlElement('w:cols')
             cols_element.set(qn('w:num'), cols_value)
+            cols_element.set(qn('w:space'), str(internal_margin_twips // 2))
             sec._sectPr.insert_element_before(
                 cols_element, 'w:pgNumType', 'w:formProt', 'w:vAlign', 'w:noEndnote', 'w:titlePg',
                 'w:textDirection', 'w:bidi', 'w:rtlGutter', 'w:docGrid',
@@ -238,14 +245,14 @@ def sectionizer(doc, doc_w=10080, doc_h=14400, paracols=2, internal_margin=720, 
                       'Head Separator', 'Head End', 'Head Field Separator',
                       'Casebook Headnote', 'Casebook Headnote Title', 'Casebook Link', 'Casebook Number',
                       'Casebook Subtitle', 'Casebook Title',
-                      'Chapter Headnote', 'Chapter Link', 'Chapter Number', 'Chapter Subtitle', 'Chapter Title',
+                      'Chapter Headnote', 'Chapter Link', 'Chapter Number', 'Chapter Subtitle', 'Chapter Title', 'Chapter Spacer',
                       'Section Headnote', 'Section Link', 'Section Number', 'Section Subtitle', 'Section Title',
                       'Resource Headnote', 'Resource Link', 'Resource Number', 'Resource Subtitle', 'Resource Title',
-                      'Case Header',
-                      'Heading 1', 'Heading 2', 'Heading 3', 'Heading 4', 'Heading 5', 'Heading 6', 'Heading 7',
-                      'Heading 8', 'Heading 9',
-                      'Subheading 1', 'Subheading 2', 'Subheading 3', 'Subheading 4', 'Subheading 5', 'Subheading 6',
-                      'Subheading 7', 'Subheading 8', 'Subheading 9']
+                      'Case Header']
+                      # 'Heading 1', 'Heading 2', 'Heading 3', 'Heading 4', 'Heading 5', 'Heading 6', 'Heading 7',
+                      # 'Heading 8', 'Heading 9',
+                      # 'Subheading 1', 'Subheading 2', 'Subheading 3', 'Subheading 4', 'Subheading 5', 'Subheading 6',
+                      # 'Subheading 7', 'Subheading 8', 'Subheading 9']
 
     section_break("doc-wide") # set the values in the section-wide sectpr
 
@@ -253,23 +260,31 @@ def sectionizer(doc, doc_w=10080, doc_h=14400, paracols=2, internal_margin=720, 
     grafs = [p.style.name for p in doc.paragraphs]
     for i, p in enumerate(grafs):
         if p == 'Front Matter End':
-            section_break(doc.paragraphs[i], frontmatter=True, chapter=False, paragraph=False)
+            section_break(doc.paragraphs[i], frontmatter=True)
         elif p == 'Node End' and (grafs[i - 1] not in topper_styles):
-            section_break(doc.paragraphs[i], frontmatter=False, chapter=False, paragraph=True)
+            section_break(doc.paragraphs[i], paragraph=True)
         elif p == 'Node End':
-            section_break(doc.paragraphs[i], frontmatter=False, chapter=False, paragraph=False)
+            section_break(doc.paragraphs[i])
         elif p == 'Head End':
             if grafs[i - 1].startswith('Chapter'):
-                section_break(doc.paragraphs[i-1], frontmatter=False, chapter=True, paragraph=False)
+                section_break(doc.paragraphs[i-1], chapter=True)
+            if grafs[i - 1].startswith('Section'):
+                section_break(doc.paragraphs[i-1], section=True)
             if grafs[i + 1] == 'Case Header':
                 continue
             else:
-                section_break(doc.paragraphs[i], frontmatter=False, chapter=False, paragraph=False)
+                section_break(doc.paragraphs[i])
         elif p == 'Case Header':
             if grafs[i + 1] == 'Case Header':
                 continue
             else:
-                section_break(doc.paragraphs[i], frontmatter=False, chapter=False, paragraph=False)
+                section_break(doc.paragraphs[i])
+        elif p == 'Case Body':
+            if grafs[i + 1] not in topper_styles:
+                continue
+            else:
+                section_break(doc.paragraphs[i], paragraph=True)
+        #elif p.startswith()
     return doc
 
 

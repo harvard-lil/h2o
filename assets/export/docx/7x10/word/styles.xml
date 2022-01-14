@@ -71,10 +71,16 @@
         <w:semiHidden/>
         <w:unhideWhenUsed/>
         <w:uiPriority w:val="99"/>
+        <w:pPr>
+            <w:spacing w:before="160" w:line="276" w:lineRule="auto"/>
+        </w:pPr>
         <w:rPr>
-            <w:rFonts w:ascii="Century Gothic" w:hAnsi="Century Gothic"/>
-            <w:sz w:val="24"/>
-            <w:szCs w:val="24"/>
+            <w:bCs/>
+            <w:iCs/>
+            <w:color w:val="000000" w:themeColor="text1"/>
+            <w:spacing w:val="5"/>
+            <w:sz w:val="16"/>
+            <w:szCs w:val="14"/>
         </w:rPr>
     </w:style>
 
@@ -96,7 +102,6 @@
             <w:spacing w:val="5"/>
             <w:sz w:val="16"/>
             <w:szCs w:val="14"/>
-
         </w:rPr>
     </w:style>
     <w:style w:type="paragraph" w:styleId="BodyTextFirstIndent">
@@ -869,7 +874,6 @@
         <w:semiHidden/>
         <w:unhideWhenUsed/>
         <w:pPr>
-            <w:keepNext/>
             <w:keepLines/>
             <w:spacing w:before="300" w:after="300"/>
         </w:pPr>
@@ -1068,33 +1072,37 @@
             <w:ind w:right="0" w:left="0"/>
         </w:pPr>
         <w:rPr>
-            <w:sz w:val="48"/>
             <w:spacing w:val="-12"/>
             <w:color w:val="D96955"/>
+            <w:sz w:val="72"/>
+            <w:szCs w:val="72"/>
         </w:rPr>
     </w:style>
     <w:style w:type="paragraph" w:customStyle="1" w:styleId="ChapterTitle">
         <w:name w:val="Chapter Title"/>
-        <w:basedOn w:val="HStruct03Title"/>
+        <w:basedOn w:val="HStruct02Title"/>
         <w:next w:val="ChapterSubtitle"/>
         <w:uiPriority w:val="11"/>
         <w:qFormat/>
         <w:pPr>
             <w:keepNext/>
             <w:keepLines/>
-            <w:ind w:right="2880"/>
+            <w:ind w:right="2160"/>
         </w:pPr>
+        <w:rPr>
+            <w:spacing w:val="-5"/>
+        </w:rPr>
     </w:style>
     <w:style w:type="paragraph" w:customStyle="1" w:styleId="ChapterSubtitle">
         <w:name w:val="Chapter Subtitle"/>
-        <w:basedOn w:val="HStruct03Subtitle"/>
+        <w:basedOn w:val="HStruct02Subtitle"/>
         <w:next w:val="ChapterHeadnote"/>
         <w:uiPriority w:val="11"/>
         <w:qFormat/>
         <w:pPr>
             <w:keepNext/>
             <w:keepLines/>
-            <w:ind w:right="2880"/>
+            <w:ind w:right="2160"/>
         </w:pPr>
     </w:style>
     <w:style w:type="paragraph" w:customStyle="1" w:styleId="ChapterHeadnote">
@@ -1104,7 +1112,7 @@
         <w:uiPriority w:val="11"/>
         <w:qFormat/>
         <w:pPr>
-             <w:ind w:right="2880"/>
+             <w:ind w:right="2160"/>
         </w:pPr>
     </w:style>
 
@@ -1135,7 +1143,7 @@
         <w:pPr>
             <w:keepNext/>
             <w:keepLines/>
-            <w:ind w:right="2880"/>
+            <w:ind w:right="2160"/>
         </w:pPr>
     </w:style>
     <w:style w:type="paragraph" w:customStyle="1" w:styleId="SectionSubtitle">
@@ -1147,7 +1155,7 @@
         <w:pPr>
             <w:keepNext/>
             <w:keepLines/>
-            <w:ind w:right="2880"/>
+            <w:ind w:right="2160"/>
         </w:pPr>
     </w:style>
     <w:style w:type="paragraph" w:customStyle="1" w:styleId="SectionHeadnote">
@@ -1157,7 +1165,7 @@
         <w:qFormat/>
         <w:uiPriority w:val="11"/>
         <w:pPr>
-            <w:ind w:right="2880"/>
+            <w:ind w:right="2160"/>
         </w:pPr>
     </w:style>
 
@@ -1193,7 +1201,7 @@
         <w:pPr>
             <w:keepNext/>
             <w:keepLines/>
-            <w:ind w:right="2880"/>
+            <w:ind w:right="2160"/>
             <w:spacing w:before="480"/>
         </w:pPr>
     </w:style>
@@ -1206,7 +1214,7 @@
         <w:pPr>
             <w:keepNext/>
             <w:keepLines/>
-            <w:ind w:right="2880"/>
+            <w:ind w:right="2160"/>
         </w:pPr>
     </w:style>
     <w:style w:type="paragraph" w:customStyle="1" w:styleId="ResourceHeadnote">
@@ -1216,7 +1224,7 @@
         <w:uiPriority w:val="10"/>
         <w:qFormat/>
         <w:pPr>
-            <w:ind w:right="2880"/>
+            <w:ind w:right="2160"/>
         </w:pPr>
     </w:style>
 
@@ -1365,8 +1373,22 @@
             <w:adjustRightInd w:val="0"/>
             <w:snapToGrid w:val="0"/>
             <w:framePr w:wrap="notBeside" w:w="9000" w:vAnchor="text" w:hAnchor="text" w:xAlign="center" />
-            <w:spacing w:before="0"/>
-            <w:spacing w:before="480"/>
+            <w:spacing w:before="240"/>
+            <w:jc w:val="center"/>
+        </w:pPr>
+        <w:rPr>
+            <w:sz w:val="1"/>
+            <w:szCs w:val="1"/>
+        </w:rPr>
+    </w:style>
+   <w:style w:type="paragraph" w:customStyle="1" w:styleId="ChapterSpacer">
+        <w:name w:val="Chapter Spacer"/>
+        <w:uiPriority w:val="15"/>
+        <w:pPr>
+            <w:widowControl w:val="0"/>
+            <w:adjustRightInd w:val="0"/>
+            <w:snapToGrid w:val="0"/>
+            <w:spacing w:before="2160"/>
             <w:jc w:val="center"/>
         </w:pPr>
         <w:rPr>

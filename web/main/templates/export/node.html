@@ -4,6 +4,7 @@
 <div data-custom-style="Node Start">&nbsp;</div>
 {% if '.' not in node.ordinal_string %}
     <div data-custom-style="Head Separator">&nbsp;</div>
+    <div data-custom-style="Chapter Spacer">&nbsp;</div>
     <div class="ChapterNumber" data-custom-style="Chapter Number" data-toc-idx="{{ index }}">{{ node.ordinal_string }}</div>
     <div class="ChapterTitle" data-custom-style="Chapter Title">{{ node.title|cut:"&nbsp;" }}</div>
   {% if node.subtitle %}
@@ -43,30 +44,35 @@
     <div data-custom-style="Resource Link">
       <a href="{{ node.resource.url }}" target="_blank">{{ node.resource.url|cut:"&nbsp;" }}</a>
     </div>
+    {% if node.headnote %} {# I think the headnote should go below a link, but above a resource #}
+      <div data-custom-style="Head Field Separator">&nbsp;</div>
+      <div class="ResourceHeadnote" data-custom-style="Resource Headnote">{{ node.headnote_for_export|cut:"&nbsp;" }}</div>
+    {% endif %}
+    <div data-custom-style="Head End">&nbsp;</div>
   {% elif node.is_resource %}  {# case or textblock #}
-
-  {% if node.headnote %}
-    <div data-custom-style="Head Field Separator">&nbsp;</div>
-    <div class="ResourceHeadnote" data-custom-style="Resource Headnote">{{ node.headnote_for_export|cut:"&nbsp;" }}</div>
-  {% endif %}
-  <div data-custom-style="Head End">&nbsp;</div>
-
+    {% if node.headnote %}
+      <div data-custom-style="Head Field Separator">&nbsp;</div>
+      <div class="ResourceHeadnote" data-custom-style="Resource Headnote">{{ node.headnote_for_export|cut:"&nbsp;" }}</div>
+    {% endif %}
+    <div data-custom-style="Head End">&nbsp;</div>
 
     <div class="ResourceBody">
-        {% if include_annotations %}
+      {% if include_annotations %}
         {% call_method node 'annotated_content_for_export' export_options=export_options as contents %}
         {{ contents|cut:"&nbsp;"}}
+          <div data-custom-style="Node End">&nbsp;</div>
         {% call_method node 'footnote_annotations' export_options=export_options as footnote_contents %}
         <div>{{footnote_contents|cut:"&nbsp;"}}</div>
-        {% else %}
+      {% else %}
         {% call_method node 'content_for_export' export_options=export_options as contents %}
         {{ contents|cut:"&nbsp;"}}
-        {% endif %}
+        <div data-custom-style="Node End">&nbsp;</div>
+      {% endif %}
     </div>
-    {% endif %}
   {% endif %}
+{% endif %}
 
-    {% if not is_child %}
+{% if not is_child %}
     {% include 'export/credits.html' %}
 {% endif %}
 
