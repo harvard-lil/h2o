@@ -5,12 +5,12 @@ import signal
 import subprocess
 import tempfile
 from docx import Document
-from docx.shared import Twips
+from docx.shared import Inches
 from docx.oxml import OxmlElement, parse_xml
 from docx.oxml.ns import qn
 from docx.enum.section import WD_SECTION_START, WD_HEADER_FOOTER_INDEX, WD_ORIENTATION
+from docx.styles.style import WD_STYLE_TYPE
 from lxml import etree
-
 
 def lift_footnote(doc, footnotes_part, ref, texts, id, author=False):
     id_att = '{http://schemas.openxmlformats.org/wordprocessingml/2006/main}id'
@@ -126,39 +126,31 @@ def promote_case_footnotes(doc):
     return doc
 
 
-
-def sectionizer(doc, doc_w_twips=10080, doc_h_twips=14400, paracols=2, internal_margin_twips=720, external_margin_twips=1080, big_margin_twips=1440):
+def sectionizer(doc, doc_w=8.5, doc_h=11, internal_margin=.5, external_margin=.75, big_margin=1):
     """
-        Adds section breaks for headers, footers, columns, etc.
-
-        doc_w doc_h:
-            document width and height in TWIPS
-            1 TWIP = 1/20th pt. (a typographical point)
-            1 inch = 1440 TWIPS
-            my local grocer is about 1300 ft. in each direction, so 1 grocery trip ~= 6.5e+7 grocery TWIPs
-
-        paracols:
-            Number of columns in non-header paragraph text. There is no way to specify # of cols in a style
+        Adds section breaks for headers, footers, etc.
     """
 
-    doc_w = Twips(doc_w_twips)
-    doc_h = Twips(doc_h_twips)
-    internal_margin = Twips(internal_margin_twips)
-    external_margin = Twips(external_margin_twips)
-    big_margin = Twips(big_margin_twips)
+    # allows for conversion later. Python-docx uses a different representation of length internally than docx itself,
+    # which is in twips, or inches. This will also be useful when we implement scaling based on page size, using
+    # non-imperial page sizes, etc.
+    doc_w = Inches(doc_w)
+    doc_h = Inches(doc_h)
+    internal_margin = Inches(internal_margin)
+    external_margin = Inches(external_margin)
+    big_margin = Inches(big_margin)
 
-    # See which rIDs pandoc gave our headers and footers. These values come
+    # See which rIDs pandoc gave our headers and footers.
+    # The rels list holds related xml files like header and footer among other things, and target_ref is the file name.
     rels = doc.part.rels
     headers_and_footers = { rels[rid].target_ref.replace('.xml', '') : rels[rid]
       for rid in rels if rels[rid].target_ref.endswith('.xml') and
-      # rels lists, among other things, related xml files like header and footer.
-      # target_ref property holds the file name. Check the docx word/_rels/document
       (rels[rid].target_ref.startswith('header') or rels[rid].target_ref.startswith('footer'))
     }
 
     body_element = doc.element.xpath('/w:document/w:body')[0]
 
-    def section_break(destination, frontmatter=False, chapter=False, section=False, paragraph=False):
+    def section_break(destination, frontmatter=False, chapter=False, section=False):
         """ Assembles the section break, appends it to the appropriate graf, properly discards the empty wrapper,
         because it gives a hoot and won't pollute. """
 
@@ -173,7 +165,7 @@ def sectionizer(doc, doc_w_twips=10080, doc_h_twips=14400, paracols=2, internal_
         if chapter:
             sec.start_type = WD_SECTION_START.ODD_PAGE
         elif section:
-            sec.start_type = WD_SECTION_START.NEW_PAGE
+            sec.start_type = WD_SECTION_START.CONTINUOUS
         else:
             sec.start_type = WD_SECTION_START.CONTINUOUS
 
@@ -187,20 +179,15 @@ def sectionizer(doc, doc_w_twips=10080, doc_h_twips=14400, paracols=2, internal_
         sec.right_margin = external_margin
         sec.top_margin = big_margin
 
-        # don't need any of this stuff for just a block of paragraphs. There's defintiely a better way to differentiate
-        # who does and doesn't need headers
-        if not paragraph:
-            sec._sectPr.add_footerReference(WD_HEADER_FOOTER_INDEX.EVEN_PAGE, headers_and_footers['footer_blank'].rId)
-            sec._sectPr.add_footerReference(WD_HEADER_FOOTER_INDEX.PRIMARY, headers_and_footers['footer_blank'].rId)
-            sec._sectPr.add_headerReference(WD_HEADER_FOOTER_INDEX.EVEN_PAGE, headers_and_footers['header_even'].rId)
-            sec._sectPr.add_headerReference(WD_HEADER_FOOTER_INDEX.PRIMARY, headers_and_footers['header_odd'].rId)
+        sec._sectPr.add_footerReference(WD_HEADER_FOOTER_INDEX.EVEN_PAGE, headers_and_footers['footer_blank'].rId)
+        sec._sectPr.add_footerReference(WD_HEADER_FOOTER_INDEX.PRIMARY, headers_and_footers['footer_blank'].rId)
+        sec._sectPr.add_headerReference(WD_HEADER_FOOTER_INDEX.EVEN_PAGE, headers_and_footers['header_even'].rId)
+        sec._sectPr.add_headerReference(WD_HEADER_FOOTER_INDEX.PRIMARY, headers_and_footers['header_odd'].rId)
 
-            if frontmatter or destination == 'doc-wide':
-                sec.different_first_page_header_footer = True
-                sec._sectPr.add_footerReference(WD_HEADER_FOOTER_INDEX.FIRST_PAGE,
-                                                        headers_and_footers['footer_title'].rId)
-                sec._sectPr.add_headerReference(WD_HEADER_FOOTER_INDEX.FIRST_PAGE,
-                                                        headers_and_footers['header_blank'].rId)
+        if frontmatter or destination == 'doc-wide':
+            sec.different_first_page_header_footer = True
+            sec._sectPr.add_footerReference(WD_HEADER_FOOTER_INDEX.FIRST_PAGE, headers_and_footers['footer_title'].rId)
+            sec._sectPr.add_headerReference(WD_HEADER_FOOTER_INDEX.FIRST_PAGE, headers_and_footers['header_blank'].rId)
 
         # cols value and pgNumType are special cases— they're not supported by python-docx
         pgNumType_value = "lowerRoman" if frontmatter else 'decimal'
@@ -224,19 +211,6 @@ def sectionizer(doc, doc_w_twips=10080, doc_h_twips=14400, paracols=2, internal_
                 'w:printerSettings', 'w:sectPrChange'
             )
 
-        cols_value = str(paracols) if paragraph else "1"
-        cols_query = sec._sectPr.xpath('w:cols')
-        if len(cols_query) > 0:
-            cols_query[0].set(qn('w:num'), cols_value)
-        else:
-            cols_element = OxmlElement('w:cols')
-            cols_element.set(qn('w:num'), cols_value)
-            cols_element.set(qn('w:space'), str(internal_margin_twips // 2))
-            sec._sectPr.insert_element_before(
-                cols_element, 'w:pgNumType', 'w:formProt', 'w:vAlign', 'w:noEndnote', 'w:titlePg',
-                'w:textDirection', 'w:bidi', 'w:rtlGutter', 'w:docGrid',
-                'w:printerSettings', 'w:sectPrChange'
-            )
 
     # the number of body styles we use consistently is much smaller than the number of section topper styles, but the
     # values are more predictable. Body text can get unexpected style names handed down from pandoc
@@ -249,42 +223,36 @@ def sectionizer(doc, doc_w_twips=10080, doc_h_twips=14400, paracols=2, internal_
                       'Section Headnote', 'Section Link', 'Section Number', 'Section Subtitle', 'Section Title',
                       'Resource Headnote', 'Resource Link', 'Resource Number', 'Resource Subtitle', 'Resource Title',
                       'Case Header']
-                      # 'Heading 1', 'Heading 2', 'Heading 3', 'Heading 4', 'Heading 5', 'Heading 6', 'Heading 7',
-                      # 'Heading 8', 'Heading 9',
-                      # 'Subheading 1', 'Subheading 2', 'Subheading 3', 'Subheading 4', 'Subheading 5', 'Subheading 6',
-                      # 'Subheading 7', 'Subheading 8', 'Subheading 9']
 
-    section_break("doc-wide") # set the values in the section-wide sectpr
+    # I qualify these as 'faked' because the name->id transformation is a convention not a rule. If they don't work,
+    # check the actual value in styles.xml and adjust as necessary. Polling the actual value # seems unnecessarily slow
+    # since it's predictable, we can modify it, and we should probably follow convention, also
+    topper_style_faked_ids = [style.replace(' ', '') for style in topper_styles]
+
+    case_table_style = doc.styles.get_by_id('TableText', WD_STYLE_TYPE.PARAGRAPH)
+    non_case_table_style = doc.styles.get_by_id('CaseTableText', WD_STYLE_TYPE.PARAGRAPH)
+
+    # much faster than using a clever xpath from the doc root.
+    # tables occupying such a small percent of a huge document is a likely culprit.
+    for table in doc.tables:
+        for row in table.rows:
+            for cell in row.cells:
+                for paragraph in cell.paragraphs:
+                    prev_p_sId = paragraph._element.xpath('../../../preceding-sibling::w:p[1]')[0].get(qn('w:val'))
+                    paragraph.style = non_case_table_style if prev_p_sId in topper_style_faked_ids else case_table_style
+
+    section_break("doc-wide")  # set the values in the section-wide sectpr
 
     # this is like twice as fast as navigating the xml or the docx object
     grafs = [p.style.name for p in doc.paragraphs]
     for i, p in enumerate(grafs):
         if p == 'Front Matter End':
             section_break(doc.paragraphs[i], frontmatter=True)
-        elif p == 'Node End' and (grafs[i - 1] not in topper_styles):
-            section_break(doc.paragraphs[i], paragraph=True)
-        elif p == 'Node End':
-            section_break(doc.paragraphs[i])
         elif p == 'Head End':
             if grafs[i - 1].startswith('Chapter'):
                 section_break(doc.paragraphs[i-1], chapter=True)
-            if grafs[i - 1].startswith('Section'):
+            elif grafs[i - 1].startswith('Section'):
                 section_break(doc.paragraphs[i-1], section=True)
-            if grafs[i + 1] == 'Case Header':
-                continue
-            else:
-                section_break(doc.paragraphs[i])
-        elif p == 'Case Header':
-            if grafs[i + 1] == 'Case Header':
-                continue
-            else:
-                section_break(doc.paragraphs[i])
-        elif p == 'Case Body':
-            if grafs[i + 1] not in topper_styles:
-                continue
-            else:
-                section_break(doc.paragraphs[i], paragraph=True)
-        #elif p.startswith()
     return doc
 
 
@@ -347,7 +315,7 @@ def handler(event, context):
                 doc = Document(pandoc_out)
                 if options.get('word_footnotes', False):
                     promote_case_footnotes(doc)
-                if options.get('docx_sections', True):
+                if options.get('docx_sections', False):
                     sectionizer(doc)
                 output = io.BytesIO()
                 doc.save(output)

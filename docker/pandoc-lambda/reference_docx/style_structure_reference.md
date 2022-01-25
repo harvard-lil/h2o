@@ -23,6 +23,7 @@
       * H Struct 02 Title basedOn: HStruct01Title 
         * Hierarchy Level 1-2 Headnote Text basedOn: HStruct02Title 
           * Hierarchy Level 3-4-5 Headnote Text basedOn: HierarchyLevel1-2HeadnoteText 
+            * Headnote Table Text basedOn: HierarchyLevel3-4-5HeadnoteText 
             * Casebook Headnote basedOn: HierarchyLevel3-4-5HeadnoteText 
             * About Page Instructions basedOn: HierarchyLevel3-4-5HeadnoteText 
             * Chapter Headnote basedOn: HierarchyLevel3-4-5HeadnoteText 
@@ -82,6 +83,7 @@
       * Case Body basedOn: BodyText 
         * Author basedOn: CaseBody 
         * Date basedOn: CaseBody 
+        * Case Table Text basedOn: CaseBody 
         * Abstract basedOn: CaseBody 
         * Figure basedOn: CaseBody 
           * Captioned Figure basedOn: Figure 

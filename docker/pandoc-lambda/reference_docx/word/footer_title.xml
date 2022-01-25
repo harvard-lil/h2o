@@ -32,13 +32,11 @@
        xmlns:wps="http://schemas.microsoft.com/office/word/2010/wordprocessingShape"
        mc:Ignorable="w14 w15 w16se w16cid w16 w16cex w16sdtdh wp14">
     <w:p>
-      <w:pPr>
-        <w:pStyle w:val="CasebookAuthor" />
-      </w:pPr>
-        <w:fldSimple w:instr="AUTHOR">
-            <w:r>
-                <w:t></w:t>
-            </w:r>
-        </w:fldSimple>
+        <w:pPr>
+            <w:pStyle w:val="CasebookAuthor"/>
+        </w:pPr>
+        <w:r>
+            <w:t xml:space="preserve">[author name]</w:t>
+        </w:r>
     </w:p>
 </w:ftr>

@@ -331,7 +331,8 @@
     </w:style>
 
     <!--  The corresponding subheadings are largely the same size, but de-emphasized through color and text style. I don't
-        think these can be implemented in the h2o interface, but users might find them useful. -->
+        think users can implement these in the h2o editor, but they might pop through in pasted text, and users might
+        find them useful after export. -->
     <w:style w:type="paragraph" w:customStyle="1" w:styleId="Subheading1">
         <w:name w:val="Subheading 1"/>
         <w:basedOn w:val="Heading1"/>
@@ -574,6 +575,30 @@
             <w:szCs w:val="14"/>
         </w:rPr>
     </w:style>
+
+    <!--
+        Table Text
+    -->
+
+    <w:style w:type="paragraph" w:customStyle="1" w:styleId="TableText">
+        <w:name w:val="Headnote Table Text"/>
+        <w:basedOn w:val="HierarchyLevel3-4-5HeadnoteText"/>
+        <w:uiPriority w:val="40"/>
+        <w:qFormat/>
+        <w:pPr>
+            <w:ind w:right="0" w:left="0"/>
+        </w:pPr>
+    </w:style>
+    <w:style w:type="paragraph" w:customStyle="1" w:styleId="CaseTableText">
+        <w:name w:val="Case Table Text"/>
+        <w:basedOn w:val="CaseBody"/>
+        <w:uiPriority w:val="40"/>
+        <w:qFormat/>
+        <w:pPr>
+            <w:ind w:right="0" w:left="0"/>
+        </w:pPr>
+    </w:style>
+
 
     <!--
         Page Specific
