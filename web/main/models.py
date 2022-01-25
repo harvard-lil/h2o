@@ -3644,6 +3644,7 @@ class Casebook(EditTrackedModel, TimestampedModel, BigPkModel, TrackedCloneable)
             ...     file_data = full_casebook.export(include_annotations=True)
         """
         docx_footnotes = docx_footnotes if docx_footnotes is not None else settings.FORCE_DOCX_FOOTNOTES
+        docx_sections = export_options['docx_sections'] if export_options and 'docx_sections' in export_options else settings.FORCE_DOCX_SECTIONS
 
         # prefetch all child nodes and related data
         if self.export_embargoed() or LiveSettings.load().prevent_exports:
@@ -3675,7 +3676,7 @@ class Casebook(EditTrackedModel, TimestampedModel, BigPkModel, TrackedCloneable)
 
         return export_via_aws_lambda(self, html
                                      .replace('&nbsp;', ' ').replace('_h2o_keep_element', '&nbsp;').replace('\x0a', ' '),
-                                     file_type, docx_sections=export_options['docx_sections'],
+                                     file_type, docx_sections=docx_sections,
                                      docx_footnotes=docx_footnotes)
 
     def inc_export_fails(self):
