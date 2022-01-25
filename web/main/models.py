@@ -2112,7 +2112,7 @@ class ContentNode(EditTrackedModel, TimestampedModel, BigPkModel, MaterializedPa
         else:
             return 'resource'
 
-    def export(self, include_annotations, file_type='docx', export_options=None, is_child=False,  docx_footnotes=None):
+    def export(self, include_annotations, file_type='docx', export_options=None, is_child=False, docx_footnotes=None):
         """
             Export this node and children as docx, or as html for conversion by pandoc.
 
@@ -2155,11 +2155,11 @@ class ContentNode(EditTrackedModel, TimestampedModel, BigPkModel, MaterializedPa
             'export_options': export_options,
             'export_date': datetime.now().strftime("%Y-%m-%d"),
             'cloned_from': cloned_from,
-        })
+        }).replace('\xa0', '')
         if file_type == 'html':
             return html
 
-        return export_via_aws_lambda(self, html, file_type, docx_footnotes=docx_footnotes)
+        return export_via_aws_lambda(self, html, file_type, docx_footnotes=docx_footnotes, docx_sections=False)
 
     def headnote_for_export(self, export_options=None):
         r"""
@@ -3673,7 +3673,10 @@ class Casebook(EditTrackedModel, TimestampedModel, BigPkModel, TrackedCloneable)
         if file_type == 'html':
             return html
 
-        return export_via_aws_lambda(self, html, file_type, docx_footnotes=docx_footnotes)
+        return export_via_aws_lambda(self, html
+                                     .replace('&nbsp;', ' ').replace('_h2o_keep_element', '&nbsp;').replace('\x0a', ' '),
+                                     file_type, docx_sections=export_options['docx_sections'],
+                                     docx_footnotes=docx_footnotes)
 
     def inc_export_fails(self):
         # This function is used to avoid making a copy of the casebook via CasebookHistory

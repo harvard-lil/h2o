@@ -21,14 +21,14 @@
       * Subheading 1 basedOn: Heading1 
     * H Struct 01 Title basedOn: FontFamilyDefaultTitleandStructure link HStruct01TitleChar
       * H Struct 02 Title basedOn: HStruct01Title 
-        * Hierarchy Level 1-2 Header Text basedOn: HStruct02Title 
-          * Hierarchy Level 3-4-5 Header Text basedOn: HierarchyLevel1-2HeaderText 
-            * Casebook Headnote basedOn: HierarchyLevel3-4-5HeaderText 
-            * About Page Instructions basedOn: HierarchyLevel3-4-5HeaderText 
-            * Chapter Headnote basedOn: HierarchyLevel3-4-5HeaderText 
-            * Section Headnote basedOn: HierarchyLevel3-4-5HeaderText 
+        * Hierarchy Level 1-2 Headnote Text basedOn: HStruct02Title 
+          * Hierarchy Level 3-4-5 Headnote Text basedOn: HierarchyLevel1-2HeadnoteText 
+            * Casebook Headnote basedOn: HierarchyLevel3-4-5HeadnoteText 
+            * About Page Instructions basedOn: HierarchyLevel3-4-5HeadnoteText 
+            * Chapter Headnote basedOn: HierarchyLevel3-4-5HeadnoteText 
+            * Section Headnote basedOn: HierarchyLevel3-4-5HeadnoteText 
               * Resource Headnote basedOn: SectionHeadnote 
-          * Casebook Blurb basedOn: HierarchyLevel1-2HeaderText 
+          * Casebook Blurb basedOn: HierarchyLevel1-2HeadnoteText 
         * Casebook Headnote Title basedOn: HStruct02Title 
         * Acknowledgements Title basedOn: HStruct02Title 
         * TOC Heading basedOn: HStruct02Title 

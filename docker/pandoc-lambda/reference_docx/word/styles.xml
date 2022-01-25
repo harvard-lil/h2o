@@ -71,10 +71,16 @@
         <w:semiHidden/>
         <w:unhideWhenUsed/>
         <w:uiPriority w:val="99"/>
+        <w:pPr>
+            <w:spacing w:before="160" w:line="276" w:lineRule="auto"/>
+        </w:pPr>
         <w:rPr>
-            <w:rFonts w:ascii="Century Gothic" w:hAnsi="Century Gothic"/>
-            <w:sz w:val="24"/>
-            <w:szCs w:val="24"/>
+            <w:bCs/>
+            <w:iCs/>
+            <w:color w:val="000000" w:themeColor="text1"/>
+            <w:spacing w:val="5"/>
+            <w:sz w:val="16"/>
+            <w:szCs w:val="14"/>
         </w:rPr>
     </w:style>
 
@@ -94,9 +100,8 @@
             <w:iCs/>
             <w:color w:val="000000" w:themeColor="text1"/>
             <w:spacing w:val="5"/>
-            <w:sz w:val="20"/>
-            <w:szCs w:val="18"/>
-
+            <w:sz w:val="16"/>
+            <w:szCs w:val="14"/>
         </w:rPr>
     </w:style>
     <w:style w:type="paragraph" w:styleId="BodyTextFirstIndent">
@@ -174,7 +179,7 @@
         <w:qFormat/>
         <w:rPr>
             <w:b/>
-            <w:sz w:val="20"/>
+            <w:sz w:val="16"/>
         </w:rPr>
     </w:style>
     <w:style w:type="paragraph" w:customStyle="1" w:styleId="CaseBody">
@@ -183,7 +188,7 @@
         <w:uiPriority w:val="8"/>
         <w:qFormat/>
         <w:rPr>
-            <w:sz w:val="22"/>
+            <w:sz w:val="16"/>
         </w:rPr>
     </w:style>
 
@@ -538,8 +543,8 @@
             <w:sz w:val="22"/>
         </w:rPr>
     </w:style>
-    <w:style w:type="paragraph" w:customStyle="1" w:styleId="HierarchyLevel1-2HeaderText">
-        <w:name w:val="Hierarchy Level 1-2 Header Text"/>
+    <w:style w:type="paragraph" w:customStyle="1" w:styleId="HierarchyLevel1-2HeadnoteText">
+        <w:name w:val="Hierarchy Level 1-2 Headnote Text"/>
         <w:uiPriority w:val="59"/>
         <w:basedOn w:val="HStruct02Title"/>
         <w:semiHidden/>
@@ -556,14 +561,17 @@
             <w:szCs w:val="28"/>
         </w:rPr>
     </w:style>
-    <w:style w:type="paragraph" w:customStyle="1" w:styleId="HierarchyLevel3-4-5HeaderText">
-        <w:name w:val="Hierarchy Level 3-4-5 Header Text"/>
+    <w:style w:type="paragraph" w:customStyle="1" w:styleId="HierarchyLevel3-4-5HeadnoteText">
+        <w:name w:val="Hierarchy Level 3-4-5 Headnote Text"/>
         <w:uiPriority w:val="59"/>
-        <w:basedOn w:val="HierarchyLevel1-2HeaderText"/>
+        <w:basedOn w:val="HierarchyLevel1-2HeadnoteText"/>
         <w:semiHidden/>
+        <w:pPr>
+            <w:ind w:right="2160"/>
+        </w:pPr>
         <w:rPr>
-            <w:sz w:val="20"/>
-            <w:szCs w:val="22"/>
+            <w:sz w:val="16"/>
+            <w:szCs w:val="14"/>
         </w:rPr>
     </w:style>
 
@@ -579,7 +587,6 @@
         <w:uiPriority w:val="40"/>
         <w:qFormat/>
         <w:pPr>
-            <w:pageBreakBefore/>
             <w:spacing w:before="2880"/>
             <w:jc w:val="right"/>
         </w:pPr>
@@ -605,18 +612,17 @@
     </w:style>
     <w:style w:type="paragraph" w:customStyle="1" w:styleId="CasebookHeadnote">
         <w:name w:val="Casebook Headnote"/>
-        <w:basedOn w:val="HierarchyLevel3-4-5HeaderText"/>
+        <w:basedOn w:val="HierarchyLevel3-4-5HeadnoteText"/>
         <w:uiPriority w:val="40"/>
         <w:qFormat/>
     </w:style>
     <w:style w:type="paragraph" w:customStyle="1" w:styleId="CasebookBlurb">
         <w:name w:val="Casebook Blurb"/>
-        <w:basedOn w:val="HierarchyLevel1-2HeaderText"/>
+        <w:basedOn w:val="HierarchyLevel1-2HeadnoteText"/>
         <w:uiPriority w:val="40"/>
         <w:qFormat/>
         <w:pPr>
             <w:spacing w:before="2540" w:after="0"/>
-            <w:ind w:left="2880"/>
         </w:pPr>
     </w:style>
     <w:style w:type="paragraph" w:customStyle="1" w:styleId="CasebookAuthor">
@@ -625,7 +631,7 @@
         <w:uiPriority w:val="40"/>
         <w:qFormat/>
         <w:pPr>
-            <w:ind w:left="2880"/>
+           <w:jc w:val="right"/>
         </w:pPr>
         <w:rPr>
             <w:color w:val="D96955"/>
@@ -643,17 +649,17 @@
             <w:color w:val="5A771D"/>
             <w:pageBreakBefore/>
             <w:spacing w:before="1920"/>
-            <w:ind w:left="1440"/>
+            <w:ind w:right="2160"/>
         </w:pPr>
     </w:style>
 
     <w:style w:type="paragraph" w:customStyle="1" w:styleId="AboutPageInstructions">
         <w:name w:val="About Page Instructions"/>
-        <w:basedOn w:val="HierarchyLevel3-4-5HeaderText"/>
+        <w:basedOn w:val="HierarchyLevel3-4-5HeadnoteText"/>
         <w:uiPriority w:val="50"/>
         <w:pPr>
             <w:spacing w:before="240" w:after="240" w:line="300" w:lineRule="auto"/>
-            <w:ind w:left="1440"/>
+            <w:ind w:right="2160"/>
         </w:pPr>
     </w:style>
 
@@ -751,9 +757,9 @@
         <w:unhideWhenUsed/>
         <w:pPr>
             <w:tabs>
-                <w:tab w:val="right" w:pos="9350"/>
+                <w:tab w:val="right" w:leader="dot" w:pos="7200"/>
             </w:tabs>
-            <w:spacing w:before="240"/>
+            <w:spacing w:before="120"/>
             <w:ind w:right="720"/>
         </w:pPr>
         <w:rPr>
@@ -761,7 +767,6 @@
             <w:bCs/>
             <w:noProof/>
             <w:spacing w:val="5"/>
-
         </w:rPr>
     </w:style>
     <w:style w:type="paragraph" w:styleId="TOC2">
@@ -771,14 +776,10 @@
         <w:semiHidden/>
         <w:unhideWhenUsed/>
         <w:pPr>
-            <w:tabs>
-                <w:tab w:val="right" w:leader="dot" w:pos="9350"/>
-            </w:tabs>
             <w:spacing w:before="160"/>
             <w:ind w:left="216"/>
         </w:pPr>
         <w:rPr>
-            <w:rFonts w:ascii="Baskerville" w:hAnsi="Baskerville"/>
             <w:bCs w:val="0"/>
             <w:spacing w:val="6"/>
             <w:sz w:val="20"/>
@@ -787,7 +788,7 @@
     </w:style>
     <w:style w:type="paragraph" w:styleId="TOC3">
         <w:name w:val="toc 3"/>
-        <w:basedOn w:val="TOC2"/>
+        <w:basedOn w:val="TOC1"/>
         <w:uiPriority w:val="39"/>
         <w:semiHidden/>
         <w:unhideWhenUsed/>
@@ -795,7 +796,11 @@
             <w:ind w:left="440"/>
         </w:pPr>
         <w:rPr>
+            <w:bCs w:val="0"/>
             <w:b w:val="0"/>
+            <w:spacing w:val="6"/>
+            <w:sz w:val="20"/>
+            <w:szCs w:val="22"/>
         </w:rPr>
     </w:style>
     <w:style w:type="paragraph" w:styleId="TOC4">
@@ -871,7 +876,6 @@
         <w:semiHidden/>
         <w:unhideWhenUsed/>
         <w:pPr>
-            <w:keepNext/>
             <w:keepLines/>
             <w:spacing w:before="300" w:after="300"/>
         </w:pPr>
@@ -910,7 +914,7 @@
         <w:rPr>
             <w:i w:val="0"/>
             <w:color w:val="auto"/>
-            <w:sz w:val="22"/>
+            <w:sz w:val="16"/>
         </w:rPr>
     </w:style>
     <w:style w:type="paragraph" w:customStyle="1" w:styleId="SourceCode">
@@ -929,7 +933,7 @@
             <w:ind w:left="360"/>
         </w:pPr>
         <w:rPr>
-            <w:sz w:val="18"/>
+            <w:sz w:val="14"/>
         </w:rPr>
     </w:style>
     <w:style w:type="paragraph" w:customStyle="1" w:styleId="DefinitionTerm">
@@ -957,11 +961,12 @@
     <w:style w:type="paragraph" w:styleId="Caption">
         <w:name w:val="caption"/>
         <w:basedOn w:val="FontFamilyDefaultTitleandStructure"/>
-        <w:link w:val="CaptionChar"/>
         <w:uiPriority w:val="30"/>
         <w:rPr>
-            <w:i/>
+            <w:rFonts w:ascii="Courier New" w:hAnsi="Courier New" w:cs="Courier New"/>
             <w:sz w:val="16"/>
+            <w:szCs w:val="14"/>
+            <w:i/>
         </w:rPr>
     </w:style>
     <w:style w:type="paragraph" w:customStyle="1" w:styleId="TableCaption">
@@ -1062,37 +1067,55 @@
         <w:uiPriority w:val="11"/>
         <w:qFormat/>
         <w:pPr>
-            <w:pageBreakBefore/>
-            <w:framePr w:w="1440" w:wrap="notBeside" w:hAnchor="text" w:xAlign="right"/>
+            <w:keepNext/>
+            <w:keepLines/>
+            <w:framePr w:w="1440" w:h="1450" w:wrap="around" w:vAnchor="text" w:hAnchor="margin" w:xAlign="right" w:anchorLock="1"/>
             <w:jc w:val="right"/>
+            <w:ind w:right="0" w:left="0"/>
         </w:pPr>
         <w:rPr>
+            <w:spacing w:val="-12"/>
             <w:color w:val="D96955"/>
+            <w:sz w:val="72"/>
+            <w:szCs w:val="72"/>
         </w:rPr>
     </w:style>
     <w:style w:type="paragraph" w:customStyle="1" w:styleId="ChapterTitle">
         <w:name w:val="Chapter Title"/>
-        <w:basedOn w:val="HStruct03Title"/>
+        <w:basedOn w:val="HStruct02Title"/>
         <w:next w:val="ChapterSubtitle"/>
         <w:uiPriority w:val="11"/>
         <w:qFormat/>
         <w:pPr>
-            <w:framePr w:w="5760" w:wrap="notBeside" w:vAnchor="text" w:hAnchor="margin" w:y="1"/>
+            <w:keepNext/>
+            <w:keepLines/>
+            <w:ind w:right="2160"/>
         </w:pPr>
+        <w:rPr>
+            <w:spacing w:val="-5"/>
+        </w:rPr>
     </w:style>
     <w:style w:type="paragraph" w:customStyle="1" w:styleId="ChapterSubtitle">
         <w:name w:val="Chapter Subtitle"/>
-        <w:basedOn w:val="HStruct03Subtitle"/>
+        <w:basedOn w:val="HStruct02Subtitle"/>
         <w:next w:val="ChapterHeadnote"/>
         <w:uiPriority w:val="11"/>
         <w:qFormat/>
+        <w:pPr>
+            <w:keepNext/>
+            <w:keepLines/>
+            <w:ind w:right="2160"/>
+        </w:pPr>
     </w:style>
     <w:style w:type="paragraph" w:customStyle="1" w:styleId="ChapterHeadnote">
         <w:name w:val="Chapter Headnote"/>
-        <w:basedOn w:val="HierarchyLevel3-4-5HeaderText"/>
+        <w:basedOn w:val="HierarchyLevel3-4-5HeadnoteText"/>
         <w:next w:val="ChapterHeadnote"/>
         <w:uiPriority w:val="11"/>
         <w:qFormat/>
+        <w:pPr>
+             <w:ind w:right="2160"/>
+        </w:pPr>
     </w:style>
 
     <!-- Section Head -->
@@ -1105,8 +1128,9 @@
         <w:pPr>
             <w:keepNext/>
             <w:keepLines/>
-            <w:framePr w:w="1440" w:wrap="notBeside" w:xAlign="right"/>
+            <w:framePr w:w="1440" w:h="1450" w:wrap="around" w:vAnchor="text" w:hAnchor="margin" w:xAlign="right" w:anchorLock="1"/>
             <w:jc w:val="right"/>
+            <w:ind w:right="0" w:left="0"/>
         </w:pPr>
         <w:rPr>
             <w:color w:val="D96955"/>
@@ -1119,8 +1143,9 @@
         <w:uiPriority w:val="11"/>
         <w:qFormat/>
         <w:pPr>
-            <w:framePr w:w="5760" w:wrap="notBeside" w:vAnchor="text" w:hAnchor="text" w:y="1"/>
-            <w:spacing w:before="480" w:after="240" w:line="204" w:lineRule="auto"/>
+            <w:keepNext/>
+            <w:keepLines/>
+            <w:ind w:right="2160"/>
         </w:pPr>
     </w:style>
     <w:style w:type="paragraph" w:customStyle="1" w:styleId="SectionSubtitle">
@@ -1129,15 +1154,20 @@
         <w:next w:val="SectionHeadnote"/>
         <w:uiPriority w:val="11"/>
         <w:qFormat/>
+        <w:pPr>
+            <w:keepNext/>
+            <w:keepLines/>
+            <w:ind w:right="2160"/>
+        </w:pPr>
     </w:style>
     <w:style w:type="paragraph" w:customStyle="1" w:styleId="SectionHeadnote">
         <w:name w:val="Section Headnote"/>
-        <w:basedOn w:val="HierarchyLevel3-4-5HeaderText"/>
+        <w:basedOn w:val="HierarchyLevel3-4-5HeadnoteText"/>
         <w:next w:val="SectionHeadnote"/>
         <w:qFormat/>
         <w:uiPriority w:val="11"/>
         <w:pPr>
-            <w:spacing w:after="480"/>
+            <w:ind w:right="2160"/>
         </w:pPr>
     </w:style>
 
@@ -1153,10 +1183,9 @@
         <w:pPr>
             <w:keepNext/>
             <w:keepLines/>
-            <w:framePr w:w="1440" w:wrap="notBeside" w:xAlign="right"/>
-            <w:adjustRightInd w:val="0"/>
-            <w:snapToGrid w:val="0"/>
+            <w:framePr w:w="1440" w:h="1450" w:wrap="around" w:vAnchor="text" w:hAnchor="margin" w:xAlign="right" w:anchorLock="1"/>
             <w:jc w:val="right"/>
+            <w:ind w:right="0" w:left="0"/>
         </w:pPr>
         <w:rPr>
             <w:bCs w:val="0"/>
@@ -1170,7 +1199,9 @@
         <w:qFormat/>
         <w:uiPriority w:val="10"/>
         <w:pPr>
-            <w:framePr w:w="5760" w:wrap="notBeside" w:vAnchor="text" w:hAnchor="text" w:y="1"/>
+            <w:keepNext/>
+            <w:keepLines/>
+            <w:ind w:right="2160"/>
             <w:spacing w:before="480"/>
         </w:pPr>
     </w:style>
@@ -1180,6 +1211,11 @@
         <w:next w:val="ResourceHeadnote"/>
         <w:uiPriority w:val="10"/>
         <w:qFormat/>
+        <w:pPr>
+            <w:keepNext/>
+            <w:keepLines/>
+            <w:ind w:right="2160"/>
+        </w:pPr>
     </w:style>
     <w:style w:type="paragraph" w:customStyle="1" w:styleId="ResourceHeadnote">
         <w:name w:val="Resource Headnote"/>
@@ -1187,6 +1223,9 @@
         <w:next w:val="ResourceHeadnote"/>
         <w:uiPriority w:val="10"/>
         <w:qFormat/>
+        <w:pPr>
+            <w:ind w:right="2160"/>
+        </w:pPr>
     </w:style>
 
     <w:style w:type="paragraph" w:customStyle="1" w:styleId="ResourceLink">
@@ -1196,13 +1235,15 @@
         <w:qFormat/>
         <w:uiPriority w:val="10"/>
         <w:pPr>
-            <w:spacing w:line="240" w:lineRule="auto"/>
+            <w:keepNext/>
+            <w:keepLines/>
+            <w:spacing w:line="240" w:after="240"/>
+            <w:ind w:right="2880"/>
         </w:pPr>
         <w:rPr>
-            <w:b/>
             <w:color w:val="3E71D8"/>
             <w:spacing w:val="10"/>
-            <w:sz w:val="24"/>
+            <w:sz w:val="18"/>
         </w:rPr>
     </w:style>
 
@@ -1211,7 +1252,6 @@
     <w:style w:type="paragraph" w:styleId="Footer">
         <w:name w:val="footer"/>
         <w:basedOn w:val="BodyText"/>
-        <w:link w:val="FooterChar"/>
         <w:uiPriority w:val="99"/>
         <w:pPr>
             <w:tabs>
@@ -1219,12 +1259,19 @@
                 <w:tab w:val="right" w:pos="9360"/>
             </w:tabs>
         </w:pPr>
+        <w:rPr>
+            <w:rFonts w:ascii="Baskerville" w:hAnsi="Baskerville"/>
+            <w:bCs/>
+            <w:iCs/>
+            <w:color w:val="000000" w:themeColor="text1"/>
+            <w:spacing w:val="5"/>
+            <w:szCs w:val="18"/>
+        </w:rPr>
     </w:style>
 
     <w:style w:type="paragraph" w:styleId="Header">
         <w:name w:val="header"/>
         <w:basedOn w:val="FontFamilyDefaultTitleandStructure"/>
-        <w:link w:val="HeaderChar"/>
         <w:uiPriority w:val="50"/>
         <w:rsid w:val="006019C2"/>
         <w:pPr>
@@ -1232,39 +1279,13 @@
             <w:tabs>
                 <w:tab w:val="right" w:pos="5040"/>
             </w:tabs>
-            <w:spacing w:before="120"/>
+            <w:spacing w:before="0"/>
             <w:jc w:val="center"/>
         </w:pPr>
         <w:rPr>
+            <w:sz w:val="16"/>
+            <w:rFonts w:ascii="Century Gothic" w:hAnsi="Century Gothic" w:cs="Arial (Headings CS)"/>
             <w:spacing w:val="3"/>
-            <w:sz w:val="16"/>
-        </w:rPr>
-    </w:style>
-
-
-    <w:style w:type="paragraph" w:customStyle="1" w:styleId="EvenHeader">
-        <w:name w:val="Even Header"/>
-        <w:basedOn w:val="Header"/>
-        <w:qFormat/>
-        <w:pPr>
-            <w:framePr w:w="1080" w:h="720" w:hRule="exact" w:wrap="notBeside" w:vAnchor="page" w:hAnchor="page"
-                       w:xAlign="outside" w:y="361"/>
-            <w:widowControl w:val="0"/>
-            <w:pBdr>
-                <w:top w:val="single" w:sz="24" w:space="6" w:color="5A771D"/>
-            </w:pBdr>
-            <w:shd w:val="clear" w:color="auto" w:fill="5A771D"/>
-            <w:adjustRightInd w:val="0"/>
-            <w:snapToGrid w:val="0"/>
-            <w:ind w:left="-360"/>
-        </w:pPr>
-        <w:rPr>
-            <w:b/>
-            <w:color w:val="E0EBFF"/>
-            <w:spacing w:val="-5"/>
-            <w:kern w:val="13"/>
-            <w:position w:val="-24"/>
-            <w:sz w:val="16"/>
         </w:rPr>
     </w:style>
     <w:style w:type="paragraph" w:customStyle="1" w:styleId="HeaderPageNumber">
@@ -1276,7 +1297,7 @@
             <w:framePr w:w="1440" w:h="360" w:wrap="around" w:xAlign="outside" w:anchorLock="1"/>
             <w:widowControl w:val="0"/>
             <w:pBdr>
-                <w:bottom w:val="single" w:sz="18" w:space="1" w:color="5A771D"/>
+                <w:bottom w:val="single" w:sz="18" w:space="1" w:color="1B418C"/>
             </w:pBdr>
             <w:adjustRightInd w:val="0"/>
             <w:snapToGrid w:val="0"/>
@@ -1285,7 +1306,6 @@
         <w:rPr>
             <w:b/>
             <w:spacing w:val="-5"/>
-            <w:kern w:val="13"/>
             <w:sz w:val="13"/>
         </w:rPr>
     </w:style>
@@ -1298,7 +1318,7 @@
         <w:uiPriority w:val="60"/>
         <w:semiHidden/>
         <w:rPr>
-            <w:sz w:val="18"/>
+            <w:sz w:val="14"/>
         </w:rPr>
     </w:style>
     <w:style w:type="paragraph" w:customStyle="1" w:styleId="FootnoteLabeledLink">
@@ -1329,21 +1349,107 @@
     </w:style>
 
     <!-- Misc formatting/layout -->
-
-    <w:style w:type="paragraph" w:customStyle="1" w:styleId="HeadSeparator">
-        <w:name w:val="Head Separator"/>
+    <w:style w:type="paragraph" w:customStyle="1" w:styleId="FrontMatterEnd">
+        <w:name w:val="Front Matter End"/>
         <w:uiPriority w:val="15"/>
         <w:pPr>
             <w:widowControl w:val="0"/>
             <w:adjustRightInd w:val="0"/>
             <w:snapToGrid w:val="0"/>
+            <w:framePr w:wrap="notBeside" w:w="9000" w:vAnchor="text" w:hAnchor="text" w:xAlign="center" />
+            <w:spacing w:before="0"/>
+            <w:jc w:val="center"/>
         </w:pPr>
         <w:rPr>
-            <w:sz w:val="2"/>
-            <w:szCs w:val="2"/>
+            <w:sz w:val="1"/>
+            <w:szCs w:val="1"/>
         </w:rPr>
     </w:style>
-
+    <w:style w:type="paragraph" w:customStyle="1" w:styleId="HeadSeparator">
+        <w:name w:val="Head Separator"/>
+        <w:uiPriority w:val="15"/>
+        <w:pPr>
+            <w:spacing w:before="240"/>
+            <w:jc w:val="center"/>
+        </w:pPr>
+        <w:rPr>
+            <w:sz w:val="1"/>
+            <w:szCs w:val="1"/>
+        </w:rPr>
+    </w:style>
+   <w:style w:type="paragraph" w:customStyle="1" w:styleId="ChapterSpacer">
+        <w:name w:val="Chapter Spacer"/>
+        <w:uiPriority w:val="15"/>
+        <w:pPr>
+            <w:widowControl w:val="0"/>
+            <w:adjustRightInd w:val="0"/>
+            <w:snapToGrid w:val="0"/>
+            <w:spacing w:before="2160"/>
+            <w:jc w:val="center"/>
+        </w:pPr>
+        <w:rPr>
+            <w:sz w:val="1"/>
+            <w:szCs w:val="1"/>
+        </w:rPr>
+    </w:style>
+    <w:style w:type="paragraph" w:customStyle="1" w:styleId="HeadFieldSeparator">
+        <w:name w:val="Head Field Separator"/>
+        <w:uiPriority w:val="15"/>
+        <w:pPr>
+            <w:spacing w:before="0"/>
+            <w:jc w:val="center"/>
+        </w:pPr>
+        <w:rPr>
+            <w:sz w:val="1"/>
+            <w:szCs w:val="1"/>
+        </w:rPr>
+    </w:style>
+    <w:style w:type="paragraph" w:customStyle="1" w:styleId="HeadEnd">
+        <w:name w:val="Head End"/>
+        <w:uiPriority w:val="15"/>
+        <w:pPr>
+            <w:widowControl w:val="0"/>
+            <w:adjustRightInd w:val="0"/>
+            <w:snapToGrid w:val="0"/>
+            <w:framePr w:wrap="notBeside" w:w="9000" w:vAnchor="text" w:hAnchor="page" w:xAlign="center" />
+            <w:spacing w:before="0"/>
+            <w:jc w:val="center"/>
+        </w:pPr>
+        <w:rPr>
+            <w:sz w:val="1"/>
+            <w:szCs w:val="1"/>
+        </w:rPr>
+    </w:style>
+        <w:style w:type="paragraph" w:customStyle="1" w:styleId="NodeStart">
+        <w:name w:val="Node Start"/>
+        <w:uiPriority w:val="15"/>
+        <w:pPr>
+            <w:widowControl w:val="0"/>
+            <w:adjustRightInd w:val="0"/>
+            <w:snapToGrid w:val="0"/>
+            <w:spacing w:before="0"/>
+            <w:jc w:val="center"/>
+        </w:pPr>
+        <w:rPr>
+            <w:sz w:val="1"/>
+            <w:szCs w:val="1"/>
+        </w:rPr>
+    </w:style>
+        <w:style w:type="paragraph" w:customStyle="1" w:styleId="NodeEnd">
+        <w:name w:val="Node End"/>
+        <w:uiPriority w:val="15"/>
+        <w:pPr>
+            <w:widowControl w:val="0"/>
+            <w:adjustRightInd w:val="0"/>
+            <w:snapToGrid w:val="0"/>
+            <w:spacing w:before="0"/>
+            <w:jc w:val="center"/>
+        </w:pPr>
+        <w:rPr>
+            <w:sz w:val="1"/>
+            <w:szCs w:val="1"/>
+        </w:rPr>
+    </w:style>
     <!--
 
 
@@ -1375,7 +1481,7 @@
             <w:iCs/>
             <w:color w:val="000000" w:themeColor="text1"/>
             <w:spacing w:val="5"/>
-            <w:szCs w:val="18"/>
+            <w:szCs w:val="16"/>
         </w:rPr>
     </w:style>
     <w:style w:type="character" w:customStyle="1" w:styleId="BodyTextFirstIndentChar">
@@ -1390,8 +1496,8 @@
             <w:iCs/>
             <w:color w:val="000000" w:themeColor="text1"/>
             <w:spacing w:val="5"/>
-            <w:sz w:val="18"/>
-            <w:szCs w:val="18"/>
+            <w:sz w:val="16"/>
+            <w:szCs w:val="16"/>
         </w:rPr>
     </w:style>
 
@@ -1410,7 +1516,6 @@
     <w:style w:type="character" w:customStyle="1" w:styleId="VerbatimChar">
         <!-- used in source code, pre, etc -->
         <w:name w:val="Verbatim Char"/>
-        <w:basedOn w:val="CaptionChar"/>
         <w:link w:val="SourceCode"/>
         <w:uiPriority w:val="50"/>
         <w:semiHidden/>
@@ -1418,8 +1523,8 @@
         <w:rPr>
             <w:rFonts w:ascii="Courier New" w:hAnsi="Courier New" w:cs="Courier New"/>
             <w:i w:val="0"/>
-            <w:sz w:val="18"/>
-            <w:szCs w:val="24"/>
+            <w:sz w:val="16"/>
+            <w:szCs w:val="14"/>
             <w:shd w:val="clear" w:color="auto" w:fill="E0EBFF"/>
         </w:rPr>
     </w:style>
@@ -1457,7 +1562,6 @@
             <w:b w:val="1"/>
             <w:i w:val="0"/>
             <w:color w:val="5A771D"/>
-            <w:sz w:val="22"/>
         </w:rPr>
     </w:style>
     <w:style w:type="character" w:customStyle="1" w:styleId="ReplacementText">
@@ -1470,7 +1574,6 @@
             <w:b w:val="0"/>
             <w:i/>
             <w:color w:val="5A771D"/>
-            <w:sz w:val="20"/>
             <w:u w:val="dotted"/>
         </w:rPr>
     </w:style>
@@ -1502,50 +1605,6 @@
 
         </w:rPr>
     </w:style>
-    <w:style w:type="character" w:styleId="FootnoteReference">
-        <w:name w:val="footnote reference"/>
-        <w:basedOn w:val="CaptionChar"/>
-        <w:uiPriority w:val="99"/>
-        <w:semiHidden/>
-        <w:rPr>
-            <w:rFonts w:ascii="Century Gothic" w:hAnsi="Century Gothic"/>
-            <w:i/>
-            <w:sz w:val="16"/>
-            <w:szCs w:val="24"/>
-            <w:u w:val="none"/>
-            <w:vertAlign w:val="superscript"/>
-        </w:rPr>
-    </w:style>
-
-    <!-- header and footer character styles -->
-    <w:style w:type="character" w:customStyle="1" w:styleId="HeaderChar">
-        <w:name w:val="Header Char"/>
-        <w:basedOn w:val="DefaultParagraphFont"/>
-        <w:link w:val="Header"/>
-        <w:uiPriority w:val="99"/>
-        <w:semiHidden/>
-        <w:rPr>
-            <w:rFonts w:ascii="Century Gothic" w:hAnsi="Century Gothic"
-                      w:cs="Arial (Headings CS)"/>
-            <w:spacing w:val="3"/>
-            <w:szCs w:val="60"/>
-        </w:rPr>
-    </w:style>
-    <w:style w:type="character" w:customStyle="1" w:styleId="FooterChar">
-        <w:name w:val="Footer Char"/>
-        <w:basedOn w:val="DefaultParagraphFont"/>
-        <w:link w:val="Footer"/>
-        <w:uiPriority w:val="99"/>
-        <w:semiHidden/>
-        <w:rPr>
-            <w:rFonts w:ascii="Baskerville" w:hAnsi="Baskerville"/>
-            <w:bCs/>
-            <w:iCs/>
-            <w:color w:val="000000" w:themeColor="text1"/>
-            <w:spacing w:val="5"/>
-            <w:szCs w:val="18"/>
-        </w:rPr>
-    </w:style>
 
 
     <!-- misc element-specific -->
@@ -1568,19 +1627,6 @@
         <w:rPr>
             <w:color w:val="D96955" w:themeColor="followedHyperlink"/>
             <w:u w:val="single"/>
-        </w:rPr>
-    </w:style>
-    <w:style w:type="character" w:styleId="PageNumber">
-        <w:name w:val="page number"/>
-        <w:aliases w:val="Page Number Frontmatter"/>
-        <w:basedOn w:val="DefaultParagraphFont"/>
-        <w:semiHidden/>
-        <w:uiPriority w:val="99"/>
-        <w:rPr>
-            <w:rFonts w:ascii="Baskerville" w:hAnsi="Baskerville"/>
-            <w:b w:val="0"/>
-            <w:i/>
-            <w:sz w:val="16"/>
         </w:rPr>
     </w:style>
     <w:style w:type="character" w:customStyle="1" w:styleId="CaptionChar">

@@ -10,7 +10,7 @@
         <div class="CasebookBlurb" data-custom-style="Casebook Blurb">{{ headnote|striptags }}</div>
       {% else %}
         <div class="CasebookHeadnoteTitle" data-custom-style="Casebook Headnote Title">Headnote</div>
-        <div class="CasebookHeadnote" data-custom-style="Casebook Headnote">{{ headnote|cut:"&nbsp;" }}</div>
+        <div class="CasebookHeadnote" data-custom-style="Casebook Headnote">{{ headnote }}</div>
       {% endif %}
   {% endif %}
   {% include 'export/about.html' %}
@@ -26,7 +26,7 @@
       <div class="toc-entry" data-depth="{{ child.ordinals|length }}" data-idx="{{ forloop.counter }}" data-title="{{ child.ordinal_string }} {{ child.title|force_escape|force_escape }}"></div>
     {% endfor %}
   </div>
-  <div class="FrontMatterEnd" data-custom-style="Front Matter End">&nbsp;</div>
+  <div class="FrontMatterEnd" data-custom-style="Front Matter End">_h2o_keep_element</div>
 
   {% with is_child=True %}
   {% for child in children %}

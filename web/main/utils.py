@@ -535,7 +535,7 @@ def get_link_title(url):
         return default_title
     return title[0].text
 
-def export_via_aws_lambda(obj, html, file_type, docx_footnotes=None,):
+def export_via_aws_lambda(obj, html, file_type, docx_footnotes=None, docx_sections=False):
     export_settings = settings.AWS_LAMBDA_EXPORT_SETTINGS
     export_type = obj.__class__.__name__
     log_line_prefix = f"Exporting {export_type} {obj.id}"
@@ -560,7 +560,7 @@ def export_via_aws_lambda(obj, html, file_type, docx_footnotes=None,):
                 "is_casebook": export_type == 'Casebook',
                 "options": {
                     "word_footnotes": settings.FORCE_DOCX_FOOTNOTES if docx_footnotes is None else docx_footnotes,
-                    "docx_sections": settings.DOCX_SECTIONS
+                    "docx_sections": docx_sections
                 }
             }
             if export_settings.get('function_arn'):

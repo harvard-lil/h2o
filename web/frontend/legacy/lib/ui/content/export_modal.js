@@ -8,12 +8,13 @@ delegate(document, 'a.action.export', 'click', (e) => {
   const experimental = e.target.classList.contains('export-experimental');
   const aws_lambda = e.target.classList.contains('export-lambda');
   const docx_footnotes = e.target.classList.contains('export-docx-footnotes');
+  const docx_sections = e.target.classList.contains('export-docx-sections');
   // window.app is the Vue instance
   if((window.app && app.$store.getters['annotations/getCount'] > 0) ||
      (!window.app && e.target.classList.contains('export-has-annotations'))){
-    showExportModal(e, experimental, aws_lambda, docx_footnotes);
+    showExportModal(e, experimental, aws_lambda, docx_footnotes, docx_sections);
   } else {
-    downloadFile(undefined, experimental, aws_lambda, docx_footnotes);
+    downloadFile(undefined, experimental, aws_lambda, docx_footnotes, docx_sections);
   }
 });
 
@@ -31,7 +32,8 @@ function export_casebook_path(casebookId) {
     return url({casebookId});
 }
 
-function downloadFile (includeAnnotations, experimental=false, aws_lambda=false, docx_footnotes) {
+function downloadFile (includeAnnotations, experimental=false, aws_lambda=false, docx_footnotes,
+                       docx_sections=false) {
   if(typeof includeAnnotations === "undefined"){
     includeAnnotations = "true";
   }
@@ -51,15 +53,17 @@ function downloadFile (includeAnnotations, experimental=false, aws_lambda=false,
       + (includeAnnotations === "true" ? '?annotations=true' : '?annotations=false')
       + (experimental ? '&experimental=true' : '')
       + (aws_lambda ? '&aws_lambda=true' : '')
-      + (docx_footnotes ? '&aws_lambda=false&docx_footnotes=true' : ''));
+      + (docx_footnotes ? '&aws_lambda=false&docx_footnotes=true' : '')
+      + (docx_sections ? '&docx_sections=true' : ''));
   }
 }
 
-function showExportModal (e, experimental=false, aws_lambda=false, docx_footnotes=false) {
+function showExportModal (e, experimental=false, aws_lambda=false, docx_footnotes=false,
+                           docx_sections=false) {
   new ExportModal('export-modal', e.target, {
     'click #export-modal': (e) => { if (e.target.id === 'export-modal') this.destroy()},
     'click .export': (e) => {
-      downloadFile(e.target.value, experimental, aws_lambda, docx_footnotes);
+      downloadFile(e.target.value, experimental, aws_lambda, docx_footnotes, docx_footnotes);
       document.querySelector('button.close').click()
     }
   });
