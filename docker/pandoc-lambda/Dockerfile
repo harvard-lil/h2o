@@ -22,9 +22,11 @@ COPY entrypoint.sh /
 RUN chmod 755 /usr/local/bin/aws-lambda-rie /entrypoint.sh
 EXPOSE 8080
 
+ARG BUILDARCH
+
 # Install Pandoc
-RUN wget https://github.com/jgm/pandoc/releases/download/2.14.2/pandoc-2.14.2-1-amd64.deb \
-    && dpkg -i pandoc-2.14.2-1-amd64.deb
+RUN wget https://github.com/jgm/pandoc/releases/download/2.14.2/pandoc-2.14.2-1-${BUILDARCH}.deb \
+    && dpkg -i pandoc-2.14.2-1-${BUILDARCH}.deb
 
 # Install the python requirements, including the AWS Lambda runtime interface client
 COPY function/requirements.txt .
