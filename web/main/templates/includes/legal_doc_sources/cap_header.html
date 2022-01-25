@@ -1,11 +1,11 @@
 <header class="case-header legal-doc-header" >
     {% with md=legal_doc.metadata %}
-    <div style="display: none" data-custom-style="Head Separator">&nbsp;</div>
+    <div style="display: none" data-custom-style="Head Separator">_h2o_keep_element</div>
     <div class="court" data-custom-style="Case Header"> {{ md.court.name }}</div>
     <div class="title" data-custom-style="Case Header">{{ legal_doc.get_title }}</div>
     <div class="citation" data-custom-style="Case Header"> {{legal_doc.cite_string}} </div>
     {% if md.docket_number %}<div class="docketnumber" data-custom-style="Case Header">{{ md.docket_number }}</div>{% endif %}
     {% if md.decision_date %}<div class="decisiondate" data-custom-style="Case Header">{{ md.decision_date }}</div>{% endif %}
-    <div style="display: none" data-custom-style="Head End">&nbsp;</div>
+    <div style="display: none" data-custom-style="Head End">_h2o_keep_element</div>
     {% endwith %}
 </header>
