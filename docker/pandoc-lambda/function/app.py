@@ -72,7 +72,7 @@ def promote_case_footnotes(doc):
         node.attrib[val_att] = "FootnoteReference"
         parent = ref.getparent()
         gp = parent.getparent()
-        if len(gp) > 0: # 'if gp' triggers a warning and I saw a similar test behave unpredictably
+        if gp is not None and len(gp):  # docs say this is the way to test, here
             gp.replace(parent, ref)
         case_footnotes[mark_id]['refs'].append(ref)
 
@@ -129,6 +129,27 @@ def promote_case_footnotes(doc):
 def sectionizer(doc, doc_w=8.5, doc_h=11, internal_margin=.5, external_margin=.75, big_margin=1):
     """
         Adds section breaks for headers, footers, etc.
+        Section breaks control formats affecting more than one paragraph— part of a page, page, chapter, document, etc.
+        The myriad formatting options include page number settings,  header and footer definitions, margins, columns,
+        page breaks that move to the next odd page rather than just ending the page, and others. In docx XML, they are
+        sectPr elements and are either attached to the body itself as the last element— which holds the default
+        settings for the entire document— or the last paragraph element of the section.
+
+        We determine where to place sections through paragraph style names. We traverse a list of all paragraph styles
+        instead of the xml directly to increase perf. The index in the list matches their index in the doc object— don't
+        add new paragraphs mid-doc here without changing this logic.
+
+        SectPrs must be attached to the pPr element in the LAST paragraph in the section (and also one by itself at the
+        end of the body element for the document-wide default settings.)
+
+        With columns, each resource/section/chapter header section gets its own, and each of their content blocks get
+        their own, too. However, in this simpler configuration, we place:
+        * One on the last paragraph of the front matter to apply lower roman page numbering and have blank
+          headers/footers, except on the title page where we see placeholder text for the author name.
+        * One at the end of each section occuring immediately before a chapter starts. This lets the new chapter have
+          always start on an odd page.
+
+        We also normalize the styles of all tables, here.
     """
 
     # allows for conversion later. Python-docx uses a different representation of length internally than docx itself,
@@ -150,7 +171,7 @@ def sectionizer(doc, doc_w=8.5, doc_h=11, internal_margin=.5, external_margin=.7
 
     body_element = doc.element.xpath('/w:document/w:body')[0]
 
-    def section_break(destination, frontmatter=False, chapter=False, section=False):
+    def section_break(destination, frontmatter=False, chapter=False):
         """ Assembles the section break, appends it to the appropriate graf, properly discards the empty wrapper,
         because it gives a hoot and won't pollute. """
 
@@ -162,12 +183,7 @@ def sectionizer(doc, doc_w=8.5, doc_h=11, internal_margin=.5, external_margin=.7
             destination._element.xpath('w:pPr')[0].append(sec._sectPr)
             body_element.remove(doc.paragraphs[-1]._element)
 
-        if chapter:
-            sec.start_type = WD_SECTION_START.ODD_PAGE
-        elif section:
-            sec.start_type = WD_SECTION_START.CONTINUOUS
-        else:
-            sec.start_type = WD_SECTION_START.CONTINUOUS
+        sec.start_type = WD_SECTION_START.ODD_PAGE if chapter else WD_SECTION_START.CONTINUOUS
 
         sec.bottom_margin = internal_margin
         sec.gutter = internal_margin // 2
@@ -211,26 +227,8 @@ def sectionizer(doc, doc_w=8.5, doc_h=11, internal_margin=.5, external_margin=.7
                 'w:printerSettings', 'w:sectPrChange'
             )
 
-
-    # the number of body styles we use consistently is much smaller than the number of section topper styles, but the
-    # values are more predictable. Body text can get unexpected style names handed down from pandoc
-    topper_styles = [ 'About Page Title', 'Acknowledgements Subtitle', 'Acknowledgements Title',
-                      'Node End', 'Node Start',
-                      'Head Separator', 'Head End', 'Head Field Separator',
-                      'Casebook Headnote', 'Casebook Headnote Title', 'Casebook Link', 'Casebook Number',
-                      'Casebook Subtitle', 'Casebook Title',
-                      'Chapter Headnote', 'Chapter Link', 'Chapter Number', 'Chapter Subtitle', 'Chapter Title', 'Chapter Spacer',
-                      'Section Headnote', 'Section Link', 'Section Number', 'Section Subtitle', 'Section Title',
-                      'Resource Headnote', 'Resource Link', 'Resource Number', 'Resource Subtitle', 'Resource Title',
-                      'Case Header']
-
-    # I qualify these as 'faked' because the name->id transformation is a convention not a rule. If they don't work,
-    # check the actual value in styles.xml and adjust as necessary. Polling the actual value # seems unnecessarily slow
-    # since it's predictable, we can modify it, and we should probably follow convention, also
-    topper_style_faked_ids = [style.replace(' ', '') for style in topper_styles]
-
-    case_table_style = doc.styles.get_by_id('TableText', WD_STYLE_TYPE.PARAGRAPH)
-    non_case_table_style = doc.styles.get_by_id('CaseTableText', WD_STYLE_TYPE.PARAGRAPH)
+    tt_style = doc.styles.get_by_id('TableText', WD_STYLE_TYPE.PARAGRAPH)
+    case_tt_style = doc.styles.get_by_id('CaseTableText', WD_STYLE_TYPE.PARAGRAPH)
 
     # much faster than using a clever xpath from the doc root.
     # tables occupying such a small percent of a huge document is a likely culprit.
@@ -239,20 +237,19 @@ def sectionizer(doc, doc_w=8.5, doc_h=11, internal_margin=.5, external_margin=.7
             for cell in row.cells:
                 for paragraph in cell.paragraphs:
                     prev_p_sId = paragraph._element.xpath('../../../preceding-sibling::w:p[1]')[0].get(qn('w:val'))
-                    paragraph.style = non_case_table_style if prev_p_sId in topper_style_faked_ids else case_table_style
+                    paragraph.style = case_tt_style if prev_p_sId.startswith('Case') else tt_style
 
-    section_break("doc-wide")  # set the values in the section-wide sectpr
+    # the doc-wide sectpr at the end of the body element
+    section_break("doc-wide")
 
-    # this is like twice as fast as navigating the xml or the docx object
+    # the mid-doc sections
     grafs = [p.style.name for p in doc.paragraphs]
     for i, p in enumerate(grafs):
         if p == 'Front Matter End':
             section_break(doc.paragraphs[i], frontmatter=True)
-        elif p == 'Head End':
-            if grafs[i - 1].startswith('Chapter'):
-                section_break(doc.paragraphs[i-1], chapter=True)
-            elif grafs[i - 1].startswith('Section'):
-                section_break(doc.paragraphs[i-1], section=True)
+        elif p == 'Head End' and grafs[i - 1].startswith('Chapter'):
+            section_break(doc.paragraphs[i-1], chapter=True)
+
     return doc
 
 
@@ -311,7 +308,7 @@ def handler(event, context):
             if not os.path.getsize(pandoc_out.name) > 0:
                 raise Exception(f"Pandoc produced no output.")
 
-            if options.get('word_footnotes', False) or options.get('docx_sections', True):
+            if options.get('word_footnotes', False) or options.get('docx_sections', False):
                 doc = Document(pandoc_out)
                 if options.get('word_footnotes', False):
                     promote_case_footnotes(doc)
