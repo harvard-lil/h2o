@@ -2155,7 +2155,7 @@ class ContentNode(EditTrackedModel, TimestampedModel, BigPkModel, MaterializedPa
             'export_options': export_options,
             'export_date': datetime.now().strftime("%Y-%m-%d"),
             'cloned_from': cloned_from,
-        }).replace('\xa0', '')
+        })
         if file_type == 'html':
             return html
 
@@ -3675,7 +3675,7 @@ class Casebook(EditTrackedModel, TimestampedModel, BigPkModel, TrackedCloneable)
             return html
 
         return export_via_aws_lambda(self, html
-                                     .replace('&nbsp;', ' ').replace('_h2o_keep_element', '&nbsp;').replace('\x0a', ' '),
+                                     .replace('&nbsp;', ' ').replace('_h2o_keep_element', '&nbsp;').replace('\xa0', ' '),
                                      file_type, docx_sections=docx_sections,
                                      docx_footnotes=docx_footnotes)
 
