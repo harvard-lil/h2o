@@ -1,7 +1,9 @@
 #!/bin/zsh
 
 rm ./reference.docx
-zip -r ./reference.docx word _rels docProps \[Content_Types\].xml
+cd src || exit
+zip -r ../reference.docx * || cd - || exit
+cd - || exit
 
 echo
 if read -q "choice?Update Docs? : "; then
@@ -9,5 +11,5 @@ if read -q "choice?Update Docs? : "; then
 fi
 
 if read -q "choice?Overwrite lambda version? : "; then
-	cp reference.docx ../function/
+	cp reference.docx ../../function/
 fi

@@ -581,7 +581,7 @@
     -->
 
     <w:style w:type="paragraph" w:customStyle="1" w:styleId="TableText">
-        <w:name w:val="Headnote Table Text"/>
+        <w:name w:val="Table Text"/>
         <w:basedOn w:val="HierarchyLevel3-4-5HeadnoteText"/>
         <w:uiPriority w:val="40"/>
         <w:qFormat/>
