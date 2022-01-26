@@ -58,19 +58,19 @@
       <div data-custom-style="Head Field Separator">_h2o_keep_element</div>
       <div class="ResourceHeadnote" data-custom-style="Resource Headnote">{{ node.headnote_for_export }}</div>
     {% endif %}
-    <div data-custom-style="Head End">&nbsp;</div>
+    <div data-custom-style="Head End">_h2o_keep_element</div>
 
     <div class="ResourceBody">
       {% if include_annotations %}
         {% call_method node 'annotated_content_for_export' export_options=export_options as contents %}
         {{ contents}}
-          <div data-custom-style="Node End">&nbsp;</div>
+          <div data-custom-style="Node End">_h2o_keep_element;</div>
         {% call_method node 'footnote_annotations' export_options=export_options as footnote_contents %}
         <div>{{footnote_contents}}</div>
       {% else %}
         {% call_method node 'content_for_export' export_options=export_options as contents %}
         {{ contents}}
-        <div data-custom-style="Node End">&nbsp;</div>
+        <div data-custom-style="Node End">_h2o_keep_element;</div>
       {% endif %}
     </div>
   {% else %}
@@ -88,4 +88,4 @@
 {% if not is_child %}
 {% include 'export/about.html' %}
 {% endif %}
-<div data-custom-style="Node End">&nbsp;</div>
+<div data-custom-style="Node End">_h2o_keep_element;</div>
