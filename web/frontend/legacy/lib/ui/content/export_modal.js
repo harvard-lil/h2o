@@ -14,6 +14,16 @@ delegate(document, 'a.action.export', 'click', (e) => {
     showExportModal(e, experimental, aws_lambda, docx_footnotes);
   } else {
     downloadFile(undefined, experimental, aws_lambda, docx_footnotes);
+    e.target.classList.add('animating')
+    // this looks for the server-side cookie set in the file response. It doesn't proactively expire it because it
+    // should be set to expire within a few seconds, anyway
+    let cookie_name = 'response_flag_cookie';
+    let myInterval = setInterval(function () {
+      if (document.cookie.includes(cookie_name)) {
+        e.target.classList.remove('animating')
+        clearInterval(myInterval);
+      }
+    }, 500);
   }
 });
 
