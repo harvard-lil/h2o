@@ -10,7 +10,7 @@
 	.st3{fill:#3E72D7;}
 </style>
     <font horiz-adv-x="2048">
-<!-- Roboto is a trademark of Google. -->
+        <!-- Roboto is a trademark of Google. -->
         <!-- Copyright: Copyright 2022 Adobe System Incorporated. All rights reserved. -->
         <font-face font-family="Roboto-Regular" units-per-em="2048" underline-position="-150"
                    underline-thickness="100"/>
@@ -24,16 +24,11 @@
                d="M91,551C91,657 112,752 154,837C195,922 253,987 328,1033C402,1079 487,1102 582,1102C729,1102 849,1051 940,949C1031,847 1076,711 1076,542l0,-13C1076,424 1056,329 1016,246C975,162 918,97 843,50C768,3 681,-20 584,-20C437,-20 319,31 228,133C137,235 91,370 91,538M277,529C277,409 305,313 361,240C416,167 491,131 584,131C678,131 753,168 808,242C863,315 891,418 891,551C891,670 863,766 807,840C750,913 675,950 582,950C491,950 417,914 361,841C305,768 277,664 277,529z"/>
         <glyph unicode="x" horiz-adv-x="1015"
                d="M503,687l240,395l216,0l-354,-535l365,-547l-214,0l-250,405l-250,-405l-215,0l365,547l-354,535l214,0z"/>
-</font>
-
-    <g id="Layer_2_00000043428380023692341430000016231030485590875812_">
-	<g id="Layer_1-2">
-		<circle id="Oval-46" class="st0" cx="27" cy="27" r="25"  />
-        <path class="st1" d="M43.6,17c0-0.2,0-0.3-0.2-0.5l-9-9c-0.1-0.1-0.2-0.2-0.4-0.2H14.6c-1.1,0-1.9,0.9-1.9,2v9.1l2,2V9.4h19.5v7
-			c0,0.2,0.1,0.3,0.2,0.4c0.1,0.1,0.3,0.2,0.4,0.2h6.9v16h-27v-1.7l-2,2v11.3c0,1.1,0.8,2,1.9,2c0,0,0,0,0.1,0h27.1
-			c1.1,0,1.9-0.9,1.9-1.9c0,0,0,0,0-0.1L43.6,17z"/>
-        <polygon class="st1" points="12.6,24.9 13.6,25.9 12.6,26.8 12.6,30.7 15.7,27.6 15.7,24.2 12.6,21.1 		"/>
-        <circle id="Oval-46-2" class="st2" cx="27" cy="27" r="26" stroke-dasharray="0.125 4.3" stroke-linecap="round">
+    </font>
+<!--    transform="scale(.95, .95)"-->
+	<g id="Layer_1-2" >
+         <circle id="Oval-46" class="st0" cx="27" cy="27" r="25"/>
+         <circle id="Oval-46-2" class="st2" cx="27" cy="27" r="26" stroke-dasharray="0.125 4.3" stroke-linecap="round">
             <animateTransform
                     attributeName="transform"
                     attributeType="XML"
@@ -44,98 +39,105 @@
                     repeatCount="indefinite"/>
 
         </circle>
-        <polygon class="st3" points="27.1,14 27.1,14 27.1,13 16.6,13 16.6,14 16.6,14 16.6,15 27.1,15 		"/>
-        <rect x="16.6" y="18" class="st3" width="0" height="1">
-			<animate id="a1" attributeName="width" from="0" to="10.5" begin="0s;b14.end" dur="0.05s"/>
-            <animate id="b1" attributeName="width" from="10.5" to="10.5" begin="a1.end" end="b14.end"/>
-            <animate id="ac1" attributeName="fill" from="#FFFFFF" to="#14950E" begin="0s;a1.begin" dur="1s"/>
-            <animate id="bc1" attributeName="fill" from="#14950E" to="#14950E" begin="ac1.end" end="b14.end"/>
-		</rect>
-        <rect x="16.6" y="20" class="st3" width="0" height="1">
-			<animate id="a2" attributeName="width" from="0" to="10.5" begin="a1.end" dur="0.05s"/>
-            <animate id="b2" attributeName="width" from="10.5" to="10.5" begin="a2.end" end="b14.end"/>
-            <animate id="ac2" attributeName="fill" from="#FFFFFF" to="#14950E" begin="0s;a1.begin" dur="1s"/>
-            <animate id="bc2" attributeName="fill" from="#14950E" to="#14950E" begin="ac1.end" end="b14.end"/>
-		</rect>
-        <rect x="16.6" y="22" class="st3" width="0" height="1">
-			<animate id="a3" attributeName="width" from="0" to="10.5" begin="a2.end" dur="0.05s"/>
-            <animate id="b3" attributeName="width" from="10.5" to="10.5" begin="a3.end" end="b14.end"/>
-            <animate id="ac3" attributeName="fill" from="#FFFFFF" to="#14950E" begin="0s;a1.begin" dur="1s"/>
-            <animate id="bc3" attributeName="fill" from="#14950E" to="#14950E" begin="ac1.end" end="b14.end"/>
-		</rect>
-        <rect x="16.6" y="24" class="st3" width="0" height="1">
-			<animate id="a4" attributeName="width" from="0" to="10.5" begin="a3.end" dur="0.05s"/>
-            <animate id="b4" attributeName="width" from="10.5" to="10.5" begin="a4.end" end="b14.end"/>
-            <animate id="ac4" attributeName="fill" from="#FFFFFF" to="#14950E" begin="0s;a1.begin" dur="1s"/>
-            <animate id="bc4" attributeName="fill" from="#14950E" to="#14950E" begin="ac1.end" end="b14.end"/>
-		</rect>
-        <rect x="16.6" y="26" class="st3" width="0" height="1">
-			<animate id="a5" attributeName="width" from="0" to="10.5" begin="a4.end" dur="0.05s"/>
-            <animate id="b5" attributeName="width" from="10.5" to="10.5" begin="a5.end" end="b14.end"/>
-            <animate id="ac5" attributeName="fill" from="#FFFFFF" to="#14950E" begin="0s;a1.begin" dur="1s"/>
-            <animate id="bc5" attributeName="fill" from="#14950E" to="#14950E" begin="ac1.end" end="b14.end"/>
-		</rect>
-        <rect x="16.6" y="28" class="st3" width="0" height="1">
-			<animate id="a6" attributeName="width" from="0" to="10.5" begin="a5.end" dur="0.05s"/>
-            <animate id="b6" attributeName="width" from="10.5" to="10.5" begin="a6.end" end="b14.end"/>
-            <animate id="ac6" attributeName="fill" from="#FFFFFF" to="#14950E" begin="0s;a1.begin" dur="1s"/>
-            <animate id="bc6" attributeName="fill" from="#14950E" to="#14950E" begin="ac1.end" end="b14.end"/>
-		</rect>
-        <rect x="16.6" y="30" class="st3" width="0" height="1">
-			<animate id="a7" attributeName="width" from="0" to="10.5" begin="a6.end" dur="0.05s"/>
-            <animate id="b7" attributeName="width" from="10.5" to="10.5" begin="a7.end" end="b14.end"/>
-            <animate id="ac7" attributeName="fill" from="#FFFFFF" to="#14950E" begin="0s;a1.begin" dur="1s"/>
-            <animate id="bc7" attributeName="fill" from="#14950E" to="#14950E" begin="ac1.end" end="b14.end"/>
-		</rect>
-        <rect x="29.1" y="18" class="st3" width="0" height="1">
-			<animate id="a8" attributeName="width" from="0" to="10.5" begin="a7.end" dur="0.05s"/>
-            <animate id="b8" attributeName="width" from="10.5" to="10.5" begin="a8.end" end="b14.end"/>
-            <animate id="ac8" attributeName="fill" from="#FFFFFF" to="#14950E" begin="0s;a1.begin" dur="1s"/>
-            <animate id="bc8" attributeName="fill" from="#14950E" to="#14950E" begin="ac1.end" end="b14.end"/>
-		</rect>
-        <rect x="29.1" y="20" class="st3" width="0" height="1">
-			<animate id="a9" attributeName="width" from="0" to="10.5" begin="a8.end" dur="0.05s"/>
-            <animate id="b9" attributeName="width" from="10.5" to="10.5" begin="a9.end" end="b14.end"/>
-            <animate id="ac9" attributeName="fill" from="#FFFFFF" to="#14950E" begin="0s;a1.begin" dur="1s"/>
-            <animate id="bc9" attributeName="fill" from="#14950E" to="#14950E" begin="ac1.end" end="b14.end"/>
-		</rect>
-        <rect x="29.1" y="22" class="st3" width="0" height="1">
-			<animate id="a10" attributeName="width" from="0" to="10.5" begin="a9.end" dur="0.05s"/>
-            <animate id="b10" attributeName="width" from="10.5" to="10.5" begin="a10.end" end="b14.end"/>
-            <animate id="ac10" attributeName="fill" from="#FFFFFF" to="#14950E" begin="0s;a1.begin" dur="1s"/>
-            <animate id="bc10" attributeName="fill" from="#14950E" to="#14950E" begin="ac1.end" end="b14.end"/>
-		</rect>
-        <rect x="29.1" y="24" class="st3" width="0" height="1">
-			<animate id="a11" attributeName="width" from="0" to="10.5" begin="a10.end" dur="0.05s"/>
-            <animate id="b11" attributeName="width" from="10.5" to="10.5" begin="a11.end" end="b14.end"/>
-            <animate id="ac11" attributeName="fill" from="#FFFFFF" to="#14950E" begin="0s;a1.begin" dur="1s"/>
-            <animate id="bc11" attributeName="fill" from="#14950E" to="#14950E" begin="ac1.end" end="b14.end"/>
-		</rect>
-        <rect x="29.1" y="26" class="st3" width="0" height="1">
-			<animate id="a12" attributeName="width" from="0" to="10.5" begin="a11.end" dur="0.05s"/>
-            <animate id="b12" attributeName="width" from="10.5" to="10.5" begin="a12.end" end="b14.end"/>
-            <animate id="ac12" attributeName="fill" from="#FFFFFF" to="#14950E" begin="0s;a1.begin" dur="1s"/>
-            <animate id="bc12" attributeName="fill" from="#14950E" to="#14950E" begin="ac1.end" end="b14.end"/>
-		</rect>
-        <rect x="29.1" y="28" class="st3" width="0" height="1">
-			<animate id="a13" attributeName="width" from="0" to="10.5" begin="a12.end" dur="0.05s"/>
-            <animate id="b13" attributeName="width" from="10.5" to="10.5" begin="a13.end" end="b14.end"/>
-            <animate id="ac13" attributeName="fill" from="#FFFFFF" to="#14950E" begin="0s;a1.begin" dur="1s"/>
-            <animate id="bc13" attributeName="fill" from="#14950E" to="#14950E" begin="ac1.end" end="b14.end"/>
-		</rect>
-        <rect x="29.1" y="30" class="st3" width="0" height="1">
-			<animate id="a14" attributeName="width" from="0" to="10.5" begin="a13.end" dur="0.05s"/>
-            <animate id="b14" attributeName="width" from="10.5" to="10.5" begin="a14.end" dur="2s"/>
-			<animate id="ac14" attributeName="fill" from="#FFFFFF" to="#14950E" begin="0s;a1.begin" dur="1s"/>
-            <animate id="bc14" attributeName="fill" from="#14950E" to="#14950E" begin="ac1.end" end="b14.end"/>
-		</rect>
-        <g>
-			<polygon class="st3" points="6.1,32 12.2,25.9 6.1,19.8 9.4,16.4 18.8,25.9 9.4,35.3"/>
-            <path class="st0" d="M9.4,17.8l8,8l-8,8l-1.9-1.9l6.1-6.1l-6.1-6.1L9.4,17.8 M9.4,15L8,16.4l-1.9,1.9l-1.4,1.4l1.4,1.4l4.7,4.7
-				l-4.7,4.7L4.7,32l1.4,1.4L8,35.3l1.4,1.4l1.4-1.4l8-8l1.4-1.4l-1.4-1.4l-8-8L9.4,15L9.4,15z"/>
-		</g>
-        <path class="st3" d="M3.6,24.5h10v2.7H3.5C3.5,26.4,3.6,25.5,3.6,24.5z"/>
-        <text font-size="12.19px" font-family="Roboto-Regular, Helvetica, Arial, sans-serif" transform="matrix(1 0 0 1 14.85 43.53)" class="st0">docx</text>
-	</g>
-</g>
+        <g id="doc_and_arrow" transform="scale(.95, .95) translate(1.25,1.25)">
+
+            <path class="st1" d="M43.6,17c0-0.2,0-0.3-0.2-0.5l-9-9c-0.1-0.1-0.2-0.2-0.4-0.2H14.6c-1.1,0-1.9,0.9-1.9,2v9.1l2,2V9.4h19.5v7
+                 c0,0.2,0.1,0.3,0.2,0.4c0.1,0.1,0.3,0.2,0.4,0.2h6.9v16h-27v-1.7l-2,2v11.3c0,1.1,0.8,2,1.9,2c0,0,0,0,0.1,0h27.1
+                 c1.1,0,1.9-0.9,1.9-1.9c0,0,0,0,0-0.1L43.6,17z"/>
+            <polygon class="st1" points="12.6,24.9 13.6,25.9 12.6,26.8 12.6,30.7 15.7,27.6 15.7,24.2 12.6,21.1 		"/>
+
+            <polygon class="st3" points="27.1,14 27.1,14 27.1,13 16.6,13 16.6,14 16.6,14 16.6,15 27.1,15 		"/>
+            <rect x="16.6" y="18" class="st3" width="0" height="1">
+                 <animate id="a1" attributeName="width" from="0" to="10.5" begin="0s;b14.end" dur="0.05s"/>
+                <animate id="b1" attributeName="width" from="10.5" to="10.5" begin="a1.end" end="b14.end"/>
+                <animate id="ac1" attributeName="fill" from="#FFFFFF" to="#14950E" begin="0s;a1.begin" dur="1s"/>
+                <animate id="bc1" attributeName="fill" from="#14950E" to="#14950E" begin="ac1.end" end="b14.end"/>
+            </rect>
+            <rect x="16.6" y="20" class="st3" width="0" height="1">
+                 <animate id="a2" attributeName="width" from="0" to="10.5" begin="a1.end" dur="0.05s"/>
+                <animate id="b2" attributeName="width" from="10.5" to="10.5" begin="a2.end" end="b14.end"/>
+                <animate id="ac2" attributeName="fill" from="#FFFFFF" to="#14950E" begin="0s;a1.begin" dur="1s"/>
+                <animate id="bc2" attributeName="fill" from="#14950E" to="#14950E" begin="ac1.end" end="b14.end"/>
+            </rect>
+            <rect x="16.6" y="22" class="st3" width="0" height="1">
+                 <animate id="a3" attributeName="width" from="0" to="10.5" begin="a2.end" dur="0.05s"/>
+                <animate id="b3" attributeName="width" from="10.5" to="10.5" begin="a3.end" end="b14.end"/>
+                <animate id="ac3" attributeName="fill" from="#FFFFFF" to="#14950E" begin="0s;a1.begin" dur="1s"/>
+                <animate id="bc3" attributeName="fill" from="#14950E" to="#14950E" begin="ac1.end" end="b14.end"/>
+            </rect>
+            <rect x="16.6" y="24" class="st3" width="0" height="1">
+                 <animate id="a4" attributeName="width" from="0" to="10.5" begin="a3.end" dur="0.05s"/>
+                <animate id="b4" attributeName="width" from="10.5" to="10.5" begin="a4.end" end="b14.end"/>
+                <animate id="ac4" attributeName="fill" from="#FFFFFF" to="#14950E" begin="0s;a1.begin" dur="1s"/>
+                <animate id="bc4" attributeName="fill" from="#14950E" to="#14950E" begin="ac1.end" end="b14.end"/>
+            </rect>
+            <rect x="16.6" y="26" class="st3" width="0" height="1">
+                 <animate id="a5" attributeName="width" from="0" to="10.5" begin="a4.end" dur="0.05s"/>
+                <animate id="b5" attributeName="width" from="10.5" to="10.5" begin="a5.end" end="b14.end"/>
+                <animate id="ac5" attributeName="fill" from="#FFFFFF" to="#14950E" begin="0s;a1.begin" dur="1s"/>
+                <animate id="bc5" attributeName="fill" from="#14950E" to="#14950E" begin="ac1.end" end="b14.end"/>
+            </rect>
+            <rect x="16.6" y="28" class="st3" width="0" height="1">
+                 <animate id="a6" attributeName="width" from="0" to="10.5" begin="a5.end" dur="0.05s"/>
+                <animate id="b6" attributeName="width" from="10.5" to="10.5" begin="a6.end" end="b14.end"/>
+                <animate id="ac6" attributeName="fill" from="#FFFFFF" to="#14950E" begin="0s;a1.begin" dur="1s"/>
+                <animate id="bc6" attributeName="fill" from="#14950E" to="#14950E" begin="ac1.end" end="b14.end"/>
+            </rect>
+            <rect x="16.6" y="30" class="st3" width="0" height="1">
+                 <animate id="a7" attributeName="width" from="0" to="10.5" begin="a6.end" dur="0.05s"/>
+                <animate id="b7" attributeName="width" from="10.5" to="10.5" begin="a7.end" end="b14.end"/>
+                <animate id="ac7" attributeName="fill" from="#FFFFFF" to="#14950E" begin="0s;a1.begin" dur="1s"/>
+                <animate id="bc7" attributeName="fill" from="#14950E" to="#14950E" begin="ac1.end" end="b14.end"/>
+            </rect>
+            <rect x="29.1" y="18" class="st3" width="0" height="1">
+                 <animate id="a8" attributeName="width" from="0" to="10.5" begin="a7.end" dur="0.05s"/>
+                <animate id="b8" attributeName="width" from="10.5" to="10.5" begin="a8.end" end="b14.end"/>
+                <animate id="ac8" attributeName="fill" from="#FFFFFF" to="#14950E" begin="0s;a1.begin" dur="1s"/>
+                <animate id="bc8" attributeName="fill" from="#14950E" to="#14950E" begin="ac1.end" end="b14.end"/>
+            </rect>
+            <rect x="29.1" y="20" class="st3" width="0" height="1">
+                 <animate id="a9" attributeName="width" from="0" to="10.5" begin="a8.end" dur="0.05s"/>
+                <animate id="b9" attributeName="width" from="10.5" to="10.5" begin="a9.end" end="b14.end"/>
+                <animate id="ac9" attributeName="fill" from="#FFFFFF" to="#14950E" begin="0s;a1.begin" dur="1s"/>
+                <animate id="bc9" attributeName="fill" from="#14950E" to="#14950E" begin="ac1.end" end="b14.end"/>
+            </rect>
+            <rect x="29.1" y="22" class="st3" width="0" height="1">
+                 <animate id="a10" attributeName="width" from="0" to="10.5" begin="a9.end" dur="0.05s"/>
+                <animate id="b10" attributeName="width" from="10.5" to="10.5" begin="a10.end" end="b14.end"/>
+                <animate id="ac10" attributeName="fill" from="#FFFFFF" to="#14950E" begin="0s;a1.begin" dur="1s"/>
+                <animate id="bc10" attributeName="fill" from="#14950E" to="#14950E" begin="ac1.end" end="b14.end"/>
+            </rect>
+            <rect x="29.1" y="24" class="st3" width="0" height="1">
+                 <animate id="a11" attributeName="width" from="0" to="10.5" begin="a10.end" dur="0.05s"/>
+                <animate id="b11" attributeName="width" from="10.5" to="10.5" begin="a11.end" end="b14.end"/>
+                <animate id="ac11" attributeName="fill" from="#FFFFFF" to="#14950E" begin="0s;a1.begin" dur="1s"/>
+                <animate id="bc11" attributeName="fill" from="#14950E" to="#14950E" begin="ac1.end" end="b14.end"/>
+            </rect>
+            <rect x="29.1" y="26" class="st3" width="0" height="1">
+                 <animate id="a12" attributeName="width" from="0" to="10.5" begin="a11.end" dur="0.05s"/>
+                <animate id="b12" attributeName="width" from="10.5" to="10.5" begin="a12.end" end="b14.end"/>
+                <animate id="ac12" attributeName="fill" from="#FFFFFF" to="#14950E" begin="0s;a1.begin" dur="1s"/>
+                <animate id="bc12" attributeName="fill" from="#14950E" to="#14950E" begin="ac1.end" end="b14.end"/>
+            </rect>
+            <rect x="29.1" y="28" class="st3" width="0" height="1">
+                 <animate id="a13" attributeName="width" from="0" to="10.5" begin="a12.end" dur="0.05s"/>
+                <animate id="b13" attributeName="width" from="10.5" to="10.5" begin="a13.end" end="b14.end"/>
+                <animate id="ac13" attributeName="fill" from="#FFFFFF" to="#14950E" begin="0s;a1.begin" dur="1s"/>
+                <animate id="bc13" attributeName="fill" from="#14950E" to="#14950E" begin="ac1.end" end="b14.end"/>
+            </rect>
+            <rect x="29.1" y="30" class="st3" width="0" height="1">
+                 <animate id="a14" attributeName="width" from="0" to="10.5" begin="a13.end" dur="0.05s"/>
+                <animate id="b14" attributeName="width" from="10.5" to="10.5" begin="a14.end" dur="2s"/>
+                <animate id="ac14" attributeName="fill" from="#FFFFFF" to="#14950E" begin="0s;a1.begin" dur="1s"/>
+                <animate id="bc14" attributeName="fill" from="#14950E" to="#14950E" begin="ac1.end" end="b14.end"/>
+            </rect>
+            <g>
+                 <polygon class="st3" points="6.1,32 12.2,25.9 6.1,19.8 9.4,16.4 18.8,25.9 9.4,35.3"/>
+                <path class="st0" d="M9.4,17.8l8,8l-8,8l-1.9-1.9l6.1-6.1l-6.1-6.1L9.4,17.8 M9.4,15L8,16.4l-1.9,1.9l-1.4,1.4l1.4,1.4l4.7,4.7 l-4.7,4.7L4.7,32l1.4,1.4L8,35.3l1.4,1.4l1.4-1.4l8-8l1.4-1.4l-1.4-1.4l-8-8L9.4,15L9.4,15z"/>
+            </g>
+            <path class="st3" d="M3.6,24.5h10v2.7H3.5C3.5,26.4,3.6,25.5,3.6,24.5z"/>
+            <text font-size="12.19px" font-family="Roboto-Regular, Helvetica, Arial, sans-serif"
+                  transform="matrix(1 0 0 1 14.85 43.53)" class="st0">docx</text>
+        </g>
+    </g>
 </svg>
