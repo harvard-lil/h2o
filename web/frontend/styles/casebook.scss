@@ -169,23 +169,8 @@ main > header.casebook {
     &.export {
       background-image: url('~static/images/ui/casebook/export.svg');
     }
-    &.export.fancy {
-      background-image: url('~static/images/ui/casebook/fancyexport.svg');
-    }
-    @keyframes downloadPulser {
-      from { background-image: url('~static/images/ui/casebook/new_export.svg'); }
-      25%  { background-image: url('~static/images/ui/casebook/new_export_f2.svg'); }
-      50%  { background-image: url('~static/images/ui/casebook/new_export_f3.svg'); }
-      75%  { background-image: url('~static/images/ui/casebook/new_export_f4.svg'); }
-      to   { background-image: url('~static/images/ui/casebook/new_export_f5.svg'); }
-    }
-    &.export.new_export_icon {
-      background-image: url('~static/images/ui/casebook/new_export.svg');
-    }
     &.export.new_export_icon.animating {
-      animation-duration: 1s;
-      animation-name: downloadPulser;
-      animation-iteration-count: infinite;
+      background-image: url('~static/images/ui/casebook/export-anim.svg');
     }
     &.more, &.preview {
       background-image: url('~static/images/ui/casebook/preview.svg');
