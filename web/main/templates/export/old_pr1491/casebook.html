@@ -1,0 +1,37 @@
+{% load call_method %}
+<body>
+  <div class="CasebookTitle" data-custom-style="Casebook Title">{{ node.title }}</div>
+  {% if node.subtitle %}
+  <div class="CasebookSubtitle" data-custom-style="Casebook Subtitle">{{ node.subtitle }}</div>
+  {% endif %}
+  {% if node.headnote %}
+    {% call_method node 'headnote_for_export' export_options=export_options as headnote %}
+      {% if headnote|striptags|length < 325 %}
+        <div class="CasebookBlurb" data-custom-style="Casebook Blurb">{{ headnote|striptags }}</div>
+      {% else %}
+        <div class="CasebookHeadnoteTitle" data-custom-style="Casebook Headnote Title">Headnote</div>
+        <div class="CasebookHeadnote" data-custom-style="Casebook Headnote">{{ headnote }}</div>
+      {% endif %}
+  {% endif %}
+  {% include 'export/old_pr1491/about.html' %}
+
+  {% comment %}
+    Note: the contents of this TOC div is manually converted to XML during the export
+    process by a Lua filter; it is not passed through Pandoc's standard DOCX/XML writer.
+    This chain requires strings to be double-escaped, e.g "&" in a title becomes "&amp;amp;".
+    (TODO: figure out if we can escape in Lua instead of here.)
+  {% endcomment %}
+  <div class="table-of-contents">
+    {% for child in children %}
+      <div class="toc-entry" data-depth="{{ child.ordinals|length }}" data-idx="{{ forloop.counter }}" data-title="{{ child.ordinal_string }} {{ child.title|force_escape|force_escape }}"></div>
+    {% endfor %}
+  </div>
+
+  {% with is_child=True %}
+  {% for child in children %}
+    {% include "export/old_pr1491/node.html" with index=forloop.counter node=child %}
+  {% endfor %}
+  {% endwith %}
+
+  {% include 'export/old_pr1491/credits.html' %}
+</body>

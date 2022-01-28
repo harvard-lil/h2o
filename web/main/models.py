@@ -2123,6 +2123,9 @@ class ContentNode(EditTrackedModel, TimestampedModel, BigPkModel, MaterializedPa
             >>> with assert_num_queries(select=11):
             ...     file_data = full_casebook.export(include_annotations=True)
         """
+
+        docx_sections = export_options['docx_sections'] if export_options and 'docx_sections' in export_options else settings.FORCE_DOCX_SECTIONS
+
         # prefetch all child nodes and related data
         if LiveSettings.load().prevent_exports:
             logger.info(f"Exporting Casebook {self.id}: attempt rejected (too many previous failures)")
@@ -2146,6 +2149,10 @@ class ContentNode(EditTrackedModel, TimestampedModel, BigPkModel, MaterializedPa
             template_name = 'export/tbd.html'
         else:
             template_name = 'export/node.html'
+
+        if not docx_sections:
+            template_name.replace('export/', 'export/old_pr1491/')
+
         html = render_to_string(template_name, {
             'is_export': True,
             'is_child': is_child,
@@ -3661,7 +3668,7 @@ class Casebook(EditTrackedModel, TimestampedModel, BigPkModel, TrackedCloneable)
 
         # render html
         logger.info(f"Exporting Casebook {self.id}: serializing to HTML")
-        template_name = 'export/casebook.html'
+        template_name = 'export/casebook.html' if docx_sections else 'export/old_pr1491/casebook.html'
         html = render_to_string(template_name, {
             'is_export': True,
             'node': self,
@@ -3673,9 +3680,14 @@ class Casebook(EditTrackedModel, TimestampedModel, BigPkModel, TrackedCloneable)
         })
         if file_type == 'html':
             return html
+        if docx_sections:
+            html = html.replace('&nbsp;', ' ').replace('_h2o_keep_element', '&nbsp;').replace('\xa0', ' ')
+        else:
+            html = html.replace(
+                '<div style="display: none" data-custom-style="Head Separator">_h2o_keep_element</div>\n', '')\
+                .replace('<div style="display: none" data-custom-style="Head End">_h2o_keep_element</div>\n', '')
 
-        return export_via_aws_lambda(self, html
-                                     .replace('&nbsp;', ' ').replace('_h2o_keep_element', '&nbsp;').replace('\xa0', ' '),
+        return export_via_aws_lambda(self, html,
                                      file_type, docx_sections=docx_sections,
                                      docx_footnotes=docx_footnotes)
 

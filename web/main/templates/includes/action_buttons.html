@@ -50,10 +50,19 @@
   {% endif %}
     
   {% if exportable %}
-    <a class="action one-line export export-{{ section.is_annotated|yesno:"has,no" }}-annotations" role="button" rel="nofollow" href="#">Export</a>
-    {% if request.user.is_superuser and section.casebook is section %} {# at the top level of a casebook, the 'section' you're looking is the casebook itself. Sections only make sense at the top level. #}
-      <a class="action one-line export fancy export-docx-sections export-{{ section.is_annotated|yesno:"has,no" }}-annotations" role="button" rel="nofollow" href="#">Export with <i>deluxe sections</i></a>
+
+    {% if request.user.is_superuser %}
+      {% if section.casebook is section %} {# at the top level of a casebook, the 'section' you're looking is the casebook itself. Sections only make sense at the top level. #}
+        <a class="action one-line export export-{{ section.is_annotated|yesno:"has,no" }}-annotations" role="button" rel="nofollow" href="#">Export</a>
+        <a class="action one-line export fancy export-docx-sections export-{{ section.is_annotated|yesno:"has,no" }}-annotations" role="button" rel="nofollow" href="#">Export with<br><i>deluxe sections</i></a>
+      {% else %}
+        <a class="action one-line export export-{{ section.is_annotated|yesno:"has,no" }}-annotations" role="button" rel="nofollow" href="#">Export w/o format <br>changes for sections</a>
+        <a class="action one-line export fancy export-docx-sections export-{{ section.is_annotated|yesno:"has,no" }}-annotations" role="button" rel="nofollow" href="#">Proposed Export</a>
+      {% endif %}
+    {% else %}
+      <a class="action one-line export export-{{ section.is_annotated|yesno:"has,no" }}-annotations" role="button" rel="nofollow" href="#">Export</a>
     {% endif %}
+
   {% endif %}
 
 

@@ -34,6 +34,7 @@ function export_casebook_path(casebookId) {
 
 function downloadFile (includeAnnotations, experimental=false, aws_lambda=false, docx_footnotes,
                        docx_sections=false) {
+
   if(typeof includeAnnotations === "undefined"){
     includeAnnotations = "true";
   }
@@ -42,12 +43,14 @@ function downloadFile (includeAnnotations, experimental=false, aws_lambda=false,
     window.location.assign(resource_export_path(pageInfo.resourceId)
       + (includeAnnotations === "true" ? '?annotations=true' : '?annotations=false')
       + (aws_lambda ? '&aws_lambda=true' : '')
-      + (docx_footnotes ? '&aws_lambda=false&docx_footnotes=true' : ''));
+      + (docx_footnotes ? '&aws_lambda=false&docx_footnotes=true' : '')
+      + (docx_sections ? '&docx_sections=true' : ''));
   } else if (pageInfo.sectionId)  {
     window.location.assign(section_export_path(pageInfo.sectionId)
       + (includeAnnotations === "true"? '?annotations=true' : '?annotations=false')
       + (aws_lambda ? '&aws_lambda=true' : '')
-      + (docx_footnotes ? '&aws_lambda=false&docx_footnotes=true' : ''));
+      + (docx_footnotes ? '&aws_lambda=false&docx_footnotes=true' : '')
+      + (docx_sections ? '&docx_sections=true' : ''));
   } else {
     window.location.assign(export_casebook_path(pageInfo.casebookId)
       + (includeAnnotations === "true" ? '?annotations=true' : '?annotations=false')
@@ -63,7 +66,7 @@ function showExportModal (e, experimental=false, aws_lambda=false, docx_footnote
   new ExportModal('export-modal', e.target, {
     'click #export-modal': (e) => { if (e.target.id === 'export-modal') this.destroy()},
     'click .export': (e) => {
-      downloadFile(e.target.value, experimental, aws_lambda, docx_footnotes, docx_footnotes);
+      downloadFile(e.target.value, experimental, aws_lambda, docx_footnotes, docx_sections);
       document.querySelector('button.close').click()
     }
   });

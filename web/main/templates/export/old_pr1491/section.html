@@ -1,0 +1,8 @@
+<body>
+  {% include "export/old_pr1491/node.html" with index=0 node=node %}
+  {% with is_child=True %}
+  {% for child in children %}
+    {% include "export/old_pr1491/node.html" with index=forloop.counter node=child %}
+  {% endfor %}
+  {% endwith %}
+</body>

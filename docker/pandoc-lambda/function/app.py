@@ -277,12 +277,12 @@ def handler(event, context):
                 'pandoc',
                 '--from', 'html',
                 '--to', 'docx',
-                '--reference-doc', 'reference.docx',
+                '--reference-doc', 'reference.docx' if options['docx_sections'] else 'old_pr1491/reference.docx',
                 '--output', pandoc_out.name,
                 '--quiet'
             ]
             if is_casebook:
-                command.extend(['--lua-filter', 'table_of_contents.lua'])
+                command.extend(['--lua-filter', 'table_of_contents.lua' if options['docx_sections'] else 'old_pr1491/table_of_contents.lua'])
             try:
                 response = subprocess.run(command, input=pandoc_in.read(), stderr=subprocess.PIPE,
                                           stdout=subprocess.PIPE)
