@@ -14,8 +14,11 @@ xmlns:wp="http://schemas.openxmlformats.org/drawingml/2006/wordprocessingDrawing
         <w:pPr>
             <w:pStyle w:val="Head Separator" />
 
-            <!-- Documenting a section break for reference. Unike other elements in this file, uncommenting this will
-                 affect the pandoc output.
+            <!-- Documenting an example section break for reference. Unlike other elements in this file, uncommenting
+                 this will affect the pandoc output. If you have a section break in document.xml in your reference.docx,
+                 pandoc will stick it to the end of your output docx to use as file defaults. Since we've already got
+                 code inserting non-static page breaks in app.py with real r:id values and such, there's no need for
+                 this to muddy anything up.
             <w:sectPr>
                 <w:headerReference w:type="even" r:id="rId41"/>
                 <w:headerReference w:type="default" r:id="rId42"/>
