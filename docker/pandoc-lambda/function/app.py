@@ -227,17 +227,18 @@ def sectionizer(doc, doc_w=8.5, doc_h=11, internal_margin=.5, external_margin=.7
                 'w:printerSettings', 'w:sectPrChange'
             )
 
-    tt_style = doc.styles.get_by_id('TableText', WD_STYLE_TYPE.PARAGRAPH)
-    case_tt_style = doc.styles.get_by_id('CaseTableText', WD_STYLE_TYPE.PARAGRAPH)
+    body_tt_style = doc.styles.get_by_id('TableText', WD_STYLE_TYPE.PARAGRAPH)
+    headnote_tt_style = doc.styles.get_by_id('HeadnoteTableText', WD_STYLE_TYPE.PARAGRAPH)
 
     # much faster than using a clever xpath from the doc root.
     # tables occupying such a small percent of a huge document is a likely culprit.
     for table in doc.tables:
+        context_style = doc.tables[0]._element.xpath('preceding-sibling::w:p[1]/w:pPr/w:pStyle')[0].get(qn('w:val'))
+        tt_style = headnote_tt_style if context_style.endswith('eadnote') else body_tt_style
         for row in table.rows:
             for cell in row.cells:
                 for paragraph in cell.paragraphs:
-                    prev_p_sId = paragraph._element.xpath('../../../preceding-sibling::w:p[1]')[0].get(qn('w:val'))
-                    paragraph.style = case_tt_style if prev_p_sId.startswith('Case') else tt_style
+                    paragraph.style = tt_style
 
     # the doc-wide sectpr at the end of the body element
     section_break("doc-wide")

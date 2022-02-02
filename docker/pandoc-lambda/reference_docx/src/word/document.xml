@@ -13,7 +13,10 @@ xmlns:wp="http://schemas.openxmlformats.org/drawingml/2006/wordprocessingDrawing
     <w:p>
         <w:pPr>
             <w:pStyle w:val="Head Separator" />
-<!--            <w:sectPr>
+
+            <!-- Documenting a section break for reference. Unike other elements in this file, uncommenting this will
+                 affect the pandoc output.
+            <w:sectPr>
                 <w:headerReference w:type="even" r:id="rId41"/>
                 <w:headerReference w:type="default" r:id="rId42"/>
                 <w:footerReference w:type="even" r:id="rId51"/>

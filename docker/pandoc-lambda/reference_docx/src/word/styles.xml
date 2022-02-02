@@ -1,20 +1,18 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
 <w:styles xmlns:r="http://schemas.openxmlformats.org/officeDocument/2006/relationships"
-          xmlns:w="http://schemas.openxmlformats.org/wordprocessingml/2006/main"
->
+          xmlns:w="http://schemas.openxmlformats.org/wordprocessingml/2006/main">
     <w:docDefaults>
         <w:rPrDefault>
             <w:rPr>
                 <w:rFonts w:ascii="Century Gothic" w:eastAsia="Arial" w:hAnsi="Century Gothic" w:cs="Arial"/>
                 <w:lang w:val="en-US" w:eastAsia="en-US" w:bidi="ar-SA"/>
+                <w:color w:val="000000"/>
+                <w:spacing w:val="5"/>
+                <w:sz w:val="18"/>
             </w:rPr>
         </w:rPrDefault>
         <w:pPrDefault/>
     </w:docDefaults>
-
-    <!--
-
-    -->
 
     <!--
 
@@ -26,120 +24,126 @@
         whatever. The user can change these styles to effect sweeping changes in their document while maintaining
         logical separation of concerns -->
 
-    <w:style w:type="paragraph" w:customStyle="1" w:styleId="FontFamilyDefaultTitleandStructure">
-        <!-- for all non-case elements -->
-        <w:name w:val="Font Family: Default Title and Structure"/>
-        <w:uiPriority w:val="20"/>
-        <w:qFormat/>
+    <w:style w:type="paragraph" w:customStyle="1" w:styleId="TitleHeadnoteDefaultFontProperties">
+        <!-- for all non-case non-body-text elements -->
+        <w:name w:val="Title Headnote Default Font Properties"/>
+        <w:semiHidden/>
+        <w:unhideWhenUsed/>
+        <w:uiPriority w:val="99"/>
         <w:rPr>
             <w:rFonts w:ascii="Century Gothic" w:hAnsi="Century Gothic"/>
-            <w:sz w:val="24"/>
-            <w:szCs w:val="24"/>
-        </w:rPr>
-    </w:style>
-    <w:style w:type="paragraph" w:customStyle="1" w:styleId="FontFamilyDefaultCaseContentBody">
-        <!-- for all case elements -->
-        <w:name w:val="Font Family: Default Case Content Body"/>
-        <w:uiPriority w:val="20"/>
-        <w:qFormat/>
-        <w:rPr>
-            <w:rFonts w:ascii="Baskerville" w:hAnsi="Baskerville"/>
-            <w:sz w:val="24"/>
-            <w:szCs w:val="24"/>
-        </w:rPr>
-    </w:style>
-    <w:style w:type="paragraph" w:customStyle="1" w:styleId="FontFamilyDefaultSourceCode">
-        <!-- for all <pre> type elements -->
-        <w:name w:val="Font Family: Default Source Code"/>
-        <w:uiPriority w:val="20"/>
-        <w:qFormat/>
-        <w:rPr>
-            <w:rFonts w:ascii="Courier New" w:hAnsi="Courier New" w:cs="Courier New"/>
-            <w:sz w:val="24"/>
-            <w:szCs w:val="24"/>
+            <w:color w:val="000000"/>
+            <w:spacing w:val="5"/>
+            <w:sz w:val="18"/>
         </w:rPr>
     </w:style>
 
+    <w:style w:type="paragraph" w:customStyle="1" w:styleId="BodyCaseDefaultFontProperties">
+        <!-- for non-headnote text blocks -->
+        <w:name w:val="Body Case Default Font Properties"/>
+        <w:semiHidden/>
+        <w:unhideWhenUsed/>
+        <w:uiPriority w:val="99"/>
+
+        <w:rPr>
+            <w:rFonts w:ascii="Baskerville" w:hAnsi="Baskerville"/>
+            <w:color w:val="000000" w:themeColor="text1"/>
+            <w:spacing w:val="5"/>
+            <w:sz w:val="16"/>
+        </w:rPr>
+    </w:style>
+
+    <w:style w:type="paragraph" w:customStyle="1" w:styleId="MonospaceDefaultFontProperties">
+        <!-- for all <pre> type elements -->
+        <w:name w:val="Monospace Default Font Properties"/>
+        <w:semiHidden/>
+        <w:unhideWhenUsed/>
+        <w:semiHidden/>
+        <w:uiPriority w:val="99"/>
+        <w:rPr>
+            <w:sz w:val="16"/>
+            <w:rFonts w:ascii="Courier New" w:hAnsi="Courier New" w:cs="Courier New"/>
+            <w:spacing w:val="5"/>
+            <w:sz w:val="16"/>
+        </w:rPr>
+    </w:style>
 
 
     <!--
     General/Body Text
     -->
-    <w:style w:type="paragraph" w:default="1" w:styleId="Normal">
-        <!-- Normal is largely disused in favor of the more deliberately styled BodyText -->
-        <w:name w:val="Normal"/>
+    <w:style w:type="paragraph" w:styleId="BodyTextLayout">
+        <!-- Kind of the default paragraph style for bodies of non-case text -->
+        <w:name w:val="Body Text Layout"/>
+        <w:basedOn w:val="BodyCaseDefaultFontProperties"/>
         <w:semiHidden/>
         <w:unhideWhenUsed/>
         <w:uiPriority w:val="99"/>
         <w:pPr>
             <w:spacing w:before="160" w:line="276" w:lineRule="auto"/>
+            <w:ind w:right="2160"/>
         </w:pPr>
-        <w:rPr>
-            <w:bCs/>
-            <w:iCs/>
-            <w:color w:val="000000" w:themeColor="text1"/>
-            <w:spacing w:val="5"/>
-            <w:sz w:val="16"/>
-            <w:szCs w:val="14"/>
-        </w:rPr>
     </w:style>
-
-    <w:style w:type="paragraph" w:styleId="BodyText">
-        <!-- Kind of the default paragraph style for bodies of non-case text -->
+    
+    <w:style w:type="paragraph" w:customStyle="1" w:styleId="HeadnoteTextLayout">
+        <w:name w:val="Headnote Text Layout"/>
+        <w:uiPriority w:val="59"/>
+        <w:basedOn w:val="TitleHeadnoteDefaultFontProperties"/>
+        <w:semiHidden/>
+        <w:pPr>
+            <w:spacing w:before="160" w:line="276" w:lineRule="auto"/>
+            <w:ind w:right="2880"/>
+        </w:pPr>
+    </w:style>
+   
+    <w:style w:type="paragraph" w:customStyle="1" w:styleId="BodyText">
         <w:name w:val="Body Text"/>
-        <w:basedOn w:val="FontFamilyDefaultCaseContentBody"/>
-        <w:link w:val="BodyTextChar"/>
+        <w:basedOn w:val="BodyTextLayout"/>
         <w:qFormat/>
         <w:uiPriority w:val="0"/>
-        <w:uiPriority w:val="1"/>
-        <w:pPr>
-            <w:spacing w:before="160" w:line="276" w:lineRule="auto"/>
-        </w:pPr>
-        <w:rPr>
-            <w:bCs/>
-            <w:iCs/>
-            <w:color w:val="000000" w:themeColor="text1"/>
-            <w:spacing w:val="5"/>
-            <w:sz w:val="16"/>
-            <w:szCs w:val="14"/>
-        </w:rPr>
-    </w:style>
-    <w:style w:type="paragraph" w:styleId="BodyTextFirstIndent">
-        <w:name w:val="Body Text First Indent"/>
-        <w:basedOn w:val="BodyText"/>
-        <w:link w:val="BodyTextFirstIndentChar"/>
         <w:semiHidden/>
         <w:unhideWhenUsed/>
         <w:uiPriority w:val="99"/>
-        <w:pPr>
-            <w:spacing w:before="0" w:line="240" w:lineRule="auto"/>
-            <w:ind w:firstLine="360"/>
-        </w:pPr>
     </w:style>
+    <w:style w:type="paragraph" w:customStyle="1" w:default="1" w:styleId="Drinkle">
+        <w:name w:val="Drinkle"/>
+        <w:basedOn w:val="BodyTextLayout"/>
+        <w:qFormat/>
+        <w:uiPriority w:val="0"/>
+        <w:semiHidden/>
+        <w:unhideWhenUsed/>
+        <w:uiPriority w:val="99"/>
+        <w:sz w:val="16"/>
+            <w:rFonts w:ascii="Comic Sans" w:hAnsi="Comic Sans" w:cs="Comic Sans"/>
+            <w:spacing w:val="1"/>
+        <w:sz w:val="20"/>
+    </w:style>
+
     <w:style w:type="paragraph" w:customStyle="1" w:styleId="FirstParagraph">
         <w:name w:val="First Paragraph"/>
-        <w:basedOn w:val="BodyText"/>
-        <w:next w:val="BodyText"/>
+        <w:basedOn w:val="BodyTextLayout"/>
         <w:semiHidden/>
         <w:unhideWhenUsed/>
         <w:uiPriority w:val="99"/>
-        <w:pPr>
-            <w:spacing w:before="240"/>
-        </w:pPr>
     </w:style>
+    
+    <w:style w:type="paragraph" w:styleId="Normal">
+        <!-- Normal is largely disused in favor of the more deliberately styled BodyCaseDefaultFontProperties -->
+        <w:name w:val="Normal"/>
+        <w:basedOn w:val="BodyTextLayout"/>
+        <w:semiHidden/>
+        <w:unhideWhenUsed/>
+        <w:uiPriority w:val="99"/>
+    </w:style>
+
     <w:style w:type="paragraph" w:customStyle="1" w:styleId="Compact">
         <!--  pandoc throws this around a bunch if you forget to style something. This 'compactness,' while space efficient
             is not readable in large bodies of text, and should be scrupulously avoided. -->
         <w:name w:val="Compact"/>
-        <w:basedOn w:val="BodyText"/>
         <w:semiHidden/>
         <w:unhideWhenUsed/>
         <w:uiPriority w:val="99"/>
-        <w:pPr>
-            <w:spacing w:before="36" w:after="36"/>
-        </w:pPr>
     </w:style>
-
 
     <!-- case-specific -->
     <w:style w:type="paragraph" w:customStyle="1" w:styleId="CaseHeader">
@@ -157,50 +161,55 @@
             <w:contextualSpacing/>
             <w:jc w:val="center"/>
         </w:pPr>
-        <w:rPr>
-            <w:rFonts w:ascii="Baskerville" w:hAnsi="Baskerville"/>
-        </w:rPr>
     </w:style>
-    <w:style w:type="paragraph" w:customStyle="1" w:styleId="Author">
-        <w:name w:val="Author"/>
-        <w:basedOn w:val="CaseBody"/>
-        <w:next w:val="BodyText"/>
-        <w:uiPriority w:val="8"/>
-        <w:qFormat/>
-        <w:rPr>
-            <w:u w:val="single"/>
-        </w:rPr>
-    </w:style>
-    <w:style w:type="paragraph" w:styleId="Date">
-        <w:name w:val="Date"/>
-        <w:basedOn w:val="CaseBody"/>
-        <w:next w:val="BodyText"/>
-        <w:uiPriority w:val="8"/>
-        <w:qFormat/>
-        <w:rPr>
-            <w:b/>
-            <w:sz w:val="16"/>
-        </w:rPr>
-    </w:style>
-    <w:style w:type="paragraph" w:customStyle="1" w:styleId="CaseBody">
-        <w:name w:val="Case Body"/>
-        <w:basedOn w:val="BodyText"/>
+    
+    <w:style w:type="paragraph" w:customStyle="1" w:styleId="CaseBodyText">
+        <w:name w:val="Case Body Text"/>
+        <w:basedOn w:val="BodyCaseDefaultFontProperties"/>
         <w:uiPriority w:val="8"/>
         <w:qFormat/>
         <w:rPr>
             <w:sz w:val="16"/>
         </w:rPr>
+    </w:style>
+    
+
+
+    <w:style w:type="paragraph" w:styleId="Normal">
+        <!-- Normal is largely disused in favor of the more deliberately styled BodyCaseDefaultFontProperties -->
+        <w:name w:val="Normal"/>
+        <w:basedOn w:val="BodyTextLayout"/>
+        <w:semiHidden/>
+        <w:unhideWhenUsed/>
+        <w:uiPriority w:val="99"/>
+    </w:style>
+
+    <w:style w:type="paragraph" w:customStyle="1" w:default="1" w:styleId="BodyText">
+        <w:name w:val="Body Text"/>
+        <w:basedOn w:val="BodyTextLayout"/>
+        <w:semiHidden/>
+        <w:unhideWhenUsed/>
+        <w:uiPriority w:val="99"/>
+    </w:style>
+
+    <w:style w:type="paragraph" w:customStyle="1" w:styleId="Compact">
+        <!--  pandoc throws this around a bunch if you forget to style something. This 'compactness,' while space efficient
+            is not readable in large bodies of text, and should be scrupulously avoided. -->
+        <w:name w:val="Compact"/>
+        <w:basedOn w:val="BodyTextLayout"/>
+        <w:semiHidden/>
+        <w:unhideWhenUsed/>
+        <w:uiPriority w:val="99"/>
     </w:style>
 
     <!-- Heading and Subheading -->
     <!--  These are headings used in author-formatted text blocks— NOT CORE BOOK ELEMENTS. If they set something as H1, it
-        will hold a good presence in relation to the surrounding texts, but it will not conflic with the book's
+        will hold a good presence in relation to the surrounding texts, but it will not conflict with the book's
         structural elements. -->
     <w:style w:type="paragraph" w:styleId="Heading1">
         <w:name w:val="heading 1"/>
-        <w:basedOn w:val="FontFamilyDefaultTitleandStructure"/>
+        <w:basedOn w:val="HStruct05Title"/>
         <w:next w:val="BodyText"/>
-        <w:uiPriority w:val="9"/>
         <w:uiPriority w:val="2"/>
         <w:qFormat/>
         <w:pPr>
@@ -208,16 +217,17 @@
             <w:outlineLvl w:val="0"/>
         </w:pPr>
         <w:rPr>
-            <w:b/>
-            <w:sz w:val="34"/>
+
+
+            <w:color w:val="000000"/>
+            <w:kern w:val="24"/>
+            <w:sz w:val="36"/>
         </w:rPr>
     </w:style>
     <w:style w:type="paragraph" w:styleId="Heading2">
         <w:name w:val="heading 2"/>
         <w:basedOn w:val="Heading1"/>
         <w:next w:val="BodyText"/>
-        <w:uiPriority w:val="9"/>
-        <w:unhideWhenUsed/>
         <w:uiPriority w:val="2"/>
         <w:qFormat/>
         <w:pPr>
@@ -233,8 +243,6 @@
         <w:name w:val="heading 3"/>
         <w:basedOn w:val="Heading2"/>
         <w:next w:val="BodyText"/>
-        <w:uiPriority w:val="9"/>
-        <w:unhideWhenUsed/>
         <w:uiPriority w:val="2"/>
         <w:qFormat/>
         <w:pPr>
@@ -242,39 +250,37 @@
             <w:outlineLvl w:val="2"/>
         </w:pPr>
         <w:rPr>
-            <w:sz w:val="22"/>
+            <w:b w:val="0"/>
+            <w:bCs w:val="0"/>
+            <w:sz w:val="28"/>
         </w:rPr>
     </w:style>
     <w:style w:type="paragraph" w:styleId="Heading4">
         <w:name w:val="heading 4"/>
         <w:basedOn w:val="Heading3"/>
         <w:next w:val="BodyText"/>
-        <w:uiPriority w:val="9"/>
-        <w:unhideWhenUsed/>
         <w:uiPriority w:val="2"/>
         <w:qFormat/>
         <w:pPr>
+            <w:spacing w:before="320" w:after="180"/>
             <w:outlineLvl w:val="3"/>
         </w:pPr>
         <w:rPr>
-            <w:sz w:val="18"/>
-            <w:u w:val="single"/>
+            <w:sz w:val="24"/>
         </w:rPr>
     </w:style>
     <w:style w:type="paragraph" w:styleId="Heading5">
         <w:name w:val="heading 5"/>
         <w:basedOn w:val="Heading4"/>
         <w:next w:val="BodyText"/>
-        <w:uiPriority w:val="9"/>
-        <w:unhideWhenUsed/>
         <w:uiPriority w:val="2"/>
         <w:qFormat/>
         <w:pPr>
-            <w:spacing w:before="360" w:after="180"/>
+            <w:spacing w:before="260" w:after="180"/>
             <w:outlineLvl w:val="4"/>
         </w:pPr>
         <w:rPr>
-            <w:b w:val="0"/>
+            <w:sz w:val="20"/>
         </w:rPr>
     </w:style>
     <w:style w:type="paragraph" w:styleId="Heading6">
@@ -289,8 +295,10 @@
             <w:outlineLvl w:val="5"/>
         </w:pPr>
         <w:rPr>
-            <w:i/>
-            <w:u w:val="none"/>
+            <w:b w:val="0"/>
+            <w:bCs w:val="0"/>
+            <w:u/>
+            <w:sz w:val="18"/>
         </w:rPr>
     </w:style>
     <w:style w:type="paragraph" w:styleId="Heading7">
@@ -304,6 +312,9 @@
         <w:pPr>
             <w:outlineLvl w:val="6"/>
         </w:pPr>
+        <w:rPr>
+           <w:sz w:val="16"/>
+        </w:rPr>
     </w:style>
     <w:style w:type="paragraph" w:styleId="Heading8">
         <w:name w:val="heading 8"/>
@@ -316,6 +327,10 @@
         <w:pPr>
             <w:outlineLvl w:val="7"/>
         </w:pPr>
+        <w:rPr>
+            <w:u/>
+            <w:sz w:val="16"/>
+        </w:rPr>
     </w:style>
     <w:style w:type="paragraph" w:styleId="Heading9">
         <w:name w:val="heading 9"/>
@@ -328,6 +343,10 @@
         <w:pPr>
             <w:outlineLvl w:val="8"/>
         </w:pPr>
+        <w:rPr>
+            <w:u/>
+            <w:sz w:val="12"/>
+        </w:rPr>
     </w:style>
 
     <!--  The corresponding subheadings are largely the same size, but de-emphasized through color and text style. I don't
@@ -341,10 +360,14 @@
         <w:qFormat/>
         <w:pPr>
             <w:spacing w:before="0"/>
+            <w:spacing w:before="320" w:after="180"/>
+            <w:outlineLvl w:val="2"/>
         </w:pPr>
         <w:rPr>
             <w:b w:val="0"/>
+			<w:bCs w:val="0"/>
             <w:i/>
+			<w:iCs/>
             <w:color w:val="5A771D"/>
         </w:rPr>
     </w:style>
@@ -354,13 +377,13 @@
         <w:next w:val="BodyText"/>
         <w:uiPriority w:val="3"/>
         <w:qFormat/>
-        <w:pPr>
-            <w:spacing w:before="0"/>
-        </w:pPr>
         <w:rPr>
             <w:b w:val="0"/>
+			<w:bCs w:val="0"/>
             <w:i/>
+			<w:iCs/>
             <w:color w:val="5A771D"/>
+            <w:u w:val="none"/>
         </w:rPr>
     </w:style>
     <w:style w:type="paragraph" w:customStyle="1" w:styleId="Subheading3">
@@ -369,13 +392,13 @@
         <w:next w:val="BodyText"/>
         <w:uiPriority w:val="3"/>
         <w:qFormat/>
-        <w:pPr>
-            <w:spacing w:before="0"/>
-        </w:pPr>
         <w:rPr>
             <w:b w:val="0"/>
+            <w:bCs w:val="0"/>
             <w:i/>
+			<w:iCs/>
             <w:color w:val="5A771D"/>
+            <w:u w:val="none"/>
         </w:rPr>
     </w:style>
     <w:style w:type="paragraph" w:customStyle="1" w:styleId="Subheading4">
@@ -384,12 +407,11 @@
         <w:next w:val="BodyText"/>
         <w:uiPriority w:val="3"/>
         <w:qFormat/>
-        <w:pPr>
-            <w:spacing w:before="0"/>
-        </w:pPr>
         <w:rPr>
             <w:b w:val="0"/>
+            <w:bCs w:val="0"/>
             <w:i/>
+			<w:iCs/>
             <w:color w:val="5A771D"/>
             <w:u w:val="none"/>
         </w:rPr>
@@ -400,28 +422,74 @@
         <w:next w:val="BodyText"/>
         <w:uiPriority w:val="3"/>
         <w:qFormat/>
-        <w:pPr>
-            <w:spacing w:before="0"/>
-        </w:pPr>
         <w:rPr>
+            <w:b w:val="0"/>
+            <w:bCs w:val="0"/>
             <w:i/>
+			<w:iCs/>
             <w:color w:val="5A771D"/>
             <w:u w:val="none"/>
         </w:rPr>
     </w:style>
     <w:style w:type="paragraph" w:customStyle="1" w:styleId="Subheading6">
         <w:name w:val="Subheading 6"/>
-        <w:basedOn w:val="Subheading5"/>
+        <w:basedOn w:val="Heading6"/>
         <w:next w:val="BodyText"/>
         <w:uiPriority w:val="3"/>
         <w:qFormat/>
+        <w:rPr>
+            <w:b w:val="0"/>
+            <w:bCs w:val="0"/>
+            <w:i/>
+			<w:iCs/>
+            <w:color w:val="5A771D"/>
+            <w:u w:val="none"/>
+        </w:rPr>
     </w:style>
     <w:style w:type="paragraph" w:customStyle="1" w:styleId="Subheading7">
         <w:name w:val="Subheading 7"/>
-        <w:basedOn w:val="Subheading6"/>
+        <w:basedOn w:val="Heading7"/>
         <w:next w:val="BodyText"/>
         <w:uiPriority w:val="3"/>
         <w:qFormat/>
+        <w:rPr>
+            <w:b w:val="0"/>
+            <w:bCs w:val="0"/>
+            <w:i/>
+			<w:iCs/>
+            <w:color w:val="5A771D"/>
+            <w:u w:val="none"/>
+        </w:rPr>
+    </w:style>
+    <w:style w:type="paragraph" w:customStyle="1" w:styleId="Subheading8">
+        <w:name w:val="Subheading 8"/>
+        <w:basedOn w:val="Heading8"/>
+        <w:next w:val="BodyText"/>
+        <w:uiPriority w:val="3"/>
+        <w:qFormat/>
+        <w:rPr>
+            <w:b w:val="0"/>
+            <w:bCs w:val="0"/>
+            <w:i/>
+			<w:iCs/>
+            <w:color w:val="5A771D"/>
+            <w:u w:val="none"/>
+        </w:rPr>
+    </w:style>
+    <w:style w:type="paragraph" w:customStyle="1" w:styleId="Subheading9">
+        <w:name w:val="Subheading 9"/>
+        <w:basedOn w:val="Heading9"/>
+        <w:next w:val="BodyText"/>
+        <w:uiPriority w:val="3"/>
+        <w:qFormat/>
+        <w:rPr>
+            <w:b w:val="0"/>
+            <w:bCs w:val="0"/>
+            <w:i/>
+			<w:iCs/>
+            <w:color w:val="5A771D"/>
+            <w:u w:val="none"/>
+        </w:rPr>
     </w:style>
 
 
@@ -430,180 +498,164 @@
     <!--  These make up the visual structure of the core book. Author-formatted headlines should never overtake these by
         by default. The elements should contain nominal layout fomatting, at most. It's mostly about the size, color,
         wieght, spacing, and style. -->
-    <w:style w:type="paragraph" w:customStyle="1" w:styleId="HStruct01Title">
-        <w:name w:val="H Struct 01 Title"/>
-        <w:basedOn w:val="FontFamilyDefaultTitleandStructure"/>
-        <w:next w:val="HStruct01Subtitle"/>
-        <w:link w:val="HStruct01TitleChar"/>
+    <w:style w:type="paragraph" w:customStyle="1" w:styleId="HStructTitleBase">
+        <w:name w:val="H Struct Title Base"/>
+        <w:basedOn w:val="TitleHeadnoteDefaultFontProperties"/>
         <w:uiPriority w:val="99"/>
         <w:semiHidden/>
         <w:pPr>
             <w:spacing w:after="240" w:line="204" w:lineRule="auto"/>
         </w:pPr>
         <w:rPr>
-            <w:rFonts w:cs="Arial (Headings CS)"/>
             <w:b/>
-            <w:bCs/>
+			<w:bCs/>
             <w:color w:val="1B418C"/>
-            <w:spacing w:val="-6"/>
             <w:kern w:val="24"/>
+        </w:rPr>
+    </w:style>
+    <w:style w:type="paragraph" w:customStyle="1" w:styleId="HStruct01Title">
+        <w:name w:val="H Struct 01 Title"/>
+        <w:basedOn w:val="HStructTitleBase"/>
+        <w:next w:val="HStruct01Subtitle"/>
+        <w:uiPriority w:val="99"/>
+        <w:semiHidden/>
+        <w:rPr>
+            <w:spacing w:val="-6"/>
             <w:sz w:val="72"/>
-            <w:szCs w:val="72"/>
         </w:rPr>
     </w:style>
     <w:style w:type="paragraph" w:customStyle="1" w:styleId="HStruct02Title">
         <w:name w:val="H Struct 02 Title"/>
-        <w:basedOn w:val="HStruct01Title"/>
+        <w:basedOn w:val="HStructTitleBase"/>
         <w:uiPriority w:val="59"/>
         <w:semiHidden/>
         <w:rPr>
             <w:spacing w:val="-5"/>
             <w:sz w:val="52"/>
-            <w:szCs w:val="64"/>
         </w:rPr>
     </w:style>
     <w:style w:type="paragraph" w:customStyle="1" w:styleId="HStruct03Title">
         <w:name w:val="H Struct 03 Title"/>
-        <w:basedOn w:val="HStruct01Title"/>
+        <w:basedOn w:val="HStructTitleBase"/>
         <w:uiPriority w:val="59"/>
         <w:semiHidden/>
         <w:rPr>
             <w:sz w:val="44"/>
-            <w:szCs w:val="56"/>
         </w:rPr>
     </w:style>
     <w:style w:type="paragraph" w:customStyle="1" w:styleId="HStruct04Title">
         <w:name w:val="H Struct 04 Title"/>
-        <w:basedOn w:val="HStruct01Title"/>
+        <w:basedOn w:val="HStructTitleBase"/>
         <w:uiPriority w:val="99"/>
         <w:semiHidden/>
         <w:rPr>
             <w:sz w:val="36"/>
-            <w:szCs w:val="52"/>
         </w:rPr>
     </w:style>
     <w:style w:type="paragraph" w:customStyle="1" w:styleId="HStruct05Title">
         <w:name w:val="H Struct 05 Title"/>
-        <w:basedOn w:val="HStruct01Title"/>
+        <w:basedOn w:val="HStructTitleBase"/>
         <w:uiPriority w:val="59"/>
         <w:semiHidden/>
         <w:rPr>
             <w:sz w:val="28"/>
-            <w:szCs w:val="44"/>
         </w:rPr>
     </w:style>
 
-    <w:style w:type="paragraph" w:customStyle="1" w:styleId="HStruct01Subtitle">
-        <w:name w:val="H Struct 01 Subtitle"/>
-        <w:basedOn w:val="HStruct01Title"/>
+
+    <w:style w:type="paragraph" w:customStyle="1" w:styleId="HStructSubtitleBase">
+        <w:name w:val="H Struct Subtitle Base"/>
+        <w:basedOn w:val="HStructTitleBase"/>
         <w:uiPriority w:val="59"/>
         <w:semiHidden/>
         <w:rPr>
             <w:b w:val="0"/>
-            <w:bCs w:val="0"/>
+			<w:bCs w:val="0"/>
             <w:color w:val="5A771D"/>
+        </w:rPr>
+    </w:style>
+    <w:style w:type="paragraph" w:customStyle="1" w:styleId="HStruct01Subtitle">
+        <w:name w:val="H Struct 01 Subtitle"/>
+        <w:basedOn w:val="HStructSubtitleBase"/>
+        <w:uiPriority w:val="59"/>
+        <w:semiHidden/>
+        <w:rPr>
             <w:sz w:val="36"/>
-            <w:szCs w:val="60"/>
         </w:rPr>
     </w:style>
     <w:style w:type="paragraph" w:customStyle="1" w:styleId="HStruct02Subtitle">
         <w:name w:val="H Struct 02 Subtitle"/>
-        <w:basedOn w:val="HStruct01Subtitle"/>
+        <w:basedOn w:val="HStructSubtitleBase"/>
         <w:uiPriority w:val="59"/>
         <w:semiHidden/>
         <w:rPr>
             <w:sz w:val="26"/>
-            <w:szCs w:val="56"/>
         </w:rPr>
     </w:style>
     <w:style w:type="paragraph" w:customStyle="1" w:styleId="HStruct03Subtitle">
         <w:name w:val="H Struct 03 Subtitle"/>
-        <w:basedOn w:val="HStruct01Subtitle"/>
+        <w:basedOn w:val="HStructSubtitleBase"/>
         <w:uiPriority w:val="59"/>
         <w:semiHidden/>
         <w:rPr>
-            <w:szCs w:val="48"/>
+            <w:sz w:val="24"/>
         </w:rPr>
     </w:style>
     <w:style w:type="paragraph" w:customStyle="1" w:styleId="HStruct04Subtitle">
         <w:name w:val="H Struct 04 Subtitle"/>
-        <w:basedOn w:val="HStruct01Subtitle"/>
-        <w:uiPriority w:val="59"/>
-        <w:semiHidden/>
-        <w:rPr>
-            <w:sz w:val="28"/>
-            <w:szCs w:val="44"/>
-        </w:rPr>
-    </w:style>
-    <w:style w:type="paragraph" w:customStyle="1" w:styleId="HStruct05Subtitle">
-        <w:name w:val="H Struct 05 Subtitle"/>
-        <w:basedOn w:val="HStruct04Subtitle"/>
+        <w:basedOn w:val="HStructSubtitleBase"/>
         <w:uiPriority w:val="59"/>
         <w:semiHidden/>
         <w:rPr>
             <w:sz w:val="22"/>
         </w:rPr>
     </w:style>
-    <w:style w:type="paragraph" w:customStyle="1" w:styleId="HierarchyLevel1-2HeadnoteText">
-        <w:name w:val="Hierarchy Level 1-2 Headnote Text"/>
+    <w:style w:type="paragraph" w:customStyle="1" w:styleId="HStruct05Subtitle">
+        <w:name w:val="H Struct 05 Subtitle"/>
+        <w:basedOn w:val="HStructSubtitleBase"/>
         <w:uiPriority w:val="59"/>
-        <w:basedOn w:val="HStruct02Title"/>
+        <w:semiHidden/>
+        <w:rPr>
+            <w:sz w:val="20"/>
+        </w:rPr>
+    </w:style>
+
+
+    <w:style w:type="paragraph" w:customStyle="1" w:styleId="PostHeadlineShortBlurb">
+        <w:name w:val="Post Headline Short Blurb"/>
+        <w:uiPriority w:val="59"/>
+        <w:basedOn w:val="HeadnoteTextLayout"/>
         <w:semiHidden/>
         <w:pPr>
             <w:spacing w:line="276" w:lineRule="auto"/>
         </w:pPr>
         <w:rPr>
-            <w:rFonts w:eastAsia="Arial" w:cs="Arial"/>
-            <w:b w:val="0"/>
-            <w:iCs/>
-            <w:color w:val="000000" w:themeColor="text1"/>
-            <w:spacing w:val="5"/>
             <w:sz w:val="28"/>
-            <w:szCs w:val="28"/>
-        </w:rPr>
-    </w:style>
-    <w:style w:type="paragraph" w:customStyle="1" w:styleId="HierarchyLevel3-4-5HeadnoteText">
-        <w:name w:val="Hierarchy Level 3-4-5 Headnote Text"/>
-        <w:uiPriority w:val="59"/>
-        <w:basedOn w:val="HierarchyLevel1-2HeadnoteText"/>
-        <w:semiHidden/>
-        <w:pPr>
-            <w:ind w:right="2160"/>
-        </w:pPr>
-        <w:rPr>
-            <w:sz w:val="16"/>
-            <w:szCs w:val="14"/>
         </w:rPr>
     </w:style>
 
     <!--
-        Table Text
+        Table Text - these are explicitly applied so pandoc won't add the right indent
     -->
 
+    <w:style w:type="paragraph" w:customStyle="1" w:styleId="HeadnoteTableText">
+        <w:name w:val="Headnote Table Text"/>
+        <w:basedOn w:val="TitleHeadnoteDefaultFontProperties"/>
+        <w:uiPriority w:val="40"/>
+        <w:qFormat/>
+    </w:style>
     <w:style w:type="paragraph" w:customStyle="1" w:styleId="TableText">
         <w:name w:val="Table Text"/>
-        <w:basedOn w:val="HierarchyLevel3-4-5HeadnoteText"/>
+        <w:basedOn w:val="BodyCaseDefaultFontProperties"/>
         <w:uiPriority w:val="40"/>
         <w:qFormat/>
-        <w:pPr>
-            <w:ind w:right="0" w:left="0"/>
-        </w:pPr>
     </w:style>
-    <w:style w:type="paragraph" w:customStyle="1" w:styleId="CaseTableText">
-        <w:name w:val="Case Table Text"/>
-        <w:basedOn w:val="CaseBody"/>
-        <w:uiPriority w:val="40"/>
-        <w:qFormat/>
-        <w:pPr>
-            <w:ind w:right="0" w:left="0"/>
-        </w:pPr>
-    </w:style>
-
 
     <!--
         Page Specific
     -->
 
+    <!-- TODO: make these work with decent character fonts -->
     <!-- Title Page: These styles have the layout and everything just built-in... they should just work. -->
     <w:style w:type="paragraph" w:customStyle="1" w:styleId="CasebookTitle">
         <w:name w:val="Casebook Title"/>
@@ -637,13 +689,13 @@
     </w:style>
     <w:style w:type="paragraph" w:customStyle="1" w:styleId="CasebookHeadnote">
         <w:name w:val="Casebook Headnote"/>
-        <w:basedOn w:val="HierarchyLevel3-4-5HeadnoteText"/>
+        <w:basedOn w:val="HeadnoteTextLayout"/>
         <w:uiPriority w:val="40"/>
         <w:qFormat/>
     </w:style>
     <w:style w:type="paragraph" w:customStyle="1" w:styleId="CasebookBlurb">
         <w:name w:val="Casebook Blurb"/>
-        <w:basedOn w:val="HierarchyLevel1-2HeadnoteText"/>
+        <w:basedOn w:val="PostHeadlineShortBlurb"/>
         <w:uiPriority w:val="40"/>
         <w:qFormat/>
         <w:pPr>
@@ -680,14 +732,13 @@
 
     <w:style w:type="paragraph" w:customStyle="1" w:styleId="AboutPageInstructions">
         <w:name w:val="About Page Instructions"/>
-        <w:basedOn w:val="HierarchyLevel3-4-5HeadnoteText"/>
+        <w:basedOn w:val="HeadnoteTextLayout"/>
         <w:uiPriority w:val="50"/>
         <w:pPr>
             <w:spacing w:before="240" w:after="240" w:line="300" w:lineRule="auto"/>
             <w:ind w:right="2160"/>
         </w:pPr>
     </w:style>
-
 
     <!-- Acknowledgements/Credits Page: cleaner and more like the rest of the content -->
     <w:style w:type="paragraph" w:customStyle="1" w:styleId="AcknowledgementsTitle">
@@ -711,36 +762,14 @@
             <w:sz w:val="36"/>
         </w:rPr>
     </w:style>
-    <w:style w:type="paragraph" w:customStyle="1" w:styleId="CreditAuthors">
-        <w:name w:val="Credit Authors"/>
-        <w:basedOn w:val="HStruct05Subtitle"/>
-        <w:uiPriority w:val="20"/>
-        <w:qFormat/>
-        <w:rPr>
-            <w:b/>
-            <w:spacing w:val="4"/>
-            <w:kern w:val="0"/>
-            <w:sz w:val="20"/>
-        </w:rPr>
-    </w:style>
+
     <w:style w:type="paragraph" w:customStyle="1" w:styleId="Credits">
         <w:uiPriority w:val="20"/>
         <w:name w:val="Credits"/>
-        <w:basedOn w:val="BodyText"/>
+        <w:basedOn w:val="TitleHeadnoteDefaultFontProperties"/>
         <w:qFormat/>
     </w:style>
-    <w:style w:type="paragraph" w:customStyle="1" w:styleId="CreditTitle">
-        <w:name w:val="Credit Title"/>
-        <w:basedOn w:val="CreditAuthors"/>
-        <w:uiPriority w:val="20"/>
-        <w:qFormat/>
-        <w:rPr>
-            <w:b w:val="0"/>
-            <w:caps/>
-            <w:sz w:val="24"/>
-            <w:u w:val="single"/>
-        </w:rPr>
-    </w:style>
+
 
     <!-- Legacy? Still used? -->
     <w:style w:type="paragraph" w:styleId="Title">
@@ -756,6 +785,20 @@
         <w:basedOn w:val="HStruct01Subtitle"/>
         <w:uiPriority w:val="99"/>
         <w:next w:val="BodyText"/>
+        <w:semiHidden/>
+        <w:unhideWhenUsed/>
+    </w:style>
+    <w:style w:type="paragraph" w:customStyle="1" w:styleId="Author">
+        <w:name w:val="Author"/>
+        <w:basedOn w:val="TitleHeadnoteDefaultFontProperties"/>
+        <w:uiPriority w:val="99"/>
+        <w:semiHidden/>
+        <w:unhideWhenUsed/>
+    </w:style>
+    <w:style w:type="paragraph" w:styleId="Date">
+        <w:name w:val="Date"/>
+        <w:basedOn w:val="TitleHeadnoteDefaultFontProperties"/>
+        <w:uiPriority w:val="99"/>
         <w:semiHidden/>
         <w:unhideWhenUsed/>
     </w:style>
@@ -776,7 +819,7 @@
     </w:style>
     <w:style w:type="paragraph" w:styleId="TOC1">
         <w:name w:val="toc 1"/>
-        <w:basedOn w:val="FontFamilyDefaultTitleandStructure"/>
+        <w:basedOn w:val="TitleHeadnoteDefaultFontProperties"/>
         <w:uiPriority w:val="39"/>
         <w:semiHidden/>
         <w:unhideWhenUsed/>
@@ -789,7 +832,7 @@
         </w:pPr>
         <w:rPr>
             <w:b/>
-            <w:bCs/>
+			<w:bCs/>
             <w:noProof/>
             <w:spacing w:val="5"/>
         </w:rPr>
@@ -805,10 +848,10 @@
             <w:ind w:left="216"/>
         </w:pPr>
         <w:rPr>
-            <w:bCs w:val="0"/>
+            <w:b/>
+			<w:bCs/>
             <w:spacing w:val="6"/>
             <w:sz w:val="20"/>
-            <w:szCs w:val="22"/>
         </w:rPr>
     </w:style>
     <w:style w:type="paragraph" w:styleId="TOC3">
@@ -821,11 +864,10 @@
             <w:ind w:left="440"/>
         </w:pPr>
         <w:rPr>
-            <w:bCs w:val="0"/>
             <w:b w:val="0"/>
+			<w:bCs w:val="0"/>
             <w:spacing w:val="6"/>
             <w:sz w:val="20"/>
-            <w:szCs w:val="22"/>
         </w:rPr>
     </w:style>
     <w:style w:type="paragraph" w:styleId="TOC4">
@@ -896,27 +938,22 @@
         they are important elements that could probably use some more massaging. -->
     <w:style w:type="paragraph" w:customStyle="1" w:styleId="Abstract">
         <w:name w:val="Abstract"/>
-        <w:basedOn w:val="CaseBody"/>
-        <w:next w:val="BodyText"/>
+        <w:basedOn w:val="BodyCaseDefaultFontProperties"/>
         <w:semiHidden/>
         <w:unhideWhenUsed/>
         <w:pPr>
             <w:keepLines/>
-            <w:spacing w:before="300" w:after="300"/>
         </w:pPr>
-        <w:rPr>
-            <w:sz w:val="20"/>
-        </w:rPr>
     </w:style>
     <w:style w:type="paragraph" w:styleId="Bibliography">
         <w:name w:val="Bibliography"/>
-        <w:basedOn w:val="FontFamilyDefaultTitleandStructure"/>
+        <w:basedOn w:val="TitleHeadnoteDefaultFontProperties"/>
         <w:semiHidden/>
         <w:unhideWhenUsed/>
     </w:style>
     <w:style w:type="paragraph" w:styleId="Quote">
         <w:name w:val="Quote"/>
-        <w:basedOn w:val="BodyText"/>
+        <w:basedOn w:val="BodyCaseDefaultFontProperties"/>
         <w:semiHidden/>
         <w:unhideWhenUsed/>
         <w:pPr>
@@ -925,6 +962,7 @@
         </w:pPr>
         <w:rPr>
             <w:i/>
+			<w:iCs/>
         </w:rPr>
     </w:style>
     <w:style w:type="paragraph" w:styleId="BlockText">
@@ -938,14 +976,14 @@
         </w:pPr>
         <w:rPr>
             <w:i w:val="0"/>
+			<w:iCs w:val="0"/>
             <w:color w:val="auto"/>
             <w:sz w:val="16"/>
         </w:rPr>
     </w:style>
     <w:style w:type="paragraph" w:customStyle="1" w:styleId="SourceCode">
         <w:name w:val="Source Code"/>
-        <w:basedOn w:val="FontFamilyDefaultSourceCode"/>
-        <w:link w:val="VerbatimChar"/>
+        <w:basedOn w:val="MonospaceDefaultFontProperties"/>
         <w:uiPriority w:val="5"/>
         <w:qFormat/>
         <w:pPr>
@@ -972,11 +1010,12 @@
         </w:pPr>
         <w:rPr>
             <w:b/>
+			<w:bCs/>
         </w:rPr>
     </w:style>
     <w:style w:type="paragraph" w:customStyle="1" w:styleId="Definition">
         <w:name w:val="Definition"/>
-        <w:basedOn w:val="BodyText"/>
+        <w:basedOn w:val="BodyCaseDefaultFontProperties"/>
         <w:uiPriority w:val="20"/>
         <w:qFormat/>
         <w:pPr>
@@ -985,13 +1024,13 @@
     </w:style>
     <w:style w:type="paragraph" w:styleId="Caption">
         <w:name w:val="caption"/>
-        <w:basedOn w:val="FontFamilyDefaultTitleandStructure"/>
+        <w:basedOn w:val="TitleHeadnoteDefaultFontProperties"/>
         <w:uiPriority w:val="30"/>
         <w:rPr>
-            <w:rFonts w:ascii="Courier New" w:hAnsi="Courier New" w:cs="Courier New"/>
+            <w:keepNext/>
             <w:sz w:val="16"/>
-            <w:szCs w:val="14"/>
             <w:i/>
+			<w:iCs/>
         </w:rPr>
     </w:style>
     <w:style w:type="paragraph" w:customStyle="1" w:styleId="TableCaption">
@@ -1000,9 +1039,6 @@
         <w:semiHidden/>
         <w:unhideWhenUsed/>
         <w:uiPriority w:val="35"/>
-        <w:pPr>
-            <w:keepNext/>
-        </w:pPr>
     </w:style>
     <w:style w:type="paragraph" w:customStyle="1" w:styleId="ImageCaption">
         <w:name w:val="Image Caption"/>
@@ -1014,12 +1050,14 @@
     </w:style>
     <w:style w:type="paragraph" w:customStyle="1" w:styleId="Figure">
         <w:name w:val="Figure"/>
-        <w:basedOn w:val="CaseBody"/>
+        <w:basedOn w:val="TitleHeadnoteDefaultFontProperties"/>
         <w:uiPriority w:val="35"/>
         <w:semiHidden/>
         <w:unhideWhenUsed/>
         <w:rPr>
             <w:i/>
+			<w:iCs/>
+            <w:keepNext/>
         </w:rPr>
     </w:style>
     <w:style w:type="paragraph" w:customStyle="1" w:styleId="CaptionedFigure">
@@ -1028,16 +1066,49 @@
         <w:uiPriority w:val="35"/>
         <w:semiHidden/>
         <w:unhideWhenUsed/>
-        <w:pPr>
-            <w:keepNext/>
-        </w:pPr>
     </w:style>
 
 
     <!-- Image Layout -->
-    <!--  I noticed some problems here with wrapped-text. If an image is large enough to just allow 2 or 3 words per line,
-        it should just be by itself. Possible future change. The image size and wrap attributes are likely candidates
-        for modification. -->
+    <!--  As far as I can tell, docx does not afford automatically image resizing. This probably must be done on the
+          python side. Until then, images will look totally ridiculous if we try to respect side-by-side boundaries,
+          text wrapping and such. The frame specifications in framePr just crop the image— they do not scale it. For now
+          these must treated as standalone block-level elements as far as the layout is concenred. Even then, the users
+          might see problems with multiple images in one paragraph— they are inline run-level elements rather than
+          block-level elements.-->
+    <w:style w:type="paragraph" w:customStyle="1" w:styleId="Image">
+        <w:name w:val="Image"/>
+        <w:uiPriority w:val="65"/>
+        <w:pPr>
+            <w:framePr w:w="11520" w:wrap="notBeside" w:vAnchor="text" w:hAnchor="text" w:xAlign="center" w:y="1"/>
+            <w:jc w:val="center"/>
+        </w:pPr>
+        <w:rPr>
+            <w:noProof/>
+        </w:rPr>
+    </w:style>
+    <w:style w:type="paragraph" w:customStyle="1" w:styleId="ImageCenteredLarge">
+        <w:name w:val="Image Centered Large"/>
+        <w:basedOn w:val="Image"/>
+        <w:uiPriority w:val="65"/>
+    </w:style>
+    <w:style w:type="paragraph" w:customStyle="1" w:styleId="ImageLeftMedium">
+        <w:name w:val="Image Left Medium"/>
+        <w:basedOn w:val="Image"/>
+        <w:uiPriority w:val="65"/>
+    </w:style>
+    <w:style w:type="paragraph" w:customStyle="1" w:styleId="ImageCenteredMedium">
+        <w:name w:val="Image Right Medium"/>
+        <w:basedOn w:val="Image"/>
+        <w:uiPriority w:val="65"/>
+    </w:style>
+    <w:style w:type="paragraph" w:customStyle="1" w:styleId="ImageCenteredMedium">
+        <w:name w:val="Image Centered Medium"/>
+        <w:basedOn w:val="Image"/>
+        <w:uiPriority w:val="65"/>
+    </w:style>
+
+    <!--
     <w:style w:type="paragraph" w:customStyle="1" w:styleId="ImageCenteredLarge">
         <w:name w:val="Image Centered Large"/>
         <w:basedOn w:val="Definition"/>
@@ -1074,15 +1145,29 @@
             <w:framePr w:wrap="around" w:vAnchor="text" w:hAnchor="text" w:xAlign="center" w:y="1"/>
         </w:pPr>
     </w:style>
+    -->
 
     <!--
         -== SECTION TOPPERS ==-
     -->
 
-    <!--  These are very important and must be treated right to work properly. First, each must be preceeded with a Head
-        Separator (no, not a metal band) element because the styles put text in frames, and the frames will step on each
-        other if they abut directly. Secondly, the order of the elements is also important. Number first, Title second,
-        everything else third. Subtitle, headnotes, and link elements are interchangable. -->
+    <!--
+        So-Called Section Toppers are the collection of elements that precede regular body content— Ordinals, Titles,
+        Subtitles, Headnotes, Links.
+
+        Like images, the frames are prone to step on each other. Fortunately, they're block-level elements makes placing
+        them independently in the layout much less fragile.
+
+        The names are largely semantic and serve other purposes, like identifying new content blocks in word's long list
+        of paragraphs. In the layout, however, they do provide some separation to stop frames from smashing together.
+
+        The order of the first two elements is important for the frames to line up. Number first, Title second,
+        and everything else after that.
+
+        Getting these values right is finicky. If you're going to modify these— your best bet is to do so in word with
+        a good understanding of what underlying xml values your choices manipuate, and then tranlsating that by hand to
+        this file.
+    -->
 
     <!-- Chapter Head -->
     <w:style w:type="paragraph" w:customStyle="1" w:styleId="ChapterNumber">
@@ -1102,7 +1187,6 @@
             <w:spacing w:val="-12"/>
             <w:color w:val="D96955"/>
             <w:sz w:val="72"/>
-            <w:szCs w:val="72"/>
         </w:rPr>
     </w:style>
     <w:style w:type="paragraph" w:customStyle="1" w:styleId="ChapterTitle">
@@ -1134,7 +1218,7 @@
     </w:style>
     <w:style w:type="paragraph" w:customStyle="1" w:styleId="ChapterHeadnote">
         <w:name w:val="Chapter Headnote"/>
-        <w:basedOn w:val="HierarchyLevel3-4-5HeadnoteText"/>
+        <w:basedOn w:val="HeadnoteTextLayout"/>
         <w:next w:val="ChapterHeadnote"/>
         <w:uiPriority w:val="11"/>
         <w:qFormat/>
@@ -1187,7 +1271,7 @@
     </w:style>
     <w:style w:type="paragraph" w:customStyle="1" w:styleId="SectionHeadnote">
         <w:name w:val="Section Headnote"/>
-        <w:basedOn w:val="HierarchyLevel3-4-5HeadnoteText"/>
+        <w:basedOn w:val="HeadnoteTextLayout"/>
         <w:next w:val="SectionHeadnote"/>
         <w:qFormat/>
         <w:uiPriority w:val="11"/>
@@ -1213,7 +1297,8 @@
             <w:ind w:right="0" w:left="0"/>
         </w:pPr>
         <w:rPr>
-            <w:bCs w:val="0"/>
+            <w:b w:val="0"/>
+			<w:bCs w:val="0"/>
             <w:color w:val="D96955"/>
         </w:rPr>
     </w:style>
@@ -1273,10 +1358,9 @@
     </w:style>
 
     <!-- header and footer -->
-    <!-- TODO: Needs Work -->
     <w:style w:type="paragraph" w:styleId="Footer">
         <w:name w:val="footer"/>
-        <w:basedOn w:val="BodyText"/>
+        <w:basedOn w:val="BodyCaseDefaultFontProperties"/>
         <w:uiPriority w:val="99"/>
         <w:pPr>
             <w:tabs>
@@ -1284,21 +1368,12 @@
                 <w:tab w:val="right" w:pos="9360"/>
             </w:tabs>
         </w:pPr>
-        <w:rPr>
-            <w:rFonts w:ascii="Baskerville" w:hAnsi="Baskerville"/>
-            <w:bCs/>
-            <w:iCs/>
-            <w:color w:val="000000" w:themeColor="text1"/>
-            <w:spacing w:val="5"/>
-            <w:szCs w:val="18"/>
-        </w:rPr>
     </w:style>
 
     <w:style w:type="paragraph" w:styleId="Header">
-        <w:name w:val="header"/>
-        <w:basedOn w:val="FontFamilyDefaultTitleandStructure"/>
+        <w:name w:val="Header"/>
+        <w:basedOn w:val="TitleHeadnoteDefaultFontProperties"/>
         <w:uiPriority w:val="50"/>
-        <w:rsid w:val="006019C2"/>
         <w:pPr>
             <w:framePr w:wrap="around" w:vAnchor="page" w:hAnchor="page" w:xAlign="center" w:y="361"/>
             <w:tabs>
@@ -1307,17 +1382,11 @@
             <w:spacing w:before="0"/>
             <w:jc w:val="center"/>
         </w:pPr>
-        <w:rPr>
-            <w:sz w:val="16"/>
-            <w:rFonts w:ascii="Century Gothic" w:hAnsi="Century Gothic" w:cs="Arial (Headings CS)"/>
-            <w:spacing w:val="3"/>
-        </w:rPr>
     </w:style>
     <w:style w:type="paragraph" w:customStyle="1" w:styleId="HeaderPageNumber">
-        <w:name w:val="Header: PageNumber"/>
+        <w:name w:val="Header Page Number"/>
         <w:basedOn w:val="Header"/>
         <w:qFormat/>
-        <w:rsid w:val="006019C2"/>
         <w:pPr>
             <w:framePr w:w="1440" w:h="360" w:wrap="around" w:xAlign="outside" w:anchorLock="1"/>
             <w:widowControl w:val="0"/>
@@ -1330,16 +1399,16 @@
         </w:pPr>
         <w:rPr>
             <w:b/>
+			<w:bCs/>
             <w:spacing w:val="-5"/>
             <w:sz w:val="13"/>
         </w:rPr>
     </w:style>
 
     <!-- Footnote Related -->
-    <!-- TODO: Needs Work -->
     <w:style w:type="paragraph" w:styleId="FootnoteText">
         <w:name w:val="footnote text"/>
-        <w:basedOn w:val="FontFamilyDefaultCaseContentBody"/>
+        <w:basedOn w:val="BodyCaseDefaultFontProperties"/>
         <w:uiPriority w:val="60"/>
         <w:semiHidden/>
         <w:rPr>
@@ -1374,8 +1443,22 @@
     </w:style>
 
     <!-- Misc formatting/layout -->
+    <!-- These separators can either serve layout purposes as horizontal dividers, serve as labels (e.g.
+         HeadFieldSeparator,) labels for scripting and SectPr placement (e.g. FrontMatterEnd) or both (e.g. HeadEnd) -->
+    <w:style w:type="paragraph" w:customStyle="1" w:styleId="IntentionallyInvisibleSeparator">
+        <w:name w:val="Intentionally Invisible Separator"/>
+        <w:uiPriority w:val="99"/>
+        <w:semiHidden/>
+        <w:unhideWhenUsed/>
+        <w:rPr>
+            <w:sz w:val="1"/>
+            <w:color w:val="FFFFFF"/>
+        </w:rPr>
+    </w:style>
+
     <w:style w:type="paragraph" w:customStyle="1" w:styleId="FrontMatterEnd">
         <w:name w:val="Front Matter End"/>
+        <w:basedOn w:val="IntentionallyInvisibleSeparator"/>
         <w:uiPriority w:val="15"/>
         <w:pPr>
             <w:widowControl w:val="0"/>
@@ -1385,13 +1468,10 @@
             <w:spacing w:before="0"/>
             <w:jc w:val="center"/>
         </w:pPr>
-        <w:rPr>
-            <w:sz w:val="1"/>
-            <w:szCs w:val="1"/>
-        </w:rPr>
     </w:style>
     <w:style w:type="paragraph" w:customStyle="1" w:styleId="HeadSeparator">
         <w:name w:val="Head Separator"/>
+        <w:basedOn w:val="IntentionallyInvisibleSeparator"/>
         <w:uiPriority w:val="15"/>
         <w:pPr>
             <w:spacing w:before="240"/>
@@ -1399,11 +1479,11 @@
         </w:pPr>
         <w:rPr>
             <w:sz w:val="1"/>
-            <w:szCs w:val="1"/>
         </w:rPr>
     </w:style>
-   <w:style w:type="paragraph" w:customStyle="1" w:styleId="ChapterSpacer">
+    <w:style w:type="paragraph" w:customStyle="1" w:styleId="ChapterSpacer">
         <w:name w:val="Chapter Spacer"/>
+        <w:basedOn w:val="IntentionallyInvisibleSeparator"/>
         <w:uiPriority w:val="15"/>
         <w:pPr>
             <w:widowControl w:val="0"/>
@@ -1414,11 +1494,11 @@
         </w:pPr>
         <w:rPr>
             <w:sz w:val="1"/>
-            <w:szCs w:val="1"/>
         </w:rPr>
     </w:style>
     <w:style w:type="paragraph" w:customStyle="1" w:styleId="HeadFieldSeparator">
         <w:name w:val="Head Field Separator"/>
+        <w:basedOn w:val="IntentionallyInvisibleSeparator"/>
         <w:uiPriority w:val="15"/>
         <w:pPr>
             <w:spacing w:before="0"/>
@@ -1426,11 +1506,11 @@
         </w:pPr>
         <w:rPr>
             <w:sz w:val="1"/>
-            <w:szCs w:val="1"/>
         </w:rPr>
     </w:style>
     <w:style w:type="paragraph" w:customStyle="1" w:styleId="HeadEnd">
         <w:name w:val="Head End"/>
+        <w:basedOn w:val="IntentionallyInvisibleSeparator"/>
         <w:uiPriority w:val="15"/>
         <w:pPr>
             <w:widowControl w:val="0"/>
@@ -1442,11 +1522,11 @@
         </w:pPr>
         <w:rPr>
             <w:sz w:val="1"/>
-            <w:szCs w:val="1"/>
         </w:rPr>
     </w:style>
-        <w:style w:type="paragraph" w:customStyle="1" w:styleId="NodeStart">
+    <w:style w:type="paragraph" w:customStyle="1" w:styleId="NodeStart">
         <w:name w:val="Node Start"/>
+        <w:basedOn w:val="IntentionallyInvisibleSeparator"/>
         <w:uiPriority w:val="15"/>
         <w:pPr>
             <w:widowControl w:val="0"/>
@@ -1457,11 +1537,11 @@
         </w:pPr>
         <w:rPr>
             <w:sz w:val="1"/>
-            <w:szCs w:val="1"/>
         </w:rPr>
     </w:style>
-        <w:style w:type="paragraph" w:customStyle="1" w:styleId="NodeEnd">
+    <w:style w:type="paragraph" w:customStyle="1" w:styleId="NodeEnd">
         <w:name w:val="Node End"/>
+        <w:basedOn w:val="IntentionallyInvisibleSeparator"/>
         <w:uiPriority w:val="15"/>
         <w:pPr>
             <w:widowControl w:val="0"/>
@@ -1472,9 +1552,10 @@
         </w:pPr>
         <w:rPr>
             <w:sz w:val="1"/>
-            <w:szCs w:val="1"/>
         </w:rPr>
     </w:style>
+
+
     <!--
 
 
@@ -1484,153 +1565,118 @@
 
 
     -->
-    <!-- TODO: Replace DefaultParagraphFont references with references to a deliberate style -->
+
+    <w:style w:type="character" w:customStyle="1" w:styleId="CreditTitle">
+        <w:name w:val="Credit Title"/>
+        <w:basedOn w:val="CreditAuthors"/>
+        <w:rPr>
+            <w:b w:val="0"/>
+			<w:bCs w:val="0"/>
+            <w:caps/>
+            <w:sz w:val="24"/>
+            <w:u w:val="single"/>
+        </w:rPr>
+    </w:style>
+    
+    <w:style w:type="character" w:customStyle="1" w:styleId="CreditAuthors">
+        <w:name w:val="Credit Authors"/>
+        <w:basedOn w:val="DefaultParagraphFont"/>
+        <w:rPr>
+            <w:b/>
+			<w:bCs/>
+            <w:spacing w:val="4"/>
+            <w:kern w:val="0"/>
+            <w:sz w:val="20"/>
+        </w:rPr>
+    </w:style>
+
     <!-- General/Body Text -->
     <w:style w:type="character" w:default="1" w:styleId="DefaultParagraphFont">
         <w:name w:val="Default Paragraph Font"/>
         <w:uiPriority w:val="99"/>
         <w:semiHidden/>
         <w:unhideWhenUsed/>
-    </w:style>
-
-    <w:style w:type="character" w:customStyle="1" w:styleId="BodyTextChar">
-        <w:name w:val="Body Text Char"/>
-        <w:basedOn w:val="DefaultParagraphFont"/>
-        <w:link w:val="BodyText"/>
-        <w:uiPriority w:val="99"/>
-        <w:semiHidden/>
-        <w:unhideWhenUsed/>
         <w:rPr>
-            <w:rFonts w:ascii="Baskerville" w:hAnsi="Baskerville"/>
-            <w:bCs/>
-            <w:iCs/>
-            <w:color w:val="000000" w:themeColor="text1"/>
+            <w:rFonts w:ascii="Century Gothic" w:hAnsi="Century Gothic"/>
+            <w:color w:val="000000"/>
             <w:spacing w:val="5"/>
-            <w:szCs w:val="16"/>
-        </w:rPr>
-    </w:style>
-    <w:style w:type="character" w:customStyle="1" w:styleId="BodyTextFirstIndentChar">
-        <w:name w:val="Body Text First Indent Char"/>
-        <w:basedOn w:val="BodyTextChar"/>
-        <w:link w:val="BodyTextFirstIndent"/>
-        <w:uiPriority w:val="99"/>
-        <w:semiHidden/>
-        <w:rPr>
-            <w:rFonts w:ascii="Baskerville" w:hAnsi="Baskerville"/>
-            <w:bCs/>
-            <w:iCs/>
-            <w:color w:val="000000" w:themeColor="text1"/>
-            <w:spacing w:val="5"/>
-            <w:sz w:val="16"/>
-            <w:szCs w:val="16"/>
+            <w:sz w:val="18"/>
         </w:rPr>
     </w:style>
 
     <w:style w:type="character" w:styleId="UnresolvedMention">
-        <!-- I believe UnresolvedMention is used when there isn't a char style available that purportedly should be -->
+        <!-- I believe UnresolvedMention is used when there isn't a char style available that purportedly should be
+             though it could also be the name of a drama novel -->
         <w:name w:val="Unresolved Mention"/>
-        <w:basedOn w:val="DefaultParagraphFont"/>
+        <w:basedOn w:val="DefaultBodyCaseFont"/>
         <w:uiPriority w:val="99"/>
         <w:semiHidden/>
         <w:unhideWhenUsed/>
         <w:rPr>
-            <w:color w:val="605E5C"/>
-            <w:shd w:val="clear" w:color="auto" w:fill="E1DFDD"/>
-        </w:rPr>
-    </w:style>
-    <w:style w:type="character" w:customStyle="1" w:styleId="VerbatimChar">
-        <!-- used in source code, pre, etc -->
-        <w:name w:val="Verbatim Char"/>
-        <w:link w:val="SourceCode"/>
-        <w:uiPriority w:val="50"/>
-        <w:semiHidden/>
-        <w:unhideWhenUsed/>
-        <w:rPr>
-            <w:rFonts w:ascii="Courier New" w:hAnsi="Courier New" w:cs="Courier New"/>
-            <w:i w:val="0"/>
+            <w:rFonts w:ascii="Baskerville" w:hAnsi="Baskerville"/>
+            <w:color w:val="000000" w:themeColor="text1"/>
+            <w:spacing w:val="5"/>
             <w:sz w:val="16"/>
-            <w:szCs w:val="14"/>
-            <w:shd w:val="clear" w:color="auto" w:fill="E0EBFF"/>
         </w:rPr>
     </w:style>
 
-
-    <!-- Heading and Subheading -->
-    <w:style w:type="character" w:customStyle="1" w:styleId="HStruct01TitleChar">
-        <w:name w:val="H Struct 01 Title Char"/>
-        <w:basedOn w:val="DefaultParagraphFont"/>
-        <w:link w:val="HStruct01Title"/>
-        <w:uiPriority w:val="75"/>
-        <w:semiHidden/>
-        <w:rPr>
-            <w:rFonts w:ascii="Century Gothic" w:hAnsi="Century Gothic"
-                      w:cs="Arial (Headings CS)"/>
-            <w:b/>
-            <w:bCs/>
-            <w:color w:val="1B418C"/>
-            <w:spacing w:val="-6"/>
-            <w:kern w:val="24"/>
-            <w:sz w:val="72"/>
-            <w:szCs w:val="72"/>
-
-        </w:rPr>
-    </w:style>
 
 
     <!-- inline editing/annotation formats -->
     <w:style w:type="character" w:customStyle="1" w:styleId="Elision">
         <w:name w:val="Elision"/>
-        <w:uiPriority w:val="1"/>
-        <w:qFormat/>
+        <w:basedOn w:val="DefaultParagraphFont"/>
+        <w:uiPriority w:val="25"/>
         <w:rPr>
-            <w:rFonts w:ascii="Century Gothic" w:hAnsi="Century Gothic"/>
             <w:b w:val="1"/>
-            <w:i w:val="0"/>
+			<w:bCs w:val="1"/>
             <w:color w:val="5A771D"/>
         </w:rPr>
     </w:style>
     <w:style w:type="character" w:customStyle="1" w:styleId="ReplacementText">
         <w:name w:val="Replacement Text"/>
-        <w:basedOn w:val="Elision"/>
-        <w:uiPriority w:val="1"/>
-        <w:qFormat/>
+        <w:uiPriority w:val="25"/>
         <w:rPr>
-            <w:rFonts w:ascii="Century Gothic" w:hAnsi="Century Gothic"/>
-            <w:b w:val="0"/>
             <w:i/>
+			<w:iCs/>
             <w:color w:val="5A771D"/>
             <w:u w:val="dotted"/>
         </w:rPr>
     </w:style>
     <w:style w:type="character" w:customStyle="1" w:styleId="HighlightedText">
         <w:name w:val="Highlighted Text"/>
-        <w:uiPriority w:val="1"/>
-        <w:qFormat/>
+        <w:uiPriority w:val="25"/>
         <w:rPr>
             <w:bdr w:val="none" w:sz="0" w:space="0" w:color="auto"/>
             <w:shd w:val="clear" w:color="000000" w:fill="EAFFBD"/>
         </w:rPr>
     </w:style>
 
-
     <!-- Footnote Related -->
     <w:style w:type="character" w:customStyle="1" w:styleId="CaseFootnoteReference">
         <w:name w:val="Case Footnote Reference"/>
-        <w:basedOn w:val="BodyTextChar"/>
+        <w:basedOn w:val="DefaultParagraphFont"/>
         <w:semiHidden/>
         <w:uiPriority w:val="99"/>
         <w:rPr>
-            <w:rFonts w:ascii="Baskerville" w:hAnsi="Baskerville"/>
-            <w:bCs/>
-            <w:iCs/>
-            <w:color w:val="000000" w:themeColor="text1"/>
-            <w:spacing w:val="5"/>
+            <w:b/>
+			<w:bCs/>
+            <w:color w:val="1B418C"/>
             <w:sz w:val="18"/>
-            <w:szCs w:val="18"/>
-
         </w:rPr>
     </w:style>
-
+    <w:style w:type="character" w:customStyle="1" w:styleId="FootnoteReference">
+        <w:name w:val="Footnote Reference"/>
+        <w:basedOn w:val="DefaultParagraphFont"/>
+        <w:semiHidden/>
+        <w:uiPriority w:val="99"/>
+        <w:rPr>
+            <w:b/>
+			<w:bCs/>
+            <w:color w:val="D96955"/>
+            <w:sz w:val="18"/>
+        </w:rPr>
+    </w:style>
 
     <!-- misc element-specific -->
     <w:style w:type="character" w:styleId="Hyperlink">
@@ -1654,164 +1700,198 @@
             <w:u w:val="single"/>
         </w:rPr>
     </w:style>
-    <w:style w:type="character" w:customStyle="1" w:styleId="CaptionChar">
-        <w:name w:val="Caption Char"/>
-        <w:basedOn w:val="DefaultParagraphFont"/>
-        <w:link w:val="Caption"/>
-        <w:semiHidden/>
-        <w:uiPriority w:val="99"/>
-        <w:rPr>
-            <w:rFonts w:ascii="Century Gothic" w:hAnsi="Century Gothic"/>
-            <w:i/>
-            <w:sz w:val="16"/>
-            <w:szCs w:val="24"/>
-        </w:rPr>
-    </w:style>
 
     <!-- These are just here to hide them from the UI because they were all uipriority 0 and crowding out my other
     styles -->
+    <w:style w:type="character" w:customStyle="1" w:styleId="VerbatimChar">
+        <!-- used in source code, pre, etc -->
+        <w:name w:val="Verbatim Char"/>
+        <w:uiPriority w:val="50"/>
+        <w:semiHidden/>
+        <w:unhideWhenUsed/>
+        <w:rPr>
+            <w:sz w:val="16"/>
+            <w:rFonts w:ascii="Courier New" w:hAnsi="Courier New" w:cs="Courier New"/>
+            <w:spacing w:val="5"/>
+            <w:sz w:val="16"/>
+        </w:rPr>
+    </w:style>
+    <w:style w:type="character" w:customStyle="0" w:styleId="UnusedPandoc">
+        <w:name w:val="UnusedPandoc"/>
+        <w:hidden/>
+        <w:uiPriority w:val="99"/>
+    </w:style>
     <w:style w:type="character" w:customStyle="0" w:styleId="AlertTok">
         <w:name w:val="AlertTok"/>
+        <w:basedOn w:val="UnusedPandoc"/>
         <w:hidden/>
         <w:uiPriority w:val="99"/>
     </w:style>
     <w:style w:type="character" w:customStyle="0" w:styleId="AnnotationTok">
         <w:name w:val="AnnotationTok"/>
+        <w:basedOn w:val="UnusedPandoc"/>
         <w:hidden/>
         <w:uiPriority w:val="99"/>
     </w:style>
     <w:style w:type="character" w:customStyle="0" w:styleId="AttributeTok">
         <w:name w:val="AttributeTok"/>
+        <w:basedOn w:val="UnusedPandoc"/>
         <w:hidden/>
         <w:uiPriority w:val="99"/>
     </w:style>
     <w:style w:type="character" w:customStyle="0" w:styleId="BaseNTok">
         <w:name w:val="BaseNTok"/>
+        <w:basedOn w:val="UnusedPandoc"/>
         <w:hidden/>
         <w:uiPriority w:val="99"/>
     </w:style>
     <w:style w:type="character" w:customStyle="0" w:styleId="BuiltInTok">
         <w:name w:val="BuiltInTok"/>
+        <w:basedOn w:val="UnusedPandoc"/>
         <w:hidden/>
         <w:uiPriority w:val="99"/>
     </w:style>
     <w:style w:type="character" w:customStyle="0" w:styleId="CharTok">
         <w:name w:val="CharTok"/>
+        <w:basedOn w:val="UnusedPandoc"/>
         <w:hidden/>
         <w:uiPriority w:val="99"/>
     </w:style>
     <w:style w:type="character" w:customStyle="0" w:styleId="CommentTok">
         <w:name w:val="CommentTok"/>
+        <w:basedOn w:val="UnusedPandoc"/>
         <w:hidden/>
         <w:uiPriority w:val="99"/>
     </w:style>
     <w:style w:type="character" w:customStyle="0" w:styleId="CommentVarTok">
         <w:name w:val="CommentVarTok"/>
+        <w:basedOn w:val="UnusedPandoc"/>
         <w:hidden/>
         <w:uiPriority w:val="99"/>
     </w:style>
     <w:style w:type="character" w:customStyle="0" w:styleId="ControlFlowTok">
         <w:name w:val="ControlFlowTok"/>
+        <w:basedOn w:val="UnusedPandoc"/>
         <w:hidden/>
         <w:uiPriority w:val="99"/>
     </w:style>
     <w:style w:type="character" w:customStyle="0" w:styleId="DataTypeTok">
         <w:name w:val="DataTypeTok"/>
+        <w:basedOn w:val="UnusedPandoc"/>
         <w:hidden/>
         <w:uiPriority w:val="99"/>
     </w:style>
     <w:style w:type="character" w:customStyle="0" w:styleId="DocumentationTok">
         <w:name w:val="DocumentationTok"/>
+        <w:basedOn w:val="UnusedPandoc"/>
         <w:hidden/>
         <w:uiPriority w:val="99"/>
     </w:style>
     <w:style w:type="character" w:customStyle="0" w:styleId="ErrorTok">
         <w:name w:val="ErrorTok"/>
+        <w:basedOn w:val="UnusedPandoc"/>
         <w:hidden/>
         <w:uiPriority w:val="99"/>
     </w:style>
     <w:style w:type="character" w:customStyle="0" w:styleId="ExtensionTok">
         <w:name w:val="ExtensionTok"/>
+        <w:basedOn w:val="UnusedPandoc"/>
         <w:hidden/>
         <w:uiPriority w:val="99"/>
     </w:style>
     <w:style w:type="character" w:customStyle="0" w:styleId="FloatTok">
         <w:name w:val="FloatTok"/>
+        <w:basedOn w:val="UnusedPandoc"/>
         <w:hidden/>
         <w:uiPriority w:val="99"/>
     </w:style>
     <w:style w:type="character" w:customStyle="0" w:styleId="FunctionTok">
         <w:name w:val="FunctionTok"/>
+        <w:basedOn w:val="UnusedPandoc"/>
         <w:hidden/>
         <w:uiPriority w:val="99"/>
     </w:style>
     <w:style w:type="character" w:customStyle="0" w:styleId="ImportTok">
         <w:name w:val="ImportTok"/>
+        <w:basedOn w:val="UnusedPandoc"/>
         <w:hidden/>
         <w:uiPriority w:val="99"/>
     </w:style>
     <w:style w:type="character" w:customStyle="0" w:styleId="InformationTok">
         <w:name w:val="InformationTok"/>
+        <w:basedOn w:val="UnusedPandoc"/>
         <w:hidden/>
         <w:uiPriority w:val="99"/>
     </w:style>
     <w:style w:type="character" w:customStyle="0" w:styleId="KeywordTok">
         <w:name w:val="KeywordTok"/>
+        <w:basedOn w:val="UnusedPandoc"/>
         <w:hidden/>
         <w:uiPriority w:val="99"/>
     </w:style>
     <w:style w:type="character" w:customStyle="0" w:styleId="NormalTok">
         <w:name w:val="NormalTok"/>
+        <w:basedOn w:val="UnusedPandoc"/>
         <w:hidden/>
         <w:uiPriority w:val="99"/>
     </w:style>
     <w:style w:type="character" w:customStyle="0" w:styleId="OperatorTok">
         <w:name w:val="OperatorTok"/>
+        <w:basedOn w:val="UnusedPandoc"/>
         <w:hidden/>
         <w:uiPriority w:val="99"/>
     </w:style>
     <w:style w:type="character" w:customStyle="0" w:styleId="OtherTok">
         <w:name w:val="OtherTok"/>
+        <w:basedOn w:val="UnusedPandoc"/>
         <w:hidden/>
         <w:uiPriority w:val="99"/>
     </w:style>
     <w:style w:type="character" w:customStyle="0" w:styleId="PreprocessorTok">
         <w:name w:val="PreprocessorTok"/>
+        <w:basedOn w:val="UnusedPandoc"/>
         <w:hidden/>
         <w:uiPriority w:val="99"/>
     </w:style>
     <w:style w:type="character" w:customStyle="0" w:styleId="RegionMarkerTok">
         <w:name w:val="RegionMarkerTok"/>
+        <w:basedOn w:val="UnusedPandoc"/>
         <w:hidden/>
         <w:uiPriority w:val="99"/>
     </w:style>
     <w:style w:type="character" w:customStyle="0" w:styleId="SpecialCharTok">
         <w:name w:val="SpecialCharTok"/>
+        <w:basedOn w:val="UnusedPandoc"/>
         <w:hidden/>
         <w:uiPriority w:val="99"/>
     </w:style>
-    <w:style w:type="character" w:customStyle="0" w:styleId="SpecialSTringTok">
-        <w:name w:val="SpecialSTringTok"/>
+    <w:style w:type="character" w:customStyle="0" w:styleId="SpecialStringTok">
+        <w:name w:val="SpecialStringTok"/>
+        <w:basedOn w:val="UnusedPandoc"/>
         <w:hidden/>
         <w:uiPriority w:val="99"/>
     </w:style>
     <w:style w:type="character" w:customStyle="0" w:styleId="StringTok">
         <w:name w:val="StringTok"/>
+        <w:basedOn w:val="UnusedPandoc"/>
         <w:hidden/>
         <w:uiPriority w:val="99"/>
     </w:style>
     <w:style w:type="character" w:customStyle="0" w:styleId="VariableTok">
         <w:name w:val="VariableTok"/>
+        <w:basedOn w:val="UnusedPandoc"/>
         <w:hidden/>
         <w:uiPriority w:val="99"/>
     </w:style>
     <w:style w:type="character" w:customStyle="0" w:styleId="VerbatimStringTok">
         <w:name w:val="VerbatimStringTok"/>
+        <w:basedOn w:val="UnusedPandoc"/>
         <w:hidden/>
         <w:uiPriority w:val="99"/>
     </w:style>
     <w:style w:type="character" w:customStyle="0" w:styleId="WarningTok">
         <w:name w:val="WarningTok"/>
+        <w:basedOn w:val="UnusedPandoc"/>
         <w:hidden/>
         <w:uiPriority w:val="99"/>
     </w:style>
@@ -1835,25 +1915,25 @@
         <w:tblStylePr w:type="firstRow">
             <w:rPr>
                 <w:b/>
-                <w:bCs/>
+			<w:bCs/>
             </w:rPr>
         </w:tblStylePr>
         <w:tblStylePr w:type="lastRow">
             <w:rPr>
                 <w:b/>
-                <w:bCs/>
+			<w:bCs/>
             </w:rPr>
         </w:tblStylePr>
         <w:tblStylePr w:type="firstCol">
             <w:rPr>
                 <w:b/>
-                <w:bCs/>
+			<w:bCs/>
             </w:rPr>
         </w:tblStylePr>
         <w:tblStylePr w:type="lastCol">
             <w:rPr>
                 <w:b/>
-                <w:bCs/>
+			<w:bCs/>
             </w:rPr>
         </w:tblStylePr>
         <w:tblStylePr w:type="band1Vert">

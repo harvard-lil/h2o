@@ -16,7 +16,8 @@ def main(input_path, output_path):
 
         styles_copy = {
             'latent': {s.name.replace(' ', '').lower(): {'children': [], 'name': s.name} for s in doc.styles.latent_styles},
-            'lost': {}
+            'wrong_style_type': {},
+            'base_style_not_found': {}
         }
         for style in doc.styles:
             styleId = style.element.get('{http://schemas.openxmlformats.org/wordprocessingml/2006/main}styleId')
@@ -43,8 +44,21 @@ def main(input_path, output_path):
                     elif bo.lower() in styles_copy['latent']:
                         styles_copy['latent'][bo]['children'].append(styles_copy[style_type][style])
                     else:
-                        styles_copy['lost'][bo] = {'children': [], 'styleId': bo}
-                        styles_copy['lost'][bo]['children'].append(styles_copy[style_type][style])
+                        for inner_style_type in styles_copy:
+                            if bo in styles_copy[inner_style_type]:
+                                if bo not in styles_copy['wrong_style_type']:
+                                    styles_copy['wrong_style_type'][bo] = {
+                                        'children': [], 
+                                        'styleId': bo,
+                                        'style_type': style_type,
+                                        'points_to': inner_style_type}
+                                styles_copy['wrong_style_type'][bo]['children'].append(styles_copy[style_type][style])
+                                
+                        if bo not in styles_copy['wrong_style_type']:
+                            if bo not in styles_copy['base_style_not_found']:
+                                styles_copy['base_style_not_found'][bo] = {'children': [], 'styleId': bo}
+                                
+                            styles_copy['base_style_not_found'][bo]['children'].append(styles_copy[style_type][style])
 
                     if style_type not in moved:
                         moved[style_type] = []
@@ -55,16 +69,23 @@ def main(input_path, output_path):
                 styles_copy[mtype].pop(ms)
 
         for t in styles_copy:
-            print(f"* {t.title()}", file=fh)
-            for s in styles_copy[t]:
-                print_style(styles_copy[t][s], 1, fh)
+            printable_title = t.title().replace('_', ' ')
+            if len(styles_copy[t]) > 0:
+                print(f"* {printable_title}", file=fh)
+                for s in styles_copy[t]:
+                    print_style(styles_copy[t][s], 1, fh)
+            else:
+                print(f"-> Skipping {printable_title} because its empty")
 
 def print_style(style, iterator, fh):
-    print ("{}* {} {} {}".format(
+
+    print ("{}* {} {} {} {}".format(
         "  " * iterator,
         style['name'] if 'name' in style else style['styleId'],
         f"basedOn: {style['basedOn']}" if 'basedOn' in style else "",
-        f"link {style['link']}" if 'link' in style else ""), file=fh)
+        f"link {style['link']}" if 'link' in style else "",
+        f"Style Type: {style['style_type']} Points To: {style['points_to']}" if 'style_type' in style else ""),
+        file=fh)
     if len(style['children']) > 0:
         [ print_style(s, iterator + 1, fh) for s in style['children'] ]
 

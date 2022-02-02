@@ -142,12 +142,6 @@ function Div(div)
        local b = string.format(bookmark, div.attributes['toc-idx'], div.attributes['toc-idx'], div.attributes['toc-idx'])
        return {pandoc.RawBlock('openxml', b), div}
     else
-        -- an attempt to clear out existing styles. I had this in a separate filter as the docs recommend, but that
-        -- initiates a separate doc crawl and takes up a ton of time. We've got nearly as much problematic formatting
-        -- in inline tags, but tackling spans alone in a lua filter increased run time by ~ 30% so I canned it. We may
-        -- consider using TinyMCE to make pasted content more compliant with our existing uses
-       div.classes = {}
-       div.attributes['style'] = nil
        return div
     end
 end
