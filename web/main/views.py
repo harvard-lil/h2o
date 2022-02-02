@@ -1584,13 +1584,18 @@ def switch_node_type(request, casebook, content_node):
         if new_type == 'LegalDocument':
             source_id = data.get('source_id', None)
             source_ref = data.get('id', None)
-            content_node.title = data.get('title', content_node.title)
-            source = LegalDocumentSource.objects.get(id=int(source_id))
-            if source and source_ref:
-                legal_doc = internal_doc_id_from_source(source, source_ref)
-                content_node.resource_type = new_type
-                content_node.resource_id = legal_doc.id
-                content_node.save()
+            if source_id is not None:
+                content_node.title = data.get('title', content_node.title)
+
+                source = LegalDocumentSource.objects.get(id=int(source_id))
+                if source and source_ref:
+                    legal_doc = internal_doc_id_from_source(source, source_ref)
+                    content_node.resource_type = new_type
+                    content_node.resource_id = legal_doc.id
+            else:
+                content_node.resource_type = "Temp"
+                content_node.resource_id = None
+            content_node.save()
         elif new_type == 'Link':
             url = data.get('url','https://opencasebook.org/')
             content_node.resource_type = new_type
@@ -2333,7 +2338,7 @@ def new_from_outline(request, casebook=None):
                         url = 'https://opencasebook.org/'
 
                 title = None
-                if 'title' not in node or node['title'] == 'Untitled':
+                if 'title' not in node or node['title'] == 'Untitled' or url == node['title']:
                     title = get_link_title(url)
                     node['title'] = title
                 else:
