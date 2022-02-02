@@ -64,13 +64,11 @@
       {% if include_annotations %}
         {% call_method node 'annotated_content_for_export' export_options=export_options as contents %}
         {{ contents}}
-          <div data-custom-style="Node End">_h2o_keep_element;</div>
         {% call_method node 'footnote_annotations' export_options=export_options as footnote_contents %}
         <div>{{footnote_contents}}</div>
       {% else %}
         {% call_method node 'content_for_export' export_options=export_options as contents %}
         {{ contents}}
-        <div data-custom-style="Node End">_h2o_keep_element;</div>
       {% endif %}
     </div>
   {% else %}
