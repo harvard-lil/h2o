@@ -8,7 +8,7 @@ ENV LANG=C.UTF-8 \
 
 RUN apt-get update && apt-get install -y nano postgresql-client
 
-ARG BUILDARCH
+ARG BUILDARCH=amd64
 
 # pin node version -- see https://github.com/nodesource/distributions/issues/33
 RUN curl -o nodejs.deb https://deb.nodesource.com/node_12.x/pool/main/n/nodejs/nodejs_12.13.1-1nodesource1_${BUILDARCH}.deb \
