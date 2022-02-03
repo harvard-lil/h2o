@@ -22,7 +22,8 @@ COPY entrypoint.sh /
 RUN chmod 755 /usr/local/bin/aws-lambda-rie /entrypoint.sh
 EXPOSE 8080
 
-ARG BUILDARCH=amd64
+ARG BUILDARCH
+ENV BUILDARCH=${BUILDARCH:-amd64}
 
 # Install Pandoc
 RUN wget https://github.com/jgm/pandoc/releases/download/2.14.2/pandoc-2.14.2-1-${BUILDARCH}.deb \
