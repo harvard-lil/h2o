@@ -67,10 +67,8 @@ ACCT=123456789012
 REGION=us-east-1
 PROFILE=mfa
 FUNC=h2o-export
-ARN=arn:aws:lambda:$REGION:$ACCT:function:$FUNC
-docker build -t $IMG:$TAG .
-docker tag $IMG:$TAG $ACCT.dkr.ecr.$REGION.amazonaws.com/$IMG:$TAG
-aws ecr get-login-password --region $REGION --profile $PROFILE | docker login --username AWS --password-stdin $ACCT.dkr.ecr.$REGION.amazonaws.com
-docker push $ACCT.dkr.ecr.$REGION.amazonaws.com/$IMG:$TAG
-aws lambda update-function-code --function-name $ARN --image-uri `docker image inspect $IMG:$TAG | jq -r '.[0].RepoDigests[0]'` --profile $PROFILE
+ARN=arn:aws:lambda:${REGION}:${ACCT}:function:${FUNC}
+aws ecr get-login-password --region ${REGION} --profile ${PROFILE} | docker login --username AWS --password-stdin ${ACCT}.dkr.ecr.${REGION}.amazonaws.com
+docker buildx build --push --build-arg=BUILDARCH=amd64 --platform linux/amd64 --tag ${ACCT}.dkr.ecr.${REGION}.amazonaws.com/${IMG}:${TAG} .
+aws lambda update-function-code --function-name ${ARN} --image-uri ${ACCT}.dkr.ecr.${REGION}.amazonaws.com/${IMG}:${TAG} --profile ${PROFILE} --region ${REGION}
 ```
