@@ -1,13 +1,17 @@
-* Base Style Not Found
-  * DefaultBodyCaseFont   
-    * Unresolved Mention basedOn: DefaultBodyCaseFont  
 * Paragraph
   * Title Headnote Default Font Properties   
     * Headnote Text Layout basedOn: TitleHeadnoteDefaultFontProperties  
+      * Headnote Text basedOn: HeadnoteTextLayout  
       * Post Headline Short Blurb basedOn: HeadnoteTextLayout  
         * Casebook Blurb basedOn: PostHeadlineShortBlurb  
       * Casebook Headnote basedOn: HeadnoteTextLayout  
       * About Page Instructions basedOn: HeadnoteTextLayout  
+      * Bibliography basedOn: HeadnoteTextLayout  
+      * Definition basedOn: HeadnoteTextLayout  
+        * Definition Term basedOn: Definition  
+      * caption basedOn: HeadnoteTextLayout  
+        * Table Caption basedOn: Caption  
+        * Image Caption basedOn: Caption  
       * Chapter Headnote basedOn: HeadnoteTextLayout  
       * Section Headnote basedOn: HeadnoteTextLayout  
         * Resource Headnote basedOn: SectionHeadnote  
@@ -31,7 +35,6 @@
         * heading 1 basedOn: HStruct05Title  
           * heading 2 basedOn: Heading1  
             * heading 3 basedOn: Heading2  
-              * Case Header basedOn: Heading3  
               * heading 4 basedOn: Heading3  
                 * heading 5 basedOn: Heading4  
                   * heading 6 basedOn: Heading5  
@@ -75,10 +78,6 @@
               * toc 7 basedOn: TOC6  
                 * toc 8 basedOn: TOC7  
                   * toc 9 basedOn: TOC8  
-    * Bibliography basedOn: TitleHeadnoteDefaultFontProperties  
-    * caption basedOn: TitleHeadnoteDefaultFontProperties  
-      * Table Caption basedOn: Caption  
-      * Image Caption basedOn: Caption  
     * Figure basedOn: TitleHeadnoteDefaultFontProperties  
       * Captioned Figure basedOn: Figure  
     * Header basedOn: TitleHeadnoteDefaultFontProperties  
@@ -86,26 +85,25 @@
   * Body Case Default Font Properties   
     * Body Text Layout basedOn: BodyCaseDefaultFontProperties  
       * Body Text basedOn: BodyTextLayout  
-      * Drinkle basedOn: BodyTextLayout  
+        * Case Body basedOn: BodyText  
+          * Case Header basedOn: CaseBody  
       * First Paragraph basedOn: BodyTextLayout  
       * Normal basedOn: BodyTextLayout  
-      * Compact basedOn: BodyTextLayout  
-    * Case Body Text basedOn: BodyCaseDefaultFontProperties  
+      * Abstract basedOn: BodyTextLayout  
+      * Quote basedOn: BodyTextLayout  
+      * Block Text basedOn: BodyTextLayout  
     * Table Text basedOn: BodyCaseDefaultFontProperties  
-    * Abstract basedOn: BodyCaseDefaultFontProperties  
-    * Quote basedOn: BodyCaseDefaultFontProperties  
-      * Block Text basedOn: Quote  
-    * Definition basedOn: BodyCaseDefaultFontProperties  
-      * Definition Term basedOn: Definition  
     * footer basedOn: BodyCaseDefaultFontProperties  
     * footnote text basedOn: BodyCaseDefaultFontProperties  
       * Footnote Labeled Link basedOn: FootnoteText  
         * Footnote Labeled Case basedOn: FootnoteLabeledLink  
   * Monospace Default Font Properties   
     * Source Code basedOn: MonospaceDefaultFontProperties  
+  * Compact   
   * Image   
     * Image Centered Large basedOn: Image  
     * Image Left Medium basedOn: Image  
+    * Image Right Medium basedOn: Image  
     * Image Centered Medium basedOn: Image  
   * Intentionally Invisible Separator   
     * Front Matter End basedOn: IntentionallyInvisibleSeparator  
@@ -119,6 +117,7 @@
   * Default Paragraph Font   
     * Credit Authors basedOn: DefaultParagraphFont  
       * Credit Title basedOn: CreditAuthors  
+    * Unresolved Mention basedOn: DefaultParagraphFont  
     * Elision basedOn: DefaultParagraphFont  
     * Case Footnote Reference basedOn: DefaultParagraphFont  
     * Footnote Reference basedOn: DefaultParagraphFont  

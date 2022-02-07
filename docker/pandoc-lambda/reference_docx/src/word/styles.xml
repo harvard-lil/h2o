@@ -49,7 +49,7 @@
             <w:rFonts w:ascii="Baskerville" w:hAnsi="Baskerville"/>
             <w:color w:val="000000" w:themeColor="text1"/>
             <w:spacing w:val="5"/>
-            <w:sz w:val="16"/>
+            <w:sz w:val="18"/>
         </w:rPr>
     </w:style>
 
@@ -90,33 +90,28 @@
         <w:uiPriority w:val="59"/>
         <w:basedOn w:val="TitleHeadnoteDefaultFontProperties"/>
         <w:semiHidden/>
+        <w:unhideWhenUsed/>
+        <w:uiPriority w:val="99"/>
         <w:pPr>
             <w:spacing w:before="160" w:line="276" w:lineRule="auto"/>
             <w:ind w:right="2880"/>
         </w:pPr>
     </w:style>
-   
-    <w:style w:type="paragraph" w:customStyle="1" w:styleId="BodyText">
+
+
+    <w:style w:type="paragraph" w:customStyle="1" w:styleId="HeadnoteText">
+        <w:name w:val="Headnote Text"/>
+        <w:uiPriority w:val="59"/>
+        <w:basedOn w:val="HeadnoteTextLayout"/>
+        <w:qFormat/>
+        <w:uiPriority w:val="0"/>
+    </w:style>
+
+    <w:style w:type="paragraph" w:default="1" w:customStyle="1" w:styleId="BodyText">
         <w:name w:val="Body Text"/>
         <w:basedOn w:val="BodyTextLayout"/>
         <w:qFormat/>
         <w:uiPriority w:val="0"/>
-        <w:semiHidden/>
-        <w:unhideWhenUsed/>
-        <w:uiPriority w:val="99"/>
-    </w:style>
-    <w:style w:type="paragraph" w:customStyle="1" w:default="1" w:styleId="Drinkle">
-        <w:name w:val="Drinkle"/>
-        <w:basedOn w:val="BodyTextLayout"/>
-        <w:qFormat/>
-        <w:uiPriority w:val="0"/>
-        <w:semiHidden/>
-        <w:unhideWhenUsed/>
-        <w:uiPriority w:val="99"/>
-        <w:sz w:val="16"/>
-            <w:rFonts w:ascii="Comic Sans" w:hAnsi="Comic Sans" w:cs="Comic Sans"/>
-            <w:spacing w:val="1"/>
-        <w:sz w:val="20"/>
     </w:style>
 
     <w:style w:type="paragraph" w:customStyle="1" w:styleId="FirstParagraph">
@@ -128,7 +123,7 @@
     </w:style>
     
     <w:style w:type="paragraph" w:styleId="Normal">
-        <!-- Normal is largely disused in favor of the more deliberately styled BodyCaseDefaultFontProperties -->
+        <!-- Normal is largely disused in favor of the more deliberately styled BodyText -->
         <w:name w:val="Normal"/>
         <w:basedOn w:val="BodyTextLayout"/>
         <w:semiHidden/>
@@ -140,9 +135,7 @@
         <!--  pandoc throws this around a bunch if you forget to style something. This 'compactness,' while space efficient
             is not readable in large bodies of text, and should be scrupulously avoided. -->
         <w:name w:val="Compact"/>
-        <w:semiHidden/>
-        <w:unhideWhenUsed/>
-        <w:uiPriority w:val="99"/>
+        <w:hidden/>
     </w:style>
 
     <!-- case-specific -->
@@ -151,7 +144,7 @@
             in the context of a casebook, the author's points are of greater importance  than the title of the case
             itself! Being able to have two points of hierarchy above the case text seems about right. -->
         <w:name w:val="Case Header"/>
-        <w:basedOn w:val="Heading3"/>
+        <w:basedOn w:val="CaseBody"/>
         <w:uiPriority w:val="8"/>
         <w:qFormat/>
         <w:pPr>
@@ -161,45 +154,18 @@
             <w:contextualSpacing/>
             <w:jc w:val="center"/>
         </w:pPr>
-    </w:style>
-    
-    <w:style w:type="paragraph" w:customStyle="1" w:styleId="CaseBodyText">
-        <w:name w:val="Case Body Text"/>
-        <w:basedOn w:val="BodyCaseDefaultFontProperties"/>
-        <w:uiPriority w:val="8"/>
-        <w:qFormat/>
         <w:rPr>
-            <w:sz w:val="16"/>
+            <w:b w:val="0"/>
+            <w:bCs w:val="0"/>
+            <w:sz w:val="28"/>
         </w:rPr>
     </w:style>
     
-
-
-    <w:style w:type="paragraph" w:styleId="Normal">
-        <!-- Normal is largely disused in favor of the more deliberately styled BodyCaseDefaultFontProperties -->
-        <w:name w:val="Normal"/>
-        <w:basedOn w:val="BodyTextLayout"/>
-        <w:semiHidden/>
-        <w:unhideWhenUsed/>
-        <w:uiPriority w:val="99"/>
-    </w:style>
-
-    <w:style w:type="paragraph" w:customStyle="1" w:default="1" w:styleId="BodyText">
-        <w:name w:val="Body Text"/>
-        <w:basedOn w:val="BodyTextLayout"/>
-        <w:semiHidden/>
-        <w:unhideWhenUsed/>
-        <w:uiPriority w:val="99"/>
-    </w:style>
-
-    <w:style w:type="paragraph" w:customStyle="1" w:styleId="Compact">
-        <!--  pandoc throws this around a bunch if you forget to style something. This 'compactness,' while space efficient
-            is not readable in large bodies of text, and should be scrupulously avoided. -->
-        <w:name w:val="Compact"/>
-        <w:basedOn w:val="BodyTextLayout"/>
-        <w:semiHidden/>
-        <w:unhideWhenUsed/>
-        <w:uiPriority w:val="99"/>
+    <w:style w:type="paragraph" w:customStyle="1" w:styleId="CaseBody">
+        <w:name w:val="Case Body"/>
+        <w:basedOn w:val="BodyText"/>
+        <w:uiPriority w:val="8"/>
+        <w:qFormat/>
     </w:style>
 
     <!-- Heading and Subheading -->
@@ -215,10 +181,9 @@
         <w:pPr>
             <w:spacing w:before="680" w:after="340"/>
             <w:outlineLvl w:val="0"/>
+            <w:ind w:right="2880"/>
         </w:pPr>
         <w:rPr>
-
-
             <w:color w:val="000000"/>
             <w:kern w:val="24"/>
             <w:sz w:val="36"/>
@@ -825,16 +790,17 @@
         <w:unhideWhenUsed/>
         <w:pPr>
             <w:tabs>
-                <w:tab w:val="right" w:leader="dot" w:pos="7200"/>
+            <w:tab w:val="right" w:leader="dot" w:pos="7200"/>
             </w:tabs>
-            <w:spacing w:before="120"/>
-            <w:ind w:right="720"/>
+            <w:spacing w:line="120" w:before="360" w:after="240"/>
+            <w:ind w:right="1440"/>
         </w:pPr>
         <w:rPr>
             <w:b/>
-			<w:bCs/>
+            <w:bCs/>
             <w:noProof/>
-            <w:spacing w:val="5"/>
+            <w:spacing w:val="-7"/>
+            <w:sz w:val="28"/>
         </w:rPr>
     </w:style>
     <w:style w:type="paragraph" w:styleId="TOC2">
@@ -844,14 +810,14 @@
         <w:semiHidden/>
         <w:unhideWhenUsed/>
         <w:pPr>
-            <w:spacing w:before="160"/>
+            <w:spacing w:line="240" w:before="60" w:after="120"/>
             <w:ind w:left="216"/>
         </w:pPr>
         <w:rPr>
-            <w:b/>
-			<w:bCs/>
-            <w:spacing w:val="6"/>
-            <w:sz w:val="20"/>
+            <w:b w:val="0"/>
+			<w:bCs w:val="0"/>
+            <w:spacing w:val="-7"/>
+            <w:sz w:val="22"/>
         </w:rPr>
     </w:style>
     <w:style w:type="paragraph" w:styleId="TOC3">
@@ -861,13 +827,14 @@
         <w:semiHidden/>
         <w:unhideWhenUsed/>
         <w:pPr>
+            <w:spacing w:line="360" w:before="0" w:after="60"/>
             <w:ind w:left="440"/>
         </w:pPr>
         <w:rPr>
             <w:b w:val="0"/>
 			<w:bCs w:val="0"/>
-            <w:spacing w:val="6"/>
-            <w:sz w:val="20"/>
+            <w:spacing w:val="0"/>
+            <w:sz w:val="18"/>
         </w:rPr>
     </w:style>
     <w:style w:type="paragraph" w:styleId="TOC4">
@@ -877,9 +844,13 @@
         <w:semiHidden/>
         <w:unhideWhenUsed/>
         <w:pPr>
-            <w:spacing w:before="80"/>
+            <w:i/>
+            <w:iCs/>
             <w:ind w:left="662"/>
         </w:pPr>
+        <w:rPr>
+            <w:spacing w:val="10"/>
+        </w:rPr>
     </w:style>
     <w:style w:type="paragraph" w:styleId="TOC5">
         <w:name w:val="toc 5"/>
@@ -890,6 +861,9 @@
         <w:pPr>
             <w:ind w:left="880"/>
         </w:pPr>
+        <w:rPr>
+            <w:spacing w:val="10"/>
+        </w:rPr>
     </w:style>
     <w:style w:type="paragraph" w:styleId="TOC6">
         <w:name w:val="toc 6"/>
@@ -938,7 +912,7 @@
         they are important elements that could probably use some more massaging. -->
     <w:style w:type="paragraph" w:customStyle="1" w:styleId="Abstract">
         <w:name w:val="Abstract"/>
-        <w:basedOn w:val="BodyCaseDefaultFontProperties"/>
+        <w:basedOn w:val="BodyTextLayout"/>
         <w:semiHidden/>
         <w:unhideWhenUsed/>
         <w:pPr>
@@ -947,13 +921,13 @@
     </w:style>
     <w:style w:type="paragraph" w:styleId="Bibliography">
         <w:name w:val="Bibliography"/>
-        <w:basedOn w:val="TitleHeadnoteDefaultFontProperties"/>
+        <w:basedOn w:val="HeadnoteTextLayout"/>
         <w:semiHidden/>
         <w:unhideWhenUsed/>
     </w:style>
     <w:style w:type="paragraph" w:styleId="Quote">
         <w:name w:val="Quote"/>
-        <w:basedOn w:val="BodyCaseDefaultFontProperties"/>
+        <w:basedOn w:val="BodyTextLayout"/>
         <w:semiHidden/>
         <w:unhideWhenUsed/>
         <w:pPr>
@@ -967,19 +941,17 @@
     </w:style>
     <w:style w:type="paragraph" w:styleId="BlockText">
         <w:name w:val="Block Text"/>
-        <w:basedOn w:val="Quote"/>
+        <w:basedOn w:val="BodyTextLayout"/>
         <w:next w:val="BodyText"/>
         <w:uiPriority w:val="5"/>
         <w:qFormat/>
         <w:pPr>
+            <w:spacing w:before="240" w:after="240"/>
+            <w:ind w:left="360" w:right="2520"/>
+        </w:pPr>
+        <w:pPr>
             <w:shd w:val="clear" w:color="5A771D" w:fill="auto"/>
         </w:pPr>
-        <w:rPr>
-            <w:i w:val="0"/>
-			<w:iCs w:val="0"/>
-            <w:color w:val="auto"/>
-            <w:sz w:val="16"/>
-        </w:rPr>
     </w:style>
     <w:style w:type="paragraph" w:customStyle="1" w:styleId="SourceCode">
         <w:name w:val="Source Code"/>
@@ -1015,7 +987,7 @@
     </w:style>
     <w:style w:type="paragraph" w:customStyle="1" w:styleId="Definition">
         <w:name w:val="Definition"/>
-        <w:basedOn w:val="BodyCaseDefaultFontProperties"/>
+        <w:basedOn w:val="HeadnoteTextLayout"/>
         <w:uiPriority w:val="20"/>
         <w:qFormat/>
         <w:pPr>
@@ -1024,7 +996,7 @@
     </w:style>
     <w:style w:type="paragraph" w:styleId="Caption">
         <w:name w:val="caption"/>
-        <w:basedOn w:val="TitleHeadnoteDefaultFontProperties"/>
+        <w:basedOn w:val="HeadnoteTextLayout"/>
         <w:uiPriority w:val="30"/>
         <w:rPr>
             <w:keepNext/>
@@ -1097,7 +1069,7 @@
         <w:basedOn w:val="Image"/>
         <w:uiPriority w:val="65"/>
     </w:style>
-    <w:style w:type="paragraph" w:customStyle="1" w:styleId="ImageCenteredMedium">
+    <w:style w:type="paragraph" w:customStyle="1" w:styleId="ImageRightMedium">
         <w:name w:val="Image Right Medium"/>
         <w:basedOn w:val="Image"/>
         <w:uiPriority w:val="65"/>
@@ -1170,6 +1142,8 @@
     -->
 
     <!-- Chapter Head -->
+    <!-- This style could use some work. It's perfectly functional, but pages with neither subtitles nor headnotes
+    feel too sparse -->
     <w:style w:type="paragraph" w:customStyle="1" w:styleId="ChapterNumber">
         <w:name w:val="Chapter Number"/>
         <w:basedOn w:val="ChapterTitle"/>
@@ -1297,8 +1271,6 @@
             <w:ind w:right="0" w:left="0"/>
         </w:pPr>
         <w:rPr>
-            <w:b w:val="0"/>
-			<w:bCs w:val="0"/>
             <w:color w:val="D96955"/>
         </w:rPr>
     </w:style>
@@ -1608,7 +1580,7 @@
         <!-- I believe UnresolvedMention is used when there isn't a char style available that purportedly should be
              though it could also be the name of a drama novel -->
         <w:name w:val="Unresolved Mention"/>
-        <w:basedOn w:val="DefaultBodyCaseFont"/>
+        <w:basedOn w:val="DefaultParagraphFont"/>
         <w:uiPriority w:val="99"/>
         <w:semiHidden/>
         <w:unhideWhenUsed/>
