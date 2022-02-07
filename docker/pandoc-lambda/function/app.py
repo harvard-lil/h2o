@@ -126,7 +126,7 @@ def promote_case_footnotes(doc):
     return doc
 
 
-def sectionizer(doc, doc_w=8.5, doc_h=11, internal_margin=.5, external_margin=.75, big_margin=1):
+def sectionizer(doc, doc_w=8.5, doc_h=11, internal_margin=1, external_margin=1, big_margin=1.25, gutter=.5):
     """
         Adds section breaks for headers, footers, etc.
         Section breaks control formats affecting more than one paragraph— part of a page, page, chapter, document, etc.
@@ -149,7 +149,7 @@ def sectionizer(doc, doc_w=8.5, doc_h=11, internal_margin=.5, external_margin=.7
         * One at the end of each section occuring immediately before a chapter starts. This lets the new chapter have
           always start on an odd page.
 
-        We also normalize the styles of all tables, here.
+        We also normalize the styles of all tables and style lists, here.
     """
 
     # allows for conversion later. Python-docx uses a different representation of length internally than docx itself,
@@ -160,6 +160,7 @@ def sectionizer(doc, doc_w=8.5, doc_h=11, internal_margin=.5, external_margin=.7
     internal_margin = Inches(internal_margin)
     external_margin = Inches(external_margin)
     big_margin = Inches(big_margin)
+    gutter = Inches(gutter)
 
     # See which rIDs pandoc gave our headers and footers.
     # The rels list holds related xml files like header and footer among other things, and target_ref is the file name.
@@ -170,8 +171,9 @@ def sectionizer(doc, doc_w=8.5, doc_h=11, internal_margin=.5, external_margin=.7
     }
 
     body_element = doc.element.xpath('/w:document/w:body')[0]
+    doc.settings.element.append(OxmlElement('w:mirrorMargins'))
 
-    def section_break(destination, frontmatter=False, chapter=False):
+    def section_break(destination, frontmatter=False, chapter=False, pre_chap=False):
         """ Assembles the section break, appends it to the appropriate graf, properly discards the empty wrapper,
         because it gives a hoot and won't pollute. """
 
@@ -183,10 +185,15 @@ def sectionizer(doc, doc_w=8.5, doc_h=11, internal_margin=.5, external_margin=.7
             destination._element.xpath('w:pPr')[0].append(sec._sectPr)
             body_element.remove(doc.paragraphs[-1]._element)
 
-        sec.start_type = WD_SECTION_START.ODD_PAGE if chapter else WD_SECTION_START.CONTINUOUS
+        if chapter:
+            sec.start_type = WD_SECTION_START.ODD_PAGE
+        elif pre_chap:
+            sec.start_type = WD_SECTION_START.NEW_PAGE
+        else:
+            sec.start_type = WD_SECTION_START.CONTINUOUS
 
         sec.bottom_margin = internal_margin
-        sec.gutter = internal_margin // 2
+        sec.gutter = gutter
         sec.header_distance = external_margin
         sec.left_margin = external_margin
         sec.orientation = WD_ORIENTATION.PORTRAIT
@@ -224,32 +231,47 @@ def sectionizer(doc, doc_w=8.5, doc_h=11, internal_margin=.5, external_margin=.7
             sec._sectPr.insert_element_before(
                 pgNumTypeEl, 'w:formProt', 'w:vAlign', 'w:noEndnote', 'w:titlePg',
                 'w:textDirection', 'w:bidi', 'w:rtlGutter', 'w:docGrid',
-                'w:printerSettings', 'w:sectPrChange'
-            )
+                'w:printerSettings', 'w:sectPrChange')
 
-    body_tt_style = doc.styles.get_by_id('TableText', WD_STYLE_TYPE.PARAGRAPH)
-    headnote_tt_style = doc.styles.get_by_id('HeadnoteTableText', WD_STYLE_TYPE.PARAGRAPH)
+
+    our_table_styles = {'body': doc.styles.get_by_id('TableText', WD_STYLE_TYPE.PARAGRAPH),
+                        'headnote': doc.styles.get_by_id('HeadnoteTableText', WD_STYLE_TYPE.PARAGRAPH)}
 
     # much faster than using a clever xpath from the doc root.
     # tables occupying such a small percent of a huge document is a likely culprit.
     for table in doc.tables:
         context_style = doc.tables[0]._element.xpath('preceding-sibling::w:p[1]/w:pPr/w:pStyle')[0].get(qn('w:val'))
-        tt_style = headnote_tt_style if context_style.endswith('eadnote') else body_tt_style
+        table_style_type = 'headnote' if 'Headnote' in context_style else 'body'
         for row in table.rows:
             for cell in row.cells:
                 for paragraph in cell.paragraphs:
-                    paragraph.style = tt_style
+                    paragraph.style = our_table_styles[table_style_type]
 
     # the doc-wide sectpr at the end of the body element
     section_break("doc-wide")
 
-    # the mid-doc sections
-    grafs = [p.style.name for p in doc.paragraphs]
-    for i, p in enumerate(grafs):
-        if p == 'Front Matter End':
-            section_break(doc.paragraphs[i], frontmatter=True)
-        elif p == 'Head End' and grafs[i - 1].startswith('Chapter'):
-            section_break(doc.paragraphs[i-1], chapter=True)
+    # Lists in headnotes should have the headnotes style, and lists in body text should have that style.
+    # Head End comes before the body, after title, headnotes, etc. Node Start comes before the title, headnote, etc
+    our_list_styles = { 'body': doc.styles.get_by_id('BodyText', WD_STYLE_TYPE.PARAGRAPH),
+                   'headnote': doc.styles.get_by_id('HeadnoteText', WD_STYLE_TYPE.PARAGRAPH)}
+    list_style_type = 'headnote'
+    chapter_head = False
+    for p in doc.paragraphs:
+        style = str(p.style.name)
+        if style == 'Front Matter End':
+            section_break(p, frontmatter=True)
+        elif style == 'Node Start':
+            list_style_type = 'headnote'
+        elif style == 'Head End':
+            list_style_type = 'body'
+            if chapter_head:
+                section_break(p, chapter=True)
+                chapter_head = False
+        elif style == 'Chapter Spacer':
+            chapter_head = True
+            section_break(p, pre_chap=True)
+        elif style == 'Compact':
+            p.style = our_list_styles[list_style_type]
 
     return doc
 
