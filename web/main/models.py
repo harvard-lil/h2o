@@ -2151,7 +2151,7 @@ class ContentNode(EditTrackedModel, TimestampedModel, BigPkModel, MaterializedPa
             template_name = 'export/node.html'
 
         if not docx_sections:
-            template_name.replace('export/', 'export/old_pr1491/')
+            template_name = template_name.replace('export/', 'export/old_pr1491/')
 
         html = render_to_string(template_name, {
             'is_export': True,
@@ -3670,6 +3670,7 @@ class Casebook(EditTrackedModel, TimestampedModel, BigPkModel, TrackedCloneable)
         # render html
         logger.info(f"Exporting Casebook {self.id}: serializing to HTML")
         template_name = 'export/casebook.html' if docx_sections else 'export/old_pr1491/casebook.html'
+
         html = render_to_string(template_name, {
             'is_export': True,
             'node': self,
@@ -3683,14 +3684,8 @@ class Casebook(EditTrackedModel, TimestampedModel, BigPkModel, TrackedCloneable)
             return html
         if docx_sections:
             html = html.replace('&nbsp;', ' ').replace('_h2o_keep_element', '&nbsp;').replace('\xa0', ' ')
-        else:
-            html = html.replace(
-                '<div style="display: none" data-custom-style="Head Separator">_h2o_keep_element</div>\n', '')\
-                .replace('<div style="display: none" data-custom-style="Head End">_h2o_keep_element</div>\n', '')
 
-        return export_via_aws_lambda(self, html,
-                                     file_type, docx_sections=docx_sections,
-                                     docx_footnotes=docx_footnotes)
+        return export_via_aws_lambda(self, html, file_type, docx_sections=docx_sections, docx_footnotes=docx_footnotes)
 
     def inc_export_fails(self):
         # This function is used to avoid making a copy of the casebook via CasebookHistory
