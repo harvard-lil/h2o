@@ -2163,10 +2163,11 @@ class ContentNode(EditTrackedModel, TimestampedModel, BigPkModel, MaterializedPa
             'export_date': datetime.now().strftime("%Y-%m-%d"),
             'cloned_from': cloned_from,
         })
+
         if file_type == 'html':
             return html
 
-        return export_via_aws_lambda(self, html, file_type, docx_footnotes=docx_footnotes, docx_sections=False)
+        return export_via_aws_lambda(self, html, file_type, docx_footnotes=docx_footnotes, docx_sections=docx_sections)
 
     def headnote_for_export(self, export_options=None):
         r"""
