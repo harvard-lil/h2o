@@ -38,7 +38,7 @@ RUN pip install pip==21.3.1 \
 # Add the function code
 RUN mkdir -p /function
 WORKDIR /function
-COPY function/* ./
+COPY function/** ./
 
 # Set CMD to the handling function defined in app.py, and via the entrypoint, arrange for
 # that function to be run via actual AWS Lambda or via the container's own Lambda runtime emulator,
