@@ -39,15 +39,17 @@ function downloadFile (includeAnnotations, experimental=false, docx_footnotes, d
   if (pageInfo.resourceId)  {
     window.location.assign(resource_export_path(pageInfo.resourceId)
       + (includeAnnotations === "true" ? '?annotations=true' : '?annotations=false')
+      + (docx_footnotes ? '&docx_footnotes=true' : '')
       + (docx_sections ? '&docx_sections=true' : ''));
   } else if (pageInfo.sectionId)  {
     window.location.assign(section_export_path(pageInfo.sectionId)
       + (includeAnnotations === "true"? '?annotations=true' : '?annotations=false')
+      + (docx_footnotes ? '&docx_footnotes=true' : '')
       + (docx_sections ? '&docx_sections=true' : ''));
   } else {
     window.location.assign(export_casebook_path(pageInfo.casebookId)
       + (includeAnnotations === "true" ? '?annotations=true' : '?annotations=false')
-      + (experimental ? '&experimental=true' : '')
+      + (docx_footnotes ? '&docx_footnotes=true' : '')
       + (docx_sections ? '&docx_sections=true' : ''));
   }
 
