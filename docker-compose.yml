@@ -62,8 +62,8 @@ services:
     # After a few seconds, a newly-compiled requirements.txt will sync to ./docker/pandoc-lambda/function!
     # Then, put back the comment, increment the image number, and run `docker-compose up -d` again, to rebuild with the new requirements.
     # command: 'pip-compile --generate-hashes'
-    volumes:
-      - ./docker/pandoc-lambda/function/:/function
+    # volumes:
+    #   - ./docker/pandoc-lambda/function/:/function
 
 volumes:
   db_data_12:
