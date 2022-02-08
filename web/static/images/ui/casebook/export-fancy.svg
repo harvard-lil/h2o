@@ -4,11 +4,11 @@
      y="0px"
      viewBox="0 0 54.5 55" style="enable-background:new 0 0 54.5 55;" xml:space="preserve">
 <style type="text/css">
-	.st0{fill:#FFFFFF;}
-	.st1{fill-rule:evenodd;clip-rule:evenodd;fill:#3E72D7;}
-	.st2{fill:none;stroke:#3E72D7;stroke-width:2;}
-	.st3{fill:#3E72D7;}
-	.green{fill:#14950E;}
+	.st0{fill:#FAF4FF;}
+	.st1{fill-rule:evenodd;clip-rule:evenodd;fill:#E436C0;}
+	.st2{fill:none;stroke:#E436C0;stroke-width:2;}
+	.st3{fill:#E436C0;}
+	.green{fill:#85F12D;}
 </style>
 
     <font horiz-adv-x="2048">
@@ -41,7 +41,7 @@
                      l-4.7,4.7L4.7,32l1.4,1.4L8,35.3l1.4,1.4l1.4-1.4l8-8l1.4-1.4l-1.4-1.4l-8-8L9.4,15L9.4,15z"/>
                 <path class="green" d="M3.6,24.5h10v2.7H3.5C3.5,26.4,3.6,25.5,3.6,24.5z"/>
             </g>
-            <text font-size="12.19px" font-family="Roboto-Regular, Helvetica, Arial, sans-serif" transform="matrix(1 0 0 1 14.85 43.53)" class="st0">docx</text>
+            <text font-size="11.39px" font-family="Roboto-Regular, Helvetica, Arial, sans-serif" transform="matrix(1 0 0 1 14.6 42.95)" class="st0">fancy</text>
         </g>
     </g>
 </svg>

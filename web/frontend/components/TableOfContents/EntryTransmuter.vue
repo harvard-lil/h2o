@@ -35,8 +35,8 @@ export default {
             const casebook = this.$store.getters['globals/casebook']();
             const subsection = this.$store.getters['globals/section']();
             this.$store.dispatch('table_of_contents/fetch', { casebook, subsection });
-      }
-  },
+        }
+    },
   computed: {
     casebook: function() {
       return this.$store.getters["globals/casebook"]();
@@ -44,14 +44,15 @@ export default {
   },
   watch: {
     item: function(newVal) {
-      this.resource_type = newVal.resource_type;
+      this.resource_type = newVal.resource_type == "Text" ? "TextBlock" : newVal.resource_type;
     },
     resource_type: function(newVal) {
       if (newVal === this.item.resource_type || (_.includes(['Text', 'Multimedia'],this.item.resource_type) && newVal == 'TextBlock')) {
         return;
       }
-      const data = { from: this.item.resource_type, to: newVal == 'Temp' ? 'LegalDocument' : newVal };
-        Axios.patch(this.item.url, data).then(this.refreshTOC, this.refreshTOC);
+      const from = this.item.resource_type == "Text" ? "TextBlock" : this.item.resource_type;
+      const data = { from, to: newVal == 'Temp' ? 'LegalDocument' : newVal };
+      Axios.patch(this.item.url, data).then(this.refreshTOC, this.refreshTOC);
     }
   }
 };

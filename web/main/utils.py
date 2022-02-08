@@ -374,7 +374,7 @@ class StringFileResponse(HttpResponse):
 
         Logic based on django.http.response.FileResponse.set_headers.
     """
-    def __init__(self, *args, as_attachment=False, filename='', **kwargs):
+    def __init__(self, *args, as_attachment=False, filename='', response_flag_cookie=False, **kwargs):
         super().__init__(*args, **kwargs)
 
         # set Content-Type
@@ -404,6 +404,9 @@ class StringFileResponse(HttpResponse):
             self['Content-Disposition'] = f'{disposition}; {file_expr}'
         elif as_attachment:
             self['Content-Disposition'] = 'attachment'
+
+        if response_flag_cookie:
+            self.set_cookie('response_flag_cookie', value='response_flag_cookie', max_age=5)
 
 
 def get_ip_address(request):
