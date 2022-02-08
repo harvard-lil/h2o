@@ -5,7 +5,11 @@ import signal
 import subprocess
 import tempfile
 from docx import Document
+from docx.shared import Inches
 from docx.oxml import OxmlElement, parse_xml
+from docx.oxml.ns import qn
+from docx.enum.section import WD_SECTION_START, WD_HEADER_FOOTER_INDEX, WD_ORIENTATION
+from docx.styles.style import WD_STYLE_TYPE
 from lxml import etree
 
 def lift_footnote(doc, footnotes_part, ref, texts, id, author=False):
@@ -68,7 +72,7 @@ def promote_case_footnotes(doc):
         node.attrib[val_att] = "FootnoteReference"
         parent = ref.getparent()
         gp = parent.getparent()
-        if gp:
+        if gp is not None and len(gp):  # docs say this is the way to test, here
             gp.replace(parent, ref)
         case_footnotes[mark_id]['refs'].append(ref)
 
@@ -122,6 +126,154 @@ def promote_case_footnotes(doc):
     return doc
 
 
+def sectionizer(doc, doc_w=8.5, doc_h=11, internal_margin=1, external_margin=1, big_margin=1.25, gutter=.5):
+    """
+        Adds section breaks for headers, footers, etc.
+        Section breaks control formats affecting more than one paragraph— part of a page, page, chapter, document, etc.
+        The myriad formatting options include page number settings,  header and footer definitions, margins, columns,
+        page breaks that move to the next odd page rather than just ending the page, and others. In docx XML, they are
+        sectPr elements and are either attached to the body itself as the last element— which holds the default
+        settings for the entire document— or the last paragraph element of the section.
+
+        We determine where to place sections through paragraph style names. We traverse a list of all paragraph styles
+        instead of the xml directly to increase perf. The index in the list matches their index in the doc object— don't
+        add new paragraphs mid-doc here without changing this logic.
+
+        SectPrs must be attached to the pPr element in the LAST paragraph in the section (and also one by itself at the
+        end of the body element for the document-wide default settings.)
+
+        With columns, each resource/section/chapter header section gets its own, and each of their content blocks get
+        their own, too. However, in this simpler configuration, we place:
+        * One on the last paragraph of the front matter to apply lower roman page numbering and have blank
+          headers/footers, except on the title page where we see placeholder text for the author name.
+        * One at the end of each section occuring immediately before a chapter starts. This lets the new chapter have
+          always start on an odd page.
+
+        We also normalize the styles of all tables and style lists, here.
+    """
+
+    # allows for conversion later. Python-docx uses a different representation of length internally than docx itself,
+    # which is in twips, or inches. This will also be useful when we implement scaling based on page size, using
+    # non-imperial page sizes, etc.
+    doc_w = Inches(doc_w)
+    doc_h = Inches(doc_h)
+    internal_margin = Inches(internal_margin)
+    external_margin = Inches(external_margin)
+    big_margin = Inches(big_margin)
+    gutter = Inches(gutter)
+
+    # See which rIDs pandoc gave our headers and footers.
+    # The rels list holds related xml files like header and footer among other things, and target_ref is the file name.
+    rels = doc.part.rels
+    headers_and_footers = { rels[rid].target_ref.replace('.xml', '') : rels[rid]
+      for rid in rels if rels[rid].target_ref.endswith('.xml') and
+      (rels[rid].target_ref.startswith('header') or rels[rid].target_ref.startswith('footer'))
+    }
+
+    body_element = doc.element.xpath('/w:document/w:body')[0]
+    doc.settings.element.append(OxmlElement('w:mirrorMargins'))
+
+    def section_break(destination, frontmatter=False, chapter=False, pre_chap=False):
+        """ Assembles the section break, appends it to the appropriate graf, properly discards the empty wrapper,
+        because it gives a hoot and won't pollute. """
+
+        # The doc itself should have an existing default section attached to body, not a paragraph
+        if destination == 'doc-wide':
+            sec = doc.sections[0]
+        else:
+            sec = doc.add_section()
+            destination._element.xpath('w:pPr')[0].append(sec._sectPr)
+            body_element.remove(doc.paragraphs[-1]._element)
+
+        if chapter:
+            sec.start_type = WD_SECTION_START.ODD_PAGE
+        elif pre_chap:
+            sec.start_type = WD_SECTION_START.NEW_PAGE
+        else:
+            sec.start_type = WD_SECTION_START.CONTINUOUS
+
+        sec.bottom_margin = internal_margin
+        sec.gutter = gutter
+        sec.header_distance = external_margin
+        sec.left_margin = external_margin
+        sec.orientation = WD_ORIENTATION.PORTRAIT
+        sec.page_height = doc_h
+        sec.page_width = doc_w
+        sec.right_margin = external_margin
+        sec.top_margin = big_margin
+
+        sec._sectPr.add_footerReference(WD_HEADER_FOOTER_INDEX.EVEN_PAGE, headers_and_footers['footer_blank'].rId)
+        sec._sectPr.add_footerReference(WD_HEADER_FOOTER_INDEX.PRIMARY, headers_and_footers['footer_blank'].rId)
+        sec._sectPr.add_headerReference(WD_HEADER_FOOTER_INDEX.EVEN_PAGE, headers_and_footers['header_even'].rId)
+        sec._sectPr.add_headerReference(WD_HEADER_FOOTER_INDEX.PRIMARY, headers_and_footers['header_odd'].rId)
+
+        if frontmatter or destination == 'doc-wide':
+            sec.different_first_page_header_footer = True
+            sec._sectPr.add_footerReference(WD_HEADER_FOOTER_INDEX.FIRST_PAGE, headers_and_footers['footer_title'].rId)
+            sec._sectPr.add_headerReference(WD_HEADER_FOOTER_INDEX.FIRST_PAGE, headers_and_footers['header_blank'].rId)
+
+        # cols value and pgNumType are special cases— they're not supported by python-docx
+        pgNumType_value = "lowerRoman" if frontmatter else 'decimal'
+        pgNumType_query= sec._sectPr.xpath('.//w:pgNumType')
+        if len(pgNumType_query) > 0:
+            pgNumType_query[0].set(qn('w:fmt'), pgNumType_value)
+            if frontmatter:
+                pgNumType_query[0].set(qn('w:start'), "0")
+            elif len(doc.sections) == 2:
+                pgNumType_query[0].set(qn('w:start'), "1")
+        else:
+            pgNumTypeEl = OxmlElement('w:pgNumType')
+            if frontmatter:
+                pgNumTypeEl.set(qn('w:start'), "0")
+            elif len(doc.sections) == 2:
+                pgNumTypeEl.set(qn('w:start'), "1")
+            pgNumTypeEl.set(qn('w:pgNumType'), pgNumType_value)
+            sec._sectPr.insert_element_before(
+                pgNumTypeEl, 'w:formProt', 'w:vAlign', 'w:noEndnote', 'w:titlePg',
+                'w:textDirection', 'w:bidi', 'w:rtlGutter', 'w:docGrid',
+                'w:printerSettings', 'w:sectPrChange')
+
+
+    our_table_styles = {'body': doc.styles.get_by_id('TableText', WD_STYLE_TYPE.PARAGRAPH),
+                        'headnote': doc.styles.get_by_id('HeadnoteTableText', WD_STYLE_TYPE.PARAGRAPH)}
+
+    # much faster than using a clever xpath from the doc root.
+    # tables occupying such a small percent of a huge document is a likely culprit.
+    for table in doc.tables:
+        context_style = doc.tables[0]._element.xpath('preceding-sibling::w:p[1]/w:pPr/w:pStyle')[0].get(qn('w:val'))
+        table_style_type = 'headnote' if 'Headnote' in context_style else 'body'
+        for row in table.rows:
+            for cell in row.cells:
+                for paragraph in cell.paragraphs:
+                    paragraph.style = our_table_styles[table_style_type]
+
+    # the doc-wide sectpr at the end of the body element
+    section_break("doc-wide")
+
+    # Lists in headnotes should have the headnotes style, and lists in body text should have that style.
+    # Head End comes before the body, after title, headnotes, etc. Node Start comes before the title, headnote, etc
+    our_list_styles = { 'body': doc.styles.get_by_id('BodyText', WD_STYLE_TYPE.PARAGRAPH),
+                   'headnote': doc.styles.get_by_id('HeadnoteText', WD_STYLE_TYPE.PARAGRAPH)}
+    list_style_type = 'headnote'
+    chapter_head = False
+    for p in doc.paragraphs:
+        style = str(p.style.name)
+        if style == 'Front Matter End':
+            section_break(p, frontmatter=True)
+        elif style == 'Node Start':
+            list_style_type = 'headnote'
+        elif style == 'Head End':
+            list_style_type = 'body'
+            if chapter_head:
+                section_break(p, chapter=True)
+                chapter_head = False
+        elif style == 'Chapter Spacer':
+            chapter_head = True
+            section_break(p, pre_chap=True)
+        elif style == 'Compact':
+            p.style = our_list_styles[list_style_type]
+
+    return doc
 
 
 def handler(event, context):
@@ -137,7 +289,6 @@ def handler(event, context):
         s3_config['aws_secret_access_key'] = os.environ['AWS_SECRET_ACCESS_KEY']
 
     with tempfile.NamedTemporaryFile(suffix='.docx') as pandoc_in:
-
         # get the source html
         s3 = boto3.resource('s3', **s3_config)
         s3.Bucket(os.environ['EXPORT_BUCKET']).download_fileobj(input_s3_key, pandoc_in)
@@ -149,12 +300,12 @@ def handler(event, context):
                 'pandoc',
                 '--from', 'html',
                 '--to', 'docx',
-                '--reference-doc', 'reference.docx',
+                '--reference-doc', 'reference.docx' if options['docx_sections'] else 'old_pr1491/reference.docx',
                 '--output', pandoc_out.name,
                 '--quiet'
             ]
             if is_casebook:
-                command.extend(['--lua-filter', 'table_of_contents.lua'])
+                command.extend(['--lua-filter', 'table_of_contents.lua' if options['docx_sections'] else 'old_pr1491/table_of_contents.lua'])
             try:
                 response = subprocess.run(command, input=pandoc_in.read(), stderr=subprocess.PIPE,
                                           stdout=subprocess.PIPE)
@@ -180,11 +331,15 @@ def handler(event, context):
             if not os.path.getsize(pandoc_out.name) > 0:
                 raise Exception(f"Pandoc produced no output.")
 
-            if options.get('word_footnotes', False):
+            if options.get('word_footnotes', False) or options.get('docx_sections', False):
                 doc = Document(pandoc_out)
-                promote_case_footnotes(doc)
+                if options.get('word_footnotes', False):
+                    promote_case_footnotes(doc)
+                if options.get('docx_sections', False):
+                    sectionizer(doc)
                 output = io.BytesIO()
                 doc.save(output)
                 output.seek(0,0)
                 return output.read()
+
             return pandoc_out.read()

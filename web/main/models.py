@@ -2112,7 +2112,7 @@ class ContentNode(EditTrackedModel, TimestampedModel, BigPkModel, MaterializedPa
         else:
             return 'resource'
 
-    def export(self, include_annotations, file_type='docx', export_options=None, is_child=False,  docx_footnotes=None):
+    def export(self, include_annotations, file_type='docx', export_options=None, is_child=False, docx_footnotes=None):
         """
             Export this node and children as docx, or as html for conversion by pandoc.
 
@@ -2123,6 +2123,9 @@ class ContentNode(EditTrackedModel, TimestampedModel, BigPkModel, MaterializedPa
             >>> with assert_num_queries(select=11):
             ...     file_data = full_casebook.export(include_annotations=True)
         """
+
+        docx_sections = export_options['docx_sections'] if export_options and 'docx_sections' in export_options else settings.FORCE_DOCX_SECTIONS
+
         # prefetch all child nodes and related data
         if LiveSettings.load().prevent_exports:
             logger.info(f"Exporting Casebook {self.id}: attempt rejected (too many previous failures)")
@@ -2146,6 +2149,10 @@ class ContentNode(EditTrackedModel, TimestampedModel, BigPkModel, MaterializedPa
             template_name = 'export/tbd.html'
         else:
             template_name = 'export/node.html'
+
+        if not docx_sections:
+            template_name = template_name.replace('export/', 'export/old_pr1491/')
+
         html = render_to_string(template_name, {
             'is_export': True,
             'is_child': is_child,
@@ -2156,10 +2163,11 @@ class ContentNode(EditTrackedModel, TimestampedModel, BigPkModel, MaterializedPa
             'export_date': datetime.now().strftime("%Y-%m-%d"),
             'cloned_from': cloned_from,
         })
+
         if file_type == 'html':
             return html
 
-        return export_via_aws_lambda(self, html, file_type, docx_footnotes=docx_footnotes)
+        return export_via_aws_lambda(self, html, file_type, docx_footnotes=docx_footnotes, docx_sections=docx_sections)
 
     def headnote_for_export(self, export_options=None):
         r"""
@@ -3644,6 +3652,7 @@ class Casebook(EditTrackedModel, TimestampedModel, BigPkModel, TrackedCloneable)
             ...     file_data = full_casebook.export(include_annotations=True)
         """
         docx_footnotes = docx_footnotes if docx_footnotes is not None else settings.FORCE_DOCX_FOOTNOTES
+        docx_sections = export_options['docx_sections'] if export_options and 'docx_sections' in export_options else settings.FORCE_DOCX_SECTIONS
 
         # prefetch all child nodes and related data
         if self.export_embargoed() or LiveSettings.load().prevent_exports:
@@ -3660,7 +3669,8 @@ class Casebook(EditTrackedModel, TimestampedModel, BigPkModel, TrackedCloneable)
 
         # render html
         logger.info(f"Exporting Casebook {self.id}: serializing to HTML")
-        template_name = 'export/casebook.html'
+        template_name = 'export/casebook.html' if docx_sections else 'export/old_pr1491/casebook.html'
+
         html = render_to_string(template_name, {
             'is_export': True,
             'node': self,
@@ -3672,8 +3682,10 @@ class Casebook(EditTrackedModel, TimestampedModel, BigPkModel, TrackedCloneable)
         })
         if file_type == 'html':
             return html
+        if docx_sections:
+            html = html.replace('&nbsp;', ' ').replace('_h2o_keep_element', '&nbsp;').replace('\xa0', ' ')
 
-        return export_via_aws_lambda(self, html, file_type, docx_footnotes=docx_footnotes)
+        return export_via_aws_lambda(self, html, file_type, docx_sections=docx_sections, docx_footnotes=docx_footnotes)
 
     def inc_export_fails(self):
         # This function is used to avoid making a copy of the casebook via CasebookHistory

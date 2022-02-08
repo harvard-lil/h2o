@@ -1,3 +1,4 @@
+
 toc_prefix = [[
     <w:sdt>
       <w:sdtPr>
@@ -50,6 +51,9 @@ toc_entry = [[
     <w:p>
       <w:pPr>
         <w:pStyle w:val="TOC%s"/>
+        <w:tabs>
+          <w:tab w:val="right" w:leader="dot" w:pos="9350"/>
+        </w:tabs>
         <w:rPr>
           <w:noProof/>
         </w:rPr>
@@ -57,8 +61,8 @@ toc_entry = [[
       <w:hyperlink w:anchor="_auto_toc_%s" w:history="1">
         <w:r>
           <w:rPr>
+            <w:rStyle w:val="Hyperlink"/>
             <w:noProof/>
-            <w:iCs/>
           </w:rPr>
           <w:t>
             %s

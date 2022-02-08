@@ -13,7 +13,7 @@
         <div class="CasebookHeadnote" data-custom-style="Casebook Headnote">{{ headnote }}</div>
       {% endif %}
   {% endif %}
-  {% include 'export/about.html' %}
+  {% include 'export/old_pr1491/about.html' %}
 
   {% comment %}
     Note: the contents of this TOC div is manually converted to XML during the export
@@ -26,13 +26,12 @@
       <div class="toc-entry" data-depth="{{ child.ordinals|length }}" data-idx="{{ forloop.counter }}" data-title="{{ child.ordinal_string }} {{ child.title|force_escape|force_escape }}"></div>
     {% endfor %}
   </div>
-  <div class="FrontMatterEnd" data-custom-style="Front Matter End">_h2o_keep_element</div>
 
   {% with is_child=True %}
   {% for child in children %}
-    {% include "export/node.html" with index=forloop.counter node=child %}
+    {% include "export/old_pr1491/node.html" with index=forloop.counter node=child %}
   {% endfor %}
   {% endwith %}
 
-  {% include 'export/credits.html' %}
+  {% include 'export/old_pr1491/credits.html' %}
 </body>

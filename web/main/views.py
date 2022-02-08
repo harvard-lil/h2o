@@ -2160,10 +2160,11 @@ def export(request, node, file_type='docx'):
     if file_type not in ('docx', 'html', 'json'):
         raise Http404
     docx_footnotes = request.GET.get('docx_footnotes') == 'true' if 'docx_footnotes' in request.GET else settings.FORCE_DOCX_FOOTNOTES
+    docx_sections = request.GET.get('docx_sections') == 'true' if 'docx_sections' in request.GET else settings.FORCE_DOCX_SECTIONS
     include_annotations = request.GET.get('annotations') == 'true'
-
     export_options = {'request': request}
     export_options['docx_footnotes'] = docx_footnotes
+    export_options['docx_sections'] = docx_sections
     # get response data
     response_data = node.export(include_annotations, file_type, export_options=export_options, docx_footnotes = docx_footnotes)
     if response_data is None:

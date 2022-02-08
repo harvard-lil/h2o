@@ -1,63 +1,100 @@
 {% load call_method %}
 
+<div data-custom-style="Node Start">_h2o_keep_element</div>
+{% if node.type == 'section' and '.' not in node.ordinal_string %}
+  <div data-custom-style="Head Separator">_h2o_keep_element</div>
+  <div data-custom-style="Chapter Spacer">_h2o_keep_element</div>
 
+  <div class="ChapterNumber" data-custom-style="Chapter Number" data-toc-idx="{{ index }}">{{ node.ordinal_string }}</div>
+  <div class="ChapterTitle" data-custom-style="Chapter Title">{{ node.title }}</div>
 
-{% if node.type == 'section' and index == 1 %}
-    <div class="ChapterNumber" data-custom-style="Chapter Number" data-toc-idx="{{ index }}">{{ node.ordinal_string }}</div>
-    <div class="ChapterTitle" data-custom-style="Chapter Title">{{ node.title }}</div>
   {% if node.subtitle %}
+    <div data-custom-style="Head Field Separator">_h2o_keep_element</div>
     <div class="ChapterSubtitle" data-custom-style="Chapter Subtitle">{{ node.subtitle }}</div>
   {% endif %}
+
   {% if node.headnote %}
+    <div data-custom-style="Head Field Separator">_h2o_keep_element</div>
     {% call_method node 'headnote_for_export' export_options=export_options as headnote %}
-    <div class="ChapterHeadnote" data-custom-style="Chapter Headnote">{{ headnote }}</div>
-  {% endif %}
-  <div data-custom-style="invisibleseparator">&nbsp</div>
-{% elif node.type == 'section' %}
-  <div class="SectionNumber" data-custom-style="Section Number" data-toc-idx="{{ index }}">{{ node.ordinal_string }}</div>
-  <div class="SectionTitle" data-custom-style="Section Title">{{ node.title }}</div>
-  {% if node.subtitle %}
-    <div class="SectionSubtitle" data-custom-style="Section Subtitle">{{ node.subtitle }}</div>
-  {% endif %}
-  {% if node.headnote %}
-    {% call_method node 'headnote_for_export' export_options=export_options as headnote %}
-    <div class="SectionHeadnote" data-custom-style="Section Headnote">{{ headnote }}</div>
-  {% endif %}
-  <div data-custom-style="invisibleseparator">&nbsp</div>
-{% elif node.type == 'resource' %}
-  <div class="ResourceNumber" data-custom-style="Resource Number" data-toc-idx="{{ index }}">{{ node.ordinal_string }}</div>
-  <div class="ResourceTitle" data-custom-style="Resource Title">{{ node.title }}</div>
-  {% if node.subtitle %}
-    <div class="ResourceSubtitle" data-custom-style="Resource Subtitle">{{ node.subtitle }}</div>
-  {% endif %}
-  {% if node.headnote %}
-    <div class="ResourceHeadnote" data-custom-style="Resource Headnote">{{ node.headnote_for_export }}</div>
+      <div class="ChapterHeadnote" data-custom-style="Chapter Headnote">{{ headnote }}</div>
   {% endif %}
 
+  <div data-custom-style="Head End">_h2o_keep_element</div>
+
+{% elif node.type == 'section' %}
+  <div data-custom-style="Head Separator">_h2o_keep_element</div>
+
+  <div class="SectionNumber" data-custom-style="Section Number" data-toc-idx="{{ index }}">{{ node.ordinal_string }}</div>
+  <div class="SectionTitle" data-custom-style="Section Title">{{ node.title }}</div>
+
+  {% if node.subtitle %}
+    <div data-custom-style="Head Field Separator">_h2o_keep_element</div>
+    <div class="SectionSubtitle" data-custom-style="Section Subtitle">{{ node.subtitle }}</div>
+  {% endif %}
+
+  {% if node.headnote %}
+    <div data-custom-style="Head Field Separator">_h2o_keep_element</div>
+    {% call_method node 'headnote_for_export' export_options=export_options as headnote %}
+      <div class="SectionHeadnote" data-custom-style="Section Headnote">{{ headnote }}</div>
+  {% endif %}
+  <div data-custom-style="Head End">_h2o_keep_element</div>
+
+{% elif node.type == 'resource' %}
+  <div data-custom-style="Head Separator">_h2o_keep_element</div>
+
+  <div class="ResourceNumber" data-custom-style="Resource Number" data-toc-idx="{{ index }}">{{ node.ordinal_string }}</div>
+  <div class="ResourceTitle" data-custom-style="Resource Title">{{ node.title }}</div>
+
+  {% if node.subtitle %}
+    <div data-custom-style="Head Field Separator">_h2o_keep_element</div>
+    <div class="ResourceSubtitle" data-custom-style="Resource Subtitle">{{ node.subtitle }}</div>
+  {% endif %}
+
+  {# I think the headnote should go below a link, but above a resource which is why this block prints headnotes#}
   {% if node.resource_type == 'Link' %}
+    <div data-custom-style="Head Field Separator">_h2o_keep_element</div>
+
     <div data-custom-style="Resource Link">
       <a href="{{ node.resource.url }}" target="_blank">{{ node.resource.url }}</a>
     </div>
+
+    {% if node.headnote %}
+      <div data-custom-style="Head Field Separator">_h2o_keep_element</div>
+      <div class="ResourceHeadnote" data-custom-style="Resource Headnote">{{ node.headnote_for_export }}</div>
+    {% endif %}
+
+    <div data-custom-style="Head End">_h2o_keep_element</div>
   {% elif node.is_resource %}  {# case or textblock #}
+
+    {# Duplicated in the link block becaue headnotes should go below a link but above cases and text blocks #}
+    {% if node.headnote %}
+      <div data-custom-style="Head Field Separator">_h2o_keep_element</div>
+      <div class="ResourceHeadnote" data-custom-style="Resource Headnote">{{ node.headnote_for_export }}</div>
+    {% endif %}
+
+    <div data-custom-style="Head End">_h2o_keep_element</div>
     <div class="ResourceBody">
-        {% if include_annotations %}
+
+      {% if include_annotations %}
         {% call_method node 'annotated_content_for_export' export_options=export_options as contents %}
         {{ contents }}
         {% call_method node 'footnote_annotations' export_options=export_options as footnote_contents %}
-        <div>{{footnote_contents}}</div>
-        {% else %}
-        {% call_method node 'content_for_export' export_options=export_options as contents %}
-        {{ contents }}
-        {% endif %}
-    </div>
-    {% endif %}
-  <div data-custom-style="invisibleseparator">&nbsp</div>
-  {% endif %}
+        <div>{{ footnote_contents }}</div>
+      {% else %}
 
-    {% if not is_child %}
-    {% include 'export/credits.html' %}
+      {% call_method node 'content_for_export' export_options=export_options as contents %}
+        {{ contents }}
+
+      {% endif %}
+    </div>
+  {% endif %}
 {% endif %}
 
 {% if not is_child %}
-{% include 'export/about.html' %}
+  {% include 'export/credits.html' %}
 {% endif %}
+
+{% if not is_child %}
+  {% include 'export/about.html' %}
+{% endif %}
+<div data-custom-style="Node End">_h2o_keep_element;</div>

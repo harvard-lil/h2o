@@ -166,12 +166,12 @@ main > header.casebook {
       background-image: url('~static/images/ui/casebook/clone.svg');
       border: none;
     }
-    &.export {
-      background-image: url('~static/images/ui/casebook/export.svg');
-    }
-    &.export.new_export_icon.animating {
-      background-image: url('~static/images/ui/casebook/export-anim.svg');
-    }
+
+    &.export { background-image: url('~static/images/ui/casebook/export.svg'); }
+    &.export.animating { background-image: url('~static/images/ui/casebook/export-anim.svg'); }
+    &.export.fancy { background-image: url('~static/images/ui/casebook/export-fancy.svg'); }
+    &.export.fancy.animating { background-image: url('~static/images/ui/casebook/export-anim-fancy.svg'); }
+
     &.more, &.preview {
       background-image: url('~static/images/ui/casebook/preview.svg');
     }
