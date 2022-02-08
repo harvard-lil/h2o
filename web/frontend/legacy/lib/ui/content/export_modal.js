@@ -13,7 +13,8 @@ delegate(document, 'a.action.export', 'click', (e) => {
      (!window.app && e.target.classList.contains('export-has-annotations'))){
     showExportModal(e, experimental, aws_lambda, docx_footnotes);
   } else {
-    downloadFile(undefined, experimental, aws_lambda, docx_footnotes);
+    downloadFile(undefined, experimental, aws_lambda, docx_footnotes, e.target);
+
   }
 });
 
@@ -31,7 +32,8 @@ function export_casebook_path(casebookId) {
     return url({casebookId});
 }
 
-function downloadFile (includeAnnotations, experimental=false, aws_lambda=false, docx_footnotes) {
+function downloadFile (includeAnnotations, experimental=false, aws_lambda=false,
+                       docx_footnotes, button_el) {
   if(typeof includeAnnotations === "undefined"){
     includeAnnotations = "true";
   }
@@ -53,13 +55,26 @@ function downloadFile (includeAnnotations, experimental=false, aws_lambda=false,
       + (aws_lambda ? '&aws_lambda=true' : '')
       + (docx_footnotes ? '&aws_lambda=false&docx_footnotes=true' : ''));
   }
+
+  // animate button to show it's downloading
+  button_el.classList.add('animating')
+
+  // this looks for the server-side cookie set in the file response. It doesn't proactively expire it because the cookie
+  // should be set to expire within a few seconds, anyway
+  let cookie_name = 'response_flag_cookie';
+  let myInterval = setInterval(function () {
+    if (document.cookie.includes(cookie_name)) {
+      button_el.classList.remove('animating')
+      clearInterval(myInterval);
+    }
+  }, 500);
 }
 
 function showExportModal (e, experimental=false, aws_lambda=false, docx_footnotes=false) {
   new ExportModal('export-modal', e.target, {
     'click #export-modal': (e) => { if (e.target.id === 'export-modal') this.destroy()},
     'click .export': (e) => {
-      downloadFile(e.target.value, experimental, aws_lambda, docx_footnotes);
+      downloadFile(e.target.value, experimental, aws_lambda, docx_footnotes, e.target);
       document.querySelector('button.close').click()
     }
   });

@@ -169,6 +169,9 @@ main > header.casebook {
     &.export {
       background-image: url('~static/images/ui/casebook/export.svg');
     }
+    &.export.new_export_icon.animating {
+      background-image: url('~static/images/ui/casebook/export-anim.svg');
+    }
     &.more, &.preview {
       background-image: url('~static/images/ui/casebook/preview.svg');
     }

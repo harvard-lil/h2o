@@ -2176,7 +2176,7 @@ def export(request, node, file_type='docx'):
 
     # return docx
     filename = f"{Truncator(node.title).words(45, truncate='-')}{'_annotated' if include_annotations else ''}.docx"
-    return StringFileResponse(response_data, as_attachment=True, filename=filename)
+    return StringFileResponse(response_data, as_attachment=True, filename=filename, response_flag_cookie=True)
 
 
 def reset_password(request):
