@@ -4,6 +4,7 @@ import os
 import signal
 import subprocess
 import tempfile
+from itertools import zip_longest
 from docx import Document
 from docx.shared import Inches
 from docx.oxml import OxmlElement, parse_xml
@@ -13,6 +14,12 @@ from docx.styles.style import WD_STYLE_TYPE
 from lxml import etree
 
 def lift_footnote(doc, footnotes_part, ref, texts, id, author=False):
+    if texts is None:
+        parent = ref.getparent()
+        parent.remove(ref)
+        return
+    if ref is None:
+        return
     id_att = '{http://schemas.openxmlformats.org/wordprocessingml/2006/main}id'
     custom_mark_att = '{http://schemas.openxmlformats.org/wordprocessingml/2006/main}customMarkFollows'
     footnote = OxmlElement("w:footnote")
@@ -33,6 +40,8 @@ def lift_footnote(doc, footnotes_part, ref, texts, id, author=False):
 
 def promote_case_footnotes(doc):
     val_att = '{http://schemas.openxmlformats.org/wordprocessingml/2006/main}val'
+    hyperlink_tag = '{http://schemas.openxmlformats.org/wordprocessingml/2006/main}hyperlink'
+    paragraph_tag = '{http://schemas.openxmlformats.org/wordprocessingml/2006/main}p'
     author_footnotes = {}
 
     for ref in doc.element.xpath("//*[*/w:rStyle[starts-with(@w:val,'FootnoteReference')]]"):
@@ -61,7 +70,6 @@ def promote_case_footnotes(doc):
 
 
     case_footnotes = {}
-
     for ref in doc.element.xpath("//*[*/w:rStyle[starts-with(@w:val,'CaseFootnoteReference')]]"):
         mark_text = ref.text
         node = ref.xpath(".//w:rStyle[starts-with(@w:val,'CaseFootnoteReference')]")[0]
@@ -72,7 +80,8 @@ def promote_case_footnotes(doc):
         node.attrib[val_att] = "FootnoteReference"
         parent = ref.getparent()
         gp = parent.getparent()
-        if gp is not None and len(gp):  # docs say this is the way to test, here
+        # Don't hoist a footnote outside of a paragraph. Word can't handle it.
+        if gp is not None and len(gp) and parent.tag == hyperlink_tag and gp.tag == paragraph_tag:
             gp.replace(parent, ref)
         case_footnotes[mark_id]['refs'].append(ref)
 
@@ -84,6 +93,8 @@ def promote_case_footnotes(doc):
         next_footnote_candidate = footnote_start.getnext()
         style = next_footnote_candidate.xpath(".//w:pStyle/@w:val")
         link = next_footnote_candidate.xpath(".//w:hyperlink//text()")
+
+        # In cases that a footnote spans multiple paragraphs (judges amiright) roll up those blocks into an array
         while next_footnote_candidate is not None and style and style[0] != 'CaseBody' and not link:
             current_stack.append(next_footnote_candidate)
             next_footnote_candidate = next_footnote_candidate.getnext()
@@ -108,14 +119,12 @@ def promote_case_footnotes(doc):
 
     footnote_part = next(f for f in doc.part.package.parts if f.partname=='/word/footnotes.xml')
     footnote_part.element = parse_xml(footnote_part.blob)
-
     for val in author_footnotes.values():
-        for ref,texts in zip(val['refs'], val['texts']):
+        for ref,texts in zip_longest(val['refs'], val['texts']):
             fid += 1
             lift_footnote(doc, footnote_part, ref, texts, f"{fid}", author=True)
-
     for val in case_footnotes.values():
-        for ref,texts in zip(val['refs'], val['texts']):
+        for ref,texts in zip_longest(val['refs'], val['texts']):
             fid += 1
             lift_footnote(doc, footnote_part, ref, texts, f"{fid}", author=False)
     footnote_part._blob = b'<?xml version="1.0" encoding="UTF-8" standalone="yes"?>' + etree.tostring(footnote_part.element)
