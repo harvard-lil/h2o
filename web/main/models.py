@@ -2120,7 +2120,7 @@ class ContentNode(EditTrackedModel, TimestampedModel, BigPkModel, MaterializedPa
             >>> full_casebook, assert_num_queries = [getfixture(f) for f in ['full_casebook', 'assert_num_queries']]
 
             Export uses 8 queries: selecting descendant nodes, and prefetching ContentAnnotation, Case, TextBlock, and Link, and provenance info
-            >>> with assert_num_queries(select=11):
+            >>> with assert_num_queries(select=12, delete=1, insert=1):
             ...     file_data = full_casebook.export(include_annotations=True)
         """
 
@@ -2166,8 +2166,10 @@ class ContentNode(EditTrackedModel, TimestampedModel, BigPkModel, MaterializedPa
 
         if file_type == 'html':
             return html
-
-        return export_via_aws_lambda(self, html, file_type, docx_footnotes=docx_footnotes, docx_sections=docx_sections)
+        if not LiveSettings.export_is_rate_limited():
+            return export_via_aws_lambda(self, html, file_type, docx_footnotes=docx_footnotes, docx_sections=docx_sections)
+        logger.info(f"Exporting {self.type} {self.id} prevented due to rate limits")
+        return None
 
     def headnote_for_export(self, export_options=None):
         r"""
@@ -3648,7 +3650,7 @@ class Casebook(EditTrackedModel, TimestampedModel, BigPkModel, TrackedCloneable)
             >>> full_casebook, assert_num_queries = [getfixture(f) for f in ['full_casebook', 'assert_num_queries']]
 
             Export uses 8 queries: selecting descendant nodes, and prefetching ContentAnnotation, LegalDocument, TextBlock, and Link, and provenance info.
-            >>> with assert_num_queries(select=11):
+            >>> with assert_num_queries(select=12, delete=1, insert=1):
             ...     file_data = full_casebook.export(include_annotations=True)
         """
         docx_footnotes = docx_footnotes if docx_footnotes is not None else settings.FORCE_DOCX_FOOTNOTES
@@ -3684,8 +3686,10 @@ class Casebook(EditTrackedModel, TimestampedModel, BigPkModel, TrackedCloneable)
             return html
         if docx_sections:
             html = html.replace('&nbsp;', ' ').replace('_h2o_keep_element', '&nbsp;').replace('\xa0', ' ')
-
-        return export_via_aws_lambda(self, html, file_type, docx_sections=docx_sections, docx_footnotes=docx_footnotes)
+        if not LiveSettings.export_is_rate_limited():
+            return export_via_aws_lambda(self, html, file_type, docx_sections=docx_sections, docx_footnotes=docx_footnotes)
+        logger.info(f"Exporting Casebook {self.id} prevented due to rate limits")
+        return None
 
     def inc_export_fails(self):
         # This function is used to avoid making a copy of the casebook via CasebookHistory
@@ -4077,7 +4081,32 @@ class EmailWhitelist(models.Model):
 
 class LiveSettings(models.Model):
     prevent_exports = models.BooleanField(blank=False, default=False, null=False)
+    export_average_rate = models.IntegerField(blank=False, default=0)
+    export_last_minute_updated = models.IntegerField(blank=False, default=0)
 
+    @classmethod
+    @transaction.atomic
+    def export_is_rate_limited(cls):
+        """
+        >>> ls, full_casebook, resource = [getfixture(f) for f in ['live_settings','full_casebook','resource']]
+        >>> prior_count = ls.export_average_rate
+        >>> _ = full_casebook.export(False)
+        >>> _ = resource.export(False)
+        >>> ls.refresh_from_db()
+        >>> assert ls.export_average_rate == prior_count + 2
+        """
+        live_settings = LiveSettings.load()
+        current_time = datetime.now()
+        minute = current_time.hour*60 + current_time.minute
+        elapsed_minutes = (minute-live_settings.export_last_minute_updated) % 1440
+        new_rate = max(live_settings.export_average_rate - (elapsed_minutes * settings.EXPORT_RATE_FALLOFF), 0)
+        if new_rate > settings.MAX_EXPORTS_PER_HOUR:
+            return True
+        live_settings.export_average_rate = new_rate + 1
+        live_settings.export_last_minute_updated = minute
+        live_settings.save()
+        return False
+        
     def save(self, *args, **kwargs):
         LiveSettings.objects.exclude(id=self.id).delete()
         super().save(*args, **kwargs)

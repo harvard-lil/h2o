@@ -16,7 +16,8 @@ from django.db.backends import utils as django_db_utils
 
 from main.models import ContentNode, User, Casebook, CasebookEditLog, Section, \
                         Resource, ContentCollaborator, Link, TextBlock, \
-                        ContentAnnotation, LegalDocument, LegalDocumentSource
+                        ContentAnnotation, LegalDocument, LegalDocumentSource, \
+                        LiveSettings
 from main.utils import re_split_offsets
 
 from test.test_helpers import dump_casebook_outline
@@ -310,6 +311,15 @@ class PublishedAnnotationFactory(ContentAnnotationFactory):
 class PrivateAnnotationFactory(ContentAnnotationFactory):
     resource=factory.SubFactory(ResourceFactory, casebook=factory.SubFactory(PrivateCasebookFactory))
 
+
+@register_factory
+class LiveSettingsFactory(factory.DjangoModelFactory):
+    class Meta:
+        model = LiveSettings
+
+    prevent_exports = False
+    export_average_rate = 0
+    export_last_minute_updated = 0
 
 ### fixture functions ###
 
