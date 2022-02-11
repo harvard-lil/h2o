@@ -14,6 +14,7 @@ services:
       context: .
       dockerfile: ./docker/Dockerfile
     image: h2o-python:0.60
+    image: h2o-python:0.61
     tty: true
     command: bash
     environment:
@@ -25,6 +26,10 @@ services:
       - "127.0.0.1:8080:8080"
     depends_on:
       - db
+    # allow profiling with py-spy
+    # https://github.com/benfred/py-spy#how-do-i-run-py-spy-in-docker
+    cap_add:
+        - SYS_PTRACE
 
   minio:
     image: registry.lil.tools/minio/minio:RELEASE.2021-02-19T04-38-02Z
