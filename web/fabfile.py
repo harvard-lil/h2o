@@ -313,9 +313,8 @@ def casebook_garbage_collect(older_than_days=180, dry_run=False):
 def export_node(node_id=None, casebook_id=None, ordinals=None, annotations=True, file_name="temporary_export.docx", memory=False):
     from time import time
     import tracemalloc
-    from main.models import ContentNode
+    from main.models import ContentNode, Casebook
     from django.template.defaultfilters import filesizeformat
-    content_node = None
 
     try:
         if node_id:
@@ -323,8 +322,11 @@ def export_node(node_id=None, casebook_id=None, ordinals=None, annotations=True,
             content_node = ContentNode.objects.get(id=content_node_id)
         else:
             casebook_id = int(casebook_id)
-            ords = list(map(int, ordinals.split(".")))
-            content_node = ContentNode.objects.get(casebook_id=casebook_id, ordinals=ords)
+            if ordinals:
+                ords = list(map(int, ordinals.split(".")))
+                content_node = ContentNode.objects.get(casebook_id=casebook_id, ordinals=ords)
+            else:
+                content_node = Casebook.objects.get(id=casebook_id)
     except ContentNode.DoesNotExist:
         print(f"Couldn't find content node with node_id={node_id} or casebook_id={casebook_id} and ordinals={ordinals}")
         return
