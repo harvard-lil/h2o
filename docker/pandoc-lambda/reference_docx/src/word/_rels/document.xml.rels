@@ -10,6 +10,8 @@
     <Relationship Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/comments" Id="rId8" Target="comments.xml"/>
     <Relationship Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/hyperlink" Id="rId30" Target="http://example.com" TargetMode="External"/>
 
+    <Relationship Id="rId44" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/header" Target="header_front_matter_even.xml"/>
+    <Relationship Id="rId45" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/header" Target="header_front_matter_odd.xml"/>
     <Relationship Id="rId41" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/header" Target="header_even.xml"/>
     <Relationship Id="rId42" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/header" Target="header_odd.xml"/>
     <Relationship Id="rId43" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/header" Target="header_blank.xml"/>
