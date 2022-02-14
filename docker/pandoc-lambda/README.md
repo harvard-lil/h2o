@@ -2,9 +2,7 @@
 
 ### ...locally, against the Lambda Runtime Interface Emulator
 
-In the H2O app's `settings.py`, set `FORCE_AWS_LAMBDA_EXPORT = True`. Then, every Casebook's export will be routed to a local container that runs the lambda function.
-
-Or, log in to your local H2O as an administrator and click the "AWS Lambda Export" button.
+In development, every Casebook's export will be routed to a local container that runs the lambda function in app.py.
 
 Run `docker-compose logs -f pandoc-lambda` to watch requests come in and review their metrics.
 
@@ -24,8 +22,6 @@ AWS_LAMBDA_EXPORT_SETTINGS = {
 
 Connect to the VPN.
 
-Then, as above, decide whether you want to send all casebook exports to the lambda (add `FORCE_AWS_LAMBDA_EXPORT = True` to `settings.py`) or if you prefer to log in as an administrator and click the "AWS Lambda Export" button.
-
 When the lambda returns, you should see its log printed to the console and should be served a DOCX... or, failing that, at least be given an instructive error message.
 
 
@@ -43,9 +39,13 @@ Increment the image number in `docker-compose.yml` and re-run `docker-compose up
 
 ### ...with new python requirements, including `awslambdaric`
 
-Add new packages or pin versions in `requirements.in`. Then, follow the instructions in `docker-compose.yml` to recompile `requirements.txt` and update the Docker image.
+Add new packages or pin versions in `requirements.in`. Then run `docker-compose exec pandoc-lambda pip-compile --allow-unsafe --generate-hashes`.
 
-To update a single (unpinned) package such as `awslambdaric` do the same thing, except add `--upgrade-package awslambdaric` or similar to the cmd in `docker-compose.yml`.
+Increment the image number in `docker-compose.yml` to produce a new image.
+
+If you can't start the container because of a requirements change, you may need to edit docker-compose.yml to temporarily disable the entrypoint.
+
+To update a single (unpinned) package such as `awslambdaric` do the same thing, except add `--upgrade-package awslambdaric` or similar.
 
 ### ...with a new Lambda Runtime Interface Emulator
 
