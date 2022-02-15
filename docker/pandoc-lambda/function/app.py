@@ -30,10 +30,25 @@ def lift_footnote(doc, footnotes_part, ref, texts, id, author=False):
 
     # Content
     for t in texts:
+        embedded_refs = t.xpath("w:r[*/w:rStyle[starts-with(@w:val,'FootnoteReference')]]/w:t")
+
+        # because you can't add padding to character styles
+        if embedded_refs is not None and len(embedded_refs) > 0:
+            embedded_refs[0].text = f"{embedded_refs[0].text}  "
+        # remove the leading period/spaces on the first chunk of text— an artifact opf CAP case footnote processing
+        # texts lest the footnote marks look really janky
+        first_text = t.xpath("w:r/w:t[not(starts-with(., '...')) and (starts-with(., '.') or starts-with(., ' '))]")
+        if first_text is not None and len(first_text) > 0:
+            first_text[0].text = first_text[0].text.lstrip('. ')
+
         footnote.append(t)
 
     # Insert into the footnotes file
     footnotes_part.element.append(footnote)
+
+    # commenting this out but leaving it here for now while the styles are in flux. It adjusts footnote references
+    # in-paragraph, in case we need more space, etc.
+    # ref.xpath('w:t')[0].text = f"{ref.xpath('w:t')[0].text}"
 
     # Insert the reference into the doc
     ref.insert(1,doc_insert)
