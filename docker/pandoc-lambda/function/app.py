@@ -228,16 +228,20 @@ def sectionizer(doc, doc_w=8.5, doc_h=11, internal_margin=1, external_margin=1, 
 
         sec._sectPr.add_footerReference(WD_HEADER_FOOTER_INDEX.EVEN_PAGE, headers_and_footers['footer_blank'].rId)
         sec._sectPr.add_footerReference(WD_HEADER_FOOTER_INDEX.PRIMARY, headers_and_footers['footer_blank'].rId)
-        sec._sectPr.add_headerReference(WD_HEADER_FOOTER_INDEX.EVEN_PAGE, headers_and_footers['header_even'].rId)
-        sec._sectPr.add_headerReference(WD_HEADER_FOOTER_INDEX.PRIMARY, headers_and_footers['header_odd'].rId)
 
-        if frontmatter or destination == 'doc-wide':
+        if frontmatter:
             sec.different_first_page_header_footer = True
+            sec._sectPr.add_headerReference(WD_HEADER_FOOTER_INDEX.EVEN_PAGE, headers_and_footers['header_front_matter_even'].rId)
+            sec._sectPr.add_headerReference(WD_HEADER_FOOTER_INDEX.PRIMARY, headers_and_footers['header_front_matter_odd'].rId)
             sec._sectPr.add_footerReference(WD_HEADER_FOOTER_INDEX.FIRST_PAGE, headers_and_footers['footer_title'].rId)
             sec._sectPr.add_headerReference(WD_HEADER_FOOTER_INDEX.FIRST_PAGE, headers_and_footers['header_blank'].rId)
+            pgNumType_value = "lowerRoman"
+        else:
+            sec._sectPr.add_headerReference(WD_HEADER_FOOTER_INDEX.EVEN_PAGE, headers_and_footers['header_even'].rId)
+            sec._sectPr.add_headerReference(WD_HEADER_FOOTER_INDEX.PRIMARY, headers_and_footers['header_odd'].rId)
+            pgNumType_value = 'decimal'
 
         # cols value and pgNumType are special cases— they're not supported by python-docx
-        pgNumType_value = "lowerRoman" if frontmatter else 'decimal'
         pgNumType_query= sec._sectPr.xpath('.//w:pgNumType')
         if len(pgNumType_query) > 0:
             pgNumType_query[0].set(qn('w:fmt'), pgNumType_value)
@@ -280,7 +284,10 @@ def sectionizer(doc, doc_w=8.5, doc_h=11, internal_margin=1, external_margin=1, 
                    'headnote': doc.styles.get_by_id('HeadnoteText', WD_STYLE_TYPE.PARAGRAPH)}
     list_style_type = 'headnote'
     chapter_head = False
+    first_chapter = True
+    counter = 0
     for p in doc.paragraphs:
+        counter += 1
         style = str(p.style.name)
         if style == 'Front Matter End':
             section_break(p, frontmatter=True)
@@ -293,10 +300,11 @@ def sectionizer(doc, doc_w=8.5, doc_h=11, internal_margin=1, external_margin=1, 
                 chapter_head = False
         elif style == 'Chapter Spacer':
             chapter_head = True
-            section_break(p, pre_chap=True)
+            if not first_chapter:
+                section_break(p, pre_chap=True)
+            first_chapter = False
         elif style == 'Compact':
             p.style = our_list_styles[list_style_type]
-
     return doc
 
 

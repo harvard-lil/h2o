@@ -14,6 +14,7 @@ services:
       context: .
       dockerfile: ./docker/Dockerfile
     image: h2o-python:0.60
+    image: h2o-python:0.61
     tty: true
     command: bash
     environment:
@@ -25,6 +26,10 @@ services:
       - "127.0.0.1:8080:8080"
     depends_on:
       - db
+    # allow profiling with py-spy
+    # https://github.com/benfred/py-spy#how-do-i-run-py-spy-in-docker
+    cap_add:
+        - SYS_PTRACE
 
   minio:
     image: registry.lil.tools/minio/minio:RELEASE.2021-02-19T04-38-02Z
@@ -58,12 +63,9 @@ services:
       - AWS_SECRET_ACCESS_KEY=secretkey
       - S3_ENDPOINT_URL=http://minio:9000
       - EXPORT_BUCKET=h2o.exports
-    # To update requirements from requirements.in: uncomment the below line and re-run `docker-compose up -d`.
-    # After a few seconds, a newly-compiled requirements.txt will sync to ./docker/pandoc-lambda/function!
-    # Then, put back the comment, increment the image number, and run `docker-compose up -d` again, to rebuild with the new requirements.
-    # command: 'pip-compile --generate-hashes'
-    # volumes:
-    #   - ./docker/pandoc-lambda/function/:/function
+    # volumes: is set for local dev in docker-compose.override.yml
+    # Uncomment to disable entrypoint if changes to requirements mean container can't start:
+    # command: bash
 
 volumes:
   db_data_12:
