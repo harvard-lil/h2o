@@ -13,7 +13,7 @@ from docx.enum.section import WD_SECTION_START, WD_HEADER_FOOTER_INDEX, WD_ORIEN
 from docx.styles.style import WD_STYLE_TYPE
 from lxml import etree
 
-def lift_footnote(doc, footnotes_part, ref, texts, id, author=False):
+def lift_footnote(doc, footnotes_part, ref, texts, id, author=False, docx_sections=False):
     if texts is None:
         parent = ref.getparent()
         parent.remove(ref)
@@ -31,15 +31,15 @@ def lift_footnote(doc, footnotes_part, ref, texts, id, author=False):
     # Content
     for t in texts:
         embedded_refs = t.xpath("w:r[*/w:rStyle[starts-with(@w:val,'FootnoteReference')]]/w:t")
-
-        # because you can't add padding to character styles
-        if embedded_refs is not None and len(embedded_refs) > 0:
-            embedded_refs[0].text = f"{embedded_refs[0].text}  "
-        # remove the leading period/spaces on the first chunk of text— an artifact opf CAP case footnote processing
-        # texts lest the footnote marks look really janky
-        first_text = t.xpath("w:r/w:t[not(starts-with(., '...')) and (starts-with(., '.') or starts-with(., ' '))]")
-        if first_text is not None and len(first_text) > 0:
-            first_text[0].text = first_text[0].text.lstrip('. ')
+        if docx_sections:
+            # because you can't add padding to character styles
+            if embedded_refs is not None and len(embedded_refs) > 0:
+                embedded_refs[0].text = f"{embedded_refs[0].text}  "
+            # remove the leading period/spaces on the first chunk of text— an artifact opf CAP case footnote processing
+            # texts lest the footnote marks look really janky
+            first_text = t.xpath("w:r/w:t[not(starts-with(., '...')) and (starts-with(., '.') or starts-with(., ' '))]")
+            if first_text is not None and len(first_text) > 0:
+                first_text[0].text = first_text[0].text.lstrip('. ')
 
         footnote.append(t)
 
@@ -53,7 +53,7 @@ def lift_footnote(doc, footnotes_part, ref, texts, id, author=False):
     # Insert the reference into the doc
     ref.insert(1,doc_insert)
 
-def promote_case_footnotes(doc):
+def promote_case_footnotes(doc, docx_sections=False):
     val_att = '{http://schemas.openxmlformats.org/wordprocessingml/2006/main}val'
     hyperlink_tag = '{http://schemas.openxmlformats.org/wordprocessingml/2006/main}hyperlink'
     paragraph_tag = '{http://schemas.openxmlformats.org/wordprocessingml/2006/main}p'
@@ -137,11 +137,11 @@ def promote_case_footnotes(doc):
     for val in author_footnotes.values():
         for ref,texts in zip_longest(val['refs'], val['texts']):
             fid += 1
-            lift_footnote(doc, footnote_part, ref, texts, f"{fid}", author=True)
+            lift_footnote(doc, footnote_part, ref, texts, f"{fid}", author=True, docx_sections=docx_sections)
     for val in case_footnotes.values():
         for ref,texts in zip_longest(val['refs'], val['texts']):
             fid += 1
-            lift_footnote(doc, footnote_part, ref, texts, f"{fid}", author=False)
+            lift_footnote(doc, footnote_part, ref, texts, f"{fid}", author=False, docx_sections=docx_sections)
     footnote_part._blob = b'<?xml version="1.0" encoding="UTF-8" standalone="yes"?>' + etree.tostring(footnote_part.element)
     for x in doc.styles.element.xpath("//w:style[starts-with(@w:styleId,'FootnoteText-')]"):
         doc.styles.element.remove(x)
@@ -366,7 +366,7 @@ def handler(event, context):
             if options.get('word_footnotes', False) or options.get('docx_sections', False):
                 doc = Document(pandoc_out)
                 if options.get('word_footnotes', False):
-                    promote_case_footnotes(doc)
+                    promote_case_footnotes(doc, docx_sections=options.get('docx_sections', False))
                 if options.get('docx_sections', False):
                     sectionizer(doc)
                 output = io.BytesIO()
