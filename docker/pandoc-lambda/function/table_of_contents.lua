@@ -57,6 +57,24 @@ toc_entry = [[
       <w:hyperlink w:anchor="_auto_toc_%s" w:history="1">
         <w:r>
           <w:rPr>
+            <w:rStyle w:val="TOCOrdinalChar%s"/>
+            <w:noProof/>
+            <w:iCs/>
+          </w:rPr>
+          <w:t>
+            %s
+          </w:t>
+        </w:r>
+        <w:r>
+          <w:rPr>
+            <w:noProof/>
+            <w:webHidden/>
+          </w:rPr>
+          <w:tab/>
+        </w:r>
+        <w:r>
+          <w:rPr>
+            <w:rStyle w:val="TOCTitleChar%s"/>
             <w:noProof/>
             <w:iCs/>
           </w:rPr>
@@ -130,7 +148,10 @@ function Div(div)
                 toc_entry,
                 inner_div.attributes['depth'],
                 inner_div.attributes['idx'],
-                inner_div.attributes['data-title'],
+                inner_div.attributes['depth'],
+                inner_div.attributes['ordinal'],
+                inner_div.attributes['depth'],
+                inner_div.attributes['ttext'],
                 inner_div.attributes['idx']
               ))
               return nil

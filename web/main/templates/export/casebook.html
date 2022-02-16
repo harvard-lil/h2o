@@ -23,7 +23,9 @@
   {% endcomment %}
   <div class="table-of-contents">
     {% for child in children %}
-      <div class="toc-entry" data-depth="{{ child.ordinals|length }}" data-idx="{{ forloop.counter }}" data-title="{{ child.ordinal_string }} {{ child.title|force_escape|force_escape }}"></div>
+      <div class="toc-entry" data-depth="{{ child.ordinals|length }}" data-idx="{{ forloop.counter }}"
+           data-ordinal="{{ child.ordinal_string }}" data-ttext="{{ child.title|force_escape|force_escape }}"
+           data-title="{{ child.ordinal_string }} {{ child.title|force_escape|force_escape }}"></div>
     {% endfor %}
   </div>
   <div class="FrontMatterEnd" data-custom-style="Front Matter End">_h2o_keep_element</div>

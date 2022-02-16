@@ -82,6 +82,7 @@
       * Captioned Figure basedOn: Figure  
     * Header basedOn: TitleHeadnoteDefaultFontProperties  
       * Header Page Number basedOn: Header  
+    * Footnote Text basedOn: TitleHeadnoteDefaultFontProperties  
   * Body Case Default Font Properties   
     * Body Text Layout basedOn: BodyCaseDefaultFontProperties  
       * Body Text basedOn: BodyTextLayout  
@@ -94,9 +95,7 @@
       * Block Text basedOn: BodyTextLayout  
     * Table Text basedOn: BodyCaseDefaultFontProperties  
     * footer basedOn: BodyCaseDefaultFontProperties  
-    * footnote text basedOn: BodyCaseDefaultFontProperties  
-      * Footnote Labeled Link basedOn: FootnoteText  
-        * Footnote Labeled Case basedOn: FootnoteLabeledLink  
+    * Case Footnote Text basedOn: BodyCaseDefaultFontProperties  
   * Monospace Default Font Properties   
     * Source Code basedOn: MonospaceDefaultFontProperties  
   * Compact   
@@ -120,11 +119,29 @@
     * Unresolved Mention basedOn: DefaultParagraphFont  
     * Elision basedOn: DefaultParagraphFont  
     * Case Footnote Reference basedOn: DefaultParagraphFont  
-    * Footnote Reference basedOn: DefaultParagraphFont  
-    * FollowedHyperlink basedOn: DefaultParagraphFont  
+    * TOC Title Char 1 basedOn: DefaultParagraphFont  
+      * TOC Title Char 2 basedOn: TOCTitleChar1  
+        * TOC Title Char 3 basedOn: TOCTitleChar2  
+          * TOC Title Char 4 basedOn: TOCTitleChar3  
+            * TOC Title Char 5 basedOn: TOCTitleChar4  
+              * TOC Title Char 6 basedOn: TOCTitleChar5  
+                * TOC Title Char 7 basedOn: TOCTitleChar6  
+                  * TOC Title Char 8 basedOn: TOCTitleChar7  
+                    * TOC Title Char 9 basedOn: TOCTitleChar8  
+                      * TOC Ordinal Char 9 basedOn: TOCTitleChar9  
+                    * TOC Ordinal Char 8 basedOn: TOCTitleChar8  
+                  * TOC Ordinal Char 7 basedOn: TOCTitleChar7  
+                * TOC Ordinal Char 6 basedOn: TOCTitleChar6  
+              * TOC Ordinal Char 5 basedOn: TOCTitleChar5  
+            * TOC Ordinal Char 4 basedOn: TOCTitleChar4  
+          * TOC Ordinal Char 3 basedOn: TOCTitleChar3  
+        * TOC Ordinal Char 2 basedOn: TOCTitleChar2  
+      * TOC Ordinal Char 1 basedOn: TOCTitleChar1  
   * Replacement Text   
   * Highlighted Text   
+  * Footnote Reference   
   * Hyperlink   
+    * FollowedHyperlink basedOn: Hyperlink  
   * Verbatim Char   
   * UnusedPandoc   
     * AlertTok basedOn: UnusedPandoc  
