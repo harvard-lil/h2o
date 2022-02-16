@@ -2,7 +2,7 @@ version: 2.1
 jobs:
   build:
     machine:
-      image: ubuntu-1604:202007-01
+      image: ubuntu-2004:202201-02
     working_directory: ~/project
     steps:
 
@@ -21,7 +21,7 @@ jobs:
           command: |
             pyenv versions
             which pip
-            export PYENV_VERSION=3.8.3  # use the version of python3 installed on circleci
+            export PYENV_VERSION=3.10.2  # use the version of python3 installed on circleci
             pip install `egrep -o 'flake8==\S+' web/requirements.txt`  # install our version of flake8
             flake8 web/
             flake8 docker/pandoc-lambda/function/
@@ -79,7 +79,7 @@ jobs:
           command: |
             pyenv versions
             which pip
-            export PYENV_VERSION=3.8.3  # use the version of python3 installed on circleci
+            export PYENV_VERSION=3.10.2  # use the version of python3 installed on circleci
             pip --version
             sudo pip install codecov==2.1.6
             codecov
