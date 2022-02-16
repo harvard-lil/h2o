@@ -538,6 +538,9 @@ def get_link_title(url):
         return default_title
     return title[0].text
 
+class LambdaExportTooLarge(RuntimeError):
+    pass
+
 def export_via_aws_lambda(obj, html, file_type, docx_footnotes=None, docx_sections=False):
     export_settings = settings.AWS_LAMBDA_EXPORT_SETTINGS
     export_type = obj.__class__.__name__
@@ -601,7 +604,12 @@ def export_via_aws_lambda(obj, html, file_type, docx_footnotes=None, docx_sectio
                     'get_text': lambda: raw_response.text
                 }
             assert response['status_code'] == 200, f"Status: {response['status_code']}. Content: {response['get_text']()}"
-            assert not response['headers'].get('x-amz-function-error') and response['headers']['content-type'] in ['application/zip', 'application/octet-stream'], f"x-amz-function-error: {response['headers'].get('x-amz-function-error')}, content-type:{response['headers']['content-type']}, {response['get_text']()}"
+            if response['headers'].get('content-type', '') == 'text/plain; charset=utf-8':
+                parsed_content = json.loads(response.get('content'))
+                error_type = parsed_content.get('errorType', 'Unknown')
+                if error_type == 'Function.ResponseSizeTooLarge':
+                    raise LambdaExportTooLarge(f"An HTML export of {len(html)} chars resulted in a {parsed_content.get('errorMessage')}")
+            assert not response['headers'].get('x-amz-function-error') and response['headers'].get('content-type', '') in ['application/zip', 'application/octet-stream'], f"x-amz-function-error: {response['headers'].get('x-amz-function-error')}, content-type:{response['headers'].get('content-type','unknown')}, {response['get_text']()}"
         except (BotoCoreError, BotoClientError, requests.RequestException, AssertionError) as e:
             if export_type == 'Casebook':
                 obj.inc_export_fails()

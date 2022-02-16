@@ -1,0 +1,13 @@
+{% extends 'base.html' %}
+
+{% block page_title %}Export error{% endblock %}
+
+{% block mainContent %}
+<div class="content">
+    <div class="pages-content">
+        <h1>Export too large</h1>
+        <p>This book is a too large to export at this time.</p>
+        <p>For now, you can <a href="{{casebook.get_absolute_url}}">return to the casebook</a> and export a relevant section.</p>
+    </div>
+</div>
+{% endblock %}
