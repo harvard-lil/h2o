@@ -1,0 +1,24 @@
+{% load print_clean %}
+
+<section class="{{ node.type }}" id="Node-{{ node.ordinal_string }}" data-toc-idx="{{ index }}">
+  <header>
+    {% if node.type == 'section' and '.' not in node.ordinal_string %}
+      <h1 class="title">
+        <span class="ordinal">{{ node.ordinal_string }}</span>
+        <span class="text">{{ node.ordinal_string }}</span>
+      </h1>
+      {% if node.subtitle %}
+        <h2 class="subtitle">{{ node.subtitle|print_clean }}</h2>
+      {% endif %}
+  </header>
+  {% if node.headnote %}
+    <article class="headnote">
+      {% call_method node 'headnote_for_export' export_options=export_options as headnote %}
+        <p>{{ headnote|print_clean }}</p>
+    </article>
+  {% endif %}
+
+  <article class="body">
+    <p> TBD </p>
+  </article>
+</section>

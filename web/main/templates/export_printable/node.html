@@ -1,0 +1,58 @@
+{% load call_method %}
+{% load print_clean %}
+
+{% if node.type == 'section' and '.' not in node.ordinal_string %}
+  <section class="chapter node" id="Node-{{ node.ordinal_string }}" data-toc-idx="{{ index }}">
+{% else %}
+  <section class="{{ node.type }} node" id="Node-{{ node.ordinal_string }}" data-toc-idx="{{ index }}">
+{% endif %}
+
+  <header> 
+      <h1 class="title">
+        <span class="ordinal">{{ node.ordinal_string }}</span> <span class="text">{{ node.title }}</span>
+      </h1>
+      {% if node.subtitle %}
+        <h2 class="subtitle">{{ node.subtitle|print_clean }}</h2>
+      {% endif %}
+  </header>
+
+  {% if node.is_resource and node.resource_type == 'Link' %}
+    <article class="link">
+      <a href="{{ node.resource.url }}" target="_blank">{{ node.resource.url }}</a>
+    </article>
+  {% endif %}
+
+  {% if node.headnote %}
+    <article class="headnote">
+      {% call_method node 'headnote_for_export' export_options=export_options as headnote %}
+        <p>{{ headnote|print_clean }}</p>
+    </article>
+  {% endif %}
+
+  {% if node.is_resource and node.resource_type != 'Link' %}  {# case or textblock #}
+    <article class="body">
+      {% if include_annotations %}
+        {% call_method node 'annotated_content_for_export' export_options=export_options as contents %}
+        {{ contents|print_clean }}
+        {% call_method node 'footnote_annotations' export_options=export_options as footnote_contents %}
+        <footer class="footnotes">{{ footnote_contents|print_clean }}</footer>
+      {% else %}
+
+      {% call_method node 'content_for_export' export_options=export_options as contents %}
+        {{ contents|print_clean }}
+      {% endif %}
+    </article>
+  {% else %}
+    <h1>{{ node.type }}</h1>
+  {% endif %}
+
+{% if not is_child %}
+  {% include 'export_printable/credits.html' %}
+{% endif %}
+
+{% if not is_child %}
+  {% include 'export_printable/about.html' %}
+{% endif %}
+
+
+ </section>

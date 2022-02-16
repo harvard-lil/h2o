@@ -2153,6 +2153,9 @@ class ContentNode(EditTrackedModel, TimestampedModel, BigPkModel, MaterializedPa
         if not docx_sections:
             template_name = template_name.replace('export/', 'export/old_pr1491/')
 
+        if file_type == 'printable_html':
+            template_name = template_name.replace('export/', 'export_printable/')
+
         html = render_to_string(template_name, {
             'is_export': True,
             'is_child': is_child,
@@ -2164,7 +2167,7 @@ class ContentNode(EditTrackedModel, TimestampedModel, BigPkModel, MaterializedPa
             'cloned_from': cloned_from,
         })
 
-        if file_type == 'html':
+        if file_type in ['html', 'printable_html']:
             return html
         if not LiveSettings.export_is_rate_limited():
             return export_via_aws_lambda(self, html, file_type, docx_footnotes=docx_footnotes, docx_sections=docx_sections)
@@ -3671,7 +3674,12 @@ class Casebook(EditTrackedModel, TimestampedModel, BigPkModel, TrackedCloneable)
 
         # render html
         logger.info(f"Exporting Casebook {self.id}: serializing to HTML")
-        template_name = 'export/casebook.html' if docx_sections else 'export/old_pr1491/casebook.html'
+        template_name = 'export/casebook.html'
+
+        if file_type == 'printable_html':
+            template_name = template_name.replace('export/', 'export_printable/')
+        elif not docx_sections:
+            template_name = template_name.replace('export/', 'export/old_pr1491/')
 
         html = render_to_string(template_name, {
             'is_export': True,
@@ -3682,7 +3690,7 @@ class Casebook(EditTrackedModel, TimestampedModel, BigPkModel, TrackedCloneable)
             'include_annotations': include_annotations,
             'cloned_from': cloned_from,
         })
-        if file_type == 'html':
+        if file_type in [ 'html', 'printable_html' ]:
             return html
         if docx_sections:
             html = html.replace('&nbsp;', ' ').replace('_h2o_keep_element', '&nbsp;').replace('\xa0', ' ')

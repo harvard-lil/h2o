@@ -1,0 +1,8 @@
+<body>
+  {% include "export_printable/node.html" with index=0 node=node %}
+  {% with is_child=True %}
+  {% for child in children %}
+    {% include "export_printable/node.html" with index=forloop.counter node=child %}
+  {% endfor %}
+  {% endwith %}
+</body>

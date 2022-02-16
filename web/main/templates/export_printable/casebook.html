@@ -1,0 +1,222 @@
+<!doctype html>
+{% load call_method %}
+{% load print_clean %}
+
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>{{ node.title|striptags }}</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Libre+Baskerville:ital,wght@0,400;0,700;1,400&family=Slabo+27px&display=swap" rel="stylesheet">
+    <style>
+            @page {
+                size: letter;
+                margin-top: 1in;
+                margin-bottom: 1in;
+            }
+            @page :left {
+                margin-left: 1in;
+                margin-right: 1.5in;
+                @top-left {
+                    content: "{{ node.title|striptags }}"
+                }
+            }
+            @page :right {
+                margin-left: 1.5in;
+                margin-right: 1in;
+                @top-right {
+                    content: "{{ node.title|striptags }}"
+                }
+            }
+            body {
+                font-family: Helvetica, serif;
+                width: 100%;
+                font-size: 9pt;
+            }
+
+            link {
+                font-size: 8pt;
+                color: #5A771D;
+                font-family: 'Slabo 27px', serif;
+                grid-area: link;
+            }
+            .title {
+                font-size: 12pt;
+                color: #1B418C;
+                font-weight: bolder;
+                grid-area: title;
+            }
+            .headnote {
+                font-size: 8pt;
+                color: #000;
+                grid-area: headnote;
+            }
+            .subtitle {
+                font-size: 10pt;
+                color: #5A771D;
+                font-family: 'Slabo', serif;
+                grid-area: subtitle;
+            }
+            .ordinal {
+                font-size: 12pt;
+                color: #D96955;
+                font-weight: 900;
+                grid-area: ord;
+            }
+
+            .case {
+                font-family: 'Libre Baskerville', serif;
+            }
+            .case-header {
+                font-size: 20pt;
+                color: #000;
+                text-align: center;
+            }
+            .case-header, .body > header {
+                margin-bottom: 0.5in;
+                /*column-span: all;*/
+            }
+            .body {
+                font-family: 'Libre Baskerville', serif;
+                /*column-count: 1;*/
+            }
+            .resource .body {
+                /*column-count: 2;*/
+            }
+
+            section.chapter {
+                page-break-before: right;
+                page-break-after: always;
+                page-break-inside: avoid;
+            }
+
+            section.node {
+                display: grid;
+                grid-template-areas: "title    ord"
+                                     "subtitle subtitle"
+                                     "link     link"
+                                     "headnote .";
+                                     "body .";
+                grid-template-columns: auto 1in;
+                width: 100%;
+                margin-bottom: .75in;
+                page-break-inside: avoid;
+            }
+            section.node h1 span.title {
+                grid-area: title;
+                font-size: 10pt;
+                color: #1B418C;
+                font-weight: bolder;
+            }
+            section.node h1 span.ordinal {
+                grid-area: ord;
+                font-size: 12pt;
+            }
+            section.node h2 .subtitle {
+                grid-area: subtitle;
+                font-size: 18pt;
+                color: #5A771D;
+                font-family: 'Slabo', serif;
+            }
+            section.node article.link {
+                grid-area: link;
+                font-size: 16pt;
+                color: #5A771D;
+                font-family: 'Slabo 27px', serif;
+            }
+            section.node article.headnote {
+                grid-area: headnote;
+                font-size: 11pt;
+                color: #000;
+            }
+            section.node article.body {
+                grid-area: body;
+                font-size: 9pt;
+                font-family: 'Libre Baskerville', serif;
+            }
+
+            #TableOfContents {
+                page-break-before: always;
+                list-style: none;
+                padding-left: 0;
+            }
+            #TableOfContents .entry  {
+                width: 5in;
+                font-size: 9pt;
+                display: grid;
+                grid-template-areas: "ord title page";
+                grid-template-columns: 1fr 8fr 1fr;
+                list-style: none;
+                padding-left: .5em;
+            }
+            #TableOfContents .entry .ordinal {
+                grid-area: ord;
+                font-size: 12pt;
+                color: #D96955;
+                font-weight: 900;
+                list-style: none;
+            }
+            #TableOfContents .entry .title {
+                grid-area: title;
+                font-size: 10pt;
+                color: #1B418C;
+                font-weight: bolder;
+                list-style: none;
+            }
+            #TableOfContents .entry .page {
+                grid-area: page;
+                font-size: 8pt;
+                color: #000;
+                list-style: none;
+                content: "p. " target-counter(attr(href), page);
+            }
+
+    </style>
+    <script src="https://unpkg.com/pagedjs/dist/paged.polyfill.js"></script>
+<body>
+  <section id="FrontMatter">
+
+    <section id="TitlePage">
+      <header>
+        <h1>{{ node.title|striptags }}</h1>
+
+        {% if node.subtitle %}
+          <h2>{{ node.subtitle|striptags }}</h2>
+        {% endif %}
+      </header>
+      {% if node.headnote %}
+        <article id="CasebookHeadnote">
+          <h3>Headnote</h3>
+            {% call_method node 'headnote_for_export' export_options=export_options as headnote %}
+                <p>{{ headnote|print_clean }}</p>
+          {% endif %}
+        </article>
+    </section>
+    {% include 'export_printable/about.html' %}
+
+    <ul id="TableOfContents">
+      {% for child in children %}
+        <li>
+          <ul id="Toc-{{ child.ordinal_string }}" class="entry" data-depth="{{ child.ordinals|length }}"
+              data-idx="{{ forloop.counter }}" data-ttext="{{ child.title|force_escape|force_escape }}"
+              data-ordinal="{{ child.ordinal_string }}">
+            <li class="ordinal">{{ child.ordinal_string }}</li>
+            <li class="title">{{ child.title }}</li>
+            <li class="page"></li>
+          </ul>
+        </li>
+      {% endfor %}
+    </ul>
+
+  </section>
+
+  {% with is_child=True %}
+  {% for child in children %}
+    {% include "export_printable/node.html" with index=forloop.counter node=child %}
+  {% endfor %}
+  {% endwith %}
+
+  {% include 'export_printable/credits.html' %}
+</body>

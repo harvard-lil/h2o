@@ -1,0 +1,25 @@
+<section id="credits-page">
+    <hr/>
+    <div class="AcknowledgementsTitle">
+        Acknowledgments
+    </div>
+    <div class="AcknowledgementsSubtitle">
+        Some materials included in this export came from the following casebooks.
+    </div>
+    <ul class="credit-list">
+        {% for source in cloned_from %}
+        <li class="credit-source">
+            <a href="https://opencasebook.org{{source.get_absolute_url}}"> <span class="CreditTitle"> {{source.title}} </span></a>
+            by
+            <ul class="author-list">
+              {% for author in source.primary_authors %}
+                <li class="Credit Authors">
+                    {% if not forloop.first %}, {% endif %}
+                    {{ author.display_name }}
+                </li>
+              {% endfor %}
+            </ul>
+        </li>
+        {% endfor %}
+    </ul>
+</section>

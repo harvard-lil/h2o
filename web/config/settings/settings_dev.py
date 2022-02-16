@@ -42,3 +42,5 @@ LOGGING['loggers']['main'] = {
     'level': 'DEBUG',
     'handlers': ['console', 'file']
 }
+
+ENABLE_PRINTABLE_HTML = True

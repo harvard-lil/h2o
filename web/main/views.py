@@ -2157,8 +2157,11 @@ def export(request, node, file_type='docx'):
         Export casebook. File type can be 'docx' or 'html' (in which case we dump pre-pandoc html directly to the
         browser), and ?annotations=true will include annotations in the exported file.
     """
-    if file_type not in ('docx', 'html', 'json'):
+
+    if file_type not in ('docx', 'html', 'json', 'printable_html') or \
+            file_type == 'printable_html' and not settings.ENABLE_PRINTABLE_HTML:
         raise Http404
+
     docx_footnotes = request.GET.get('docx_footnotes') == 'true' if 'docx_footnotes' in request.GET else settings.FORCE_DOCX_FOOTNOTES
     docx_sections = request.GET.get('docx_sections') == 'true' if 'docx_sections' in request.GET else settings.FORCE_DOCX_SECTIONS
     include_annotations = request.GET.get('annotations') == 'true'
@@ -2172,7 +2175,7 @@ def export(request, node, file_type='docx'):
             'casebook': node
         })
     # return html
-    if file_type == 'html':
+    if file_type in ['html', 'printable_html']:
         return HttpResponse(response_data)
 
     # return docx
