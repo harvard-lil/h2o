@@ -97,6 +97,7 @@ jobs:
       - compare-url/use:
           step-name: Publish pandoc-lambda image
           custom-logic: |
+             aws --version
              if [[ "$CIRCLE_PULL_REQUEST" == "" && "$CIRCLE_BRANCH" == "develop" ]] ; then
                  if [[ $(git diff $COMMIT_RANGE --name-only | grep "^docker/pandoc-lambda/") ]] ; then
                      cd docker/pandoc-lambda/
