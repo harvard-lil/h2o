@@ -1,4 +1,9 @@
 version: 2.1
+
+orbs:
+  compare-url: iynere/compare-url@1.2.0
+  aws-cli: circleci/aws-cli@2.0.6
+
 jobs:
   build:
     machine:
@@ -9,6 +14,9 @@ jobs:
       # Initial setup
       - checkout:
           path: ~/project
+
+      - compare-url/reconstruct
+
       - run:
           name: "Info"
           command: |
@@ -83,6 +91,27 @@ jobs:
             pip --version
             sudo pip install codecov==2.1.6
             codecov
+
+      # build, push, and deploy pandoc-lambda image to stage if necessary
+      # this requires that AWS_ACCESS_KEY_ID, AWS_SECRET_ACCESS_KEY, AWS_DEFAULT_REGION,
+      # and AWS_ACCOUNT_ID be set.
+      - aws-cli/setup
+      - compare-url/use:
+          step-name: Publish pandoc-lambda image
+          custom-logic: |
+             if [[ "$CIRCLE_PULL_REQUEST" == "" && "$CIRCLE_BRANCH" == "develop" ]] ; then
+                 if [[ $(git diff $COMMIT_RANGE --name-only | grep "^docker/pandoc-lambda/") ]] ; then
+                     cd docker/pandoc-lambda/
+                     IMG=pandoc-lambda
+                     TAG=`git rev-parse --short HEAD`
+                     ACCT=${AWS_ACCOUNT_ID}
+                     REGION=${AWS_DEFAULT_REGION}
+                     ARN=arn:aws:lambda:${REGION}:${ACCT}:function:h2o-export-stage
+                     aws ecr get-login-password --region ${REGION} | docker login --username AWS --password-stdin ${ACCT}.dkr.ecr.${REGION}.amazonaws.com
+                     docker buildx build --push --build-arg=BUILDARCH=amd64 --platform linux/amd64 --tag ${ACCT}.dkr.ecr.${REGION}.amazonaws.com/${IMG}:${TAG} .
+                     aws lambda update-function-code --function-name ${ARN} --image-uri ${ACCT}.dkr.ecr.${REGION}.amazonaws.com/${IMG}:${TAG} --region ${REGION}
+                 fi
+             fi
 
       # Commit built assets if necessary, then deploy via Salt reactor
       - run:
