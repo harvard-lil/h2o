@@ -1,6 +1,5 @@
 <!doctype html>
 {% load call_method %}
-{% load print_clean %}
 
 <html lang="en">
 <head>
@@ -190,7 +189,7 @@
         <article id="CasebookHeadnote">
           <h3>Headnote</h3>
             {% call_method node 'headnote_for_export' export_options=export_options as headnote %}
-                <p>{{ headnote|print_clean }}</p>
+                <p>{{ headnote }}</p>
           {% endif %}
         </article>
     </section>

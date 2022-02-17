@@ -1,5 +1,4 @@
 {% load call_method %}
-{% load print_clean %}
 
 {% if node.type == 'section' and '.' not in node.ordinal_string %}
   <section class="chapter node" id="Node-{{ node.ordinal_string }}" data-toc-idx="{{ index }}">
@@ -12,7 +11,7 @@
         <span class="ordinal">{{ node.ordinal_string }}</span> <span class="text">{{ node.title }}</span>
       </h1>
       {% if node.subtitle %}
-        <h2 class="subtitle">{{ node.subtitle|print_clean }}</h2>
+        <h2 class="subtitle">{{ node.subtitle }}</h2>
       {% endif %}
   </header>
 
@@ -25,7 +24,7 @@
   {% if node.headnote %}
     <article class="headnote">
       {% call_method node 'headnote_for_export' export_options=export_options as headnote %}
-        <p>{{ headnote|print_clean }}</p>
+        <p>{{ headnote }}</p>
     </article>
   {% endif %}
 
@@ -33,13 +32,13 @@
     <article class="body">
       {% if include_annotations %}
         {% call_method node 'annotated_content_for_export' export_options=export_options as contents %}
-        {{ contents|print_clean }}
+        {{ contents }}
         {% call_method node 'footnote_annotations' export_options=export_options as footnote_contents %}
-        <footer class="footnotes">{{ footnote_contents|print_clean }}</footer>
+        <footer class="footnotes">{{ footnote_contents }}</footer>
       {% else %}
 
       {% call_method node 'content_for_export' export_options=export_options as contents %}
-        {{ contents|print_clean }}
+        {{ contents }}
       {% endif %}
     </article>
   {% else %}

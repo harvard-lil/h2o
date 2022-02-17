@@ -116,6 +116,58 @@ def get_allow_lists():
 
     return allowed_tags, allowed_attributes, allowed_styles
 
+@lru_cache()
+def get_print_allow_lists():
+    allowed_print_tags = get_words("""
+        p div blockquote
+        strong em u s sub sup br 
+        hr
+        ol ul li
+        img
+        table caption thead th tbody tr td
+    """)
+
+    # legacy tags
+    allowed_print_tags |= get_words("""
+        a address b blockquote br cite col colgroup dd del div dl dt em h1 h2 h3 h4 h5 h6 header hr i img li mark ol
+        p pre small span strike strong sub sup table tbody td th thead time tr ul wbr
+    """)
+
+    allowed_print_attributes = {
+        'a': {'title', 'rel', 'name', 'id', 'href'},
+        'blockquote': {'title', 'dir'},
+        'div': {'title', 'dir', 'id'},
+        'h1': {'title', 'dir'},
+        'h2': {'title', 'dir'},
+        'header': {'title', 'class'},
+        'img': {'title', 'alt', 'class', 'src', 'srcset', 'title'},
+        'li': {'title', 'value', 'dir', 'style'},
+        'ol': {'title', 'type', 'start', 'style'},
+        'p': {'title', 'dir', 'lang'},
+        'pre': {'title', 'class'},
+        'span': {'title', 'lang', 'style'},
+        'table': {'title', 'border', 'style'},
+        'tbody': {'title', 'border', 'style'},
+        'td': {'title', 'class', 'colspan', 'headers', 'rowspan', 'width', 'style'},
+        'th': {'title', 'scope', 'style'},
+        'time': {'title', 'datetime'},
+        'ul': {'title', 'type', 'style'},
+    }
+
+    text_styles = ['font-style', 'font-variant', 'font-variant-caps', 'font-variant-ligatures', 'font-variant-numeric',
+                   'font-weight', 'quotes', 'text-decoration', 'text-transform', 'direction']
+    list_styles = ['counter-increment', 'counter-reset', 'list-style', 'list-style-type']
+    table_structural_element_styles = ['border-width', 'border-style']
+    table_content_element_styles = ['border-width', 'border-style', 'vertical-align', 'width']
+
+    allowed_print_styles = {
+        'span': text_styles, 'ul': list_styles, 'ol': list_styles, 'li': list_styles,
+        'table': table_structural_element_styles, 'tr': table_structural_element_styles, 'tbody': table_structural_element_styles,
+        'td': table_content_element_styles, 'th': table_content_element_styles
+    }
+
+    return allowed_print_tags, allowed_print_attributes, allowed_print_styles
+
 
 youtube_src = re.compile("(?:https?:)?//www.youtube.com/embed/[a-zA-Z0-9]*")
 vimeo_src = re.compile("(?:https?:)?//player.vimeo.com/video/[0-9]*([?].*)?")
@@ -131,7 +183,7 @@ def iframe_attributes(tag, name, value):
         return youtube_src.match(value) or vimeo_src.match(value)
     return False
 
-def sanitize(html):
+def sanitize(html, printable_html=False):
     """
         Remove non-allowed tags, attributes, and styles.
 
@@ -147,7 +199,7 @@ def sanitize(html):
         Strip unknown styles:
         >>> assert sanitize('<p style="margin: 10px; foo: bar;">abc</p>') == '<p style="margin: 10px;">abc</p>'
     """
-    allowed_tags, allowed_attributes, allowed_styles = get_allow_lists()
+    allowed_tags, allowed_attributes, allowed_styles = get_allow_lists() if not printable_html else get_print_allow_lists()
     out = bleach.clean(html,
                        tags=allowed_tags,
                        attributes=allowed_attributes,

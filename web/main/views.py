@@ -2168,6 +2168,8 @@ def export(request, node, file_type='docx'):
     export_options = {'request': request}
     export_options['docx_footnotes'] = docx_footnotes
     export_options['docx_sections'] = docx_sections
+    export_options['file_type'] = file_type
+
     # get response data
     response_data = node.export(include_annotations, file_type, export_options=export_options, docx_footnotes = docx_footnotes)
     if response_data is None:

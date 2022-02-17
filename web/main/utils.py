@@ -24,6 +24,7 @@ from django.template import Context, RequestContext, engines
 from django.urls import reverse
 from django.utils.encoding import force_bytes
 from django.utils.http import urlsafe_base64_encode
+from django.utils.safestring import mark_safe
 
 from .sanitize import sanitize
 from .storages import get_s3_storage
@@ -228,11 +229,15 @@ def prefix_ids_hrefs(html_str, prefix):
 def rich_text_export(html_str, request=None, id_prefix=''):
     if not (html_str and request and id_prefix):
         return html_str
-    pq = PyQuery(html_str)
 
-    # Footnote labels have an :after css pseudo element with '.' content
-    # To prevent editing of the label in a way that will be lost
-    pq(".footnote-label").append("  ")
+    # should this printable_html data path be more visible with its own rich_text_export argument or something rather
+    # than just pulling it out of the request this in this little function tucked away, here? I think it's reliable
+    # but it might not be super obvious to anyone trying to figure out what's going on.
+
+    printable_html = request.path.endswith('.printable_html')
+    if printable_html:
+        html_str = sanitize(html_str.replace('\xa0', ' '), printable_html=True)
+    pq = PyQuery(html_str)
 
     # IDs that unique within a document may not be unique within multiple documents
     # so we add a prefix
@@ -264,6 +269,17 @@ def rich_text_export(html_str, request=None, id_prefix=''):
     def attach_id_to_style(el):
         el.attrib['data-custom-style'] += f"-{id_prefix}"
 
+    # printable_html treatment skips a few steps and adds a few others
+    if printable_html:
+        compress_html_hierarchy(pq.root.getroot())
+        stringout = html.tostring(pq.root.getroot()).decode('utf-8')\
+            .replace('<body>', '').replace('</body>', '').replace('<html>', '').replace('</html>', '')
+        return mark_safe(stringout)
+
+    # Footnote labels have an :after css pseudo element with '.' content
+    # To prevent editing of the label in a way that will be lost
+    pq(".footnote-label").append("  ")
+
     for el in pq("img.image-center-large").items():
         replace_in_parent("Image Centered Large", el)
     for el in pq("img.image-center-medium").items():
@@ -277,11 +293,9 @@ def rich_text_export(html_str, request=None, id_prefix=''):
     for el in pq("[data-custom-style='Footnote Text']"):
         attach_id_to_style(el)
 
-
-
-    # Insert a non-breaking space if the paragraph after an image is empty
-    # to prevent it from potentially overlapping with a following image
-    pq("div[data-custom-style]+p:empty").text(" \xa0 ")
+        # Insert a non-breaking space if the paragraph after an image is empty
+        # to prevent it from potentially overlapping with a following image
+        pq("div[data-custom-style]+p:empty").text(" \xa0 ")
 
     return pq.outer_html()
 
@@ -313,6 +327,60 @@ def remove_empty_tags(tree, ignore_tags=void_elements):
             if parent == tree:
                 break
             el = parent
+
+
+def compress_html_hierarchy(intput_value):
+    """
+        Remove structural elements that clutter up print exports. Example:
+            >>> html_element = html.fragment_fromstring("<div><div><p style='text-decoration: italics;'></p><p><span>This is <span>unnecessarily</span> com<b>plic</b>ated.</span> <div><p><div>So <p><div>let's<p><div><p><span style='text-decoration: italics;'>Clean</span> it up<p>! </p></div></p></div></p>Now!</div></p></div>")
+            >>> compress_hierarchy(html_element)
+            >>> html.tostring(html_element)
+            b'<div>This is unnecessarily com<b>plic</b>ated. So let\'s<span style="text-decoration: italics;">Clean</span> it up! Now!</div>'
+    """
+
+    if hasattr(intput_value, 'getroottree') and hasattr(intput_value, 'drop_tag'):
+        html_el = intput_value
+    elif hasattr(intput_value, 'getroottree'):
+        html_el = parse_html_fragment(etree.tostring(intput_value).decode('utf-8'))
+    elif hasattr(intput_value, 'getroot') and hasattr(intput_value.getroot(), 'drop_tag'):
+        html_el = intput_value.getroot()
+    elif hasattr(intput_value, 'getroot'):
+        html_el = parse_html_fragment(etree.tostring(intput_value))
+    else:
+        raise ValueError(f"Input must be an lxml Element or ElementTree!")
+
+    for el in html_el.iterdescendants():
+        if el.text:
+            el.text = el.text.replace('\xa0', ' ')
+        populated_attribs = [v for a, v in el.attrib.items() if v] != []
+        parent = el.getparent()
+        children = el.getchildren()
+        # Drops a tag without (populated) attributes *or* if it has no children and no text. drop_tag() preserves
+        # children and text— we just don't want to lose any beneficial formatting or identifying information.
+        if el.tag in block_level_elements:
+            if parent is not None:
+                if parent.tag == 'p':
+                    if not populated_attribs or (not children and not el.text):
+                        el.drop_tag()
+                    else:
+                        parent.tag = 'div'
+                elif (len(el) == 0 and el.text is None):
+                    el.drop_tag()
+                elif el.tag in ['p', 'div'] and not [v for a, v in el.attrib.items() if v]:
+                    el.drop_tag()
+        elif el.tag == 'span':
+            if parent is not None:
+                if len(el) == 0 and el.text is None:
+                    el.drop_tag()
+                elif len([v for a, v in el.attrib.items() if v]) == 0:
+                    el.drop_tag()
+
+        # if el.tag in block_level_elements and el.getparent() is not None and \
+        #         ((len(el) == 0 and el.text is None) or not [v for a, v in el.attrib.items() if v]):
+        #     el.drop_tag()
+        # elif el.tag == 'span' and el.getparent() is not None and\
+        #         ((len(el) == 0 and el.text is None) or not [v for a, v in el.attrib.items() if v]):
+        #     el.drop_tag()
 
 
 def inner_html(tree):
