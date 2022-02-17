@@ -2,7 +2,6 @@ version: 2.1
 
 orbs:
   compare-url: iynere/compare-url@1.2.0
-  aws-cli: circleci/aws-cli@2.0.6
 
 jobs:
   build:
@@ -95,7 +94,6 @@ jobs:
       # build, push, and deploy pandoc-lambda image to stage if necessary
       # this requires that AWS_ACCESS_KEY_ID, AWS_SECRET_ACCESS_KEY, AWS_DEFAULT_REGION,
       # and AWS_ACCOUNT_ID be set.
-      - aws-cli/setup
       - compare-url/use:
           step-name: Publish pandoc-lambda image
           custom-logic: |
