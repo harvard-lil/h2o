@@ -3371,6 +3371,7 @@ class Casebook(EditTrackedModel, TimestampedModel, BigPkModel, TrackedCloneable)
         cloned_casebook = clone_model_instance(old_casebook,
                                                public=False,
                                                old_casebook=None,
+                                               common_title=None,
                                                provenance=self.provenance + [self.id],
                                                draft=None,
                                                state=(Casebook.LifeCycle.DRAFT.value if draft_mode else Casebook.LifeCycle.NEWLY_CLONED.value))
