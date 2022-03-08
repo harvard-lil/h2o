@@ -42,6 +42,7 @@ services:
       - MINIO_SECRET_KEY=secretkey
       - DATA_DIR=/data
       - BUCKET=h2o.images
+      - DOCX_CACHE_BUCKET=h2o.docx_cache
       - EXPORT_BUCKET=h2o.exports
     volumes:
       - ./docker/minio/entrypoint.sh:/entrypoint.sh

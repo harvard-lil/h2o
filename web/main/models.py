@@ -1,3 +1,5 @@
+import hashlib
+
 from dateutil import parser
 import logging
 from pathlib import Path
@@ -2835,6 +2837,9 @@ class Casebook(EditTrackedModel, TimestampedModel, BigPkModel, TrackedCloneable)
     subtitle = models.CharField(max_length=10000, blank=True, null=True)
     headnote = models.TextField(blank=True, null=True)
 
+    export_hash = models.CharField(max_length=32, blank=True, null=True)
+    cached_docx_file = models.ForeignKey('SavedDocx', on_delete=models.DO_NOTHING,blank=True,null=True,related_name='cached_docx')
+
     collaborators = models.ManyToManyField('User',
                                            through='ContentCollaborator',
                                            related_name='casebooks'
@@ -3643,6 +3648,12 @@ class Casebook(EditTrackedModel, TimestampedModel, BigPkModel, TrackedCloneable)
         collaborator_to_add = ContentCollaborator(user=user, casebook_id=self.id, **collaborator_kwargs)
         collaborator_to_add.save()
 
+    def is_cached_docx_valid(self, new_html):
+        try:
+            return self.cached_docx.hash == hashlib.md5(new_html.encode('utf-8')).hexdigest()
+        except:
+            return False
+
     def export(self, include_annotations, file_type='docx', export_options=None, docx_footnotes=None):
         """
             Export this node and children as docx, or as html for conversion by pandoc.
@@ -3685,10 +3696,15 @@ class Casebook(EditTrackedModel, TimestampedModel, BigPkModel, TrackedCloneable)
         })
         if file_type == 'html':
             return html
-        if docx_sections:
-            html = html.replace('&nbsp;', ' ').replace('_h2o_keep_element', '&nbsp;').replace('\xa0', ' ')
+
+        if self.is_cached_docx_valid(html):
+            return self.cached_docx.file.read()
         if not LiveSettings.export_is_rate_limited():
-            return export_via_aws_lambda(self, html, file_type, docx_sections=docx_sections, docx_footnotes=docx_footnotes)
+            docx_file = export_via_aws_lambda(self, html, file_type, docx_sections=docx_sections, docx_footnotes=docx_footnotes)
+            self.cached_docx.file.docx=docx_file
+            self.cached_docx.save()
+            return docx_file
+
         logger.info(f"Exporting Casebook {self.id} prevented due to rate limits")
         return None
 
@@ -4074,6 +4090,16 @@ class SavedImage(TimestampedModel):
         return reverse('image_url', args=[self.external_id])
 
 
+docx_storage = get_s3_storage(bucket_name='h2o.docxs')
+
+class SavedDocx(TimestampedModel):
+    casebook = models.ForeignKey('Casebook', on_delete='DO_NOTHING', blank=False, null=False, related_name='cached_docx')
+    hash = models.CharField(max_length=32, null=False, blank=False)
+    docx = models.FileField(storage=docx_storage)
+
+    def save(self, *args, **kwargs):
+        self.hash = hashlib.md5(self.docx.read()).hexdigest()
+        super().save(*args, **kwargs)
 
 class EmailWhitelist(models.Model):
     university_name = models.CharField(max_length=255, blank=True, null=True)
