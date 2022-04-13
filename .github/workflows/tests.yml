@@ -2,10 +2,6 @@ name: Tests
 
 on: [push, pull_request]
 
-defaults:
-  run:
-    working-directory: capstone
-
 jobs:
   build:
     runs-on: ubuntu-20.04
@@ -17,23 +13,10 @@ jobs:
 
       ### build docker images ###
 
-      - name: Rebuild h2o-python if necessary
+      - name: Rebuild docker images
+        id: rebuild
         uses: harvard-lil/docker-compose-update-action@main
         with:
-          image: "registry.lil.tools/harvardlil/h2o-python"
-          docker-file: "docker/Dockerfile"
-          rebuild-if-changed: "docker/Dockerfile web/requirements.txt web/package-lock.json"
-          registry: "registry.lil.tools"
-          registry-user: ${{ secrets.REPOSITORY_USER }}
-          registry-pass: ${{ secrets.REPOSITORY_TOKEN }}
-
-      - name: Rebuild h2o-pandoc-lambda if necessary
-        id: rebuild-pandoc
-        uses: harvard-lil/docker-compose-update-action@main
-        with:
-          image: "registry.lil.tools/harvardlil/h2o-pandoc-lambda"
-          docker-file: "docker/pandoc-lambda/Dockerfile"
-          rebuild-if-changed: "docker/pandoc-lambda"
           registry: "registry.lil.tools"
           registry-user: ${{ secrets.REPOSITORY_USER }}
           registry-pass: ${{ secrets.REPOSITORY_TOKEN }}
@@ -80,7 +63,7 @@ jobs:
       # and AWS_ACCOUNT_ID be set.
       # TODO: this could potentially use existing built image
       - name: Publish pandoc-lambda image
-        if: github.event_name == 'push' && github.ref == 'refs/heads/develop' && steps.rebuild-pandoc.outputs.updated == "1"
+        if: github.event_name == 'push' && github.ref == 'refs/heads/develop' && contains(steps.rebuild.outputs.services-rebuilt, 'pandoc-lambda')
         env:
           AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
           AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
