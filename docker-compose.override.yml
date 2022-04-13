@@ -4,3 +4,9 @@ services:
   pandoc-lambda:
     volumes:
       - ./docker/pandoc-lambda/function/:/function
+    build:
+      context: docker/pandoc-lambda
+  web:
+    build:
+      context: .
+      dockerfile: docker/Dockerfile
