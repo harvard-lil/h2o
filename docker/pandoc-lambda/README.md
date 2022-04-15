@@ -70,6 +70,6 @@ PROFILE=mfa
 FUNC=h2o-export
 ARN=arn:aws:lambda:${REGION}:${ACCT}:function:${FUNC}
 aws ecr get-login-password --region ${REGION} --profile ${PROFILE} | docker login --username AWS --password-stdin ${ACCT}.dkr.ecr.${REGION}.amazonaws.com
-docker buildx build --push --build-arg=BUILDARCH=amd64 --platform linux/amd64 --tag ${ACCT}.dkr.ecr.${REGION}.amazonaws.com/${IMG}:${TAG} .
+docker buildx build --push --platform linux/amd64 --tag ${ACCT}.dkr.ecr.${REGION}.amazonaws.com/${IMG}:${TAG} .
 aws lambda update-function-code --function-name ${ARN} --image-uri ${ACCT}.dkr.ecr.${REGION}.amazonaws.com/${IMG}:${TAG} --profile ${PROFILE} --region ${REGION}
 ```
