@@ -3,8 +3,9 @@
 > h2o is open-source software designed to replace bulky and expensive law textbooks with an easy-to-use web interface
 >where instructors and students alike can author, organize, view and print public-domain course material.
 
-[![CircleCI](https://circleci.com/gh/harvard-lil/h2o.svg?style=svg)](https://circleci.com/gh/harvard-lil/h2o)
-[![codecov](https://codecov.io/gh/harvard-lil/h2o/branch/master/graph/badge.svg)](https://codecov.io/gh/harvard-lil/h2o)
+
+[![test status](https://github.com/harvard-lil/h2o/actions/workflows/tests.yml/badge.svg)](https://github.com/harvard-lil/h2o/actions)
+[![codecov](https://codecov.io/gh/harvard-lil/h2o/branch/develop/graph/badge.svg)](https://codecov.io/gh/harvard-lil/h2o)
 
 ## Development: Docker
 
