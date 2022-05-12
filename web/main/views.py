@@ -62,7 +62,7 @@ from .test.test_permissions_helpers import (directly_editable_resource,
                                             viewable_resource,
                                             viewable_section)
 from .utils import (StringFileResponse, fix_after_rails, get_link_title,
-                    send_verification_email)
+                    send_verification_email, LambdaExportTooLarge)
 
 logger = logging.getLogger('django')
 ### helpers ###
@@ -2171,7 +2171,11 @@ def export(request, node, file_type='docx'):
     export_options['file_type'] = file_type
 
     # get response data
-    response_data = node.export(include_annotations, file_type, export_options=export_options, docx_footnotes = docx_footnotes)
+    try:
+        response_data = node.export(include_annotations, file_type, export_options=export_options, docx_footnotes = docx_footnotes)
+    except LambdaExportTooLarge as too_large:
+        logger.warn(f"Export node({node.id}): " + too_large.args[0])
+        return render(request, 'export_too_large.html', {'casebook': node})
     if response_data is None:
         return render(request, 'export_error.html', {
             'casebook': node

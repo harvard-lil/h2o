@@ -1,4 +1,4 @@
-FROM registry.lil.tools/library/python:3.7-buster
+FROM registry.lil.tools/library/python:3.9-bullseye
 ENV LANG=C.UTF-8 \
     LC_ALL=C.UTF-8 \
     PYTHONUNBUFFERED=1 \
@@ -8,11 +8,8 @@ ENV LANG=C.UTF-8 \
 
 RUN apt-get update && apt-get install -y nano postgresql-client
 
-ARG BUILDARCH
-ENV BUILDARCH=${BUILDARCH:-amd64}
-
 # pin node version -- see https://github.com/nodesource/distributions/issues/33
-RUN curl -o nodejs.deb https://deb.nodesource.com/node_12.x/pool/main/n/nodejs/nodejs_12.13.1-1nodesource1_${BUILDARCH}.deb \
+RUN curl -o nodejs.deb https://deb.nodesource.com/node_16.x/pool/main/n/nodejs/nodejs_16.14.0-deb-1nodesource1_$(dpkg --print-architecture).deb \
     && dpkg -i ./nodejs.deb \
     && rm nodejs.deb
 

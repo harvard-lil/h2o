@@ -29,7 +29,8 @@ When the lambda returns, you should see its log printed to the console and shoul
 
 ### ...after code changes
 
-For convenience during local development, changes to `function/app.py` are synced to the running container, but you have to restart the local Lambda emulator for it to pick them up. Run `docker-compose restart pandoc-lambda`.
+During local development, changes to `function/app.py` are synced to the running container and should be noticed immediately.
+If not, you can run `docker-compose restart pandoc-lambda` to restart the container.
 
 To deploy your changes to production you'll need to bundle the final version of your code into the Docker image and push it to AWS.
 
@@ -69,6 +70,6 @@ PROFILE=mfa
 FUNC=h2o-export
 ARN=arn:aws:lambda:${REGION}:${ACCT}:function:${FUNC}
 aws ecr get-login-password --region ${REGION} --profile ${PROFILE} | docker login --username AWS --password-stdin ${ACCT}.dkr.ecr.${REGION}.amazonaws.com
-docker buildx build --push --build-arg=BUILDARCH=amd64 --platform linux/amd64 --tag ${ACCT}.dkr.ecr.${REGION}.amazonaws.com/${IMG}:${TAG} .
+docker buildx build --push --platform linux/amd64 --tag ${ACCT}.dkr.ecr.${REGION}.amazonaws.com/${IMG}:${TAG} .
 aws lambda update-function-code --function-name ${ARN} --image-uri ${ACCT}.dkr.ecr.${REGION}.amazonaws.com/${IMG}:${TAG} --profile ${PROFILE} --region ${REGION}
 ```

@@ -15,19 +15,15 @@ RUN apt-get update && \
     unzip \
     libcurl4-openssl-dev
 
-# (Add Lambda Runtime Interface Emulator and set up the entrypoint script
-ARG lambda-rie-cache-buster
-ADD https://github.com/aws/aws-lambda-runtime-interface-emulator/releases/latest/download/aws-lambda-rie /usr/local/bin/aws-lambda-rie
+# Add Lambda Runtime Interface Emulator and set up the entrypoint script
+ADD https://github.com/aws/aws-lambda-runtime-interface-emulator/releases/download/v1.5/aws-lambda-rie /usr/local/bin/aws-lambda-rie
 COPY entrypoint.sh /
 RUN chmod 755 /usr/local/bin/aws-lambda-rie /entrypoint.sh
 EXPOSE 8080
 
-ARG BUILDARCH
-ENV BUILDARCH=${BUILDARCH:-amd64}
-
 # Install Pandoc
-RUN wget https://github.com/jgm/pandoc/releases/download/2.14.2/pandoc-2.14.2-1-${BUILDARCH}.deb \
-    && dpkg -i pandoc-2.14.2-1-${BUILDARCH}.deb
+RUN wget https://github.com/jgm/pandoc/releases/download/2.14.2/pandoc-2.14.2-1-$(dpkg --print-architecture).deb \
+    && dpkg -i pandoc-2.14.2-1-$(dpkg --print-architecture).deb
 
 # Install the python requirements, including the AWS Lambda runtime interface client
 COPY function/requirements.txt .
