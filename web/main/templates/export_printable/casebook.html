@@ -8,42 +8,86 @@
     <title>{{ node.title|striptags }}</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Libre+Baskerville:ital,wght@0,400;0,700;1,400&family=Slabo+27px&display=swap" rel="stylesheet">
     <style>
+            @import url('https://fonts.googleapis.com/css2?https://fonts.googleapis.com/css2?family=Libre+Baskerville:ital,wght@0,400;0,700;1,400&family=Slabo+27px&display=swap&family=IBM+Plex+Sans:wght@200;400;500;700&family=Roboto+Flex:opsz,wght@8..144,100&display=swap');
             @page {
+                font-family: 'IBM Plex Sans', sans-serif;
                 size: letter;
                 margin-top: 1in;
                 margin-bottom: 1in;
+                font-weight: 200;
+                font-size: 10pt;
+                @top-center {
+                    font-size: 14px;
+                    content: "{{ node.title|striptags }}"
+                }
             }
             @page :left {
                 margin-left: 1in;
                 margin-right: 1.5in;
-                @top-left {
-                    content: "{{ node.title|striptags }}"
+                @top-left-corner {
+                    font-weight: 700;
+                    content: counter(page);
                 }
             }
             @page :right {
                 margin-left: 1.5in;
                 margin-right: 1in;
-                @top-right {
-                    content: "{{ node.title|striptags }}"
+                @top-right-corner {
+                    font-weight: 700;
+                    content: counter(page);
                 }
             }
-            body {
-                font-family: Helvetica, serif;
-                width: 100%;
-                font-size: 9pt;
+
+            #FrontMatter { page: frontmatterLayout; }
+            @page frontmatterLayout :right {
+                @top-right-corner {
+                  font-weight: lighter;
+                  font-style: italic;
+                  font-size: 8pt;
+                  font-family: 'Libre Baskerville', serif;
+                  content: counter(page, lower-roman);
+              }
             }
 
-            link {
-                font-size: 8pt;
-                color: #5A771D;
-                font-family: 'Slabo 27px', serif;
-                grid-area: link;
+            #PostFrontMatter { counter-reset: page; }
+            #FrontMatter { page: frontmatterLayout; counter-reset: page; }
+
+            @page frontmatterLayout :left {
+                @top-left-corner {
+                  font-weight: lighter;
+                  font-style: italic;
+                  font-size: 8pt;
+                  font-family: 'Libre Baskerville', serif;
+                  content: counter(page, lower-roman);
+              }
+            }
+            @page frontmatterLayout {
+                @top-center {
+                    content: ""
+                }
+            }
+            @page frontmatterLayout:first { @top-left-corner { content: "" }; @top-right-corner { content: "" } }
+
+            #ChapterTitlePage { page: ChapterTitlePage; }
+
+            body {
+                font-family: 'IBM Plex Sans', sans-serif;
+                font-weight: 400;
+                width: 100%;
+            }
+            p {
+                font-family: 'IBM Plex Sans', sans-serif;
+            }
+            p > a:after:not(.footnotemark):not(.foo) {
+              content: ' [' attr(href) '] ';
+              color:#888;
+              font-size: 8pt;
+              font-weight: 500;
             }
             .title {
                 font-size: 12pt;
-                color: #1B418C;
+                color: #888;
                 font-weight: bolder;
                 grid-area: title;
             }
@@ -54,77 +98,109 @@
             }
             .subtitle {
                 font-size: 10pt;
-                color: #5A771D;
-                font-family: 'Slabo', serif;
+                color: #000;
+                font-family: 'Slabo 27px', serif;
                 grid-area: subtitle;
             }
             .ordinal {
-                font-size: 12pt;
-                color: #D96955;
-                font-weight: 900;
+                color: #888;
                 grid-area: ord;
             }
 
-            .case {
-                font-family: 'Libre Baskerville', serif;
-            }
-            .case-header {
+            article.body > header.case-header {
+                margin-bottom: 0.5in;
+                margin-top: 0.5in;
                 font-size: 20pt;
                 color: #000;
                 text-align: center;
-            }
-            .case-header, .body > header {
-                margin-bottom: 0.5in;
+                font-family: 'Libre Baskerville', serif;
                 /*column-span: all;*/
             }
-            .body {
+             article.body > p {
                 font-family: 'Libre Baskerville', serif;
                 /*column-count: 1;*/
             }
             .resource .body {
                 /*column-count: 2;*/
             }
-
-            section.chapter {
-                page-break-before: right;
-                page-break-after: always;
-                page-break-inside: avoid;
-            }
-
             section.node {
-                display: grid;
-                grid-template-areas: "title    ord"
-                                     "subtitle subtitle"
-                                     "link     link"
-                                     "headnote .";
-                                     "body .";
-                grid-template-columns: auto 1in;
                 width: 100%;
                 margin-bottom: .75in;
+            }
+
+            section.node > header {
                 page-break-inside: avoid;
+                display: grid;
+                grid-area: header;
+                grid-template-areas: "titleText ord"
+                                     "subtitle ord";
+                grid-template-columns: auto 1in;
+                margin-bottom: 1in;
             }
-            section.node h1 span.title {
-                grid-area: title;
-                font-size: 10pt;
-                color: #1B418C;
-                font-weight: bolder;
+
+            section.node > header > h2.titleText {
+                grid-area: titleText;
+                font-size: 36pt;
+                font-weight: 200;
+                margin: 0;
             }
-            section.node h1 span.ordinal {
+            section.node > header > h2.ordinal {
                 grid-area: ord;
+                font-size: 36pt;
+                margin: 0;
+                font-family: 'Libre Baskerville', serif;
+            }
+
+            section.node.resource > header > h2.titleText {
+                grid-area: titleText;
+                font-weight: 500;
+                margin-top: 9pt;
                 font-size: 12pt;
             }
-            section.node h2 .subtitle {
+            section.node.resource > header > h2.ordinal {
+                grid-area: ord;
+                font-size: 12pt;
+                margin: 0;
+                font-family: 'Libre Baskerville', serif;
+            }
+
+            section.node.chapter > header {
+                margin-top: 2in;
+                page-break-inside: avoid;
+                display: grid;
+                grid-area: header;
+                grid-template-areas: "titleText ord"
+                                     "subtitle ord";
+                grid-template-columns: auto 1in;
+                page-break-before: always;
+            }
+
+            section.node.chapter article.headnote {
+                page-break-after: always;
+            }
+
+            section.node.chapter > header > h2.titleText {
+                grid-area: titleText;
+                margin-top: 9pt;
+            }
+            section.node.chapter > header > h2.ordinal {
+                grid-area: ord;
+                font-size: 127pt;
+                margin: 0;
+                font-family: 'Libre Baskerville', serif;
+            }
+
+            section.node > header > h3 > .subtitle {
                 grid-area: subtitle;
-                font-size: 18pt;
-                color: #5A771D;
-                font-family: 'Slabo', serif;
             }
+
             section.node article.link {
-                grid-area: link;
-                font-size: 16pt;
-                color: #5A771D;
+                font-size: 8pt;
+                color: #888;
                 font-family: 'Slabo 27px', serif;
+                grid-area: link;
             }
+
             section.node article.headnote {
                 grid-area: headnote;
                 font-size: 11pt;
@@ -135,7 +211,6 @@
                 font-size: 9pt;
                 font-family: 'Libre Baskerville', serif;
             }
-
             #TableOfContents {
                 page-break-before: always;
                 list-style: none;
@@ -145,31 +220,88 @@
                 width: 5in;
                 font-size: 9pt;
                 display: grid;
-                grid-template-areas: "ord title page";
-                grid-template-columns: 1fr 8fr 1fr;
+                grid-template-areas: "ord title pgnum";
+                grid-template-columns: 1in auto 1in;
                 list-style: none;
                 padding-left: .5em;
+                page-break-inside: avoid;
             }
             #TableOfContents .entry .ordinal {
                 grid-area: ord;
-                font-size: 12pt;
-                color: #D96955;
+                font-size: 8pt;
                 font-weight: 900;
                 list-style: none;
+                font-weight: 700;
             }
             #TableOfContents .entry .title {
                 grid-area: title;
-                font-size: 10pt;
-                color: #1B418C;
-                font-weight: bolder;
+                font-size: 8pt;
+                margin-bottom: 6pt;
+                line-height: 9pt;
                 list-style: none;
             }
-            #TableOfContents .entry .page {
-                grid-area: page;
+            #TableOfContents > .entry > .page > a::after {
+                grid-area: pgnum;
                 font-size: 8pt;
                 color: #000;
                 list-style: none;
-                content: "p. " target-counter(attr(href), page);
+                content: target-counter(attr(href url), page);
+            }
+            article.dedication > p {
+                font-size: 12pt;
+                font-family: 'Libre Baskerville', serif;
+                font-weight: lighter;
+                font-style: italic;
+                margin-top: 25%;
+                margin-left: auto;
+                margin-right: auto;
+                text-align: center;
+                width: 75%;
+            }
+            section#DedicationPage {
+                page-break-before: always;
+                page-break-after: always;
+            }
+            section#CopyrightPage{
+                page-break-before: always;
+                page-break-after: always;
+            }
+            article#copyright-block {
+                bottom: .25in;
+                position: absolute;
+                left: 0;
+                width: 4in;
+            }
+            p.CopyrightTitle {
+                font-weight: 700;
+                font-size: 16pt;
+            }
+            p.CopyrightPublisherAddress::first-line {
+                font-weight: 500;
+            }
+            .CopyrightText > span.LicenseUrl{
+                font-weight: 500;
+                font-size: 8pt;
+            }
+            h1 {
+                font-family: 'IBM Plex Sans', sans-serif;
+                font-weight: 200;
+                font-size: 36pt;
+            }
+            h2 {
+                font-family: 'IBM Plex Sans', sans-serif;
+                font-weight: 700;
+                font-size: 24pt;
+            }
+            h3 {
+                font-family: 'IBM Plex Sans', sans-serif;
+                font-weight: 700;
+                font-size: 18pt;
+            }
+            h4 {
+                font-family: 'IBM Plex Sans', sans-serif;
+                font-weight: 200;
+                font-size: 18pt;
             }
 
     </style>
@@ -185,15 +317,66 @@
           <h2>{{ node.subtitle|striptags }}</h2>
         {% endif %}
       </header>
-      {% if node.headnote %}
+    </section>
+    <section id="DedicationPage">
+      <article class="dedication">
+          <p contenteditable="true">
+            This book is dedicated to those I've learned from, and those who learn from me. May we use our knowledge to better
+            ourselves, and the human experience.
+            <br>
+            ** Click anywhere in the above field to edit this text. **
+          </p>
+      </article>
+    </section>
+
+     <section id="CopyrightPage">
+        <article id="copyright-block">
+
+          <p contenteditable="true" class="CopyrightTitle">
+            {{ node.title|striptags }}
+            {% if node.subtitle %}: {{ node.subtitle|striptags }}{% endif %}
+          </p>
+          <p contenteditable="true" class="CopyrightPublisher">This book was exported from OpenCasebook.org— a free web application maintained by the Harvard Law Library Innovation Lab.</p>
+          <p contenteditable="true" class="CopyrightPublisherAddress">
+            Harvard Law School<br>
+            1585 Massachusetts Ave,<br>
+            Cambridge, MA 02138<br>
+          </p>
+
+          <p contenteditable="true" class="CopyrightDate">
+           © {% now "Y" %} by
+           {% for source in cloned_from %}
+                {% for author in source.primary_authors %}
+                      {% if not forloop.first %}, {% endif %}
+                      {{ author.display_name }}
+                {% endfor %}
+                {% if not forloop.last %}, {% endif %}
+          {% endfor %}
+          </p>
+          <p contenteditable="true" class="CopyrightText Caselaw">
+            All United States caselaw content is in the Public Domain.
+          </p>
+          <p contenteditable="true" class="CopyrightText AuthorSubmitted">
+            All author-submitted content is under the Creative Commons Attribution-Noncommercial-Share Alike 3.0
+            License, the terms of which are available at:<br>
+            <span class="LicenseUrl">http://creativecommons.org/licenses/by-nc-sa/3.0/</span>
+          </p>
+          <p class="ExportedDate">
+            Exported on {% now "F j, Y" %}
+          </p>
+     </article>
+    </section>
+
+    {% if node.headnote %}
+      <section id="HeadnotePage">
         <article id="CasebookHeadnote">
           <h3>Headnote</h3>
             {% call_method node 'headnote_for_export' export_options=export_options as headnote %}
                 <p>{{ headnote }}</p>
-          {% endif %}
         </article>
-    </section>
-    {% include 'export_printable/about.html' %}
+      </section>
+    {% endif %}
+
 
     <ul id="TableOfContents">
       {% for child in children %}
@@ -203,18 +386,19 @@
               data-ordinal="{{ child.ordinal_string }}">
             <li class="ordinal">{{ child.ordinal_string }}</li>
             <li class="title">{{ child.title }}</li>
-            <li class="page"></li>
+            <li class="page"><a href="#Node-{{ child.ordinal_string }}">000</a></li>
           </ul>
         </li>
       {% endfor %}
     </ul>
 
   </section>
+  <div id="PostFrontMatter">&nbsp;</div>
 
   {% with is_child=True %}
-  {% for child in children %}
-    {% include "export_printable/node.html" with index=forloop.counter node=child %}
-  {% endfor %}
+    {% for child in children %}
+      {% include "export_printable/node.html" with index=forloop.counter node=child %}
+    {% endfor %}
   {% endwith %}
 
   {% include 'export_printable/credits.html' %}
