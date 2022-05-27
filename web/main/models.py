@@ -4107,7 +4107,7 @@ class LiveSettings(models.Model):
         live_settings.export_last_minute_updated = minute
         live_settings.save()
         return False
-        
+
     def save(self, *args, **kwargs):
         LiveSettings.objects.exclude(id=self.id).delete()
         super().save(*args, **kwargs)
@@ -4118,6 +4118,9 @@ class LiveSettings(models.Model):
             return LiveSettings.objects.get()
         except LiveSettings.DoesNotExist:
             return LiveSettings()
+
+    class Meta:
+        verbose_name_plural = "Live settings"
 
 
 #
