@@ -138,7 +138,7 @@ class CasebookIdFilter(InputFilter):
 
     def queryset(self, request, queryset):
         value = self.value()
-        if value is not None:
+        if value:
             return queryset.filter(casebook_id=value)
 
 
@@ -148,7 +148,7 @@ class CollaboratorNameFilter(InputFilter):
 
     def queryset(self, request, queryset):
         value = self.value()
-        if value is not None:
+        if value:
             users = User.objects.filter(attribution__icontains=value)
             return queryset.filter(casebook__collaborators__in=users)
 
@@ -158,7 +158,7 @@ class CollaboratorIdFilter(InputFilter):
 
     def queryset(self, request, queryset):
         value = self.value()
-        if value is not None:
+        if value:
             users = User.objects.filter(id=value)
             return queryset.filter(collaborators__in=users)
 
@@ -198,7 +198,7 @@ class ResourceIdFilter(InputFilter):
 
     def queryset(self, request, queryset):
         value = self.value()
-        if value is not None:
+        if value:
             return queryset.filter(resource_id=value)
 
 class LegalDocumentSourceFilter(InputFilter):
@@ -207,7 +207,7 @@ class LegalDocumentSourceFilter(InputFilter):
 
     def queryset(self, request, queryset):
         value = self.value()
-        if value is not None:
+        if value:
             return queryset.filter(source_id=value)
 
 #
