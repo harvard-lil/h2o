@@ -150,7 +150,7 @@ class CollaboratorNameFilter(InputFilter):
         value = self.value()
         if value:
             users = User.objects.filter(attribution__icontains=value)
-            return queryset.filter(casebook__collaborators__in=users)
+            return queryset.filter(collaborators__in=users)
 
 class CollaboratorIdFilter(InputFilter):
     parameter_name = 'collaborator-id'
