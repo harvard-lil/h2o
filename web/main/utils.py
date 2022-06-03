@@ -247,12 +247,14 @@ def rich_text_export(html_str, request=None, id_prefix=''):
     pq("[id]").each(prefix_id)
     pq("[href^='#']").each(prefix_href)
 
-    # Images need to have absolute urls
-    def absolute_src(_, el):
-        original_src = el.attrib['src']
-        el.attrib['src'] = request.build_absolute_uri(original_src)
+    def remove_disallowed_images(el):
+        src = el.attrib.get('src', '') or ''
+        if src and not (src.startswith(f"http://{request.get_host()}") or src.startswith(f"https://{request.get_host()}")):
+            logger.info(f"Removing disallowed image src: {src}")
+            el.getparent().remove(el)
 
-    pq("img[src]").each(absolute_src)
+    for el in pq("img"):
+        remove_disallowed_images(el)
 
     # Add Doc styling wrappers to images
     def replace_in_parent(style,el):
