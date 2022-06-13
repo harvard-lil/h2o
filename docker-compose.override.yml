@@ -26,3 +26,6 @@ services:
           - linux/arm64
       x-hash-paths:
         - web/requirements.txt
+    environment:
+      - CAPAPI_API_KEY
+      - GPO_API_KEY
