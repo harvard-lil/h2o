@@ -1,0 +1,8 @@
+{% extends "admin/index.html" %}
+
+{% block userlinks %}
+
+    <a href="{% url 'admin:usage' %}">Usage</a> /
+    {{ block.super }}
+
+{% endblock userlinks %}

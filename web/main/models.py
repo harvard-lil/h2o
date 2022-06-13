@@ -2771,6 +2771,10 @@ class Resource(ContentNode):
 
 
 class CommonTitle(BigPkModel):
+    """
+    Commonly referred to as 'series', a many-to-many relationship among casebooks
+    where a single casebook is designated as the current edition
+    """
     name = models.CharField(max_length=300, blank=False, null=False)
     public_url = models.CharField(max_length=300, blank=False, null=False, validators=[validate_unicode_slug])
     current = models.ForeignKey('Casebook', on_delete=models.DO_NOTHING, blank=False, null=False, related_name='title_name')

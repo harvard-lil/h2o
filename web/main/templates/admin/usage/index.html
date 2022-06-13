@@ -1,0 +1,151 @@
+{% extends "admin/base.html" %}
+
+{% load static  %}
+{% load humanize %}
+
+{% block title %}
+    Activity dashboard | H2O Admin
+{% endblock %}
+
+{% block extrahead %}
+
+    {{ date_form.media }}
+
+    <link rel="stylesheet" type="text/css" href="{% static 'admin/css/base.css' %}" />
+    <link rel="stylesheet" type="text/css" href="{% static 'admin/css/forms.css' %}" />
+    <link rel="stylesheet" type="text/css" href="{% static 'admin/css/widgets.css' %}" />
+
+    <script>
+        function updateDate (start_date, end_date) {
+            document.getElementById('id_start_date').value=start_date;
+            document.getElementById('id_end_date').value=end_date;
+        }
+    </script>
+{% endblock extrahead %}
+
+{% block extrastyle %}
+    <style>
+        button.date-preset {
+            text-decoration: underline;
+            background: none;
+            cursor: pointer;
+            border: none;
+            padding: 0;
+        }
+        #toolbar th, #toolbar td { vertical-align: middle; }
+        #toolbar { background-color: #eee; margin-bottom: 1em;}
+        #dashboard th small { font-weight: normal; text-style: italic; display: block; }
+    </style>
+{% endblock extrastyle %}
+
+{% block branding %}
+    <h1 id="site-name">H2O Admin</h1>
+{% endblock %}
+
+
+{% block content %}
+
+<h1>Usage dashboard</h1>
+
+<div id="content-main">
+
+    <div id="toolbar">
+        <form action="" method="get">
+            <table>
+                <tr>
+                    <th>
+                        {{ date_form.start_date.label_tag}}
+                    </th>
+                    <td>
+                        {{ date_form.start_date }}
+                    </td>
+                    <th>
+                        {{ date_form.end_date.label_tag}}
+                    </th>
+                    <td>
+                        {{ date_form.end_date }}
+                    </td>
+                    <td>
+                        {% for key, preset in date_presets.items %}
+                            <button type="button" class="date-preset"
+                                onclick="updateDate('{{ preset.start_date | escapejs }}', '{{ preset.end_date | escapejs }}')"
+                                >{{ preset.label }}
+                            </button>  {% if not forloop.last %} | {% endif %}
+                        {% endfor %}
+                    </td>
+                    <td>
+                        {{ date_form.published.help_text }} {{ date_form.published }}
+                    </td>
+                    <td>
+                        <input type="submit">
+                    </td>
+
+                </tr>
+            </table>
+        </form>
+    </div>
+
+    <p>
+        Showing all records for users or casebooks created between {{ date_form.start_date.value }} and {{ date_form.end_date.value }}:
+    </p>
+
+
+    <table id="dashboard">
+    <tr>
+        <th>Number of accounts
+            <small>All active, non-staff users</small>
+        </th>
+
+        <td> {{ stats.registered_users | intcomma }}
+        </td>
+    </tr>
+    <tr>
+        <th>Verified professors</th>
+        <td>{{ stats.verified_professors | intcomma }}</td>
+    </tr>
+    <tr>
+        <th>Professors with published casebooks</th>
+        <td>{{ stats.profs_with_books | intcomma }}</td>
+    </tr>
+    <tr>
+        <th>Casebooks</th>
+        <td>{{ stats.casebooks | intcomma}} </td>
+    </tr>
+    <tr>
+        <th>Casebooks including content from Capstone</th>
+        <td>{{ stats.casebooks_cap | intcomma }}</td>
+    </tr>
+    <tr>
+        <th>Casebooks including content from GPO</th>
+        <td> {{ stats.casebooks_gpo | intcomma }}</td>
+    </tr>
+    <tr>
+        <th>Casebooks including content from Capstone with at least one professor as contributor</th>
+        <td>{{ stats.casebooks_cap_prof | intcomma }}</td>
+    </tr>
+    <tr>
+        <th>Casebooks including content from GPO with at least one professor as contributor</th>
+        <td> {{ stats.casebooks_gpo_prof | intcomma }}</td>
+    </tr>
+    <tr>
+        <th>Casebooks with multiple collaborators</th>
+        <td> {{ stats.casebooks_with_collaborators | intcomma }}</td>
+    </tr>
+    <tr>
+        <th>Casebooks with multiple collaborators, at least one professor</th>
+        <td> {{ stats.casebooks_with_collaborators_prof | intcomma }}</td>
+    </tr>
+    <tr>
+        <th>Series
+            <small>Where the latest casebook is published</small>
+        </th>
+        <td>{{ stats.series | intcomma }}</td>
+    </tr>
+    <tr>
+        <th>Series by professors</th>
+        <td>{{ stats.series_by_prof | intcomma }}</td>
+    </tr>
+    </table>
+</div>
+
+{% endblock %}

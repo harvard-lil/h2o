@@ -6,18 +6,18 @@ from django.contrib.postgres import fields
 from django.core.mail import send_mail
 from django.db.models import Count
 from django.http import HttpResponseRedirect
-from django.urls import reverse
+from django.urls import path, reverse
 from django.utils.html import format_html
 from django.utils.safestring import mark_safe
 from django_json_widget.widgets import JSONEditorWidget
 from simple_history.admin import SimpleHistoryAdmin
 
+from .usage import view as usage_dashboard_view
 from .models import (Casebook, ContentAnnotation, ContentCollaborator,
                      ContentNode, EmailWhitelist, LegalDocument,
                      LegalDocumentSource, Link, Resource, Section, TextBlock,
                      User, LiveSettings)
 from .utils import (clone_model_instance, fix_after_rails)
-
 #
 # Helpers
 #
@@ -38,6 +38,14 @@ def edit_link(obj, as_str=False):
 
 class CustomAdminSite(admin.AdminSite):
     site_header = 'H2O Admin'
+    index_template = "admin/h2o_index.html"
+
+    def get_urls(self):
+        urls = super().get_urls()
+        my_urls = [
+            path('usage/', usage_dashboard_view, name="usage"),
+        ]
+        return my_urls + urls
 
 admin_site = CustomAdminSite(name='h2oadmin')
 
