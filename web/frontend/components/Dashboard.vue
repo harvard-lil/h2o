@@ -6,7 +6,7 @@
         <form @submit.prevent.stop="createGroup" class="form-group">
           <div>
             <div v-if="selectedCoAuthors.length > 0">
-              The following co-authors will also see this group: 
+              The following co-authors will also see this group:
               <span>{{selectedCoAuthors}}</span>
             </div>
             <label for="newGroupTitle">
@@ -18,7 +18,7 @@
             </div>
           </div>
           <br>
-          <div>            
+          <div>
             <label for="current">
               Current Edition
             </label>
@@ -46,14 +46,15 @@
       <h2 class="casebooks">{{ user.name }}'s Casebooks</h2>
       <hr class="owned"/>
     </div>
-    <div class="management-links" v-if="user.active && !managingCasebooks"> <a @click="startManagement">Manage Casebooks</a> </div>
+    <div class="management-links" v-if="user.active && !managingCasebooks"> <a href="#" role="button" @click="startManagement">Manage Casebooks</a> </div>
     <div class="management-links" v-if="user.active && managingCasebooks">
       <ul>
         <li>
           <a v-bind:class="{'disabled': !canArchive}"
              @click="archiveCasebooks"
              @mouseover="activateHelp(archiveHelp)"
-             @mouseleave="deactivateHelp">
+             @mouseleave="deactivateHelp"
+             href="#" role="button">
             Archive selected
           </a>
         </li>
@@ -61,7 +62,8 @@
           <a v-bind:class="{'disabled': !canUngroup}"
              @click="unTitle"
              @mouseover="activateHelp(ungroupHelp)"
-             @mouseleave="deactivateHelp">
+             @mouseleave="deactivateHelp"
+             href="#" role="button">
             Ungroup selected
           </a>
         </li>
@@ -69,12 +71,13 @@
           <a v-bind:class="{'disabled': !canGroup}"
              @click="finalizeGroup"
              @mouseover="activateHelp(groupHelp)"
-             @mouseleave="deactivateHelp">
+             @mouseleave="deactivateHelp"
+             href="#" role="button">
             Group selected
           </a>
         </li>
         <li>
-          <a title="Finish managing casebooks" @click="stopManagement">Done</a>
+          <a title="Finish managing casebooks" @click="stopManagement" href="#" role="button">Done</a>
         </li>
       </ul>
 
@@ -279,7 +282,7 @@ export default {
         },
         addToGroupHelp: function(title) {
             return this.canAddToGroup(title) ? "Add selected casebooks to this group" : "Only public casebooks that do not belong to another group can be added to this group";
-        },        
+        },
         resetManagement: function() {
             this.finalizingGroup = false;
             this.newGroupCurrent =  {};
@@ -478,11 +481,11 @@ export default {
     flex-direction: row;
     padding-left:0;
     overflow-x:scroll;
-    
+
     .untitled {
         width: 100%;
-    }    
-    
+    }
+
     .new-group-choices {
         list-style: none;
         display: flex;
@@ -492,7 +495,7 @@ export default {
         overflow-x:scroll;
         li {
             overflow-x:scroll;
-            
+
             &.header {
                 page-break-before: always;
                 break-before: always;
