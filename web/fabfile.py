@@ -60,7 +60,7 @@ def create_search_index():
 @task
 @setup_django
 def refresh_search_index():
-    """ Update an existing search_view materialized view; will fail if create_search_index hasn't been run once """
+    """ Update an existing search_view materialized view; will create if create_search_index hasn't been run once """
     from main.models import SearchIndex
     SearchIndex.refresh_search_index()
 

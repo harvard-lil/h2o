@@ -5,11 +5,13 @@ from django import forms
 from django.http import HttpRequest
 from django.shortcuts import render
 from django.db import connection
-from django.db.models import Count
 from django.contrib.admin.widgets import AdminDateWidget
 from dateutil.relativedelta import *
 from .models import Casebook, User
 
+# "Published" state matches logic in the front end, which includes casebooks under revision
+PUBLISHED_CASEBOOKS = (Casebook.LifeCycle.PUBLISHED.value, Casebook.LifeCycle.REVISING.value)
+ALL_STATES = tuple(tag.value for tag in Casebook.LifeCycle)
 
 class DateForm(forms.Form):
     start_date = forms.DateField(
@@ -59,39 +61,56 @@ def view(request: HttpRequest):
         created_at__lte=end_date,
     )
     profs = users.filter(verified_professor=True)
-    profs_with_books = profs.annotate(has_books=Count("casebooks")).filter(
-        has_books__gt=0
-    )
+
     stats["registered_users"] = users.count()
     stats["verified_professors"] = profs.count()
-    stats["profs_with_books"] = profs_with_books.count()
 
     # Casebooks also have the creation date filter applied
     casebooks = Casebook.objects.filter(
         created_at__gte=start_date, created_at__lte=end_date
     )
 
-    state = tuple(tag.value for tag in Casebook.LifeCycle)
+    state = ALL_STATES
 
     if published_casebooks_only:
-        casebooks = casebooks.filter(state=Casebook.LifeCycle.PUBLISHED.value)
-        state = (Casebook.LifeCycle.PUBLISHED.value,)
+
+        casebooks = casebooks.filter(state__in=PUBLISHED_CASEBOOKS)
+        state = PUBLISHED_CASEBOOKS
 
     stats["casebooks"] = casebooks.count()
 
     with connection.cursor() as cursor:
 
-        # Create a little data warehouse of prefiltered reporting-ready tables for reuse in this session
+        # Create a little data warehouse of prefiltered reporting-ready tables for reuse in this session.
+        # This logic should match what's used in `create_search_index.sql` unless otherwise annotated.
+
         cursor.execute(
             """
-        create temp table if not exists casebooks_from_professors as
-            select casebook_id from main_contentcollaborator
-            inner join main_user u on main_contentcollaborator.user_id = u.id
-            inner join main_casebook c on main_contentcollaborator.casebook_id = c.id
+            create temp table if not exists professors_with_casebooks as
+            select user_id from main_contentcollaborator cc
+            inner join main_user u on cc.user_id = u.id
+            inner join main_casebook c on cc.casebook_id = c.id
             where u.verified_professor is true
                 and c.created_at >= %s
                 and c.created_at <= %s
                 and c.state in %s
+                and u.attribution != ''
+            group by user_id
+            """,
+            [start_date, end_date, (Casebook.LifeCycle.PUBLISHED.value,) if published_casebooks_only else ALL_STATES],
+        )
+
+        cursor.execute(
+            """
+        create temp table if not exists casebooks_from_professors as
+            select casebook_id from main_contentcollaborator cc
+            inner join main_user u on cc.user_id = u.id
+            inner join main_casebook c on cc.casebook_id = c.id
+            where u.verified_professor is true
+                and c.created_at >= %s
+                and c.created_at <= %s
+                and c.state in %s
+                and cc.has_attribution is true
             group by casebook_id
             """,
             [start_date, end_date, state],
@@ -100,14 +119,16 @@ def view(request: HttpRequest):
         cursor.execute(
             """
         create temp table if not exists casebooks_with_multiple_collaborators as
-            select casebook_id from main_contentcollaborator
-            inner join main_casebook c on main_contentcollaborator.casebook_id = c.id
+            select casebook_id from main_contentcollaborator cc
+            inner join main_casebook c on cc.casebook_id = c.id
             where c.created_at >= %s
                 and c.created_at <= %s
                 and c.state in %s
-
+                and casebook_id in
+                   (select casebook_id from main_contentcollaborator where has_attribution is true)
             group by casebook_id
             having count(user_id) > 1
+
         """,
             [start_date, end_date, state],
         )
@@ -139,6 +160,21 @@ def view(request: HttpRequest):
             )
 
         # Run the specific queries needed for the reports
+
+        cursor.execute(
+            """
+        select count(*) from professors_with_casebooks
+        """
+        )
+        stats["profs_with_books"] = cursor.fetchone()[0]
+
+        # Casebooks from verified professors with attribution
+        cursor.execute(
+            """
+            select count(*) from casebooks_from_professors
+        """
+        )
+        stats["casebooks_prof"] = cursor.fetchone()[0]
 
         # Casebooks including content from Capstone
         cursor.execute(
@@ -192,10 +228,11 @@ def view(request: HttpRequest):
         # Casebooks with multiple collaborators including professors
         cursor.execute(
             """
-        select count(*) from main_casebook where main_casebook.id
-            in (select * from casebooks_with_multiple_collaborators)
-            and main_casebook.id
-            in (select * from casebooks_from_professors)
+        select count(*) from main_casebook
+            where main_casebook.id
+                in (select * from casebooks_with_multiple_collaborators)
+                and main_casebook.id
+                in (select * from casebooks_from_professors)
         """
         )
         stats["casebooks_with_collaborators_prof"] = cursor.fetchone()[0]
@@ -208,7 +245,8 @@ def view(request: HttpRequest):
         where c.created_at >= %s
               and c.created_at <= %s
               and c.state in %s
-        """, [start_date, end_date, state]
+        """,
+            [start_date, end_date, state],
         )
         stats["series"] = cursor.fetchone()[0]
 
