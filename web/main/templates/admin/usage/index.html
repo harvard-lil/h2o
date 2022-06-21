@@ -35,6 +35,7 @@
         #toolbar th, #toolbar td { vertical-align: middle; }
         #toolbar { background-color: #eee; margin-bottom: 1em;}
         #dashboard th small { font-weight: normal; text-style: italic; display: block; }
+        aside { background-color: #eee; padding: 1em; margin-top: 2em;}
     </style>
 {% endblock extrastyle %}
 
@@ -46,6 +47,7 @@
 {% block content %}
 
 <h1>Usage dashboard</h1>
+
 
 <div id="content-main">
 
@@ -109,7 +111,11 @@
     </tr>
     <tr>
         <th>Casebooks</th>
-        <td>{{ stats.casebooks | intcomma}} </td>
+        <td>{{ stats.casebooks | intcomma }}</td>
+    </tr>
+    <tr>
+        <th>Casebooks from verified professors</th>
+        <td>{{ stats.casebooks_prof | intcomma }}</td>
     </tr>
     <tr>
         <th>Casebooks including content from Capstone</th>
@@ -128,8 +134,12 @@
         <td> {{ stats.casebooks_gpo_prof | intcomma }}</td>
     </tr>
     <tr>
-        <th>Casebooks with multiple collaborators</th>
+        <th>
+            Casebooks with multiple collaborators
+            <small>Where at least one collaborator has attribution</small>
+        </th>
         <td> {{ stats.casebooks_with_collaborators | intcomma }}</td>
+
     </tr>
     <tr>
         <th>Casebooks with multiple collaborators, at least one professor</th>
@@ -146,6 +156,11 @@
         <td>{{ stats.series_by_prof | intcomma }}</td>
     </tr>
     </table>
+
+    <aside>
+        Note: "Published" casebooks will include casebooks in either the <em>published</em> or
+        <em>revising</em> state, matching the front end search.
+    </aside>
 </div>
 
 {% endblock %}
