@@ -605,34 +605,33 @@ export default {
     text-align: end;
 }
 .create-casebook-wrapper{
-    flex-direction: column;
-    padding-bottom: 16px;
     display: flex;
     flex-wrap: wrap;
+    flex-direction: column;
+    padding-bottom: 16px;
     padding-left: 20px;
     padding-top: 16px;
 }
 .create-casebook-container{
-    width: 225px;
-    min-height: 320px;
-    border: 1px dashed gray;
-    float: left;
-    margin-right: 10px;
-    margin-bottom: 15px;
     display: flex;
+    float: left;
     flex-direction: column;
     align-items: center;
+    border: 1px dashed gray;
+    width: 225px;
+    min-height: 320px;
+    margin-right: 10px;
+    margin-bottom: 15px;
 }
 .create-casebook-text{
    display: block;
-
 }
 
 .create-casebook-plus{
  background-image: url('~static/images/add-primary.png');
  border: none;
- width: 30%;
  display: block;
+ width: 30%;
  margin-top: 30%;
 }
 .create-casebook-plus:hover{
