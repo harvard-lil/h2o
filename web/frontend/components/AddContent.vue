@@ -56,6 +56,7 @@
                 Body
                 <editor
                   v-model="textContent"
+                  
                 ></editor>
                 <span class="help-block has-error" v-if="errors.content">
                   <strong>{{errors.content[0].message}}</strong>

@@ -1,16 +1,19 @@
 <template>
   <div id="publish-button">
+    <!-- The button comment (some resources are incomplete ~~ ) did not show up. The button was only disabled -->
     <button type="button" 
             class="action publish one-line" 
             :disabled="disabled"
             :title="disabled ? 'Some resources are incomplete. Finalize Entries below.' : 'Publish'"
-            @click="attemptPublish">
+            @click="attemptPublish"
+            >
             Publish
     </button>
     <Modal v-if="showModal" @close="showModal = false">
       <template slot="title">Confirm Publish</template>
       <template slot="body">
         <p>Are you ready to publish your book?</p>
+        <!-- What does it mean to publish a book? Is it viewable to everyone? Add more descriptions -->
         <div class="modal-footer">
           <button class="modal-button cancel" @click="cancelPublish">No</button>
           <button class="modal-button confirm" @click="confirmPublish">Yes</button>
