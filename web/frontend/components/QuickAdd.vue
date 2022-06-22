@@ -1,4 +1,6 @@
 <template>
+<!-- This part needs a title. It is confusing what is does since this is a second point of creation -->
+<!-- Maybe having a plus sign would help. -->
   <div id="quick-add">
     <div class="form-control-group">
       <form @submit.stop.prevent="handleSubmit">
@@ -46,6 +48,8 @@ import { createNamespacedHelpers } from "vuex";
 const globals = createNamespacedHelpers("globals");
 const search = createNamespacedHelpers("case_search");
 
+// clarification on what section,search, customcontent,link is. 
+// maybe change styling of drop down? 
 const optionsWithoutCloning = [{name: 'Section',        value: {resource_type: 'Section'}, k: 0},
                                {name: 'Search',         value: {resource_type: 'LegalDocument'}, k: 1},
                                {name: 'Custom Content', value: {resource_type: 'TextBlock'}, k: 2},
