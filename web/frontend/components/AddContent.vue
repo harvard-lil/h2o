@@ -5,20 +5,23 @@
       v-on:click.stop.prevent="displayModal()"
     >Add Content</button>
     <Modal v-if="showModal" @close="showModal = false" :initial-focus="focusTarget">
-      <template slot="title">Add Resource</template>
+      <template slot="title" title="Add Content">Add Resource</template>
       <template slot="body">
         <div class="search-tabs">
           <a
             v-bind:class="{ active: caseTab, 'search-tab': true }"
             v-on:click.stop.prevent="setTab('case')"
+            title="Find a Caselaw"
           >Find a Legal Document</a>
           <a
             v-bind:class="{ active: textTab, 'search-tab': true }"
             v-on:click.stop.prevent="setTab('text')"
+            title="Create a Custom Content"
           >Create Custom Content</a>
           <a
             v-bind:class="{ active: linkTab, 'search-tab': true }"
             v-on:click.stop.prevent="setTab('link')"
+            title="Add a Link"
           >Add Link</a>
         </div>
 
