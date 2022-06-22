@@ -22,6 +22,7 @@
         v-on:click.stop.prevent="runCaseSearch"
         />
     </div>
+    <!-- Why is the Advanced search options hidden? Just make the search boxes smaller? -->
     <div v-if="!showingLimits">
       <a v-on:click.stop.prevent="showLimits">Advanced search options</a>
     </div>
@@ -30,6 +31,7 @@
         <a v-on:click.stop.prevent="hideLimits">Basic search</a>
       </div>
       <div class="source-row">
+        <!-- Source meaning clarification. What is CAP, What is GPO, What is Search all Sources? -->
       <label>
         Source:
           <select class="form-control" v-model="searchLimit">
@@ -42,6 +44,7 @@
       </div>
       </div>
       <div class="jurisdiction-row">
+        <!-- Jursidiction (State) -->
         <label>
           Jurisdiction:
           <select class="form-control" v-model="jurisdiction" name="jurisdiction">
