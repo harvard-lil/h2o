@@ -12,13 +12,18 @@
     </div>
   </div>
   <div class="search-results-wrapper" v-else-if="searchResults.unRun">
+  <!-- can we add search as we type here?  -->
     <div class="search-alert">
+      <!-- change message: type in ~ to search for law sections or caselaws to add to your book. Then press search to see results.  -->
       <span>Click Search to run your search</span>
     </div>
   </div>
   <div class="search-results-wrapper" v-else>
     <div class="search-results-entry" v-for="c in searchResults.results" :key="c.id">
       <div class="name-column">
+        <!-- add headers for all these columns -->
+         <!-- clarification on how to add cases to your book. double click? click the link?  -->
+         <!-- add feedback to user when case has been added succesfully to your book -->
         <a v-on:click.stop.prevent="emitChoice(c)" class="wrapper">
           <span :title="c.fullName">{{c.shortName}}</span>
         </a>
@@ -31,6 +36,7 @@
       <div class="date-column">
         <a v-on:click.stop.prevent="emitChoice(c)" class="wrapper">{{c.effectiveDate}}</a>
       </div>
+      <!--link to open book in ~ add title to table columns -->
       <div class="preview-column">
         <a :href="c.url" target="_blank" rel="noopener noreferrer">{{ c.sourceName }}</a>
       </div>
