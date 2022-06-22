@@ -1,4 +1,5 @@
 <template>
+<!-- is it possible to customize this text editor? -->
 <textarea ref="textarea" :id="taID" v-model="value">
   </textarea>
 </template>
