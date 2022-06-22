@@ -6,9 +6,9 @@
       :href="outerUrl"
       @click="selectBook">
       <div v-bind:class="{'content-page': true,
-                    'archived': casebook.is_archived,
-                    'public': casebook.is_public ,
-                    'draft': !(casebook.is_public || casebook.is_archived)}">
+                          'archived': casebook.is_archived,
+                          'public': casebook.is_public ,
+                          'draft': !(casebook.is_public || casebook.is_archived)}">
         <div class="casebook-info">
           <div class="state">{{ displayState }}</div>
           <div class="title">{{ casebook.title }}</div>
@@ -37,7 +37,9 @@
       <input type="checkbox" class="casebook-check" :value="casebook" v-model="selectionIndirection">
     </label>
   </div>
+  
 </template>
+
 
 <script>
 import _ from "lodash";

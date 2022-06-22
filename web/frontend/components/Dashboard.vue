@@ -1,5 +1,6 @@
 <template>
   <div>
+    
     <Modal v-if="finalizingGroup" @close="finalizingGroup = false">
       <template slot="title">Group Casebooks</template>
       <template slot="body">
@@ -88,7 +89,13 @@
 <div class="content-browser">
   <div v-bind:class="managingCasebooks ? 'content-selectable' : 'content-clickable'">
     <casebook :selectable="managingCasebooks" :casebook="casebook" v-model="selectedCasebooks" v-for="casebook in casebooks" v-bind:key="casebook.id"> </casebook>
-  </div>
+   <div class="create-casebook-wrapper"> 
+        <div class="create-casebook-container">
+            <svg type="button" class="create-casebook-plus" data-action="show-casebook-modal"></svg>
+            <p class="create-casebook-text">Create a New Casebook</p>
+        </div>
+    </div>
+  </div> 
 </div>
 
 
@@ -596,5 +603,40 @@ export default {
 
 .help-manage {
     text-align: end;
+}
+.create-casebook-wrapper{
+    flex-direction: column;
+    padding-bottom: 16px;
+    display: flex;
+    flex-wrap: wrap;
+    padding-left: 20px;
+    padding-top: 16px;
+}
+.create-casebook-container{
+    width: 225px;
+    min-height: 320px;
+    border: 1px dashed gray;
+    float: left;
+    margin-right: 10px;
+    margin-bottom: 15px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+.create-casebook-text{
+   display: block;
+
+}
+
+.create-casebook-plus{
+ background-image: url('~static/images/add-primary.png');
+ border: none;
+ width: 30%;
+ display: block;
+ margin-top: 30%;
+}
+.create-casebook-plus:hover{
+ width: 35%;
+ cursor: pointer;
 }
 </style>
