@@ -1,5 +1,6 @@
 <template>
   <div>
+    
     <Modal v-if="finalizingGroup" @close="finalizingGroup = false">
       <template slot="title">Group Casebooks</template>
       <template slot="body">
@@ -88,7 +89,19 @@
 <div class="content-browser">
   <div v-bind:class="managingCasebooks ? 'content-selectable' : 'content-clickable'">
     <casebook :selectable="managingCasebooks" :casebook="casebook" v-model="selectedCasebooks" v-for="casebook in casebooks" v-bind:key="casebook.id"> </casebook>
-  </div>
+   <div class="create-casebook-wrapper"> 
+        <div class="create-casebook-container">
+            <button type="button" class="create-casebook-plus" data-action="show-casebook-modal">
+                <svg width="55" height="55" viewBox="0 0 55 55" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M53.5121 27.5C53.5121 42.144 41.7485 54 27.256 54C12.7636 54 1 42.144 1 27.5C1 12.856 12.7636 1 27.256 1C41.7485 1 53.5121 12.856 53.5121 27.5Z" fill="#0DAF02" stroke="#0DAF02" stroke-width="2"/>
+                    <path d="M27.5 15.5V40.52" stroke="white" stroke-width="3" stroke-linecap="square"/>
+                    <path d="M15 28H40.02" stroke="white" stroke-width="3" stroke-linecap="square"/>
+                </svg>
+            </button>
+            <p class="create-casebook-text">Create a New Casebook</p>
+        </div>
+    </div>
+  </div> 
 </div>
 
 
@@ -596,5 +609,39 @@ export default {
 
 .help-manage {
     text-align: end;
+}
+.create-casebook-wrapper{
+    display: flex;
+    flex-wrap: wrap;
+    flex-direction: column;
+    padding-bottom: 16px;
+    padding-left: 20px;
+    padding-top: 16px;
+}
+.create-casebook-container {
+    display: flex;
+    float: left;
+    flex-direction: column;
+    align-items: center;
+    border: 1px dashed gray;
+    width: 225px;
+    min-height: 320px;
+    margin-right: 10px;
+    margin-bottom: 15px;
+}
+.create-casebook-text{
+   display: block;
+}
+
+.create-casebook-plus{
+ background-color: transparent;
+ border: none;
+ display: block;
+ width: 30%;
+ margin-top: 40%;
+ margin-bottom: 10%;
+}
+.create-casebook-plus:hover{
+ cursor: pointer;
 }
 </style>
