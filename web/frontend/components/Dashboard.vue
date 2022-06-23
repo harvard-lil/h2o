@@ -91,7 +91,13 @@
     <casebook :selectable="managingCasebooks" :casebook="casebook" v-model="selectedCasebooks" v-for="casebook in casebooks" v-bind:key="casebook.id"> </casebook>
    <div class="create-casebook-wrapper"> 
         <div class="create-casebook-container">
-            <svg type="button" class="create-casebook-plus" data-action="show-casebook-modal"></svg>
+            <button type="button" class="create-casebook-plus" data-action="show-casebook-modal">
+                <svg width="55" height="55" viewBox="0 0 55 55" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M53.5121 27.5C53.5121 42.144 41.7485 54 27.256 54C12.7636 54 1 42.144 1 27.5C1 12.856 12.7636 1 27.256 1C41.7485 1 53.5121 12.856 53.5121 27.5Z" fill="#0DAF02" stroke="#0DAF02" stroke-width="2"/>
+                    <path d="M27.5 15.5V40.52" stroke="white" stroke-width="3" stroke-linecap="square"/>
+                    <path d="M15 28H40.02" stroke="white" stroke-width="3" stroke-linecap="square"/>
+                </svg>
+            </button>
             <p class="create-casebook-text">Create a New Casebook</p>
         </div>
     </div>
@@ -612,7 +618,7 @@ export default {
     padding-left: 20px;
     padding-top: 16px;
 }
-.create-casebook-container{
+.create-casebook-container {
     display: flex;
     float: left;
     flex-direction: column;
@@ -628,14 +634,14 @@ export default {
 }
 
 .create-casebook-plus{
- background-image: url('~static/images/add-primary.png');
+ background-color: transparent;
  border: none;
  display: block;
  width: 30%;
- margin-top: 30%;
+ margin-top: 40%;
+ margin-bottom: 10%;
 }
 .create-casebook-plus:hover{
- width: 35%;
  cursor: pointer;
 }
 </style>
