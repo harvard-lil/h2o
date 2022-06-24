@@ -10,7 +10,7 @@ services:
       - POSTGRES_PASSWORD=example
 
   web:
-    image: registry.lil.tools/harvardlil/h2o-python:0.66-88d5510fab0ae2f85741065d3defbedb
+    image: registry.lil.tools/harvardlil/h2o-python:0.67-43ab18a6a9ebfc642544b1bcad7dc974
     tty: true
     command: bash
     environment:
