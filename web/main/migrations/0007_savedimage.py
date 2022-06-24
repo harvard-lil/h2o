@@ -20,7 +20,7 @@ class Migration(migrations.Migration):
                 ('name', models.CharField(max_length=255)),
                 ('file_name', models.CharField(max_length=255)),
                 ('alt_text', models.CharField(max_length=1000)),
-                ('uploaded_by', models.ForeignKey(on_delete='DO_NOTHING', related_name='saved_images', to=settings.AUTH_USER_MODEL)),
+                ('uploaded_by', models.ForeignKey(on_delete=models.DO_NOTHING, related_name='saved_images', to=settings.AUTH_USER_MODEL)),
             ],
             options={
                 'abstract': False,

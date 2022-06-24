@@ -44,7 +44,7 @@ class Migration(migrations.Migration):
                 ('source_ref', models.CharField(max_length=10000)),
                 ('content', models.CharField(max_length=5242880)),
                 ('metadata', django.contrib.postgres.fields.jsonb.JSONField(blank=True, null=True)),
-                ('source', models.ForeignKey(on_delete='DO_NOTHING', related_name='documents', to='main.LegalDocumentSource')),
+                ('source', models.ForeignKey(on_delete=models.DO_NOTHING, related_name='documents', to='main.LegalDocumentSource')),
             ],
         ),
         migrations.CreateModel(
