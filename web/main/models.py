@@ -937,7 +937,7 @@ LegalDocumentSource.register_api(CAP)
 LegalDocumentSource.register_api(LegacyNoSearch)
 
 class LegalDocument(NullableTimestampedModel, AnnotatedModel):
-    source = models.ForeignKey('LegalDocumentSource', on_delete='DO_NOTHING', related_name='documents')
+    source = models.ForeignKey('LegalDocumentSource', on_delete=models.DO_NOTHING, related_name='documents')
     short_name = models.CharField(max_length=150, blank=True, null=True)
     name = models.CharField(max_length=10000, blank=True, null=True)
     # The type of document: Case, Regulation, Code, Bill, etc.
@@ -4068,7 +4068,7 @@ class SavedImage(TimestampedModel):
     name = models.CharField(max_length=255, null=True, blank=True)
     external_id = models.UUIDField(unique=True)
     image = models.FileField(storage=image_storage)
-    uploaded_by = models.ForeignKey('User', on_delete='DO_NOTHING', related_name='saved_images')
+    uploaded_by = models.ForeignKey('User', on_delete=models.DO_NOTHING, related_name='saved_images')
 
     class Meta:
         indexes = [models.Index(fields=['external_id'])]
