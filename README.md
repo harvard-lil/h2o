@@ -36,6 +36,8 @@ You should now have a working installation of H2O!
 Spin up the development server:
 
     # fab run
+    or, with [Django Debug Toolbar](https://django-debug-toolbar.readthedocs.io/en/latest/index.html#) enabled,
+    # fab run:debug_toolbar=True
 
 ### Frontend assets
 
@@ -48,6 +50,8 @@ Install requirements:
 Run the development server with hot-reloading vue-cli pipeline:
 
     # fab run_frontend
+    or, with [Django Debug Toolbar](https://django-debug-toolbar.readthedocs.io/en/latest/index.html#) enabled,
+    # fab run_frontend:debug_toolbar=True
 
 After making changes to frontend/, compile new assets:
 

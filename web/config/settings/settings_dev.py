@@ -26,19 +26,15 @@ AUTH_PASSWORD_VALIDATORS = []
 # and 3.2.3+ introduced a config bug.
 import sys
 if 'pytest' not in sys.modules:  # don't run this from tests
-    try:
-        import debug_toolbar  # noqa
-        if 'debug_toolbar' not in INSTALLED_APPS:
-            INSTALLED_APPS += (
-                'debug_toolbar',
-            )
-            MIDDLEWARE.insert(0, 'debug_toolbar.middleware.DebugToolbarMiddleware')
-            INTERNAL_IPS = ['127.0.0.1']
-            DEBUG_TOOLBAR_CONFIG = {
-                'SHOW_TOOLBAR_CALLBACK': 'main.utils.show_debug_toolbar'
-            }
-    except ImportError:
-        pass
+    if os.environ.get('DEBUG_TOOLBAR'):
+        INSTALLED_APPS += (
+            'debug_toolbar',
+        )
+        MIDDLEWARE.insert(0, 'debug_toolbar.middleware.DebugToolbarMiddleware')
+        INTERNAL_IPS = ['127.0.0.1']
+        DEBUG_TOOLBAR_CONFIG = {
+            'SHOW_TOOLBAR_CALLBACK': 'main.utils.show_debug_toolbar'
+        }
 
 # Print sent emails to the console, for debugging
 EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'

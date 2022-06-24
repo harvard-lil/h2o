@@ -31,6 +31,9 @@ requests-mock       # mock the requests library
 pytest-mock
 py-spy
 
+# Dev convenience
+django-debug-toolbar
+
 # CAP API requests
 requests
 pyquery
