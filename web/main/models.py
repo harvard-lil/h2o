@@ -803,7 +803,7 @@ class SearchIndex(models.Model):
         ...         {'affiliation': 'Affiliation 1', 'created_at': '...', 'title': 'Some Title 1', 'attribution': 'Some User 1'},
         ...         {'affiliation': 'Affiliation 2', 'created_at': '...', 'title': 'Some Title 2', 'attribution': 'Some User 2'}
         ...     ],
-        ...     {'user': 3, 'legal_doc': 3, 'casebook': 3},
+        ...     {'user': 3, 'legal_doc': 3, 'casebook': 3, 'legal_doc_fulltext': 3},
         ...     {}
         ... )
 
@@ -824,7 +824,7 @@ class SearchIndex(models.Model):
         ...         {'casebook_count': 1, 'attribution': 'Some User 1', 'affiliation': 'Affiliation 1'},
         ...         {'casebook_count': 1, 'attribution': 'Some User 2', 'affiliation': 'Affiliation 2'},
         ...     ],
-        ...     {'casebook': 3, 'legal_doc': 3, 'user': 3},
+        ...     {'user': 3, 'legal_doc': 3, 'casebook': 3, 'legal_doc_fulltext': 3},
         ...     {},
         ... )
 
@@ -835,7 +835,7 @@ class SearchIndex(models.Model):
         ...         {'citations': 'Adventures in criminality, 1 Fake 1, (2001)', 'display_name': 'Legal Doc 1', 'jurisdiction': None, 'effective_date': '1900-01-01T00:00:00+00:00', 'effective_date_formatted': 'January   1, 1900'},
         ...         {'citations': 'Adventures in criminality, 1 Fake 1, (2001)', 'display_name': 'Legal Doc 2', 'jurisdiction': None, 'effective_date': '1900-01-01T00:00:00+00:00', 'effective_date_formatted': 'January   1, 1900'}
         ...     ],
-        ...     {'legal_doc': 3, 'user': 3, 'casebook': 3},
+        ...     {'user': 3, 'legal_doc': 3, 'casebook': 3, 'legal_doc_fulltext': 3},
         ...     {}
         ... )
         """
@@ -889,12 +889,12 @@ class SearchIndex(models.Model):
         all text within the casebook. Currently, this only searches through legal
         documents. However, this will be expanded to include all casebook text.
         """
-        if isinstance(casebook, Casebook):
-            casebook = casebook.id
-        if not isinstance(casebook, int):
+        if isinstance(casebook, int):
+            casebook = Casebook.objects.get(id=casebook)
+        if not isinstance(casebook, Casebook):
             raise ValueError("param casebook is not an integer id or a Casebook object!")
          
-        legal_doc_ids = [node.resource.id for node in Casebook.objects.get(id=523).contents.filter(resource_type="LegalDocument").prefetch_resources()]
+        legal_doc_ids = [node.resource.id for node in casebook.contents.filter(resource_type="LegalDocument").prefetch_resources()]
         base_query = SearchIndex.objects.filter(result_id__in=legal_doc_ids)
         return SearchIndex.search("legal_doc_fulltext", *args, base_query=base_query, **kwargs)
 

@@ -2416,9 +2416,7 @@ def search_using(request, source):
     return JsonResponse({"results": results}, status=200)
 
 
-
-type_param_to_category = {'legal_doc': 'legal_doc', 'casebooks': 'casebook', 'users': 'user'}
-
+type_param_to_category = {'legal_doc': 'legal_doc', 'casebooks': 'casebook', 'users': 'user', 'legal_doc_fulltext': 'legal_doc_fulltext'}
 @no_perms_test
 def internal_search(request):
     """
@@ -2468,6 +2466,36 @@ def internal_search(request):
             'category': category,
         })
 
+
+@no_perms_test
+@hydrate_params
+def search_casebook(request, casebook):
+    """
+        Search inside casebook --- currently only for legal docs.
+
+        Returns not a 
+    """
+    # read query parameters
+    try:
+        page = int(request.GET.get('page'))
+    except (TypeError, ValueError):
+        page = 1
+    query = request.GET.get('q')
+
+    results, counts, facets = SearchIndex.casebook_fts(
+        casebook,
+        page=page,
+        query=query,
+        order_by=request.GET.get('sort')
+    )
+    results.from_capapi = False
+    return render(request, 'search/casebook.html', {
+            'results': results,
+            'counts': counts,
+            'facets': facets,
+            'casebook': casebook,
+            'category': 'legal_doc_fulltext',
+        })
 
 image_storage = get_s3_storage(bucket_name="h2o.images")
 
