@@ -294,9 +294,6 @@ class ContentAnnotationFactory(factory.DjangoModelFactory):
     class Meta:
         model = ContentAnnotation
 
-    start_paragraph = 1
-    start_offset = 0
-    end_offset = 10
     kind = 'highlight'
     global_start_offset = 0
     global_end_offset = 10
