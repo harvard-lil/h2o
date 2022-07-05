@@ -18,6 +18,21 @@
   @include generic-focus-styles;
 }
 
+.modal-button-caption{
+  padding-top: 5%;
+}
+
+.modal-button-container {
+  display:flex;
+  flex-direction: row;
+  padding:5%;
+}
+
+.modal-button-box {
+  width:50%;
+  text-align: center;
+}
+
 .modal-button {
   @extend .btn;
   @extend .btn-default;
