@@ -883,18 +883,45 @@ class SearchIndex(models.Model):
         return results, counts, facets
 
     @classmethod
-    def casebook_fts(cls, casebook, *args, **kwargs):
+    def casebook_fts(cls, casebook_id: int, *args, **kwargs):
         """
         Given a casebook ID and search parameters, run a full-text search on
         all text within the casebook. Currently, this only searches through legal
         documents. However, this will be expanded to include all casebook text.
+
+        Given:
+        >>> _, legal_document_factory, casebook_factory, content_node_factory = [getfixture(i) for i in ['reset_sequences', 'legal_document_factory', 'casebook_factory', 'content_node_factory']]
+        >>> casebooks = [casebook_factory() for i in range(3)]
+        >>> nodes = [content_node_factory() for i in range(3)]
+        >>> docs = [legal_document_factory() for i in range(3)]
+        >>> for d, n in zip(docs, nodes):
+        ...     n.resource_type = 'LegalDocument'
+        ...     n.resource_id = d.id
+        ...     n.casebook_id = casebooks[0].id
+        ...     n.save()
+        >>> SearchIndex().create_search_index()
+
+        Search in casebook by query:
+        >>> assert dump_search_results(SearchIndex().casebook_fts(casebooks[0].id, query='Dubious')) == (
+        ...     [
+        ...         {'citations': 'Adventures in criminality, 1 Fake 1, (2001)', 'display_name': 'Legal Doc 0', 'jurisdiction': None, 'effective_date': '1900-01-01T00:00:00+00:00', 'effective_date_formatted': 'January   1, 1900', 'content': 'Dubious legal claim 0'},
+        ...         {'citations': 'Adventures in criminality, 1 Fake 1, (2001)', 'display_name': 'Legal Doc 1', 'jurisdiction': None, 'effective_date': '1900-01-01T00:00:00+00:00', 'effective_date_formatted': 'January   1, 1900', 'content': 'Dubious legal claim 1'},
+        ...         {'citations': 'Adventures in criminality, 1 Fake 1, (2001)', 'display_name': 'Legal Doc 2', 'jurisdiction': None, 'effective_date': '1900-01-01T00:00:00+00:00', 'effective_date_formatted': 'January   1, 1900', 'content': 'Dubious legal claim 2'}
+        ...     ],
+        ...     {'legal_doc_fulltext': 3},
+        ...     {}
+        ... )
+
+        >>> assert dump_search_results(SearchIndex().casebook_fts(casebooks[0].id, '2')) == (
+        ...     [
+        ...         {'citations': 'Adventures in criminality, 1 Fake 1, (2001)', 'display_name': 'Legal Doc 2', 'jurisdiction': None, 'effective_date': '1900-01-01T00:00:00+00:00', 'effective_date_formatted': 'January   1, 1900', 'content': 'Dubious legal claim 2'}
+        ...     ],
+        ...     {'legal_doc_fulltext': 1, 'user': 1, 'casebook': 1, 'legal_doc': 1},
+        ...     {}
+        ... )
         """
-        if isinstance(casebook, int):
-            casebook = Casebook.objects.get(id=casebook)
-        if not isinstance(casebook, Casebook):
-            raise ValueError("param casebook is not an integer id or a Casebook object!")
-         
-        legal_doc_ids = [node.resource.id for node in casebook.contents.filter(resource_type="LegalDocument").prefetch_resources()]
+        casebook = Casebook.objects.get(id=casebook_id)
+        legal_doc_ids = casebook.contents.filter(resource_type="LegalDocument").values_list("resource_id", flat=True)
         base_query = SearchIndex.objects.filter(result_id__in=legal_doc_ids)
         return SearchIndex.search("legal_doc_fulltext", *args, base_query=base_query, **kwargs)
 
