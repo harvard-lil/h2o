@@ -1,5 +1,21 @@
 @import '~bootstrap-sass/assets/stylesheets/bootstrap/modals';
 
+.add-casebook{
+  width: 100%;
+  height: 100%;
+  background-color: transparent;
+  border:none;
+  background-image: url('~static/images/ui/casebook/add-casebook.svg');
+}
+
+.customize-casebook{
+  width: 100%;
+  height: 100%;
+  background-color: transparent;
+  border:none;
+  background-image: url('~static/images/ui/casebook/customize-casebook.svg');
+}
+
 .modal-overlay.open {
   background-color: white;
   opacity: 0.85;
@@ -19,13 +35,14 @@
 }
 
 .modal-button-caption{
-  padding-top: 5%;
+  padding-top: 6%;
 }
 
 .modal-button-container {
   display:flex;
   flex-direction: row;
-  padding:5%;
+  margin-top: 5%;
+  margin-bottom: 10%;
 }
 
 .modal-button-box {
