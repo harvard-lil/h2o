@@ -93,6 +93,7 @@ DATABASES = {
     }
 }
 
+DEFAULT_AUTO_FIELD = 'django.db.models.AutoField'
 
 AUTH_USER_MODEL = 'main.User'
 
@@ -125,14 +126,6 @@ TIME_ZONE = 'UTC'
 USE_I18N = True
 
 USE_L10N = True
-
-USE_TZ = True
-
-# Temmporary:
-# From the warning messages we are getting, I think the timestamps
-# in the DB from the Rails application do not have timezone info.
-# Let's plan to migrate, once we are fully python.
-USE_TZ = False
 
 # LIL's analytics JS
 USE_ANALYTICS = False
