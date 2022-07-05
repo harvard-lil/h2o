@@ -17,14 +17,14 @@ from django.conf import settings
 from django.contrib.auth import user_logged_in
 from django.contrib.auth.base_user import AbstractBaseUser, BaseUserManager
 from django.contrib.auth.models import PermissionsMixin
-from django.contrib.postgres.fields import ArrayField, JSONField
+from django.contrib.postgres.fields import ArrayField
 from django.contrib.postgres.indexes import GinIndex
 from django.contrib.postgres.search import SearchVector, SearchVectorField, SearchQuery, SearchRank
 from django.core.exceptions import ValidationError
 from django.core.validators import validate_unicode_slug
 from django.db import models, connection, transaction, ProgrammingError
 from django.core.paginator import Paginator
-from django.db.models import Count, F
+from django.db.models import Count, F, JSONField
 from django.template.defaultfilters import truncatechars
 from django.template.loader import render_to_string
 from django.urls import reverse
