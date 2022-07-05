@@ -23,7 +23,7 @@ class NewCasebookModal extends ModalComponent {
             <div class="modal-button-container">
             <div class="modal-button-box" >
               <a href="/casebooks/new">
-                <svg width="87" height="87" viewBox="0 0 86 86" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <svg width="95" height="95" viewBox="0 0 95 95" fill="none" xmlns="http://www.w3.org/2000/svg">
                   <g filter="url(#filter0_d_46_2101)">
                   <path d="M80.308 39C80.308 59.9952 63.4414 77 42.654 77C21.8667 77 5 59.9952 5 39C5 18.0048 21.8667 1 42.654 1C63.4414 1 80.308 18.0048 80.308 39Z" fill="#0DAF02" stroke="#0DAF02" stroke-width="2"/>
                   <path d="M43.0003 21.9818V57.4647" stroke="white" stroke-width="3" stroke-linecap="square"/>
