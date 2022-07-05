@@ -738,6 +738,7 @@ class LegacyNoSearch():
 def get_display_name_field(category):
     display_name_fields = {
         'legal_doc': 'display_name',
+        'legal_doc_fulltext': 'display_name',
         'casebook': 'title',
         'user': 'attribution'
     }
@@ -786,7 +787,7 @@ class SearchIndex(models.Model):
             raise
 
     @classmethod
-    def _search(cls, category, query=None, page_size=10, page=1, filters={}, facet_fields=[], order_by=None):
+    def _search(cls, category, query=None, page_size=10, page=1, filters={}, facet_fields=[], order_by=None, base_query=None):
         """
         Given:
         >>> _, legal_document_factory, casebook_factory = [getfixture(i) for i in ['reset_sequences', 'legal_document_factory', 'casebook_factory']]
@@ -838,7 +839,8 @@ class SearchIndex(models.Model):
         ...     {}
         ... )
         """
-        base_query = cls.objects.all()
+        if base_query is None:
+            base_query = cls.objects.all()
         query_vector = SearchQuery(query, config='english') if query else None
         if query_vector:
             base_query = base_query.filter(document=query_vector)
@@ -879,6 +881,22 @@ class SearchIndex(models.Model):
             facets[facet] = base_query.filter(category=category).exclude(**{facet_param: ''}).order_by(facet_param).values_list(facet_param, flat=True).distinct()
 
         return results, counts, facets
+
+    @classmethod
+    def casebook_fts(cls, casebook, *args, **kwargs):
+        """
+        Given a casebook ID and search parameters, run a full-text search on
+        all text within the casebook. Currently, this only searches through legal
+        documents. However, this will be expanded to include all casebook text.
+        """
+        if isinstance(casebook, Casebook):
+            casebook = casebook.id
+        if not isinstance(casebook, int):
+            raise ValueError("param casebook is not an integer id or a Casebook object!")
+         
+        legal_doc_ids = [node.resource.id for node in Casebook.objects.get(id=523).contents.filter(resource_type="LegalDocument").prefetch_resources()]
+        base_query = SearchIndex.objects.filter(result_id__in=legal_doc_ids)
+        return SearchIndex.search("legal_doc_fulltext", *args, base_query=base_query, **kwargs)
 
 class USCodeIndex(models.Model):
     title = models.CharField(max_length=1000)

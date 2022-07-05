@@ -21,6 +21,26 @@ CREATE MATERIALIZED VIEW internal_search_view AS
         main_legaldocument c
     GROUP BY c.id
 UNION ALL
+    -- seperate category for full-text search
+    SELECT
+           row_number() OVER (PARTITION BY true) AS id,
+           c.id AS result_id,
+           (
+                setweight(to_tsvector('english',coalesce(c.content, '')), 'D')
+            )  AS document,
+           jsonb_build_object(
+               'display_name', coalesce(c.short_name, c.name),
+               'effective_date', effective_date,
+               'effective_date_formatted', TO_CHAR(effective_date, 'Month FMDD, YYYY'),
+               'citations', array_to_string(c.citations, ', '),
+               'content', coalesce(content),
+               'jurisdiction', jurisdiction
+           ) AS metadata,
+           'legal_doc_fulltext'::text AS category
+    FROM
+        main_legaldocument c
+    GROUP BY c.id
+UNION ALL
     -- via app/models/content/casebook.rb
     SELECT
         row_number() OVER (PARTITION BY true) AS id,
