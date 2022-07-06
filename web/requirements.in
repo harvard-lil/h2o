@@ -33,6 +33,8 @@ py-spy
 
 # Dev convenience
 django-debug-toolbar
+# code formatting
+black==22.6.0
 
 # CAP API requests
 requests
