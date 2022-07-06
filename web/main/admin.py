@@ -232,8 +232,8 @@ class CollaboratorInline(admin.TabularInline):
 
 class AnnotationInline(admin.TabularInline):
     model = ContentAnnotation
-    readonly_fields = ['id', 'created_at', 'updated_at', 'start_paragraph', 'end_paragraph', 'start_offset', 'end_offset', 'kind']
-    fields = ['id', 'resource', ('global_start_offset', 'global_end_offset'), ('start_paragraph', 'end_paragraph'), ('start_offset', 'end_offset'), 'kind', 'content', 'created_at', 'updated_at']
+    readonly_fields = ['id', 'created_at', 'updated_at',  'kind']
+    fields = ['id', 'resource', ('global_start_offset', 'global_end_offset'), 'kind', 'content', 'created_at', 'updated_at']
     raw_id_fields = ['resource']
     ordering = ['global_start_offset',  'global_end_offset']
     max_num = None
@@ -363,8 +363,8 @@ class ResourceAdmin(BaseAdmin, SimpleHistoryAdmin):
 
 
 class AnnotationsAdmin(BaseAdmin, SimpleHistoryAdmin):
-    readonly_fields = ['created_at', 'updated_at', 'start_paragraph', 'end_paragraph', 'start_offset', 'end_offset', 'kind']
-    fields = ['resource', ('global_start_offset', 'global_end_offset'), ('start_paragraph', 'end_paragraph'), ('start_offset', 'end_offset'), 'kind', 'content', 'created_at', 'updated_at']
+    readonly_fields = ['created_at', 'updated_at',  'kind']
+    fields = ['resource', ('global_start_offset', 'global_end_offset'),  'kind', 'content', 'created_at', 'updated_at']
     list_select_related = ['resource']
     list_display = ['id', 'resource_type', 'resource_id', 'kind', 'created_at', 'updated_at']
     list_filter = ['resource__resource_type']

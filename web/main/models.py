@@ -1062,17 +1062,12 @@ class ContentAnnotation(TimestampedModel, BigPkModel):
 
     objects = ContentAnnotationQueryset.as_manager()
 
-    # legacy fields, from an era when annotation offsets were paragraph-based, rather than document-based
-    # https://github.com/harvard-lil/h2o/issues/1044
-    start_paragraph = models.IntegerField(blank=True, null=True)
-    end_paragraph = models.IntegerField(blank=True, null=True)
-    start_offset = models.IntegerField(blank=True, null=True)
-    end_offset = models.IntegerField(blank=True, null=True)
+
     history = HistoricalRecords()
 
     class Meta:
         indexes = [
-            models.Index(fields=['resource', 'start_paragraph'])
+            models.Index(fields=['resource', ])
         ]
         # annotations return in document order, with id to ensure sort stability
         ordering = ['global_start_offset', 'id']
