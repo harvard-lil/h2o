@@ -5,6 +5,7 @@ import subprocess
 from functools import wraps
 import sys
 from tqdm import tqdm
+from fabric.context_managers import shell_env
 from fabric.decorators import task
 from fabric.operations import local
 import uuid
@@ -33,17 +34,18 @@ def setup_django(func):
 
 
 @task(alias='run')
-def run_django(port=None):
-    if port is None:
-        port = "0.0.0.0:8000" if os.environ.get('DOCKERIZED') else "127.0.0.1:8000"
-    local(f'python manage.py runserver {port}')
+def run_django(port=None, debug_toolbar=''):
+    with shell_env(DEBUG_TOOLBAR=debug_toolbar):
+        if port is None:
+            port = "0.0.0.0:8000" if os.environ.get('DOCKERIZED') else "127.0.0.1:8000"
+        local(f'python manage.py runserver {port}')
 
 
 @task
-def run_frontend(port=None):
+def run_frontend(port=None, debug_toolbar=''):
     node_proc = subprocess.Popen("npm run serve", shell=True, stdout=sys.stdout, stderr=sys.stderr)
     try:
-        run_django()
+        run_django(port, debug_toolbar)
     finally:
         os.kill(node_proc.pid, signal.SIGKILL)
 
