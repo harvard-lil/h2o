@@ -3891,7 +3891,6 @@ class TextBlock(NullableTimestampedModel, AnnotatedModel):
     content = models.CharField(max_length=5242880, blank=True, null=False, default="")
     public = models.BooleanField(default=True, blank=True, null=True)
     doc_class = models.CharField(max_length=40, blank=True, null=True)
-    created_via_import = models.BooleanField(default=False)
     history = HistoricalRecords()
 
     class Meta:
