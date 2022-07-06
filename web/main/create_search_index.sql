@@ -33,7 +33,6 @@ UNION ALL
                'effective_date', effective_date,
                'effective_date_formatted', TO_CHAR(effective_date, 'Month FMDD, YYYY'),
                'citations', array_to_string(c.citations, ', '),
-               'content', coalesce(content),
                'jurisdiction', jurisdiction
            ) AS metadata,
            'legal_doc_fulltext'::text AS category
