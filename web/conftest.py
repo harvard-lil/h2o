@@ -175,7 +175,6 @@ class TextBlockFactory(factory.DjangoModelFactory):
     name = factory.Sequence(lambda n: f'Some TextBlock Name {n}')
     description = factory.Sequence(lambda n: f'Some TextBlock Description {n}')
     content = factory.Sequence(lambda n: f'Some TextBlock Content {n}')
-    public = True
 
 
 class MockSourceAPI():

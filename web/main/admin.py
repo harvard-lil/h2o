@@ -398,8 +398,8 @@ class LinkAdmin(BaseAdmin, SimpleHistoryAdmin):
 
 class TextBlockAdmin(BaseAdmin):
     readonly_fields = ['created_at', 'updated_at']
-    list_display = ['id', 'name', 'public', 'related_resources', 'live_annotations_count', 'created_at', 'updated_at']
-    fields = ['name', 'description', 'public', 'content', 'created_at', 'updated_at']
+    list_display = ['id', 'name', 'related_resources', 'live_annotations_count', 'created_at', 'updated_at']
+    fields = ['name', 'description', 'content', 'created_at', 'updated_at']
 
     def formfield_for_dbfield(self, db_field, **kwargs):
         return self.enable_richeditor_for_field('content', db_field, **kwargs)
