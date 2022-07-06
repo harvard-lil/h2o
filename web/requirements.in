@@ -1,5 +1,6 @@
-# After updating this file, run `fab pip-compile` to update requirements.txt.
-# To update a single dependency, pass pip-compile args to fab. For example: fab 'pip-compile:-P django'
+# After updating this file, run `pip-compile --generate-hashes --allow-unsafe` from the
+# docker host to update requirements.txt.
+
 pip-tools
 fabric3
 tqdm
