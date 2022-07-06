@@ -738,6 +738,7 @@ class LegacyNoSearch():
 def get_display_name_field(category):
     display_name_fields = {
         'legal_doc': 'display_name',
+        'legal_doc_fulltext': 'display_name',
         'casebook': 'title',
         'user': 'attribution'
     }
@@ -786,7 +787,7 @@ class SearchIndex(models.Model):
             raise
 
     @classmethod
-    def _search(cls, category, query=None, page_size=10, page=1, filters={}, facet_fields=[], order_by=None):
+    def _search(cls, category, query=None, page_size=10, page=1, filters={}, facet_fields=[], order_by=None, base_query=None):
         """
         Given:
         >>> _, legal_document_factory, casebook_factory = [getfixture(i) for i in ['reset_sequences', 'legal_document_factory', 'casebook_factory']]
@@ -802,7 +803,7 @@ class SearchIndex(models.Model):
         ...         {'affiliation': 'Affiliation 1', 'created_at': '...', 'title': 'Some Title 1', 'attribution': 'Some User 1'},
         ...         {'affiliation': 'Affiliation 2', 'created_at': '...', 'title': 'Some Title 2', 'attribution': 'Some User 2'}
         ...     ],
-        ...     {'user': 3, 'legal_doc': 3, 'casebook': 3},
+        ...     {'user': 3, 'legal_doc': 3, 'casebook': 3, 'legal_doc_fulltext': 3},
         ...     {}
         ... )
 
@@ -823,7 +824,7 @@ class SearchIndex(models.Model):
         ...         {'casebook_count': 1, 'attribution': 'Some User 1', 'affiliation': 'Affiliation 1'},
         ...         {'casebook_count': 1, 'attribution': 'Some User 2', 'affiliation': 'Affiliation 2'},
         ...     ],
-        ...     {'casebook': 3, 'legal_doc': 3, 'user': 3},
+        ...     {'user': 3, 'legal_doc': 3, 'casebook': 3, 'legal_doc_fulltext': 3},
         ...     {},
         ... )
 
@@ -834,11 +835,12 @@ class SearchIndex(models.Model):
         ...         {'citations': 'Adventures in criminality, 1 Fake 1, (2001)', 'display_name': 'Legal Doc 1', 'jurisdiction': None, 'effective_date': '1900-01-01T00:00:00+00:00', 'effective_date_formatted': 'January   1, 1900'},
         ...         {'citations': 'Adventures in criminality, 1 Fake 1, (2001)', 'display_name': 'Legal Doc 2', 'jurisdiction': None, 'effective_date': '1900-01-01T00:00:00+00:00', 'effective_date_formatted': 'January   1, 1900'}
         ...     ],
-        ...     {'legal_doc': 3, 'user': 3, 'casebook': 3},
+        ...     {'user': 3, 'legal_doc': 3, 'casebook': 3, 'legal_doc_fulltext': 3},
         ...     {}
         ... )
         """
-        base_query = cls.objects.all()
+        if base_query is None:
+            base_query = cls.objects.all()
         query_vector = SearchQuery(query, config='english') if query else None
         if query_vector:
             base_query = base_query.filter(document=query_vector)
@@ -879,6 +881,49 @@ class SearchIndex(models.Model):
             facets[facet] = base_query.filter(category=category).exclude(**{facet_param: ''}).order_by(facet_param).values_list(facet_param, flat=True).distinct()
 
         return results, counts, facets
+
+    @classmethod
+    def casebook_fts(cls, casebook_id: int, *args, **kwargs):
+        """
+        Given a casebook ID and search parameters, run a full-text search on
+        all text within the casebook. Currently, this only searches through legal
+        documents. However, this will be expanded to include all casebook text.
+
+        Given:
+        >>> _, legal_document_factory, casebook_factory, content_node_factory = [getfixture(i) for i in ['reset_sequences', 'legal_document_factory', 'casebook_factory', 'content_node_factory']]
+        >>> casebooks = [casebook_factory() for i in range(3)]
+        >>> nodes = [content_node_factory() for i in range(3)]
+        >>> docs = [legal_document_factory() for i in range(3)]
+        >>> for d, n in zip(docs, nodes):
+        ...     n.resource_type = 'LegalDocument'
+        ...     n.resource_id = d.id
+        ...     n.casebook_id = casebooks[0].id
+        ...     n.save()
+        >>> SearchIndex().create_search_index()
+
+        Search in casebook by query:
+        >>> assert dump_search_results(SearchIndex().casebook_fts(casebooks[0].id, query='Dubious')) == (
+        ...     [
+        ...         {'citations': 'Adventures in criminality, 1 Fake 1, (2001)', 'display_name': 'Legal Doc 0', 'jurisdiction': None, 'effective_date': '1900-01-01T00:00:00+00:00', 'effective_date_formatted': 'January   1, 1900'},
+        ...         {'citations': 'Adventures in criminality, 1 Fake 1, (2001)', 'display_name': 'Legal Doc 1', 'jurisdiction': None, 'effective_date': '1900-01-01T00:00:00+00:00', 'effective_date_formatted': 'January   1, 1900'},
+        ...         {'citations': 'Adventures in criminality, 1 Fake 1, (2001)', 'display_name': 'Legal Doc 2', 'jurisdiction': None, 'effective_date': '1900-01-01T00:00:00+00:00', 'effective_date_formatted': 'January   1, 1900'}
+        ...     ],
+        ...     {'legal_doc_fulltext': 3},
+        ...     {}
+        ... )
+
+        >>> assert dump_search_results(SearchIndex().casebook_fts(casebooks[0].id, '2')) == (
+        ...     [
+        ...         {'citations': 'Adventures in criminality, 1 Fake 1, (2001)', 'display_name': 'Legal Doc 2', 'jurisdiction': None, 'effective_date': '1900-01-01T00:00:00+00:00', 'effective_date_formatted': 'January   1, 1900'}
+        ...     ],
+        ...     {'legal_doc_fulltext': 1, 'user': 1, 'casebook': 1, 'legal_doc': 1},
+        ...     {}
+        ... )
+        """
+        casebook = Casebook.objects.get(id=casebook_id)
+        legal_doc_ids = casebook.contents.filter(resource_type="LegalDocument").values_list("resource_id", flat=True)
+        base_query = SearchIndex.objects.filter(result_id__in=legal_doc_ids)
+        return SearchIndex.search("legal_doc_fulltext", *args, base_query=base_query, **kwargs)
 
 class USCodeIndex(models.Model):
     title = models.CharField(max_length=1000)

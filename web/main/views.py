@@ -2416,9 +2416,7 @@ def search_using(request, source):
     return JsonResponse({"results": results}, status=200)
 
 
-
-type_param_to_category = {'legal_doc': 'legal_doc', 'casebooks': 'casebook', 'users': 'user'}
-
+type_param_to_category = {'legal_doc': 'legal_doc', 'casebooks': 'casebook', 'users': 'user', 'legal_doc_fulltext': 'legal_doc_fulltext'}
 @no_perms_test
 def internal_search(request):
     """
@@ -2468,6 +2466,51 @@ def internal_search(request):
             'category': category,
         })
 
+
+@no_perms_test
+@hydrate_params
+def search_casebook(request, casebook):
+    """
+        Search content of a specific casebook. Currently only searches legal docs.
+
+        Given:
+        >>> _, legal_document_factory, casebook_factory, content_node_factory = [getfixture(i) for i in ['reset_sequences', 'legal_document_factory', 'casebook_factory', 'content_node_factory']]
+        >>> capapi_mock, client = [getfixture(i) for i in ['capapi_mock', 'client']]
+        >>> casebooks = [casebook_factory() for i in range(3)]
+        >>> nodes = [content_node_factory() for i in range(3)]
+        >>> docs = [legal_document_factory() for i in range(3)]
+        >>> for d, n in zip(docs, nodes):
+        ...     n.resource_type = 'LegalDocument'
+        ...     n.resource_id = d.id
+        ...     n.casebook_id = casebooks[0].id
+        ...     n.save()
+        >>> SearchIndex().create_search_index()
+        >>> url = reverse('search_casebook', args=[casebooks[0].id])
+
+        Show all legal documents by default:
+        >>> check_response(client.get(url), content_includes=[d.name for d in docs])
+    """
+    # read query parameters
+    try:
+        page = int(request.GET.get('page'))
+    except (TypeError, ValueError):
+        page = 1
+    query = request.GET.get('q')
+
+    results, counts, facets = SearchIndex.casebook_fts(
+        casebook.id,
+        page=page,
+        query=query,
+        order_by=request.GET.get('sort')
+    )
+    results.from_capapi = False
+    return render(request, 'search/casebook.html', {
+            'results': results,
+            'counts': counts,
+            'facets': facets,
+            'casebook': casebook,
+            'category': 'legal_doc_fulltext',
+        })
 
 image_storage = get_s3_storage(bucket_name="h2o.images")
 
