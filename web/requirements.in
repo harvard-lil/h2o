@@ -1,3 +1,5 @@
+# After updating this file, run `fab pip-compile` to update requirements.txt.
+# To update a single dependency, pass pip-compile args to fab. For example: fab 'pip-compile:-P django'
 pip-tools
 fabric3
 tqdm
@@ -26,7 +28,7 @@ pytest
 pytest-django
 pytest-cov
 factory-boy==2.12.0 # create django model fixtures on demand
-flake8==3.7.8
+flake8==4.0.1
 requests-mock       # mock the requests library
 pytest-mock
 py-spy
