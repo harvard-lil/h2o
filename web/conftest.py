@@ -176,7 +176,6 @@ class TextBlockFactory(factory.DjangoModelFactory):
     description = factory.Sequence(lambda n: f'Some TextBlock Description {n}')
     content = factory.Sequence(lambda n: f'Some TextBlock Content {n}')
     public = True
-    created_via_import = False
 
 
 class MockSourceAPI():
