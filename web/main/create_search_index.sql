@@ -40,6 +40,26 @@ UNION ALL
         main_legaldocument c
     GROUP BY c.id
 UNION ALL
+    -- seperate category for full-text search of textblocks
+    SELECT
+           row_number() OVER (PARTITION BY true) AS id,
+           t.id AS result_id,
+           (
+                setweight(to_tsvector('english',coalesce(t.content, '')), 'D') ||
+                setweight(to_tsvector('english',coalesce(t.name, '')), 'A') ||
+                setweight(to_tsvector('english',coalesce(t.description, '')), 'C')
+            )  AS document,
+           jsonb_build_object(
+               'name', t.name,
+               'description', t.description,
+               'ordinals', array_to_string(cn.ordinals, '.')
+           ) AS metadata,
+           'textblock'::text AS category
+    FROM
+        main_textblock t
+        INNER JOIN main_contentnode cn ON cn.resource_id = t.id AND cn.resource_type = 'TextBlock'
+    GROUP BY t.id, cn.id
+UNION ALL
     -- via app/models/content/casebook.rb
     SELECT
         row_number() OVER (PARTITION BY true) AS id,
