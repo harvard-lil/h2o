@@ -1639,8 +1639,6 @@ class ContentNode(EditTrackedModel, TimestampedModel, BigPkModel, MaterializedPa
     title = models.CharField(max_length=10000, default="Untitled")
     subtitle = models.CharField(max_length=10000, blank=True, null=True)
     headnote = models.TextField(blank=True, null=True)
-    # legacy field: https://github.com/harvard-lil/h2o/issues/1044
-    raw_headnote = models.TextField(blank=True, null=True)
     headnote_doc_class = models.CharField(max_length=40, blank=True, null=True)
     copy_of = models.ForeignKey(
         'self',
