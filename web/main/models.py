@@ -739,6 +739,7 @@ def get_display_name_field(category):
     display_name_fields = {
         'legal_doc': 'display_name',
         'legal_doc_fulltext': 'display_name',
+        'textblock': 'name',
         'casebook': 'title',
         'user': 'attribution'
     }
@@ -883,26 +884,32 @@ class SearchIndex(models.Model):
         return results, counts, facets
 
     @classmethod
-    def casebook_fts(cls, casebook_id: int, *args, **kwargs):
+    def casebook_fts(cls, casebook_id: int, category: ("legal_doc_fulltext", "textblock"), *args, **kwargs):
         """
         Given a casebook ID and search parameters, run a full-text search on
         all text within the casebook. Currently, this only searches through legal
         documents. However, this will be expanded to include all casebook text.
 
         Given:
-        >>> _, legal_document_factory, casebook_factory, content_node_factory = [getfixture(i) for i in ['reset_sequences', 'legal_document_factory', 'casebook_factory', 'content_node_factory']]
+        >>> _, legal_document_factory, casebook_factory, content_node_factory, text_block_factory = [getfixture(i) for i in ['reset_sequences', 'legal_document_factory', 'casebook_factory', 'content_node_factory', 'text_block_factory']]
         >>> casebooks = [casebook_factory() for i in range(3)]
-        >>> nodes = [content_node_factory() for i in range(3)]
+        >>> nodes = [content_node_factory() for i in range(6)]
         >>> docs = [legal_document_factory() for i in range(3)]
-        >>> for d, n in zip(docs, nodes):
+        >>> text = [text_block_factory() for i in range(3)]
+        >>> for d, n in zip(docs, nodes[:3]):
         ...     n.resource_type = 'LegalDocument'
         ...     n.resource_id = d.id
+        ...     n.casebook_id = casebooks[0].id
+        ...     n.save()
+        >>> for t, n in zip(text, nodes[3:]):
+        ...     n.resource_type = 'TextBlock'
+        ...     n.resource_id = t.id
         ...     n.casebook_id = casebooks[0].id
         ...     n.save()
         >>> SearchIndex().create_search_index()
 
         Search in casebook by query:
-        >>> assert dump_search_results(SearchIndex().casebook_fts(casebooks[0].id, query='Dubious')) == (
+        >>> assert dump_search_results(SearchIndex().casebook_fts(casebooks[0].id, "legal_doc_fulltext", query='Dubious')) == (
         ...     [
         ...         {'citations': 'Adventures in criminality, 1 Fake 1, (2001)', 'display_name': 'Legal Doc 0', 'jurisdiction': None, 'effective_date': '1900-01-01T00:00:00+00:00', 'effective_date_formatted': 'January   1, 1900'},
         ...         {'citations': 'Adventures in criminality, 1 Fake 1, (2001)', 'display_name': 'Legal Doc 1', 'jurisdiction': None, 'effective_date': '1900-01-01T00:00:00+00:00', 'effective_date_formatted': 'January   1, 1900'},
@@ -912,18 +919,28 @@ class SearchIndex(models.Model):
         ...     {}
         ... )
 
-        >>> assert dump_search_results(SearchIndex().casebook_fts(casebooks[0].id, '2')) == (
+        >>> assert dump_search_results(SearchIndex().casebook_fts(casebooks[0].id, 'legal_doc_fulltext', '2')) == (
         ...     [
         ...         {'citations': 'Adventures in criminality, 1 Fake 1, (2001)', 'display_name': 'Legal Doc 2', 'jurisdiction': None, 'effective_date': '1900-01-01T00:00:00+00:00', 'effective_date_formatted': 'January   1, 1900'}
         ...     ],
-        ...     {'legal_doc_fulltext': 1, 'user': 1, 'casebook': 1, 'legal_doc': 1},
+        ...     {'legal_doc_fulltext': 1, 'textblock': 1},
+        ...     {}
+        ... )
+        >>> assert dump_search_results(SearchIndex().casebook_fts(casebooks[0].id, 'textblock', '2')) == (
+        ...     [
+        ...         {'name': 'Some TextBlock Name 2', 'description': 'Some TextBlock Description 2', 'ordinals': ''}
+        ...     ],
+        ...     {'legal_doc_fulltext': 1, 'textblock': 1},
         ...     {}
         ... )
         """
         casebook = Casebook.objects.get(id=casebook_id)
         legal_doc_ids = casebook.contents.filter(resource_type="LegalDocument").values_list("resource_id", flat=True)
-        base_query = SearchIndex.objects.filter(result_id__in=legal_doc_ids)
-        return SearchIndex.search("legal_doc_fulltext", *args, base_query=base_query, **kwargs)
+        textblock_ids = casebook.contents.filter(resource_type="TextBlock").values_list("resource_id", flat=True)
+        legal_doc_query = SearchIndex.objects.filter(category="legal_doc_fulltext").filter(result_id__in=legal_doc_ids)
+        textblock_query = SearchIndex.objects.filter(category="textblock").filter(result_id__in=textblock_ids)
+        base_query = legal_doc_query | textblock_query
+        return SearchIndex.search(category, *args, base_query=base_query, **kwargs)
 
 class USCodeIndex(models.Model):
     title = models.CharField(max_length=1000)

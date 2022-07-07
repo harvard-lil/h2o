@@ -20,6 +20,19 @@
             </div>
           </div>
         </a>
+      {% elif category == 'textblock' %}
+        <a href="{% url 'resource' casebook.id result.metadata.ordinals %}" class="wrapper" data-result-id="{{ result.result_id }}">
+          <div class="results-entry">
+            <div class="title">
+              {{ result.metadata.name }}
+            </div>
+            <div class="owner">
+            </div>
+            <div class="date">
+                {{ result.metadata.ordinals }}
+            </div>
+          </div>
+        </a>
       {% elif category == 'legal_doc' or category == 'legal_doc_fulltext'%}
           <a href="{% url 'display_legal_doc' result.result_id %}" class="wrapper" data-result-id="{{ result.result_id }}">
             <div class="results-entry">
@@ -27,10 +40,10 @@
                 {{ result.metadata.display_name }}
               </div>
               <div class="citation">
-                {{ result.metadata.citations }}
+                {{ result.metadata.citations | truncatewords:3 }}
               </div>
               <div class="date">
-                {{ result.metadata.decision_date_formatted|default:'' }}
+                {{ result.metadata.effective_date_formatted|default:'' }}
               </div>
             </div>
           </a>
