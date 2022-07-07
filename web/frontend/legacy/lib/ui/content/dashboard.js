@@ -20,32 +20,28 @@ class NewCasebookModal extends ModalComponent {
           <div class="modal-body">
             Would you like to make a new casebook from scratch or search for a casebook you can copy and customize?
 
-          <div class="modal-button-container">
-            <div class="modal-button-box" >
-              <a href="/casebooks/new"> 
-                <span class="add-casebook"></span>
-                <p class="modal-button-caption">
-                 Make a New Casebook
-                </p>
-              </a>
-            </div>
+            <div class="modal-button-container">
+              <div class="modal-button-box">
+                <a href="/casebooks/new">
+                  <span class="add-casebook" aria-hidden="true"></span>
+                  <p class="modal-button-caption">
+                    Make a New Casebook
+                  </p>
+                </a>
+              </div>
 
-            <div class="modal-button-box">
-              <a href="/search">
-                <span class="customize-casebook"></span>          
-                <p class="modal-button-caption">
-                Search for a Casebook to Customize
-                </p>
-              </a>
+              <div class="modal-button-box">
+                <a href="/search">
+                  <span class="customize-casebook" aria-hidden="true"></span>
+                  <p class="modal-button-caption">
+                    Search for a Casebook to Customize
+                  </p>
+                </a>
+              </div>
             </div>
-          </div>
           
           </div>
-          <div class="modal-footer">
-
-
-          </div>
-
+          <div class="modal-footer"></div>
         </div>
       </div>
     </div>`
