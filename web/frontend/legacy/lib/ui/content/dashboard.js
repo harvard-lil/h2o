@@ -22,18 +22,17 @@ class NewCasebookModal extends ModalComponent {
 
           <div class="modal-button-container">
             <div class="modal-button-box" >
-              <a href="/casebooks/new">
-                <button class="add-casebook"></button>   
+              <a href="/casebooks/new"> 
+                <span class="add-casebook"></span>
                 <p class="modal-button-caption">
                  Make a New Casebook
                 </p>
-                
               </a>
             </div>
 
             <div class="modal-button-box">
               <a href="/search">
-                <button class="customize-casebook"></button>            
+                <span class="customize-casebook"></span>          
                 <p class="modal-button-caption">
                 Search for a Casebook to Customize
                 </p>
