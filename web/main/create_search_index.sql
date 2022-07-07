@@ -70,7 +70,7 @@ UNION ALL
                 setweight(to_tsvector('english',coalesce(l.description, '')), 'C')
             )  AS document,
            jsonb_build_object(
-               'name', l.name,
+               'name', coalesce(l.name, cn.title),
                'url', l.url,
                'description', l.description,
                'ordinals', array_to_string(cn.ordinals, '.')
