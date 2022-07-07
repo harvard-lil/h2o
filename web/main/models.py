@@ -739,6 +739,7 @@ def get_display_name_field(category):
     display_name_fields = {
         'legal_doc': 'display_name',
         'legal_doc_fulltext': 'display_name',
+        'link': 'name',
         'textblock': 'name',
         'casebook': 'title',
         'user': 'attribution'
@@ -935,11 +936,18 @@ class SearchIndex(models.Model):
         ... )
         """
         casebook = Casebook.objects.get(id=casebook_id)
+
         legal_doc_ids = casebook.contents.filter(resource_type="LegalDocument").values_list("resource_id", flat=True)
-        textblock_ids = casebook.contents.filter(resource_type="TextBlock").values_list("resource_id", flat=True)
         legal_doc_query = SearchIndex.objects.filter(category="legal_doc_fulltext").filter(result_id__in=legal_doc_ids)
+
+        textblock_ids = casebook.contents.filter(resource_type="TextBlock").values_list("resource_id", flat=True)
         textblock_query = SearchIndex.objects.filter(category="textblock").filter(result_id__in=textblock_ids)
-        base_query = legal_doc_query | textblock_query
+         
+        link_ids = casebook.contents.filter(resource_type="Link").values_list("resource_id", flat=True)
+        link_query = SearchIndex.objects.filter(category="link").filter(result_id__in=link_ids)
+         
+        base_query = legal_doc_query | textblock_query | link_query
+         
         return SearchIndex.search(category, *args, base_query=base_query, **kwargs)
 
 class USCodeIndex(models.Model):

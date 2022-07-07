@@ -60,6 +60,27 @@ UNION ALL
         INNER JOIN main_contentnode cn ON cn.resource_id = t.id AND cn.resource_type = 'TextBlock'
     GROUP BY t.id, cn.id
 UNION ALL
+    -- seperate category for searching through links
+    SELECT
+           row_number() OVER (PARTITION BY true) AS id,
+           l.id AS result_id,
+           (
+                setweight(to_tsvector('english',coalesce(l.url, '')), 'B') ||
+                setweight(to_tsvector('english',coalesce(l.name, '')), 'A') ||
+                setweight(to_tsvector('english',coalesce(l.description, '')), 'C')
+            )  AS document,
+           jsonb_build_object(
+               'name', coalesce(l.name, cn.title),
+               'url', l.url,
+               'description', l.description,
+               'ordinals', array_to_string(cn.ordinals, '.')
+           ) AS metadata,
+           'link'::text AS category
+    FROM
+        main_link l
+        INNER JOIN main_contentnode cn ON cn.resource_id = l.id AND cn.resource_type = 'Link'
+    GROUP BY l.id, cn.id
+UNION ALL
     -- via app/models/content/casebook.rb
     SELECT
         row_number() OVER (PARTITION BY true) AS id,

@@ -35,6 +35,11 @@
                 Text Passages ({{ counts.textblock|default:"0" }})
               </a>
             </div>
+            <div class="type-tab {% if category == 'link' %}active{% endif %}" {% if category == 'link' %}aria-current="location"{% endif %}>
+              <a href="?{% current_query_string type="link" page=1 %}" class="wrapper">
+                Links ({{ counts.link|default:"0" }})
+              </a>
+            </div>
           </div>
         </div>
       {% endif %}
