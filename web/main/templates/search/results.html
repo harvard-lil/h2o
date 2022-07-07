@@ -40,10 +40,10 @@
                 {{ result.metadata.display_name }}
               </div>
               <div class="citation">
-                {{ result.metadata.citations }}
+                {{ result.metadata.citations | truncatewords:3 }}
               </div>
               <div class="date">
-                {{ result.metadata.decision_date_formatted|default:'' }}
+                {{ result.metadata.effective_date_formatted|default:'' }}
               </div>
             </div>
           </a>
