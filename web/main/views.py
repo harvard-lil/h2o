@@ -2416,7 +2416,7 @@ def search_using(request, source):
     return JsonResponse({"results": results}, status=200)
 
 
-type_param_to_category = {'legal_doc': 'legal_doc', 'casebooks': 'casebook', 'users': 'user', 'legal_doc_fulltext': 'legal_doc_fulltext', 'textblock':'textblock'}
+type_param_to_category = {'legal_doc': 'legal_doc', 'casebooks': 'casebook', 'users': 'user', 'legal_doc_fulltext': 'legal_doc_fulltext', 'textblock':'textblock', 'link':'link'}
 @no_perms_test
 def internal_search(request):
     """
