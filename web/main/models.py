@@ -891,13 +891,19 @@ class SearchIndex(models.Model):
         documents. However, this will be expanded to include all casebook text.
 
         Given:
-        >>> _, legal_document_factory, casebook_factory, content_node_factory = [getfixture(i) for i in ['reset_sequences', 'legal_document_factory', 'casebook_factory', 'content_node_factory']]
+        >>> _, legal_document_factory, casebook_factory, content_node_factory, text_block_factory = [getfixture(i) for i in ['reset_sequences', 'legal_document_factory', 'casebook_factory', 'content_node_factory', 'text_block_factory']]
         >>> casebooks = [casebook_factory() for i in range(3)]
-        >>> nodes = [content_node_factory() for i in range(3)]
+        >>> nodes = [content_node_factory() for i in range(6)]
         >>> docs = [legal_document_factory() for i in range(3)]
-        >>> for d, n in zip(docs, nodes):
+        >>> text = [text_block_factory() for i in range(3)]
+        >>> for d, n in zip(docs, nodes[:3]):
         ...     n.resource_type = 'LegalDocument'
         ...     n.resource_id = d.id
+        ...     n.casebook_id = casebooks[0].id
+        ...     n.save()
+        >>> for t, n in zip(text, nodes[3:]):
+        ...     n.resource_type = 'TextBlock'
+        ...     n.resource_id = t.id
         ...     n.casebook_id = casebooks[0].id
         ...     n.save()
         >>> SearchIndex().create_search_index()
@@ -917,7 +923,14 @@ class SearchIndex(models.Model):
         ...     [
         ...         {'citations': 'Adventures in criminality, 1 Fake 1, (2001)', 'display_name': 'Legal Doc 2', 'jurisdiction': None, 'effective_date': '1900-01-01T00:00:00+00:00', 'effective_date_formatted': 'January   1, 1900'}
         ...     ],
-        ...     {'legal_doc_fulltext': 1},
+        ...     {'legal_doc_fulltext': 1, 'textblock': 1},
+        ...     {}
+        ... )
+        >>> assert dump_search_results(SearchIndex().casebook_fts(casebooks[0].id, 'textblock', '2')) == (
+        ...     [
+        ...         {'name': 'Some TextBlock Name 2', 'description': 'Some TextBlock Description 2', 'ordinals': ''}
+        ...     ],
+        ...     {'legal_doc_fulltext': 1, 'textblock': 1},
         ...     {}
         ... )
         """
