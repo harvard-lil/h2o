@@ -1,7 +1,6 @@
-import {html} from 'es6-string-html-template';
-import delegate from 'delegate';
 import ModalComponent from 'legacy/lib/ui/modal';
-
+import delegate from 'delegate';
+import {html} from 'es6-string-html-template';
 
 delegate(document, '[data-action="show-casebook-modal"]', 'click', (e) => showCasebookModal(e));
 
@@ -20,11 +19,29 @@ class NewCasebookModal extends ModalComponent {
           </div>
           <div class="modal-body">
             Would you like to make a new casebook from scratch or search for a casebook you can copy and customize?
+
+            <div class="modal-button-container">
+              <div class="modal-button-box">
+                <a href="/casebooks/new">
+                  <span class="add-casebook" aria-hidden="true"></span>
+                  <p class="modal-button-caption">
+                    Make a New Casebook
+                  </p>
+                </a>
+              </div>
+
+              <div class="modal-button-box">
+                <a href="/search">
+                  <span class="customize-casebook" aria-hidden="true"></span>
+                  <p class="modal-button-caption">
+                    Search for a Casebook to Customize
+                  </p>
+                </a>
+              </div>
+            </div>
+          
           </div>
-          <div class="modal-footer">
-            <a href="/casebooks/new" class="modal-button">Make a New Casebook</a>
-            <a href="/search" class="modal-button">Search Casebooks</a>
-          </div>
+          <div class="modal-footer"></div>
         </div>
       </div>
     </div>`
