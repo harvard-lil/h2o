@@ -1,6 +1,6 @@
-DROP MATERIALIZED VIEW IF EXISTS fts_search_view;
-DROP MATERIALIZED VIEW IF EXISTS fts_internal_search_view;
-CREATE MATERIALIZED VIEW fts_internal_search_view AS
+DROP MATERIALIZED VIEW IF EXISTS tmp_fts_search_view;
+DROP MATERIALIZED VIEW IF EXISTS tmp_fts_internal_search_view;
+CREATE MATERIALIZED VIEW tmp_fts_internal_search_view AS
     -- seperate category for full-text search
     SELECT
            row_number() OVER (PARTITION BY true) AS id,
@@ -63,4 +63,10 @@ UNION ALL
         INNER JOIN main_contentnode cn ON cn.resource_id = l.id AND cn.resource_type = 'Link'
     GROUP BY l.id, cn.id
 ;
+DROP MATERIALIZED VIEW IF EXISTS fts_search_view;
+DROP MATERIALIZED VIEW IF EXISTS fts_internal_search_view;
+ALTER MATERIALIZED VIEW IF EXISTS tmp_fts_search_view RENAME to fts_search_view;
+ALTER MATERIALIZED VIEW IF EXISTS tmp_fts_internal_search_view RENAME to fts_internal_search_view;
 CREATE UNIQUE INDEX fts_search_view_refresh_index ON fts_internal_search_view (result_id, category);
+DROP MATERIALIZED VIEW IF EXISTS tmp_fts_search_view;
+DROP MATERIALIZED VIEW IF EXISTS tmp_fts_internal_search_view;
