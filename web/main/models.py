@@ -942,12 +942,12 @@ class SearchIndex(models.Model):
 
         textblock_ids = casebook.contents.filter(resource_type="TextBlock").values_list("resource_id", flat=True)
         textblock_query = SearchIndex.objects.filter(category="textblock").filter(result_id__in=textblock_ids)
-         
+
         link_ids = casebook.contents.filter(resource_type="Link").values_list("resource_id", flat=True)
         link_query = SearchIndex.objects.filter(category="link").filter(result_id__in=link_ids)
-         
+
         base_query = legal_doc_query | textblock_query | link_query
-         
+
         return SearchIndex.search(category, *args, base_query=base_query, **kwargs)
 
 class USCodeIndex(models.Model):
@@ -4186,70 +4186,4 @@ class LiveSettings(models.Model):
 
     class Meta:
         verbose_name_plural = "Live settings"
-
-
-#
-# Legacy Tables: do these contain images and other assets that are referenced
-# in casebooks, that COULD be displayed if we migrate properly? Keeping them
-# pending study.
-# https://github.com/harvard-lil/h2o/issues/1039
-#
-
-class CkeditorAsset(models.Model):
-    data_file_name = models.CharField(max_length=255)
-    data_content_type = models.CharField(max_length=255, blank=True, null=True)
-    data_file_size = models.IntegerField(blank=True, null=True)
-    assetable_id = models.IntegerField(blank=True, null=True)
-    assetable_type = models.CharField(max_length=30, blank=True, null=True)
-    type = models.CharField(max_length=30, blank=True, null=True)
-    width = models.IntegerField(blank=True, null=True)
-    height = models.IntegerField(blank=True, null=True)
-    created_at = models.DateTimeField(blank=True, null=True)
-    updated_at = models.DateTimeField(blank=True, null=True)
-
-    class Meta:
-        db_table = 'ckeditor_assets'
-        indexes = [
-            models.Index(fields=['assetable_type', 'assetable_id']),
-            models.Index(fields=['assetable_type', 'type', 'assetable_id']),
-        ]
-
-
-class ContentImage(models.Model):
-    name = models.CharField(max_length=255, blank=True, null=True)
-    page_id = models.IntegerField(blank=True, null=True)
-    created_at = models.DateTimeField(blank=True, null=True)
-    updated_at = models.DateTimeField(blank=True, null=True)
-    image_file_name = models.CharField(max_length=255, blank=True, null=True)
-    image_content_type = models.CharField(max_length=255, blank=True, null=True)
-    image_file_size = models.IntegerField(blank=True, null=True)
-    image_updated_at = models.DateTimeField(blank=True, null=True)
-
-    class Meta:
-        db_table = 'content_images'
-
-
-class MediaType(models.Model):
-    label = models.CharField(max_length=255, blank=True, null=True)
-    slug = models.CharField(max_length=255, blank=True, null=True)
-    created_at = models.DateTimeField(blank=True, null=True)
-    updated_at = models.DateTimeField(blank=True, null=True)
-
-    class Meta:
-        db_table = 'media_types'
-
-
-class Media(models.Model):
-    name = models.CharField(max_length=255, blank=True, null=True)
-    content = models.TextField(blank=True, null=True)
-    media_type_id = models.IntegerField(blank=True, null=True)
-    public = models.BooleanField(blank=True, null=True, default=True)
-    created_at = models.DateTimeField(blank=True, null=True)
-    updated_at = models.DateTimeField(blank=True, null=True)
-    description = models.CharField(max_length=5242880, blank=True, null=True)
-    user_id = models.IntegerField(default=0)
-    created_via_import = models.BooleanField(default=False)
-
-    class Meta:
-        db_table = 'medias'
 
