@@ -32,7 +32,8 @@ UNION ALL
            jsonb_build_object(
                'name', t.name,
                'description', t.description,
-               'ordinals', array_to_string(cn.ordinals, '.')
+               'ordinals', array_to_string(cn.ordinals, '.'),
+               'casebook_id', cn.casebook_id
            ) AS metadata,
            'textblock'::text AS category
     FROM
@@ -53,7 +54,8 @@ UNION ALL
                'name', coalesce(l.name, cn.title),
                'url', l.url,
                'description', l.description,
-               'ordinals', array_to_string(cn.ordinals, '.')
+               'ordinals', array_to_string(cn.ordinals, '.'),
+               'casebook_id', cn.casebook_id
            ) AS metadata,
            'link'::text AS category
     FROM
