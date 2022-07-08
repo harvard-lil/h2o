@@ -1016,7 +1016,7 @@ class FullTextSearchIndex(models.Model):
         ... )
         >>> assert dump_search_results(FullTextSearchIndex().casebook_fts(casebooks[0].id, 'textblock', '2')) == (
         ...     [
-        ...         {'name': 'Some TextBlock Name 2', 'description': 'Some TextBlock Description 2', 'ordinals': ''}
+        ...         {'name': 'Some TextBlock Name 2', 'description': 'Some TextBlock Description 2', 'ordinals': '', 'casebook_id': casebooks[0].id}
         ...     ],
         ...     {'legal_doc_fulltext': 1, 'textblock': 1},
         ...     {}
@@ -1027,11 +1027,9 @@ class FullTextSearchIndex(models.Model):
         legal_doc_ids = casebook.contents.filter(resource_type="LegalDocument").values_list("resource_id", flat=True)
         legal_doc_query = FullTextSearchIndex.objects.filter(category="legal_doc_fulltext").filter(result_id__in=legal_doc_ids)
 
-        textblock_ids = casebook.contents.filter(resource_type="TextBlock").values_list("resource_id", flat=True)
-        textblock_query = FullTextSearchIndex.objects.filter(category="textblock").filter(result_id__in=textblock_ids)
+        textblock_query = FullTextSearchIndex.objects.filter(category="textblock").filter(metadata__casebook_id=casebook_id)
 
-        link_ids = casebook.contents.filter(resource_type="Link").values_list("resource_id", flat=True)
-        link_query = FullTextSearchIndex.objects.filter(category="link").filter(result_id__in=link_ids)
+        link_query = FullTextSearchIndex.objects.filter(category="link").filter(metadata__casebook_id=casebook_id)
 
         base_query = legal_doc_query | textblock_query | link_query
 
