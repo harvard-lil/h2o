@@ -1,4 +1,5 @@
 from dateutil import parser
+import time
 import logging
 from pathlib import Path
 import re
@@ -914,13 +915,14 @@ class FullTextSearchIndex(models.Model):
 
     @classmethod
     def search(cls, *args, **kwargs):
-        try:
-            return cls._search(*args, **kwargs)
-        except ProgrammingError as e:
-            if e.args[0].startswith('relation "fts_internalsearch_view" does not exist'):
-                cls.create_search_index()
+        for i in range(3):
+            try:
                 return cls._search(*args, **kwargs)
-            raise
+            except ProgrammingError as e:
+                if e.args[0].startswith('relation "fts_internal_search_view" does not exist'):
+                    pass
+            time.sleep(0.01)
+        raise ProgrammingError("Internal full-text search view has not been created correctly!")
 
     @classmethod
     def _search(cls, category, query=None, page_size=10, page=1, filters={}, facet_fields=[], order_by=None, base_query=None):
