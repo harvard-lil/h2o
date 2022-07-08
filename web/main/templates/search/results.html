@@ -32,7 +32,9 @@
                 {{ result.metadata.ordinals }}
             </div>
             <div class="description">
-                {{ result.metadata.headline }}
+               {% autoescape off %}
+                 {{ result.metadata.headline }}
+               {% endautoescape %}
             </div>
           </div>
         </a>
@@ -48,6 +50,11 @@
             <div class="date">
                 {{ result.metadata.ordinals }}
             </div>
+            <div class="description">
+               {% autoescape off %}
+                 {{ result.metadata.headline }}
+               {% endautoescape %}
+            </div>
           </div>
         </a>
       {% elif category == 'legal_doc' or category == 'legal_doc_fulltext'%}
@@ -61,6 +68,11 @@
               </div>
               <div class="date">
                 {{ result.metadata.effective_date_formatted|default:'' }}
+              </div>
+              <div class="description">
+                 {% autoescape off %}
+                   {{ result.metadata.headline }}
+                 {% endautoescape %}
               </div>
             </div>
           </a>

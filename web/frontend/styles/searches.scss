@@ -101,6 +101,7 @@ header.advanced-search {
     padding: 10px 0;
     border-top: 1px solid $dark-gray;
     display: flex;
+    flex-wrap: wrap;
     align-items: center;
 
     .title {
@@ -139,8 +140,10 @@ header.advanced-search {
     }
 
     .description {
-      // put it on the next line somehow
-      @include make-row();
+      flex-basis: 100%;
+      width: 100%;
+      padding: 2px;
+      margin-left: 15px;
     }
   }
 }

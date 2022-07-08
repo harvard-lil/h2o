@@ -1037,7 +1037,7 @@ class FullTextSearchIndex(models.Model):
         results = FullTextSearchIndex.search(category, *args, base_query=base_query, query=query, **kwargs)
         ids = sorted([r.result_id for r in results[0]])
         query_class = ({"legal_doc_fulltext": LegalDocument, "textblock": TextBlock, "link":Link})[category]
-        content_name = "url" if category == "link" else "content"
+        content_name = "description" if category == "link" else "content"
         headlines = query_class.objects.filter(id__in=ids).order_by('id').annotate(headline=SearchHeadline(content_name, query, max_fragments=1)).values_list("headline")
         headlines = {i: h for i, h in zip(ids, headlines)}
         for r in results[0]:
