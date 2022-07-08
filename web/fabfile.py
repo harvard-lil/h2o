@@ -66,6 +66,19 @@ def refresh_search_index():
     from main.models import SearchIndex
     SearchIndex.refresh_search_index()
 
+@task
+@setup_django
+def create_fts_index():
+    """ Create (or recreate) the search_view materialized view """
+    from main.models import FullTextSearchIndex
+    FullTextSearchIndex.create_search_index()
+
+@task
+@setup_django
+def refresh_fts_index():
+    """ Update an existing search_view materialized view; will create if create_search_index hasn't been run once """
+    from main.models import FullTextSearchIndex
+    FullTextSearchIndex.refresh_search_index()
 
 @task
 @setup_django
