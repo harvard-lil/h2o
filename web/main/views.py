@@ -2484,7 +2484,7 @@ def search_casebook(request, casebook):
         ...     n.resource_id = d.id
         ...     n.casebook_id = casebooks[0].id
         ...     n.save()
-        >>> SearchIndex().create_search_index()
+        >>> FullTextSearchIndex().create_search_index()
         >>> url = reverse('search_casebook', args=[casebooks[0].id])
 
         Show all legal documents by default:

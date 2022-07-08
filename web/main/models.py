@@ -804,7 +804,7 @@ class SearchIndex(models.Model):
         ...         {'affiliation': 'Affiliation 1', 'created_at': '...', 'title': 'Some Title 1', 'attribution': 'Some User 1'},
         ...         {'affiliation': 'Affiliation 2', 'created_at': '...', 'title': 'Some Title 2', 'attribution': 'Some User 2'}
         ...     ],
-        ...     {'user': 3, 'legal_doc': 3, 'casebook': 3, 'legal_doc_fulltext': 3},
+        ...     {'user': 3, 'legal_doc': 3, 'casebook': 3},
         ...     {}
         ... )
 
@@ -825,7 +825,7 @@ class SearchIndex(models.Model):
         ...         {'casebook_count': 1, 'attribution': 'Some User 1', 'affiliation': 'Affiliation 1'},
         ...         {'casebook_count': 1, 'attribution': 'Some User 2', 'affiliation': 'Affiliation 2'},
         ...     ],
-        ...     {'user': 3, 'legal_doc': 3, 'casebook': 3, 'legal_doc_fulltext': 3},
+        ...     {'user': 3, 'legal_doc': 3, 'casebook': 3},
         ...     {},
         ... )
 
@@ -836,7 +836,7 @@ class SearchIndex(models.Model):
         ...         {'citations': 'Adventures in criminality, 1 Fake 1, (2001)', 'display_name': 'Legal Doc 1', 'jurisdiction': None, 'effective_date': '1900-01-01T00:00:00+00:00', 'effective_date_formatted': 'January   1, 1900'},
         ...         {'citations': 'Adventures in criminality, 1 Fake 1, (2001)', 'display_name': 'Legal Doc 2', 'jurisdiction': None, 'effective_date': '1900-01-01T00:00:00+00:00', 'effective_date_formatted': 'January   1, 1900'}
         ...     ],
-        ...     {'user': 3, 'legal_doc': 3, 'casebook': 3, 'legal_doc_fulltext': 3},
+        ...     {'user': 3, 'legal_doc': 3, 'casebook': 3},
         ...     {}
         ... )
         """
@@ -907,7 +907,7 @@ class FullTextSearchIndex(models.Model):
         """ Refresh the contents of the materialized view """
         with connection.cursor() as cursor:
             try:
-                cursor.execute("REFRESH MATERIALIZED VIEW CONCURRENTLY internal_search_view")
+                cursor.execute("REFRESH MATERIALIZED VIEW CONCURRENTLY fts_internal_search_view")
             except ProgrammingError as e:
                 if e.args[0].startswith('relation "fts_internal_search_view" does not exist'):
                     cls.create_search_index()
@@ -925,55 +925,8 @@ class FullTextSearchIndex(models.Model):
     @classmethod
     def _search(cls, category, query=None, page_size=10, page=1, filters={}, facet_fields=[], order_by=None, base_query=None):
         """
-        Given:
-        >>> _, legal_document_factory, casebook_factory = [getfixture(i) for i in ['reset_sequences', 'legal_document_factory', 'casebook_factory']]
-        >>> casebooks = [casebook_factory() for i in range(3)]
-        >>> users = [cc.user for cb in casebooks for cc in cb.contentcollaborator_set.all() ]
-        >>> docs = [legal_document_factory() for i in range(3)]
-        >>> FullTextSearchIndex().create_search_index()
-
-        Get all casebooks:
-        >>> assert dump_search_results(FullTextSearchIndex().search('casebook')) == (
-        ...     [
-        ...         {'affiliation': 'Affiliation 0', 'created_at': '...', 'title': 'Some Title 0', 'attribution': 'Some User 0'},
-        ...         {'affiliation': 'Affiliation 1', 'created_at': '...', 'title': 'Some Title 1', 'attribution': 'Some User 1'},
-        ...         {'affiliation': 'Affiliation 2', 'created_at': '...', 'title': 'Some Title 2', 'attribution': 'Some User 2'}
-        ...     ],
-        ...     {'user': 3, 'legal_doc': 3, 'casebook': 3, 'legal_doc_fulltext': 3},
-        ...     {}
-        ... )
-
-        Get casebooks by query string:
-        >>> assert dump_search_results(FullTextSearchIndex().search('casebook', 'Some Title 0'))[0] == [
-        ...     {'affiliation': 'Affiliation 0', 'created_at': '...', 'title': 'Some Title 0', 'attribution': 'Some User 0'},
-        ... ]
-
-        Get casebooks by filter field:
-        >>> assert dump_search_results(FullTextSearchIndex().search('casebook', filters={'attribution': 'Some User 1'}))[0] == [
-        ...     {'affiliation': 'Affiliation 1', 'created_at': '...', 'title': 'Some Title 1', 'attribution': 'Some User 1'},
-        ... ]
-
-        Get all users:
-        >>> assert dump_search_results(FullTextSearchIndex().search('user')) == (
-        ...     [
-        ...         {'casebook_count': 1, 'attribution': 'Some User 0', 'affiliation': 'Affiliation 0'},
-        ...         {'casebook_count': 1, 'attribution': 'Some User 1', 'affiliation': 'Affiliation 1'},
-        ...         {'casebook_count': 1, 'attribution': 'Some User 2', 'affiliation': 'Affiliation 2'},
-        ...     ],
-        ...     {'user': 3, 'legal_doc': 3, 'casebook': 3, 'legal_doc_fulltext': 3},
-        ...     {},
-        ... )
-
-        Get all cases:
-        >>> assert dump_search_results(FullTextSearchIndex().search('legal_doc')) == (
-        ...     [
-        ...         {'citations': 'Adventures in criminality, 1 Fake 1, (2001)', 'display_name': 'Legal Doc 0', 'jurisdiction': None, 'effective_date': '1900-01-01T00:00:00+00:00', 'effective_date_formatted': 'January   1, 1900'},
-        ...         {'citations': 'Adventures in criminality, 1 Fake 1, (2001)', 'display_name': 'Legal Doc 1', 'jurisdiction': None, 'effective_date': '1900-01-01T00:00:00+00:00', 'effective_date_formatted': 'January   1, 1900'},
-        ...         {'citations': 'Adventures in criminality, 1 Fake 1, (2001)', 'display_name': 'Legal Doc 2', 'jurisdiction': None, 'effective_date': '1900-01-01T00:00:00+00:00', 'effective_date_formatted': 'January   1, 1900'}
-        ...     ],
-        ...     {'user': 3, 'legal_doc': 3, 'casebook': 3, 'legal_doc_fulltext': 3},
-        ...     {}
-        ... )
+        See SearchIndex._search for more test cases. This should be inherited
+        from a common ancestor probably.
         """
         if base_query is None:
             base_query = cls.objects.all()
