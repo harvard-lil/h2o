@@ -137,6 +137,11 @@ header.advanced-search {
     .citation {
       text-align: right;
     }
+
+    .description {
+      // put it on the next line somehow
+      @include make-row();
+    }
   }
 }
 
