@@ -31,10 +31,10 @@
             <div class="date">
                 {{ result.metadata.ordinals }}
             </div>
-            {% if result.metadata.headline %}
+            {% if result.metadata.headlines %}
               <div class="description">
                  {% autoescape off %}
-                   {{ result.metadata.headline }}
+                   {{ result.metadata.headlines }}
                  {% endautoescape %}
               </div>
             {% endif %}
@@ -52,10 +52,10 @@
             <div class="date">
                 {{ result.metadata.ordinals }}
             </div>
-            {% if result.metadata.headline %}
+            {% if result.metadata.headlines %}
               <div class="description">
                  {% autoescape off %}
-                   {{ result.metadata.headline }}
+                   {{ result.metadata.headlines }}
                  {% endautoescape %}
               </div>
             {% endif %}
@@ -73,11 +73,16 @@
               <div class="date">
                 {{ result.metadata.effective_date_formatted|default:'' }}
               </div>
-              {% if result.metadata.headline %}
+              {% if result.metadata.headlines %}
                 <div class="description">
                    {% autoescape off %}
-                     {{ result.metadata.headline }}
+                     {{ result.metadata.headlines.0 }}
                    {% endautoescape %}
+                   {% if result.metadata.headlines|length > 1 %}
+                    <span class="and-more">
+                      ...and {{ result.metadata.headlines|length }} more.
+                    </span>
+                   {% endif %}
                 </div>
               {% endif %}
             </div>
