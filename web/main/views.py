@@ -43,7 +43,7 @@ from .forms import (CasebookForm, CasebookSettingsTransitionForm,
 from .models import (Casebook, CasebookEditLog, CasebookFollow, CommonTitle,
                      ContentAnnotation, ContentCollaborator, ContentNode,
                      LegalDocument, LegalDocumentSource, Link, Resource,
-                     SavedImage, SearchIndex, Section, TextBlock, User)
+                     SavedImage, SearchIndex, FullTextSearchIndex, Section, TextBlock, User)
 from .serializers import (AnnotationSerializer, CasebookInfoSerializer,
                           CasebookListSerializer, CommonTitleSerializer,
                           LegalDocumentSearchParamsSerializer,
@@ -2498,7 +2498,7 @@ def search_casebook(request, casebook):
     query = request.GET.get('q')
     category = type_param_to_category.get(request.GET.get('type', None), 'legal_doc_fulltext')
 
-    results, counts, facets = SearchIndex.casebook_fts(
+    results, counts, facets = FullTextSearchIndex.casebook_fts(
         casebook.id,
         category,
         page=page,

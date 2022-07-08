@@ -751,7 +751,6 @@ def dump_search_results(parts):
     results, counts, facets = parts
     return ([{k: '...' if k == 'created_at' else v for k, v in r.metadata.items()} for r in results.object_list], counts, facets)
 
-
 class SearchIndex(models.Model):
     result_id = models.IntegerField()
     document = SearchVectorField()
@@ -884,6 +883,141 @@ class SearchIndex(models.Model):
 
         return results, counts, facets
 
+class FullTextSearchIndex(models.Model):
+    result_id = models.IntegerField()
+    document = SearchVectorField()
+    metadata = JSONField()
+    category = models.CharField(max_length=255)
+
+    # TODO this is copying too much code from FullTextSearchIndex. There should be some
+    # kind of inheritance here
+
+    class Meta:
+        managed = False
+        db_table = 'fts_internal_search_view'
+
+    @classmethod
+    def create_search_index(cls):
+        """ Create or replace the materialized view 'search_view', which backs this model """
+        with connection.cursor() as cursor:
+            cursor.execute(Path(__file__).parent.joinpath('create_fts_index.sql').read_text())
+
+    @classmethod
+    def refresh_search_index(cls):
+        """ Refresh the contents of the materialized view """
+        with connection.cursor() as cursor:
+            try:
+                cursor.execute("REFRESH MATERIALIZED VIEW CONCURRENTLY internal_search_view")
+            except ProgrammingError as e:
+                if e.args[0].startswith('relation "fts_internal_search_view" does not exist'):
+                    cls.create_search_index()
+
+    @classmethod
+    def search(cls, *args, **kwargs):
+        try:
+            return cls._search(*args, **kwargs)
+        except ProgrammingError as e:
+            if e.args[0].startswith('relation "fts_internalsearch_view" does not exist'):
+                cls.create_search_index()
+                return cls._search(*args, **kwargs)
+            raise
+
+    @classmethod
+    def _search(cls, category, query=None, page_size=10, page=1, filters={}, facet_fields=[], order_by=None, base_query=None):
+        """
+        Given:
+        >>> _, legal_document_factory, casebook_factory = [getfixture(i) for i in ['reset_sequences', 'legal_document_factory', 'casebook_factory']]
+        >>> casebooks = [casebook_factory() for i in range(3)]
+        >>> users = [cc.user for cb in casebooks for cc in cb.contentcollaborator_set.all() ]
+        >>> docs = [legal_document_factory() for i in range(3)]
+        >>> FullTextSearchIndex().create_search_index()
+
+        Get all casebooks:
+        >>> assert dump_search_results(FullTextSearchIndex().search('casebook')) == (
+        ...     [
+        ...         {'affiliation': 'Affiliation 0', 'created_at': '...', 'title': 'Some Title 0', 'attribution': 'Some User 0'},
+        ...         {'affiliation': 'Affiliation 1', 'created_at': '...', 'title': 'Some Title 1', 'attribution': 'Some User 1'},
+        ...         {'affiliation': 'Affiliation 2', 'created_at': '...', 'title': 'Some Title 2', 'attribution': 'Some User 2'}
+        ...     ],
+        ...     {'user': 3, 'legal_doc': 3, 'casebook': 3, 'legal_doc_fulltext': 3},
+        ...     {}
+        ... )
+
+        Get casebooks by query string:
+        >>> assert dump_search_results(FullTextSearchIndex().search('casebook', 'Some Title 0'))[0] == [
+        ...     {'affiliation': 'Affiliation 0', 'created_at': '...', 'title': 'Some Title 0', 'attribution': 'Some User 0'},
+        ... ]
+
+        Get casebooks by filter field:
+        >>> assert dump_search_results(FullTextSearchIndex().search('casebook', filters={'attribution': 'Some User 1'}))[0] == [
+        ...     {'affiliation': 'Affiliation 1', 'created_at': '...', 'title': 'Some Title 1', 'attribution': 'Some User 1'},
+        ... ]
+
+        Get all users:
+        >>> assert dump_search_results(FullTextSearchIndex().search('user')) == (
+        ...     [
+        ...         {'casebook_count': 1, 'attribution': 'Some User 0', 'affiliation': 'Affiliation 0'},
+        ...         {'casebook_count': 1, 'attribution': 'Some User 1', 'affiliation': 'Affiliation 1'},
+        ...         {'casebook_count': 1, 'attribution': 'Some User 2', 'affiliation': 'Affiliation 2'},
+        ...     ],
+        ...     {'user': 3, 'legal_doc': 3, 'casebook': 3, 'legal_doc_fulltext': 3},
+        ...     {},
+        ... )
+
+        Get all cases:
+        >>> assert dump_search_results(FullTextSearchIndex().search('legal_doc')) == (
+        ...     [
+        ...         {'citations': 'Adventures in criminality, 1 Fake 1, (2001)', 'display_name': 'Legal Doc 0', 'jurisdiction': None, 'effective_date': '1900-01-01T00:00:00+00:00', 'effective_date_formatted': 'January   1, 1900'},
+        ...         {'citations': 'Adventures in criminality, 1 Fake 1, (2001)', 'display_name': 'Legal Doc 1', 'jurisdiction': None, 'effective_date': '1900-01-01T00:00:00+00:00', 'effective_date_formatted': 'January   1, 1900'},
+        ...         {'citations': 'Adventures in criminality, 1 Fake 1, (2001)', 'display_name': 'Legal Doc 2', 'jurisdiction': None, 'effective_date': '1900-01-01T00:00:00+00:00', 'effective_date_formatted': 'January   1, 1900'}
+        ...     ],
+        ...     {'user': 3, 'legal_doc': 3, 'casebook': 3, 'legal_doc_fulltext': 3},
+        ...     {}
+        ... )
+        """
+        if base_query is None:
+            base_query = cls.objects.all()
+        query_vector = SearchQuery(query, config='english') if query else None
+        if query_vector:
+            base_query = base_query.filter(document=query_vector)
+        for k, v in filters.items():
+            base_query = base_query.filter(**{f'metadata__{k}': v})
+
+        # get results
+        results = base_query.filter(category=category).only('result_id', 'metadata')
+        if query_vector:
+            results = results.annotate(rank=SearchRank(F('document'), query_vector))
+
+        display_name = get_display_name_field(category)
+        order_by_expression = [display_name]
+        if order_by:
+            # Treat 'decision date' like 'created at', so that sort-by-date is maintained
+            # when switching between case and casebook tab.
+            fix_after_rails('consider renaming these params "date".')
+            if query and order_by == 'score':
+                order_by_expression = ['-rank', display_name]
+            elif category == 'casebook':
+                if order_by in ['created_at', 'effective_date']:
+                    order_by_expression = ['-metadata__created_at', display_name]
+            elif category == 'case':
+                if order_by in ['created_at', 'effective_date']:
+                    order_by_expression = ['-metadata__effective_date', display_name]
+
+        results = results.order_by(*order_by_expression)
+        results = Paginator(results, page_size).get_page(page)
+
+        # get counts
+        counts = {c['category']: c['total'] for c in base_query.values('category').annotate(total=Count('category'))}
+        results.__dict__['count'] = counts.get(category, 0)  # hack to avoid redundant query for count
+
+        # get facets
+        facets = {}
+        for facet in facet_fields:
+            facet_param = f'metadata__{facet}'
+            facets[facet] = base_query.filter(category=category).exclude(**{facet_param: ''}).order_by(facet_param).values_list(facet_param, flat=True).distinct()
+
+        return results, counts, facets
+
     @classmethod
     def casebook_fts(cls, casebook_id: int, category: ("legal_doc_fulltext", "textblock"), *args, **kwargs):
         """
@@ -907,10 +1041,10 @@ class SearchIndex(models.Model):
         ...     n.resource_id = t.id
         ...     n.casebook_id = casebooks[0].id
         ...     n.save()
-        >>> SearchIndex().create_search_index()
+        >>> FullTextSearchIndex().create_search_index()
 
         Search in casebook by query:
-        >>> assert dump_search_results(SearchIndex().casebook_fts(casebooks[0].id, "legal_doc_fulltext", query='Dubious')) == (
+        >>> assert dump_search_results(FullTextSearchIndex().casebook_fts(casebooks[0].id, "legal_doc_fulltext", query='Dubious')) == (
         ...     [
         ...         {'citations': 'Adventures in criminality, 1 Fake 1, (2001)', 'display_name': 'Legal Doc 0', 'jurisdiction': None, 'effective_date': '1900-01-01T00:00:00+00:00', 'effective_date_formatted': 'January   1, 1900'},
         ...         {'citations': 'Adventures in criminality, 1 Fake 1, (2001)', 'display_name': 'Legal Doc 1', 'jurisdiction': None, 'effective_date': '1900-01-01T00:00:00+00:00', 'effective_date_formatted': 'January   1, 1900'},
@@ -920,14 +1054,14 @@ class SearchIndex(models.Model):
         ...     {}
         ... )
 
-        >>> assert dump_search_results(SearchIndex().casebook_fts(casebooks[0].id, 'legal_doc_fulltext', '2')) == (
+        >>> assert dump_search_results(FullTextSearchIndex().casebook_fts(casebooks[0].id, 'legal_doc_fulltext', '2')) == (
         ...     [
         ...         {'citations': 'Adventures in criminality, 1 Fake 1, (2001)', 'display_name': 'Legal Doc 2', 'jurisdiction': None, 'effective_date': '1900-01-01T00:00:00+00:00', 'effective_date_formatted': 'January   1, 1900'}
         ...     ],
         ...     {'legal_doc_fulltext': 1, 'textblock': 1},
         ...     {}
         ... )
-        >>> assert dump_search_results(SearchIndex().casebook_fts(casebooks[0].id, 'textblock', '2')) == (
+        >>> assert dump_search_results(FullTextSearchIndex().casebook_fts(casebooks[0].id, 'textblock', '2')) == (
         ...     [
         ...         {'name': 'Some TextBlock Name 2', 'description': 'Some TextBlock Description 2', 'ordinals': ''}
         ...     ],
@@ -938,17 +1072,17 @@ class SearchIndex(models.Model):
         casebook = Casebook.objects.get(id=casebook_id)
 
         legal_doc_ids = casebook.contents.filter(resource_type="LegalDocument").values_list("resource_id", flat=True)
-        legal_doc_query = SearchIndex.objects.filter(category="legal_doc_fulltext").filter(result_id__in=legal_doc_ids)
+        legal_doc_query = FullTextSearchIndex.objects.filter(category="legal_doc_fulltext").filter(result_id__in=legal_doc_ids)
 
         textblock_ids = casebook.contents.filter(resource_type="TextBlock").values_list("resource_id", flat=True)
-        textblock_query = SearchIndex.objects.filter(category="textblock").filter(result_id__in=textblock_ids)
+        textblock_query = FullTextSearchIndex.objects.filter(category="textblock").filter(result_id__in=textblock_ids)
 
         link_ids = casebook.contents.filter(resource_type="Link").values_list("resource_id", flat=True)
-        link_query = SearchIndex.objects.filter(category="link").filter(result_id__in=link_ids)
+        link_query = FullTextSearchIndex.objects.filter(category="link").filter(result_id__in=link_ids)
 
         base_query = legal_doc_query | textblock_query | link_query
 
-        return SearchIndex.search(category, *args, base_query=base_query, **kwargs)
+        return FullTextSearchIndex.search(category, *args, base_query=base_query, **kwargs)
 
 class USCodeIndex(models.Model):
     title = models.CharField(max_length=1000)
