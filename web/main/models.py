@@ -20,7 +20,7 @@ from django.contrib.auth.base_user import AbstractBaseUser, BaseUserManager
 from django.contrib.auth.models import PermissionsMixin
 from django.contrib.postgres.fields import ArrayField
 from django.contrib.postgres.indexes import GinIndex
-from django.contrib.postgres.search import SearchVector, SearchVectorField, SearchQuery, SearchRank
+from django.contrib.postgres.search import SearchVector, SearchVectorField, SearchQuery, SearchRank, SearchHeadline
 from django.core.exceptions import ValidationError
 from django.core.validators import validate_unicode_slug
 from django.db import models, connection, transaction, ProgrammingError
@@ -974,7 +974,7 @@ class FullTextSearchIndex(models.Model):
         return results, counts, facets
 
     @classmethod
-    def casebook_fts(cls, casebook_id: int, category: ("legal_doc_fulltext", "textblock"), *args, **kwargs):
+    def casebook_fts(cls, casebook_id: int, category: ("legal_doc_fulltext", "textblock"), query: str, *args, **kwargs):
         """
         Given a casebook ID and search parameters, run a full-text search on
         all text within the casebook. Currently, this only searches through legal
@@ -1034,8 +1034,15 @@ class FullTextSearchIndex(models.Model):
         link_query = FullTextSearchIndex.objects.filter(category="link").filter(metadata__casebook_id=casebook_id)
 
         base_query = legal_doc_query | textblock_query | link_query
-
-        return FullTextSearchIndex.search(category, *args, base_query=base_query, **kwargs)
+        results = FullTextSearchIndex.search(category, *args, base_query=base_query, query=query, **kwargs)
+        ids = sorted([r.result_id for r in results[0]])
+        query_class = ({"legal_doc_fulltext": LegalDocument, "textblock": TextBlock, "link":Link})[category]
+        content_name = "url" if category == "link" else "content"
+        headlines = query_class.objects.filter(id__in=ids).order_by('id').annotate(headline=SearchHeadline(content_name, query, max_fragments=1)).values_list("headline")
+        headlines = {i: h for i, h in zip(ids, headlines)}
+        for r in results[0]:
+            r.metadata["headline"] = headlines[r.result_id][0]
+        return results
 
 class USCodeIndex(models.Model):
     title = models.CharField(max_length=1000)
