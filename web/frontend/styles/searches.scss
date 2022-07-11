@@ -101,6 +101,7 @@ header.advanced-search {
     padding: 10px 0;
     border-top: 1px solid $dark-gray;
     display: flex;
+    flex-wrap: wrap;
     align-items: center;
 
     .title {
@@ -136,6 +137,18 @@ header.advanced-search {
 
     .citation {
       text-align: right;
+    }
+
+    .description {
+      flex-basis: 100%;
+      width: 100%;
+      padding: 2px;
+      margin-left: 15px;
+      font-family: $font-family-serif;
+    }
+
+    .and-more {
+      font-family: $font-family-sans-serif;
     }
   }
 }

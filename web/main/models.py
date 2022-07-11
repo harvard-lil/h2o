@@ -20,7 +20,7 @@ from django.contrib.auth.base_user import AbstractBaseUser, BaseUserManager
 from django.contrib.auth.models import PermissionsMixin
 from django.contrib.postgres.fields import ArrayField
 from django.contrib.postgres.indexes import GinIndex
-from django.contrib.postgres.search import SearchVector, SearchVectorField, SearchQuery, SearchRank
+from django.contrib.postgres.search import SearchVector, SearchVectorField, SearchQuery, SearchRank, SearchHeadline
 from django.core.exceptions import ValidationError
 from django.core.validators import validate_unicode_slug
 from django.db import models, connection, transaction, ProgrammingError
@@ -974,7 +974,7 @@ class FullTextSearchIndex(models.Model):
         return results, counts, facets
 
     @classmethod
-    def casebook_fts(cls, casebook_id: int, category: ("legal_doc_fulltext", "textblock"), *args, **kwargs):
+    def casebook_fts(cls, casebook_id: int, category: ("legal_doc_fulltext", "textblock"), query: str, *args, **kwargs):
         """
         Given a casebook ID and search parameters, run a full-text search on
         all text within the casebook. Currently, this only searches through legal
@@ -1001,9 +1001,9 @@ class FullTextSearchIndex(models.Model):
         Search in casebook by query:
         >>> assert dump_search_results(FullTextSearchIndex().casebook_fts(casebooks[0].id, "legal_doc_fulltext", query='Dubious')) == (
         ...     [
-        ...         {'citations': 'Adventures in criminality, 1 Fake 1, (2001)', 'display_name': 'Legal Doc 0', 'jurisdiction': None, 'effective_date': '1900-01-01T00:00:00+00:00', 'effective_date_formatted': 'January   1, 1900'},
-        ...         {'citations': 'Adventures in criminality, 1 Fake 1, (2001)', 'display_name': 'Legal Doc 1', 'jurisdiction': None, 'effective_date': '1900-01-01T00:00:00+00:00', 'effective_date_formatted': 'January   1, 1900'},
-        ...         {'citations': 'Adventures in criminality, 1 Fake 1, (2001)', 'display_name': 'Legal Doc 2', 'jurisdiction': None, 'effective_date': '1900-01-01T00:00:00+00:00', 'effective_date_formatted': 'January   1, 1900'}
+        ...         {'citations': 'Adventures in criminality, 1 Fake 1, (2001)', 'display_name': 'Legal Doc 0', 'jurisdiction': None, 'effective_date': '1900-01-01T00:00:00+00:00', 'effective_date_formatted': 'January   1, 1900', 'headlines': ['<b>Dubious</b> legal claim']},
+        ...         {'citations': 'Adventures in criminality, 1 Fake 1, (2001)', 'display_name': 'Legal Doc 1', 'jurisdiction': None, 'effective_date': '1900-01-01T00:00:00+00:00', 'effective_date_formatted': 'January   1, 1900', 'headlines': ['<b>Dubious</b> legal claim']},
+        ...         {'citations': 'Adventures in criminality, 1 Fake 1, (2001)', 'display_name': 'Legal Doc 2', 'jurisdiction': None, 'effective_date': '1900-01-01T00:00:00+00:00', 'effective_date_formatted': 'January   1, 1900', 'headlines': ['<b>Dubious</b> legal claim']}
         ...     ],
         ...     {'legal_doc_fulltext': 3},
         ...     {}
@@ -1011,14 +1011,14 @@ class FullTextSearchIndex(models.Model):
 
         >>> assert dump_search_results(FullTextSearchIndex().casebook_fts(casebooks[0].id, 'legal_doc_fulltext', '2')) == (
         ...     [
-        ...         {'citations': 'Adventures in criminality, 1 Fake 1, (2001)', 'display_name': 'Legal Doc 2', 'jurisdiction': None, 'effective_date': '1900-01-01T00:00:00+00:00', 'effective_date_formatted': 'January   1, 1900'}
+        ...         {'citations': 'Adventures in criminality, 1 Fake 1, (2001)', 'display_name': 'Legal Doc 2', 'jurisdiction': None, 'effective_date': '1900-01-01T00:00:00+00:00', 'effective_date_formatted': 'January   1, 1900', 'headlines': ['Dubious legal claim <b>2</b>']}
         ...     ],
         ...     {'legal_doc_fulltext': 1, 'textblock': 1},
         ...     {}
         ... )
         >>> assert dump_search_results(FullTextSearchIndex().casebook_fts(casebooks[0].id, 'textblock', '2')) == (
         ...     [
-        ...         {'name': 'Some TextBlock Name 2', 'description': 'Some TextBlock Description 2', 'ordinals': '', 'casebook_id': casebooks[0].id}
+        ...         {'name': 'Some TextBlock Name 2', 'description': 'Some TextBlock Description 2', 'ordinals': '', 'headlines': ['Some TextBlock Content <b>2</b>'], 'casebook_id': casebooks[0].id}
         ...     ],
         ...     {'legal_doc_fulltext': 1, 'textblock': 1},
         ...     {}
@@ -1034,8 +1034,18 @@ class FullTextSearchIndex(models.Model):
         link_query = FullTextSearchIndex.objects.filter(category="link").filter(metadata__casebook_id=casebook_id)
 
         base_query = legal_doc_query | textblock_query | link_query
-
-        return FullTextSearchIndex.search(category, *args, base_query=base_query, **kwargs)
+        results = FullTextSearchIndex.search(category, *args, base_query=base_query, query=query, **kwargs)
+        ids = sorted([r.result_id for r in results[0]])
+        query_class = ({"legal_doc_fulltext": LegalDocument, "textblock": TextBlock, "link":Link})[category]
+        content_name = "description" if category == "link" else "content"
+        headlines = query_class.objects.filter(id__in=ids).order_by('id').annotate(headlines=SearchHeadline(content_name, query, max_fragments=20, min_words=10, max_words=20)).values_list("headlines")
+        headlines = {i: h for i, h in zip(ids, headlines)}
+        for r in results[0]:
+            try:
+                r.metadata["headlines"] = headlines[r.result_id][0].split("...")
+            except AttributeError:
+                continue
+        return results
 
 class USCodeIndex(models.Model):
     title = models.CharField(max_length=1000)

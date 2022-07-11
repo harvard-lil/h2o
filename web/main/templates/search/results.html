@@ -31,6 +31,20 @@
             <div class="date">
                 {{ result.metadata.ordinals }}
             </div>
+            {% if result.metadata.headlines %}
+              <div class="description">
+                 {% autoescape off %}
+                   ...
+                   {{ result.metadata.headlines.0 }}
+                   ...
+                 {% endautoescape %}
+                 {% if result.metadata.headlines|length > 1 %}
+                  <span class="and-more">
+                    and {% if result.metadata.headlines|length < 10 %} {{ result.metadata.headlines|length }} {% else %} many {% endif %} more.
+                  </span>
+                 {% endif %}
+              </div>
+            {% endif %}
           </div>
         </a>
       {% elif category == 'link' %}
@@ -45,6 +59,20 @@
             <div class="date">
                 {{ result.metadata.ordinals }}
             </div>
+            {% if result.metadata.headlines %}
+              <div class="description">
+                 {% autoescape off %}
+                   ...
+                   {{ result.metadata.headlines.0 }}
+                  ...
+                 {% endautoescape %}
+                 {% if result.metadata.headlines|length > 1 %}
+                  <span class="and-more">
+                    and {% if result.metadata.headlines|length < 10 %} {{ result.metadata.headlines|length }} {% else %} many {% endif %} more.
+                  </span>
+                 {% endif %}
+              </div>
+            {% endif %}
           </div>
         </a>
       {% elif category == 'legal_doc' or category == 'legal_doc_fulltext'%}
@@ -59,6 +87,20 @@
               <div class="date">
                 {{ result.metadata.effective_date_formatted|default:'' }}
               </div>
+              {% if result.metadata.headlines %}
+                <div class="description">
+                   {% autoescape off %}
+                     ...
+                     {{ result.metadata.headlines.0 }}
+                     ...
+                   {% endautoescape %}
+                   {% if result.metadata.headlines|length > 1 %}
+                    <span class="and-more">
+                      and {% if result.metadata.headlines|length < 10 %} {{ result.metadata.headlines|length }} {% else %} many {% endif %} more.
+                    </span>
+                   {% endif %}
+                </div>
+              {% endif %}
             </div>
           </a>
       {% elif category == 'user' %}
