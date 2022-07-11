@@ -17,12 +17,8 @@ from ..models import Casebook, User
 
 
 class DateForm(forms.Form):
-    start_date = forms.DateField(
-        required=False, widget=AdminDateWidget(attrs={"type": "date"})
-    )
-    end_date = forms.DateField(
-        required=False, widget=AdminDateWidget(attrs={"type": "date"})
-    )
+    start_date = forms.DateField(required=False, widget=AdminDateWidget(attrs={"type": "date"}))
+    end_date = forms.DateField(required=False, widget=AdminDateWidget(attrs={"type": "date"}))
     published = forms.BooleanField(
         required=False, initial=True, help_text="Published casebooks only"
     )
@@ -68,9 +64,7 @@ def view(request: HttpRequest):
     stats["verified_professors"] = profs.count()
 
     # Casebooks also have the creation date filter applied
-    casebooks = Casebook.objects.filter(
-        created_at__gte=start_date, created_at__lte=end_date
-    )
+    casebooks = Casebook.objects.filter(created_at__gte=start_date, created_at__lte=end_date)
 
     state = ALL_STATES
 
@@ -93,9 +87,7 @@ def view(request: HttpRequest):
             and created_at <= %s
         """,
             [
-                (Casebook.LifeCycle.PUBLISHED.value,)
-                if published_casebooks_only
-                else ALL_STATES,
+                (Casebook.LifeCycle.PUBLISHED.value,) if published_casebooks_only else ALL_STATES,
                 start_date,
                 end_date,
             ],

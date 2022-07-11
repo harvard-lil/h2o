@@ -21,35 +21,44 @@ def settings(request):
             raise ImproperlyConfigured(m)
     return new_settings
 
+
 _frontend_urls = None
+
+
 def frontend_urls(request):
     def munge_url(urlpat):
-        type_trailer = '<drf_format_suffix:format>'
-        url = urlpat.pattern.describe().split("'")[1].replace(type_trailer, '.json')
-        replacements =  {'<idslug:casebook_param>'     : '_casebookId',
-                         '<ordslug:resource_param>'    : '_resourceOrd',
-                         '<ordslug:section_param>'     : '_sectionOrd',
-                         '<ordslug:node_param>'        : '_nodeOrd',
-                         '<casebook:node>'             : '_casebookId',
-                         '<section:node>'              : '_sectionId',
-                         '<resource:node>'             : '_resourceId',
-                         '<resource:resource>'         : '_resourceId',
-                         '<idslug:from_casebook_dict>' : '_fromCasebookId',
-                         '<ordslug:from_section_dict>' : '_fromSectionOrd',
-                         '<idslug:to_casebook_dict>'   : '_toCasebookId',
-                         '<idslug:section_id>'         : '_sectionId',
-                         '<annotation:annotation>.json': '_annotationId',
-                         '<idslug:section_id>.json'    : '_sectionId',
-                         '<slug:user_slug>'            : '_userSlug',
-                         '<slug:title_slug>'           : '_titleSlug',
-                         '<ordslug:content_param>'     : '_nodeOrd',
-                         'export.<file_type>'          : 'export.docx',
-                         '<int:source>'                : '_sourceId',
-                         '<int:legal_doc_id>'          : '_legalDocId'
+        type_trailer = "<drf_format_suffix:format>"
+        url = urlpat.pattern.describe().split("'")[1].replace(type_trailer, ".json")
+        replacements = {
+            "<idslug:casebook_param>": "_casebookId",
+            "<ordslug:resource_param>": "_resourceOrd",
+            "<ordslug:section_param>": "_sectionOrd",
+            "<ordslug:node_param>": "_nodeOrd",
+            "<casebook:node>": "_casebookId",
+            "<section:node>": "_sectionId",
+            "<resource:node>": "_resourceId",
+            "<resource:resource>": "_resourceId",
+            "<idslug:from_casebook_dict>": "_fromCasebookId",
+            "<ordslug:from_section_dict>": "_fromSectionOrd",
+            "<idslug:to_casebook_dict>": "_toCasebookId",
+            "<idslug:section_id>": "_sectionId",
+            "<annotation:annotation>.json": "_annotationId",
+            "<idslug:section_id>.json": "_sectionId",
+            "<slug:user_slug>": "_userSlug",
+            "<slug:title_slug>": "_titleSlug",
+            "<ordslug:content_param>": "_nodeOrd",
+            "export.<file_type>": "export.docx",
+            "<int:source>": "_sourceId",
+            "<int:legal_doc_id>": "_legalDocId",
         }
-        return [replacements.get(x,x) for x in url.split('/')]
+        return [replacements.get(x, x) for x in url.split("/")]
+
     global _frontend_urls
     if not _frontend_urls:
-        filtered_names = set([None, 'password_reset', 'password_reset_confirm', 'dashboard'])
-        _frontend_urls = {u.pattern.name:munge_url(u)  for u in urlpatterns if u.pattern.name not in filtered_names}
-    return {'frontend_urls': mark_safe(json.dumps(_frontend_urls))}
+        filtered_names = set([None, "password_reset", "password_reset_confirm", "dashboard"])
+        _frontend_urls = {
+            u.pattern.name: munge_url(u)
+            for u in urlpatterns
+            if u.pattern.name not in filtered_names
+        }
+    return {"frontend_urls": mark_safe(json.dumps(_frontend_urls))}
