@@ -7,11 +7,14 @@ from django.shortcuts import render
 from django.db import connection
 from django.contrib.admin.widgets import AdminDateWidget
 from dateutil.relativedelta import *
-from .models import Casebook, User
 
-# "Published" state matches logic in the front end, which includes casebooks under revision
-PUBLISHED_CASEBOOKS = (Casebook.LifeCycle.PUBLISHED.value, Casebook.LifeCycle.REVISING.value)
-ALL_STATES = tuple(tag.value for tag in Casebook.LifeCycle)
+from main.reporting.create_reporting_views import (
+    ALL_STATES,
+    OLDEST_YEAR,
+    PUBLISHED_CASEBOOKS,
+)
+from ..models import Casebook, User
+
 
 class DateForm(forms.Form):
     start_date = forms.DateField(
@@ -29,9 +32,8 @@ def view(request: HttpRequest):
     """Render a usage dashboard of useful metrics"""
 
     stats: Dict[str, int] = {}
-
     today = date.today()
-    oldest = today - relativedelta(years=20)  # A long time ago
+    oldest = today - relativedelta(years=OLDEST_YEAR)  # A long time ago
 
     start_date = oldest
     end_date = today
@@ -81,182 +83,179 @@ def view(request: HttpRequest):
 
     with connection.cursor() as cursor:
 
-        # Create a little data warehouse of prefiltered reporting-ready tables for reuse in this session.
-        # This logic should match what's used in `create_search_index.sql` unless otherwise annotated.
-
-        cursor.execute(
-            """
-            create temp table if not exists professors_with_casebooks as
-            select user_id from main_contentcollaborator cc
-            inner join main_user u on cc.user_id = u.id
-            inner join main_casebook c on cc.casebook_id = c.id
-            where u.verified_professor is true
-                and c.created_at >= %s
-                and c.created_at <= %s
-                and c.state in %s
-                and u.attribution != ''
-            group by user_id
-            """,
-            [start_date, end_date, (Casebook.LifeCycle.PUBLISHED.value,) if published_casebooks_only else ALL_STATES],
-        )
-
-        cursor.execute(
-            """
-        create temp table if not exists casebooks_from_professors as
-            select casebook_id from main_contentcollaborator cc
-            inner join main_user u on cc.user_id = u.id
-            inner join main_casebook c on cc.casebook_id = c.id
-            where u.verified_professor is true
-                and c.created_at >= %s
-                and c.created_at <= %s
-                and c.state in %s
-                and cc.has_attribution is true
-            group by casebook_id
-            """,
-            [start_date, end_date, state],
-        )
-
-        cursor.execute(
-            """
-        create temp table if not exists casebooks_with_multiple_collaborators as
-            select casebook_id from main_contentcollaborator cc
-            inner join main_casebook c on cc.casebook_id = c.id
-            where c.created_at >= %s
-                and c.created_at <= %s
-                and c.state in %s
-                and casebook_id in
-                   (select casebook_id from main_contentcollaborator where has_attribution is true)
-            group by casebook_id
-            having count(user_id) > 1
-
-        """,
-            [start_date, end_date, state],
-        )
-
-        for source in (
-            "CAP",
-            "GPO",
-        ):
-            cursor.execute(
-                f"""
-                create temp table if not exists casebooks_including_source_{source.lower()} as
-                    select casebook_id
-                    from main_contentnode
-                    inner join main_casebook c on main_contentnode.casebook_id = c.id
-                    where resource_type = 'LegalDocument'
-                    and resource_id in
-                    (
-                        select doc.id from main_legaldocument doc
-                        inner join main_legaldocumentsource source on source.id = source_id
-                        where source.name = %s
-                    )
-                    and c.created_at >= %s
-                    and c.created_at <= %s
-                    and state in %s
-                    group by casebook_id
-
-                """,
-                [source, start_date, end_date, state],
-            )
-
         # Run the specific queries needed for the reports
 
         cursor.execute(
-            """
-        select count(*) from professors_with_casebooks
-        """
+            """--sql
+        select count(*) from reporting_professors_with_casebooks
+        where state in %s
+            and created_at >= %s
+            and created_at <= %s
+        """,
+            [
+                (Casebook.LifeCycle.PUBLISHED.value,)
+                if published_casebooks_only
+                else ALL_STATES,
+                start_date,
+                end_date,
+            ],
         )
         stats["profs_with_books"] = cursor.fetchone()[0]
 
         # Casebooks from verified professors with attribution
         cursor.execute(
-            """
-            select count(*) from casebooks_from_professors
-        """
+            """--sql
+            select count(*) from reporting_casebooks_from_professors
+            where state in %s
+                and created_at >= %s
+                and created_at <= %s
+        """,
+            [
+                state,
+                start_date,
+                end_date,
+            ],
         )
         stats["casebooks_prof"] = cursor.fetchone()[0]
 
         # Casebooks including content from Capstone
         cursor.execute(
-            """
+            """--sql
             select count(*) from main_casebook where main_casebook.id
-                in (select * from casebooks_including_source_cap)
-            """
+                in (select casebook_id from reporting_casebooks_including_source_cap)
+                and state in %s
+                and created_at >= %s
+                and created_at <= %s
+            """,
+            [
+                state,
+                start_date,
+                end_date,
+            ],
         )
         stats["casebooks_cap"] = cursor.fetchone()[0]
 
         # Casebooks including content from Cap created by verified professors
         cursor.execute(
-            """
+            """--sql
             select count(*) from main_casebook where main_casebook.id
-                in (select * from casebooks_including_source_cap)
+                in (select casebook_id from reporting_casebooks_including_source_cap)
                 and main_casebook.id in
-                   (select * from casebooks_from_professors)
-            """
+                   (select casebook_id from reporting_casebooks_from_professors)
+                and state in %s
+                and created_at >= %s
+                and created_at <= %s
+            """,
+            [
+                state,
+                start_date,
+                end_date,
+            ],
         )
         stats["casebooks_cap_prof"] = cursor.fetchone()[0]
 
         # Casebooks including content from GPO
         cursor.execute(
-            """
+            """--sql
             select count(*) from main_casebook where main_casebook.id
-                in (select * from casebooks_including_source_gpo)
-            """
+                in (select casebook_id from reporting_casebooks_including_source_gpo)
+                and state in %s
+                and created_at >= %s
+                and created_at <= %s
+            """,
+            [
+                state,
+                start_date,
+                end_date,
+            ],
         )
 
         stats["casebooks_gpo"] = cursor.fetchone()[0]
 
         # Casebooks including content from GPO created by verified professors
         cursor.execute(
-            """
+            """--sql
             select count(*) from main_casebook where main_casebook.id
-                in (select * from casebooks_including_source_gpo)
+                in (select casebook_id from reporting_casebooks_including_source_gpo)
                 and main_casebook.id in
-                   (select * from casebooks_from_professors)
-            """
+                   (select casebook_id from reporting_casebooks_from_professors)
+                and state in %s
+                and created_at >= %s
+                and created_at <= %s
+            """,
+            [
+                state,
+                start_date,
+                end_date,
+            ],
         )
+
         stats["casebooks_gpo_prof"] = cursor.fetchone()[0]
 
         # Casebooks with multiple collaborators
         cursor.execute(
-            """
-        select count(*) from casebooks_with_multiple_collaborators
-        """
+            """--sql
+        select count(*) from reporting_casebooks_with_multiple_collaborators
+        where state in %s
+            and created_at >= %s
+            and created_at <= %s
+        """,
+            [
+                state,
+                start_date,
+                end_date,
+            ],
         )
         stats["casebooks_with_collaborators"] = cursor.fetchone()[0]
 
         # Casebooks with multiple collaborators including professors
         cursor.execute(
-            """
+            """--sql
         select count(*) from main_casebook
             where main_casebook.id
-                in (select * from casebooks_with_multiple_collaborators)
+                in (select casebook_id from reporting_casebooks_with_multiple_collaborators)
                 and main_casebook.id
-                in (select * from casebooks_from_professors)
-        """
+                in (select casebook_id from reporting_casebooks_from_professors)
+                and state in %s
+                and created_at >= %s
+                and created_at <= %s
+        """,
+            [
+                state,
+                start_date,
+                end_date,
+            ],
         )
         stats["casebooks_with_collaborators_prof"] = cursor.fetchone()[0]
 
         # Series
         cursor.execute(
-            """
+            """--sql
         select count(*) from main_commontitle ct
-        inner join main_casebook c on c.id = ct.current_id
-        where c.created_at >= %s
+        join main_casebook c on c.id = ct.current_id
+        where c.state in %s
+              and c.created_at >= %s
               and c.created_at <= %s
-              and c.state in %s
         """,
-            [start_date, end_date, state],
+            [
+                state,
+                start_date,
+                end_date,
+            ],
         )
         stats["series"] = cursor.fetchone()[0]
 
         # Series by professors
         # This only checks the most-current title's authorship, but probably sufficient?
         cursor.execute(
-            """
-        select count(*) from main_commontitle where main_commontitle.current_id
-            in (select * from casebooks_from_professors)
-        """
+            """--sql
+        select count(*) from main_commontitle
+            join reporting_casebooks_from_professors c on c.casebook_id = main_commontitle.current_id
+            and c.state in %s
+                and c.created_at >= %s
+                and c.created_at <= %s
+        """,
+            [state, start_date, end_date],
         )
         stats["series_by_prof"] = cursor.fetchone()[0]
 

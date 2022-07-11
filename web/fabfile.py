@@ -66,6 +66,7 @@ def refresh_search_index():
     from main.models import SearchIndex
     SearchIndex.refresh_search_index()
 
+
 @task
 @setup_django
 def create_fts_index():
@@ -73,12 +74,30 @@ def create_fts_index():
     from main.models import FullTextSearchIndex
     FullTextSearchIndex.create_search_index()
 
+
 @task
 @setup_django
 def refresh_fts_index():
     """ Update an existing search_view materialized view; will create if create_search_index hasn't been run once """
     from main.models import FullTextSearchIndex
     FullTextSearchIndex.refresh_search_index()
+
+
+@task
+@setup_django
+def create_reporting_views():
+    """Create (or recreate) reporting views that aggregate usage."""
+    from main.reporting.create_reporting_views import create
+    create()
+
+
+@task
+@setup_django
+def refresh_reporting_views():
+    """Refresh reporting tables that aggregate usage. Typically called on a schedule."""
+    from main.reporting.create_reporting_views import refresh
+    refresh()
+
 
 @task
 @setup_django

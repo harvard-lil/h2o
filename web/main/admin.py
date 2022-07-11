@@ -12,7 +12,7 @@ from django.utils.safestring import mark_safe
 from django_json_widget.widgets import JSONEditorWidget
 from simple_history.admin import SimpleHistoryAdmin
 
-from .usage import view as usage_dashboard_view
+from .reporting.usage import view as usage_dashboard_view
 from .models import (Casebook, ContentAnnotation, ContentCollaborator,
                      ContentNode, EmailWhitelist, LegalDocument,
                      LegalDocumentSource, Link, Resource, Section, TextBlock,
