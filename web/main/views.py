@@ -2415,7 +2415,7 @@ def search_using(request, source):
     results = src.api_model().search(params.save())
     return JsonResponse({"results": results}, status=200)
 
-
+internal_search_categories = set(("legal_doc", "casebook", "user"))
 @no_perms_test
 def internal_search(request):
     """
@@ -2433,7 +2433,9 @@ def internal_search(request):
         See SearchIndex._search tests for more specific tests.
     """
     # read query parameters
-    category = request.GET.get('type', 'casebook')
+    category = request.GET.get('type', '')
+    if category not in internal_search_categories:
+        category = 'casebook'
     try:
         page = int(request.GET.get('page'))
     except (TypeError, ValueError):
@@ -2465,10 +2467,10 @@ def internal_search(request):
             'category': category,
         })
 
-
+casebook_search_categories = set(('legal_doc_fulltext', 'textblock', 'link'))
 @no_perms_test
 @hydrate_params
-def search_casebook(request, casebook):
+def casebook_search(request, casebook):
     """
         Search content of a specific casebook. Currently only searches legal docs.
 
@@ -2484,7 +2486,7 @@ def search_casebook(request, casebook):
         ...     n.casebook_id = casebooks[0].id
         ...     n.save()
         >>> FullTextSearchIndex().create_search_index()
-        >>> url = reverse('search_casebook', args=[casebooks[0].id])
+        >>> url = reverse('casebook_search', args=[casebooks[0].id])
 
         Show all legal documents by default:
         >>> check_response(client.get(url), content_includes=[d.name for d in docs])
@@ -2495,7 +2497,9 @@ def search_casebook(request, casebook):
     except (TypeError, ValueError):
         page = 1
     query = request.GET.get('q')
-    category = request.GET.get('type', 'legal_doc_fulltext')
+    category = request.GET.get('type', '')
+    if category not in casebook_search_categories:
+        category = 'legal_doc_fulltext'
 
     results, counts, facets = FullTextSearchIndex.casebook_fts(
         casebook.id,
