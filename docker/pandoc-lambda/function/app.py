@@ -14,9 +14,7 @@ from docx.styles.style import WD_STYLE_TYPE
 from lxml import etree
 
 
-def lift_footnote(
-    doc, footnotes_part, ref, texts, id, author=False, docx_sections=False
-):
+def lift_footnote(doc, footnotes_part, ref, texts, id, author=False, docx_sections=False):
     if texts is None:
         parent = ref.getparent()
         parent.remove(ref)
@@ -24,7 +22,9 @@ def lift_footnote(
     if ref is None:
         return
     id_att = "{http://schemas.openxmlformats.org/wordprocessingml/2006/main}id"
-    custom_mark_att = "{http://schemas.openxmlformats.org/wordprocessingml/2006/main}customMarkFollows"
+    custom_mark_att = (
+        "{http://schemas.openxmlformats.org/wordprocessingml/2006/main}customMarkFollows"
+    )
     footnote = OxmlElement("w:footnote")
     footnote.attrib[id_att] = id
     doc_insert = OxmlElement("w:footnoteReference")
@@ -33,9 +33,7 @@ def lift_footnote(
 
     # Content
     for t in texts:
-        embedded_refs = t.xpath(
-            "w:r[*/w:rStyle[starts-with(@w:val,'FootnoteReference')]]/w:t"
-        )
+        embedded_refs = t.xpath("w:r[*/w:rStyle[starts-with(@w:val,'FootnoteReference')]]/w:t")
         if docx_sections:
             # because you can't add padding to character styles
             if embedded_refs is not None and len(embedded_refs) > 0:
@@ -63,19 +61,13 @@ def lift_footnote(
 
 def promote_case_footnotes(doc, docx_sections=False):
     val_att = "{http://schemas.openxmlformats.org/wordprocessingml/2006/main}val"
-    hyperlink_tag = (
-        "{http://schemas.openxmlformats.org/wordprocessingml/2006/main}hyperlink"
-    )
+    hyperlink_tag = "{http://schemas.openxmlformats.org/wordprocessingml/2006/main}hyperlink"
     paragraph_tag = "{http://schemas.openxmlformats.org/wordprocessingml/2006/main}p"
     author_footnotes = {}
 
-    for ref in doc.element.xpath(
-        "//*[*/w:rStyle[starts-with(@w:val,'FootnoteReference')]]"
-    ):
+    for ref in doc.element.xpath("//*[*/w:rStyle[starts-with(@w:val,'FootnoteReference')]]"):
         mark_text = ref.text
-        style_node = ref.xpath(".//w:rStyle[starts-with(@w:val,'FootnoteReference')]")[
-            0
-        ]
+        style_node = ref.xpath(".//w:rStyle[starts-with(@w:val,'FootnoteReference')]")[0]
         node_id = style_node.attrib[val_att][18:]
         mark_id = f"{node_id}-{mark_text}"
         if mark_id not in author_footnotes:
@@ -88,13 +80,9 @@ def promote_case_footnotes(doc, docx_sections=False):
         style_node.attrib[val_att] = "FootnoteReference"
         author_footnotes[mark_id]["refs"].append(ref)
 
-    for text_el in doc.element.xpath(
-        "//w:p[w:pPr/w:pStyle[starts-with(@w:val,'FootnoteText')]]"
-    ):
+    for text_el in doc.element.xpath("//w:p[w:pPr/w:pStyle[starts-with(@w:val,'FootnoteText')]]"):
         mark_text = text_el.xpath(".//*[*/w:rStyle]/w:t")[0].text
-        node_id = text_el.xpath(
-            ".//w:pStyle[starts-with(@w:val, 'FootnoteText')]/@w:val"
-        )[0][13:]
+        node_id = text_el.xpath(".//w:pStyle[starts-with(@w:val, 'FootnoteText')]/@w:val")[0][13:]
         mark_id = f"{node_id}-{mark_text}"
         if mark_id not in author_footnotes:
             author_footnotes[mark_id] = {
@@ -103,9 +91,7 @@ def promote_case_footnotes(doc, docx_sections=False):
                 "refs": [],
                 "texts": [],
             }
-        mark_el = text_el.xpath("./w:pPr/w:pStyle[starts-with(@w:val,'FootnoteText')]")[
-            0
-        ]
+        mark_el = text_el.xpath("./w:pPr/w:pStyle[starts-with(@w:val,'FootnoteText')]")[0]
         mark_el.attrib[val_att] = "FootnoteText"
         for style in text_el.xpath(".//w:pStyle[starts-with(@w:val, 'FootnoteText')]"):
             style.attrib[val_att] = "FootnoteText"
@@ -114,9 +100,7 @@ def promote_case_footnotes(doc, docx_sections=False):
         author_footnotes[mark_id]["texts"].append([text_el])
 
     case_footnotes = {}
-    for ref in doc.element.xpath(
-        "//*[*/w:rStyle[starts-with(@w:val,'CaseFootnoteReference')]]"
-    ):
+    for ref in doc.element.xpath("//*[*/w:rStyle[starts-with(@w:val,'CaseFootnoteReference')]]"):
         mark_text = ref.text
         node = ref.xpath(".//w:rStyle[starts-with(@w:val,'CaseFootnoteReference')]")[0]
         node_id = node.attrib[val_att][22:]
@@ -132,12 +116,7 @@ def promote_case_footnotes(doc, docx_sections=False):
         parent = ref.getparent()
         gp = parent.getparent()
         # Don't hoist a footnote outside of a paragraph. Word can't handle it.
-        if (
-            gp is not None
-            and len(gp)
-            and parent.tag == hyperlink_tag
-            and gp.tag == paragraph_tag
-        ):
+        if gp is not None and len(gp) and parent.tag == hyperlink_tag and gp.tag == paragraph_tag:
             gp.replace(parent, ref)
         case_footnotes[mark_id]["refs"].append(ref)
 
@@ -155,12 +134,7 @@ def promote_case_footnotes(doc, docx_sections=False):
         link = next_footnote_candidate.xpath(".//w:hyperlink//text()")
 
         # In cases that a footnote spans multiple paragraphs (judges amiright) roll up those blocks into an array
-        while (
-            next_footnote_candidate is not None
-            and style
-            and style[0] != "CaseBody"
-            and not link
-        ):
+        while next_footnote_candidate is not None and style and style[0] != "CaseBody" and not link:
             current_stack.append(next_footnote_candidate)
             next_footnote_candidate = next_footnote_candidate.getnext()
             if (
@@ -192,9 +166,7 @@ def promote_case_footnotes(doc, docx_sections=False):
     # extract refs and footnotes here.
     fid = 1
 
-    footnote_part = next(
-        f for f in doc.part.package.parts if f.partname == "/word/footnotes.xml"
-    )
+    footnote_part = next(f for f in doc.part.package.parts if f.partname == "/word/footnotes.xml")
     footnote_part.element = parse_xml(footnote_part.blob)
     for val in author_footnotes.values():
         for ref, texts in zip_longest(val["refs"], val["texts"]):
@@ -224,13 +196,9 @@ def promote_case_footnotes(doc, docx_sections=False):
         b'<?xml version="1.0" encoding="UTF-8" standalone="yes"?>'
         + etree.tostring(footnote_part.element)
     )
-    for x in doc.styles.element.xpath(
-        "//w:style[starts-with(@w:styleId,'FootnoteText-')]"
-    ):
+    for x in doc.styles.element.xpath("//w:style[starts-with(@w:styleId,'FootnoteText-')]"):
         doc.styles.element.remove(x)
-    for x in doc.styles.element.xpath(
-        "//w:style[starts-with(@w:styleId,'FootnoteReference-')]"
-    ):
+    for x in doc.styles.element.xpath("//w:style[starts-with(@w:styleId,'FootnoteReference-')]"):
         doc.styles.element.remove(x)
     return doc
 
@@ -286,10 +254,7 @@ def sectionizer(
         rels[rid].target_ref.replace(".xml", ""): rels[rid]
         for rid in rels
         if rels[rid].target_ref.endswith(".xml")
-        and (
-            rels[rid].target_ref.startswith("header")
-            or rels[rid].target_ref.startswith("footer")
-        )
+        and (rels[rid].target_ref.startswith("header") or rels[rid].target_ref.startswith("footer"))
     }
 
     body_element = doc.element.xpath("/w:document/w:body")[0]
@@ -469,9 +434,7 @@ def handler(event, context):
                 "--to",
                 "docx",
                 "--reference-doc",
-                "reference.docx"
-                if options["docx_sections"]
-                else "old_pr1491/reference.docx",
+                "reference.docx" if options["docx_sections"] else "old_pr1491/reference.docx",
                 "--output",
                 pandoc_out.name,
                 "--quiet",
@@ -512,16 +475,12 @@ def handler(event, context):
                 print(response.stderr)
                 raise Exception(ss)
             if not os.path.getsize(pandoc_out.name) > 0:
-                raise Exception(f"Pandoc produced no output.")
+                raise Exception("Pandoc produced no output.")
 
-            if options.get("word_footnotes", False) or options.get(
-                "docx_sections", False
-            ):
+            if options.get("word_footnotes", False) or options.get("docx_sections", False):
                 doc = Document(pandoc_out)
                 if options.get("word_footnotes", False):
-                    promote_case_footnotes(
-                        doc, docx_sections=options.get("docx_sections", False)
-                    )
+                    promote_case_footnotes(doc, docx_sections=options.get("docx_sections", False))
                 if options.get("docx_sections", False):
                     sectionizer(doc)
                 output = io.BytesIO()
