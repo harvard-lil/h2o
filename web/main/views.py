@@ -2416,7 +2416,6 @@ def search_using(request, source):
     return JsonResponse({"results": results}, status=200)
 
 
-type_param_to_category = {'legal_doc': 'legal_doc', 'casebook': 'casebook', 'user': 'user', 'legal_doc_fulltext': 'legal_doc_fulltext', 'textblock':'textblock', 'link':'link'}
 @no_perms_test
 def internal_search(request):
     """
@@ -2434,7 +2433,7 @@ def internal_search(request):
         See SearchIndex._search tests for more specific tests.
     """
     # read query parameters
-    category = type_param_to_category.get(request.GET.get('type', None), 'casebook')
+    category = request.GET.get('type', 'casebook')
     try:
         page = int(request.GET.get('page'))
     except (TypeError, ValueError):
@@ -2496,7 +2495,7 @@ def search_casebook(request, casebook):
     except (TypeError, ValueError):
         page = 1
     query = request.GET.get('q')
-    category = type_param_to_category.get(request.GET.get('type', None), 'legal_doc_fulltext')
+    category = request.GET.get('type', 'legal_doc_fulltext')
 
     results, counts, facets = FullTextSearchIndex.casebook_fts(
         casebook.id,
