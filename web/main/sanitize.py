@@ -16,16 +16,19 @@ from functools import lru_cache
 
 ## helpers ##
 
+
 def get_words(s):
     return set(s.strip().split())
 
 
 ## allow-lists ##
 
+
 @lru_cache()
 def get_allow_lists():
     # tags created by ckeditor
-    allowed_tags = get_words("""
+    allowed_tags = get_words(
+        """
         p br
         ol ul li
         blockquote
@@ -34,13 +37,16 @@ def get_allow_lists():
         img
         table caption thead th tbody tr td
         hr
-    """)
+    """
+    )
 
     # legacy tags
-    allowed_tags |= get_words("""
+    allowed_tags |= get_words(
+        """
         a address b blockquote br center cite col colgroup dd del div dl dt em h1 h2 h3 h4 h5 h6 header hr i iframe img li mark ol
         p pre small span strike strong sub sup table tbody td th thead time tr u ul wbr
-    """)
+    """
+    )
 
     # attributes created by ckeditor
     # (overridden by the legacy definition, which is a super-set of this)
@@ -51,41 +57,73 @@ def get_allow_lists():
 
     # legacy attributes
     allowed_attributes = {
-        'a': {'title', 'rel', 'name', 'class', 'id', 'style', 'href'},
-        'b': {'id'},
-        'blockquote': {'id', 'class', 'style'},
-        'br': {'class', 'style'},
-        'center': {'class', 'style'},
-        'col': {'width'},
-        'dd': {'style'},
-        'div': {'title', 'tabindex', 'dir', 'class', 'id', 'style'},
-        'dl': {'style'},
-        'em': {'class', 'style'},
-        'h1': {'id', 'dir', 'class', 'style'},
-        'h2': {'title', 'id', 'dir', 'class', 'style'},
-        'h3': {'id', 'class', 'style'},
-        'h4': {'class', 'style'},
-        'h5': {'id', 'style'},
-        'h6': {'class', 'style'},
-        'header': {'class'},
-        'hr': {'class', 'style'},
-        'iframe': iframe_attributes,
-        'img': {'align', 'alt', 'border', 'class', 'height', 'id', 'src', 'srcset', 'style', 'tabindex', 'title', 'width'},
-        'li': {'id', 'value', 'dir', 'class', 'style'},
-        'ol': {'type', 'start', 'class', 'style'},
-        'p': {'title', 'dir', 'class', 'id', 'lang', 'style'},
-        'pre': {'id', 'style'},
-        'span': {'title', 'id', 'lang', 'class', 'style', 'data-custom-style', 'data-extra-export-offset'},
-        'strike': {'style'},
-        'strong': {'id', 'class', 'style'},
-        'sup': {'id', 'class', 'style'},
-        'table': {'align', 'bgcolor', 'border', 'cellpadding', 'cellspacing', 'class', 'id', 'style', 'summary', 'width'},
-        'td': {'align', 'class', 'colspan', 'headers', 'id', 'rowspan', 'style', 'valign', 'width'},
-        'th': {'id', 'scope'},
-        'time': {'datetime', 'class'},
-        'tr': {'class', 'style'},
-        'u': {'class', 'style'},
-        'ul': {'type', 'id', 'class', 'style'},
+        "a": {"title", "rel", "name", "class", "id", "style", "href"},
+        "b": {"id"},
+        "blockquote": {"id", "class", "style"},
+        "br": {"class", "style"},
+        "center": {"class", "style"},
+        "col": {"width"},
+        "dd": {"style"},
+        "div": {"title", "tabindex", "dir", "class", "id", "style"},
+        "dl": {"style"},
+        "em": {"class", "style"},
+        "h1": {"id", "dir", "class", "style"},
+        "h2": {"title", "id", "dir", "class", "style"},
+        "h3": {"id", "class", "style"},
+        "h4": {"class", "style"},
+        "h5": {"id", "style"},
+        "h6": {"class", "style"},
+        "header": {"class"},
+        "hr": {"class", "style"},
+        "iframe": iframe_attributes,
+        "img": {
+            "align",
+            "alt",
+            "border",
+            "class",
+            "height",
+            "id",
+            "src",
+            "srcset",
+            "style",
+            "tabindex",
+            "title",
+            "width",
+        },
+        "li": {"id", "value", "dir", "class", "style"},
+        "ol": {"type", "start", "class", "style"},
+        "p": {"title", "dir", "class", "id", "lang", "style"},
+        "pre": {"id", "style"},
+        "span": {
+            "title",
+            "id",
+            "lang",
+            "class",
+            "style",
+            "data-custom-style",
+            "data-extra-export-offset",
+        },
+        "strike": {"style"},
+        "strong": {"id", "class", "style"},
+        "sup": {"id", "class", "style"},
+        "table": {
+            "align",
+            "bgcolor",
+            "border",
+            "cellpadding",
+            "cellspacing",
+            "class",
+            "id",
+            "style",
+            "summary",
+            "width",
+        },
+        "td": {"align", "class", "colspan", "headers", "id", "rowspan", "style", "valign", "width"},
+        "th": {"id", "scope"},
+        "time": {"datetime", "class"},
+        "tr": {"class", "style"},
+        "u": {"class", "style"},
+        "ul": {"type", "id", "class", "style"},
     }
 
     # styles created by ckeditor
@@ -97,7 +135,8 @@ def get_allow_lists():
     )
 
     # legacy styles
-    allowed_styles |= get_words("""
+    allowed_styles |= get_words(
+        """
          -webkit-box-shadow -webkit-text-size-adjust -webkit-transition background background-attachment background-clip 
          background-color background-image background-origin background-position background-repeat background-size border 
          border-bottom border-bottom-color border-bottom-left-radius border-bottom-right-radius border-bottom-style 
@@ -112,7 +151,8 @@ def get_allow_lists():
          page-break-before position quotes right text-align text-decoration text-decoration-color text-decoration-style 
          text-indent text-justify text-rendering text-transform top transition unicode-bidi vertical-align white-space 
          widows width word-break word-spacing word-wrap z-index
-    """)
+    """
+    )
 
     return allowed_tags, allowed_attributes, allowed_styles
 
@@ -120,41 +160,41 @@ def get_allow_lists():
 youtube_src = re.compile("(?:https?:)?//www.youtube.com/embed/[a-zA-Z0-9]*")
 vimeo_src = re.compile("(?:https?:)?//player.vimeo.com/video/[0-9]*([?].*)?")
 
+
 def iframe_attributes(tag, name, value):
     """
     Limit atts and src of iframes.
     Only permit Vimeo and Youtube at this time
     """
-    if name in {'height', 'width', 'allowfullscreen', 'title', 'allow', 'frameborder'}:
+    if name in {"height", "width", "allowfullscreen", "title", "allow", "frameborder"}:
         return True
-    if name == 'src':
+    if name == "src":
         return youtube_src.match(value) or vimeo_src.match(value)
     return False
 
+
 def sanitize(html):
     """
-        Remove non-allowed tags, attributes, and styles.
+    Remove non-allowed tags, attributes, and styles.
 
-        Strip unknown tags:
-        >>> assert sanitize('<p><foo>abc <br> def</foo></p>') == '<p>abc <br> def</p>'
+    Strip unknown tags:
+    >>> assert sanitize('<p><foo>abc <br> def</foo></p>') == '<p>abc <br> def</p>'
 
-        Strip unknown attributes:
-        >>> assert sanitize('<a href="ok.html" bad="bad">foo</a>') == '<a href="ok.html">foo</a>'
+    Strip unknown attributes:
+    >>> assert sanitize('<a href="ok.html" bad="bad">foo</a>') == '<a href="ok.html">foo</a>'
 
-        Strip javascript:
-        >>> assert sanitize('<a href="javascript:foo">foo</a>') == '<a>foo</a>'
+    Strip javascript:
+    >>> assert sanitize('<a href="javascript:foo">foo</a>') == '<a>foo</a>'
 
-        Strip unknown styles:
-        >>> assert sanitize('<p style="margin: 10px; foo: bar;">abc</p>') == '<p style="margin: 10px;">abc</p>'
+    Strip unknown styles:
+    >>> assert sanitize('<p style="margin: 10px; foo: bar;">abc</p>') == '<p style="margin: 10px;">abc</p>'
     """
     allowed_tags, allowed_attributes, allowed_styles = get_allow_lists()
-    out = bleach.clean(html,
-                       tags=allowed_tags,
-                       attributes=allowed_attributes,
-                       styles=allowed_styles,
-                       strip=True)
+    out = bleach.clean(
+        html, tags=allowed_tags, attributes=allowed_attributes, styles=allowed_styles, strip=True
+    )
     # bleach currently doubles '<wbr>' into '<wbr></wbr>'. work around that edge case until we drop support for <wbr>
     # or bleach is fixed. see https://github.com/mozilla/bleach/issues/488
-    out = out.replace('<wbr></wbr>', '<wbr>')
+    out = out.replace("<wbr></wbr>", "<wbr>")
 
     return out

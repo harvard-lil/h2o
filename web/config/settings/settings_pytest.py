@@ -11,8 +11,8 @@ TESTING = True
 
 # Don't use whitenoise for tests. Including whitenoise causes it to rescan static during each test, which greatly
 # increases test time.
-MIDDLEWARE.remove('whitenoise.middleware.WhiteNoiseMiddleware')
+MIDDLEWARE.remove("whitenoise.middleware.WhiteNoiseMiddleware")
 
-CAPAPI_API_KEY = '12345'
+CAPAPI_API_KEY = "12345"
 
-LOGGING['loggers']['django']['handlers'].append('mail_admins')
+LOGGING["loggers"]["django"]["handlers"].append("mail_admins")
