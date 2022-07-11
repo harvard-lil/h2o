@@ -11,9 +11,10 @@ https://docs.djangoproject.com/en/2.2/ref/settings/
 """
 
 import os
+from typing import List
 
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS: List[str] = []
 TESTING = False
 
 # Application definition
@@ -22,6 +23,7 @@ INSTALLED_APPS = [
     "whitenoise.runserver_nostatic",
     # apps
     "main",
+    "reporting",
     # third party
     "django_extensions",
     "crispy_forms",

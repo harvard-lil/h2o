@@ -88,7 +88,7 @@
     </div>
 
     <p>
-        Showing all records for users or casebooks created between {{ date_form.start_date.value }} and {{ date_form.end_date.value }}:
+        Showing all records for users or casebooks created between {{ date_form.start_date.value |date:"Y-m-d" }} and {{ date_form.end_date.value |date:"Y-m-d" }}:
     </p>
 
 
@@ -102,57 +102,115 @@
         </td>
     </tr>
     <tr>
-        <th>Verified professors</th>
+        <th>Verified professors
+            <small>
+                <a href="{% url "admin:reporting_professor_changelist" %}?{{ date_query }}">View as list »</a>
+            </small>
+
+        </th>
         <td>{{ stats.verified_professors | intcomma }}</td>
     </tr>
     <tr>
-        <th>Professors with published casebooks</th>
+        <th>Professors with published casebooks
+            <small>
+                <a href="{% url "admin:reporting_professorwithcasebooks_changelist" %}?{{ query }}">View as list »</a>
+            </small>
+
+
+        </th>
         <td>{{ stats.profs_with_books | intcomma }}</td>
     </tr>
     <tr>
-        <th>Casebooks</th>
+        <th>Casebooks
+                <small>
+                    <a href="{% url "admin:reporting_reportingcasebook_changelist" %}?{{ query }}">View as list »</a>
+                </small>
+
+        </th>
         <td>{{ stats.casebooks | intcomma }}</td>
     </tr>
     <tr>
-        <th>Casebooks from verified professors</th>
+        <th>Casebooks from verified professors
+            <small>
+                <a href="{% url "admin:reporting_casebookprofessors_changelist" %}?{{ query }}">View as list »</a>
+            </small>
+
+
+        </th>
         <td>{{ stats.casebooks_prof | intcomma }}</td>
     </tr>
     <tr>
-        <th>Casebooks including content from Capstone</th>
+        <th>Casebooks including content from Capstone
+            <small>
+                <a href="{% url "admin:reporting_casebookcap_changelist" %}?{{ query }}">View as list »</a>
+            </small>
+        </th>
         <td>{{ stats.casebooks_cap | intcomma }}</td>
     </tr>
     <tr>
-        <th>Casebooks including content from GPO</th>
+        <th>Casebooks including content from GPO
+            <small>
+                <a href="{% url "admin:reporting_casebookgpo_changelist" %}?{{ query }}">View as list »</a>
+            </small>
+        </th>
         <td> {{ stats.casebooks_gpo | intcomma }}</td>
     </tr>
     <tr>
-        <th>Casebooks including content from Capstone with at least one professor as contributor</th>
+        <th>Casebooks including content from Capstone with at least one professor as contributor
+
+            <small>
+                <a href="{% url "admin:reporting_casebookcapprof_changelist" %}?{{ query }}">View as list »</a>
+            </small>
+
+        </th>
         <td>{{ stats.casebooks_cap_prof | intcomma }}</td>
     </tr>
     <tr>
-        <th>Casebooks including content from GPO with at least one professor as contributor</th>
+        <th>Casebooks including content from GPO with at least one professor as contributor
+
+            <small>
+                <a href="{% url "admin:reporting_casebookgpoprof_changelist" %}?{{ query }}">View as list »</a>
+            </small>
+
+        </th>
         <td> {{ stats.casebooks_gpo_prof | intcomma }}</td>
     </tr>
     <tr>
         <th>
             Casebooks with multiple collaborators
             <small>Where at least one collaborator has attribution</small>
+            <small>
+                <a href="{% url "admin:reporting_casebookcollaborators_changelist" %}?{{ query }}">View as list »</a>
+            </small>
         </th>
         <td> {{ stats.casebooks_with_collaborators | intcomma }}</td>
 
     </tr>
     <tr>
-        <th>Casebooks with multiple collaborators, at least one professor</th>
+        <th>Casebooks with multiple collaborators, at least one professor
+            <small>
+                <a href="{% url "admin:reporting_casebookcollaboratorsprof_changelist" %}?{{ query }}">View as list »</a>
+            </small>
+
+        </th>
         <td> {{ stats.casebooks_with_collaborators_prof | intcomma }}</td>
     </tr>
     <tr>
         <th>Series
-            <small>Where the latest casebook is published</small>
+            <small>Where the casebook designated as "latest" is published</small>
+            <small>
+                <a href="{% url "admin:reporting_casebookseries_changelist" %}?{{ query }}">View as list »</a>
+            </small>
         </th>
         <td>{{ stats.series | intcomma }}</td>
     </tr>
     <tr>
-        <th>Series by professors</th>
+        <th>Series by professors
+
+            <small>
+                <a href="{% url "admin:reporting_casebookseriesprof_changelist" %}?{{ query }}">View as list »</a>
+            </small>
+        </th>
         <td>{{ stats.series_by_prof | intcomma }}</td>
     </tr>
     </table>
