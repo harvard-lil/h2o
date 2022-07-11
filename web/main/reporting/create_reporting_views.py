@@ -1,5 +1,5 @@
+from pathlib import Path
 from django.db import connection
-from django.template.loader import render_to_string
 
 from ..models import Casebook
 
@@ -27,10 +27,7 @@ def create() -> None:
     This logic should match what's used in `create_search_index.sql` unless otherwise annotated."""
 
     with connection.cursor() as cursor:
-
-        sql = render_to_string(
-            "sql/reporting.sql.j2", {"sources": ("CAP", "GPO"), "views": VIEW_LIST}
-        )
+        sql = (Path(__file__).resolve().parent / "sql/reporting.sql").read_text()
         cursor.execute(sql)
 
 
