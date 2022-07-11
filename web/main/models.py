@@ -1018,7 +1018,7 @@ class FullTextSearchIndex(models.Model):
         ... )
         >>> assert dump_search_results(FullTextSearchIndex().casebook_fts(casebooks[0].id, 'textblock', '2')) == (
         ...     [
-        ...         {'name': 'Some TextBlock Name 2', 'description': 'Some TextBlock Description 2', 'ordinals': '', 'headlines': ['Some TextBlock Content <b>2</b>']}
+        ...         {'name': 'Some TextBlock Name 2', 'description': 'Some TextBlock Description 2', 'ordinals': '', 'headlines': ['Some TextBlock Content <b>2</b>'], 'casebook_id': casebooks[0].id}
         ...     ],
         ...     {'legal_doc_fulltext': 1, 'textblock': 1},
         ...     {}
