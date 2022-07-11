@@ -22,7 +22,6 @@
   </header>
   <section class="search-results">
     <div class="content">
-      {% if counts %}
         <div class="results-container">
           <div class="type-tabs">
             <div class="type-tab {% if category == 'legal_doc_fulltext' %}active{% endif %}" {% if category == 'legal_doc_fulltext' %}aria-current="location"{% endif %}>
@@ -42,7 +41,6 @@
             </div>
           </div>
         </div>
-      {% endif %}
       {% if results %}
         {% include 'search/results.html' %}
       {% else %}

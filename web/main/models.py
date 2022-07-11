@@ -916,61 +916,12 @@ class FullTextSearchIndex(models.Model):
     def search(cls, *args, **kwargs):
         for i in range(3):
             try:
-                return cls._search(*args, **kwargs)
+                return cls.casebook_fts(*args, **kwargs)
             except ProgrammingError as e:
                 if e.args[0].startswith('relation "fts_internal_search_view" does not exist'):
                     pass
             time.sleep(0.01)
         raise ProgrammingError("Internal full-text search view has not been created correctly!")
-
-    @classmethod
-    def _search(cls, category, query=None, page_size=10, page=1, filters={}, facet_fields=[], order_by=None, base_query=None):
-        """
-        See SearchIndex._search for more test cases. This should be inherited
-        from a common ancestor probably.
-        """
-        if base_query is None:
-            base_query = cls.objects.all()
-        query_vector = SearchQuery(query, config='english') if query else None
-        if query_vector:
-            base_query = base_query.filter(document=query_vector)
-        for k, v in filters.items():
-            base_query = base_query.filter(**{f'metadata__{k}': v})
-
-        # get results
-        results = base_query.filter(category=category).only('result_id', 'metadata')
-        if query_vector:
-            results = results.annotate(rank=SearchRank(F('document'), query_vector))
-
-        display_name = get_display_name_field(category)
-        order_by_expression = [display_name]
-        if order_by:
-            # Treat 'decision date' like 'created at', so that sort-by-date is maintained
-            # when switching between case and casebook tab.
-            fix_after_rails('consider renaming these params "date".')
-            if query and order_by == 'score':
-                order_by_expression = ['-rank', display_name]
-            elif category == 'casebook':
-                if order_by in ['created_at', 'effective_date']:
-                    order_by_expression = ['-metadata__created_at', display_name]
-            elif category == 'case':
-                if order_by in ['created_at', 'effective_date']:
-                    order_by_expression = ['-metadata__effective_date', display_name]
-
-        results = results.order_by(*order_by_expression)
-        results = Paginator(results, page_size).get_page(page)
-
-        # get counts
-        counts = {c['category']: c['total'] for c in base_query.values('category').annotate(total=Count('category'))}
-        results.__dict__['count'] = counts.get(category, 0)  # hack to avoid redundant query for count
-
-        # get facets
-        facets = {}
-        for facet in facet_fields:
-            facet_param = f'metadata__{facet}'
-            facets[facet] = base_query.filter(category=category).exclude(**{facet_param: ''}).order_by(facet_param).values_list(facet_param, flat=True).distinct()
-
-        return results, counts, facets
 
     @classmethod
     def casebook_fts(cls, casebook_id: int, category: ("legal_doc_fulltext", "textblock"), query_str: str, page_size=10, page=1):
@@ -1021,10 +972,16 @@ class FullTextSearchIndex(models.Model):
 
         query_vector = SearchQuery(query_str, config="english") if query_str else None
 
-        base_query = FullTextSearchIndex.objects.filter(category="textblock").filter(metadata__casebook_id=casebook_id)
-        base_query |= FullTextSearchIndex.objects.filter(category="link").filter(metadata__casebook_id=casebook_id)
-        legal_doc_ids = casebook.contents.filter(resource_type="LegalDocument").values_list("resource_id", flat=True)
-        base_query |= FullTextSearchIndex.objects.filter(category="legal_doc_fulltext").filter(result_id__in=legal_doc_ids)
+        base_query = None
+        if category == "legal_doc_fulltext":
+            legal_doc_ids = casebook.contents.filter(resource_type="LegalDocument").values_list("resource_id", flat=True)
+            base_query = FullTextSearchIndex.objects.filter(category="legal_doc_fulltext").filter(result_id__in=legal_doc_ids)
+        elif category == "textblock":
+            textblock_ids = casebook.contents.filter(resource_type="TextBlock").values_list("resource_id", flat=True)
+            base_query = FullTextSearchIndex.objects.filter(category=category).filter(result_id__in=textblock_ids)
+        else:
+            textblock_ids = casebook.contents.filter(resource_type="Link").values_list("resource_id", flat=True)
+            base_query = FullTextSearchIndex.objects.filter(category=category).filter(result_id__in=textblock_ids)
 
         base_query = base_query.filter(document=query_vector)
         results = base_query.filter(category=category)
