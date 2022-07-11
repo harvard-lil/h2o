@@ -10,7 +10,7 @@ services:
       - POSTGRES_PASSWORD=example
 
   web:
-    image: registry.lil.tools/harvardlil/h2o-python:0.69-922d255352e28e3acccd4b48c46cac08
+    image: registry.lil.tools/harvardlil/h2o-python:0.70-fc0215d6776c08728dcc76e1c3fbda2a
     tty: true
     command: bash
     environment:
@@ -47,7 +47,7 @@ services:
       - "127.0.0.1:9000:9000"
 
   pandoc-lambda:
-    image: registry.lil.tools/harvardlil/h2o-pandoc-lambda:0.57-d9466d39b907b1a0e13e594c0f9822d1
+    image: registry.lil.tools/harvardlil/h2o-pandoc-lambda:0.58-e2d5fbf9fa8acb7a0355bda21291054b
     tty: true
     environment:
       - USE_S3_CREDENTIALS=True
