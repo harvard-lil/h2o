@@ -983,7 +983,8 @@ class FullTextSearchIndex(models.Model):
             textblock_ids = casebook.contents.filter(resource_type="Link").values_list("resource_id", flat=True)
             base_query = FullTextSearchIndex.objects.filter(category=category).filter(result_id__in=textblock_ids)
 
-        base_query = base_query.filter(document=query_vector)
+        if query_vector:
+            base_query = base_query.filter(document=query_vector)
         results = base_query.filter(category=category)
         results = results.annotate(rank=SearchRank(F('document'), query_vector))
         display_name = get_display_name_field(category)
