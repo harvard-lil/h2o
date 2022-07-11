@@ -2,6 +2,7 @@ from django import template
 
 register = template.Library()
 
+
 @register.filter
 def include_previous_object(iterable):
     """

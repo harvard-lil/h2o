@@ -16,70 +16,80 @@ import django
 
 ### helpers ###
 
-os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'config.settings')
+os.environ.setdefault("DJANGO_SETTINGS_MODULE", "config.settings")
 _django_setup = False
+
+
 def setup_django(func):
     """
-        For speed, avoid setting up django until we need it. Attach @setup_django to any tasks that rely on importing django packages.
+    For speed, avoid setting up django until we need it. Attach @setup_django to any tasks that rely on importing django packages.
     """
+
     @wraps(func)
     def wrapper(*args, **kwargs):
         global _django_setup
         if not _django_setup:
-            sys.path.insert(0, '')
+            sys.path.insert(0, "")
             django.setup()
             _django_setup = True
         return func(*args, **kwargs)
+
     return wrapper
 
 
-@task(alias='run')
-def run_django(port=None, debug_toolbar=''):
+@task(alias="run")
+def run_django(port=None, debug_toolbar=""):
     with shell_env(DEBUG_TOOLBAR=debug_toolbar):
         if port is None:
-            port = "0.0.0.0:8000" if os.environ.get('DOCKERIZED') else "127.0.0.1:8000"
-        local(f'python manage.py runserver {port}')
+            port = "0.0.0.0:8000" if os.environ.get("DOCKERIZED") else "127.0.0.1:8000"
+        local(f"python manage.py runserver {port}")
 
 
 @task
-def run_frontend(port=None, debug_toolbar=''):
+def run_frontend(port=None, debug_toolbar=""):
     node_proc = subprocess.Popen("npm run serve", shell=True, stdout=sys.stdout, stderr=sys.stderr)
     try:
         run_django(port, debug_toolbar)
     finally:
         os.kill(node_proc.pid, signal.SIGKILL)
 
+
 ### tasks ###
+
 
 @task
 @setup_django
 def create_search_index():
-    """ Create (or recreate) the search_view materialized view """
+    """Create (or recreate) the search_view materialized view"""
     from main.models import SearchIndex
+
     SearchIndex.create_search_index()
 
 
 @task
 @setup_django
 def refresh_search_index():
-    """ Update an existing search_view materialized view; will create if create_search_index hasn't been run once """
+    """Update an existing search_view materialized view; will create if create_search_index hasn't been run once"""
     from main.models import SearchIndex
+
     SearchIndex.refresh_search_index()
 
 
 @task
 @setup_django
 def create_fts_index():
-    """ Create (or recreate) the search_view materialized view """
+    """Create (or recreate) the search_view materialized view"""
     from main.models import FullTextSearchIndex
+
     FullTextSearchIndex.create_search_index()
 
 
 @task
 @setup_django
 def refresh_fts_index():
-    """ Update an existing search_view materialized view; will create if create_search_index hasn't been run once """
+    """Update an existing search_view materialized view; will create if create_search_index hasn't been run once"""
     from main.models import FullTextSearchIndex
+
     FullTextSearchIndex.refresh_search_index()
 
 
@@ -88,6 +98,7 @@ def refresh_fts_index():
 def create_reporting_views():
     """Create (or recreate) reporting views that aggregate usage."""
     from main.reporting.create_reporting_views import create
+
     create()
 
 
@@ -96,13 +107,14 @@ def create_reporting_views():
 def refresh_reporting_views():
     """Refresh reporting tables that aggregate usage. Typically called on a schedule."""
     from main.reporting.create_reporting_views import refresh
+
     refresh()
 
 
 @task
 @setup_django
 def report_tags():
-    """ Report all HTML tags, attributes, and styles used in ContentNode.headnote and TextBlock.content. """
+    """Report all HTML tags, attributes, and styles used in ContentNode.headnote and TextBlock.content."""
     from main.models import TextBlock, ContentNode
     from main.utils import parse_html_fragment
     from pprint import pprint
@@ -111,21 +123,23 @@ def report_tags():
     tags = {}
     tag_styles = {}
 
-    sanitized_fields = ((TextBlock, 'content'), (ContentNode, 'headnote'))
+    sanitized_fields = ((TextBlock, "content"), (ContentNode, "headnote"))
 
     for model, field in sanitized_fields:
         print(f"Getting tags from {model.__name__}.{field}")
-        for obj in tqdm(model.objects.exclude(**{field: ''}).exclude(**{field: None}), total=float("inf")):
+        for obj in tqdm(
+            model.objects.exclude(**{field: ""}).exclude(**{field: None}), total=float("inf")
+        ):
             tree = parse_html_fragment(getattr(obj, field))
             for el in tree.iter():
                 tag = tags.setdefault(el.tag, set())
                 for k, v in el.items():
                     tag.add(k)
-                    if k == 'style':
+                    if k == "style":
                         tag_style = tag_styles.setdefault(el.tag, set())
-                        v = re.compile(r'url\s*\(\s*[^\s)]+?\s*\)\s*').sub(' ', v)  # remove url()
-                        for pair in v.split(';'):
-                            tag_style.add(pair.split(':', 1)[0].strip().lower())
+                        v = re.compile(r"url\s*\(\s*[^\s)]+?\s*\)\s*").sub(" ", v)  # remove url()
+                        for pair in v.split(";"):
+                            tag_style.add(pair.split(":", 1)[0].strip().lower())
 
     print("Tags and attributes in use:")
     pprint(tags)
@@ -146,19 +160,22 @@ def report_tags():
 @setup_django
 def compare_sanitized_html():
     """
-        Report all changes that result from applying sanitize() to ContentNode.headnote and TextBlock.content.
+    Report all changes that result from applying sanitize() to ContentNode.headnote and TextBlock.content.
     """
     from main.models import TextBlock, ContentNode
     from main.sanitize import sanitize
     from main.utils import parse_html_fragment, elements_equal
 
     sanitized_fields = (
-        (TextBlock, 'content'),
-        (ContentNode, 'headnote'),
+        (TextBlock, "content"),
+        (ContentNode, "headnote"),
     )
     for model, field in sanitized_fields:
         print("Getting tags from {model.__name__}.{field}")
-        for obj in tqdm(model.objects.exclude(**{field: ''}).exclude(**{field: None}).iterator(), total=float("inf")):
+        for obj in tqdm(
+            model.objects.exclude(**{field: ""}).exclude(**{field: None}).iterator(),
+            total=float("inf"),
+        ):
             content = getattr(obj, field)
             sanitized = sanitize(content)
             if content != sanitized:
@@ -169,27 +186,40 @@ def compare_sanitized_html():
 
 @task
 @setup_django
-def load_uscode_index(index='uscode_index.jsonl', effective_date=date(2018,1,1)):
+def load_uscode_index(index="uscode_index.jsonl", effective_date=date(2018, 1, 1)):
     """
     Import a jsonl file into the search index for US Code support
     """
     import json
     from main.models import USCodeIndex
+
     with open(index) as index_file:
         entries = []
         for line in index_file:
             ind_dict = json.loads(line)
-            repealed = ind_dict['title'].startswith("Repealed")
-            entries.append(USCodeIndex(citation=ind_dict['citation'], effective_date=effective_date, title=ind_dict['title'], gpo_id=ind_dict['gpo_id'], lii_url=ind_dict['lii_link'], repealed=repealed))
+            repealed = ind_dict["title"].startswith("Repealed")
+            entries.append(
+                USCodeIndex(
+                    citation=ind_dict["citation"],
+                    effective_date=effective_date,
+                    title=ind_dict["title"],
+                    gpo_id=ind_dict["gpo_id"],
+                    lii_url=ind_dict["lii_link"],
+                    repealed=repealed,
+                )
+            )
         USCodeIndex.objects.bulk_create(entries)
         for ind in USCodeIndex.objects.all():
             ind.save()
+
 
 if __name__ == "__main__":
     # allow tasks to be run as "python fabfile.py task"
     # this is convenient for profiling, e.g. "kernprof -l fabfile.py refresh_search_index"
     from fabric.main import main
+
     main()
+
 
 @task
 @setup_django
@@ -197,9 +227,13 @@ def prune_old_casebooks(older_than=90):
     from tqdm import tqdm
     from main.models import Casebook
     from datetime import datetime, timedelta
+
     target_time = datetime.now() - timedelta(days=older_than)
     total = 0
-    for cb in tqdm(Casebook.objects.filter(state='Previous').filter(updated_at__lt=target_time), desc="Checking Casebooks"):
+    for cb in tqdm(
+        Casebook.objects.filter(state="Previous").filter(updated_at__lt=target_time),
+        desc="Checking Casebooks",
+    ):
         if not cb.descendant_nodes.exists():
             try:
                 cb.delete()
@@ -209,20 +243,20 @@ def prune_old_casebooks(older_than=90):
     print(f"Deleted {total} casebooks")
 
 
-
 def image_uuids(res):
     if not res.content:
         return None
     pq = PyQuery(res.content)
     for img in pq("img").items():
-        src = img.attr('src') or ''
+        src = img.attr("src") or ""
         i = 0
-        while i < len(src) and src[i] in {'.','/'}:
+        while i < len(src) and src[i] in {".", "/"}:
             i += 1
         src = src[i:]
-        if src.startswith('image/'):
+        if src.startswith("image/"):
             src_uuid = uuid.UUID(src[6:])
             yield src_uuid
+
 
 @task
 @setup_django
@@ -234,14 +268,21 @@ def list_used_images(output="", in_db=False, in_html=True):
 
     used_images = set()
     if in_html != "False":
-        used_images = {src_uuid for tb in tqdm(TextBlock.objects.all(), desc="TextBlocks")
-                       for src_uuid in image_uuids(tb)}.union(
-                               {src_uuid for ld in tqdm(LegalDocument.objects.all(), desc="LegalDocs")
-                                for src_uuid in image_uuids(ld)})
+        used_images = {
+            src_uuid
+            for tb in tqdm(TextBlock.objects.all(), desc="TextBlocks")
+            for src_uuid in image_uuids(tb)
+        }.union(
+            {
+                src_uuid
+                for ld in tqdm(LegalDocument.objects.all(), desc="LegalDocs")
+                for src_uuid in image_uuids(ld)
+            }
+        )
     if in_db is not False:
         for si in SavedImage.objects.all():
             used_images.add(si.external_id)
-    with open(output, 'w') as f:
+    with open(output, "w") as f:
         for image in used_images:
             f.write(str(image) + "\n")
 
@@ -256,10 +297,17 @@ def cleanup_images(keep_file=None, dry_run=True):
     from main.storages import get_s3_storage
     from main.models import SavedImage, LegalDocument, TextBlock
 
-    used_images = {src_uuid for tb in tqdm(TextBlock.objects.all(), desc="TextBlocks")
-                       for src_uuid in image_uuids(tb)}.union(
-                               {src_uuid for ld in tqdm(LegalDocument.objects.all(), desc="LegalDocs")
-                                for src_uuid in image_uuids(ld)})
+    used_images = {
+        src_uuid
+        for tb in tqdm(TextBlock.objects.all(), desc="TextBlocks")
+        for src_uuid in image_uuids(tb)
+    }.union(
+        {
+            src_uuid
+            for ld in tqdm(LegalDocument.objects.all(), desc="LegalDocs")
+            for src_uuid in image_uuids(ld)
+        }
+    )
 
     s3_files_to_keep = {}
     if keep_file:
@@ -268,9 +316,9 @@ def cleanup_images(keep_file=None, dry_run=True):
 
     s3 = get_s3_storage()
     one_day = timedelta(days=1)
-    s3_files_to_check = {x['file_name'] for x in s3.augmented_listdir('/') if x['age'] > one_day}
+    s3_files_to_check = {x["file_name"] for x in s3.augmented_listdir("/") if x["age"] > one_day}
 
-    uuid_re = re.compile('[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}')
+    uuid_re = re.compile("[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}")
     to_cleanup = {}
     for fname in s3_files_to_check:
         matches = uuid_re.findall(fname)
@@ -314,9 +362,11 @@ def cleanup_images(keep_file=None, dry_run=True):
 def list_exports():
     from main.models import Casebook
     from django.urls import reverse
+
     public = {Casebook.LifeCycle.PUBLISHED.value, Casebook.LifeCycle.REVISING.value}
     for cb in Casebook.objects.filter(state__in=public).all():
-        print(reverse('export_casebook', args=[cb, 'docx']))
+        print(reverse("export_casebook", args=[cb, "docx"]))
+
 
 @task
 @setup_django
@@ -324,14 +374,37 @@ def casebook_garbage_collect(older_than_days=180, dry_run=False):
     from main.models import ContentNode, Casebook
     from datetime import datetime, timedelta
     from tqdm import tqdm
+
     older_than_days = int(older_than_days)
     dry_run = bool(dry_run)
-    living_casebook_states = {Casebook.LifeCycle.PUBLISHED.value, Casebook.LifeCycle.REVISING.value, Casebook.LifeCycle.DRAFT.value, Casebook.LifeCycle.NEWLY_CLONED.value, Casebook.LifeCycle.PRIVATELY_EDITING.value}
+    living_casebook_states = {
+        Casebook.LifeCycle.PUBLISHED.value,
+        Casebook.LifeCycle.REVISING.value,
+        Casebook.LifeCycle.DRAFT.value,
+        Casebook.LifeCycle.NEWLY_CLONED.value,
+        Casebook.LifeCycle.PRIVATELY_EDITING.value,
+    }
     newest_save = datetime.now() - timedelta(days=older_than_days)
-    print(f"Preparing to {'check' if dry_run else 'delete'} previously saves of casebooks older than {older_than_days} days old.")
-    cbs = list(Casebook.objects.filter(state=Casebook.LifeCycle.PREVIOUS_SAVE.value, updated_at__lte=newest_save).prefetch_related('contents').all())
+    print(
+        f"Preparing to {'check' if dry_run else 'delete'} previously saves of casebooks older than {older_than_days} days old."
+    )
+    cbs = list(
+        Casebook.objects.filter(
+            state=Casebook.LifeCycle.PREVIOUS_SAVE.value, updated_at__lte=newest_save
+        )
+        .prefetch_related("contents")
+        .all()
+    )
     cn_ids = {cn.id for cb in cbs for cn in cb.contents.all()}
-    referenced_nodes = {prov for cn in ContentNode.objects.filter(provenance__overlap=list(cn_ids), casebook__state__in=list(living_casebook_states)).select_related('casebook').all() for prov in cn.provenance}
+    referenced_nodes = {
+        prov
+        for cn in ContentNode.objects.filter(
+            provenance__overlap=list(cn_ids), casebook__state__in=list(living_casebook_states)
+        )
+        .select_related("casebook")
+        .all()
+        for prov in cn.provenance
+    }
     count = 0
     for cb in tqdm(cbs, desc="Filtering ContentNodes"):
         if {x.id for x in cb.contents.all()}.intersection(referenced_nodes):
@@ -344,7 +417,14 @@ def casebook_garbage_collect(older_than_days=180, dry_run=False):
 
 @task
 @setup_django
-def export_node(node_id=None, casebook_id=None, ordinals=None, annotations=True, file_name="temporary_export.docx", memory=False):
+def export_node(
+    node_id=None,
+    casebook_id=None,
+    ordinals=None,
+    annotations=True,
+    file_name="temporary_export.docx",
+    memory=False,
+):
     from time import time
     import tracemalloc
     from main.models import ContentNode, Casebook
@@ -362,7 +442,9 @@ def export_node(node_id=None, casebook_id=None, ordinals=None, annotations=True,
             else:
                 content_node = Casebook.objects.get(id=casebook_id)
     except ContentNode.DoesNotExist:
-        print(f"Couldn't find content node with node_id={node_id} or casebook_id={casebook_id} and ordinals={ordinals}")
+        print(
+            f"Couldn't find content node with node_id={node_id} or casebook_id={casebook_id} and ordinals={ordinals}"
+        )
         return
     include_annotations = annotations != "False"
     if memory == "True":
@@ -381,4 +463,6 @@ def export_node(node_id=None, casebook_id=None, ordinals=None, annotations=True,
     with open(file_name, "wb") as f:
         f.write(file_contents)
 
-    print(f"Generated export file ({filesizeformat(len(file_contents))}) in {round(after-before,2)} seconds.")
+    print(
+        f"Generated export file ({filesizeformat(len(file_contents))}) in {round(after-before,2)} seconds."
+    )
