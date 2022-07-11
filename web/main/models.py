@@ -749,8 +749,7 @@ def get_display_name_field(category):
 
 
 def dump_search_results(parts):
-    results, counts, facets = parts
-    return ([{k: '...' if k == 'created_at' else v for k, v in r.metadata.items()} for r in results.object_list], counts, facets)
+    return ([{k: '...' if k == 'created_at' else v for k, v in r.metadata.items()} for r in parts[0].object_list],) + tuple(parts[1:])
 
 class SearchIndex(models.Model):
     result_id = models.IntegerField()
@@ -974,7 +973,7 @@ class FullTextSearchIndex(models.Model):
         return results, counts, facets
 
     @classmethod
-    def casebook_fts(cls, casebook_id: int, category: ("legal_doc_fulltext", "textblock"), query: str, *args, **kwargs):
+    def casebook_fts(cls, casebook_id: int, category: ("legal_doc_fulltext", "textblock"), query_str: str, page_size=10, page=1):
         """
         Given a casebook ID and search parameters, run a full-text search on
         all text within the casebook. Currently, this only searches through legal
@@ -999,48 +998,47 @@ class FullTextSearchIndex(models.Model):
         >>> FullTextSearchIndex().create_search_index()
 
         Search in casebook by query:
-        >>> assert dump_search_results(FullTextSearchIndex().casebook_fts(casebooks[0].id, "legal_doc_fulltext", query='Dubious')) == (
+        >>> assert dump_search_results([FullTextSearchIndex().casebook_fts(casebooks[0].id, "legal_doc_fulltext", query_str='Dubious'),]) == (
         ...     [
         ...         {'citations': 'Adventures in criminality, 1 Fake 1, (2001)', 'display_name': 'Legal Doc 0', 'jurisdiction': None, 'effective_date': '1900-01-01T00:00:00+00:00', 'effective_date_formatted': 'January   1, 1900', 'headlines': ['<b>Dubious</b> legal claim']},
         ...         {'citations': 'Adventures in criminality, 1 Fake 1, (2001)', 'display_name': 'Legal Doc 1', 'jurisdiction': None, 'effective_date': '1900-01-01T00:00:00+00:00', 'effective_date_formatted': 'January   1, 1900', 'headlines': ['<b>Dubious</b> legal claim']},
         ...         {'citations': 'Adventures in criminality, 1 Fake 1, (2001)', 'display_name': 'Legal Doc 2', 'jurisdiction': None, 'effective_date': '1900-01-01T00:00:00+00:00', 'effective_date_formatted': 'January   1, 1900', 'headlines': ['<b>Dubious</b> legal claim']}
         ...     ],
-        ...     {'legal_doc_fulltext': 3},
-        ...     {}
         ... )
 
-        >>> assert dump_search_results(FullTextSearchIndex().casebook_fts(casebooks[0].id, 'legal_doc_fulltext', '2')) == (
+        >>> assert dump_search_results([FullTextSearchIndex().casebook_fts(casebooks[0].id, 'legal_doc_fulltext', query_str='2'),]) == (
         ...     [
         ...         {'citations': 'Adventures in criminality, 1 Fake 1, (2001)', 'display_name': 'Legal Doc 2', 'jurisdiction': None, 'effective_date': '1900-01-01T00:00:00+00:00', 'effective_date_formatted': 'January   1, 1900', 'headlines': ['Dubious legal claim <b>2</b>']}
         ...     ],
-        ...     {'legal_doc_fulltext': 1, 'textblock': 1},
-        ...     {}
         ... )
-        >>> assert dump_search_results(FullTextSearchIndex().casebook_fts(casebooks[0].id, 'textblock', '2')) == (
+        >>> assert dump_search_results([FullTextSearchIndex().casebook_fts(casebooks[0].id, 'textblock', query_str='2'),]) == (
         ...     [
         ...         {'name': 'Some TextBlock Name 2', 'description': 'Some TextBlock Description 2', 'ordinals': '', 'headlines': ['Some TextBlock Content <b>2</b>'], 'casebook_id': casebooks[0].id}
         ...     ],
-        ...     {'legal_doc_fulltext': 1, 'textblock': 1},
-        ...     {}
         ... )
         """
         casebook = Casebook.objects.get(id=casebook_id)
 
+        query_vector = SearchQuery(query_str, config="english") if query_str else None
+
+        base_query = FullTextSearchIndex.objects.filter(category="textblock").filter(metadata__casebook_id=casebook_id)
+        base_query |= FullTextSearchIndex.objects.filter(category="link").filter(metadata__casebook_id=casebook_id)
         legal_doc_ids = casebook.contents.filter(resource_type="LegalDocument").values_list("resource_id", flat=True)
-        legal_doc_query = FullTextSearchIndex.objects.filter(category="legal_doc_fulltext").filter(result_id__in=legal_doc_ids)
+        base_query |= FullTextSearchIndex.objects.filter(category="legal_doc_fulltext").filter(result_id__in=legal_doc_ids)
 
-        textblock_query = FullTextSearchIndex.objects.filter(category="textblock").filter(metadata__casebook_id=casebook_id)
+        base_query = base_query.filter(document=query_vector)
+        results = base_query.filter(category=category)
+        results = results.annotate(rank=SearchRank(F('document'), query_vector))
+        display_name = get_display_name_field(category)
+        results = results.order_by("-rank", display_name)
+        results = Paginator(results, page_size).get_page(page)
 
-        link_query = FullTextSearchIndex.objects.filter(category="link").filter(metadata__casebook_id=casebook_id)
-
-        base_query = legal_doc_query | textblock_query | link_query
-        results = FullTextSearchIndex.search(category, *args, base_query=base_query, query=query, **kwargs)
-        ids = sorted([r.result_id for r in results[0]])
+        ids = sorted([r.result_id for r in results])
         query_class = ({"legal_doc_fulltext": LegalDocument, "textblock": TextBlock, "link":Link})[category]
         content_name = "description" if category == "link" else "content"
-        headlines = query_class.objects.filter(id__in=ids).order_by('id').annotate(headlines=SearchHeadline(content_name, query, max_fragments=20, min_words=10, max_words=20)).values_list("headlines")
+        headlines = query_class.objects.filter(id__in=ids).order_by('id').annotate(headlines=SearchHeadline(content_name, query_str, max_fragments=20, min_words=10, max_words=20)).values_list("headlines")
         headlines = {i: h for i, h in zip(ids, headlines)}
-        for r in results[0]:
+        for r in results:
             try:
                 r.metadata["headlines"] = headlines[r.result_id][0].split("...")
             except AttributeError:

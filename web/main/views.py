@@ -2498,18 +2498,16 @@ def search_casebook(request, casebook):
     query = request.GET.get('q')
     category = type_param_to_category.get(request.GET.get('type', None), 'legal_doc_fulltext')
 
-    results, counts, facets = FullTextSearchIndex.casebook_fts(
+    results = FullTextSearchIndex.casebook_fts(
         casebook.id,
         category,
         page=page,
-        query=query,
-        order_by=request.GET.get('sort')
+        query_str=query,
+        # order_by=request.GET.get('sort')
     )
     results.from_capapi = False
     return render(request, 'search/casebook.html', {
             'results': results,
-            'counts': counts,
-            'facets': facets,
             'casebook': casebook,
             'category': category,
         })
