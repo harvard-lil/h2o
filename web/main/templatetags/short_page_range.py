@@ -6,11 +6,11 @@ register = template.Library()
 @register.filter
 def short_page_range(page, padding=2):
     """
-        Return just the page numbers we want to display from a Django Page object returned by a Paginator.
-        E.g., assuming we are on page 10 of 20:
-            {% for num in page|short_page_range %}num, {% endfor %}
-        Will output:
-            1, 2, ..., 8, 9, 10, 11, 12, ..., 19, 20
+    Return just the page numbers we want to display from a Django Page object returned by a Paginator.
+    E.g., assuming we are on page 10 of 20:
+        {% for num in page|short_page_range %}num, {% endfor %}
+    Will output:
+        1, 2, ..., 8, 9, 10, 11, 12, ..., 19, 20
     """
     paginator = page.paginator
     show_ellipsis = True
@@ -20,4 +20,4 @@ def short_page_range(page, padding=2):
             show_ellipsis = True
         elif show_ellipsis:
             show_ellipsis = False
-            yield '...'
+            yield "..."
