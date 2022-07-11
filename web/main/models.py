@@ -1001,9 +1001,9 @@ class FullTextSearchIndex(models.Model):
         Search in casebook by query:
         >>> assert dump_search_results(FullTextSearchIndex().casebook_fts(casebooks[0].id, "legal_doc_fulltext", query='Dubious')) == (
         ...     [
-        ...         {'citations': 'Adventures in criminality, 1 Fake 1, (2001)', 'display_name': 'Legal Doc 0', 'jurisdiction': None, 'effective_date': '1900-01-01T00:00:00+00:00', 'effective_date_formatted': 'January   1, 1900'},
-        ...         {'citations': 'Adventures in criminality, 1 Fake 1, (2001)', 'display_name': 'Legal Doc 1', 'jurisdiction': None, 'effective_date': '1900-01-01T00:00:00+00:00', 'effective_date_formatted': 'January   1, 1900'},
-        ...         {'citations': 'Adventures in criminality, 1 Fake 1, (2001)', 'display_name': 'Legal Doc 2', 'jurisdiction': None, 'effective_date': '1900-01-01T00:00:00+00:00', 'effective_date_formatted': 'January   1, 1900'}
+        ...         {'citations': 'Adventures in criminality, 1 Fake 1, (2001)', 'display_name': 'Legal Doc 0', 'jurisdiction': None, 'effective_date': '1900-01-01T00:00:00+00:00', 'effective_date_formatted': 'January   1, 1900', 'headlines': ['<b>Dubious</b> legal claim']},
+        ...         {'citations': 'Adventures in criminality, 1 Fake 1, (2001)', 'display_name': 'Legal Doc 1', 'jurisdiction': None, 'effective_date': '1900-01-01T00:00:00+00:00', 'effective_date_formatted': 'January   1, 1900', 'headlines': ['<b>Dubious</b> legal claim']},
+        ...         {'citations': 'Adventures in criminality, 1 Fake 1, (2001)', 'display_name': 'Legal Doc 2', 'jurisdiction': None, 'effective_date': '1900-01-01T00:00:00+00:00', 'effective_date_formatted': 'January   1, 1900', 'headlines': ['<b>Dubious</b> legal claim']}
         ...     ],
         ...     {'legal_doc_fulltext': 3},
         ...     {}
@@ -1011,14 +1011,14 @@ class FullTextSearchIndex(models.Model):
 
         >>> assert dump_search_results(FullTextSearchIndex().casebook_fts(casebooks[0].id, 'legal_doc_fulltext', '2')) == (
         ...     [
-        ...         {'citations': 'Adventures in criminality, 1 Fake 1, (2001)', 'display_name': 'Legal Doc 2', 'jurisdiction': None, 'effective_date': '1900-01-01T00:00:00+00:00', 'effective_date_formatted': 'January   1, 1900'}
+        ...         {'citations': 'Adventures in criminality, 1 Fake 1, (2001)', 'display_name': 'Legal Doc 2', 'jurisdiction': None, 'effective_date': '1900-01-01T00:00:00+00:00', 'effective_date_formatted': 'January   1, 1900', 'headlines': ['Dubious legal claim <b>2</b>']}
         ...     ],
         ...     {'legal_doc_fulltext': 1, 'textblock': 1},
         ...     {}
         ... )
         >>> assert dump_search_results(FullTextSearchIndex().casebook_fts(casebooks[0].id, 'textblock', '2')) == (
         ...     [
-        ...         {'name': 'Some TextBlock Name 2', 'description': 'Some TextBlock Description 2', 'ordinals': '', 'casebook_id': casebooks[0].id}
+        ...         {'name': 'Some TextBlock Name 2', 'description': 'Some TextBlock Description 2', 'ordinals': '', 'headlines': ['Some TextBlock Content <b>2</b>']}
         ...     ],
         ...     {'legal_doc_fulltext': 1, 'textblock': 1},
         ...     {}
