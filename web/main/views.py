@@ -3089,8 +3089,12 @@ def casebook_search(request, casebook):
     if category not in casebook_search_categories:
         category = "legal_doc_fulltext"
 
-    results, counts, facets = FullTextSearchIndex.casebook_fts(
-        casebook.id, category, page=page, query=query, order_by=request.GET.get("sort")
+    results = FullTextSearchIndex.casebook_fts(
+        casebook.id,
+        category,
+        page=page,
+        query_str=query,
+        # order_by=request.GET.get('sort')
     )
     results.from_capapi = False
     return render(
@@ -3098,8 +3102,6 @@ def casebook_search(request, casebook):
         "search/casebook.html",
         {
             "results": results,
-            "counts": counts,
-            "facets": facets,
             "casebook": casebook,
             "category": category,
         },
