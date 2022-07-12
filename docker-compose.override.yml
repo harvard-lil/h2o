@@ -6,6 +6,12 @@ services:
       - ./docker/pandoc-lambda/function/:/function
     build:
       context: ./docker/pandoc-lambda
+      cache_from:
+        - type: registry
+        - ref: "registry.lil.tools/harvardlil/h2o-pandoc-lambda:buildcache"
+      cache_to:
+        - type: registry
+        - ref: "registry.lil.tools/harvardlil/h2o-pandoc-lambda:buildcache,type=max"
       x-bake:
         tags:
           - registry.lil.tools/harvardlil/h2o-pandoc-lambda:0.58-e2d5fbf9fa8acb7a0355bda21291054b
@@ -18,6 +24,12 @@ services:
     build:
       context: .
       dockerfile: ./docker/Dockerfile
+      cache_from:
+        - type: registry
+        - ref: "registry.lil.tools/harvardlil/h2o-python:buildcache"
+      cache_to:
+        - type: registry
+        - ref: "registry.lil.tools/harvardlil/h2o-python:buildcache,type=max"
       x-bake:
         tags:
           - registry.lil.tools/harvardlil/h2o-python:0.70-fc0215d6776c08728dcc76e1c3fbda2a
