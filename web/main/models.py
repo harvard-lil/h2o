@@ -1025,10 +1025,12 @@ class FullTextSearchIndex(models.Model):
     def casebook_fts(
         cls,
         casebook_id: int,
-        category: ("legal_doc_fulltext", "textblock"),
+        category: str,
         query_str: str,
         page_size=10,
         page=1,
+        *args,
+        **kwargs,
     ):
         """
         Given a casebook ID and search parameters, run a full-text search on
@@ -1073,6 +1075,7 @@ class FullTextSearchIndex(models.Model):
         ...     ],
         ... )
         """
+
         casebook = Casebook.objects.get(id=casebook_id)
 
         query_vector = SearchQuery(query_str, config="english") if query_str else None
@@ -2580,7 +2583,7 @@ class ContentNode(
             ... </p>'''
             >>> content_node = annotations_factory('LegalDocument', input)[1]
             >>> output_html = content_node.annotated_content_for_export()
-            >>> expected = f'''<header class="case-header">
+            >>> expected = '''<header class="case-header">
             ...     </header><p>
             ...     <span class="annotate">Has a note</span><span data-custom-style="Footnote Reference">*</span>
             ...     <span class="annotate highlighted" data-custom-style="Highlighted Text">is highlighted</span>
@@ -2643,8 +2646,8 @@ class ContentNode(
             >>> content_node = annotations_factory('LegalDocument', input)[1]
             >>> output_html = content_node.annotated_content_for_export()
 
-            >>> expected = f'<header class="case-header">\n</header><p><span class="annotate highlighted" data-custom-style="Highlighted Text">One <span class="annotate">two</span></span>' \
-            ...     f'<span class="annotate"> three</span><span data-custom-style="Footnote Reference">*</span></p>'
+            >>> expected = '<header class="case-header">\n</header><p><span class="annotate highlighted" data-custom-style="Highlighted Text">One <span class="annotate">two</span></span>' \
+            ...     '<span class="annotate"> three</span><span data-custom-style="Footnote Reference">*</span></p>'
             >>> assert elements_equal(parse_html_fragment(output_html), parse_html_fragment(expected),ignore_trailing_whitespace=True), f"Expected:\n{expected}\nGot:\n{output_html}"
             >>> input = '<p>[highlight]One [elide]two[/highlight] three[/elide]</p>'
             >>> expected = '<header class="case-header">\n</header><p><span class="annotate highlighted" data-custom-style="Highlighted Text">One <span data-custom-style="Elision">[ … ]</span></span></p>'
