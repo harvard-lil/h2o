@@ -2994,14 +2994,7 @@ def search_using(request, source):
     return JsonResponse({"results": results}, status=200)
 
 
-type_param_to_category = {
-    "legal_doc": "legal_doc",
-    "casebooks": "casebook",
-    "users": "user",
-    "legal_doc_fulltext": "legal_doc_fulltext",
-    "textblock": "textblock",
-    "link": "link",
-}
+internal_search_categories = set(("legal_doc", "casebook", "user"))
 
 
 @no_perms_test
@@ -3021,7 +3014,9 @@ def internal_search(request):
     See SearchIndex._search tests for more specific tests.
     """
     # read query parameters
-    category = type_param_to_category.get(request.GET.get("type", None), "casebook")
+    category = request.GET.get("type", "")
+    if category not in internal_search_categories:
+        category = "casebook"
     try:
         page = int(request.GET.get("page"))
     except (TypeError, ValueError):
@@ -3058,25 +3053,28 @@ def internal_search(request):
     )
 
 
+casebook_search_categories = set(("legal_doc_fulltext", "textblock", "link"))
+
+
 @no_perms_test
 @hydrate_params
-def search_casebook(request, casebook):
+def casebook_search(request, casebook):
     """
     Search content of a specific casebook. Currently only searches legal docs.
 
-    Given:
-    >>> _, legal_document_factory, casebook_factory, content_node_factory = [getfixture(i) for i in ['reset_sequences', 'legal_document_factory', 'casebook_factory', 'content_node_factory']]
-    >>> capapi_mock, client = [getfixture(i) for i in ['capapi_mock', 'client']]
-    >>> casebooks = [casebook_factory() for i in range(3)]
-    >>> nodes = [content_node_factory() for i in range(3)]
-    >>> docs = [legal_document_factory() for i in range(3)]
-    >>> for d, n in zip(docs, nodes):
-    ...     n.resource_type = 'LegalDocument'
-    ...     n.resource_id = d.id
-    ...     n.casebook_id = casebooks[0].id
-    ...     n.save()
-    >>> FullTextSearchIndex().create_search_index()
-    >>> url = reverse('search_casebook', args=[casebooks[0].id])
+        Given:
+        >>> _, legal_document_factory, casebook_factory, content_node_factory = [getfixture(i) for i in ['reset_sequences', 'legal_document_factory', 'casebook_factory', 'content_node_factory']]
+        >>> capapi_mock, client = [getfixture(i) for i in ['capapi_mock', 'client']]
+        >>> casebooks = [casebook_factory() for i in range(3)]
+        >>> nodes = [content_node_factory() for i in range(3)]
+        >>> docs = [legal_document_factory() for i in range(3)]
+        >>> for d, n in zip(docs, nodes):
+        ...     n.resource_type = 'LegalDocument'
+        ...     n.resource_id = d.id
+        ...     n.casebook_id = casebooks[0].id
+        ...     n.save()
+        >>> FullTextSearchIndex().create_search_index()
+        >>> url = reverse('casebook_search', args=[casebooks[0].id])
 
     Show all legal documents by default:
     >>> check_response(client.get(url), content_includes=[d.name for d in docs])
@@ -3087,7 +3085,9 @@ def search_casebook(request, casebook):
     except (TypeError, ValueError):
         page = 1
     query = request.GET.get("q")
-    category = type_param_to_category.get(request.GET.get("type", None), "legal_doc_fulltext")
+    category = request.GET.get("type", "")
+    if category not in casebook_search_categories:
+        category = "legal_doc_fulltext"
 
     results, counts, facets = FullTextSearchIndex.casebook_fts(
         casebook.id, category, page=page, query=query, order_by=request.GET.get("sort")
