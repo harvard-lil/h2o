@@ -350,27 +350,28 @@ class CollaboratorFormSet(forms.BaseModelFormSet):
 
 
 class InviteCollaboratorForm(forms.Form):
-    casebook = forms.IntegerField(widget=forms.HiddenInput())
-    email = forms.EmailField()
+    casebook = forms.IntegerField(widget=forms.HiddenInput(), required=True)
+    email = forms.EmailField(required=True)
     helper = FormHelper()
 
-    def save(self, request, commit=True):
-        [email_user, email_domain] = self.cleaned_data.get("email", None).split("@")
-        email_address = "@".join([email_user, email_domain.lower()])
-        casebook = Casebook.objects.get(id=self.cleaned_data.get("casebook", None))
+    def clean_email(self):
+        [email_user, email_domain] = self.cleaned_data["email"].split("@")
+        return f"{email_user}@{email_domain.lower()}"
 
-        user = User.objects.filter(email_address=email_address).first()
-        collaborator = None
-        if not user:
+    def save(self, request, commit=True):
+        email_address = self.cleaned_data["email"]
+        casebook = Casebook.objects.get(id=self.cleaned_data["casebook"])
+
+        if user := User.objects.filter(email_addres__iexact=email_address).first():
+            collaborator = ContentCollaborator.objects.create(
+                has_attribution=False, can_edit=False, user=user, casebook=casebook
+            )
+            send_collaboration_email(request, user, casebook)
+        else:
             user = User.objects.create(email_address=email_address)
             collaborator = ContentCollaborator.objects.create(
                 has_attribution=False, can_edit=False, user=user, casebook=casebook
             )
             send_invitation_email(request, user, casebook)
-        else:
-            collaborator = ContentCollaborator.objects.create(
-                has_attribution=False, can_edit=False, user=user, casebook=casebook
-            )
-            send_collaboration_email(request, user, casebook)
 
         return collaborator
