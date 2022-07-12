@@ -2562,55 +2562,57 @@ class ContentNode(
 
     def reading_time(self):
         r"""
-            Returns reading time in minutes.
+        Returns reading time in minutes.
 
-            Given:
-            >>> annotations_factory, *_ = [getfixture(f) for f in ['annotations_factory']]
-            >>> input = '''<p>
-            ...     [note my note]Has a note[/note]
-            ...     [highlight]is highlighted[/highlight]
-            ...     [elide]is elided but longer to tell the difference[/elide]
-            ...     [replace new content]is replaced[/replace]
-            ...     [correction replaced content]is replaced[/correction]
-            ...     [link http://example.com]is linked[/link]
-            ... </p>'''
-            >>> def r_t(text):
-            ...     content_node = annotations_factory('LegalDocument', text)[1]
-            ...     output_html = content_node.annotated_content_for_export()
-            ...     return content_node.reading_time()
+        Given:
+        >>> annotations_factory, *_ = [getfixture(f) for f in ['annotations_factory']]
+        >>> input = '''<p>
+        ...     [note my note]Has a note[/note]
+        ...     [highlight]is highlighted[/highlight]
+        ...     [elide]is elided but longer to tell the difference[/elide]
+        ...     [replace new content]is replaced[/replace]
+        ...     [correction replaced content]is replaced[/correction]
+        ...     [link http://example.com]is linked[/link]
+        ... </p>'''
+        >>> def r_t(text):
+        ...     content_node = annotations_factory('LegalDocument', text)[1]
+        ...     return content_node.reading_time()
 
-            Basic example:
-            >>> assert round(r_t(input), 3) == 0.084
+        Basic example:
+        >>> assert round(r_t(input), 3) == 0.084
 
-            Elisions and HTML tags should also be handled correctly --- elided
-            text should not increase the reading time, and text-less annotations
-            should not increase it either.
-            Each elision will increase reading time by 1/200 seconds, because of
-            6 extra characters ('[...] '), but I will declare this negligible.
-            >>> elide_test = '''<p>
-            ...     [note my note]Has a note[/note]
-            ...     [highlight]is highlighted[/highlight]
-            ...     is elided
-            ...     [replace new content]is replaced[/replace]
-            ...     [correction replaced content]is replaced[/correction]
-            ...     [link http://example.com]is linked[/link]
-            ... </p>'''
-            >>> assert r_t(elide_test) != r_t (input)
-            >>> hl_test = '''<p>
-            ...     [note my note]Has a note[/note]
-            ...     is highlighted
-            ...     [elide]is elided[/elide]
-            ...     [replace new content]is replaced[/replace]
-            ...     [correction replaced content]is replaced[/correction]
-            ...     [link http://example.com]is linked[/link]
-            ... </p>'''
-            >>> assert r_t(hl_test) == r_t (input)
+        Elisions and HTML tags should also be handled correctly --- elided
+        text should not increase the reading time, and text-less annotations
+        should not increase it either.
+        Each elision will increase reading time by 1/200 seconds, because of
+        6 extra characters ('[...] '), but I will declare this negligible.
+        >>> elide_test = '''<p>
+        ...     [note my note]Has a note[/note]
+        ...     [highlight]is highlighted[/highlight]
+        ...     is elided
+        ...     [replace new content]is replaced[/replace]
+        ...     [correction replaced content]is replaced[/correction]
+        ...     [link http://example.com]is linked[/link]
+        ... </p>'''
+        >>> assert r_t(elide_test) != r_t (input)
+        >>> hl_test = '''<p>
+        ...     [note my note]Has a note[/note]
+        ...     is highlighted
+        ...     [elide]is elided[/elide]
+        ...     [replace new content]is replaced[/replace]
+        ...     [correction replaced content]is replaced[/correction]
+        ...     [link http://example.com]is linked[/link]
+        ... </p>'''
+        >>> assert r_t(hl_test) == r_t (input)
         """
         # Assuming ~200 wpm reading rate for dense text
         # 240 estimated as per:
         # http://crr.ugent.be/papers/Brysbaert_JML_2019_Reading_rate.pdf
         # get rendered html, without annotations in content
-        html_out = self.annotated_content_for_export()
+        try:
+            html_out = self.annotated_content_for_export()
+        except AttributeError:
+            return None
         text = parse_html_fragment(html_out).text_content()
 
         # also going with six characters a word because it's cheaper and

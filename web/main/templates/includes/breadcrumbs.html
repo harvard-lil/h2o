@@ -11,5 +11,10 @@
         <span class="separator">.</span>
       {% endif %}
     {% endfor %}
+    {% if content.reading_time %}
+      <div class="reading-time">
+        {{ content.reading_time | floatformat:"0" }} minute read
+      </div>
+    {% endif %}
   </div>
 {% endif %}
