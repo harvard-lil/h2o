@@ -1,6 +1,10 @@
 <section class="resource">
-  <section class="resource link-resource">
-    Click here to view this linked resource off-site:
-    <a href="{{ section.resource.url }}" target="_blank">{{ section.title }}</a>
-  </section>
+  <div class="link-container">
+      <a  href="{{ section.resource.url }}" target="_blank">
+         <div class="resource link-resource">
+            <div class="link-text">{{ section.title }}</div>
+            <div class="link-svg"></div> 
+        </div>
+      </a>
+  </div>
 </section>
