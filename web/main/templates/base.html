@@ -12,6 +12,12 @@
      const FRONTEND_URLS = {{ frontend_urls | safe}};
      window.SUP = {% if super %}true{% else %}false{% endif %};
      window.VERIFIED = {% if request.user.verified_professor %}true{% else %}false{% endif %};
+     window.sentry = {
+       USE_SENTRY: {{ USE_SENTRY|lower }},
+       DSN: "{{ SENTRY_DSN }}",
+       ENVIRONMENT: "{{ SENTRY_ENVIRONMENT }}",
+       TRACES_SAMPLE_RATE: {{ SENTRY_TRACES_SAMPLE_RATE }}
+     }
     </script>
     {% render_bundle 'main' %}
     <link rel="stylesheet" type="text/css" href="//fonts.googleapis.com/css?family=Lora|Sorts+Mill+Goudy"/>

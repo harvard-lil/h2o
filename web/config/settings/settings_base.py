@@ -159,6 +159,10 @@ TEMPLATE_VISIBLE_SETTINGS = (
     "SEARCH_URL",
     "EDIT_URL",
     "ACCESSIBILITY_POLICY_URL",
+    "USE_SENTRY",
+    "SENTRY_DSN",
+    "SENTRY_ENVIRONMENT",
+    "SENTRY_TRACES_SAMPLE_RATE",
 )
 
 LOGGING = {
@@ -260,3 +264,10 @@ PASSWORD_HASHERS = [
     # legacy password hasher for users who haven't logged in since Rails migration
     "main.hashers.PBKDF2WrappedRailsPasswordHasher",
 ]
+
+# If USE_SENTRY is True, SENTRY_DSN must be set
+USE_SENTRY = False
+SENTRY_DSN = ""
+SENTRY_ENVIRONMENT = "dev"
+SENTRY_TRACES_SAMPLE_RATE = 1.0
+SENTRY_SEND_DEFAULT_PII = False

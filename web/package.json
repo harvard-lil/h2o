@@ -10,6 +10,7 @@
   },
   "dependencies": {
     "@holtchesley/vue-nestable": "git://github.com/holtchesley/vue-nestable.git#063a64e67e5a1acbb2b7d7556748a3ce00d1ca52",
+    "@sentry/vue": "^7.6.0",
     "@trevoreyre/autocomplete-vue": "^2.2.0",
     "axios": "^0.21.4",
     "bluebird": "^3.5.0",
@@ -73,10 +74,10 @@
     "sass-loader": "^8.0.0",
     "sinon": "^7.3.2",
     "tinymce": "^5.10.2",
+    "vue-loader": "^15.6.2",
     "vue-template-compiler": "^2.6.10",
     "webpack-bundle-tracker": "^0.4.3",
     "webpack-dev-server": "^3.3.1",
-    "vue-loader": "^15.6.2",
     "xhr-mock": "^2.3.1"
   },
   "eslintConfig": {

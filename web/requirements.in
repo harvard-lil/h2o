@@ -45,3 +45,6 @@ pyquery
 
 # Who knows?
 importlib-metadata==1.7.0
+
+# instrumentation
+sentry-sdk
