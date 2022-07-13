@@ -402,9 +402,12 @@ form.edit_content_resource, form.edit_content_section, form.edit_content_caseboo
     box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19);
   }
 
+  .link-container :focus{
+    
+  } 
+
   .link-resource {
     padding: 24px;
-    border-radius: 14px;
     background-color: $white;
     display: flex;
     flex-direction: row;
