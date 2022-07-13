@@ -2566,15 +2566,8 @@ class ContentNode(
 
     @property
     def reading_time(self):
-        if self.resource_type not in ("LegalDocument", "TextBlock"):
-            return None
-        if self.reading_length is None:
-            self.reading_length = self.calculate_reading_time()
-        return self.reading_length
-
-    def calculate_reading_time(self):
         r"""
-        Returns reading time in minutes.
+        Returns estimated reading time for content in this node.
 
         Given:
         >>> annotations_factory, *_ = [getfixture(f) for f in ['annotations_factory']]
@@ -2617,6 +2610,17 @@ class ContentNode(
         ... </p>'''
         >>> assert r_t(hl_test) == r_t (input)
         """
+        if self.type == "section":
+            return sum([cn.reading_time for cn in self.contents])
+        if self.resource_type not in ("LegalDocument", "TextBlock"):
+            return None
+        if self.reading_length is None:
+            self.reading_length = self.calculate_reading_length()
+        chars_per_word = 6
+        words_per_minute = 200
+        return self.reading_length / (chars_per_word * words_per_minute)
+
+    def calculate_reading_length(self):
         # Assuming ~200 wpm reading rate for dense text
         # 240 estimated as per:
         # http://crr.ugent.be/papers/Brysbaert_JML_2019_Reading_rate.pdf
@@ -2626,13 +2630,7 @@ class ContentNode(
         except AttributeError:
             return None
         text = parse_html_fragment(html_out).text_content()
-
-        # also going with six characters a word because it's cheaper and
-        # common anyway, apparently.
-        wpm = 200
-        char_word = 6
-        minutes = len(text) / (char_word * wpm)
-        return minutes
+        return len(text)
 
     def annotated_content_for_export(self, export_options=None):
         r"""
