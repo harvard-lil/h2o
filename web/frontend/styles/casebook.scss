@@ -398,13 +398,16 @@ form.edit_content_resource, form.edit_content_section, form.edit_content_caseboo
     }
   }
 
-  .link-container :hover{
+  .link-container{
     box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19);
   }
 
-  .link-description{
-    box-shadow: none !important;
-    margin-bottom: 10px;
+  .link-container:hover .link-resource, .link-container a:focus .link-resource {
+    box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19);
+  }
+
+  .link-container a:focus {
+    outline: none;
   }
 
   .link-resource {
