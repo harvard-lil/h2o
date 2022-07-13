@@ -401,10 +401,11 @@ form.edit_content_resource, form.edit_content_section, form.edit_content_caseboo
   .link-container :hover{
     box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19);
   }
-
-  .link-container :focus{
-    
-  } 
+  
+  .link-description{
+    box-shadow: none !important;
+    margin-bottom: 10px;
+  }
 
   .link-resource {
     padding: 24px;
@@ -413,19 +414,27 @@ form.edit_content_resource, form.edit_content_section, form.edit_content_caseboo
     flex-direction: row;
   }
 
+  .link-icon{
+    box-shadow: none !important;
+    width: 23px;
+    height: 23px;
+    background-image: url('~static/images/Link.svg');
+  }
+
   .link-text{
     box-shadow: none !important;
+    border: 2px #3E72D8;
     font-size:16px;
-    margin: 0px;
     display: block;
     text-align: center;
+    width:800px;
+    margin:0 auto;
   }
 
   .link-svg{
     box-shadow: none !important;
     width: 40px;
     height: 40px;
-    margin-left:5%;
     display: inline-block;
     background-color: transparent;
     border:none;
