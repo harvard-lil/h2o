@@ -2006,6 +2006,10 @@ class ContentNode(
     objects = ContentNodeQueryset.as_manager()
     tracked_fields = ["headnote"]
 
+    # Stores the number of ‘read’ characters in a content
+    # Length of content, less elided text and html tags.
+    reading_length = models.IntegerField(null=True)
+
     class Meta:
         indexes = [
             models.Index(fields=["casebook", "ordinals"]),
@@ -2560,7 +2564,15 @@ class ContentNode(
         html = self.export_content(export_options and export_options.get("request"))
         return mark_safe(html)
 
+    @property
     def reading_time(self):
+        if self.resource_type not in ("LegalDocument", "TextBlock"):
+            return None
+        if self.reading_length is None:
+            self.reading_length = self.calculate_reading_time()
+        return self.reading_length
+
+    def calculate_reading_time(self):
         r"""
         Returns reading time in minutes.
 
