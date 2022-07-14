@@ -1,5 +1,6 @@
 import Vue from "vue";
 import VueRouter from 'vue-router';
+import * as Sentry from "@sentry/vue";
 Vue.use(VueRouter);
 Vue.config.productionTip = process.env.NODE_ENV == "development";
 
@@ -48,6 +49,20 @@ document.addEventListener("DOMContentLoaded", () => {
         Dashboard
     }
   });
+
+  if (window.sentry.USE_SENTRY) {
+    console.log('using sentry');
+    Sentry.init({
+      Vue,
+      dsn: window.sentry.DSN,
+      environment: window.sentry.ENVIRONMENT,
+
+      // Set tracesSampleRate to 1.0 to capture 100%
+      // of transactions for performance monitoring.
+      // We recommend adjusting this value in production
+      tracesSampleRate: window.sentry.TRACES_SAMPLE_RATE,
+    });
+  }
 
   window.app = app;
 });
