@@ -2564,6 +2564,7 @@ class ContentNode(
         html = self.export_content(export_options and export_options.get("request"))
         return mark_safe(html)
 
+    @property
     def reading_time(self):
         r"""
         Returns estimated reading time for content in this node.
@@ -3598,6 +3599,10 @@ class Casebook(EditTrackedModel, TimestampedModel, BigPkModel, TrackedCloneable)
     @property
     def sub_sections(self):
         return self.children
+
+    @property
+    def reading_time(self):
+        return sum((cn.reading_time for cn in self.contents.all()))
 
     @property
     def descendant_nodes(self):
