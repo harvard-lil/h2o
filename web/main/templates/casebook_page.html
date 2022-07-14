@@ -28,12 +28,6 @@
             <header class="casebook-header">
                 <div class="casebook-title">
                     {{ casebook.title }}
-                    <div class="reading-time">
-                        {{ casebook.reading_time | humanize_minutes }}
-                        {% if casebook.num_links %}
-                          + {{ casebook.num_links }} links
-                        {% endif %}
-                    </div>
                 </div>
             </header>
             {% if section %}
