@@ -692,6 +692,8 @@ class AnnotationListView(APIView):
         ...     check_response(client.post(url, payload, content_type="application/json", as_user=resource.testing_editor), status_code=400)
         """
         serializer = NewAnnotationSerializer(data=request.data.get("annotation"))
+        resource.reading_length = None
+        resource.save()
         if serializer.is_valid():
             serializer.save(resource=resource)
             return Response(serializer.data, status=status.HTTP_201_CREATED)
@@ -758,6 +760,8 @@ class AnnotationDetailView(APIView):
             annotation, data=request.data.get("annotation"), partial=True
         )
         if serializer.is_valid():
+            annotation.resource.reading_length = None
+            annotation.resource.save()
             serializer.save()
             return Response(serializer.data)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
@@ -798,6 +802,8 @@ class AnnotationDetailView(APIView):
         ...     annotation.refresh_from_db()
         """
         annotation.delete()
+        annotation.resource.reading_length = None
+        annotation.resource.save()
         return Response(status=status.HTTP_204_NO_CONTENT)
 
 
