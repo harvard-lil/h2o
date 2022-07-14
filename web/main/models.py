@@ -2611,7 +2611,7 @@ class ContentNode(
         >>> assert r_t(hl_test) == r_t (input)
         """
         if self.type == "section":
-            return sum([cn.reading_time or 0 for cn in self.contents])
+            return sum([cn.reading_time or 0 for cn in self.contents if cn.type != "section"])
         if self.resource_type not in ("LegalDocument", "TextBlock"):
             return None
         if self.reading_length is None:
@@ -3602,7 +3602,7 @@ class Casebook(EditTrackedModel, TimestampedModel, BigPkModel, TrackedCloneable)
 
     @property
     def reading_time(self):
-        return sum((cn.reading_time or 0 for cn in self.contents.all()))
+        return sum((cn.reading_time or 0 for cn in self.children))
 
     @property
     def descendant_nodes(self):
