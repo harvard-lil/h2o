@@ -20,6 +20,12 @@ services:
     ports:
       - "127.0.0.1:8000:8000"
       - "127.0.0.1:8080:8080"
+    extra_hosts:
+      - "opencasebook.test:127.0.0.1"
+    networks:
+      default:
+        aliases:
+          - 'opencasebook.test'
     depends_on:
       - db
     # allow profiling with py-spy
@@ -45,6 +51,12 @@ services:
       - minio_data:/data:delegated
     ports:
       - "127.0.0.1:9000:9000"
+    extra_hosts:
+      - "opencasebook.minio.test:127.0.0.1"
+    networks:
+      default:
+        aliases:
+          - 'opencasebook.minio.test'
 
   pandoc-lambda:
     image: registry.lil.tools/harvardlil/h2o-pandoc-lambda:0.59-25e07921cb8772382bde6870ec7be9ac
