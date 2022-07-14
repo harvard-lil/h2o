@@ -118,8 +118,10 @@ class ResourceForm(ContentNodeForm):
         self.helper.form_class = "edit_content_resource"
 
     def save(self, commit=True):
-        super(ContentNodeForm, self).save()
         cn = self.instance
+        # null reading_length so it can be recalculated later
+        cn.reading_length = None
+        super(ContentNodeForm, self).save()
         if "does_display_ordinals" in self.changed_data:
             cn.content_tree__load()
             (cn.content_tree__parent or cn.casebook).content_tree__repair()

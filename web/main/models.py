@@ -2564,7 +2564,6 @@ class ContentNode(
         html = self.export_content(export_options and export_options.get("request"))
         return mark_safe(html)
 
-    @property
     def reading_time(self):
         r"""
         Returns estimated reading time for content in this node.
@@ -2611,11 +2610,12 @@ class ContentNode(
         >>> assert r_t(hl_test) == r_t (input)
         """
         if self.type == "section":
-            return sum([cn.reading_time for cn in self.contents])
+            return sum([cn.reading_time() or 0 for cn in self.contents])
         if self.resource_type not in ("LegalDocument", "TextBlock"):
             return None
         if self.reading_length is None:
             self.reading_length = self.calculate_reading_length()
+            self.save()
         chars_per_word = 6
         words_per_minute = 200
         return self.reading_length / (chars_per_word * words_per_minute)
