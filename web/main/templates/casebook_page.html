@@ -1,4 +1,5 @@
 {% extends 'base.html' %}
+{% load humanize_minutes %}
 
 {% if edit_mode or clone_section_targets %}
 {% load render_bundle from webpack_loader %}
@@ -27,6 +28,9 @@
             <header class="casebook-header">
                 <div class="casebook-title">
                     {{ casebook.title }}
+                    <div class="reading-time">
+                        {{ casebook.reading_time | humanize_minutes }}
+                    </div>
                 </div>
             </header>
             {% if section %}
