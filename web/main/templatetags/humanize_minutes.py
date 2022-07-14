@@ -8,6 +8,7 @@ from django import template
 
 register = template.Library()
 
+
 @register.filter
 def humanize_minutes(minutes):
     if minutes < 1:
@@ -19,4 +20,6 @@ def humanize_minutes(minutes):
     halves = (minutes * 2) // 60
     if halves == 1:
         return "half an hour"
-    return f"{halves / 2:0.1f} hours"
+    if halves % 2:
+        return f"{halves / 2:0.1f} hours"
+    return f"{halves / 2:0.0f} hours"
