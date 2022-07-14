@@ -235,7 +235,7 @@ REST_FRAMEWORK = {
 PANDOC_DIR = os.path.join(os.path.dirname(BASE_DIR), "services/pandoc")
 
 S3_STORAGE = {
-    "endpoint_url": "http://minio:9000",
+    "endpoint_url": "http://opencasebook.minio.test:9000",
     "access_key": "accesskey",
     "secret_key": "secretkey",
 }

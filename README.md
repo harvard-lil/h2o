@@ -7,7 +7,15 @@
 [![test status](https://github.com/harvard-lil/h2o/actions/workflows/tests.yml/badge.svg)](https://github.com/harvard-lil/h2o/actions)
 [![codecov](https://codecov.io/gh/harvard-lil/h2o/branch/develop/graph/badge.svg)](https://codecov.io/gh/harvard-lil/h2o)
 
-## Development: Docker
+## Development
+
+We support local development with [Docker Compose](https://docs.docker.com/compose/).
+
+### Hosts Setup
+
+Add the following to `/etc/hosts`:
+
+    127.0.0.1 opencasebook.test opencasebook.minio.test
 
 ### Spin up some containers
 
@@ -33,11 +41,13 @@ Then log into the main Docker container:
 
 You should now have a working installation of H2O!
 
-Spin up the development server:
+Spin up the development server...
 
     # fab run
     or, with [Django Debug Toolbar](https://django-debug-toolbar.readthedocs.io/en/latest/index.html#) enabled,
     # fab run:debug_toolbar=True
+
+...and visit http://opencasebook.test:8000
 
 ### Frontend assets
 

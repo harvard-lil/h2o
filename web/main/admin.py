@@ -313,6 +313,7 @@ class CasebookAdmin(BaseAdmin, SimpleHistoryAdmin):
         "source",
         "provenance",
         "headnote",
+        "cover_image",
         "created_at",
         "updated_at",
         "draft",

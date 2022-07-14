@@ -76,6 +76,8 @@ logger = logging.getLogger(__name__)
 # Helpers
 #
 
+image_storage = get_s3_storage(bucket_name="h2o.images")
+
 
 class BigPkModel(models.Model):
     id = models.BigAutoField(primary_key=True)
@@ -3293,6 +3295,11 @@ class CasebookEditLog(BigPkModel):
         return mark_safe(line)
 
 
+def cover_image_path(instance, filename):
+    extension = filename.split(".")[-1]
+    return f"cover_images/{instance.id}.{extension}"
+
+
 class Casebook(EditTrackedModel, TimestampedModel, BigPkModel, TrackedCloneable):
     old_casebook = models.ForeignKey(
         "ContentNode",
@@ -3304,6 +3311,9 @@ class Casebook(EditTrackedModel, TimestampedModel, BigPkModel, TrackedCloneable)
     title = models.CharField(max_length=10000, default="Untitled")
     subtitle = models.CharField(max_length=10000, blank=True, null=True)
     headnote = models.TextField(blank=True, null=True)
+    cover_image = models.FileField(
+        storage=image_storage, upload_to=cover_image_path, blank=True, null=True
+    )
 
     collaborators = models.ManyToManyField(
         "User", through="ContentCollaborator", related_name="casebooks"
@@ -4742,9 +4752,6 @@ def update_user_login_fields(sender, request, user, **kwargs):
 
 
 user_logged_in.connect(update_user_login_fields)
-
-
-image_storage = get_s3_storage(bucket_name="h2o.images")
 
 
 class SavedImage(TimestampedModel):
