@@ -9,6 +9,7 @@ import html as python_html
 import json
 from lxml import etree, html
 import mimetypes
+from PIL import Image, UnidentifiedImageError
 from pyquery import PyQuery
 import re
 import requests
@@ -727,3 +728,16 @@ def export_via_aws_lambda(obj, html, file_type, docx_footnotes=None, docx_sectio
         if export_type == "Casebook" and obj.export_fails > 0:
             obj.reset_export_fails()
         return response["content"]
+
+
+class BadFiletypeError(Exception):
+    pass
+
+
+def validate_image(file, formats=None):
+    if formats is None:
+        formats = ["WEBP", "PNG", "JPEG", "GIF"]
+    try:
+        Image.open(file, formats=formats)
+    except UnidentifiedImageError:
+        raise BadFiletypeError(f"Only {', '.join(formats)} are supported at this time.")

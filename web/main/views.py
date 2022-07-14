@@ -33,7 +33,6 @@ from django.views import View
 from django.views.decorators.cache import never_cache
 from django.views.decorators.csrf import requires_csrf_token
 from django.views.decorators.http import require_http_methods, require_POST
-from PIL import Image, UnidentifiedImageError
 from pytest import raises as assert_raises
 from rest_framework import status
 from rest_framework.exceptions import ValidationError
@@ -104,6 +103,8 @@ from .utils import (
     get_link_title,
     send_verification_email,
     LambdaExportTooLarge,
+    validate_image,
+    BadFiletypeError,
 )
 
 logger = logging.getLogger("django")
@@ -3119,17 +3120,27 @@ def upload_image(request):
     >>> import base64
     >>> import io
     >>> import json
+
     >>> client = getfixture('client')
     >>> user = getfixture('admin_user')
     >>> img = io.BytesIO(base64.b64decode("iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNk+A8AAQUBAScY42YAAAAASUVORK5CYII="))
     >>> img.name = 'Test.png'
+    >>> bad_img = io.BytesIO(b'bad to the bone')
+    >>> bad_img.name = 'Test.png'
     >>> url = reverse('upload_image', args=[])
+
     >>> res = client.post(url, {'image': img, 'name': 'Test'})
     >>> assert(res.status_code==302 and res.url==f'/accounts/login/?next={url}')
+
     >>> _ = img.seek(0)
+
     >>> res = client.post(url, {'image':img, 'name': 'Test'}, as_user=user)
     >>> assert(res.status_code == 200)
     >>> assert('location' in json.loads(res.content))
+
+    >>> res = client.post(url, {'image':bad_img, 'name': 'Test'}, as_user=user)
+    >>> assert(res.status_code == 403)
+    >>> assert(b'supported at this time' in res.content)
     """
     # TinyMCE requires a response like {"location": [url]}
     if not (request.user.is_superuser or request.user.verified_professor):
@@ -3143,9 +3154,10 @@ def upload_image(request):
     image_file.name = str(s3_uuid) + suffix
 
     try:
-        Image.open(image_file, formats=["WEBP", "PNG", "JPEG", "GIF"])
-    except UnidentifiedImageError:
-        return HttpResponseForbidden("Only JPEG, PNG, GIF, and WebP are supported at this time.")
+        validate_image(image_file)
+    except BadFiletypeError as e:
+        return HttpResponseForbidden(str(e))
+
     saved_image = SavedImage(
         name=original_name, image=image_file, external_id=s3_uuid, uploaded_by=request.user
     )
