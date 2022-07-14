@@ -2565,6 +2565,16 @@ class ContentNode(
         return mark_safe(html)
 
     @property
+    def num_links(self):
+        if self.type == "resource" and self.resource_type == "Link":
+            return 1
+        if self.type == "section":
+            return len(
+                [1 for cn in self.contents if cn.type == "resource" and cn.resource_type == "Link"]
+            )
+        return 0
+
+    @property
     def reading_time(self):
         r"""
         Returns estimated reading time for content in this node.
@@ -3603,6 +3613,10 @@ class Casebook(EditTrackedModel, TimestampedModel, BigPkModel, TrackedCloneable)
     @property
     def reading_time(self):
         return sum((cn.reading_time or 0 for cn in self.children))
+
+    @property
+    def num_links(self):
+        return sum((cn.num_links or 0 for cn in self.children))
 
     @property
     def descendant_nodes(self):

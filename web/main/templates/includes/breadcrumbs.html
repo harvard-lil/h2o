@@ -15,6 +15,9 @@
     {% if content.reading_time %}
       <div class="reading-time">
         {{ content.reading_time | humanize_minutes }}
+        {% if content.num_links %}
+          + {{ content.num_links }} links
+        {% endif %}
       </div>
     {% endif %}
   </div>
