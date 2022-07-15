@@ -1,7 +1,5 @@
-{% extends 'base.html' %}
 {% load current_query_string %}
 
-{% block mainContent %}
   <header class="advanced-search view-searches-show">
     <form novalidate="novalidate" class="simple_form search" accept-charset="UTF-8">
       {# Hidden field to preserve active tab's category during form submission #}
@@ -50,4 +48,3 @@
       {% endif %}
     </div>
   </section>
-{% endblock %}
