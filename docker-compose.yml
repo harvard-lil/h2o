@@ -74,3 +74,6 @@ services:
 volumes:
   db_data_12:
   minio_data:
+
+networks:
+  default:
