@@ -658,6 +658,18 @@ form.edit_content_resource, form.edit_content_section, form.edit_content_caseboo
   }
 }
 
+#casebook-search {
+  section.casebook-search {
+    background-color:$white;
+    border-top: 1px solid $light-gray;
+    padding: 2rem 4rem 4rem 4rem;
+  }
+
+  .search-bar-container {
+    width: 100%;
+  }
+}
+
 #credits {
     section.credits {
         background-color:$white;

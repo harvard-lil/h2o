@@ -3098,6 +3098,12 @@ def casebook_search(request, casebook):
         # order_by=request.GET.get('sort')
     )
     results.from_capapi = False
+    params = {
+        "casebook": casebook,
+        "tabs": casebook.tabs_for_user(request.user, current_tab="History"),
+        "casebook_color_class": casebook.casebook_color_indicator,
+        "edit_mode": casebook.directly_editable_by(request.user),
+    }
     return render(
         request,
         "casebook_page_search.html",
@@ -3105,6 +3111,9 @@ def casebook_search(request, casebook):
             "results": results,
             "casebook": casebook,
             "category": category,
+            "tabs": casebook.tabs_for_user(request.user, current_tab="Search Inside"),
+            "casebook_color_class": casebook.casebook_color_indicator,
+            "edit_mode": casebook.directly_editable_by(request.user),
         },
     )
 
