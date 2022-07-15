@@ -86,7 +86,7 @@
                 {{ result.metadata.display_name }}
               </div>
               <div class="citation">
-                {{ result.metadata.citations | truncatewords:3 }}
+                {{ result.metadata.citations }}
               </div>
               <div class="date">
                 {{ result.metadata.effective_date_formatted|default:'' }}
@@ -103,7 +103,7 @@
                 {{ result.metadata.ordinals }}
               </div>
               <div class="subtitle">
-                {{ result.metadata.citation }} {% if result.metadata.year %}({{ result.metadata.year }}){% endif %}
+                {{ result.metadata.citations.0 }} {% if result.metadata.year %}({{ result.metadata.year }}){% endif %}
               </div>
               {% if result.metadata.headlines|length > 1%}
                 <div class="description">
