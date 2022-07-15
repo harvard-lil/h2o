@@ -73,6 +73,7 @@ header.advanced-search {
   .type-tab {
     @include make-md-column(4);
     @include sans-serif($regular, 18px, 18px);
+    margin-top: 10px;
     padding-bottom: 10px;
     text-align: center;
     color: $black;
