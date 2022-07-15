@@ -3112,6 +3112,9 @@ def casebook_search(request, casebook):
             "results": results,
             "casebook": casebook,
             "category": category,
+            "tabs": casebook.tabs_for_user(request.user, current_tab="Search Inside"),
+            "casebook_color_class": casebook.casebook_color_indicator,
+            "edit_mode": casebook.directly_editable_by(request.user),
         },
     )
 

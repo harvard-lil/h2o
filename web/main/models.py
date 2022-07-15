@@ -4568,7 +4568,7 @@ class Casebook(EditTrackedModel, TimestampedModel, BigPkModel, TrackedCloneable)
                 not self.is_archived and user.is_superuser,
             ),
             ("History", reverse("casebook_history", args=[self]), self.viewable_by(user)),
-            ("Search", reverse("casebook_search", args=[self]), self.viewable_by(user)),
+            ("Search Inside", reverse("casebook_search", args=[self]), self.viewable_by(user)),
             ("Settings", reverse("casebook_settings", args=[self]), self.editable_by(user)),
         ]
         return [(n, l, n == current_tab) for n, l, c in tabs if c]

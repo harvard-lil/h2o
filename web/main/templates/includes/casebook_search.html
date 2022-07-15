@@ -1,0 +1,50 @@
+{% load current_query_string %}
+
+<section class="casebook-search">
+  <header class="advanced-search view-searches-show">
+    <form novalidate="novalidate" class="simple_form search" accept-charset="UTF-8">
+      {# Hidden field to preserve active tab's category during form submission #}
+      {# Note that 'category' is singular, but 'type' is plural #}
+      <div class="form-group hidden search_type">
+        <input class="form-control hidden" name="type" value="{{ category }}" type="hidden" id="search_type">
+      </div>
+      <div class="search-bar-container">
+        <div class="input-group">
+          <input type="search" name="q" id="q" class="form-control" placeholder="Search in {{ casebook.title }}" aria-label="Search legal documents and text from {{ casebook.title }}" value="{{ request.GET.q }}">
+          <span class="input-group-btn">
+            <button class="form-control btn" type="submit" aria-label="Search" style="border: 1px solid black; background-color: #f5f4ec;"><i aria-hidden="true" class="fa fa-search"></i></button>
+          </span>
+        </div>
+      </div>
+      {% include 'search/filters.html' %}
+    </form>
+  </header>
+  <div class="content">
+      <div class="results-container">
+        <div class="type-tabs">
+          <div class="type-tab {% if category == 'legal_doc_fulltext' %}active{% endif %}" {% if category == 'legal_doc_fulltext' %}aria-current="location"{% endif %}>
+            <a href="?{% current_query_string type="legal_doc_fulltext" page=1 %}" class="wrapper">
+              Legal Documents 
+            </a>
+          </div>
+          <div class="type-tab {% if category == 'textblock' %}active{% endif %}" {% if category == 'textblock' %}aria-current="location"{% endif %}>
+            <a href="?{% current_query_string type="textblock" page=1 %}" class="wrapper">
+              Text Passages 
+            </a>
+          </div>
+          <div class="type-tab {% if category == 'link' %}active{% endif %}" {% if category == 'link' %}aria-current="location"{% endif %}>
+            <a href="?{% current_query_string type="link" page=1 %}" class="wrapper">
+              Links 
+            </a>
+          </div>
+        </div>
+      </div>
+    {% if results %}
+      {% include 'search/results.html' %}
+    {% else %}
+      <div class="no-results">
+        <h3>No results found</h3>
+      </div>
+    {% endif %}
+  </div>
+</section>
