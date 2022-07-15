@@ -210,7 +210,7 @@ main > header.casebook {
 }
 
 form.edit_content_resource, form.edit_content_section, form.edit_content_casebook {
-  label {
+  label:not([for="cover_image-clear_id"]) {
     @extend .sr-only;
   }
   div.visible-in-form label {
