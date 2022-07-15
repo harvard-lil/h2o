@@ -6,7 +6,7 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('main', '0027_drop_legacy_tables'),
+        ('main', '0029_auto_20220714_1747'),
     ]
 
     operations = [
