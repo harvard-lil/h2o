@@ -42,6 +42,7 @@ from simple_history.utils import bulk_create_with_history
 
 from .forms import (
     CasebookForm,
+    CasebookFormWithCoverImage,
     CasebookSettingsTransitionForm,
     CollaboratorFormSet,
     InviteCollaboratorForm,
@@ -1697,7 +1698,7 @@ def create_draft(request, casebook):
 def edit_casebook(request, casebook):
     """
     Given:
-    >>> private, with_draft, client = [getfixture(f) for f in ['full_private_casebook', 'full_casebook_with_draft', 'client']]
+    >>> private, with_draft, for_verified_prof, client = [getfixture(f) for f in ['full_private_casebook', 'full_casebook_with_draft', 'full_private_casebook_for_verified_prof', 'client']]
     >>> draft = with_draft.draft
 
     Users can edit their unpublished and draft casebooks:
@@ -1721,14 +1722,29 @@ def edit_casebook(request, casebook):
     ...     content_excludes=draft.title
     ... )
 
+    Verified professors may upload cover images; standard users may not:
+    >>> check_response(
+    ...    client.get(draft.get_edit_url(), as_user=draft.testing_editor),
+    ...    content_excludes=["Cover Image", 'type="file"'],
+    ... )
+    >>> check_response(
+    ...    client.get(for_verified_prof.get_edit_url(), as_user=for_verified_prof.attributed_authors[0]),
+    ...    content_includes=["Cover Image", 'type="file"'],
+    ... )
     """
     if not request.user.is_authenticated or not casebook.directly_editable_by(request.user):
         return HttpResponseRedirect(reverse("casebook", args=[casebook]))
-    # NB: The Rails app does NOT redirect here to a canonical URL; it silently accepts any slug.
-    # Duplicating that here.
-    form = CasebookForm(request.POST or None, instance=casebook)
+
+    form_class = (
+        CasebookFormWithCoverImage
+        if settings.COVER_IMAGES and (request.user.is_superuser or request.user.verified_professor)
+        else CasebookForm
+    )
+    form = form_class(request.POST or None, request.FILES or None, instance=casebook)
     if request.method == "POST" and form.is_valid():
         form.save()
+        form = form_class(instance=casebook)
+
     casebook.contents.prefetch_resources()
     search_sources = LegalDocumentSource.objects
     if not (request.user and request.user.is_superuser):
@@ -1736,6 +1752,7 @@ def edit_casebook(request, casebook):
     doc_sources = list(search_sources.order_by("priority").all())
     serialized_sources = LegalDocumentSourceSerializer(doc_sources, many=True).data
     search_sources_json = json.dumps(serialized_sources)
+
     return render_with_actions(
         request,
         "casebook_page.html",

@@ -25,6 +25,8 @@ from main.utils import (
     send_verification_email,
     send_invitation_email,
     send_collaboration_email,
+    validate_image,
+    BadFiletypeError,
 )
 
 
@@ -35,9 +37,8 @@ from main.utils import (
 FormHelper.form_tag = False
 
 
-class ContentNodeForm(ModelForm):
+class CasebookAndContentNodeMixin:
     class Meta:
-        model = ContentNode
         fields = ["title", "subtitle", "headnote"]
 
     def __init__(self, *args, **kwargs):
@@ -63,11 +64,45 @@ class ContentNodeForm(ModelForm):
         self.fields["headnote"].label = False
 
 
-class CasebookForm(ContentNodeForm):
+class ContentNodeForm(CasebookAndContentNodeMixin, ModelForm):
+    class Meta(CasebookAndContentNodeMixin.Meta):
+        model = ContentNode
+
+
+class CasebookForm(CasebookAndContentNodeMixin, ModelForm):
+    class Meta(CasebookAndContentNodeMixin.Meta):
+        model = Casebook
+
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.helper.form_class = "edit_content_casebook"
         self.helper.form_tag = False
+
+
+class CasebookFormWithCoverImage(CasebookForm):
+    class Meta(CasebookForm.Meta):
+        fields = list(CasebookAndContentNodeMixin.Meta.fields) + ["cover_image"]
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+
+        cover_image_layout = Div(
+            HTML('<h5 id="cover-image-label">Cover Image</h5>'),
+            Field(
+                "cover_image",
+                aria_labelledby="cover-image-label",
+            ),
+        )
+        self.helper.layout.fields.append(cover_image_layout)
+
+    def clean_cover_image(self):
+        cover_image = self.cleaned_data.get("cover_image")
+        if cover_image:
+            try:
+                validate_image(cover_image)
+            except BadFiletypeError as e:
+                raise ValidationError(str(e))
+        return cover_image
 
 
 class SectionForm(ContentNodeForm):

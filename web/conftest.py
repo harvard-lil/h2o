@@ -108,6 +108,12 @@ class UnconfirmedUserFactory(UserFactory):
 
 
 @register_factory
+class VerifiedProfessorFactory(UserFactory):
+    verified_professor = True
+    professor_verification_requested = True
+
+
+@register_factory
 class AdminUserFactory(UserFactory):
     attribution = "Admin"
     is_staff = True
@@ -473,8 +479,9 @@ def full_casebook_parts_factory(db):
             - section
     """
 
-    def factory(state=Casebook.LifeCycle.PUBLISHED.value):
-        user = UserFactory()
+    def factory(state=Casebook.LifeCycle.PUBLISHED.value, user=None):
+        if not user:
+            user = UserFactory()
         casebook = CasebookFactory(contentcollaborator_set__user=user, state=state)
         _ = CasebookEditLogFactory(casebook=casebook)
         s_1 = SectionFactory(casebook=casebook, ordinals=[1], display_ordinals=[1])
@@ -536,6 +543,21 @@ def full_private_casebook(full_casebook_parts_factory):
     >>> assert all(node.is_private for node in private.contents.all())
     """
     return full_casebook_parts_factory(state=Casebook.LifeCycle.PRIVATELY_EDITING.value)[0]
+
+
+@pytest.fixture
+def full_private_casebook_for_verified_prof(full_casebook_parts_factory):
+    """
+    The same as full_private_casebook, except its author is a verified professor
+
+    >>> [book] = [getfixture(f) for f in ['full_private_casebook_for_verified_prof']]
+    >>> [author] = book.attributed_authors
+    >>> assert author.verified_professor
+    """
+    prof = VerifiedProfessorFactory()
+    return full_casebook_parts_factory(state=Casebook.LifeCycle.PRIVATELY_EDITING.value, user=prof)[
+        0
+    ]
 
 
 @pytest.fixture
