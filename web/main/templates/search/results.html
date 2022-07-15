@@ -31,7 +31,7 @@
             <div class="ordinals">
                 {{ result.metadata.ordinals }}
             </div>
-            {% if result.metadata.headlines %}
+            {% if result.metadata.headlines|length > 1%}
               <div class="description">
                  {% autoescape off %}
                  {% for headline in result.metadata.headlines|slice:"0:4" %}
@@ -55,13 +55,13 @@
             <div class="title">
               {{ result.metadata.name }}
             </div>
-            <div class="owner">
-              {{ result.metadata.url }}
-            </div>
             <div class="ordinals">
                 {{ result.metadata.ordinals }}
             </div>
-            {% if result.metadata.headlines %}
+            <div class="subtitle">
+              {{ result.metadata.url }}
+            </div>
+            {% if result.metadata.headlines|length > 1 %}
               <div class="description">
                  {% autoescape off %}
                  {% for headline in result.metadata.headlines|slice:"0:4" %}
@@ -105,7 +105,7 @@
               <div class="subtitle">
                 {{ result.metadata.citation }} {% if result.metadata.year %}({{ result.metadata.year }}){% endif %}
               </div>
-              {% if result.metadata.headlines %}
+              {% if result.metadata.headlines|length > 1%}
                 <div class="description">
                    {% autoescape off %}
                      {% for headline in result.metadata.headlines|slice:"0:4" %}
