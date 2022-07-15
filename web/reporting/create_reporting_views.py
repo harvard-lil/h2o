@@ -1,7 +1,7 @@
 from pathlib import Path
 from django.db import connection
 
-from ..models import Casebook
+from main.models import Casebook
 
 
 # "Published" state matches logic in the front end, which includes casebooks under revision
@@ -14,11 +14,16 @@ ALL_STATES = tuple(tag.value for tag in Casebook.LifeCycle)
 OLDEST_YEAR = 20  # How far back in time we'll go
 
 VIEW_LIST = (
+    "reporting_users",
+    "reporting_professors",
     "reporting_professors_with_casebooks",
+    "reporting_casebooks",
     "reporting_casebooks_from_professors",
     "reporting_casebooks_with_multiple_collaborators",
     "reporting_casebooks_including_source_cap",
     "reporting_casebooks_including_source_gpo",
+    "reporting_casebooks_series",
+    "reporting_casebooks_series_from_professors",
 )
 
 

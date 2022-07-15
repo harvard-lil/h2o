@@ -1,4 +1,4 @@
 [tool.black]
 line-length = 100
-exclude = "web/main/migrations/"
+exclude = "web/.*/migrations/"
 include = "web/.*.py$"
