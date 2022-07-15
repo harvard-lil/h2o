@@ -61,7 +61,7 @@
                 <hr />
                 {% endif %}
                 
-                <form class="edit_content_{% if section and section.has_body %}resource{% elif section%}section{% else %}casebook{% endif %}" method="{{ form.helper.form_method }}">
+                <form class="edit_content_{% if section and section.has_body %}resource{% elif section%}section{% else %}casebook{% endif %}" method="{{ form.helper.form_method }}" enctype="multipart/form-data">
                     {% crispy form %}
                     {% if embedded_resource_form %}{% crispy embedded_resource_form %}{% endif %}
                 </form>

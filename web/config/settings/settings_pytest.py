@@ -16,3 +16,5 @@ MIDDLEWARE.remove("whitenoise.middleware.WhiteNoiseMiddleware")
 CAPAPI_API_KEY = "12345"
 
 LOGGING["loggers"]["django"]["handlers"].append("mail_admins")
+
+COVER_IMAGES = True
