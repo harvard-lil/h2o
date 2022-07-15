@@ -22,25 +22,27 @@
         </a>
       {% elif category == 'textblock' %}
         <a href="{% url 'resource' casebook.id result.metadata.ordinals %}" class="wrapper" data-result-id="{{ result.result_id }}">
-          <div class="results-entry">
+          <div class="fts-results-entry">
             <div class="title">
               {{ result.metadata.name }}
             </div>
             <div class="owner">
             </div>
-            <div class="date">
+            <div class="ordinals">
                 {{ result.metadata.ordinals }}
             </div>
-            {% if result.metadata.headlines %}
+            {% if result.metadata.headlines|length > 1%}
               <div class="description">
                  {% autoescape off %}
+                 {% for headline in result.metadata.headlines|slice:"0:4" %}
                    ...
-                   {{ result.metadata.headlines.0 }}
+                   {{ headline }}
+                  {% endfor %}
                    ...
                  {% endautoescape %}
-                 {% if result.metadata.headlines|length > 1 %}
+                 {% if result.metadata.headlines|length > 3 %}
                   <span class="and-more">
-                    and {% if result.metadata.headlines|length < 10 %} {{ result.metadata.headlines|length }} {% else %} many {% endif %} more.
+                    and {% if result.metadata.headlines|length|add:"-3" < 10 %} {{ result.metadata.headlines|length|add:"-3" }} {% else %} many {% endif %} more.
                   </span>
                  {% endif %}
               </div>
@@ -49,52 +51,70 @@
         </a>
       {% elif category == 'link' %}
         <a href="{% url 'resource' casebook.id result.metadata.ordinals %}" class="wrapper" data-result-id="{{ result.result_id }}">
-          <div class="results-entry">
+          <div class="fts-results-entry">
             <div class="title">
               {{ result.metadata.name }}
             </div>
-            <div class="owner">
-              {{ result.metadata.url }}
-            </div>
-            <div class="date">
+            <div class="ordinals">
                 {{ result.metadata.ordinals }}
             </div>
-            {% if result.metadata.headlines %}
+            <div class="subtitle">
+              {{ result.metadata.url }}
+            </div>
+            {% if result.metadata.headlines|length > 1 %}
               <div class="description">
                  {% autoescape off %}
+                 {% for headline in result.metadata.headlines|slice:"0:4" %}
                    ...
-                   {{ result.metadata.headlines.0 }}
-                  ...
+                   {{ headline }}
+                  {% endfor %}
+                   ...
                  {% endautoescape %}
-                 {% if result.metadata.headlines|length > 1 %}
+                 {% if result.metadata.headlines|length > 3 %}
                   <span class="and-more">
-                    and {% if result.metadata.headlines|length < 10 %} {{ result.metadata.headlines|length }} {% else %} many {% endif %} more.
+                    and {% if result.metadata.headlines|length|add:"-3" < 10 %} {{ result.metadata.headlines|length|add:"-3" }} {% else %} many {% endif %} more.
                   </span>
                  {% endif %}
               </div>
             {% endif %}
           </div>
         </a>
-      {% elif category == 'legal_doc' or category == 'legal_doc_fulltext'%}
+      {% elif category == 'legal_doc' %}
           <a href="{% url 'display_legal_doc' result.result_id %}" class="wrapper" data-result-id="{{ result.result_id }}">
             <div class="results-entry">
               <div class="title">
                 {{ result.metadata.display_name }}
               </div>
               <div class="citation">
-                {{ result.metadata.citations | truncatewords:3 }}
+                {{ result.metadata.citations }}
               </div>
               <div class="date">
                 {{ result.metadata.effective_date_formatted|default:'' }}
               </div>
-              {% if result.metadata.headlines %}
+            </div>
+          </a>
+      {% elif category == 'legal_doc_fulltext' %}
+          <a href="{% url 'resource' casebook.id result.metadata.ordinals %}" class="wrapper" data-result-id="{{ result.result_id }}">
+            <div class="fts-results-entry">
+              <div class="title">
+                {{ result.metadata.display_name }}
+              </div>
+              <div class="ordinals">
+                {{ result.metadata.ordinals }}
+              </div>
+              <div class="subtitle">
+                {{ result.metadata.citations.0 }} {% if result.metadata.year %}({{ result.metadata.year }}){% endif %}
+              </div>
+              {% if result.metadata.headlines|length > 1%}
                 <div class="description">
                    {% autoescape off %}
-                     ...
-                     {{ result.metadata.headlines.0 }}
-                     ...
+                     {% for headline in result.metadata.headlines|slice:"0:4" %}
+                      ...
+                       {{ headline }}
+                      {% endfor %}
+                      ...
                    {% endautoescape %}
-                   {% if result.metadata.headlines|length > 1 %}
+                   {% if result.metadata.headlines|length > 3 %}
                     <span class="and-more">
                       and {% if result.metadata.headlines|length < 10 %} {{ result.metadata.headlines|length }} {% else %} many {% endif %} more.
                     </span>
