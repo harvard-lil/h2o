@@ -246,6 +246,12 @@ form.edit_content_resource, form.edit_content_section, form.edit_content_caseboo
       @include sans-serif($bold, 20px, 24px);
       color: $dark-gray;
     }
+    .reading-time {
+      float: right;
+      color: $gray;
+      font-size: 16px;
+      font-weight: 500;
+    }
   }
   header.content {
     background-color: $white;
@@ -320,6 +326,13 @@ form.edit_content_resource, form.edit_content_section, form.edit_content_caseboo
         padding: 0;
         margin-left: -12px;
         pointer-events: none;
+      }
+
+      .reading-time {
+        float: right;
+        color: $gray;
+        font-size: 14px;
+        font-weight: 500;
       }
     }
   }

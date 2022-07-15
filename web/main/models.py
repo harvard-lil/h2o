@@ -2006,6 +2006,10 @@ class ContentNode(
     objects = ContentNodeQueryset.as_manager()
     tracked_fields = ["headnote"]
 
+    # Stores the number of ‘read’ characters in a content
+    # Length of content, less elided text and html tags.
+    reading_length = models.IntegerField(null=True)
+
     class Meta:
         indexes = [
             models.Index(fields=["casebook", "ordinals"]),
@@ -2559,6 +2563,85 @@ class ContentNode(
         """
         html = self.export_content(export_options and export_options.get("request"))
         return mark_safe(html)
+
+    @property
+    def num_links(self):
+        if self.type == "resource" and self.resource_type == "Link":
+            return 1
+        if self.type == "section":
+            return len(
+                [1 for cn in self.contents if cn.type == "resource" and cn.resource_type == "Link"]
+            )
+        return 0
+
+    @property
+    def reading_time(self):
+        r"""
+        Returns estimated reading time for content in this node.
+
+        Given:
+        >>> annotations_factory, *_ = [getfixture(f) for f in ['annotations_factory']]
+        >>> input = '''<p>
+        ...     [note my note]Has a note[/note]
+        ...     [highlight]is highlighted[/highlight]
+        ...     [elide]is elided but longer to tell the difference[/elide]
+        ...     [replace new content]is replaced[/replace]
+        ...     [correction replaced content]is replaced[/correction]
+        ...     [link http://example.com]is linked[/link]
+        ... </p>'''
+        >>> def r_t(text):
+        ...     content_node = annotations_factory('LegalDocument', text)[1]
+        ...     return content_node.reading_time
+
+        Basic example:
+        >>> assert round(r_t(input), 3) == 0.084
+
+        Elisions and HTML tags should also be handled correctly --- elided
+        text should not increase the reading time, and text-less annotations
+        should not increase it either.
+        Each elision will increase reading time by 1/200 seconds, because of
+        6 extra characters ('[...] '), but I will declare this negligible.
+        >>> elide_test = '''<p>
+        ...     [note my note]Has a note[/note]
+        ...     [highlight]is highlighted[/highlight]
+        ...     is elided
+        ...     [replace new content]is replaced[/replace]
+        ...     [correction replaced content]is replaced[/correction]
+        ...     [link http://example.com]is linked[/link]
+        ... </p>'''
+        >>> assert r_t(elide_test) != r_t (input)
+        >>> hl_test = '''<p>
+        ...     [note my note]Has a note[/note]
+        ...     is highlighted
+        ...     [elide]is elided[/elide]
+        ...     [replace new content]is replaced[/replace]
+        ...     [correction replaced content]is replaced[/correction]
+        ...     [link http://example.com]is linked[/link]
+        ... </p>'''
+        >>> assert r_t(hl_test) == r_t (input)
+        """
+        if self.type == "section":
+            return sum([cn.reading_time or 0 for cn in self.contents if cn.type != "section"])
+        if self.resource_type not in ("LegalDocument", "TextBlock"):
+            return None
+        if self.reading_length is None:
+            self.reading_length = self.calculate_reading_length()
+            self.save()
+        chars_per_word = 6
+        words_per_minute = 200
+        return self.reading_length / (chars_per_word * words_per_minute)
+
+    def calculate_reading_length(self):
+        # Assuming ~200 wpm reading rate for dense text
+        # 240 estimated as per:
+        # http://crr.ugent.be/papers/Brysbaert_JML_2019_Reading_rate.pdf
+        # get rendered html, without annotations in content
+        try:
+            html_out = self.annotated_content_for_export()
+        except AttributeError:
+            return None
+        text = parse_html_fragment(html_out).text_content()
+        return len(text)
 
     def annotated_content_for_export(self, export_options=None):
         r"""
@@ -3526,6 +3609,14 @@ class Casebook(EditTrackedModel, TimestampedModel, BigPkModel, TrackedCloneable)
     @property
     def sub_sections(self):
         return self.children
+
+    @property
+    def reading_time(self):
+        return sum((cn.reading_time or 0 for cn in self.children))
+
+    @property
+    def num_links(self):
+        return sum((cn.num_links or 0 for cn in self.children))
 
     @property
     def descendant_nodes(self):

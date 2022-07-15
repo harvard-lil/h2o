@@ -1,4 +1,5 @@
 {% load call_method %}
+{% load humanize_minutes %}
 {% if content.ordinals %}
   <div class="breadcrumbs">
     {{ content.type | title }}
@@ -11,5 +12,13 @@
         <span class="separator">.</span>
       {% endif %}
     {% endfor %}
+    {% if content.reading_time %}
+      <div class="reading-time">
+        {{ content.reading_time | humanize_minutes }}
+        {% if content.num_links %}
+        + {{ content.num_links }} link{{ content.num_links|pluralize }}
+        {% endif %}
+      </div>
+    {% endif %}
   </div>
 {% endif %}
