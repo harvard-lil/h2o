@@ -75,12 +75,8 @@
             {% endif %}
           </div>
         </a>
-      {% elif category == 'legal_doc' or category == 'legal_doc_fulltext'%}
-          {% if category == 'legal_doc_fulltext' %}
-            <a href="{% url 'resource' casebook.id result.metadata.ordinals %}" class="wrapper" data-result-id="{{ result.result_id }}">
-          {% else %}
-            <a href="{% url 'display_legal_doc' result.result_id %}" class="wrapper" data-result-id="{{ result.result_id }}">
-          {% endif %}
+      {% elif category == 'legal_doc' %}
+          <a href="{% url 'display_legal_doc' result.result_id %}" class="wrapper" data-result-id="{{ result.result_id }}">
             <div class="results-entry">
               <div class="title">
                 {{ result.metadata.display_name }}
@@ -90,6 +86,34 @@
               </div>
               <div class="date">
                 {{ result.metadata.effective_date_formatted|default:'' }}
+              </div>
+              {% if result.metadata.headlines %}
+                <div class="description">
+                   {% autoescape off %}
+                     ...
+                     {{ result.metadata.headlines.0 }}
+                     ...
+                   {% endautoescape %}
+                   {% if result.metadata.headlines|length > 1 %}
+                    <span class="and-more">
+                      and {% if result.metadata.headlines|length < 10 %} {{ result.metadata.headlines|length }} {% else %} many {% endif %} more.
+                    </span>
+                   {% endif %}
+                </div>
+              {% endif %}
+            </div>
+          </a>
+      {% elif category == 'legal_doc_fulltext' %}
+          <a href="{% url 'resource' casebook.id result.metadata.ordinals %}" class="wrapper" data-result-id="{{ result.result_id }}">
+            <div class="fts-results-entry">
+              <div class="title">
+                {{ result.metadata.display_name }}
+              </div>
+              <div class="ordinals">
+                {{ result.metadata.ordinals }}
+              </div>
+              <div class="subtitle">
+                {{ result.metadata.citation }} {% if result.metadata.year %}({{ result.metadata.year }}){% endif %}
               </div>
               {% if result.metadata.headlines %}
                 <div class="description">

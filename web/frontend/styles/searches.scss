@@ -82,6 +82,9 @@ header.advanced-search {
       color: $light-blue;
       font-weight: bold;
     }
+    &.inactive {
+      border-bottom: 2px solid $gray;
+    }
 
     a:focus {
       @include generic-focus-styles;
@@ -131,6 +134,71 @@ header.advanced-search {
     }
 
     .date {
+      flex-grow: 1;
+      text-align: right;
+    }
+
+    .citation {
+      text-align: right;
+    }
+
+    .description {
+      flex-basis: 100%;
+      width: 100%;
+      padding: 2px;
+      margin-left: 15px;
+      font-family: $font-family-serif;
+    }
+
+    .and-more {
+      font-family: $font-family-sans-serif;
+    }
+  }
+  .fts-results-entry {
+    @include make-row();
+    padding: 10px 0;
+    border-top: 1px solid $dark-gray;
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+
+    .title {
+      @include make-md-column(7.5);
+      font-weight: bold;
+      font-size: 14px;
+      font-family: $font-family-sans-serif;
+      float: left;
+    }
+
+    .subtitle {
+      font-size: 14px;
+      font-family: $font-family-sans-serif;
+      float: left;
+      flex-basis: 100%;
+      width: 100%;
+      padding: 2px;
+      margin-left: 15px;
+    }
+    .owner, .casebook-count {
+      @include make-md-column(3);
+    }
+    .owner {
+      font-size: 13px;
+      padding: 0;
+
+      .verified {
+        @include square(13px);
+        display: inline-block;
+        vertical-align: middle;
+        content: '';
+        background: url('~static/images/ui/verified.png') no-repeat;
+      }
+    }
+    .ordinals, .profile-image {
+      @include make-md-column(1);
+    }
+
+    .ordinals {
       flex-grow: 1;
       text-align: right;
     }

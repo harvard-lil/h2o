@@ -22,17 +22,17 @@
   <div class="content">
       <div class="results-container">
         <div class="type-tabs">
-          <div class="type-tab {% if category == 'legal_doc_fulltext' %}active{% endif %}" {% if category == 'legal_doc_fulltext' %}aria-current="location"{% endif %}>
+          <div class="type-tab {% if category != 'legal_doc_fulltext' %}in{% endif %}active" {% if category == 'legal_doc_fulltext' %}aria-current="location"{% endif %}>
             <a href="?{% current_query_string type="legal_doc_fulltext" page=1 %}" class="wrapper">
               Legal Documents 
             </a>
           </div>
-          <div class="type-tab {% if category == 'textblock' %}active{% endif %}" {% if category == 'textblock' %}aria-current="location"{% endif %}>
+          <div class="type-tab {% if category != 'textblock' %}in{% endif %}active" {% if category == 'textblock' %}aria-current="location"{% endif %}>
             <a href="?{% current_query_string type="textblock" page=1 %}" class="wrapper">
               Text Passages 
             </a>
           </div>
-          <div class="type-tab {% if category == 'link' %}active{% endif %}" {% if category == 'link' %}aria-current="location"{% endif %}>
+          <div class="type-tab {% if category != 'link' %}in{% endif %}active" {% if category == 'link' %}aria-current="location"{% endif %}>
             <a href="?{% current_query_string type="link" page=1 %}" class="wrapper">
               Links 
             </a>

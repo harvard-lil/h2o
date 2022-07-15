@@ -12,7 +12,7 @@ CREATE MATERIALIZED VIEW tmp_fts_internal_search_view AS
                'display_name', coalesce(c.short_name, c.name),
                'effective_date', effective_date,
                'effective_date_formatted', TO_CHAR(effective_date, 'Month FMDD, YYYY'),
-               'citations', array_to_string(c.citations, ', '),
+               'citations', array_to_string(c.citations, ';; '),
                'jurisdiction', jurisdiction
            ) AS metadata,
            'legal_doc_fulltext'::text AS category

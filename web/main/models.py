@@ -1138,8 +1138,10 @@ class FullTextSearchIndex(models.Model):
                 r.metadata["headlines"] = ids_headlines[r.result_id].split("...")
             except AttributeError:
                 pass
-            if ids_ordinals:
+            if category == "legal_doc_fulltext":
                 r.metadata["ordinals"] = ".".join(ids_ordinals[r.result_id])
+                r.metadata["citation"] = r.metadata["citations"].split(";;")[0]
+                r.metadata["year"] = r.metadata["effective_date_formatted"].split(",")[-1].strip()
         return results
 
 
