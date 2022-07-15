@@ -157,7 +157,6 @@ header.advanced-search {
   .fts-results-entry {
     @include make-row();
     padding: 10px 0;
-    border-top: 1px solid $dark-gray;
     display: flex;
     flex-wrap: wrap;
     align-items: center;
@@ -165,19 +164,20 @@ header.advanced-search {
     .title {
       @include make-md-column(7.5);
       font-weight: bold;
-      font-size: 14px;
+      font-size: 16px;
       font-family: $font-family-sans-serif;
       float: left;
     }
 
     .subtitle {
-      font-size: 14px;
+      font-size: 12px;
       font-family: $font-family-sans-serif;
       float: left;
       flex-basis: 100%;
       width: 100%;
       padding: 2px;
       margin-left: 15px;
+      color: $gray;
     }
     .owner, .casebook-count {
       @include make-md-column(3);
@@ -208,11 +208,17 @@ header.advanced-search {
     }
 
     .description {
+      color: $medium-gray;
       flex-basis: 100%;
       width: 100%;
       padding: 2px;
       margin-left: 15px;
       font-family: $font-family-serif;
+      font-size: 16px;
+    }
+
+    b {
+      background: $highlight;
     }
 
     .and-more {

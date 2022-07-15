@@ -22,25 +22,27 @@
         </a>
       {% elif category == 'textblock' %}
         <a href="{% url 'resource' casebook.id result.metadata.ordinals %}" class="wrapper" data-result-id="{{ result.result_id }}">
-          <div class="results-entry">
+          <div class="fts-results-entry">
             <div class="title">
               {{ result.metadata.name }}
             </div>
             <div class="owner">
             </div>
-            <div class="date">
+            <div class="ordinals">
                 {{ result.metadata.ordinals }}
             </div>
             {% if result.metadata.headlines %}
               <div class="description">
                  {% autoescape off %}
+                 {% for headline in result.metadata.headlines|slice:"0:4" %}
                    ...
-                   {{ result.metadata.headlines.0 }}
+                   {{ headline }}
+                  {% endfor %}
                    ...
                  {% endautoescape %}
-                 {% if result.metadata.headlines|length > 1 %}
+                 {% if result.metadata.headlines|length > 3 %}
                   <span class="and-more">
-                    and {% if result.metadata.headlines|length < 10 %} {{ result.metadata.headlines|length }} {% else %} many {% endif %} more.
+                    and {% if result.metadata.headlines|length|add:"-3" < 10 %} {{ result.metadata.headlines|length|add:"-3" }} {% else %} many {% endif %} more.
                   </span>
                  {% endif %}
               </div>
@@ -49,26 +51,28 @@
         </a>
       {% elif category == 'link' %}
         <a href="{% url 'resource' casebook.id result.metadata.ordinals %}" class="wrapper" data-result-id="{{ result.result_id }}">
-          <div class="results-entry">
+          <div class="fts-results-entry">
             <div class="title">
               {{ result.metadata.name }}
             </div>
             <div class="owner">
               {{ result.metadata.url }}
             </div>
-            <div class="date">
+            <div class="ordinals">
                 {{ result.metadata.ordinals }}
             </div>
             {% if result.metadata.headlines %}
               <div class="description">
                  {% autoescape off %}
+                 {% for headline in result.metadata.headlines|slice:"0:4" %}
                    ...
-                   {{ result.metadata.headlines.0 }}
-                  ...
+                   {{ headline }}
+                  {% endfor %}
+                   ...
                  {% endautoescape %}
-                 {% if result.metadata.headlines|length > 1 %}
+                 {% if result.metadata.headlines|length > 3 %}
                   <span class="and-more">
-                    and {% if result.metadata.headlines|length < 10 %} {{ result.metadata.headlines|length }} {% else %} many {% endif %} more.
+                    and {% if result.metadata.headlines|length|add:"-3" < 10 %} {{ result.metadata.headlines|length|add:"-3" }} {% else %} many {% endif %} more.
                   </span>
                  {% endif %}
               </div>
@@ -87,20 +91,6 @@
               <div class="date">
                 {{ result.metadata.effective_date_formatted|default:'' }}
               </div>
-              {% if result.metadata.headlines %}
-                <div class="description">
-                   {% autoescape off %}
-                     ...
-                     {{ result.metadata.headlines.0 }}
-                     ...
-                   {% endautoescape %}
-                   {% if result.metadata.headlines|length > 1 %}
-                    <span class="and-more">
-                      and {% if result.metadata.headlines|length < 10 %} {{ result.metadata.headlines|length }} {% else %} many {% endif %} more.
-                    </span>
-                   {% endif %}
-                </div>
-              {% endif %}
             </div>
           </a>
       {% elif category == 'legal_doc_fulltext' %}
@@ -118,11 +108,13 @@
               {% if result.metadata.headlines %}
                 <div class="description">
                    {% autoescape off %}
-                     ...
-                     {{ result.metadata.headlines.0 }}
-                     ...
+                     {% for headline in result.metadata.headlines|slice:"0:4" %}
+                      ...
+                       {{ headline }}
+                      {% endfor %}
+                      ...
                    {% endautoescape %}
-                   {% if result.metadata.headlines|length > 1 %}
+                   {% if result.metadata.headlines|length > 3 %}
                     <span class="and-more">
                       and {% if result.metadata.headlines|length < 10 %} {{ result.metadata.headlines|length }} {% else %} many {% endif %} more.
                     </span>
