@@ -3079,6 +3079,7 @@ def casebook_search(request, casebook):
         ...     n.resource_type = 'LegalDocument'
         ...     n.resource_id = d.id
         ...     n.casebook_id = casebooks[0].id
+        ...     n.ordinals = [1, 1]
         ...     n.save()
         >>> FullTextSearchIndex().create_search_index()
         >>> url = reverse('casebook_search', args=[casebooks[0].id])
