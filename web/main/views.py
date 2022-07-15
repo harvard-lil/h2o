@@ -3107,7 +3107,7 @@ def casebook_search(request, casebook):
     results.from_capapi = False
     return render(
         request,
-        "search/casebook.html",
+        "casebook_page_search.html",
         {
             "results": results,
             "casebook": casebook,
