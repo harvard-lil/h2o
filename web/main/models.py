@@ -989,9 +989,6 @@ class FullTextSearchIndex(models.Model):
     metadata = JSONField()
     category = models.CharField(max_length=255)
 
-    # TODO this is copying too much code from FullTextSearchIndex. There should be some
-    # kind of inheritance here
-
     class Meta:
         managed = False
         db_table = "fts_internal_search_view"
@@ -1060,15 +1057,15 @@ class FullTextSearchIndex(models.Model):
         Search in casebook by query:
         >>> assert dump_search_results([FullTextSearchIndex().casebook_fts(casebooks[0].id, "legal_doc_fulltext", query_str='Dubious'),]) == (
         ...     [
-        ...         {'citations': 'Adventures in criminality, 1 Fake 1, (2001)', 'display_name': 'Legal Doc 0', 'jurisdiction': None, 'effective_date': '1900-01-01T00:00:00+00:00', 'effective_date_formatted': 'January   1, 1900', 'headlines': ['<b>Dubious</b> legal claim']},
-        ...         {'citations': 'Adventures in criminality, 1 Fake 1, (2001)', 'display_name': 'Legal Doc 1', 'jurisdiction': None, 'effective_date': '1900-01-01T00:00:00+00:00', 'effective_date_formatted': 'January   1, 1900', 'headlines': ['<b>Dubious</b> legal claim']},
-        ...         {'citations': 'Adventures in criminality, 1 Fake 1, (2001)', 'display_name': 'Legal Doc 2', 'jurisdiction': None, 'effective_date': '1900-01-01T00:00:00+00:00', 'effective_date_formatted': 'January   1, 1900', 'headlines': ['<b>Dubious</b> legal claim']}
+        ...         {'citations': 'Adventures in criminality, 1 Fake 1, (2001)', 'display_name': 'Legal Doc 0', 'jurisdiction': None, 'effective_date': '1900-01-01T00:00:00+00:00', 'effective_date_formatted': 'January   1, 1900', 'headlines': ['<b>Dubious</b> legal claim'], 'ordinals': ''},
+        ...         {'citations': 'Adventures in criminality, 1 Fake 1, (2001)', 'display_name': 'Legal Doc 1', 'jurisdiction': None, 'effective_date': '1900-01-01T00:00:00+00:00', 'effective_date_formatted': 'January   1, 1900', 'headlines': ['<b>Dubious</b> legal claim'], 'ordinals': ''},
+        ...         {'citations': 'Adventures in criminality, 1 Fake 1, (2001)', 'display_name': 'Legal Doc 2', 'jurisdiction': None, 'effective_date': '1900-01-01T00:00:00+00:00', 'effective_date_formatted': 'January   1, 1900', 'headlines': ['<b>Dubious</b> legal claim'], 'ordinals': ''}
         ...     ],
         ... )
 
         >>> assert dump_search_results([FullTextSearchIndex().casebook_fts(casebooks[0].id, 'legal_doc_fulltext', query_str='2'),]) == (
         ...     [
-        ...         {'citations': 'Adventures in criminality, 1 Fake 1, (2001)', 'display_name': 'Legal Doc 2', 'jurisdiction': None, 'effective_date': '1900-01-01T00:00:00+00:00', 'effective_date_formatted': 'January   1, 1900', 'headlines': ['Dubious legal claim <b>2</b>']}
+        ...         {'citations': 'Adventures in criminality, 1 Fake 1, (2001)', 'display_name': 'Legal Doc 2', 'jurisdiction': None, 'effective_date': '1900-01-01T00:00:00+00:00', 'effective_date_formatted': 'January   1, 1900', 'headlines': ['Dubious legal claim <b>2</b>'], 'ordinals': ''}
         ...     ],
         ... )
         >>> assert dump_search_results([FullTextSearchIndex().casebook_fts(casebooks[0].id, 'textblock', query_str='2'),]) == (
@@ -1118,22 +1115,31 @@ class FullTextSearchIndex(models.Model):
             category
         ]
         content_name = "description" if category == "link" else "content"
-        headlines = (
+        ids_headlines = (
             query_class.objects.filter(id__in=ids)
-            .order_by("id")
             .annotate(
                 headlines=SearchHeadline(
                     content_name, query_str, max_fragments=20, min_words=10, max_words=20
                 )
             )
-            .values_list("headlines")
+            .values_list("id", "headlines")
         )
-        headlines = {i: h for i, h in zip(ids, headlines)}
+        ids_headlines = {i: h for i, h in ids_headlines}
+        ids_ordinals = None
+        if category == "legal_doc_fulltext":
+            ids_ordinals = (
+                casebook.contents.filter(resource_type="LegalDocument")
+                .filter(resource_id__in=[r.result_id for r in results])
+                .values_list("resource_id", "ordinals")
+            )
+            ids_ordinals = {i: [str(n) for n in h] for i, h in ids_ordinals}
         for r in results:
             try:
-                r.metadata["headlines"] = headlines[r.result_id][0].split("...")
+                r.metadata["headlines"] = ids_headlines[r.result_id].split("...")
             except AttributeError:
-                continue
+                pass
+            if ids_ordinals:
+                r.metadata["ordinals"] = ".".join(ids_ordinals[r.result_id])
         return results
 
 
