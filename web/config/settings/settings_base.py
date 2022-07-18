@@ -127,6 +127,9 @@ USE_L10N = True
 
 # LIL's analytics JS
 USE_ANALYTICS = False
+MATOMO_SITE_URL = ""
+MATOMO_API_KEY = ""
+MATOMO_SITE_ID = "3"
 
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/2.2/howto/static-files/
@@ -153,6 +156,8 @@ PROFESSOR_VERIFIER_EMAILS = ["info@opencasebook.org"]
 # e.g. <a href="mailto:{{ CONTACT_EMAIL }}">Contact Us</a>
 TEMPLATE_VISIBLE_SETTINGS = (
     "USE_ANALYTICS",
+    "MATOMO_SITE_ID",
+    "MATOMO_SITE_URL",
     "CONTACT_EMAIL",
     "GUIDE_URL",
     "BLOG_URL",

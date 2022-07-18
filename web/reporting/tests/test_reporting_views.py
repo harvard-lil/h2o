@@ -32,7 +32,7 @@ def test_refresh_views(db, casebook_factory, cursor):
     assert 1 == cursor.fetchone()[0]
 
 
-def test_usage_dashboard(client, casebook_factory):
+def test_usage_dashboard(client, casebook_factory, mock_successful_matomo_response):
     """The reporting dashboard should return a datastructure with result counts"""
     casebook_factory()
     refresh()
