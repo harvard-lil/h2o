@@ -38,6 +38,8 @@ py-spy
 django-debug-toolbar
 # code formatting
 black==22.6.0
+# static type checking
+mypy
 
 # CAP API requests
 requests

@@ -7,7 +7,7 @@ from django.contrib.admin.views.main import ChangeList
 from django.db import connection
 from django.db.models import Count
 from django.http import HttpRequest
-from main.admin import CasebookAdmin, UserAdmin
+from main.admin import CasebookAdmin, UserAdmin  # type: ignore # main/admin.py is entirely ignored
 from main.models import Casebook
 from reporting.create_reporting_views import ALL_STATES, OLDEST_YEAR, PUBLISHED_CASEBOOKS
 

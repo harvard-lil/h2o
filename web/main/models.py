@@ -1,3 +1,4 @@
+from typing import Dict, List
 from dateutil import parser
 import time
 import logging
@@ -1080,9 +1081,16 @@ class FullTextSearchIndex(models.Model):
         results = Paginator(results, page_size).get_page(page)
 
         ids = sorted([r.result_id for r in results])
-        query_class = ({"legal_doc_fulltext": LegalDocument, "textblock": TextBlock, "link": Link})[
-            category
-        ]
+
+        # Can replace w/ match statement when upgraded to 3.10
+        query_class: models.Model
+        if category == "legal_doc_fulltext":
+            query_class = LegalDocument
+        elif category == "textblock":
+            query_class = TextBlock
+        elif category == "link":
+            query_class = Link
+
         content_name = "description" if category == "link" else "content"
         ids_headlines = (
             query_class.objects.filter(id__in=ids)
@@ -1094,14 +1102,14 @@ class FullTextSearchIndex(models.Model):
             .values_list("id", "headlines")
         )
         ids_headlines = {i: h for i, h in ids_headlines}
-        ids_ordinals = None
+        ids_ordinals: Dict[int, List[str]]
         if category == "legal_doc_fulltext":
-            ids_ordinals = (
+            ids_ordinals_nodes = (
                 casebook.contents.filter(resource_type="LegalDocument")
                 .filter(resource_id__in=[r.result_id for r in results])
                 .values_list("resource_id", "ordinals")
             )
-            ids_ordinals = {i: [str(n) for n in h] for i, h in ids_ordinals}
+            ids_ordinals = {i: [str(n) for n in h] for i, h in ids_ordinals_nodes}
         for r in results:
             try:
                 r.metadata["headlines"] = ids_headlines[r.result_id].split("...")

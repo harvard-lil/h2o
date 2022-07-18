@@ -1,4 +1,4 @@
-from main.admin import admin_site
+from main.admin import admin_site  # type: ignore  # main/admin.py is ignored
 from reporting.models import (
     CasebookCAPProf,
     Professor,

@@ -15,7 +15,7 @@ Including another URLconf
 """
 from django.conf import settings
 from django.urls import path, include
-from main.admin import admin_site
+from main.admin import admin_site  # type: ignore  # main/admin.py is entirely ignored
 
 
 handler400 = "main.views.bad_request"
