@@ -1,3 +1,4 @@
+from typing import Tuple
 from dateutil import parser
 import time
 import logging
@@ -2059,6 +2060,15 @@ class ContentNode(
         filter_map = {"casebook_id": self.casebook_id, first_ordinals: self.ordinals}
         res = ContentNode.objects.filter(**filter_map).exclude(id=self.id)
         return res
+
+    @property
+    # gets the next node ordinals
+    def next_node(self) -> Tuple(int, ...):
+        ordinals = [_[0] for _ in ContentNode.objects.filter(casebook_id=self.casebook_id).order_by("ordinals").values_list("ordinals")]
+        idx = ordinals.index(self.ordinals)
+        if idx + 1 >= len(self.ordinals):
+            return None
+        return ordinals[idx + 1]
 
     def rendered_header(self):
         if self.is_resource and self.resource_type == "LegalDocument":
