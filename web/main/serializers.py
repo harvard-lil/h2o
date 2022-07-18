@@ -56,6 +56,41 @@ class RecursiveField(serializers.Serializer):
         serializer = self.parent.parent.__class__(value, context=self.context)
         return serializer.data
 
+class ContentNodeSerializer(serializers.ModelSerializer):
+
+    resource_type = serializers.SerializerMethodField()
+    citation = serializers.SerializerMethodField()
+
+    edit_url = serializers.URLField(source="get_preferred_url")
+    url = serializers.URLField(source="get_absolute_url")
+
+    decision_date = serializers.DateField(source="resource.decision_date", default=None)
+    children = []
+    is_transmutable = serializers.BooleanField()
+
+    def get_resource_type(self, node):
+        return node.doc_class
+
+    def get_citation(self, node):
+        if node.resource_type == "LegalDocument":
+            return node.resource.cite_string
+        return None
+
+    class Meta:
+        model = models.ContentNode
+        fields = (
+            "title",
+            "id",
+            "resource_type",
+            "edit_url",
+            "url",
+            "citation",
+            "decision_date",
+            "is_transmutable",
+            "ordinal_string",
+            "ordinals",
+        )
+
 
 class SectionOutlineSerializer(serializers.ModelSerializer):
     resource_type = serializers.SerializerMethodField()

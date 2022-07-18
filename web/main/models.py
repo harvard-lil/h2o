@@ -3095,10 +3095,13 @@ class ContentNode(
         if self.resource_type == "Temp" or self.resource_type == "Unknown":
             return True
         if not self.resource_type or self.resource_type == "Section" or self.resource_type == "":
-            self.content_tree__load()
-            return len(self.children) == 0
+            try:
+                return self.transmutable
+            except AttributeError:
+                self.content_tree__load()
+                return len(self.children) == 0
         else:
-            if self.annotatable and self.is_annotated():
+            if self.annotatable and self.annotations:
                 return False
             if self.resource_type == "TextBlock":
                 try:

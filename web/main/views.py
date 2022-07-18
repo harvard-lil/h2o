@@ -84,6 +84,7 @@ from .serializers import (
     NewAnnotationSerializer,
     NewCommonTitleSerializer,
     SectionOutlineSerializer,
+    ContentNodeSerializer,
     TextBlockSerializer,
     UpdateAnnotationSerializer,
 )
@@ -516,9 +517,30 @@ class CasebookTOCView(APIView):
 
     @staticmethod
     def format_casebook(casebook):
+        # new
+        if True:
+            toc = list(casebook.contents.prefetch_resources().order_by("ordinals").all())
+            # optimize expensive call to is_transmutable
+            for t, t1 in zip(toc, toc[1:]):
+                if not t.resource_type or t.resource_type == "Section" or t.resource_type == "":
+                    # if t1 is a child of t, then t is not transmutable
+                    t.transmutable = t.ordinals != t1.ordinals[:len(t.ordinals)]
+            serialized = {tuple(c.ordinals): ContentNodeSerializer(c).data for c in toc}
+            serialized[()] = {"id": casebook.id, "children": []}
+            for ordinals, cns in serialized.items():
+                if not ordinals:
+                    continue
+                parent = serialized[ordinals[:-1]]
+                try:
+                    parent["children"].append(cns)
+                except KeyError:
+                    parent["children"] = [cns,]
+            return serialized[()]
         casebook.content_tree__load()
+        casebook.contents.prefetch_resources()
         toc = casebook.content_tree__children
-        return {"id": casebook.id, "children": SectionOutlineSerializer(toc, many=True).data}
+        serialized = SectionOutlineSerializer(toc, many=True).data
+        return {"id": casebook.id, "children": serialized}
 
 
 class CasebookInfoView(APIView):
