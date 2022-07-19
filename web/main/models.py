@@ -901,6 +901,7 @@ class SearchIndex(models.Model):
 
         Get casebooks by filter field:
         >>> assert len(dump_search_results(SearchIndex().search('casebook', filters={'attribution': 'Some User 1'}))[0]) == 1
+
         Get all users:
         >>> assert len(dump_search_results(SearchIndex().search('user'))[0]) == 3
 
