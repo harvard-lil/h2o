@@ -520,7 +520,9 @@ class CasebookTOCView(APIView):
         # new
         if True:
             toc = list(
-                casebook.contents.prefetch_resources()
+                casebook.contents.prefetch_resources(
+                    legal_doc_query=LegalDocument.objects.defer("content").all()
+                )
                 .order_by("ordinals")
                 .annotate(
                     has_annotation=Exists(
