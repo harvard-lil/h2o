@@ -1,0 +1,16 @@
+
+{% load call_method %}
+<div class="page_buttons">
+  {% if section.prev_node_url %}
+      <a class="breadcrumb" href="{{ section.prev_node_url }}">Prev Page</a>
+    </div>
+  {% else %}
+  {% endif %}
+
+  {% if section.next_node_url %}
+    
+      <a class="breadcrumb" href="{{ section.next_node_url }}">Next Page</a>
+  {% else %}
+</div>
+{% endif %}
+

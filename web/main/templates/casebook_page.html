@@ -88,6 +88,12 @@
                     {% endif %}
             </header>
             {% include 'includes/action_buttons.html' %}
+            
+            {% if section %}
+                {% include 'includes/page_buttons.html'  %}   
+            {% endif %}
+
+
                 {% if section %}
                     {% if not editing %}
                         {% include 'includes/headnote.html' with content=section %}

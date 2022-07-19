@@ -2063,22 +2063,25 @@ class ContentNode(
 
     @property
     # gets the next node ordinals
-    def next_node(self) -> Optional[Tuple[int, ...]]:
+    def next_node_url(self) -> Optional[Tuple[int, ...]]:
         ordinals = [
             _[0]
             for _ in ContentNode.objects.filter(casebook_id=self.casebook_id)
             .order_by("ordinals")
             .values_list("ordinals")
-         ]
+        ]
         idx = ordinals.index(self.ordinals)
+        url = ContentNode.objects.get(
+                casebook_id=self.casebook_id, ordinals=ordinals[idx + 1]
+                ).get_edit_or_absolute_url(False)
 
-        if idx + 1 >= len(self.ordinals):
+        if idx + 1 >= len(ordinals):
             return None
-        return ordinals[idx + 1]
+        return url
 
     @property
     # gets the previous node ordinals
-    def prev_node(self) -> Optional[Tuple[int, ...]]:
+    def prev_node_url(self) -> Optional[Tuple[int, ...]]:
         ordinals = [
             _[0]
             for _ in ContentNode.objects.filter(casebook_id=self.casebook_id)
@@ -2087,8 +2090,12 @@ class ContentNode(
         ]
         idx = ordinals.index(self.ordinals)
 
+        url = ContentNode.objects.get(
+                casebook_id=self.casebook_id, ordinals=ordinals[idx - 1]
+                ).get_edit_or_absolute_url(False)
+
         if idx > 0:
-            return ordinals[idx - 1]
+            return url
         else:
             return None
 
