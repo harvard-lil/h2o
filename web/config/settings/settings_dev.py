@@ -1,4 +1,6 @@
 import os
+import sys
+
 from .settings_base import *  # noqa
 
 
@@ -20,11 +22,7 @@ AUTH_PASSWORD_VALIDATORS = []
 # STATICFILES_STORAGE = 'pipeline.storage.PipelineStorage'
 
 # django-debug-toolbar:
-# ddt can be useful but also be a hassle, so it only runs optionally, if you choose to `pip install django-debug-toolbar==3.2.2`
-# If installed, there will be a sidebar when viewing front-end pages, including useful tools such as a SQL profiler.
-# Do not use a version more recent than django-debug-toolbar==3.2.2, as Django 2.2 support is dropped in 3.3.x
-# and 3.2.3+ introduced a config bug.
-import sys
+# See the README for current instructions on running with django debug toolbar enabled
 
 if "pytest" not in sys.modules:  # don't run this from tests
     if os.environ.get("DEBUG_TOOLBAR"):
