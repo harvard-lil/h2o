@@ -2063,12 +2063,24 @@ class ContentNode(
 
     @property
     # gets the next node ordinals
-    def next_node(self) -> Optional[Tuple(int, ...)]:
+    def next_node(self) -> Optional[Tuple[int, ...]]:
         ordinals = [_[0] for _ in ContentNode.objects.filter(casebook_id=self.casebook_id).order_by("ordinals").values_list("ordinals")]
         idx = ordinals.index(self.ordinals)
+        
         if idx + 1 >= len(self.ordinals):
             return None
         return ordinals[idx + 1]
+
+    @property
+    # gets the previous node ordinals
+    def prev_node(self) -> Optional[Tuple[int, ...]]:
+        ordinals = [_[0] for _ in ContentNode.objects.filter(casebook_id=self.casebook_id).order_by("ordinals").values_list("ordinals")]
+        idx = ordinals.index(self.ordinals)
+
+        if idx > 0:
+            return ordinals[idx - 1]
+        else:
+            return None
 
     def rendered_header(self):
         if self.is_resource and self.resource_type == "LegalDocument":
