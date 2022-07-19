@@ -32,7 +32,7 @@ from django.contrib.postgres.search import (
     SearchHeadline,
 )
 from django.core.exceptions import ValidationError
-from django.core.validators import validate_unicode_slug
+from django.core.validators import validate_unicode_slug, MaxLengthValidator
 from django.db import models, connection, transaction, ProgrammingError
 from django.core.paginator import Paginator
 from django.db.models import Count, F, JSONField
@@ -3391,6 +3391,7 @@ class Casebook(EditTrackedModel, TimestampedModel, BigPkModel, TrackedCloneable)
     title = models.CharField(max_length=10000, default="Untitled")
     subtitle = models.CharField(max_length=10000, blank=True, null=True)
     headnote = models.TextField(blank=True, null=True)
+    description = models.TextField(blank=True, null=True, validators=[MaxLengthValidator(750)])
     cover_image = models.FileField(
         storage=image_storage, upload_to=cover_image_path, blank=True, null=True
     )
