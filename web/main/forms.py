@@ -72,7 +72,9 @@ class ContentNodeForm(CasebookAndContentNodeMixin, ModelForm):
 class CasebookForm(CasebookAndContentNodeMixin, ModelForm):
     class Meta(CasebookAndContentNodeMixin.Meta):
         model = Casebook
-        fields = list(CasebookAndContentNodeMixin.Meta.fields) + ["description",]
+        fields = list(CasebookAndContentNodeMixin.Meta.fields) + [
+            "description",
+        ]
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)

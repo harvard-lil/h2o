@@ -888,9 +888,9 @@ class SearchIndex(models.Model):
         Get all casebooks:
         >>> assert dump_search_results(SearchIndex().search('casebook')) == (
         ...     [
-        ...         {'affiliation': 'Affiliation 0', 'created_at': '...', 'title': 'Some Title 0', 'attribution': 'Some User 0', 'description': ''},
-        ...         {'affiliation': 'Affiliation 1', 'created_at': '...', 'title': 'Some Title 1', 'attribution': 'Some User 1', 'description': ''},
-        ...         {'affiliation': 'Affiliation 2', 'created_at': '...', 'title': 'Some Title 2', 'attribution': 'Some User 2', 'description': ''}
+        ...         {'affiliation': 'Affiliation 0', 'created_at': '...', 'title': 'Some Title 0', 'attribution': 'Some User 0', 'description': None},
+        ...         {'affiliation': 'Affiliation 1', 'created_at': '...', 'title': 'Some Title 1', 'attribution': 'Some User 1', 'description': None},
+        ...         {'affiliation': 'Affiliation 2', 'created_at': '...', 'title': 'Some Title 2', 'attribution': 'Some User 2', 'description': None}
         ...     ],
         ...     {'user': 3, 'legal_doc': 3, 'casebook': 3},
         ...     {}
