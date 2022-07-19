@@ -439,7 +439,7 @@ export default {
                 color: $white;
                 border-color: $white;
             }
-            *:focus {
+            *:focus-visible {
                 outline: 2px solid $white;
                 outline-offset: 2px;
             }
