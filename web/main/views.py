@@ -537,7 +537,13 @@ class CasebookTOCView(APIView):
                     # if t1 is a child of t, then t is not transmutable
                     t.transmutable = t.ordinals != t1.ordinals[: len(t.ordinals)]
             serialized = {tuple(c.ordinals): ContentNodeSerializer(c).data for c in toc}
+
+            for cns in serialized.values():
+                if cns["resource_type"] == "Section":
+                    cns["children"] = []
+
             serialized[()] = {"id": casebook.id, "children": []}
+
             for ordinals, cns in serialized.items():
                 if not ordinals:
                     continue
@@ -545,9 +551,7 @@ class CasebookTOCView(APIView):
                 try:
                     parent["children"].append(cns)
                 except KeyError:
-                    parent["children"] = [
-                        cns,
-                    ]
+                    raise ValueError("Trying to append children to non-Section!")
             return serialized[()]
         casebook.content_tree__load()
         casebook.contents.prefetch_resources()
