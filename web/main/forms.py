@@ -72,7 +72,7 @@ class ContentNodeForm(CasebookAndContentNodeMixin, ModelForm):
 class CasebookForm(CasebookAndContentNodeMixin, ModelForm):
     class Meta(CasebookAndContentNodeMixin.Meta):
         model = Casebook
-        fields = ["title", "subtitle", "description", "headnote"]
+        fields = list(CasebookAndContentNodeMixin.Meta.fields) + ["description",]
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -96,7 +96,7 @@ class CasebookForm(CasebookAndContentNodeMixin, ModelForm):
 
 class CasebookFormWithCoverImage(CasebookForm):
     class Meta(CasebookForm.Meta):
-        fields = list(CasebookAndContentNodeMixin.Meta.fields) + ["cover_image"]
+        fields = list(CasebookForm.Meta.fields) + ["cover_image"]
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
