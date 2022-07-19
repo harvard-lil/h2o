@@ -18,11 +18,11 @@
             <div class="date">
               {{ result.metadata.created_at|slice:"0:4" }}
             </div>
-            <div class="description">
-              {% if result.metadata.description %}
+            {% if result.metadata.description %}
+              <div class="description">
                 {{ result.metadata.description }}
-              {% endif %}
-            </div>
+              </div>
+            {% endif %}
           </div>
         </a>
       {% elif category == 'textblock' %}
