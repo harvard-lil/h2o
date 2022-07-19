@@ -3096,13 +3096,19 @@ class ContentNode(
             return True
         if not self.resource_type or self.resource_type == "Section" or self.resource_type == "":
             try:
+                # this is here to enable some speedup shortcuts in casebook page load
                 return self.transmutable
             except AttributeError:
                 self.content_tree__load()
                 return len(self.children) == 0
         else:
-            if self.annotatable and self.annotations:
-                return False
+            # another speedup hack
+            try:
+                if self.annotatable and self.has_annotation:
+                    return False
+            except AttributeError:
+                if self.annotatable and self.annotations.exists():
+                    return False
             if self.resource_type == "TextBlock":
                 try:
                     self.resource

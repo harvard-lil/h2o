@@ -13,7 +13,7 @@ from django.contrib.auth.views import PasswordResetView, redirect_to_login
 from django.core.exceptions import PermissionDenied
 from django.core.validators import URLValidator
 from django.db import transaction
-from django.db.models import Q
+from django.db.models import Q, Exists, OuterRef
 from django.forms import HiddenInput, modelformset_factory
 from django.http import (
     Http404,
@@ -519,12 +519,21 @@ class CasebookTOCView(APIView):
     def format_casebook(casebook):
         # new
         if True:
-            toc = list(casebook.contents.prefetch_resources().order_by("ordinals").all())
+            toc = list(
+                casebook.contents.prefetch_resources()
+                .order_by("ordinals")
+                .annotate(
+                    has_annotation=Exists(
+                        ContentAnnotation.objects.filter(resource_id=OuterRef("pk"))
+                    )
+                )
+                .all()
+            )
             # optimize expensive call to is_transmutable
             for t, t1 in zip(toc, toc[1:]):
                 if not t.resource_type or t.resource_type == "Section" or t.resource_type == "":
                     # if t1 is a child of t, then t is not transmutable
-                    t.transmutable = t.ordinals != t1.ordinals[:len(t.ordinals)]
+                    t.transmutable = t.ordinals != t1.ordinals[: len(t.ordinals)]
             serialized = {tuple(c.ordinals): ContentNodeSerializer(c).data for c in toc}
             serialized[()] = {"id": casebook.id, "children": []}
             for ordinals, cns in serialized.items():
@@ -534,7 +543,9 @@ class CasebookTOCView(APIView):
                 try:
                     parent["children"].append(cns)
                 except KeyError:
-                    parent["children"] = [cns,]
+                    parent["children"] = [
+                        cns,
+                    ]
             return serialized[()]
         casebook.content_tree__load()
         casebook.contents.prefetch_resources()

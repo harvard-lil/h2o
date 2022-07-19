@@ -56,6 +56,7 @@ class RecursiveField(serializers.Serializer):
         serializer = self.parent.parent.__class__(value, context=self.context)
         return serializer.data
 
+
 class ContentNodeSerializer(serializers.ModelSerializer):
 
     resource_type = serializers.SerializerMethodField()
