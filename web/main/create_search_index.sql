@@ -30,13 +30,15 @@ UNION ALL
             setweight(to_tsvector('english',coalesce(string_agg(u.attribution, ', '), '')), 'A') ||
             setweight(to_tsvector('english',coalesce(string_agg(u.affiliation, ', '), '')), 'A') ||
             setweight(to_tsvector('english',coalesce(subtitle, '')), 'D') ||
-            setweight(to_tsvector('english',coalesce(headnote, '')), 'D')
+            setweight(to_tsvector('english',coalesce(headnote, '')), 'D') ||
+            setweight(to_tsvector('english',coalesce(description, '')), 'A')
         )  AS document,
         jsonb_build_object(
             'title', coalesce(c.title, 'Untitled'),
             'attribution', string_agg(u.attribution, ', '),
             'affiliation', string_agg(u.affiliation, ', '),
-            'created_at', c.created_at
+            'created_at', c.created_at,
+            'description', c.description
         ) AS metadata,
         'casebook'::text AS category
     FROM

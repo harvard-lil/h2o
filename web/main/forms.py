@@ -72,16 +72,33 @@ class ContentNodeForm(CasebookAndContentNodeMixin, ModelForm):
 class CasebookForm(CasebookAndContentNodeMixin, ModelForm):
     class Meta(CasebookAndContentNodeMixin.Meta):
         model = Casebook
+        fields = list(CasebookAndContentNodeMixin.Meta.fields) + [
+            "description",
+        ]
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.helper.form_class = "edit_content_casebook"
         self.helper.form_tag = False
+        self.helper.layout = Layout(
+            Field("title", placeholder="Enter a concise title."),
+            Field("subtitle", placeholder="Subtitle (optional)"),
+            Field("description", placeholder="Short description (optional)"),
+            Div(
+                HTML('<h5 id="headnote-label">Headnote</h5>'),
+                Field(
+                    "headnote",
+                    css_class="richtext-editor",
+                    aria_labelledby="headnote-label",
+                    placeholder="Enter any additional context about this casebook or section.",
+                ),
+            ),
+        )
 
 
 class CasebookFormWithCoverImage(CasebookForm):
     class Meta(CasebookForm.Meta):
-        fields = list(CasebookAndContentNodeMixin.Meta.fields) + ["cover_image"]
+        fields = list(CasebookForm.Meta.fields) + ["cover_image"]
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
