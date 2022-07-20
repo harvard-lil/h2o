@@ -2072,8 +2072,8 @@ class ContentNode(
         ]
         idx = ordinals.index(self.ordinals)
         url = ContentNode.objects.get(
-                casebook_id=self.casebook_id, ordinals=ordinals[idx + 1]
-                ).get_edit_or_absolute_url(False)
+            casebook_id=self.casebook_id, ordinals=ordinals[idx + 1]
+        ).get_edit_or_absolute_url(False)
 
         if idx + 1 >= len(ordinals):
             return None
@@ -2091,8 +2091,8 @@ class ContentNode(
         idx = ordinals.index(self.ordinals)
 
         url = ContentNode.objects.get(
-                casebook_id=self.casebook_id, ordinals=ordinals[idx - 1]
-                ).get_edit_or_absolute_url(False)
+            casebook_id=self.casebook_id, ordinals=ordinals[idx - 1]
+        ).get_edit_or_absolute_url(False)
 
         if idx > 0:
             return url

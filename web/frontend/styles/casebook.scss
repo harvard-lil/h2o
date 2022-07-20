@@ -222,10 +222,6 @@ main > header.casebook {
     }
     .next_page:hover{
       transform: scale(1.15); 
-      // filter: drop-shadow(0 0 3px rgba(33,33,33,.2));
-    }
-    .next_url:focus{
-      text-decoration: none !important;
     }
   }
   .prev_button_container{
@@ -241,9 +237,6 @@ main > header.casebook {
     .prev_page:hover{
       transform: scale(1.15); 
       // filter: drop-shadow(0 0 3px rgba(33,33,33,.2));
-    }
-    .prev_url:focus{
-      text-decoration: none !important;
     }
   }
 }
