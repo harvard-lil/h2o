@@ -1114,7 +1114,9 @@ class FullTextSearchIndex(models.Model):
                 else:
                     r.metadata["citations"] = ""
                 if r.metadata["effective_date_formatted"]:
-                    r.metadata["year"] = r.metadata["effective_date_formatted"].split(",")[-1].strip()
+                    r.metadata["year"] = (
+                        r.metadata["effective_date_formatted"].split(",")[-1].strip()
+                    )
                 else:
                     r.metadata["year"] = ""
         return results
