@@ -755,7 +755,6 @@ def manually_serialize_content_query(content_query: QuerySet):
     :return: a serialized dictionary for use with frontend
 
     Given:
-    >>> from main.models import ContentNode
     >>> _, legal_document_factory, casebook_factory, content_node_factory = [getfixture(i) for i in ['reset_sequences', 'legal_document_factory', 'casebook_factory', 'content_node_factory']]
     >>> casebook = casebook_factory()
     >>> nodes = [content_node_factory() for i in range(7)]
@@ -778,36 +777,36 @@ def manually_serialize_content_query(content_query: QuerySet):
     >>> nodes[6].save()
     >>> serialized = manually_serialize_content_query(casebook.contents)
 
-	One top level section, as set up
+        One top level section, as set up
     >>> assert len(serialized) == 1
-    
+
     Serialized data has all expected keys
-	>>> assert all([
-	...     key in serialized[0].keys()
-	...     for key in (
-	...         "title",
-	...         "id",
-	...         "edit_url",
-	...         "url",
-	...         "citation",
-	...         "decision_date",
-	...         "is_transmutable",
-	...         "ordinals",
-	...         "ordinal_string",
-	...         "children",
-	...     )
-	... ])
+        >>> assert all([
+        ...     key in serialized[0].keys()
+        ...     for key in (
+        ...         "title",
+        ...         "id",
+        ...         "edit_url",
+        ...         "url",
+        ...         "citation",
+        ...         "decision_date",
+        ...         "is_transmutable",
+        ...         "ordinals",
+        ...         "ordinal_string",
+        ...         "children",
+        ...     )
+        ... ])
 
-	Serialized data has correct children
-	>>> assert [
-	...     c["ordinals"] for c in serialized[0]["children"]
-	... ] == [[1, 1], [1, 2], [1, 3]]
+        Serialized data has correct children
+        >>> assert [
+        ...     c["ordinals"] for c in serialized[0]["children"]
+        ... ] == [[1, 1], [1, 2], [1, 3]]
 
-	Serialized data has the correct grandchildren
-	>>> assert [
-	...     c["ordinals"]
-	...     for c in serialized[0]["children"][1]["children"]
-	... ] == [[1, 2, 1], [1, 2, 2], [1, 2, 3]]
+        Serialized data has the correct grandchildren
+        >>> assert [
+        ...     c["ordinals"]
+        ...     for c in serialized[0]["children"][1]["children"]
+        ... ] == [[1, 2, 1], [1, 2, 2], [1, 2, 3]]
     """
     from .models import ContentAnnotation, LegalDocument
     from .serializers import ContentNodeSerializer

@@ -83,9 +83,7 @@ from .serializers import (
     LegalDocumentSourceSerializer,
     NewAnnotationSerializer,
     NewCommonTitleSerializer,
-    ContentNodeSerializer,
     TextBlockSerializer,
-    SectionOutlineSerializer,
     UpdateAnnotationSerializer,
 )
 from .storages import get_s3_storage
