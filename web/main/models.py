@@ -2076,8 +2076,8 @@ class ContentNode(
             return None
         else:
             url = ContentNode.objects.get(
-            casebook_id=self.casebook_id, ordinals=ordinals[idx + 1]
-             ).get_edit_or_absolute_url(False)
+                casebook_id=self.casebook_id, ordinals=ordinals[idx + 1]
+            ).get_edit_or_absolute_url(False)
             return url
 
     @property
