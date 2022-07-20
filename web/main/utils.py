@@ -25,7 +25,7 @@ from django.template import Context, RequestContext, engines
 from django.urls import reverse
 from django.utils.encoding import force_bytes
 from django.utils.http import urlsafe_base64_encode
-from django.db.models import Exists, OuterRef
+from django.db.models import Exists, OuterRef, QuerySet
 
 from .sanitize import sanitize
 from .storages import get_s3_storage
@@ -744,7 +744,7 @@ def validate_image(file, formats=None):
         raise BadFiletypeError(f"Only {', '.join(formats)} are supported at this time.")
 
 
-def manually_serialize_content_query(content_query):
+def manually_serialize_content_query(content_query: QuerySet):
     """
     This method makes several interventions to substantially
     optimize the serialization process for casebooks and sections.
@@ -753,6 +753,61 @@ def manually_serialize_content_query(content_query):
     :param content_query: A django query of content to be serialized
         e.g. casebook.contents or section.contents
     :return: a serialized dictionary for use with frontend
+
+    Given:
+    >>> from main.models import ContentNode
+    >>> _, legal_document_factory, casebook_factory, content_node_factory = [getfixture(i) for i in ['reset_sequences', 'legal_document_factory', 'casebook_factory', 'content_node_factory']]
+    >>> casebook = casebook_factory()
+    >>> nodes = [content_node_factory() for i in range(7)]
+    >>> docs = [legal_document_factory() for i in range(7)]
+    >>> nodes = [content_node_factory() for i in range(7)]
+    >>> for i, (n, d) in enumerate(zip(nodes[:3], docs[:3])):
+    ...     n.ordinals = (1, i + 1,)
+    ...     n.resource_id = d.id
+    ...     n.edit_url = ""
+    ...     n.casebook_id = casebook.id
+    ...     n.save()
+    >>> for i, (n, d) in enumerate(zip(nodes[3:], docs[3:])):
+    ...     n.ordinals = (1, 2, i+1)
+    ...     n.resource_id = d.id
+    ...     n.edit_url = ""
+    ...     n.casebook_id = casebook.id
+    ...     n.save()
+    >>> nodes[6].ordinals = (1,)
+    >>> nodes[6].resource_id = docs[6].id
+    >>> nodes[6].save()
+    >>> serialized = manually_serialize_content_query(casebook.contents)
+
+	One top level section, as set up
+    >>> assert len(serialized) == 1
+    
+    Serialized data has all expected keys
+	>>> assert all([
+	...     key in serialized[0].keys()
+	...     for key in (
+	...         "title",
+	...         "id",
+	...         "edit_url",
+	...         "url",
+	...         "citation",
+	...         "decision_date",
+	...         "is_transmutable",
+	...         "ordinals",
+	...         "ordinal_string",
+	...         "children",
+	...     )
+	... ])
+
+	Serialized data has correct children
+	>>> assert [
+	...     c["ordinals"] for c in serialized[0]["children"]
+	... ] == [[1, 1], [1, 2], [1, 3]]
+
+	Serialized data has the correct grandchildren
+	>>> assert [
+	...     c["ordinals"]
+	...     for c in serialized[0]["children"][1]["children"]
+	... ] == [[1, 2, 1], [1, 2, 2], [1, 2, 3]]
     """
     from .models import ContentAnnotation, LegalDocument
     from .serializers import ContentNodeSerializer
