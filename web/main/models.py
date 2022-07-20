@@ -1109,8 +1109,16 @@ class FullTextSearchIndex(models.Model):
                 pass
             if category == "legal_doc_fulltext":
                 r.metadata["ordinals"] = ".".join(ids_ordinals[r.result_id])
-                r.metadata["citations"] = r.metadata["citations"].split(";;")
-                r.metadata["year"] = r.metadata["effective_date_formatted"].split(",")[-1].strip()
+                if r.metadata["citations"]:
+                    r.metadata["citations"] = r.metadata["citations"].split(";;")
+                else:
+                    r.metadata["citations"] = ""
+                if r.metadata["effective_date_formatted"]:
+                    r.metadata["year"] = (
+                        r.metadata["effective_date_formatted"].split(",")[-1].strip()
+                    )
+                else:
+                    r.metadata["year"] = ""
         return results
 
 
