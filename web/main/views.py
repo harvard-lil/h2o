@@ -13,7 +13,7 @@ from django.contrib.auth.views import PasswordResetView, redirect_to_login
 from django.core.exceptions import PermissionDenied
 from django.core.validators import URLValidator
 from django.db import transaction
-from django.db.models import Q 
+from django.db.models import Q
 from django.forms import HiddenInput, modelformset_factory
 from django.http import (
     Http404,
@@ -85,6 +85,7 @@ from .serializers import (
     NewCommonTitleSerializer,
     ContentNodeSerializer,
     TextBlockSerializer,
+    SectionOutlineSerializer,
     UpdateAnnotationSerializer,
 )
 from .storages import get_s3_storage
@@ -106,7 +107,7 @@ from .utils import (
     LambdaExportTooLarge,
     validate_image,
     BadFiletypeError,
-    manually_serialize_content_query
+    manually_serialize_content_query,
 )
 
 logger = logging.getLogger("django")
@@ -517,7 +518,7 @@ class CasebookTOCView(APIView):
 
     @staticmethod
     def format_casebook(casebook):
-        return manually_serialize_content_query(casebook.contents)
+        return {"id": casebook.id, "children": manually_serialize_content_query(casebook.contents)}
 
 
 class CasebookInfoView(APIView):
@@ -567,7 +568,10 @@ class SectionTOCView(APIView):
     @method_decorator(user_has_perm("casebook", "viewable_by"))
     @method_decorator(user_has_perm("section", "viewable_by"))
     def get(self, request, casebook, section, format=None):
-        return Response(manually_serialize_content_query(section.contents))
+        mscq = manually_serialize_content_query(
+            ContentNode.objects.filter(id=section.id) | section.contents
+        )[0]
+        return Response(mscq)
 
     @method_decorator(requires_csrf_token)
     @method_decorator(perms_test(directly_editable_section))
@@ -2971,7 +2975,10 @@ def new_from_outline(request, casebook=None):
     add_sections_and_resources(parent_section, nodes)
     parent_section.content_tree__repair()
     if section:
-        return JsonResponse(manually_serialize_content_query(section.contents), status=200)
+        mscq = manually_serialize_content_query(
+            ContentNode.objects.filter(id=section.id) | section.contents
+        )[0]
+        return JsonResponse(mscq, status=200)
     return JsonResponse(CasebookTOCView.format_casebook(casebook), status=200)
 
 

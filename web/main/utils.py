@@ -29,7 +29,6 @@ from django.db.models import Exists, OuterRef
 
 from .sanitize import sanitize
 from .storages import get_s3_storage
-from .models import ContentAnnotation, LegalDocument
 
 import logging
 
@@ -755,16 +754,18 @@ def manually_serialize_content_query(content_query):
         e.g. casebook.contents or section.contents
     :return: a serialized dictionary for use with frontend
     """
+    from .models import ContentAnnotation, LegalDocument
+    from .serializers import ContentNodeSerializer
+
     toc = list(
         content_query.prefetch_resources(
             legal_doc_query=LegalDocument.objects.defer("content").all()
         )
         .order_by("ordinals")
         .annotate(
-            has_annotation=Exists(
-                ContentAnnotation.objects.filter(resource_id=OuterRef("pk"))
-            )
+            has_annotation=Exists(ContentAnnotation.objects.filter(resource_id=OuterRef("pk")))
         )
+        .select_related("casebook")
         .all()
     )
     # optimize expensive call to is_transmutable
@@ -778,14 +779,18 @@ def manually_serialize_content_query(content_query):
         if cns["resource_type"] == "Section":
             cns["children"] = []
 
-    serialized[()] = {"id": casebook.id, "children": []}
+    serialized[()] = {"children": []}
 
     for ordinals, cns in serialized.items():
         if not ordinals:
             continue
-        parent = serialized[ordinals[:-1]]
+        try:
+            parent = serialized[ordinals[:-1]]
+        except KeyError:
+            # no parent, append to root
+            parent = serialized[()]
         try:
             parent["children"].append(cns)
         except KeyError:
             raise ValueError("Trying to append children to non-Section!")
-    return serialized[()]
+    return serialized[()]["children"]
