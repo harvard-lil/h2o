@@ -238,6 +238,9 @@ main > header.casebook {
       transform: scale(1.15); 
       // filter: drop-shadow(0 0 3px rgba(33,33,33,.2));
     }
+    .prev_page:focus-visible{
+      
+    }
   }
 }
 

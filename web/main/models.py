@@ -2071,13 +2071,14 @@ class ContentNode(
             .values_list("ordinals")
         ]
         idx = ordinals.index(self.ordinals)
-        url = ContentNode.objects.get(
-            casebook_id=self.casebook_id, ordinals=ordinals[idx + 1]
-        ).get_edit_or_absolute_url(False)
 
         if idx + 1 >= len(ordinals):
             return None
-        return url
+        else:
+            url = ContentNode.objects.get(
+            casebook_id=self.casebook_id, ordinals=ordinals[idx + 1]
+             ).get_edit_or_absolute_url(False)
+            return url
 
     @property
     # gets the previous node ordinals
