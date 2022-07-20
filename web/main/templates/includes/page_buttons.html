@@ -1,8 +1,7 @@
 
 {% load call_method %}
-<div class="page_buttons">
   {% if section.prev_node_url %}
-     <div class="prev_button_container">
+     <div class="prev_button_container" aria-label="Previous Page Button">
       <a class="prev_url" href="{{ section.prev_node_url }}">
         <span class="prev_page"></span>
       </a>
@@ -11,12 +10,11 @@
   {% endif %}
 
   {% if section.next_node_url %}
-      <div class="next_button_container">
-        <a class="next_url" href="{{ section.next_node_url }}">
-          <span class="next_page"></span>
-        </a>
-      </div>
+    <div class="next_button_container" aria-label="Next Page Button">
+      <a class="next_url" href="{{ section.next_node_url }}">
+        <span class="next_page"></span>
+      </a>
+    </div>
   {% else %}
 {% endif %}
-</div>
 

@@ -209,40 +209,33 @@ main > header.casebook {
   }
 }
 
-.page_buttons{
-  .next_button_container{
-    right: -12%;
-    top: 200;
-    position: fixed;
-    .next_page{
-      background-image: url('~static/images/ui/casebook/next_page.svg');
-      display: inline-block;
-      width: 50px;
-      height: 50px;
-    }
-    .next_page:hover{
-      transform: scale(1.15); 
-    }
+.next_button_container{
+  right: -12%;
+  position: fixed;
+  .next_page{
+    background-image: url('~static/images/ui/casebook/next_page.svg');
+    display: inline-block;
+    width: 50px;
+    height: 50px;
   }
-  .prev_button_container{
-    right: 108.5%;
-    top:200;
-    position: fixed;
-    .prev_page{
-      background-image: url('~static/images/ui/casebook/prev_page.svg');
-      display: inline-block;
-      width: 50px;
-      height: 50px;
-    }
-    .prev_page:hover{
-      transform: scale(1.15); 
-      // filter: drop-shadow(0 0 3px rgba(33,33,33,.2));
-    }
-    .prev_page:focus-visible{
-      
-    }
+  .next_page:hover{
+    transform: scale(1.15); 
   }
 }
+.prev_button_container{
+  right: 108.5%;
+  position: fixed;
+  .prev_page{
+    background-image: url('~static/images/ui/casebook/prev_page.svg');
+    display: inline-block;
+    width: 50px;
+    height: 50px;
+  }
+  .prev_page:hover{
+    transform: scale(1.15); 
+  }
+}
+
 
 form.edit_content_resource, form.edit_content_section, form.edit_content_casebook {
   label:not([for="cover_image-clear_id"]) {
