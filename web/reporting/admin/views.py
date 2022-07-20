@@ -1,6 +1,6 @@
 from abc import ABC, abstractmethod
 from datetime import date
-from typing import Any, Iterable, Iterator, List, Optional, Tuple
+from typing import Any, Iterable, Iterator, List, Optional, Tuple, Union
 
 from dateutil.relativedelta import relativedelta
 from django.contrib.admin.views.main import ChangeList
@@ -22,7 +22,7 @@ def get_reporting_ids(query: str, params: List[Any]) -> Iterator[int]:
         return ids
 
 
-def get_date_ranges(request: HttpRequest) -> Tuple[date, date]:
+def get_date_ranges(request: HttpRequest) -> Tuple[Union[str, date], Union[str, date]]:
 
     start_date = request.GET.get("start_date", date.today() - relativedelta(years=OLDEST_YEAR))
     end_date = request.GET.get("end_date", date.today())

@@ -1,4 +1,10 @@
-from typing import Dict, List
+from typing import (  # noqa: F401  # why is it here...
+    Dict,
+    List,
+    Type,
+    Union,
+    Sequence,  # (2022-07-19) Unused, but weird mypy / flake8 bug w/o, see #1639
+)
 from dateutil import parser
 import time
 import logging
@@ -1047,8 +1053,6 @@ class FullTextSearchIndex(models.Model):
 
         casebook = Casebook.objects.get(id=casebook_id)
 
-        query_vector = SearchQuery(query_str, config="english") if query_str else None
-
         base_query = None
         if category == "legal_doc_fulltext":
             legal_doc_ids = casebook.contents.filter(resource_type="LegalDocument").values_list(
@@ -1072,18 +1076,25 @@ class FullTextSearchIndex(models.Model):
                 result_id__in=textblock_ids
             )
 
+        query_vector: Union[SearchQuery, str]
+        if query_str:
+            query_vector = SearchQuery(query_str, config="english")
+        else:
+            query_vector = ""
+
         if query_vector:
             base_query = base_query.filter(document=query_vector)
+
         results = base_query.filter(category=category)
         results = results.annotate(rank=SearchRank(F("document"), query_vector))
         display_name = get_display_name_field(category)
         results = results.order_by("-rank", display_name)
-        results = Paginator(results, page_size).get_page(page)
 
-        ids = sorted([r.result_id for r in results])
+        results_chunk = Paginator(results, page_size).get_page(page)
+        ids = sorted([r.result_id for r in results_chunk])
 
         # Can replace w/ match statement when upgraded to 3.10
-        query_class: models.Model
+        query_class: ResourceType
         if category == "legal_doc_fulltext":
             query_class = LegalDocument
         elif category == "textblock":
@@ -1092,7 +1103,7 @@ class FullTextSearchIndex(models.Model):
             query_class = Link
 
         content_name = "description" if category == "link" else "content"
-        ids_headlines = (
+        ids_headlines_query = (
             query_class.objects.filter(id__in=ids)
             .annotate(
                 headlines=SearchHeadline(
@@ -1101,16 +1112,17 @@ class FullTextSearchIndex(models.Model):
             )
             .values_list("id", "headlines")
         )
-        ids_headlines = {i: h for i, h in ids_headlines}
+
+        ids_headlines = {i: h for i, h in ids_headlines_query}
         ids_ordinals: Dict[int, List[str]]
         if category == "legal_doc_fulltext":
             ids_ordinals_nodes = (
                 casebook.contents.filter(resource_type="LegalDocument")
-                .filter(resource_id__in=[r.result_id for r in results])
+                .filter(resource_id__in=[r.result_id for r in results_chunk])
                 .values_list("resource_id", "ordinals")
             )
-            ids_ordinals = {i: [str(n) for n in h] for i, h in ids_ordinals_nodes}
-        for r in results:
+            ids_ordinals = {i: [str(n) for n in h] for i, h in ids_ordinals_nodes}  # type: ignore
+        for r in results_chunk:
             try:
                 r.metadata["headlines"] = ids_headlines[r.result_id].split("...")
             except AttributeError:
@@ -1127,7 +1139,7 @@ class FullTextSearchIndex(models.Model):
                     )
                 else:
                     r.metadata["year"] = ""
-        return results
+        return results_chunk
 
 
 class USCodeIndex(models.Model):
@@ -1300,12 +1312,16 @@ class LegalDocument(NullableTimestampedModel, AnnotatedModel):
         return False
 
 
-class ContentAnnotationQueryset(models.QuerySet):
+class ContentAnnotationQuerySet(models.QuerySet):
     def valid(self):
         """
         Return annotations excluding those that were marked invalid when shifting.
         """
         return self.exclude(global_start_offset=-1, global_end_offset=-1)
+
+
+# (2022-07-19) django type-stubs workaround
+_ContentAnnotationManager = models.Manager.from_queryset(ContentAnnotationQuerySet)
 
 
 class ContentAnnotation(TimestampedModel, BigPkModel):
@@ -1330,7 +1346,7 @@ class ContentAnnotation(TimestampedModel, BigPkModel):
         related_name="annotations",
     )
 
-    objects = ContentAnnotationQueryset.as_manager()
+    objects = _ContentAnnotationManager()
 
     history = HistoricalRecords()
 
@@ -1441,7 +1457,7 @@ class ContentCollaborator(TimestampedModel, BigPkModel):
         unique_together = (("user", "casebook"),)
 
 
-class ContentNodeQueryset(models.QuerySet):
+class ContentNodeQuerySet(models.QuerySet):
     """
     This queryset allows us to do ContentNode.objects.prefetch_resources() so that fetched content nodes will
     efficiently have their content_node.resource attribute pre-populated, using a total of three queries instead
@@ -1950,6 +1966,10 @@ class TrackedCloneable(models.Model):
         return type(self).objects.get(pk=self.provenance[-1])
 
 
+# (2022-07-19) django type-stubs workaround
+_ContentNodeManager = models.Manager.from_queryset(ContentNodeQuerySet)
+
+
 class ContentNode(
     EditTrackedModel, TimestampedModel, BigPkModel, MaterializedPathTreeMixin, TrackedCloneable
 ):
@@ -1996,7 +2016,7 @@ class ContentNode(
     resource_type = models.CharField(max_length=255, blank=True, null=True)
     resource_id = models.BigIntegerField(blank=True, null=True)
 
-    objects = ContentNodeQueryset.as_manager()
+    objects = _ContentNodeManager()
     tracked_fields = ["headnote"]
 
     # Stores the number of ‘read’ characters in a content
@@ -4750,7 +4770,7 @@ class User(NullableTimestampedModel, PermissionsMixin, AbstractBaseUser):
     last_login_ip = models.CharField(
         max_length=255, blank=True, null=True, help_text="IP of previous password login"
     )
-    last_login = None  # disable the Django login tracking field from AbstractBaseUser
+    last_login = None  # type: ignore # disable the Django login tracking field from AbstractBaseUser
 
     EMAIL_FIELD = "email_address"
     USERNAME_FIELD = "email_address"
@@ -4905,3 +4925,6 @@ class LiveSettings(models.Model):
 
     class Meta:
         verbose_name_plural = "Live settings"
+
+
+ResourceType = Union[Type[LegalDocument], Type[Link], Type[TextBlock]]

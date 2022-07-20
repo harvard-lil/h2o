@@ -40,6 +40,8 @@ django-debug-toolbar
 black==22.6.0
 # static type checking
 mypy
+django-stubs[compatible-mypy]
+
 
 # CAP API requests
 requests
