@@ -13,7 +13,7 @@ from django.contrib.auth.views import PasswordResetView, redirect_to_login
 from django.core.exceptions import PermissionDenied
 from django.core.validators import URLValidator
 from django.db import transaction
-from django.db.models import Q, Exists, OuterRef
+from django.db.models import Q 
 from django.forms import HiddenInput, modelformset_factory
 from django.http import (
     Http404,
@@ -83,7 +83,6 @@ from .serializers import (
     LegalDocumentSourceSerializer,
     NewAnnotationSerializer,
     NewCommonTitleSerializer,
-    SectionOutlineSerializer,
     ContentNodeSerializer,
     TextBlockSerializer,
     UpdateAnnotationSerializer,
@@ -107,6 +106,7 @@ from .utils import (
     LambdaExportTooLarge,
     validate_image,
     BadFiletypeError,
+    manually_serialize_content_query
 )
 
 logger = logging.getLogger("django")
@@ -517,47 +517,7 @@ class CasebookTOCView(APIView):
 
     @staticmethod
     def format_casebook(casebook):
-        # new
-        if True:
-            toc = list(
-                casebook.contents.prefetch_resources(
-                    legal_doc_query=LegalDocument.objects.defer("content").all()
-                )
-                .order_by("ordinals")
-                .annotate(
-                    has_annotation=Exists(
-                        ContentAnnotation.objects.filter(resource_id=OuterRef("pk"))
-                    )
-                )
-                .all()
-            )
-            # optimize expensive call to is_transmutable
-            for t, t1 in zip(toc, toc[1:]):
-                if not t.resource_type or t.resource_type == "Section" or t.resource_type == "":
-                    # if t1 is a child of t, then t is not transmutable
-                    t.transmutable = t.ordinals != t1.ordinals[: len(t.ordinals)]
-            serialized = {tuple(c.ordinals): ContentNodeSerializer(c).data for c in toc}
-
-            for cns in serialized.values():
-                if cns["resource_type"] == "Section":
-                    cns["children"] = []
-
-            serialized[()] = {"id": casebook.id, "children": []}
-
-            for ordinals, cns in serialized.items():
-                if not ordinals:
-                    continue
-                parent = serialized[ordinals[:-1]]
-                try:
-                    parent["children"].append(cns)
-                except KeyError:
-                    raise ValueError("Trying to append children to non-Section!")
-            return serialized[()]
-        casebook.content_tree__load()
-        casebook.contents.prefetch_resources()
-        toc = casebook.content_tree__children
-        serialized = SectionOutlineSerializer(toc, many=True).data
-        return {"id": casebook.id, "children": serialized}
+        return manually_serialize_content_query(casebook.contents)
 
 
 class CasebookInfoView(APIView):
@@ -607,8 +567,7 @@ class SectionTOCView(APIView):
     @method_decorator(user_has_perm("casebook", "viewable_by"))
     @method_decorator(user_has_perm("section", "viewable_by"))
     def get(self, request, casebook, section, format=None):
-        section.content_tree__load()
-        return Response(SectionOutlineSerializer(section).data)
+        return Response(manually_serialize_content_query(section.contents))
 
     @method_decorator(requires_csrf_token)
     @method_decorator(perms_test(directly_editable_section))
@@ -3012,7 +2971,7 @@ def new_from_outline(request, casebook=None):
     add_sections_and_resources(parent_section, nodes)
     parent_section.content_tree__repair()
     if section:
-        return JsonResponse(SectionOutlineSerializer(section).data, status=200)
+        return JsonResponse(manually_serialize_content_query(section.contents), status=200)
     return JsonResponse(CasebookTOCView.format_casebook(casebook), status=200)
 
 

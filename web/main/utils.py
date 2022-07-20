@@ -25,9 +25,11 @@ from django.template import Context, RequestContext, engines
 from django.urls import reverse
 from django.utils.encoding import force_bytes
 from django.utils.http import urlsafe_base64_encode
+from django.db.models import Exists, OuterRef
 
 from .sanitize import sanitize
 from .storages import get_s3_storage
+from .models import ContentAnnotation, LegalDocument
 
 import logging
 
@@ -741,3 +743,49 @@ def validate_image(file, formats=None):
         Image.open(file, formats=formats)
     except UnidentifiedImageError:
         raise BadFiletypeError(f"Only {', '.join(formats)} are supported at this time.")
+
+
+def manually_serialize_content_query(content_query):
+    """
+    This method makes several interventions to substantially
+    optimize the serialization process for casebooks and sections.
+    As a result, it is messy, has to do many things. Handle with care.
+
+    :param content_query: A django query of content to be serialized
+        e.g. casebook.contents or section.contents
+    :return: a serialized dictionary for use with frontend
+    """
+    toc = list(
+        content_query.prefetch_resources(
+            legal_doc_query=LegalDocument.objects.defer("content").all()
+        )
+        .order_by("ordinals")
+        .annotate(
+            has_annotation=Exists(
+                ContentAnnotation.objects.filter(resource_id=OuterRef("pk"))
+            )
+        )
+        .all()
+    )
+    # optimize expensive call to is_transmutable
+    for t, t1 in zip(toc, toc[1:]):
+        if not t.resource_type or t.resource_type == "Section" or t.resource_type == "":
+            # if t1 is a child of t, then t is not transmutable
+            t.transmutable = t.ordinals != t1.ordinals[: len(t.ordinals)]
+    serialized = {tuple(c.ordinals): ContentNodeSerializer(c).data for c in toc}
+
+    for cns in serialized.values():
+        if cns["resource_type"] == "Section":
+            cns["children"] = []
+
+    serialized[()] = {"id": casebook.id, "children": []}
+
+    for ordinals, cns in serialized.items():
+        if not ordinals:
+            continue
+        parent = serialized[ordinals[:-1]]
+        try:
+            parent["children"].append(cns)
+        except KeyError:
+            raise ValueError("Trying to append children to non-Section!")
+    return serialized[()]
