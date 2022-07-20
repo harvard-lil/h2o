@@ -3808,7 +3808,7 @@ class Casebook(EditTrackedModel, TimestampedModel, BigPkModel, TrackedCloneable)
         # swap all attributes
 
         # start with the fields
-        for attr in ("title", "subtitle", "headnote"):
+        for attr in ("title", "subtitle", "description", "headnote"):
             temp = getattr(draft, attr)
             setattr(draft, attr, getattr(parent, attr))
             setattr(parent, attr, temp)
