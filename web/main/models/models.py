@@ -48,9 +48,9 @@ from pytest import raises as assert_raises
 from simple_history.models import HistoricalRecords
 from simple_history.utils import bulk_create_with_history, bulk_update_with_history
 
-from .differ import AnnotationUpdater
-from .sanitize import sanitize
-from .utils import (
+from ..differ import AnnotationUpdater
+from ..sanitize import sanitize
+from ..utils import (
     block_level_elements,
     clone_model_instance,
     elements_equal,
@@ -68,7 +68,7 @@ from .utils import (
     fix_after_rails,
     export_via_aws_lambda,
 )
-from .storages import get_s3_storage
+from ..storages import get_s3_storage
 
 logger = logging.getLogger(__name__)
 
@@ -843,7 +843,9 @@ class SearchIndex(models.Model):
     def create_search_index(cls):
         """Create or replace the materialized view 'search_view', which backs this model"""
         with connection.cursor() as cursor:
-            cursor.execute(Path(__file__).parent.joinpath("create_search_index.sql").read_text())
+            cursor.execute(
+                Path(__file__).parent.parent.joinpath("create_search_index.sql").read_text()
+            )
 
     @classmethod
     def refresh_search_index(cls):
@@ -977,7 +979,9 @@ class FullTextSearchIndex(models.Model):
     def create_search_index(cls):
         """Create or replace the materialized view 'search_view', which backs this model"""
         with connection.cursor() as cursor:
-            cursor.execute(Path(__file__).parent.joinpath("create_fts_index.sql").read_text())
+            cursor.execute(
+                Path(__file__).parent.parent.joinpath("create_fts_index.sql").read_text()
+            )
 
     @classmethod
     def refresh_search_index(cls):
