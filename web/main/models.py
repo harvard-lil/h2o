@@ -4852,6 +4852,10 @@ class User(NullableTimestampedModel, PermissionsMixin, AbstractBaseUser):
     is_staff = models.BooleanField(default=False)
     is_active = models.BooleanField(default=False)
 
+    pronouns = models.CharField(max_length=63, blank=True)
+    short_bio = models.CharField(max_length=511, blank=True)
+    personal_site = models.CharField(max_length=255, blank=True)
+
     # login-tracking fields inherited from Rails authlogic gem
     last_request_at = models.DateTimeField(
         blank=True, null=True, help_text="Time of last request from user (to nearest 10 minutes)"
@@ -4890,9 +4894,6 @@ class User(NullableTimestampedModel, PermissionsMixin, AbstractBaseUser):
 
     @property
     def display_name(self):
-        """
-        In rails this is also known as "display" and "simple_display"
-        """
         return self.attribution or "Anonymous"
 
     def __str__(self):
