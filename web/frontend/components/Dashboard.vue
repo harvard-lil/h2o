@@ -40,7 +40,7 @@
     </Modal>
     <div v-if="user.active">
       <h2 class="casebooks">My Casebooks</h2>
-      <div class="archived-link"><a href="casebooks/archived/">[View Archived Casebooks]</a></div>
+      <div class="archived-link"><a href="/casebooks/archived/">[View Archived Casebooks]</a></div>
       <hr class="owned"/>
     </div>
     <div v-else>
