@@ -10,7 +10,7 @@ main > .casebook .casebook-inner {
     For how this works, see
     https://meyerweb.com/eric/thoughts/2011/09/12/un-fixing-fixed-elements-with-css-transforms/
   */
-  transform:rotate(0deg)
+  transform:rotate(0deg);
 }
 
 main > section.casebook {
@@ -210,8 +210,9 @@ main > header.casebook {
 }
 
 .next_button_container{
-  right: -12%;
-  position: fixed;
+  position : fixed;
+  bottom: 40vh;
+  right: 13vw;
   .next_page{
     background-image: url('~static/images/ui/casebook/next_page.svg');
     display: inline-block;
@@ -223,8 +224,9 @@ main > header.casebook {
   }
 }
 .prev_button_container{
-  right: 108.5%;
-  position: fixed;
+  position : fixed;
+  bottom: 40vh;
+  right: 85vw;
   .prev_page{
     background-image: url('~static/images/ui/casebook/prev_page.svg');
     display: inline-block;

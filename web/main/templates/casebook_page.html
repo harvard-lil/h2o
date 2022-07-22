@@ -23,6 +23,11 @@
 
 <section class="casebook {{casebook_color_class}}">
     <div class="content">
+        <div>
+        {% if section %}
+            {% include 'includes/page_buttons.html'  %}   
+        {% endif %}
+        </div>
         <div class="casebook-inner">
             <div class="top-strip"></div>
             <header class="casebook-header">
@@ -88,12 +93,6 @@
                     {% endif %}
             </header>
             {% include 'includes/action_buttons.html' %}
-            
-            {% if section %}
-                {% include 'includes/page_buttons.html'  %}   
-            {% endif %}
-
-
                 {% if section %}
                     {% if not editing %}
                         {% include 'includes/headnote.html' with content=section %}

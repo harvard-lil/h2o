@@ -1,20 +1,19 @@
-
+<nav aria-label="Previous Next Page">
 {% load call_method %}
   {% if section.prev_node_url %}
-     <div class="prev_button_container" aria-label="Previous Page Button">
-      <a class="prev_url" href="{{ section.prev_node_url }}">
-        <span class="prev_page"></span>
+     <div class="prev_button_container">
+      <a class="prev_url" href="{{ section.prev_node_url }}" aria-label="Previous Page Button">
+        <span class="prev_page" ></span>
       </a>
     </div>
-  {% else %}
   {% endif %}
 
   {% if section.next_node_url %}
-    <div class="next_button_container" aria-label="Next Page Button">
-      <a class="next_url" href="{{ section.next_node_url }}">
+    <div class="next_button_container">
+      <a class="next_url" href="{{ section.next_node_url }}" aria-label="Next Page Button">
         <span class="next_page"></span>
       </a>
     </div>
-  {% else %}
 {% endif %}
+</nav>
 
