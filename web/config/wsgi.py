@@ -29,6 +29,6 @@ def retrying_send(message, *args, **kwargs):
         return _orig_send(message, *args, **kwargs)
 
 
-EmailMessage.send = retrying_send  # type: ignore  # Where is this being used?
+EmailMessage.send = retrying_send  # type: ignore # `error: Cannot assign to a method`
 
 application = get_wsgi_application()

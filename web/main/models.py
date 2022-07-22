@@ -1090,8 +1090,8 @@ class FullTextSearchIndex(models.Model):
         display_name = get_display_name_field(category)
         results = results.order_by("-rank", display_name)
 
-        results_chunk = Paginator(results, page_size).get_page(page)
-        ids = sorted([r.result_id for r in results_chunk])
+        results_page = Paginator(results, page_size).get_page(page)
+        ids = sorted([r.result_id for r in results_page])
 
         # Can replace w/ match statement when upgraded to 3.10
         query_class: ResourceType
@@ -1115,31 +1115,37 @@ class FullTextSearchIndex(models.Model):
 
         ids_headlines = {i: h for i, h in ids_headlines_query}
         ids_ordinals: Dict[int, List[str]]
+
         if category == "legal_doc_fulltext":
             ids_ordinals_nodes = (
                 casebook.contents.filter(resource_type="LegalDocument")
-                .filter(resource_id__in=[r.result_id for r in results_chunk])
+                .filter(resource_id__in=[r.result_id for r in results_page])
                 .values_list("resource_id", "ordinals")
             )
             ids_ordinals = {i: [str(n) for n in h] for i, h in ids_ordinals_nodes}  # type: ignore
-        for r in results_chunk:
+
+        for r in results_page:
             try:
                 r.metadata["headlines"] = ids_headlines[r.result_id].split("...")
             except AttributeError:
                 pass
+
             if category == "legal_doc_fulltext":
                 r.metadata["ordinals"] = ".".join(ids_ordinals[r.result_id])
+
                 if r.metadata["citations"]:
                     r.metadata["citations"] = r.metadata["citations"].split(";;")
                 else:
                     r.metadata["citations"] = ""
+
                 if r.metadata["effective_date_formatted"]:
                     r.metadata["year"] = (
                         r.metadata["effective_date_formatted"].split(",")[-1].strip()
                     )
                 else:
                     r.metadata["year"] = ""
-        return results_chunk
+
+        return results_page
 
 
 class USCodeIndex(models.Model):
@@ -1321,6 +1327,7 @@ class ContentAnnotationQuerySet(models.QuerySet):
 
 
 # (2022-07-19) django type-stubs workaround
+# https://github.com/typeddjango/django-stubs#my-queryset-methods-are-returning-any-rather-than-my-model
 _ContentAnnotationManager = models.Manager.from_queryset(ContentAnnotationQuerySet)
 
 
@@ -1967,6 +1974,7 @@ class TrackedCloneable(models.Model):
 
 
 # (2022-07-19) django type-stubs workaround
+# https://github.com/typeddjango/django-stubs#my-queryset-methods-are-returning-any-rather-than-my-model
 _ContentNodeManager = models.Manager.from_queryset(ContentNodeQuerySet)
 
 
