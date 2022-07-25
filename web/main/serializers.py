@@ -141,6 +141,7 @@ class CasebookListSerializer(serializers.ModelSerializer):
             "id",
             "title",
             "subtitle",
+            "cover_image",
             "is_public",
             "is_archived",
             "has_draft",

@@ -13,6 +13,9 @@
           <div class="state">{{ displayState }}</div>
           <div class="title">{{ casebook.title }}</div>
           <div class="subtitle">{{ casebook.subtitle }}</div>
+          <div v-if="casebook.cover_image" class="cover-image-container">
+            <img class="cover-image" v-bind:src="casebook.cover_image" title="cover"/>
+          </div>
         </div>
   
         <component v-bind:is="clickAction" class="wrapper" :href="casebook.draft_url" v-if="casebook.has_draft && casebook.user_editable">
@@ -115,6 +118,7 @@ export default {
     padding-left:15px;
     padding-top:8px;
     flex-direction: column;
+    
     label {
             margin-bottom: 8px;
             font-weight: 700;
@@ -125,6 +129,10 @@ export default {
             background-color: rgba($light-blue,0.6);
             outline: 2px solid $light-gray;
         }
+    .cover-image{
+      max-width: 100%;
+      max-height: 100%
+    }
     }
 
 
