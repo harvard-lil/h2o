@@ -33,9 +33,18 @@
             padding: 0;
         }
         #toolbar th, #toolbar td { vertical-align: middle; }
-        #toolbar { background-color: #eee; margin-bottom: 1em;}
-        #dashboard th small { font-weight: normal; text-style: italic; display: block; }
+        #toolbar {  margin-bottom: 1em;}
+        #dashboard th small { font-weight: normal; display: block; }
         aside { background-color: #eee; padding: 1em; margin-top: 2em;}
+        #dashboard {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            column-gap: 1rem;
+        }
+        #casebooks-by-usage h3 { display: inline; }
+        #casebooks-by-usage li { padding: .5rem 0 .5rem 0; border-bottom: 1px dotted gray; }
+        #casebooks-by-usage ol { margin: 1rem; padding: 0; }
+        .is-public { display: inline-block; margin-left: 1rem; }
     </style>
 {% endblock extrastyle %}
 
@@ -81,18 +90,15 @@
                     <td>
                         <input type="submit">
                     </td>
-
                 </tr>
             </table>
         </form>
     </div>
 
-    <p>
-        Showing all records for users or casebooks created between {{ date_form.start_date.value |date:"Y-m-d" }} and {{ date_form.end_date.value |date:"Y-m-d" }}:
-    </p>
+    <div id="dashboard">
+        <div>
+    <table>
 
-
-    <table id="dashboard">
     <tr>
         <th>Number of accounts
             <small>All active, non-staff users</small>
@@ -215,10 +221,46 @@
     </tr>
     </table>
 
-    <aside>
-        Note: "Published" casebooks will include casebooks in either the <em>published</em> or
-        <em>revising</em> state, matching the front end search.
-    </aside>
+        <aside>
+            Note: "Published" casebooks will include casebooks in either the <em>published</em> or
+            <em>revising</em> state, matching the front end search.
+        </aside>
+    </div>
+
+    <div id="casebooks-by-usage">
+        <h2>Top casebooks by usage</h2
+        <p>Results between {{ web_usage.start_date }} and {{ web_usage.end_date }}</p>
+        <ol>
+        {% for result in web_usage.items %}
+            {% with result.instance as casebook %}
+           <li>{% if casebook %}
+                <h3><a href="{{ casebook.get_absolute_url }}">{{ casebook.title }}</a></h3>
+                <span class="is-public">{% if casebook.is_public %}
+                    ✅ published
+                {% else %}
+                    ❌ not published
+                {% endif %}
+                </span>
+                <p>
+                    {% for author in casebook.primary_authors %}
+                        <a href="{% url "admin:main_user_change" author.id %}">{{ author }}</a> {% if author.verified_professor %}(prof){% endif %}
+                        {% if author.affiliation %} at {{ author.affiliation }} {% endif %}
+                        {% if not forloop.last%}, {% endif %}
+                    {% endfor %}
+
+                </p>
+                <p>
+                    {{ result.visits | intcomma }} visit{{ result.visits| pluralize }}
+                </p>
+            {% else %}
+                {{ result.slug }}
+            {% endif %}
+            {% endwith %}
+        </li>
+        {% endfor %}
+        </ol>
+    </div>
+    </div>
 </div>
 
 {% endblock %}

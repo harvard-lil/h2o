@@ -1,6 +1,7 @@
 import pytest
 from django.apps import apps
 from django.db import connection
+from django.test import override_settings
 from django.urls import reverse
 from reporting.create_reporting_views import VIEW_LIST, create, refresh
 
@@ -32,7 +33,10 @@ def test_refresh_views(db, casebook_factory, cursor):
     assert 1 == cursor.fetchone()[0]
 
 
-def test_usage_dashboard(client, casebook_factory):
+@override_settings(
+    MATOMO_SITE_URL="http://example.com", MATOMO_API_KEY="fake", MATOMO_SITE_ID="fake"
+)
+def test_usage_dashboard(client, casebook_factory, mock_successful_matomo_response):
     """The reporting dashboard should return a datastructure with result counts"""
     casebook_factory()
     refresh()
