@@ -3096,15 +3096,20 @@ class ContentNode(
             return True
         if not self.resource_type or self.resource_type == "Section" or self.resource_type == "":
             try:
-                # this is here to enable some speedup shortcuts in casebook page load
-                return self.transmutable
+                # this is here to enable some speedup shortcuts
+                # loading content trees is expensive, so calling code can
+                # preload _has_children to make this call faster
+                # see serializers.py:manually_serialize_content_query
+                return self._has_children
             except AttributeError:
                 self.content_tree__load()
                 return len(self.children) == 0
         else:
-            # another speedup hack
             try:
-                if self.annotatable and self.has_annotation:
+                # _has_annotation is a special property that is provided by
+                # the calling code. preloading _has_annotation speeds up
+                # this call. See serializers.py:manually_serialize_content_query
+                if self.annotatable and self._has_annotation:
                     return False
             except AttributeError:
                 if self.annotatable and self.annotations.exists():

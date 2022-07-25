@@ -85,6 +85,7 @@ from .serializers import (
     NewCommonTitleSerializer,
     TextBlockSerializer,
     UpdateAnnotationSerializer,
+    manually_serialize_content_query,
 )
 from .storages import get_s3_storage
 from .test.test_permissions_helpers import (
@@ -105,7 +106,6 @@ from .utils import (
     LambdaExportTooLarge,
     validate_image,
     BadFiletypeError,
-    manually_serialize_content_query,
 )
 
 logger = logging.getLogger("django")
@@ -566,9 +566,13 @@ class SectionTOCView(APIView):
     @method_decorator(user_has_perm("casebook", "viewable_by"))
     @method_decorator(user_has_perm("section", "viewable_by"))
     def get(self, request, casebook, section, format=None):
-        mscq = manually_serialize_content_query(
+        # in order to serialize correctly, we need return the top-level section
+        # and nested lists of children. section.contents does not include the
+        # section content node itself, so we get the section node and OR it
+        # together to add it to the section.contents query
+        [mscq] = manually_serialize_content_query(
             ContentNode.objects.filter(id=section.id) | section.contents
-        )[0]
+        )
         return Response(mscq)
 
     @method_decorator(requires_csrf_token)
@@ -2973,9 +2977,13 @@ def new_from_outline(request, casebook=None):
     add_sections_and_resources(parent_section, nodes)
     parent_section.content_tree__repair()
     if section:
-        mscq = manually_serialize_content_query(
+        # in order to serialize correctly, we need return the top-level section
+        # and nested lists of children. section.contents does not include the
+        # section content node itself, so we get the section node and OR it
+        # together to add it to the section.contents query
+        [mscq] = manually_serialize_content_query(
             ContentNode.objects.filter(id=section.id) | section.contents
-        )[0]
+        )
         return JsonResponse(mscq, status=200)
     return JsonResponse(CasebookTOCView.format_casebook(casebook), status=200)
 
