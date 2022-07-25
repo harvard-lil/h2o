@@ -68,8 +68,8 @@ class ProfessorAdmin(UserAdmin):
             def sql(self):
                 return """--sql
                 select user_id from reporting_professors
-                where created_at >= %s
-                and created_at <= %s
+                where date(last_login_at) >= %s
+                and date(last_login_at) <= %s
                 """
 
         return ChangeList
@@ -93,15 +93,15 @@ class ProfessorWithCasebooksAdmin(UserAdmin):
                 return """--sql
                 select user_id from reporting_professors_with_casebooks
                 where state in %s
-                and created_at >= %s
-                and created_at <= %s
+                and date(last_login_at) >= %s
+                and date(last_login_at) <= %s
                 """
 
         return ChangeList
 
 
 class AbstractCasebookChangeList(AbstractReportingChangeList):
-    """Return a Casebook changelist that respects the publication and creation date ranges
+    """Return a Casebook changelist that respects the publication and usage date ranges
     requested by the usage dashboard user."""
 
     def get_queryset(self, request: HttpRequest):
@@ -117,8 +117,8 @@ class AbstractCasebookChangeList(AbstractReportingChangeList):
 
 
 class AbstractCasebooksAdmin(CasebookAdmin):
-    """Return a Casebook list where subclasses can specify the specific view to report from
-    and whether to join from the professor view to restrict results to casebooks by professors."""
+    """Return a Casebook list where subclasses can specify the database view to select from,
+    and indicate whether to join on the professor view to restrict results to casebooks by professors."""
 
     @property
     @abstractmethod
@@ -141,8 +141,8 @@ class AbstractCasebooksAdmin(CasebookAdmin):
                     if parent.join_on_professor
                     else ""}
                 where c.state in %s
-                and c.created_at >= %s
-                and c.created_at <= %s
+                and date(c.updated_at) >= %s
+                and date(c.updated_at) <= %s
 
                 """
 

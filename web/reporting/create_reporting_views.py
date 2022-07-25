@@ -9,7 +9,15 @@ PUBLISHED_CASEBOOKS = (
     Casebook.LifeCycle.PUBLISHED.value,
     Casebook.LifeCycle.REVISING.value,
 )
-ALL_STATES = tuple(tag.value for tag in Casebook.LifeCycle)
+# Don't include "previous saves" as they aren't useful for reporting
+ALL_STATES = (
+    Casebook.LifeCycle.PUBLISHED.value,
+    Casebook.LifeCycle.REVISING.value,
+    Casebook.LifeCycle.PRIVATELY_EDITING.value,
+    Casebook.LifeCycle.NEWLY_CLONED.value,
+    Casebook.LifeCycle.ARCHIVED.value,
+    Casebook.LifeCycle.REVISING.value,
+)
 
 OLDEST_YEAR = 20  # How far back in time we'll go
 
