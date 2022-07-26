@@ -39,11 +39,13 @@ def test_refresh_views(db, casebook_factory, cursor):
 @override_settings(
     MATOMO_SITE_URL="http://example.com", MATOMO_API_KEY="fake", MATOMO_SITE_ID="fake"
 )
-def test_usage_dashboard(client, casebook_factory, mock_successful_matomo_response):
+def test_usage_dashboard(
+    client, casebook_factory, mock_successful_matomo_response, admin_user_factory
+):
     """The reporting dashboard should return a datastructure with result counts"""
     casebook_factory()
     refresh()
-    resp = client.get(reverse("admin:usage"))
+    resp = client.get(reverse("admin:usage"), as_user=admin_user_factory())
     assert 1 == resp.context["stats"]["casebooks"]
 
 
@@ -51,26 +53,36 @@ def test_usage_dashboard(client, casebook_factory, mock_successful_matomo_respon
     MATOMO_SITE_URL="http://example.com", MATOMO_API_KEY="fake", MATOMO_SITE_ID="fake"
 )
 def test_dashboard_casebook_date_fields(
-    client, casebook_factory, casebook_edit_log_factory, mock_successful_matomo_response
+    client,
+    casebook_factory,
+    casebook_edit_log_factory,
+    mock_successful_matomo_response,
+    admin_user_factory,
 ):
     """The reporting dashboard should report dates based on casebook usage including the edit log"""
 
     early_date = "2000-01-01"
     later_date = "2050-01-01"
 
+    admin = admin_user_factory()
+
     # Pick a time to create a casebook and then check whether any exist "now"
     with freeze_time(early_date):
         casebook = casebook_factory()
         refresh()
         resp = client.get(
-            reverse("admin:usage"), {"start_date": early_date, "end_date": early_date}
+            reverse("admin:usage"),
+            {"start_date": early_date, "end_date": early_date},
+            as_user=admin,
         )
         assert 1 == resp.context["stats"]["casebooks"]
 
     with freeze_time(later_date):
         # At a later time, casebook will no longer fall in the filter range
         resp = client.get(
-            reverse("admin:usage"), {"start_date": later_date, "end_date": later_date}
+            reverse("admin:usage"),
+            {"start_date": later_date, "end_date": later_date},
+            as_user=admin,
         )
         assert 0 == resp.context["stats"]["casebooks"]
 
@@ -80,7 +92,9 @@ def test_dashboard_casebook_date_fields(
 
         # The casebook is now considered to be modified recently
         resp = client.get(
-            reverse("admin:usage"), {"start_date": later_date, "end_date": later_date}
+            reverse("admin:usage"),
+            {"start_date": later_date, "end_date": later_date},
+            as_user=admin,
         )
         assert 1 == resp.context["stats"]["casebooks"]
 

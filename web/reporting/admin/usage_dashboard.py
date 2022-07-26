@@ -8,6 +8,7 @@ from django.shortcuts import render
 from django.db import connection
 from django.contrib.admin.widgets import AdminDateWidget
 from dateutil.relativedelta import relativedelta
+from django.contrib.admin.views.decorators import staff_member_required
 
 from reporting.create_reporting_views import (
     ALL_STATES,
@@ -26,6 +27,7 @@ class DateForm(forms.Form):
     )
 
 
+@staff_member_required
 def view(request: HttpRequest):
     """Render a usage dashboard of useful metrics"""
 
