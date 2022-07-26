@@ -1,10 +1,7 @@
-from typing import (  # noqa: F401  # why is it here...
-    Dict,
-    List,
-    Type,
-    Union,
-    Sequence,  # (2022-07-19) Unused, but weird mypy / flake8 bug w/o, see #1639
-)
+from typing import (
+    Sequence,
+)  # noqa: F401 workaround for django-stubs#1022 until the fix in django-stubs#1028 is released
+from typing import Type, Union
 from dateutil import parser
 import time
 import logging
@@ -1114,7 +1111,7 @@ class FullTextSearchIndex(models.Model):
         )
 
         ids_headlines = {i: h for i, h in ids_headlines_query}
-        ids_ordinals: Dict[int, List[str]]
+        ids_ordinals: dict[int, list[str]]
 
         if category == "legal_doc_fulltext":
             ids_ordinals_nodes = (
