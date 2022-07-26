@@ -209,31 +209,18 @@ main > header.casebook {
   }
 }
 
-.next_button_container{
+.prev_button_container, .next_button_container{
   position : fixed;
   bottom: 40vh;
-  right: 15vw;
-  .next_page_svg{
-    background-image: url('~static/images/ui/casebook/next_page.svg');
-    display: inline-block;
-    width: 50px;
-    height: 50px;
-  }
-  .next_page_svg:hover{
-    transform: scale(1.15); 
-  }
-  a:focus{
+  a:focus-visible{
     display:inline-block;
-    transform: scale(1.15); 
+    transform: scale(1.2); 
     outline: none;
   }
 }
 
-
 .prev_button_container{
-  position : fixed;
-  bottom: 40vh;
-  right: 82vw;
+  right: 92vw;
   .prev_page_svg{
     background-image: url('~static/images/ui/casebook/prev_page.svg');
     display: inline-block;
@@ -243,14 +230,18 @@ main > header.casebook {
   .prev_page_svg:hover{
     transform: scale(1.2); 
   }
-  .prev_page_svg:focus-visible{
-    transform: scale(1.2);
-    border: 3px white; 
+}
+
+.next_button_container{
+  right: 5vw;
+  .next_page_svg{
+    background-image: url('~static/images/ui/casebook/next_page.svg');
+    display: inline-block;
+    width: 50px;
+    height: 50px;
   }
-  a:focus{
-    display:inline-block;
+  .next_page_svg:hover{
     transform: scale(1.2); 
-    outline: none;
   }
 }
 
