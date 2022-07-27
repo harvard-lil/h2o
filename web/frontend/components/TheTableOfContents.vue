@@ -440,8 +440,10 @@ export default {
                 border-color: $white;
             }
             *:focus {
-                outline: 2px solid $white;
-                outline-offset: 2px;
+                outline: none !important;
+            }
+            *:focus-visible {
+                outline: 2px solid $white !important;
             }
             .transmute-dropdown {
                 color: black;
