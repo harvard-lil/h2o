@@ -1,7 +1,12 @@
 import dateutil.rrule as rrule
+import csv
+import datetime
+from io import StringIO
+
 import pytest
 from django.apps import apps
 from django.db import connection
+from django.http import HttpResponse
 from django.test import override_settings
 from django.urls import reverse
 from freezegun import freeze_time
@@ -142,9 +147,69 @@ def test_greatest_mod_date(casebook_edit_log_factory, casebook_factory, cursor):
 
 
 @pytest.mark.parametrize("model", apps.all_models["reporting"])
-def test_reporting_views(client, model, admin_user_factory):
+def test_reporting_view_pages(client, model, admin_user_factory):
     """All reporting views should return successful default responses"""
     admin = admin_user_factory()
-    client.force_login(admin)
-    resp = client.get(reverse(f"admin:reporting_{model}_changelist"))
+    resp = client.get(reverse(f"admin:reporting_{model}_changelist"), as_user=admin)
     assert 200 == resp.status_code
+
+
+@pytest.mark.parametrize("model", apps.all_models["reporting"])
+def test_reporting_csv_export(client, admin_user_factory, model):
+    """All reporting views should allow exporting via CSV"""
+    admin = admin_user_factory()
+
+    resp: HttpResponse = client.get(
+        reverse(
+            f"admin:reporting_{model}_changelist",
+        ),
+        {"_csv": True},
+        as_user=admin,
+    )
+    assert resp.headers.get("Content-Type") == "text/csv"
+    # Content should be a one-line CSV, just the header fields
+    rows = list(csv.reader(StringIO(resp.content.decode())))
+    assert "id" in rows[0][0]
+
+
+def test_reporting_csv_export_casebook(client, admin_user_factory, casebook_factory):
+    """The casebook export view should export some expected fields"""
+    admin = admin_user_factory()
+
+    with freeze_time("2020-01-02"):
+        c = casebook_factory()
+        refresh()
+        resp: HttpResponse = client.get(
+            reverse(
+                "admin:reporting_reportingcasebook_changelist",
+            ),
+            {"_csv": True, "start_date": "2020-01-01", "end_date": "2020-01-03"},
+            as_user=admin,
+        )
+        rows = list(csv.reader(StringIO(resp.content.decode())))
+        assert 2 == len(rows)
+        assert "title" in rows[0]
+        assert c.title in rows[1]
+
+
+def test_reporting_csv_export_professor(client, admin_user_factory, verified_professor_factory):
+    """The professor export view should export some expected fields"""
+
+    with freeze_time("2020-01-02"):
+        p = verified_professor_factory()
+        # Manually set the logged-in date, because the test client does not call this pathway
+        p.last_login_at = datetime.datetime.now()
+        p.save()
+
+        refresh()
+        resp: HttpResponse = client.get(
+            reverse(
+                "admin:reporting_professor_changelist",
+            ),
+            {"_csv": True, "start_date": "2020-01-01", "end_date": "2020-01-03"},
+            as_user=admin_user_factory(),
+        )
+        rows = list(csv.reader(StringIO(resp.content.decode())))
+        assert 2 == len(rows)
+        assert "affiliation" in rows[0]
+        assert p.affiliation in rows[1]

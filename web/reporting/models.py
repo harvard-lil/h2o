@@ -1,7 +1,24 @@
+from typing import Optional
 from main.models import Casebook, User
 
 
 class Professor(User):
+    @property
+    def most_recent_casebook(self) -> Optional[Casebook]:
+        return self.casebooks.all().order_by("-created_at").first()
+
+    @property
+    def most_recent_casebook_title(self) -> str:
+        if casebook := self.most_recent_casebook:
+            return casebook.title
+        return ""
+
+    @property
+    def most_recent_casebook_modified(self) -> str:
+        if casebook := self.most_recent_casebook:
+            return casebook.updated_at
+        return ""
+
     class Meta:
         proxy = True
         verbose_name = "Professor"
@@ -16,6 +33,10 @@ class ProfessorWithCasebooks(Professor):
 
 
 class ReportingCasebook(Casebook):
+    @property
+    def authors_display(self) -> str:
+        return ", ".join([a.attribution for a in self.attributed_authors])
+
     class Meta:
         proxy = True
         verbose_name = "Casebook"

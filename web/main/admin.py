@@ -61,7 +61,7 @@ class CustomAdminSite(admin.AdminSite):
 
         urls = super().get_urls()
         my_urls = [
-            path("usage/", usage_dashboard_view, name="usage"),
+            path("reporting/usage/", usage_dashboard_view, name="usage"),
         ]
         return my_urls + urls
 
