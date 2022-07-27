@@ -5,36 +5,82 @@
       class="wrapper"
       :href="outerUrl"
       @click="selectBook">
-      <div v-bind:class="{'content-page': true,
-                          'archived': casebook.is_archived,
-                          'public': casebook.is_public ,
-                          'draft': !(casebook.is_public || casebook.is_archived)}">
-        <div class="casebook-info">
-          <div class="state">{{ displayState }}</div>
-          <div class="title">{{ casebook.title }}</div>
-          <div class="subtitle">{{ casebook.subtitle }}</div>
-          <div v-if="casebook.cover_image" class="cover-image-container">
+
+      <div class="casebook-container" v-if="casebook.cover_image" >
+        <div class="state">{{ displayState }}</div>
+        <div
+            v-bind:class="{'content-page': true,
+                            'archived': casebook.is_archived,
+                            'public': casebook.is_public ,
+                            'draft': !(casebook.is_public || casebook.is_archived)}">
+          <div class="cover-image-container">
             <img class="cover-image" v-bind:src="casebook.cover_image" title="cover"/>
           </div>
+          
         </div>
-  
-        <component v-bind:is="clickAction" class="wrapper" :href="casebook.draft_url" v-if="casebook.has_draft && casebook.user_editable">
-          <div class="unpublished-changes">
-            <span class="exclamation">!</span>
-            <span class="description">This casebook has unpublished changes.</span>
-          </div>
-        </component>
-        <div class="author-info">
-          <div class="owner">
-            <ul>
-              <li v-for="author in attributed(casebook.authors)" v-bind:key="author.id" v-bind:class="author.verified_professor ? 'verified-prof' : ''">
+
+        <div class="casebook-sub-info">
+          <div class="info-title">{{ casebook.title }}</div>
+          <div class="info-sub-title">{{ casebook.subtitle }}</div>
+          <div class="info-author-info">
+              <p v-for="author in attributed(casebook.authors)" v-bind:key="author.id">
                 {{ author.attribution }}
-              </li>
-            </ul>
+              </p>
           </div>
+            <button type="button" class="view-book-button">
+              View
+            </button>
         </div>
+
       </div>
+
+      <div v-else class="casebook-container">
+        <div class="state">{{ displayState }}</div>
+        <div v-bind:class="{'content-page': true,
+                            'archived': casebook.is_archived,
+                            'public': casebook.is_public ,
+                            'draft': !(casebook.is_public || casebook.is_archived)}">
+
+          <div class="casebook-info">
+            <div class="title">{{ casebook.title }}</div>
+            <div class="subtitle">{{ casebook.subtitle }}</div>
+          </div>
+    
+          <component v-bind:is="clickAction" class="wrapper" :href="casebook.draft_url" v-if="casebook.has_draft && casebook.user_editable">
+            <div class="unpublished-changes">
+              <span class="exclamation">!</span>
+              <span class="description">This casebook has unpublished changes.</span>
+            </div>
+          </component>
+
+          <div class="author-info">
+            <div class="owner">
+              <ul>
+                <li v-for="author in attributed(casebook.authors)" v-bind:key="author.id" v-bind:class="author.verified_professor ? 'verified-prof' : ''">
+                  {{ author.attribution }}
+                </li>
+              </ul>
+            </div>
+          </div>
+
+        </div>
+         <div class="casebook-sub-info">
+            <div class="info-title">{{ casebook.title }}</div>
+            <div class="info-sub-title">{{ casebook.subtitle }}</div>
+            <div class="info-author-info">
+                <p v-for="author in attributed(casebook.authors)" v-bind:key="author.id">
+                  {{ author.attribution }}
+                </p>
+            </div>
+              <button type="button" class="view-book-button">
+                View
+              </button>
+          </div>
+      </div>
+
+
     </component>
+
     <label v-if="selectable">
       Select
       <input type="checkbox" class="casebook-check" :value="casebook" v-model="selectionIndirection">
@@ -130,10 +176,10 @@ export default {
             outline: 2px solid $light-gray;
         }
     .cover-image{
-      max-width: 100%;
-      max-height: 100%
+      width:210px;
+      height:320px;
     }
-    }
+}
 
 
 

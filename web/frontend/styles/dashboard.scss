@@ -61,14 +61,20 @@ div.dashboard-link {
   clear: both;
   display: flex;
   flex-wrap: wrap;
+  
+  .state{
+    @include sans-serif($medium, 10px, 10px);
+      margin-bottom: 5px;
+      text-transform: uppercase;
+  }
 
   .content-page, .header-spacer {
-//      @include size(225px, 320px);
-      width: 225px;
-      min-height:320px;
+    width: 225px;
+    min-height:320px;
     float: left;
     margin-right: 10px;
     margin-bottom: 15px;
+    box-shadow: 0 3px 10px rgb(0 0 0 / 0.2);
   }
 
   .wrapper {
@@ -79,6 +85,11 @@ div.dashboard-link {
           margin: 4px;
           border: 4px solid blue;
       }
+  }
+
+  .casebook-container{
+    display: flex;
+    flex-direction: column;
   }
 
   .content-page {
@@ -92,7 +103,6 @@ div.dashboard-link {
     .casebook-info, .unpublished-changes, .author-info, .root-attribution {
       padding: 10px;
     }
-
     .author-info {
       .owner {
         display:block;
@@ -173,6 +183,32 @@ div.dashboard-link {
       .subtitle { color: $yellow; }
     }
   }
+  
+  .casebook-sub-info{
+    max-width: 225px;
+    height: 40%;
+    background-color: white;
+    padding: 10px;
+    .info-title{
+      font-weight: 600;
+    }
+    .info-sub-title{
+    }
+    .info-author-info{
+    }
+    .info-verified-prof{
+
+    }
+  }
+
+  .view-book-button{
+    @extend .btn-default;
+    margin-right: 5px;
+    padding: 5px;
+    border: none;
+    float: right;
+  }
+
   .header-spacer {
     height: 340px;
 
