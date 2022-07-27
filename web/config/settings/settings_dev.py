@@ -1,4 +1,6 @@
 import os
+import sys
+
 from .settings_base import *  # noqa
 
 
@@ -10,6 +12,8 @@ SECRET_KEY = "k2#@_q=1$(__n7#(zax6#46fu)x=3&^lz&bwb8ol-_097k_rj5"
 # Set these values in your local shell environment to make them available in the container
 CAPAPI_API_KEY = os.environ.get("CAPAPI_API_KEY", "")
 GPO_API_KEY = os.environ.get("GPO_API_KEY", "")
+MATOMO_API_KEY = os.environ.get("MATOMO_API_KEY", "")
+MATOMO_SITE_URL = os.environ.get("MATOMO_SITE_URL", "")
 
 DEBUG = True
 
@@ -20,11 +24,7 @@ AUTH_PASSWORD_VALIDATORS = []
 # STATICFILES_STORAGE = 'pipeline.storage.PipelineStorage'
 
 # django-debug-toolbar:
-# ddt can be useful but also be a hassle, so it only runs optionally, if you choose to `pip install django-debug-toolbar==3.2.2`
-# If installed, there will be a sidebar when viewing front-end pages, including useful tools such as a SQL profiler.
-# Do not use a version more recent than django-debug-toolbar==3.2.2, as Django 2.2 support is dropped in 3.3.x
-# and 3.2.3+ introduced a config bug.
-import sys
+# See the README for current instructions on running with django debug toolbar enabled
 
 if "pytest" not in sys.modules:  # don't run this from tests
     if os.environ.get("DEBUG_TOOLBAR"):

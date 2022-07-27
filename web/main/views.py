@@ -2750,7 +2750,7 @@ def export(request, node, file_type="docx"):
             docx_footnotes=docx_footnotes,
         )
     except LambdaExportTooLarge as too_large:
-        logger.warn(f"Export node({node.id}): " + too_large.args[0])
+        logger.warning(f"Export node({node.id}): " + too_large.args[0])
         return render(request, "export_too_large.html", {"casebook": node})
     if response_data is None:
         return render(request, "export_error.html", {"casebook": node})

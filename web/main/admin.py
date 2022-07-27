@@ -61,7 +61,7 @@ class CustomAdminSite(admin.AdminSite):
 
         urls = super().get_urls()
         my_urls = [
-            path("usage/", usage_dashboard_view, name="usage"),
+            path("reporting/usage/", usage_dashboard_view, name="usage"),
         ]
         return my_urls + urls
 
@@ -316,6 +316,7 @@ class CasebookAdmin(BaseAdmin, SimpleHistoryAdmin):
         "source",
         "provenance",
         "headnote",
+        "description",
         "cover_image",
         "created_at",
         "updated_at",

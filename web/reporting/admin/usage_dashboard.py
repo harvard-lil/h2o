@@ -8,6 +8,7 @@ from django.shortcuts import render
 from django.db import connection
 from django.contrib.admin.widgets import AdminDateWidget
 from dateutil.relativedelta import relativedelta
+from django.contrib.admin.views.decorators import staff_member_required
 
 from reporting.create_reporting_views import (
     ALL_STATES,
@@ -15,6 +16,7 @@ from reporting.create_reporting_views import (
     PUBLISHED_CASEBOOKS,
 )
 from main.models import Casebook
+from reporting.matomo import usage
 
 
 class DateForm(forms.Form):
@@ -25,6 +27,7 @@ class DateForm(forms.Form):
     )
 
 
+@staff_member_required
 def view(request: HttpRequest):
     """Render a usage dashboard of useful metrics"""
 
@@ -54,14 +57,17 @@ def view(request: HttpRequest):
 
     state = PUBLISHED_CASEBOOKS if published_casebooks_only else ALL_STATES
 
+    # Get the usage data from Matomo:
+    web_usage = usage(start_date, end_date, published_casebooks_only)
+
     with connection.cursor() as cursor:
 
         # Run the specific queries needed for the reports
         cursor.execute(
             """--sql
         select count(*) from reporting_users
-        where date(created_at) >= %s
-            and date(created_at) <= %s
+        where date(last_login_at) >= %s
+            and date(last_login_at) <= %s
         """,
             [start_date, end_date],
         )
@@ -71,8 +77,8 @@ def view(request: HttpRequest):
             """--sql
             select count(*) from reporting_casebooks
             where state in %s
-                and date(created_at) >= %s
-                and date(created_at) <= %s
+                and date(updated_at) >= %s
+                and date(updated_at) <= %s
             """,
             [state, start_date, end_date],
         )
@@ -81,8 +87,8 @@ def view(request: HttpRequest):
         cursor.execute(
             """--sql
         select count(*) from reporting_professors
-        where date(created_at) >= %s
-            and date(created_at) <= %s
+        where date(last_login_at) >= %s
+            and date(last_login_at) <= %s
         """,
             [start_date, end_date],
         )
@@ -93,8 +99,8 @@ def view(request: HttpRequest):
         select count(*) from (
         select user_id from reporting_professors_with_casebooks
         where state in %s
-            and date(created_at) >= %s
-            and date(created_at) <= %s
+            and date(last_login_at) >= %s
+            and date(last_login_at) <= %s
             group by user_id
         ) as r
         """,
@@ -111,8 +117,8 @@ def view(request: HttpRequest):
             """--sql
             select count(*) from reporting_casebooks_from_professors
             where state in %s
-                and date(created_at) >= %s
-                and date(created_at) <= %s
+                and date(updated_at) >= %s
+                and date(updated_at) <= %s
         """,
             [
                 state,
@@ -127,8 +133,8 @@ def view(request: HttpRequest):
             """--sql
             select count(*) from reporting_casebooks_including_source_cap
                 where state in %s
-                and date(created_at) >= %s
-                and date(created_at) <= %s
+                and date(updated_at) >= %s
+                and date(updated_at) <= %s
             """,
             [
                 state,
@@ -144,8 +150,8 @@ def view(request: HttpRequest):
             select count(*) from reporting_casebooks_including_source_cap rc
                 inner join reporting_casebooks_from_professors rp on rp.casebook_id = rc.casebook_id
                 where rc.state in %s
-                and date(rc.created_at) >= %s
-                and date(rc.created_at) <= %s
+                and date(rc.updated_at) >= %s
+                and date(rc.updated_at) <= %s
             """,
             [
                 state,
@@ -160,8 +166,8 @@ def view(request: HttpRequest):
             """--sql
             select count(*) from reporting_casebooks_including_source_gpo
                 where state in %s
-                and date(created_at) >= %s
-                and date(created_at) <= %s
+                and date(updated_at) >= %s
+                and date(updated_at) <= %s
             """,
             [
                 state,
@@ -178,8 +184,8 @@ def view(request: HttpRequest):
             select count(*) from reporting_casebooks_including_source_gpo rc
                 inner join reporting_casebooks_from_professors rp on rp.casebook_id = rc.casebook_id
                 where rc.state in %s
-                and date(rc.created_at) >= %s
-                and date(rc.created_at) <= %s
+                and date(rc.updated_at) >= %s
+                and date(rc.updated_at) <= %s
             """,
             [
                 state,
@@ -195,8 +201,8 @@ def view(request: HttpRequest):
             """--sql
         select count(*) from reporting_casebooks_with_multiple_collaborators
         where state in %s
-            and date(created_at) >= %s
-            and date(created_at) <= %s
+            and date(updated_at) >= %s
+            and date(updated_at) <= %s
         """,
             [
                 state,
@@ -212,8 +218,8 @@ def view(request: HttpRequest):
         select count(*) from reporting_casebooks_with_multiple_collaborators rc
                 inner join reporting_casebooks_from_professors rp on rc.casebook_id = rp.casebook_id
                 where rc.state in %s
-                and date(rc.created_at) >= %s
-                and date(rc.created_at) <= %s
+                and date(rc.updated_at) >= %s
+                and date(rc.updated_at) <= %s
         """,
             [
                 state,
@@ -228,8 +234,8 @@ def view(request: HttpRequest):
             """--sql
         select count(*) from reporting_casebooks_series as c
         where c.state in %s
-              and date(c.created_at) >= %s
-              and date(c.created_at) <= %s
+              and date(c.updated_at) >= %s
+              and date(c.updated_at) <= %s
         """,
             [
                 state,
@@ -245,8 +251,8 @@ def view(request: HttpRequest):
             """--sql
         select count(*) from reporting_casebooks_series_from_professors as c
             where c.state in %s
-                and date(c.created_at) >= %s
-                and date(c.created_at) <= %s
+                and date(c.updated_at) >= %s
+                and date(c.updated_at) <= %s
         """,
             [state, start_date, end_date],
         )
@@ -257,6 +263,7 @@ def view(request: HttpRequest):
         "admin/reporting/index.html",
         {
             "stats": stats,
+            "web_usage": web_usage,
             "date_form": form,
             "query": urlencode(
                 {

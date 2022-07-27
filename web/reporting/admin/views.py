@@ -1,18 +1,23 @@
+import csv
 from abc import ABC, abstractmethod
 from datetime import date
-from typing import Any, Iterable, Iterator, List, Optional, Tuple
+from io import StringIO
+from typing import Any, Iterable, Optional
 
 from dateutil.relativedelta import relativedelta
 from django.contrib.admin.views.main import ChangeList
 from django.db import connection
 from django.db.models import Count
-from django.http import HttpRequest
-from main.admin import CasebookAdmin, UserAdmin
+from django.db.models.query import QuerySet
+from django.http import HttpRequest, HttpResponse
+from main.admin import BaseAdmin, CasebookAdmin, UserAdmin
 from main.models import Casebook
 from reporting.create_reporting_views import ALL_STATES, OLDEST_YEAR, PUBLISHED_CASEBOOKS
 
+MAX_CSV_RESULTS = 1_000
 
-def get_reporting_ids(query: str, params: List[Any]) -> Iterator[int]:
+
+def get_reporting_ids(query: str, params: list[Any]) -> Iterable[int]:
     with connection.cursor() as cursor:
 
         # Filter out any empty params that might be optional for this query
@@ -22,7 +27,7 @@ def get_reporting_ids(query: str, params: List[Any]) -> Iterator[int]:
         return ids
 
 
-def get_date_ranges(request: HttpRequest) -> Tuple[date, date]:
+def get_date_ranges(request: HttpRequest) -> tuple[date, date]:
 
     start_date = request.GET.get("start_date", date.today() - relativedelta(years=OLDEST_YEAR))
     end_date = request.GET.get("end_date", date.today())
@@ -47,7 +52,7 @@ class AbstractProfessorChangeList(AbstractReportingChangeList):
     def get_state(self, request: HttpRequest) -> Optional[Iterable[str]]:
         return None
 
-    def get_queryset(self, request: HttpRequest):
+    def get_queryset(self, request: HttpRequest) -> QuerySet:
 
         start_date, end_date = get_date_ranges(request)
         state = self.get_state(request)
@@ -59,7 +64,58 @@ class AbstractProfessorChangeList(AbstractReportingChangeList):
         return qs.order_by(*ordering)
 
 
-class ProfessorAdmin(UserAdmin):
+class CsvResponseMixin(BaseAdmin):
+    @property
+    def field_list(self) -> Iterable[str]:
+        """Return a list of fields to be included in the CSV output for this class"""
+        return []
+
+    def changelist_view(self, request: HttpRequest, extra_context=None) -> HttpResponse:
+        if "_csv" in request.GET:
+            qs: QuerySet = self.get_changelist_instance(request).queryset[:MAX_CSV_RESULTS]
+
+            output = StringIO()
+            export = [[f for f in self.field_list]]
+            for obj in qs:
+                row: list[str] = [str(getattr(obj, field)) for field in self.field_list]
+                export.append(row)
+            csv.writer(output).writerows(export)
+            return self.csv_response(output)
+
+        return super().changelist_view(request, extra_context)
+
+    def csv_response(self, output_rows: StringIO) -> HttpResponse:
+        """Return a response object of type CSV given a datastructure of rows of string output"""
+        return HttpResponse(
+            output_rows.getvalue().encode(),
+            headers={
+                "Content-Type": "text/csv",
+                "Content-Disposition": f'attachment; filename="{self.model._meta.model_name}-{date.today().isoformat()}.csv',
+            },
+        )
+
+
+class ProfessorExportMixin(CsvResponseMixin):
+    @property
+    def field_list(self) -> Iterable[str]:
+        return (
+            "id",
+            "attribution",
+            "email_address",
+            "affiliation",
+            "most_recent_casebook_title",
+            "most_recent_casebook_modified",
+            "last_login_at",
+        )
+
+
+class CasebookExportMixin(CsvResponseMixin):
+    @property
+    def field_list(self) -> Iterable[str]:
+        return ("id", "title", "authors_display", "state", "created_at", "updated_at")
+
+
+class ProfessorAdmin(ProfessorExportMixin, UserAdmin):
     """Override the default changelist method to return the customized change list class"""
 
     def get_changelist(self, request: HttpRequest):
@@ -68,14 +124,14 @@ class ProfessorAdmin(UserAdmin):
             def sql(self):
                 return """--sql
                 select user_id from reporting_professors
-                where created_at >= %s
-                and created_at <= %s
+                where date(last_login_at) >= %s
+                and date(last_login_at) <= %s
                 """
 
         return ChangeList
 
 
-class ProfessorWithCasebooksAdmin(UserAdmin):
+class ProfessorWithCasebooksAdmin(ProfessorExportMixin, UserAdmin):
     """Return a User/Professor changelist that respects the publication status of casebooks
     by this author"""
 
@@ -93,15 +149,15 @@ class ProfessorWithCasebooksAdmin(UserAdmin):
                 return """--sql
                 select user_id from reporting_professors_with_casebooks
                 where state in %s
-                and created_at >= %s
-                and created_at <= %s
+                and date(last_login_at) >= %s
+                and date(last_login_at) <= %s
                 """
 
         return ChangeList
 
 
 class AbstractCasebookChangeList(AbstractReportingChangeList):
-    """Return a Casebook changelist that respects the publication and creation date ranges
+    """Return a Casebook changelist that respects the publication and usage date ranges
     requested by the usage dashboard user."""
 
     def get_queryset(self, request: HttpRequest):
@@ -116,9 +172,9 @@ class AbstractCasebookChangeList(AbstractReportingChangeList):
         return qs.order_by(*ordering)
 
 
-class AbstractCasebooksAdmin(CasebookAdmin):
-    """Return a Casebook list where subclasses can specify the specific view to report from
-    and whether to join from the professor view to restrict results to casebooks by professors."""
+class AbstractCasebooksAdmin(CasebookExportMixin, CasebookAdmin):
+    """Return a Casebook list where subclasses can specify the database view to select from,
+    and indicate whether to join on the professor view to restrict results to casebooks by professors."""
 
     @property
     @abstractmethod
@@ -141,8 +197,8 @@ class AbstractCasebooksAdmin(CasebookAdmin):
                     if parent.join_on_professor
                     else ""}
                 where c.state in %s
-                and c.created_at >= %s
-                and c.created_at <= %s
+                and date(c.updated_at) >= %s
+                and date(c.updated_at) <= %s
 
                 """
 

@@ -1,5 +1,6 @@
 {% if USE_ANALYTICS %}
-  {% verbatim %}
+{# Ensure that MATOMO_SITE_ID and MATOMO_SITE_URL are both set for this environment #}
+{% verbatim %}
     <script>
       var _gaq = [];
       var _paq = _paq || [];
@@ -7,9 +8,9 @@
       _paq.push(['trackPageView']);
       _paq.push(['enableLinkTracking']);
       (function() {
-      var u="//analytics.lil.tools/";
+      var u="{{ MATOMO_SITE_URL }}";
       _paq.push(['setTrackerUrl', u+'piwik.php']);
-      _paq.push(['setSiteId', '3']);
+      _paq.push(['setSiteId', '{{ MATOMO_SITE_ID }}']);
       var d=document, g=d.createElement('script'), s=d.getElementsByTagName('script')[0];
       g.type='text/javascript'; g.async=true; g.defer=true; g.src=u+'piwik.js'; s.parentNode.insertBefore(g,s);
       })();
