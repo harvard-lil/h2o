@@ -2075,12 +2075,12 @@ class ContentNode(
         if idx > 0:
             previous_url = ContentNode.objects.get(
                 casebook_id=self.casebook_id, ordinals=casebook_ordinals[idx - 1]
-            ).get_edit_or_absolute_url(False)
+            ).get_absolute_url()
 
         if idx + 1 < len(casebook_ordinals):
             next_url = ContentNode.objects.get(
                 casebook_id=self.casebook_id, ordinals=casebook_ordinals[idx + 1]
-            ).get_edit_or_absolute_url(False)
+            ).get_absolute_url()
 
         return (previous_url, next_url)
 

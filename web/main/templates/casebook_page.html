@@ -21,7 +21,7 @@
 
 <section class="casebook {{casebook_color_class}}">
     <div class="content">
-        {% if section %}
+        {% if section and not editing %}
             <div>
                 {% include 'includes/page_buttons.html' with previous_and_next_urls=section.get_previous_and_next_node_urls %}
             </div>
