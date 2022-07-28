@@ -6,6 +6,7 @@ from datetime import datetime
 from distutils.sysconfig import get_python_lib
 import pytest
 import factory
+from requests_mock import ANY
 
 from django.conf import settings
 from django.db import connections
@@ -941,3 +942,28 @@ def client_with_raise_request_exception():
                 django.test.client.got_request_exception.disconnect(dispatch_uid=exception_uid)
 
     return RaiseRequestExceptionClient
+
+
+@pytest.fixture()
+def mock_successful_matomo_response(requests_mock):
+    requests_mock.get(
+        ANY,
+        json=[
+            {
+                "label": "casebooks",
+                "nb_visits": 3,
+                "idsubdatatable": 1,
+                "segment": "",
+                "subtable": [
+                    {
+                        "label": "1-some-title",
+                        "nb_visits": 1,
+                    },
+                    {
+                        "label": "2-some-title",
+                        "nb_visits": 1,
+                    },
+                ],
+            }
+        ],
+    )

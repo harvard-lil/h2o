@@ -33,6 +33,7 @@ flake8==4.0.1
 requests-mock       # mock the requests library
 pytest-mock
 py-spy
+freezegun
 
 # Dev convenience
 django-debug-toolbar

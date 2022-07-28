@@ -416,7 +416,7 @@ class InviteCollaboratorForm(forms.Form):
         email_address = self.cleaned_data["email"]
         casebook = Casebook.objects.get(id=self.cleaned_data["casebook"])
 
-        if user := User.objects.filter(email_addres__iexact=email_address).first():
+        if user := User.objects.filter(email_address__iexact=email_address).first():
             collaborator = ContentCollaborator.objects.create(
                 has_attribution=False, can_edit=False, user=user, casebook=casebook
             )
