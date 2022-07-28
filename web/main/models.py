@@ -1,6 +1,6 @@
-from typing import (
+from typing import (  # noqa: F401 workaround for django-stubs#1022 until the fix in django-stubs#1028 is released
     Sequence,
-)  # noqa: F401 workaround for django-stubs#1022 until the fix in django-stubs#1028 is released
+)
 from typing import Type, Union, Optional
 from dateutil import parser
 import time
