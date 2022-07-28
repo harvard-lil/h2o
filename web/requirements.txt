@@ -216,6 +216,8 @@ django==3.2.14 \
     #   django-debug-toolbar
     #   django-extensions
     #   django-storages
+    #   django-stubs
+    #   django-stubs-ext
     #   djangorestframework
 django-crispy-forms==1.12.0 \
     --hash=sha256:a3320356c84d0cdc631e1ec7b8908aa0117bc2a5f0ab1d053d33eba08f584808 \
@@ -240,6 +242,14 @@ django-storages==1.12.3 \
     --hash=sha256:204a99f218b747c46edbfeeb1310d357f83f90fa6a6024d8d0a3f422570cee84 \
     --hash=sha256:a475edb2f0f04c4f7e548919a751ecd50117270833956ed5bd585c0575d2a5e7
     # via -r requirements.in
+django-stubs[compatible-mypy]==1.12.0 \
+    --hash=sha256:0dff8ec0ba3abe046450b3d8a29ce9e72629893d2c1ef679189cc2bfdb6d2f64 \
+    --hash=sha256:ea8b35d0da49f7b2ee99a79125f1943e033431dd114726d6643cc35de619230e
+    # via -r requirements.in
+django-stubs-ext==0.5.0 \
+    --hash=sha256:9bd7418376ab00b7f88d6d56be9fece85bfa0c7c348ac621155fa4d7a91146f2 \
+    --hash=sha256:c5d8db53d29c756e7e3d0820a5a079a43bc38d8fab0e1b8bd5df2f3366c54b5a
+    # via django-stubs
 django-webpack-loader==0.7.0 \
     --hash=sha256:7a3c88201aa54481f9399465615cbe7b9aece8081496a6d0287b7cb8e232f447 \
     --hash=sha256:d28a276ed3d89e97a313b74967e373693f8b86afe629f4c91eea91c5b4f2ec20
@@ -367,10 +377,39 @@ mccabe==0.6.1 \
     --hash=sha256:ab8a6258860da4b6677da4bd2fe5dc2c659cff31b3ee4f7f5d64e79735b80d42 \
     --hash=sha256:dd8d182285a0fe56bace7f45b5e7d1a6ebcbf524e8f3bd87eb0f125271b8831f
     # via flake8
+mypy==0.961 \
+    --hash=sha256:006be38474216b833eca29ff6b73e143386f352e10e9c2fbe76aa8549e5554f5 \
+    --hash=sha256:03c6cc893e7563e7b2949b969e63f02c000b32502a1b4d1314cabe391aa87d66 \
+    --hash=sha256:0e9f70df36405c25cc530a86eeda1e0867863d9471fe76d1273c783df3d35c2e \
+    --hash=sha256:1ece702f29270ec6af25db8cf6185c04c02311c6bb21a69f423d40e527b75c56 \
+    --hash=sha256:3e09f1f983a71d0672bbc97ae33ee3709d10c779beb613febc36805a6e28bb4e \
+    --hash=sha256:439c726a3b3da7ca84a0199a8ab444cd8896d95012c4a6c4a0d808e3147abf5d \
+    --hash=sha256:5a0b53747f713f490affdceef835d8f0cb7285187a6a44c33821b6d1f46ed813 \
+    --hash=sha256:5f1332964963d4832a94bebc10f13d3279be3ce8f6c64da563d6ee6e2eeda932 \
+    --hash=sha256:63e85a03770ebf403291ec50097954cc5caf2a9205c888ce3a61bd3f82e17569 \
+    --hash=sha256:64759a273d590040a592e0f4186539858c948302c653c2eac840c7a3cd29e51b \
+    --hash=sha256:697540876638ce349b01b6786bc6094ccdaba88af446a9abb967293ce6eaa2b0 \
+    --hash=sha256:9940e6916ed9371809b35b2154baf1f684acba935cd09928952310fbddaba648 \
+    --hash=sha256:9f5f5a74085d9a81a1f9c78081d60a0040c3efb3f28e5c9912b900adf59a16e6 \
+    --hash=sha256:a5ea0875a049de1b63b972456542f04643daf320d27dc592d7c3d9cd5d9bf950 \
+    --hash=sha256:b117650592e1782819829605a193360a08aa99f1fc23d1d71e1a75a142dc7e15 \
+    --hash=sha256:b24be97351084b11582fef18d79004b3e4db572219deee0212078f7cf6352723 \
+    --hash=sha256:b88f784e9e35dcaa075519096dc947a388319cb86811b6af621e3523980f1c8a \
+    --hash=sha256:bdd5ca340beffb8c44cb9dc26697628d1b88c6bddf5c2f6eb308c46f269bb6f3 \
+    --hash=sha256:d5aaf1edaa7692490f72bdb9fbd941fbf2e201713523bdb3f4038be0af8846c6 \
+    --hash=sha256:e999229b9f3198c0c880d5e269f9f8129c8862451ce53a011326cad38b9ccd24 \
+    --hash=sha256:f4a21d01fc0ba4e31d82f0fff195682e29f9401a8bdb7173891070eb260aeb3b \
+    --hash=sha256:f4b794db44168a4fc886e3450201365c9526a522c46ba089b55e1f11c163750d \
+    --hash=sha256:f730d56cb924d371c26b8eaddeea3cc07d78ff51c521c6d04899ac6904b75492
+    # via
+    #   -r requirements.in
+    #   django-stubs
 mypy-extensions==0.4.3 \
     --hash=sha256:090fedd75945a69ae91ce1303b5824f428daf5a028d2f6ab8a299250a846f15d \
     --hash=sha256:2d82818f5bb3e369420cb3c4060a7970edba416647068eb4c5343488a6c604a8
-    # via black
+    # via
+    #   black
+    #   mypy
 packaging==20.9 \
     --hash=sha256:5b327ac1320dc863dca72f4514ecc086f31186744b84a230374cc1fd776feae5 \
     --hash=sha256:67714da7f7bc052e064859c05c595155bd1ee9f69f76557e21f051443c20947a
@@ -582,15 +621,46 @@ toml==0.10.2 \
 tomli==2.0.1 \
     --hash=sha256:939de3e7a6161af0c887ef91b7d41a53e7c5a1ca976325f429cb46ea9bc30ecc \
     --hash=sha256:de526c12914f0c550d15924c62d72abc48d6fe7364aa87328337a31007fe8a4f
-    # via black
+    # via
+    #   black
+    #   django-stubs
+    #   mypy
 tqdm==4.61.1 \
     --hash=sha256:24be966933e942be5f074c29755a95b315c69a91f839a29139bf26ffffe2d3fd \
     --hash=sha256:aa0c29f03f298951ac6318f7c8ce584e48fa22ec26396e6411e43d038243bdb2
     # via -r requirements.in
+types-bleach==5.0.3 \
+    --hash=sha256:5931525d03571f36b2bb40210c34b662c4d26c8fd6f2b1e1e83fe4d2d2fd63c7 \
+    --hash=sha256:f7b3df8278efe176d9670d0f063a66c866c77577f71f54b9c7a320e31b1a7bbd
+    # via -r requirements.in
+types-python-dateutil==2.8.19 \
+    --hash=sha256:6284df1e4783d8fc6e587f0317a81333856b872a6669a282f8a325342bce7fa8 \
+    --hash=sha256:bfd3eb39c7253aea4ba23b10f69b017d30b013662bb4be4ab48b20bbd763f309
+    # via -r requirements.in
+types-pytz==2022.1.2 \
+    --hash=sha256:1a8b25c225c5e6bd8468aa9eb45ddd3b337f6716d4072ad0aa4ef1e41478eebc \
+    --hash=sha256:8aa9fd2af9dee5f5bd7221c6804c9addeafa7ebc0008f544d4ace02b066818a4
+    # via django-stubs
+types-pyyaml==6.0.10 \
+    --hash=sha256:18985a382c93fb12187daae6f57ce7787e3651cd590291c907d3e757919689ff \
+    --hash=sha256:a1676caeb098096833fe2f1472e7ea8debf7663222964fa90545cfaafebf3385
+    # via django-stubs
+types-requests==2.28.5 \
+    --hash=sha256:98ab647ae88b5e2c41d6d20cfcb5117da1bea561110000b6fdeeea07b3e89877 \
+    --hash=sha256:ac618bfefcb3742eaf97c961e13e9e5a226e545eda4a3dbe293b898d40933ad1
+    # via -r requirements.in
+types-urllib3==1.26.17 \
+    --hash=sha256:0d027fcd27dbb3cb532453b4d977e05bc1e13aefd70519866af211b3003d895d \
+    --hash=sha256:73fd274524c3fc7cd8cd9ceb0cb67ed99b45f9cb2831013e46d50c1451044800
+    # via types-requests
 typing-extensions==4.3.0 \
     --hash=sha256:25642c956049920a5aa49edcdd6ab1e06d7e5d467fc00e0506c44ac86fbfca02 \
     --hash=sha256:e6d2677a32f47fc7eb2795db1dd15c1f34eff616bcaf2cfb5e997f854fa1c4a6
-    # via black
+    # via
+    #   black
+    #   django-stubs
+    #   django-stubs-ext
+    #   mypy
 urllib3==1.26.5 \
     --hash=sha256:753a0374df26658f99d826cfe40394a686d05985786d946fbe4165b5148f5a7c \
     --hash=sha256:a7acd0977125325f516bda9735fa7142b909a8d01e8b2e4c8108d0984e6e0098

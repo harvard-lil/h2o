@@ -2,7 +2,7 @@ import csv
 from abc import ABC, abstractmethod
 from datetime import date
 from io import StringIO
-from typing import Any, Iterable, Optional
+from typing import Any, Iterable, Optional, Union
 
 from dateutil.relativedelta import relativedelta
 from django.contrib.admin.views.main import ChangeList
@@ -10,7 +10,7 @@ from django.db import connection
 from django.db.models import Count
 from django.db.models.query import QuerySet
 from django.http import HttpRequest, HttpResponse
-from main.admin import BaseAdmin, CasebookAdmin, UserAdmin
+from main.admin import BaseAdmin, CasebookAdmin, UserAdmin  # type: ignore # main/admin.py is entirely ignored
 from main.models import Casebook
 from reporting.create_reporting_views import ALL_STATES, OLDEST_YEAR, PUBLISHED_CASEBOOKS
 
@@ -27,7 +27,7 @@ def get_reporting_ids(query: str, params: list[Any]) -> Iterable[int]:
         return ids
 
 
-def get_date_ranges(request: HttpRequest) -> tuple[date, date]:
+def get_date_ranges(request: HttpRequest) -> tuple[Union[str, date], Union[str, date]]:
 
     start_date = request.GET.get("start_date", date.today() - relativedelta(years=OLDEST_YEAR))
     end_date = request.GET.get("end_date", date.today())

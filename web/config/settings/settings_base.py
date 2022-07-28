@@ -11,10 +11,10 @@ https://docs.djangoproject.com/en/2.2/ref/settings/
 """
 
 import os
-from typing import List
+from typing import Any, TypedDict
 
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
-ALLOWED_HOSTS: List[str] = []
+ALLOWED_HOSTS: list[str] = []
 TESTING = False
 
 # Application definition
@@ -172,7 +172,17 @@ TEMPLATE_VISIBLE_SETTINGS = (
     "SENTRY_TRACES_SAMPLE_RATE",
 )
 
-LOGGING = {
+
+class LoggerConfig(TypedDict, total=False):
+    version: int
+    disable_existing_loggers: bool
+    handlers: dict[str, Any]
+    loggers: dict[str, Any]
+    formatters: dict[str, Any]
+    filters: dict[str, Any]
+
+
+LOGGING: LoggerConfig = {
     "version": 1,
     "disable_existing_loggers": False,
     "handlers": {
