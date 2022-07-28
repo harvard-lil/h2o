@@ -11,9 +11,10 @@ https://docs.djangoproject.com/en/2.2/ref/settings/
 """
 
 import os
+from typing import Any, TypedDict
 
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS: list[str] = []
 TESTING = False
 
 # Application definition
@@ -22,6 +23,7 @@ INSTALLED_APPS = [
     "whitenoise.runserver_nostatic",
     # apps
     "main",
+    "reporting",
     # third party
     "django_extensions",
     "crispy_forms",
@@ -125,6 +127,9 @@ USE_L10N = True
 
 # LIL's analytics JS
 USE_ANALYTICS = False
+MATOMO_SITE_URL = ""
+MATOMO_API_KEY = ""
+MATOMO_SITE_ID = "3"
 
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/2.2/howto/static-files/
@@ -151,6 +156,8 @@ PROFESSOR_VERIFIER_EMAILS = ["info@opencasebook.org"]
 # e.g. <a href="mailto:{{ CONTACT_EMAIL }}">Contact Us</a>
 TEMPLATE_VISIBLE_SETTINGS = (
     "USE_ANALYTICS",
+    "MATOMO_SITE_ID",
+    "MATOMO_SITE_URL",
     "CONTACT_EMAIL",
     "GUIDE_URL",
     "BLOG_URL",
@@ -165,7 +172,17 @@ TEMPLATE_VISIBLE_SETTINGS = (
     "SENTRY_TRACES_SAMPLE_RATE",
 )
 
-LOGGING = {
+
+class LoggerConfig(TypedDict, total=False):
+    version: int
+    disable_existing_loggers: bool
+    handlers: dict[str, Any]
+    loggers: dict[str, Any]
+    formatters: dict[str, Any]
+    filters: dict[str, Any]
+
+
+LOGGING: LoggerConfig = {
     "version": 1,
     "disable_existing_loggers": False,
     "handlers": {

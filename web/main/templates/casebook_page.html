@@ -78,10 +78,17 @@
                             {{ section.subtitle }}
                         </h2>
                         {% endif %}
-                    {% elif casebook.subtitle %}
-                    <h2 class="subtitle">
-                        {{ casebook.subtitle }}
-                    </h2>
+                    {% else %}
+                        {% if casebook.subtitle %}
+                        <h2 class="subtitle">
+                            {{ casebook.subtitle }}
+                        </h2>
+                        {% endif %}
+                        {% if casebook.description %}
+                        <h4 class="description">
+                            {{ casebook.description }}
+                        </h4>
+                        {% endif %}
                     {% endif %}
                     <div class="authorship">
                         <div class="collaborators">

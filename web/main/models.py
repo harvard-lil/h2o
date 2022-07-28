@@ -1,4 +1,7 @@
-from typing import Optional
+from typing import (  # noqa: F401 workaround for django-stubs#1022 until the fix in django-stubs#1028 is released
+    Sequence,
+)
+from typing import Type, Union, Optional
 from dateutil import parser
 import time
 import logging
@@ -33,7 +36,7 @@ from django.contrib.postgres.search import (
     SearchHeadline,
 )
 from django.core.exceptions import ValidationError
-from django.core.validators import validate_unicode_slug
+from django.core.validators import validate_unicode_slug, MaxLengthValidator
 from django.db import models, connection, transaction, ProgrammingError
 from django.core.paginator import Paginator
 from django.db.models import Count, F, JSONField
@@ -889,45 +892,25 @@ class SearchIndex(models.Model):
         Get all casebooks:
         >>> assert dump_search_results(SearchIndex().search('casebook')) == (
         ...     [
-        ...         {'affiliation': 'Affiliation 0', 'created_at': '...', 'title': 'Some Title 0', 'attribution': 'Some User 0'},
-        ...         {'affiliation': 'Affiliation 1', 'created_at': '...', 'title': 'Some Title 1', 'attribution': 'Some User 1'},
-        ...         {'affiliation': 'Affiliation 2', 'created_at': '...', 'title': 'Some Title 2', 'attribution': 'Some User 2'}
+        ...         {'affiliation': 'Affiliation 0', 'created_at': '...', 'title': 'Some Title 0', 'attribution': 'Some User 0', 'description': None},
+        ...         {'affiliation': 'Affiliation 1', 'created_at': '...', 'title': 'Some Title 1', 'attribution': 'Some User 1', 'description': None},
+        ...         {'affiliation': 'Affiliation 2', 'created_at': '...', 'title': 'Some Title 2', 'attribution': 'Some User 2', 'description': None}
         ...     ],
         ...     {'user': 3, 'legal_doc': 3, 'casebook': 3},
         ...     {}
         ... )
 
         Get casebooks by query string:
-        >>> assert dump_search_results(SearchIndex().search('casebook', 'Some Title 0'))[0] == [
-        ...     {'affiliation': 'Affiliation 0', 'created_at': '...', 'title': 'Some Title 0', 'attribution': 'Some User 0'},
-        ... ]
+        >>> assert len(dump_search_results(SearchIndex().search('casebook', 'Some Title 0'))[0]) == 1
 
         Get casebooks by filter field:
-        >>> assert dump_search_results(SearchIndex().search('casebook', filters={'attribution': 'Some User 1'}))[0] == [
-        ...     {'affiliation': 'Affiliation 1', 'created_at': '...', 'title': 'Some Title 1', 'attribution': 'Some User 1'},
-        ... ]
+        >>> assert len(dump_search_results(SearchIndex().search('casebook', filters={'attribution': 'Some User 1'}))[0]) == 1
 
         Get all users:
-        >>> assert dump_search_results(SearchIndex().search('user')) == (
-        ...     [
-        ...         {'casebook_count': 1, 'attribution': 'Some User 0', 'affiliation': 'Affiliation 0'},
-        ...         {'casebook_count': 1, 'attribution': 'Some User 1', 'affiliation': 'Affiliation 1'},
-        ...         {'casebook_count': 1, 'attribution': 'Some User 2', 'affiliation': 'Affiliation 2'},
-        ...     ],
-        ...     {'user': 3, 'legal_doc': 3, 'casebook': 3},
-        ...     {},
-        ... )
+        >>> assert len(dump_search_results(SearchIndex().search('user'))[0]) == 3
 
         Get all cases:
-        >>> assert dump_search_results(SearchIndex().search('legal_doc')) == (
-        ...     [
-        ...         {'citations': 'Adventures in criminality, 1 Fake 1, (2001)', 'display_name': 'Legal Doc 0', 'jurisdiction': None, 'effective_date': '1900-01-01T00:00:00+00:00', 'effective_date_formatted': 'January   1, 1900'},
-        ...         {'citations': 'Adventures in criminality, 1 Fake 1, (2001)', 'display_name': 'Legal Doc 1', 'jurisdiction': None, 'effective_date': '1900-01-01T00:00:00+00:00', 'effective_date_formatted': 'January   1, 1900'},
-        ...         {'citations': 'Adventures in criminality, 1 Fake 1, (2001)', 'display_name': 'Legal Doc 2', 'jurisdiction': None, 'effective_date': '1900-01-01T00:00:00+00:00', 'effective_date_formatted': 'January   1, 1900'}
-        ...     ],
-        ...     {'user': 3, 'legal_doc': 3, 'casebook': 3},
-        ...     {}
-        ... )
+        >>> assert len(dump_search_results(SearchIndex().search('legal_doc'))[0]) == 3
         """
         if base_query is None:
             base_query = cls.objects.all()
@@ -989,9 +972,6 @@ class FullTextSearchIndex(models.Model):
     document = SearchVectorField()
     metadata = JSONField()
     category = models.CharField(max_length=255)
-
-    # TODO this is copying too much code from FullTextSearchIndex. There should be some
-    # kind of inheritance here
 
     class Meta:
         managed = False
@@ -1059,29 +1039,16 @@ class FullTextSearchIndex(models.Model):
         >>> FullTextSearchIndex().create_search_index()
 
         Search in casebook by query:
-        >>> assert dump_search_results([FullTextSearchIndex().casebook_fts(casebooks[0].id, "legal_doc_fulltext", query_str='Dubious'),]) == (
-        ...     [
-        ...         {'citations': 'Adventures in criminality, 1 Fake 1, (2001)', 'display_name': 'Legal Doc 0', 'jurisdiction': None, 'effective_date': '1900-01-01T00:00:00+00:00', 'effective_date_formatted': 'January   1, 1900', 'headlines': ['<b>Dubious</b> legal claim']},
-        ...         {'citations': 'Adventures in criminality, 1 Fake 1, (2001)', 'display_name': 'Legal Doc 1', 'jurisdiction': None, 'effective_date': '1900-01-01T00:00:00+00:00', 'effective_date_formatted': 'January   1, 1900', 'headlines': ['<b>Dubious</b> legal claim']},
-        ...         {'citations': 'Adventures in criminality, 1 Fake 1, (2001)', 'display_name': 'Legal Doc 2', 'jurisdiction': None, 'effective_date': '1900-01-01T00:00:00+00:00', 'effective_date_formatted': 'January   1, 1900', 'headlines': ['<b>Dubious</b> legal claim']}
-        ...     ],
-        ... )
-
         >>> assert dump_search_results([FullTextSearchIndex().casebook_fts(casebooks[0].id, 'legal_doc_fulltext', query_str='2'),]) == (
         ...     [
-        ...         {'citations': 'Adventures in criminality, 1 Fake 1, (2001)', 'display_name': 'Legal Doc 2', 'jurisdiction': None, 'effective_date': '1900-01-01T00:00:00+00:00', 'effective_date_formatted': 'January   1, 1900', 'headlines': ['Dubious legal claim <b>2</b>']}
+        ...         {'citations': ['Adventures in criminality, 1 Fake 1, (2001)',], 'display_name': 'Legal Doc 2', 'jurisdiction': None, 'effective_date': '1900-01-01T00:00:00+00:00', 'effective_date_formatted': 'January   1, 1900', 'headlines': ['Dubious legal claim <b>2</b>'], 'ordinals': '', 'year': '1900'}
         ...     ],
         ... )
-        >>> assert dump_search_results([FullTextSearchIndex().casebook_fts(casebooks[0].id, 'textblock', query_str='2'),]) == (
-        ...     [
-        ...         {'name': 'Some TextBlock Name 2', 'description': 'Some TextBlock Description 2', 'ordinals': '', 'headlines': ['Some TextBlock Content <b>2</b>'], 'casebook_id': casebooks[0].id}
-        ...     ],
-        ... )
+        >>> assert len(dump_search_results([FullTextSearchIndex().casebook_fts(casebooks[0].id, "legal_doc_fulltext", query_str='Dubious'),])[0]) == 3
+        >>> assert len(dump_search_results([FullTextSearchIndex().casebook_fts(casebooks[0].id, 'textblock', query_str='2'),])[0]) == 1
         """
 
         casebook = Casebook.objects.get(id=casebook_id)
-
-        query_vector = SearchQuery(query_str, config="english") if query_str else None
 
         base_query = None
         if category == "legal_doc_fulltext":
@@ -1106,36 +1073,76 @@ class FullTextSearchIndex(models.Model):
                 result_id__in=textblock_ids
             )
 
+        query_vector: Union[SearchQuery, str]
+        if query_str:
+            query_vector = SearchQuery(query_str, config="english")
+        else:
+            query_vector = ""
+
         if query_vector:
             base_query = base_query.filter(document=query_vector)
+
         results = base_query.filter(category=category)
         results = results.annotate(rank=SearchRank(F("document"), query_vector))
         display_name = get_display_name_field(category)
         results = results.order_by("-rank", display_name)
-        results = Paginator(results, page_size).get_page(page)
 
-        ids = sorted([r.result_id for r in results])
-        query_class = ({"legal_doc_fulltext": LegalDocument, "textblock": TextBlock, "link": Link})[
-            category
-        ]
+        results_page = Paginator(results, page_size).get_page(page)
+        ids = sorted([r.result_id for r in results_page])
+
+        # Can replace w/ match statement when upgraded to 3.10
+        query_class: ResourceType
+        if category == "legal_doc_fulltext":
+            query_class = LegalDocument
+        elif category == "textblock":
+            query_class = TextBlock
+        elif category == "link":
+            query_class = Link
+
         content_name = "description" if category == "link" else "content"
-        headlines = (
+        ids_headlines_query = (
             query_class.objects.filter(id__in=ids)
-            .order_by("id")
             .annotate(
                 headlines=SearchHeadline(
                     content_name, query_str, max_fragments=20, min_words=10, max_words=20
                 )
             )
-            .values_list("headlines")
+            .values_list("id", "headlines")
         )
-        headlines = {i: h for i, h in zip(ids, headlines)}
-        for r in results:
+
+        ids_headlines = {i: h for i, h in ids_headlines_query}
+
+        if category == "legal_doc_fulltext":
+            ids_ordinals: dict[Optional[int], list[str]]
+            ids_ordinals_nodes = (
+                casebook.contents.filter(resource_type="LegalDocument")
+                .filter(resource_id__in=[r.result_id for r in results_page])
+                .values_list("resource_id", "ordinals")
+            )
+            ids_ordinals = {i: [str(n) for n in h] for i, h in ids_ordinals_nodes}
+
+        for r in results_page:
             try:
-                r.metadata["headlines"] = headlines[r.result_id][0].split("...")
+                r.metadata["headlines"] = ids_headlines[r.result_id].split("...")
             except AttributeError:
-                continue
-        return results
+                pass
+
+            if category == "legal_doc_fulltext":
+                r.metadata["ordinals"] = ".".join(ids_ordinals[r.result_id])
+
+                if r.metadata["citations"]:
+                    r.metadata["citations"] = r.metadata["citations"].split(";;")
+                else:
+                    r.metadata["citations"] = ""
+
+                if r.metadata["effective_date_formatted"]:
+                    r.metadata["year"] = (
+                        r.metadata["effective_date_formatted"].split(",")[-1].strip()
+                    )
+                else:
+                    r.metadata["year"] = ""
+
+        return results_page
 
 
 class USCodeIndex(models.Model):
@@ -1308,12 +1315,17 @@ class LegalDocument(NullableTimestampedModel, AnnotatedModel):
         return False
 
 
-class ContentAnnotationQueryset(models.QuerySet):
+class ContentAnnotationQuerySet(models.QuerySet):
     def valid(self):
         """
         Return annotations excluding those that were marked invalid when shifting.
         """
         return self.exclude(global_start_offset=-1, global_end_offset=-1)
+
+
+# (2022-07-19) django type-stubs workaround
+# https://github.com/typeddjango/django-stubs#my-queryset-methods-are-returning-any-rather-than-my-model
+_ContentAnnotationManager = models.Manager.from_queryset(ContentAnnotationQuerySet)
 
 
 class ContentAnnotation(TimestampedModel, BigPkModel):
@@ -1338,7 +1350,7 @@ class ContentAnnotation(TimestampedModel, BigPkModel):
         related_name="annotations",
     )
 
-    objects = ContentAnnotationQueryset.as_manager()
+    objects = _ContentAnnotationManager()
 
     history = HistoricalRecords()
 
@@ -1449,7 +1461,7 @@ class ContentCollaborator(TimestampedModel, BigPkModel):
         unique_together = (("user", "casebook"),)
 
 
-class ContentNodeQueryset(models.QuerySet):
+class ContentNodeQuerySet(models.QuerySet):
     """
     This queryset allows us to do ContentNode.objects.prefetch_resources() so that fetched content nodes will
     efficiently have their content_node.resource attribute pre-populated, using a total of three queries instead
@@ -1958,6 +1970,11 @@ class TrackedCloneable(models.Model):
         return type(self).objects.get(pk=self.provenance[-1])
 
 
+# (2022-07-19) django type-stubs workaround
+# https://github.com/typeddjango/django-stubs#my-queryset-methods-are-returning-any-rather-than-my-model
+_ContentNodeManager = models.Manager.from_queryset(ContentNodeQuerySet)
+
+
 class ContentNode(
     EditTrackedModel, TimestampedModel, BigPkModel, MaterializedPathTreeMixin, TrackedCloneable
 ):
@@ -2004,7 +2021,7 @@ class ContentNode(
     resource_type = models.CharField(max_length=255, blank=True, null=True)
     resource_id = models.BigIntegerField(blank=True, null=True)
 
-    objects = ContentNodeQueryset.as_manager()
+    objects = _ContentNodeManager()
     tracked_fields = ["headnote"]
 
     # Stores the number of ‘read’ characters in a content
@@ -3431,6 +3448,7 @@ class Casebook(EditTrackedModel, TimestampedModel, BigPkModel, TrackedCloneable)
     title = models.CharField(max_length=10000, default="Untitled")
     subtitle = models.CharField(max_length=10000, blank=True, null=True)
     headnote = models.TextField(blank=True, null=True)
+    description = models.TextField(blank=True, null=True, validators=[MaxLengthValidator(750)])
     cover_image = models.FileField(
         storage=image_storage, upload_to=cover_image_path, blank=True, null=True
     )
@@ -3859,7 +3877,7 @@ class Casebook(EditTrackedModel, TimestampedModel, BigPkModel, TrackedCloneable)
         # swap all attributes
 
         # start with the fields
-        for attr in ("title", "subtitle", "headnote"):
+        for attr in ("title", "subtitle", "description", "headnote"):
             temp = getattr(draft, attr)
             setattr(draft, attr, getattr(parent, attr))
             setattr(parent, attr, temp)
@@ -4599,6 +4617,7 @@ class Casebook(EditTrackedModel, TimestampedModel, BigPkModel, TrackedCloneable)
                 not self.is_archived and user.is_superuser,
             ),
             ("History", reverse("casebook_history", args=[self]), self.viewable_by(user)),
+            ("Search Inside", reverse("casebook_search", args=[self]), self.viewable_by(user)),
             ("Settings", reverse("casebook_settings", args=[self]), self.editable_by(user)),
         ]
         return [(n, l, n == current_tab) for n, l, c in tabs if c]
@@ -4792,7 +4811,7 @@ class User(NullableTimestampedModel, PermissionsMixin, AbstractBaseUser):
     last_login_ip = models.CharField(
         max_length=255, blank=True, null=True, help_text="IP of previous password login"
     )
-    last_login = None  # disable the Django login tracking field from AbstractBaseUser
+    last_login = None  # type: ignore # disable the Django login tracking field from AbstractBaseUser
 
     EMAIL_FIELD = "email_address"
     USERNAME_FIELD = "email_address"
@@ -4947,3 +4966,6 @@ class LiveSettings(models.Model):
 
     class Meta:
         verbose_name_plural = "Live settings"
+
+
+ResourceType = Union[Type[LegalDocument], Type[Link], Type[TextBlock]]

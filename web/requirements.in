@@ -33,11 +33,19 @@ flake8==4.0.1
 requests-mock       # mock the requests library
 pytest-mock
 py-spy
+freezegun
 
 # Dev convenience
 django-debug-toolbar
 # code formatting
 black==22.6.0
+
+# static type checking
+mypy
+django-stubs[compatible-mypy]
+types-bleach
+types-python-dateutil
+types-requests
 
 # CAP API requests
 requests

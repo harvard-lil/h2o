@@ -2750,7 +2750,7 @@ def export(request, node, file_type="docx"):
             docx_footnotes=docx_footnotes,
         )
     except LambdaExportTooLarge as too_large:
-        logger.warn(f"Export node({node.id}): " + too_large.args[0])
+        logger.warning(f"Export node({node.id}): " + too_large.args[0])
         return render(request, "export_too_large.html", {"casebook": node})
     if response_data is None:
         return render(request, "export_error.html", {"casebook": node})
@@ -3096,6 +3096,7 @@ def casebook_search(request, casebook):
         ...     n.resource_type = 'LegalDocument'
         ...     n.resource_id = d.id
         ...     n.casebook_id = casebooks[0].id
+        ...     n.ordinals = [1, 1]
         ...     n.save()
         >>> FullTextSearchIndex().create_search_index()
         >>> url = reverse('casebook_search', args=[casebooks[0].id])
@@ -3123,11 +3124,14 @@ def casebook_search(request, casebook):
     results.from_capapi = False
     return render(
         request,
-        "search/casebook.html",
+        "casebook_page_search.html",
         {
             "results": results,
             "casebook": casebook,
             "category": category,
+            "tabs": casebook.tabs_for_user(request.user, current_tab="Search Inside"),
+            "casebook_color_class": casebook.casebook_color_indicator,
+            "edit_mode": casebook.directly_editable_by(request.user),
         },
     )
 

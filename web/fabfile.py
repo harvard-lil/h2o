@@ -97,7 +97,7 @@ def refresh_fts_index():
 @setup_django
 def create_reporting_views():
     """Create (or recreate) reporting views that aggregate usage."""
-    from main.reporting.create_reporting_views import create
+    from reporting.create_reporting_views import create
 
     create()
 
@@ -106,7 +106,7 @@ def create_reporting_views():
 @setup_django
 def refresh_reporting_views():
     """Refresh reporting tables that aggregate usage. Typically called on a schedule."""
-    from main.reporting.create_reporting_views import refresh
+    from reporting.create_reporting_views import refresh
 
     refresh()
 

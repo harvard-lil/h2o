@@ -1,3 +1,4 @@
+# type: ignore
 from django import forms
 from django.conf import settings
 from django.contrib import admin, messages
@@ -12,7 +13,7 @@ from django.utils.safestring import mark_safe
 from django_json_widget.widgets import JSONEditorWidget
 from simple_history.admin import SimpleHistoryAdmin
 
-from .reporting.usage import view as usage_dashboard_view
+
 from .models import (
     Casebook,
     ContentAnnotation,
@@ -56,9 +57,12 @@ class CustomAdminSite(admin.AdminSite):
     index_template = "admin/h2o_index.html"
 
     def get_urls(self):
+        import reporting.admin  # noqa no-op import to register the reporting models
+        from reporting.admin.usage_dashboard import view as usage_dashboard_view
+
         urls = super().get_urls()
         my_urls = [
-            path("usage/", usage_dashboard_view, name="usage"),
+            path("reporting/usage/", usage_dashboard_view, name="usage"),
         ]
         return my_urls + urls
 
@@ -313,6 +317,7 @@ class CasebookAdmin(BaseAdmin, SimpleHistoryAdmin):
         "source",
         "provenance",
         "headnote",
+        "description",
         "cover_image",
         "created_at",
         "updated_at",

@@ -1,19 +1,22 @@
 from datetime import date
 
 from typing import Dict
+from urllib.parse import urlencode
 from django import forms
 from django.http import HttpRequest
 from django.shortcuts import render
 from django.db import connection
 from django.contrib.admin.widgets import AdminDateWidget
-from dateutil.relativedelta import *
+from dateutil.relativedelta import relativedelta
+from django.contrib.admin.views.decorators import staff_member_required
 
-from main.reporting.create_reporting_views import (
+from reporting.create_reporting_views import (
     ALL_STATES,
     OLDEST_YEAR,
     PUBLISHED_CASEBOOKS,
 )
-from ..models import Casebook, User
+from main.models import Casebook
+from reporting.matomo import usage
 
 
 class DateForm(forms.Form):
@@ -24,6 +27,7 @@ class DateForm(forms.Form):
     )
 
 
+@staff_member_required
 def view(request: HttpRequest):
     """Render a usage dashboard of useful metrics"""
 
@@ -51,40 +55,54 @@ def view(request: HttpRequest):
             }
         )
 
-    # Users and derived users have the date filter applied
-    users = User.objects.filter(
-        is_active=True,
-        is_superuser=False,
-        created_at__gte=start_date,
-        created_at__lte=end_date,
-    )
-    profs = users.filter(verified_professor=True)
+    state = PUBLISHED_CASEBOOKS if published_casebooks_only else ALL_STATES
 
-    stats["registered_users"] = users.count()
-    stats["verified_professors"] = profs.count()
-
-    # Casebooks also have the creation date filter applied
-    casebooks = Casebook.objects.filter(created_at__gte=start_date, created_at__lte=end_date)
-
-    state = ALL_STATES
-
-    if published_casebooks_only:
-
-        casebooks = casebooks.filter(state__in=PUBLISHED_CASEBOOKS)
-        state = PUBLISHED_CASEBOOKS
-
-    stats["casebooks"] = casebooks.count()
+    # Get the usage data from Matomo:
+    web_usage = usage(start_date, end_date, published_casebooks_only)
 
     with connection.cursor() as cursor:
 
         # Run the specific queries needed for the reports
+        cursor.execute(
+            """--sql
+        select count(*) from reporting_users
+        where date(last_login_at) >= %s
+            and date(last_login_at) <= %s
+        """,
+            [start_date, end_date],
+        )
+        stats["registered_users"] = cursor.fetchone()[0]
 
         cursor.execute(
             """--sql
-        select count(*) from reporting_professors_with_casebooks
+            select count(*) from reporting_casebooks
+            where state in %s
+                and date(updated_at) >= %s
+                and date(updated_at) <= %s
+            """,
+            [state, start_date, end_date],
+        )
+        stats["casebooks"] = cursor.fetchone()[0]
+
+        cursor.execute(
+            """--sql
+        select count(*) from reporting_professors
+        where date(last_login_at) >= %s
+            and date(last_login_at) <= %s
+        """,
+            [start_date, end_date],
+        )
+        stats["verified_professors"] = cursor.fetchone()[0]
+
+        cursor.execute(
+            """--sql
+        select count(*) from (
+        select user_id from reporting_professors_with_casebooks
         where state in %s
-            and created_at >= %s
-            and created_at <= %s
+            and date(last_login_at) >= %s
+            and date(last_login_at) <= %s
+            group by user_id
+        ) as r
         """,
             [
                 (Casebook.LifeCycle.PUBLISHED.value,) if published_casebooks_only else ALL_STATES,
@@ -99,8 +117,8 @@ def view(request: HttpRequest):
             """--sql
             select count(*) from reporting_casebooks_from_professors
             where state in %s
-                and created_at >= %s
-                and created_at <= %s
+                and date(updated_at) >= %s
+                and date(updated_at) <= %s
         """,
             [
                 state,
@@ -113,11 +131,10 @@ def view(request: HttpRequest):
         # Casebooks including content from Capstone
         cursor.execute(
             """--sql
-            select count(*) from main_casebook where main_casebook.id
-                in (select casebook_id from reporting_casebooks_including_source_cap)
-                and state in %s
-                and created_at >= %s
-                and created_at <= %s
+            select count(*) from reporting_casebooks_including_source_cap
+                where state in %s
+                and date(updated_at) >= %s
+                and date(updated_at) <= %s
             """,
             [
                 state,
@@ -130,13 +147,11 @@ def view(request: HttpRequest):
         # Casebooks including content from Cap created by verified professors
         cursor.execute(
             """--sql
-            select count(*) from main_casebook where main_casebook.id
-                in (select casebook_id from reporting_casebooks_including_source_cap)
-                and main_casebook.id in
-                   (select casebook_id from reporting_casebooks_from_professors)
-                and state in %s
-                and created_at >= %s
-                and created_at <= %s
+            select count(*) from reporting_casebooks_including_source_cap rc
+                inner join reporting_casebooks_from_professors rp on rp.casebook_id = rc.casebook_id
+                where rc.state in %s
+                and date(rc.updated_at) >= %s
+                and date(rc.updated_at) <= %s
             """,
             [
                 state,
@@ -149,11 +164,10 @@ def view(request: HttpRequest):
         # Casebooks including content from GPO
         cursor.execute(
             """--sql
-            select count(*) from main_casebook where main_casebook.id
-                in (select casebook_id from reporting_casebooks_including_source_gpo)
-                and state in %s
-                and created_at >= %s
-                and created_at <= %s
+            select count(*) from reporting_casebooks_including_source_gpo
+                where state in %s
+                and date(updated_at) >= %s
+                and date(updated_at) <= %s
             """,
             [
                 state,
@@ -167,13 +181,11 @@ def view(request: HttpRequest):
         # Casebooks including content from GPO created by verified professors
         cursor.execute(
             """--sql
-            select count(*) from main_casebook where main_casebook.id
-                in (select casebook_id from reporting_casebooks_including_source_gpo)
-                and main_casebook.id in
-                   (select casebook_id from reporting_casebooks_from_professors)
-                and state in %s
-                and created_at >= %s
-                and created_at <= %s
+            select count(*) from reporting_casebooks_including_source_gpo rc
+                inner join reporting_casebooks_from_professors rp on rp.casebook_id = rc.casebook_id
+                where rc.state in %s
+                and date(rc.updated_at) >= %s
+                and date(rc.updated_at) <= %s
             """,
             [
                 state,
@@ -189,8 +201,8 @@ def view(request: HttpRequest):
             """--sql
         select count(*) from reporting_casebooks_with_multiple_collaborators
         where state in %s
-            and created_at >= %s
-            and created_at <= %s
+            and date(updated_at) >= %s
+            and date(updated_at) <= %s
         """,
             [
                 state,
@@ -203,14 +215,11 @@ def view(request: HttpRequest):
         # Casebooks with multiple collaborators including professors
         cursor.execute(
             """--sql
-        select count(*) from main_casebook
-            where main_casebook.id
-                in (select casebook_id from reporting_casebooks_with_multiple_collaborators)
-                and main_casebook.id
-                in (select casebook_id from reporting_casebooks_from_professors)
-                and state in %s
-                and created_at >= %s
-                and created_at <= %s
+        select count(*) from reporting_casebooks_with_multiple_collaborators rc
+                inner join reporting_casebooks_from_professors rp on rc.casebook_id = rp.casebook_id
+                where rc.state in %s
+                and date(rc.updated_at) >= %s
+                and date(rc.updated_at) <= %s
         """,
             [
                 state,
@@ -223,11 +232,10 @@ def view(request: HttpRequest):
         # Series
         cursor.execute(
             """--sql
-        select count(*) from main_commontitle ct
-        join main_casebook c on c.id = ct.current_id
+        select count(*) from reporting_casebooks_series as c
         where c.state in %s
-              and c.created_at >= %s
-              and c.created_at <= %s
+              and date(c.updated_at) >= %s
+              and date(c.updated_at) <= %s
         """,
             [
                 state,
@@ -241,11 +249,10 @@ def view(request: HttpRequest):
         # This only checks the most-current title's authorship, but probably sufficient?
         cursor.execute(
             """--sql
-        select count(*) from main_commontitle
-            join reporting_casebooks_from_professors c on c.casebook_id = main_commontitle.current_id
-            and c.state in %s
-                and c.created_at >= %s
-                and c.created_at <= %s
+        select count(*) from reporting_casebooks_series_from_professors as c
+            where c.state in %s
+                and date(c.updated_at) >= %s
+                and date(c.updated_at) <= %s
         """,
             [state, start_date, end_date],
         )
@@ -253,10 +260,24 @@ def view(request: HttpRequest):
 
     return render(
         request,
-        "admin/usage/index.html",
+        "admin/reporting/index.html",
         {
             "stats": stats,
+            "web_usage": web_usage,
             "date_form": form,
+            "query": urlencode(
+                {
+                    "start_date": start_date,
+                    "end_date": end_date,
+                    "published": published_casebooks_only,
+                }
+            ),
+            "date_query": urlencode(
+                {
+                    "start_date": start_date,
+                    "end_date": end_date,
+                }
+            ),
             "date_presets": {
                 "last_month": {
                     "start_date": today + relativedelta(months=-1, day=1),

@@ -73,6 +73,7 @@ header.advanced-search {
   .type-tab {
     @include make-md-column(4);
     @include sans-serif($regular, 18px, 18px);
+    margin-top: 10px;
     padding-bottom: 10px;
     text-align: center;
     color: $black;
@@ -81,6 +82,9 @@ header.advanced-search {
       border-bottom: 4px solid $light-blue;
       color: $light-blue;
       font-weight: bold;
+    }
+    &.inactive {
+      border-bottom: 2px solid $gray;
     }
 
     a:focus {
@@ -144,7 +148,80 @@ header.advanced-search {
       width: 100%;
       padding: 2px;
       margin-left: 15px;
+      margin-top: 5px;
+      font-size: 12px;
+      color: $medium-gray;
+    }
+
+    .and-more {
+      font-family: $font-family-sans-serif;
+    }
+  }
+  .fts-results-entry {
+    @include make-row();
+    padding: 10px 0;
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+
+    .title {
+      @include make-md-column(7.5);
+      font-weight: bold;
+      font-size: 16px;
+      font-family: $font-family-sans-serif;
+      float: left;
+    }
+
+    .subtitle {
+      font-size: 12px;
+      font-family: $font-family-sans-serif;
+      float: left;
+      flex-basis: 100%;
+      width: 100%;
+      padding: 2px;
+      margin-left: 15px;
+      color: $gray;
+    }
+    .owner, .casebook-count {
+      @include make-md-column(3);
+    }
+    .owner {
+      font-size: 13px;
+      padding: 0;
+
+      .verified {
+        @include square(13px);
+        display: inline-block;
+        vertical-align: middle;
+        content: '';
+        background: url('~static/images/ui/verified.png') no-repeat;
+      }
+    }
+    .ordinals, .profile-image {
+      @include make-md-column(1);
+    }
+
+    .ordinals {
+      flex-grow: 1;
+      text-align: right;
+    }
+
+    .citation {
+      text-align: right;
+    }
+
+    .description {
+      color: $medium-gray;
+      flex-basis: 100%;
+      width: 100%;
+      padding: 2px;
+      margin-left: 15px;
       font-family: $font-family-serif;
+      font-size: 16px;
+    }
+
+    b {
+      background: $highlight;
     }
 
     .and-more {
