@@ -2078,6 +2078,42 @@ class ContentNode(
         res = ContentNode.objects.filter(**filter_map).exclude(id=self.id)
         return res
 
+    def get_previous_and_next_node_urls(self) -> tuple[Optional[str], Optional[str]]:
+        """
+        Given:
+        >>> casebook, s_1, r_1_1, r_1_2, r_1_3, s_1_4, r_1_4_1, r_1_4_2, r_1_4_3, s_2 = getfixture('full_casebook_parts')
+
+        Get the URLs of the next and previous nodes in the casebook:
+        >>> assert s_1_4.get_previous_and_next_node_urls() == (r_1_3.get_absolute_url() , r_1_4_1.get_absolute_url())
+
+        If there is no previous node, None is returned:
+        >>> assert s_1.get_previous_and_next_node_urls() == (None, r_1_1.get_absolute_url())
+
+        If there is no next node, None is returned:
+        >>> assert s_2.get_previous_and_next_node_urls() == (r_1_4_3.get_absolute_url(), None)
+        """
+        casebook_ordinals = [
+            ordinals
+            for [ordinals] in ContentNode.objects.filter(casebook_id=self.casebook_id)
+            .order_by("ordinals")
+            .values_list("ordinals")
+        ]
+        idx = casebook_ordinals.index(self.ordinals)
+
+        previous_url = None
+        next_url = None
+        if idx > 0:
+            previous_url = ContentNode.objects.get(
+                casebook_id=self.casebook_id, ordinals=casebook_ordinals[idx - 1]
+            ).get_absolute_url()
+
+        if idx + 1 < len(casebook_ordinals):
+            next_url = ContentNode.objects.get(
+                casebook_id=self.casebook_id, ordinals=casebook_ordinals[idx + 1]
+            ).get_absolute_url()
+
+        return (previous_url, next_url)
+
     def rendered_header(self):
         if self.is_resource and self.resource_type == "LegalDocument":
             return render_to_string(

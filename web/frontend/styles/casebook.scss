@@ -10,7 +10,7 @@ main > .casebook .casebook-inner {
     For how this works, see
     https://meyerweb.com/eric/thoughts/2011/09/12/un-fixing-fixed-elements-with-css-transforms/
   */
-  transform:rotate(0deg)
+  transform:rotate(0deg);
 }
 
 main > section.casebook {
@@ -208,6 +208,47 @@ main > header.casebook {
     }
   }
 }
+
+.prev_button_container a, .next_button_container a {
+  display: none;
+
+  @media (min-width: $screen-md) {
+    display: block;
+    position: fixed;
+    bottom: 40vh;
+    border-bottom: 0;
+    transition: transform .2s;
+
+    .prev_page_svg, .next_page_svg {
+      display: inline-block;
+      width: 50px;
+      height: 50px;
+    }
+
+    &:hover, &:focus-visible {
+      transform: scale(1.2);
+    }
+
+    &:focus-visible {
+      outline: none;
+    }
+  }
+}
+
+.prev_button_container a {
+  right: 92vw;
+  .prev_page_svg {
+    background-image: url('~static/images/ui/casebook/prev_page.svg');
+  }
+}
+
+.next_button_container a {
+  right: 5vw;
+  .next_page_svg {
+    background-image: url('~static/images/ui/casebook/next_page.svg');
+  }
+}
+
 
 form.edit_content_resource, form.edit_content_section, form.edit_content_casebook {
   label:not([for="cover_image-clear_id"]) {
