@@ -29,7 +29,6 @@ def get_reporting_ids(query: str, params: list[Any]) -> Iterable[int]:
 
 def get_date_ranges(request: HttpRequest) -> tuple[Union[str, date], Union[str, date]]:
 
-
     start_date = request.GET.get("start_date", date.today() - relativedelta(years=OLDEST_YEAR))
     end_date = request.GET.get("end_date", date.today())
     return start_date, end_date
