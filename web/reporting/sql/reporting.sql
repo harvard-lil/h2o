@@ -55,11 +55,12 @@ select c.id as casebook_id,
     greatest(max_entry_date.entry_date, c.updated_at) as updated_at
 from main_casebook c
 left outer join (
-    select casebook_id, greatest(entry_date) as entry_date from main_casebookeditlog
+    select casebook_id, entry_date from main_casebookeditlog
     group by casebook_id, entry_date
+    order by entry_date desc limit 1
 ) max_entry_date on c.id = max_entry_date.casebook_id
 group by c.id, c.created_at, max_entry_date.entry_date
-order by greatest(max_entry_date.entry_date, c.updated_at) desc limit 1;
+order by greatest(max_entry_date.entry_date, c.updated_at) desc;
 
 -- Casebooks created by professors
 create materialized view if not exists reporting_casebooks_from_professors as
