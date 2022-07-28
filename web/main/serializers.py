@@ -67,6 +67,8 @@ class RecursiveField(serializers.Serializer):
 
 class ContentNodeSerializer(serializers.ModelSerializer):
 
+    # does NOT serialize children; this is done manually
+
     resource_type = serializers.SerializerMethodField()
     citation = serializers.SerializerMethodField()
 
@@ -74,7 +76,6 @@ class ContentNodeSerializer(serializers.ModelSerializer):
     url = serializers.URLField(source="get_absolute_url")
 
     decision_date = serializers.DateField(source="resource.decision_date", default=None)
-    children = []
     is_transmutable = serializers.BooleanField()
 
     def get_resource_type(self, node):
@@ -472,8 +473,7 @@ def manually_serialize_content_query(content_query: QuerySet):
     ordinals_to_node_dict = {tuple(c.ordinals): ContentNodeSerializer(c).data for c in toc}
 
     for node_dict in ordinals_to_node_dict.values():
-        if node_dict["resource_type"] in ("Section", ""):
-            node_dict["children"] = []
+        node_dict["children"] = []
 
     root = {"children": []}
 
@@ -485,8 +485,5 @@ def manually_serialize_content_query(content_query: QuerySet):
         except KeyError:
             # no parent, append to root
             parent = root
-        try:
-            parent["children"].append(node_dict)
-        except KeyError:
-            raise ValueError("Trying to append children to non-Section!")
+        parent["children"].append(node_dict)
     return root["children"]
