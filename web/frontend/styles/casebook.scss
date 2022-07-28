@@ -209,35 +209,35 @@ main > header.casebook {
   }
 }
 
-.prev_button_container, .next_button_container{
-  position : fixed;
+.prev_button_container, .next_button_container {
+  position: fixed;
   bottom: 40vh;
-  .prev_page_svg, .next_page_svg{
+  .prev_page_svg, .next_page_svg {
     display: inline-block;
     width: 50px;
     height: 50px;
     transition: transform .2s; 
   }
-  .prev_page_svg:hover, .next_page_svg:hover{
+  .prev_page_svg:hover, .next_page_svg:hover {
     transform: scale(1.2); 
   }
-  a:focus-visible{
+  a:focus-visible {
     display:inline-block;
     transform: scale(1.2); 
     outline: none;
   }
 }
 
-.prev_button_container{
+.prev_button_container {
   right: 92vw;
-  .prev_page_svg{
+  .prev_page_svg {
     background-image: url('~static/images/ui/casebook/prev_page.svg');
   }
 }
 
-.next_button_container{
+.next_button_container {
   right: 5vw;
-  .next_page_svg{
+  .next_page_svg {
     background-image: url('~static/images/ui/casebook/next_page.svg');
   }
 }
