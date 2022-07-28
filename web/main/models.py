@@ -1,7 +1,7 @@
 from typing import (
     Sequence,
 )  # noqa: F401 workaround for django-stubs#1022 until the fix in django-stubs#1028 is released
-from typing import Type, Union
+from typing import Type, Union, Optional
 from dateutil import parser
 import time
 import logging
@@ -1111,15 +1111,15 @@ class FullTextSearchIndex(models.Model):
         )
 
         ids_headlines = {i: h for i, h in ids_headlines_query}
-        ids_ordinals: dict[int, list[str]]
 
         if category == "legal_doc_fulltext":
+            ids_ordinals: dict[Optional[int], list[str]]
             ids_ordinals_nodes = (
                 casebook.contents.filter(resource_type="LegalDocument")
                 .filter(resource_id__in=[r.result_id for r in results_page])
                 .values_list("resource_id", "ordinals")
             )
-            ids_ordinals = {i: [str(n) for n in h] for i, h in ids_ordinals_nodes}  # type: ignore
+            ids_ordinals = {i: [str(n) for n in h] for i, h in ids_ordinals_nodes}
 
         for r in results_page:
             try:
