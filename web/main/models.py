@@ -1,4 +1,4 @@
-from typing import Optional, Tuple
+from typing import Optional
 from dateutil import parser
 import time
 import logging
@@ -2061,44 +2061,28 @@ class ContentNode(
         res = ContentNode.objects.filter(**filter_map).exclude(id=self.id)
         return res
 
-    @property
-    # gets the next node ordinals
-    def next_node_url(self) -> Optional[Tuple[int, ...]]:
-        ordinals = [
-            _[0]
-            for _ in ContentNode.objects.filter(casebook_id=self.casebook_id)
+    def get_previous_and_next_node_urls(self) -> tuple[Optional[str], Optional[str]]:
+        casebook_ordinals = [
+            ordinals
+            for [ordinals] in ContentNode.objects.filter(casebook_id=self.casebook_id)
             .order_by("ordinals")
             .values_list("ordinals")
         ]
-        idx = ordinals.index(self.ordinals)
+        idx = casebook_ordinals.index(self.ordinals)
 
-        if idx + 1 >= len(ordinals):
-            return None
-        else:
-            url = ContentNode.objects.get(
-                casebook_id=self.casebook_id, ordinals=ordinals[idx + 1]
-            ).get_edit_or_absolute_url(False)
-            return url
-
-    @property
-    # gets the previous node ordinals
-    def prev_node_url(self) -> Optional[Tuple[int, ...]]:
-        ordinals = [
-            _[0]
-            for _ in ContentNode.objects.filter(casebook_id=self.casebook_id)
-            .order_by("ordinals")
-            .values_list("ordinals")
-        ]
-        idx = ordinals.index(self.ordinals)
-
-        url = ContentNode.objects.get(
-            casebook_id=self.casebook_id, ordinals=ordinals[idx - 1]
-        ).get_edit_or_absolute_url(False)
-
+        previous_url = None
+        next_url = None
         if idx > 0:
-            return url
-        else:
-            return None
+            previous_url = ContentNode.objects.get(
+                casebook_id=self.casebook_id, ordinals=casebook_ordinals[idx - 1]
+            ).get_edit_or_absolute_url(False)
+
+        if idx + 1 < len(casebook_ordinals):
+            next_url = ContentNode.objects.get(
+                casebook_id=self.casebook_id, ordinals=casebook_ordinals[idx + 1]
+            ).get_edit_or_absolute_url(False)
+
+        return (previous_url, next_url)
 
     def rendered_header(self):
         if self.is_resource and self.resource_type == "LegalDocument":

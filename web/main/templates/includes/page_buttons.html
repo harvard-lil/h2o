@@ -1,18 +1,21 @@
-<nav aria-label="Previous/Next Page">
-  {% if section.prev_node_url %}
-    <div class="prev_button_container">
-      <a class="prev_url" href="{{ section.prev_node_url }}" aria-label="Previous Page">
-        <div class="prev_page_svg" ></div>
-      </a>
-    </div>
-  {% endif %}
+{% with prev_node_url=previous_and_next_urls.0 next_node_url=previous_and_next_urls.1 %}
 
-  {% if section.next_node_url %}
-    <div class="next_button_container">
-      <a class="next_url" href="{{ section.next_node_url }}" aria-label="Next Page">
-        <div class="next_page_svg"></div>
-      </a>
-    </div>
-  {% endif %}
-</nav>
+  <nav aria-label="Previous/Next Page">
+    {% if prev_node_url %}
+      <div class="prev_button_container">
+        <a class="prev_url" href="{{ prev_node_url }}" aria-label="Previous Page">
+          <div class="prev_page_svg" ></div>
+        </a>
+      </div>
+    {% endif %}
 
+    {% if next_node_url %}
+      <div class="next_button_container">
+        <a class="next_url" href="{{ next_node_url }}" aria-label="Next Page">
+          <div class="next_page_svg"></div>
+        </a>
+      </div>
+    {% endif %}
+  </nav>
+
+{% endwith %}

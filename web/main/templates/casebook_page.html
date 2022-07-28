@@ -23,7 +23,7 @@
     <div class="content">
         {% if section %}
             <div>
-                {% include 'includes/page_buttons.html'  %}
+                {% include 'includes/page_buttons.html' with previous_and_next_urls=section.get_previous_and_next_node_urls %}
             </div>
         {% endif %}
         <div class="casebook-inner">
