@@ -29,6 +29,7 @@ def retrying_send(message, *args, **kwargs):
         return _orig_send(message, *args, **kwargs)
 
 
-EmailMessage.send = retrying_send  # type: ignore # `error: Cannot assign to a method`
+# Mypy doesn't like monkey patching https://github.com/python/mypy/issues/2427
+EmailMessage.send = retrying_send  # type: ignore
 
 application = get_wsgi_application()
