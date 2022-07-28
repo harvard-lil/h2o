@@ -17,6 +17,7 @@ main > header.dashboard {
 
 h2.casebooks {
   @include sans-serif($light, 32px, 14px);
+  margin-top:8%;
 }
 
 
@@ -51,8 +52,7 @@ div.dashboard-link {
         padding-right: 20px;
         font-size:16px;
     }
-
-    .title-slug {
+    .title-slug{
 
     }
 }
@@ -61,6 +61,7 @@ div.dashboard-link {
   clear: both;
   display: flex;
   flex-wrap: wrap;
+  padding-top: 5%;
   
   .state{
     @include sans-serif($medium, 10px, 10px);
@@ -74,8 +75,10 @@ div.dashboard-link {
     float: left;
     margin-right: 10px;
     margin-bottom: 15px;
-    box-shadow: 0 3px 10px rgb(0 0 0 / 0.2);
-  }
+    
+ box-shadow: 0 3px 10px rgb(0 0 0 / 0.2); }
+
+    
 
   .wrapper {
       display: flex;
@@ -91,8 +94,7 @@ div.dashboard-link {
     display: flex;
     flex-direction: column;
   }
-
-  .content-page {
+    .content-page {
     position: relative;
     background-color: white;
     border-left: 15px solid $gray;
@@ -103,20 +105,24 @@ div.dashboard-link {
     .casebook-info, .unpublished-changes, .author-info, .root-attribution {
       padding: 10px;
     }
+    
     .author-info {
       .owner {
         display:block;
         text-overflow: ellipsis;
         text-align: right;
+        position: absolute;
+        bottom: 0;
+        right: 0;
+        margin: 10px;
+        color:gray;
       }
       ul {
         list-style: none;
         font-size: 80%;
         padding-inline-start: 10px;
-        // padding-inline-end: 20px;
         li {
             padding-inline-end: 20px;
-            // white-space: nowrap;
           .verified {
             position: relative;
             margin-top: 6px;
@@ -127,20 +133,18 @@ div.dashboard-link {
         }
       }
     }
-
-    .state {
-      @include sans-serif($medium, 10px, 10px);
-      margin-bottom: 5px;
-      text-transform: uppercase;
-    }
     .title {
       @include sans-serif($medium, 20px, 20px);
       margin-bottom: 10px;
+      margin-top: 10px;
+      margin-left: 5px;
+      line-height: 1.5em;
       @include line-clamp(4, 100px);
     }
     .subtitle {
       @include sans-serif($light, 18px, 18px);
       @include line-clamp(4, 72px);
+      color:gray;
     }
 
     .unpublished-changes {
@@ -151,26 +155,48 @@ div.dashboard-link {
       justify-content: center;
       align-items: center;
 
+      position: absolute;
+      left: 5%;
+      right: 5%;
+      bottom: 40%;
+
       .exclamation {
         font-size: 36px;
       }
 
       .description {
-        padding-left: 10px;
+        padding-left: 15px;
       }
     }
 
     .owner {
-      @include sans-serif($medium, 21px, 21px);
+      @include sans-serif($medium, 18px, 18px);
       @include line-clamp(2, 42px);
     }
+    .state{
+      @include sans-serif($medium, 10px, 10px);
+      margin-bottom: 5px;
+      text-transform: uppercase;
+      position:absolute;
+      top:-20px; 
+      left:-15px;
+    }
     &.public {
-      border-left-color: $light-blue;
       .state { color: $light-blue; }
       .subtitle { color: $light-blue; }
+      border-left-color: $light-blue;
     }
     &.draft {
+      .state { color: $red; }
+      .subtitle { color: $yellow; }
       border-left-color: $yellow;
+    }
+    &.archived {
+      .state { color: $gray; }
+      .subtitle { color: $gray; }
+      border-left-color: $gray;
+    }
+    &.draft {
       &::after {
         @include size(15px, 25px);
         @include absolute(-15px, 0);
@@ -179,35 +205,43 @@ div.dashboard-link {
         background-position: -15px 0;
         background-size: 15px;
       }
-      .state { color: $red; }
-      .subtitle { color: $yellow; }
     }
   }
+  .content-page:hover{
+    box-shadow: 0 3px 40px rgb(0 0 0 / 0.2);
+  }
+}
   
   .casebook-sub-info{
     max-width: 225px;
     height: 40%;
     background-color: white;
-    padding: 10px;
+    padding: 20px 10px 15px 15px;
+    border-radius: 15px;
     .info-title{
       font-weight: 600;
-    }
-    .info-sub-title{
+      margin-bottom: 10px; 
+      color: rgb(78, 78, 78);
     }
     .info-author-info{
+      p{
+        margin:0px;
+        color: gray;
+      }
     }
-    .info-verified-prof{
-
+    .view-book-button{
+      @extend .btn-default;
+      margin-right: 5px;
+      padding: 5px 10px 5px 10px;
+      border: none;
+      float: right;
+    }
+    .view-book-button:focus {
+      outline: none;
+      box-shadow: none;
     }
   }
 
-  .view-book-button{
-    @extend .btn-default;
-    margin-right: 5px;
-    padding: 5px;
-    border: none;
-    float: right;
-  }
 
   .header-spacer {
     height: 340px;
@@ -237,7 +271,6 @@ div.dashboard-link {
     font-size: 10px;
     color: grey;
   }
-}
 
 .alert-pip-holder {
   position: relative;
