@@ -83,9 +83,9 @@ from .serializers import (
     LegalDocumentSourceSerializer,
     NewAnnotationSerializer,
     NewCommonTitleSerializer,
-    SectionOutlineSerializer,
     TextBlockSerializer,
     UpdateAnnotationSerializer,
+    manually_serialize_content_query,
 )
 from .storages import get_s3_storage
 from .test.test_permissions_helpers import (
@@ -516,9 +516,7 @@ class CasebookTOCView(APIView):
 
     @staticmethod
     def format_casebook(casebook):
-        casebook.content_tree__load()
-        toc = casebook.content_tree__children
-        return {"id": casebook.id, "children": SectionOutlineSerializer(toc, many=True).data}
+        return {"id": casebook.id, "children": manually_serialize_content_query(casebook.contents)}
 
 
 class CasebookInfoView(APIView):
@@ -568,8 +566,14 @@ class SectionTOCView(APIView):
     @method_decorator(user_has_perm("casebook", "viewable_by"))
     @method_decorator(user_has_perm("section", "viewable_by"))
     def get(self, request, casebook, section, format=None):
-        section.content_tree__load()
-        return Response(SectionOutlineSerializer(section).data)
+        # in order to serialize correctly, we need return the top-level section
+        # and nested lists of children. section.contents does not include the
+        # section content node itself, so we get the section node and OR it
+        # together to add it to the section.contents query
+        [mscq] = manually_serialize_content_query(
+            ContentNode.objects.filter(id=section.id) | section.contents
+        )
+        return Response(mscq)
 
     @method_decorator(requires_csrf_token)
     @method_decorator(perms_test(directly_editable_section))
@@ -2973,7 +2977,14 @@ def new_from_outline(request, casebook=None):
     add_sections_and_resources(parent_section, nodes)
     parent_section.content_tree__repair()
     if section:
-        return JsonResponse(SectionOutlineSerializer(section).data, status=200)
+        # in order to serialize correctly, we need return the top-level section
+        # and nested lists of children. section.contents does not include the
+        # section content node itself, so we get the section node and OR it
+        # together to add it to the section.contents query
+        [mscq] = manually_serialize_content_query(
+            ContentNode.objects.filter(id=section.id) | section.contents
+        )
+        return JsonResponse(mscq, status=200)
     return JsonResponse(CasebookTOCView.format_casebook(casebook), status=200)
 
 

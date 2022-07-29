@@ -1,7 +1,15 @@
 from rest_framework import serializers
 from django.urls import reverse
+from django.db.models import Exists, QuerySet, OuterRef
 from rest_framework.exceptions import ValidationError
-from main.models import Casebook, CommonTitle, User, ContentCollaborator
+from main.models import (
+    Casebook,
+    CommonTitle,
+    User,
+    ContentCollaborator,
+    ContentAnnotation,
+    LegalDocument,
+)
 from main.utils import send_invitation_email, send_collaboration_email
 from . import models
 
@@ -57,13 +65,17 @@ class RecursiveField(serializers.Serializer):
         return serializer.data
 
 
-class SectionOutlineSerializer(serializers.ModelSerializer):
+class ContentNodeSerializer(serializers.ModelSerializer):
+
+    # does NOT serialize children; this is done manually
+
     resource_type = serializers.SerializerMethodField()
+    citation = serializers.SerializerMethodField()
+
     edit_url = serializers.URLField(source="get_preferred_url")
     url = serializers.URLField(source="get_absolute_url")
-    citation = serializers.SerializerMethodField()
+
     decision_date = serializers.DateField(source="resource.decision_date", default=None)
-    children = RecursiveField(many=True, allow_null=True, default=[])
     is_transmutable = serializers.BooleanField()
 
     def get_resource_type(self, node):
@@ -84,9 +96,9 @@ class SectionOutlineSerializer(serializers.ModelSerializer):
             "url",
             "citation",
             "decision_date",
-            "children",
             "is_transmutable",
             "ordinal_string",
+            "ordinals",
         )
 
 
@@ -390,3 +402,88 @@ class CasebookInfoSerializer(serializers.ModelSerializer):
 
     def get_authors(self, source):
         return [author.display_name for author in source.primary_authors]
+
+
+def manually_serialize_content_query(content_query: QuerySet):
+    """
+    This method makes several interventions to substantially
+    optimize the serialization process for casebooks and sections.
+    As a result, it is messy, has to do many things. Handle with care.
+
+    :param content_query: A django query of content to be serialized
+        e.g. casebook.contents or section.contents
+    :return: a serialized dictionary for use with frontend
+
+    Given:
+    >>> _, assert_num_queries, casebook = [getfixture(i) for i in ['reset_sequences', 'assert_num_queries', 'full_casebook']]
+    >>> serialized = manually_serialize_content_query(casebook.contents)
+
+    Two top-level sections, as set up
+    >>> assert len(serialized) == 2
+
+    Serialized data has all expected keys
+    >>> assert all([
+    ...     key in serialized[0].keys()
+    ...     for key in (
+    ...         "title",
+    ...         "id",
+    ...         "edit_url",
+    ...         "url",
+    ...         "citation",
+    ...         "decision_date",
+    ...         "is_transmutable",
+    ...         "ordinals",
+    ...         "ordinal_string",
+    ...         "children",
+    ...     )
+    ... ])
+
+    Serialized data has correct children
+    >>> assert [
+    ...     c["ordinals"] for c in serialized[0]["children"]
+    ... ] == [[1, 1], [1, 2], [1, 3], [1, 4]]
+
+    Serialized data has the correct grandchildren
+    >>> assert [
+    ...     c["ordinals"]
+    ...     for c in serialized[0]["children"][3]["children"]
+    ... ] == [[1, 4, 1], [1, 4, 2], [1, 4, 3]]
+
+    Light on queries
+    >>> with assert_num_queries(select=5):
+    ...     _ = manually_serialize_content_query(casebook.contents)
+    """
+
+    toc = list(
+        content_query.prefetch_resources(
+            legal_doc_query=LegalDocument.objects.defer("content").all()
+        )
+        .order_by("ordinals")
+        .annotate(
+            _has_annotation=Exists(ContentAnnotation.objects.filter(resource_id=OuterRef("pk")))
+        )
+        .select_related("casebook")
+        .all()
+    )
+    # optimize expensive call to is_transmutable
+    for t, t1 in zip(toc, toc[1:]):
+        if not t.resource_type or t.resource_type == "Section" or t.resource_type == "":
+            # if t1 is a child of t, then t is not transmutable
+            t._has_children = t.ordinals != t1.ordinals[: len(t.ordinals)]
+    ordinals_to_node_dict = {tuple(c.ordinals): ContentNodeSerializer(c).data for c in toc}
+
+    for node_dict in ordinals_to_node_dict.values():
+        node_dict["children"] = []
+
+    root = {"children": []}
+
+    for ordinals, node_dict in ordinals_to_node_dict.items():
+        if not ordinals:
+            continue
+        try:
+            parent = ordinals_to_node_dict[ordinals[:-1]]
+        except KeyError:
+            # no parent, append to root
+            parent = root
+        parent["children"].append(node_dict)
+    return root["children"]

@@ -3095,11 +3095,25 @@ class ContentNode(
         if self.resource_type == "Temp" or self.resource_type == "Unknown":
             return True
         if not self.resource_type or self.resource_type == "Section" or self.resource_type == "":
-            self.content_tree__load()
-            return len(self.children) == 0
+            try:
+                # this is here to enable some speedup shortcuts
+                # loading content trees is expensive, so calling code can
+                # preload _has_children to make this call faster
+                # see serializers.py:manually_serialize_content_query
+                return self._has_children
+            except AttributeError:
+                self.content_tree__load()
+                return len(self.children) == 0
         else:
-            if self.annotatable and self.is_annotated():
-                return False
+            try:
+                # _has_annotation is a special property that is provided by
+                # the calling code. preloading _has_annotation speeds up
+                # this call. See serializers.py:manually_serialize_content_query
+                if self.annotatable and self._has_annotation:
+                    return False
+            except AttributeError:
+                if self.annotatable and self.annotations.exists():
+                    return False
             if self.resource_type == "TextBlock":
                 try:
                     self.resource
