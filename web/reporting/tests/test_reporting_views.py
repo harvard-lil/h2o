@@ -105,8 +105,8 @@ def test_dashboard_casebook_date_fields(
 
 
 def test_greatest_mod_date(casebook_edit_log_factory, casebook_factory, cursor):
-    """The `updated_at` date in the reporting table for a casebook should be the most recent
-    date of any edit log value, or the casebook itself"""
+    """The `updated_at` date in the reporting view for a casebook should be the most recent
+    date of any edit log value regardless of the casebook modification date"""
     with freeze_time("1970-01-01"):
         casebook = casebook_factory()
 
@@ -116,7 +116,9 @@ def test_greatest_mod_date(casebook_edit_log_factory, casebook_factory, cursor):
                 casebook_edit_log_factory(casebook=casebook)
 
     assert 10 == CasebookEditLog.objects.count()
-    max_date = CasebookEditLog.objects.all().order_by("-entry_date").first().entry_date
+    max_date: datetime.datetime = (
+        CasebookEditLog.objects.all().order_by("-entry_date").first().entry_date
+    )
     refresh()
 
     cursor.execute(
@@ -140,10 +142,25 @@ def test_greatest_mod_date(casebook_edit_log_factory, casebook_factory, cursor):
             "select updated_at from reporting_casebooks where casebook_id = %s",
             [casebook.id],
         )
-        rows = cursor.fetchall()
+        row: datetime.datetime = cursor.fetchone()
 
-        # Now the reporting table greatest date should apply to the casebook, not the edit log
-        assert max_date < rows[0][0]
+        # We still want to use the edit log value in this case
+        assert max_date == row[0]
+
+
+def test_no_edit_log_mod_date(casebook_factory, cursor):
+    """In the absence of any edit log info, the `updated_at` date for the casebook reporting
+    view should be the casebook's modification timestamp"""
+    check_date = datetime.date(2020, 1, 1)
+    with freeze_time(check_date):
+        casebook = casebook_factory()
+        refresh()
+        cursor.execute(
+            "select updated_at from reporting_casebooks where casebook_id = %s",
+            [casebook.id],
+        )
+        row: datetime.datetime = cursor.fetchone()
+        assert check_date == row[0].date()
 
 
 @pytest.mark.parametrize("model", apps.all_models["reporting"])
