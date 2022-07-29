@@ -189,8 +189,10 @@ def test_reporting_csv_export(client, admin_user_factory, model):
     assert "id" in rows[0][0]
 
 
-def test_reporting_csv_export_casebook(client, admin_user_factory, casebook_factory):
-    """The casebook export view should export some expected fields"""
+def test_reporting_csv_export_casebook(
+    client, admin_user_factory, casebook_factory, casebook_edit_log_factory
+):
+    """The casebook export view should export some expected fields including recency info"""
     admin = admin_user_factory()
 
     with freeze_time("2020-01-02"):
@@ -200,13 +202,34 @@ def test_reporting_csv_export_casebook(client, admin_user_factory, casebook_fact
             reverse(
                 "admin:reporting_reportingcasebook_changelist",
             ),
-            {"_csv": True, "start_date": "2020-01-01", "end_date": "2020-01-03"},
+            {"_csv": True},
             as_user=admin,
         )
         rows = list(csv.reader(StringIO(resp.content.decode())))
         assert 2 == len(rows)
         assert "title" in rows[0]
-        assert c.title in rows[1]
+        assert c.title == rows[1][rows[0].index("title")]
+
+        assert "most_recent_history" in rows[0]
+        assert "None" == rows[1][rows[0].index("most_recent_history")]
+
+    with freeze_time("2022-01-02"):
+        log = casebook_edit_log_factory(casebook=c)
+        refresh()
+        resp: HttpResponse = client.get(
+            reverse(
+                "admin:reporting_reportingcasebook_changelist",
+            ),
+            {"_csv": True},
+            as_user=admin,
+        )
+        rows = list(csv.reader(StringIO(resp.content.decode())))
+
+        assert "most_recent_history" in rows[0]
+        assert (
+            log.entry_date.strftime("%Y-%m-%d %H:%M:%S")
+            == rows[1][rows[0].index("most_recent_history")]
+        )
 
 
 def test_reporting_csv_export_professor(client, admin_user_factory, verified_professor_factory):
@@ -223,7 +246,7 @@ def test_reporting_csv_export_professor(client, admin_user_factory, verified_pro
             reverse(
                 "admin:reporting_professor_changelist",
             ),
-            {"_csv": True, "start_date": "2020-01-01", "end_date": "2020-01-03"},
+            {"_csv": True},
             as_user=admin_user_factory(),
         )
         rows = list(csv.reader(StringIO(resp.content.decode())))
