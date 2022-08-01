@@ -1475,7 +1475,7 @@ class CasebookView(View):
     )
     @method_decorator(requires_csrf_token)
     @method_decorator(hydrate_params)
-    def get(self, request, casebook):
+    def get(self, request: HttpRequest, casebook: Casebook):
         """
         Show a casebook's front page.
 
@@ -1706,13 +1706,13 @@ def create_draft(request, casebook):
 @require_http_methods(["GET", "POST"])
 @requires_csrf_token
 @hydrate_params
-def edit_casebook(request, casebook):
+def edit_casebook(request, casebook: Casebook):
     """
     Given:
     >>> private, with_draft, for_verified_prof, client = [getfixture(f) for f in ['full_private_casebook', 'full_casebook_with_draft', 'full_private_casebook_for_verified_prof', 'client']]
     >>> draft = with_draft.draft
 
-    Users can edit their unpublished and draft casebooks:
+    Users can edit their un'apublished and draft casebooks:
     >>> new_title = 'owner-edited title'
     >>> check_response(
     ...    client.get(private.get_edit_url(), as_user=private.testing_editor),
@@ -1774,6 +1774,13 @@ def edit_casebook(request, casebook):
             "tabs": casebook.tabs_for_user(request.user, current_tab="Edit"),
             "casebook_color_class": casebook.casebook_color_indicator,
             "form": form,
+            "publish_check": json.dumps(
+                {
+                    "isVerifiedProfessor": request.user.verified_professor,
+                    "coverImageExists": bool(casebook.cover_image),  # Handling both blank and None
+                    "descriptionExists": bool(casebook.description),
+                }
+            ),
         },
     )
 
@@ -2257,6 +2264,13 @@ def edit_section(request, casebook, section):
             "casebook_color_class": casebook.casebook_color_indicator,
             "editing": True,
             "form": form,
+            "publish_check": json.dumps(
+                {
+                    "isVerifiedProfessor": request.user.verified_professor,
+                    "coverImageExists": bool(casebook.cover_image),  # Handling both blank and None
+                    "descriptionExists": bool(casebook.description),
+                }
+            ),
         },
     )
 

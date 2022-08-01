@@ -1,6 +1,6 @@
 <aside id="action-buttons" class="casebook-actions" data-actions="{{ action_list }}">
     {% if editing %}
-    <audit-button> </audit-button>
+    <audit-button :publish-check="{{ publish_check }}"> </audit-button>
     {% elif publishable %}
     <audit-button :no-save="true"> </audit-button>
   {% endif %}

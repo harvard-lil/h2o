@@ -26,6 +26,14 @@ Vue.config.productionTip = process.env.NODE_ENV == "development";
 Vue.use(contenteditableDirective);
 
 
+// Font Awesome
+import { library } from '@fortawesome/fontawesome-svg-core'
+import { faCheck, faXmark } from '@fortawesome/free-solid-svg-icons'
+import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
+
+library.add(faCheck, faXmark)
+Vue.component('font-awesome-icon', FontAwesomeIcon)
+
 document.addEventListener("DOMContentLoaded", () => {
   const routes = [
     { path: '/casebooks/:id/resources/:resource_id/', component: TheResource }
