@@ -75,10 +75,8 @@ div.dashboard-link {
     float: left;
     margin-right: 10px;
     margin-bottom: 15px;
-    
- box-shadow: 0 3px 10px rgb(0 0 0 / 0.2); }
-
-    
+    box-shadow: 0 3px 10px rgb(0 0 0 / 0.2); 
+  }
 
   .wrapper {
       display: flex;
@@ -208,7 +206,7 @@ div.dashboard-link {
     }
   }
   .content-page:hover{
-    box-shadow: 0 3px 40px rgb(0 0 0 / 0.2);
+    box-shadow: 0 3px 40px rgb(0 0 0 / 0.3);
   }
 }
   

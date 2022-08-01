@@ -1,5 +1,13 @@
 <template>
   <div v-bind:class="['padded', selected ? 'selected' : '']">
+
+    <div class="select-label-container">
+        <label v-if="selectable">
+          Select
+          <input type="checkbox" class="casebook-check" :value="casebook" v-model="selectionIndirection">
+        </label>
+    </div>
+
     <component
       v-bind:is="clickAction"
       class="wrapper"
@@ -55,10 +63,6 @@
 
     </component>
 
-    <label v-if="selectable">
-      Select
-      <input type="checkbox" class="casebook-check" :value="casebook" v-model="selectionIndirection">
-    </label>
   </div>
   
 </template>
@@ -135,20 +139,36 @@ export default {
   .padded {
     display: flex;
     flex-wrap: wrap;
-    padding-left:30px;
+    margin-left:20px;
+    padding-left:10px;
     padding-top:8px;
     flex-direction: column;
-    
-    label {
-            margin-bottom: 8px;
-            font-weight: 700;
-            margin-top: -16px;
-            align-self: center;
-        }
-        &.selected {
-            background-color: rgba($light-blue,0.6);
-            outline: 2px solid $light-gray;
-        }
+
+    .select-label-container{
+      height: 20px;
+      text-align: right;
+    }
+    label{
+      margin-right: 20px;
+      font-size: 15px;
+      padding-bottom:12px;
+    }
+    .casebook-check{
+      margin-left: 10px;
+      width: 1.5rem;
+      height: 1.5rem;
+      border: 0;
+      outline: 0;
+      flex-grow: 0;
+      border-radius: 50%;
+      background-color: #FFFFFF;
+    }
+    &.selected {
+      background-color: rgba($light-blue,0.6);
+      outline: 2px solid $light-gray;
+      border-radius: 20px;
+      margin-bottom:20px;
+    }
     .cover-image{
       width:210px;
       height:320px;
@@ -159,7 +179,7 @@ export default {
     outline: none;
     box-shadow:none;
     .content-page{
-      box-shadow: 0 3px 40px rgb(0 0 0 / 0.2);
+      box-shadow: 0 3px 40px rgb(0 0 0 / 0.3);
     }
   }
 

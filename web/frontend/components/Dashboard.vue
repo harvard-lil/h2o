@@ -90,10 +90,9 @@
   <div v-bind:class="managingCasebooks ? 'content-selectable' : 'content-clickable'">
     <casebook :selectable="managingCasebooks" :casebook="casebook" v-model="selectedCasebooks" v-for="casebook in casebooks" v-bind:key="casebook.id"> </casebook>
    <div v-if="user.active" class="create-casebook-wrapper"> 
-        <div class="create-casebook-container">
-            <span type="button" class="create-casebook-plus" data-action="show-casebook-modal"></span>
-            <p class="create-casebook-text">Create a New Casebook</p>
-        </div>
+        <button type="button" data-action="show-casebook-modal" class="create-casebook-button">
+            <div class="create-casebook-text">Create a New Casebook</div>
+        </button>
     </div>
   </div> 
 </div>
@@ -610,36 +609,31 @@ export default {
     flex-direction: column;
     padding: 16px 0px 80px 40px;
 }
-.create-casebook-container {
-    display: flex;
-    float: left;
-    flex-direction: column;
-    align-items: center;
+.create-casebook-button {
+    background:url('~static/images/ui/casebook/add-casebook.svg') no-repeat;
+    background-size: 60px;
+    background-position:50% 40%;
+    height: 330px;
+    width:225px;
     border: 1px dashed gray;
-    width: 225px;
-    min-height: 320px;
     margin-right: 10px;
     margin-bottom: 15px;
+
+    .create-casebook-text{
+        position:relative;
+        top:15%;
+    }
 }
-.create-casebook-container:hover{
-    box-shadow: 0 3px 40px rgb(0 0 0 / 0.2);
+.create-casebook-button:hover{
+    box-shadow: 0 3px 40px rgb(0 0 0 / 0.3);
+}
+.create-casebook-button:focus{
+    box-shadow: 0 3px 40px rgb(0 0 0 / 0.3);
+    outline:none;
 }
 
-.create-casebook-text{
-   display: block;
-}
+  .content-page:focus{
+    box-shadow: 0 3px 40px rgb(0 0 0 / 0.3);
+  }
 
-.create-casebook-plus{
- background-color: transparent;
- background:url('~static/images/ui/casebook/add-casebook.svg') no-repeat;
- background-size: 60px;
- height: 20%;
- width: 25%;
- border: none;
- margin-top: 50%;
- margin-bottom: 10%;
-}
-.create-casebook-plus:hover{
- cursor: pointer;
-}
 </style>
