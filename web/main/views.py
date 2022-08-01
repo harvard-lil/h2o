@@ -17,6 +17,7 @@ from django.db.models import Q
 from django.forms import HiddenInput, modelformset_factory
 from django.http import (
     Http404,
+    HttpRequest,
     HttpResponse,
     HttpResponseBadRequest,
     HttpResponseForbidden,
@@ -1469,7 +1470,7 @@ class CasebookView(View):
     )
     @method_decorator(requires_csrf_token)
     @method_decorator(hydrate_params)
-    def get(self, request, casebook):
+    def get(self, request: HttpRequest, casebook: Casebook):
         """
         Show a casebook's front page.
 
@@ -1519,6 +1520,8 @@ class CasebookView(View):
                 "tabs": casebook.tabs_for_user(request.user),
                 "casebook_color_class": casebook.casebook_color_indicator,
                 "contents": contents,
+                # .get is a dirty test hack
+                "abs_url": request.META.get("HTTP_HOST", "") + casebook.get_absolute_url(),
             },
         )
 
@@ -1599,7 +1602,7 @@ class CasebookView(View):
         # The javascript that makes these PATCH requests expects a redirect
         # to the published casebook.
         # https://github.com/harvard-lil/h2o/issues/1050
-        return HttpResponseRedirect(reverse("casebook", args=[casebook]))
+        return HttpResponseRedirect(reverse("casebook", args=[casebook]) + "?published")
 
 
 @perms_test(
