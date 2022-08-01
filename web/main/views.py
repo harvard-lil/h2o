@@ -2775,6 +2775,20 @@ def export(request, node, file_type="docx"):
 @user_passes_test(lambda u: u.is_superuser)
 @hydrate_params
 @user_has_perm("casebook", "viewable_by")
+@method_decorator(
+    perms_test(
+        {
+            "args": ["casebook"],
+            "results": {
+                403: [
+                    "admin_user"
+                ],  # This will be a Forbidden response unless the LiveSetting is enabled
+                "login": [None],
+                302: ["casebook.testing_editor"],
+            },
+        },
+    )
+)
 def as_printable_html(request: HttpRequest, casebook: Casebook):
     """Load the content of the entire casebook and pass it to an HTML template
     designed to render it in-place, without site chrome, suitable for printing"""

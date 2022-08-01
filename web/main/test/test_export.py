@@ -124,17 +124,10 @@ def test_export(
                         assert_html_equal(file_data, comparison_data)
 
 
-def test_printable_html_auth_required(admin_user_factory, client, casebook_factory):
+def test_printable_html_livesetting_required(admin_user_factory, client, casebook_factory):
     """The printable HTML view requires auth and an explicit setting at this time"""
     casebook = casebook_factory()
 
-    resp = client.get(reverse("as_printable_html", args=[casebook]))
-
-    # The user will have to pass the admin auth check first...
-    assert 302 == resp.status_code
-    assert reverse("login") in resp["Location"]
-
-    # If they do then the live setting has to be enabled...
     resp = client.get(reverse("as_printable_html", args=[casebook]), as_user=admin_user_factory())
     assert 403 == resp.status_code
 
