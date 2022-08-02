@@ -104,6 +104,13 @@ def api(
         logger.error(resp.content)
         return web_usage
 
+    if "message" in data:
+        web_usage.status = data["message"]
+        logger.error(web_usage.status)
+        logger.error(params)
+        logger.error(resp.content)
+        return web_usage
+
     casebooks = [c for c in data[0]["subtable"]]
 
     for casebook in casebooks:
