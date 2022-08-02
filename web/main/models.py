@@ -4941,6 +4941,9 @@ class LiveSettings(models.Model):
     prevent_exports = models.BooleanField(blank=False, default=False, null=False)
     export_average_rate = models.IntegerField(blank=False, default=0)
     export_last_minute_updated = models.IntegerField(blank=False, default=0)
+    enable_printable_html_export = models.BooleanField(
+        default=False, help_text="Enable the view to export entire casebooks as HTML"
+    )
 
     @classmethod
     @transaction.atomic

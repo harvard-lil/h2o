@@ -42,7 +42,8 @@ let vueConfig = {
     rich_text_editor: 'frontend/pages/rich_text_editor.js',
     main: 'frontend/pages/main.scss',
     test: 'frontend/pages/test.js',
-    vue_app: 'frontend/pages/vue_app.js'
+    vue_app: 'frontend/pages/vue_app.js',
+    casebook_html: "frontend/pages/casebook_html.scss"
   },
 
   configureWebpack: {

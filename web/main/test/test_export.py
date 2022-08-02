@@ -1,9 +1,11 @@
+from django.urls import reverse
 from lxml import etree
 from io import BytesIO
 from pathlib import Path
 from zipfile import ZipFile
 
 from django.conf import settings
+from conftest import LiveSettingsFactory
 
 from main.utils import parse_html_fragment, elements_equal
 
@@ -120,3 +122,26 @@ def test_export(
                         assert_docx_equal(BytesIO(file_data), BytesIO(comparison_data))
                     else:
                         assert_html_equal(file_data, comparison_data)
+
+
+def test_printable_html_livesetting_required(admin_user_factory, client, casebook_factory):
+    """The printable HTML view requires auth and an explicit setting at this time"""
+    casebook = casebook_factory()
+
+    resp = client.get(reverse("as_printable_html", args=[casebook]), as_user=admin_user_factory())
+    assert 403 == resp.status_code
+
+    # Only when the live setting is enabled should this work
+    LiveSettingsFactory(enable_printable_html_export=True)
+    resp = client.get(reverse("as_printable_html", args=[casebook]), as_user=admin_user_factory())
+    assert 200 == resp.status_code
+
+
+def test_printable_html_casebook(admin_user_factory, client, full_casebook):
+    """The casebook printable HTML view should prepare a complete casebook for rendering"""
+    LiveSettingsFactory(enable_printable_html_export=True)
+
+    resp = client.get(
+        reverse("as_printable_html", args=[full_casebook]), as_user=admin_user_factory()
+    )
+    assert full_casebook == resp.context["casebook"]
