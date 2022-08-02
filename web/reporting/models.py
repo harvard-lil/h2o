@@ -1,3 +1,4 @@
+from datetime import date
 from typing import Optional
 from main.models import Casebook, User
 
@@ -36,6 +37,12 @@ class ReportingCasebook(Casebook):
     @property
     def authors_display(self) -> str:
         return ", ".join([a.attribution for a in self.attributed_authors])
+
+    @property
+    def most_recent_history(self) -> Optional[date]:
+        if edit_log := self.edit_log.order_by("-entry_date").first():
+            return edit_log.entry_date
+        return None
 
     class Meta:
         proxy = True

@@ -112,7 +112,7 @@ class ProfessorExportMixin(CsvResponseMixin):
 class CasebookExportMixin(CsvResponseMixin):
     @property
     def field_list(self) -> Iterable[str]:
-        return ("id", "title", "authors_display", "state", "created_at", "updated_at")
+        return ("id", "title", "authors_display", "state", "created_at", "most_recent_history")
 
 
 class ProfessorAdmin(ProfessorExportMixin, UserAdmin):

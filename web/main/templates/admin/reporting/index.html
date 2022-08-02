@@ -254,9 +254,16 @@
                 <em>revising</em> state, matching the front end search.
             </p>
 
+            <h3>When filtering by date:</h3>
             <p>
-                Date fields apply to the <em>modification date</em> of casebook content,
-                but to the <em>date of last login</em> for professors.
+                Casebooks are included if their most-recent
+                change in the History tab falls in the range, or if their modification
+                date falls in that range in the case of no History (e.g. unpublished casebooks).
+            </p>
+            <p>
+                Professors are included based on their date of most-recent login.
+                When selecting older date ranges, professors who were active more recently
+                may be omitted.
             </p>
         </aside>
     </div>
@@ -264,6 +271,11 @@
     <div id="casebooks-by-usage">
         <h2>Top casebooks by usage</h2
         <p>Results between {{ web_usage.start_date }} and {{ web_usage.end_date }}</p>
+
+        {% if web_usage.status %}
+           <p><strong>{{ web_usage.status }}</strong></p>
+        {% endif %}
+
         <ol>
         {% for result in web_usage.items %}
             {% with result.instance as casebook %}
