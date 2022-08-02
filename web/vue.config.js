@@ -76,14 +76,9 @@ let vueConfig = {
     host: devServerHost,
     headers: { 'Access-Control-Allow-Origin': '*' },
     allowedHosts: [
-      '.h2o-dev.local'
+	'.h2o-dev.local',
+	'opencasebook.test',
     ],
-    // hopefully we don't need active polling ...
-    // watchOptions: {
-    //   poll: true,
-    //   ignored: ['node_modules'],
-    // }
-
   },
 
   chainWebpack: config => {
