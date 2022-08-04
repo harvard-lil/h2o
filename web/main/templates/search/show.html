@@ -39,7 +39,7 @@
             </div>
 
             <div class="type-tab {% if category == 'user' %}active{% endif %}" {% if category == 'user' %}aria-current="location"{% endif %}>
-              <a href="?{% current_query_string type="users" page=1 %}" class="wrapper">
+              <a href="?{% current_query_string type="user" page=1 %}" class="wrapper">
                 Authors ({{ counts.user|default:"0" }})
               </a>
             </div>
