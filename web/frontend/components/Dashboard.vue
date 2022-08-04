@@ -607,7 +607,7 @@ export default {
     display: flex;
     flex-wrap: wrap;
     flex-direction: column;
-    padding: 16px 0px 80px 40px;
+    padding: 35px 0px 80px 40px;
 }
 .create-casebook-button {
     background:url('~static/images/ui/casebook/add-casebook.svg') no-repeat;

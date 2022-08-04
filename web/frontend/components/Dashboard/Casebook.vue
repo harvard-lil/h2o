@@ -48,7 +48,8 @@
           
         </div>
 
-        <div class="casebook-sub-info">
+        <!-- sub info section for when there is a casebook cover -->
+        <!-- <div class="casebook-sub-info">
           <div class="info-title">{{ casebook.title }}</div>
           <div class="info-author-info">
               <p v-for="author in attributed(casebook.authors)" v-bind:key="author.id">
@@ -58,7 +59,8 @@
             <button type="button" class="view-book-button" tabindex="-1">
               View
             </button>
-        </div>
+        </div> -->
+
       </div>
 
     </component>

@@ -210,35 +210,36 @@ div.dashboard-link {
   }
 }
   
-  .casebook-sub-info{
-    max-width: 225px;
-    height: 40%;
-    background-color: white;
-    padding: 20px 10px 15px 15px;
-    border-radius: 15px;
-    .info-title{
-      font-weight: 600;
-      margin-bottom: 10px; 
-      color: rgb(78, 78, 78);
-    }
-    .info-author-info{
-      p{
-        margin:0px;
-        color: gray;
-      }
-    }
-    .view-book-button{
-      @extend .btn-default;
-      margin-right: 5px;
-      padding: 5px 10px 5px 10px;
-      border: none;
-      float: right;
-    }
-    .view-book-button:focus {
-      outline: none;
-      box-shadow: none;
-    }
-  }
+// casebook-sub info section when there is a cover
+  // .casebook-sub-info{
+  //   max-width: 225px;
+  //   height: 40%;
+  //   background-color: white;
+  //   padding: 20px 10px 15px 15px;
+  //   border-radius: 15px;
+  //   .info-title{
+  //     font-weight: 600;
+  //     margin-bottom: 10px; 
+  //     color: rgb(78, 78, 78);
+  //   }
+  //   .info-author-info{
+  //     p{
+  //       margin:0px;
+  //       color: gray;
+  //     }
+  //   }
+  //   .view-book-button{
+  //     @extend .btn-default;
+  //     margin-right: 5px;
+  //     padding: 5px 10px 5px 10px;
+  //     border: none;
+  //     float: right;
+  //   }
+  //   .view-book-button:focus {
+  //     outline: none;
+  //     box-shadow: none;
+  //   }
+  // }
 
 
   .header-spacer {
