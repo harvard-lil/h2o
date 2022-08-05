@@ -4710,7 +4710,6 @@ class RawContent(TimestampedModel, BigPkModel):
 
 class TextBlock(NullableTimestampedModel, AnnotatedModel):
     name = models.CharField(max_length=255)
-    description = models.CharField(max_length=5242880, blank=True, null=True)
     content = models.CharField(max_length=5242880, blank=True, null=False, default="")
     doc_class = models.CharField(max_length=40, blank=True, null=True)
     history = HistoricalRecords()
