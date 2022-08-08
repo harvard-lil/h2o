@@ -89,17 +89,10 @@
 <div class="content-browser">
   <div v-bind:class="managingCasebooks ? 'content-selectable' : 'content-clickable'">
     <casebook :selectable="managingCasebooks" :casebook="casebook" v-model="selectedCasebooks" v-for="casebook in casebooks" v-bind:key="casebook.id"> </casebook>
-   <div class="create-casebook-wrapper"> 
-        <div class="create-casebook-container">
-            <button type="button" class="create-casebook-plus" data-action="show-casebook-modal">
-                <svg width="55" height="55" viewBox="0 0 55 55" fill="none" xmlns="http://www.w3.org/2000/svg">
-                    <path d="M53.5121 27.5C53.5121 42.144 41.7485 54 27.256 54C12.7636 54 1 42.144 1 27.5C1 12.856 12.7636 1 27.256 1C41.7485 1 53.5121 12.856 53.5121 27.5Z" fill="#0DAF02" stroke="#0DAF02" stroke-width="2"/>
-                    <path d="M27.5 15.5V40.52" stroke="white" stroke-width="3" stroke-linecap="square"/>
-                    <path d="M15 28H40.02" stroke="white" stroke-width="3" stroke-linecap="square"/>
-                </svg>
-            </button>
-            <p class="create-casebook-text">Create a New Casebook</p>
-        </div>
+   <div v-if="user.active" class="create-casebook-wrapper"> 
+        <button type="button" data-action="show-casebook-modal" class="create-casebook-button">
+            <div class="create-casebook-text">Create a New Casebook</div>
+        </button>
     </div>
   </div> 
 </div>
@@ -568,7 +561,7 @@ export default {
     flex-wrap: wrap;
     .padded {
         flex-direction: column;
-        padding-bottom: 16px;
+        padding-bottom: 80px;
     }
 }
 
@@ -614,34 +607,33 @@ export default {
     display: flex;
     flex-wrap: wrap;
     flex-direction: column;
-    padding-bottom: 16px;
-    padding-left: 20px;
-    padding-top: 16px;
+    padding: 35px 0px 80px 40px;
 }
-.create-casebook-container {
-    display: flex;
-    float: left;
-    flex-direction: column;
-    align-items: center;
+.create-casebook-button {
+    background:url('~static/images/ui/casebook/add-casebook.svg') no-repeat;
+    background-size: 60px;
+    background-position:50% 40%;
+    height: 330px;
+    width:225px;
     border: 1px dashed gray;
-    width: 225px;
-    min-height: 320px;
     margin-right: 10px;
     margin-bottom: 15px;
+
+    .create-casebook-text{
+        position:relative;
+        top:15%;
+    }
 }
-.create-casebook-text{
-   display: block;
+.create-casebook-button:hover{
+    box-shadow: 0 3px 40px rgb(0 0 0 / 0.3);
+}
+.create-casebook-button:focus{
+    box-shadow: 0 3px 40px rgb(0 0 0 / 0.3);
+    outline:none;
 }
 
-.create-casebook-plus{
- background-color: transparent;
- border: none;
- display: block;
- width: 30%;
- margin-top: 40%;
- margin-bottom: 10%;
-}
-.create-casebook-plus:hover{
- cursor: pointer;
-}
+  .content-page:focus{
+    box-shadow: 0 3px 40px rgb(0 0 0 / 0.3);
+  }
+
 </style>
