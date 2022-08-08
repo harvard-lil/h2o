@@ -12,9 +12,7 @@
       <select class="form-control select required" name="author" aria-label="Filter by Author" id="search_author">
         <option {% if not request.GET.author %}selected {% endif %}value="">All Authors</option>
         {% for author in facets.attribution %}
-           {% if facets.attribution %}
           <option {% if request.GET.author == author %}selected {% endif %}value="{{ author }}">{{ author }}</option>
-           {% endif %}
           {% endfor %}
       </select>
       {# Retain for now for spacing #}&nbsp;

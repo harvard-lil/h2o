@@ -931,8 +931,8 @@ class SearchIndex(models.Model):
             # Treat 'decision date' like 'created at', so that sort-by-date is maintained
             # when switching between case and casebook tab.
             fix_after_rails('consider renaming these params "date".')
-            # if query and order_by == "score":
-            #     order_by_expression = "-rank"
+            if query and order_by == "score":
+                order_by_expression = "-rank"
             if category == "casebook":
                 if order_by in ["created_at", "effective_date", "decision_date"]:
                     order_by_expression = "-metadata__created_at"
