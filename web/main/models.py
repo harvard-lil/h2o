@@ -926,14 +926,14 @@ class SearchIndex(models.Model):
             results = results.annotate(rank=SearchRank(F("document"), query_vector))
 
         display_name = get_display_name_field(category)
-        order_by_expression = []
+        order_by_expression = [display_name]
         if order_by:
             # Treat 'decision date' like 'created at', so that sort-by-date is maintained
             # when switching between case and casebook tab.
             fix_after_rails('consider renaming these params "date".')
             if query and order_by == "score":
                 order_by_expression = ["-rank", display_name]
-            if category == "casebook":
+            elif category == "casebook":
                 if order_by in ["created_at", "effective_date", "decision_date"]:
                     order_by_expression = ["-metadata__created_at", display_name]
             elif category == "case":
