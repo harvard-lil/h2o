@@ -962,7 +962,6 @@ class SearchIndex(models.Model):
                 .values_list(facet_param, flat=True)
                 .distinct()
             )
-            print(facets)
 
         return results, counts, facets
 
