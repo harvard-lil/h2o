@@ -1,7 +1,7 @@
 {% load current_query_string short_page_range %}
 
 {% if results.has_other_pages %}
-<nav aria-label="Search Results">
+<nav class="search-results-pagination" aria-label="Search Results Pagination">
   <ul class="pagination">
     {% if results.has_previous %}
       <li>

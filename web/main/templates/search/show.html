@@ -3,6 +3,13 @@
 
 {% block mainContent %}
   <header class="advanced-search view-searches-show">
+    <h1>H2O Casebook Collection</h1>
+    {% if counts %}
+    <p>
+      Search inside H2O's Collection of {{ counts.casebook|default:"0" }} casebooks, {{ counts.legal_doc|default:"0" }} legal documents, and 
+      {{ counts.user|default:"0" }} authors.
+    </p>
+    {% endif %}
     <form novalidate="novalidate" class="simple_form search" accept-charset="UTF-8">
       {# Hidden field to preserve active tab's category during form submission #}
       {# Note that 'category' is singular, but 'type' is plural #}
@@ -11,10 +18,7 @@
       </div>
       <div class="narrow-inner">
         <div class="input-group">
-          <input type="search" name="q" id="q" class="form-control" placeholder="Find casebooks, legal documents, and authors." aria-label="Find casebooks, legal docs, and authors." value="{{ request.GET.q }}">
-          <span class="input-group-btn">
-            <button class="form-control btn" type="submit" aria-label="Search" style="border: 1px solid black; background-color: #f5f4ec;"><i aria-hidden="true" class="fa fa-search"></i></button>
-          </span>
+          <input type="search" name="q" id="q" class="form-control" placeholder="Find Casebooks, Legal Documents, and Authors." aria-label="Find casebooks, legal docs, and authors." value="{{ request.GET.q }}">
         </div>
       </div>
       {% include 'search/filters.html' %}
