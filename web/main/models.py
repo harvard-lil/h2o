@@ -939,7 +939,7 @@ class SearchIndex(models.Model):
             elif category == "case":
                 if order_by in ["created_at", "effective_date"]:
                     order_by_expression = "-metadata__effective_date"
-        results = results.order_by(order_by_expression,display_name)
+        results = results.order_by(order_by_expression, display_name)
         results = Paginator(results, page_size).get_page(page)
 
         # get counts
@@ -962,6 +962,7 @@ class SearchIndex(models.Model):
                 .values_list(facet_param, flat=True)
                 .distinct()
             )
+            print(facets)
 
         return results, counts, facets
 
