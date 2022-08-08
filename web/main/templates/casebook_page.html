@@ -28,34 +28,6 @@
         {% endif %}
         <div class="casebook-inner">
 
-            {% if 'published' in request.GET%}
-                <div class="published-notice">
-                    <div class="top-strip-notice"></div>
-
-                    <div class="published-text">
-                        <div class="congratulations">Congratulations!</div>
-
-                        Your casebook is live! Use this link to share your book with
-                        your students  
-                        
-                        <div class="link">
-                            <a href="{{ abs_url }}">{{ abs_url }}</a>
-                            <button onclick="navigator.clipboard.writeText('{{ abs_url}}')">
-                            Click me to copy
-                            </button>
-                        </div>
-
-                        We also encourage you to share your work with your
-                        colleagues or on social media! Your book is an important
-                        contribution to open education for law and we hope you'll
-                        help others find it and use it in their own classrooms.
-                        Because you are a verified professor, your book will
-                        automatically be surfaced on H2O's search page and will
-                        appear in web searches.
-                    </div>
-                </div>
-            {% endif %}
-
             <div class="top-strip"></div>
             <header class="casebook-header">
                 <div class="casebook-title">

@@ -1520,8 +1520,6 @@ class CasebookView(View):
                 "tabs": casebook.tabs_for_user(request.user),
                 "casebook_color_class": casebook.casebook_color_indicator,
                 "contents": contents,
-                # .get is a dirty test hack
-                "abs_url": request.META.get("HTTP_HOST", "") + casebook.get_absolute_url(),
             },
         )
 
@@ -1598,11 +1596,18 @@ class CasebookView(View):
                 casebook=casebook, change=CasebookEditLog.ChangeType.ORIGINAL_PUBLISH.value
             )
             casebook.save()
+        print('MESSAGE START')
+        # import pdb; pdb.set_trace()
+        messages.success(
+            request,
+            "F:AJKLFJDLASFJKKADLFJAKLDFKJKALDFJ",
+        )
+        print('MESSAGE END')
 
         # The javascript that makes these PATCH requests expects a redirect
         # to the published casebook.
         # https://github.com/harvard-lil/h2o/issues/1050
-        return HttpResponseRedirect(reverse("casebook", args=[casebook]) + "?published")
+        return HttpResponseRedirect(reverse("casebook", args=[casebook]))
 
 
 @perms_test(
