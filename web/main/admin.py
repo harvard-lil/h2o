@@ -6,6 +6,7 @@ from django.contrib.auth.admin import UserAdmin as DjangoUserAdmin
 from django.contrib.postgres import fields
 from django.core.mail import send_mail
 from django.db.models import Count
+from django.forms.models import BaseInlineFormSet
 from django.http import HttpResponseRedirect
 from django.urls import path, reverse
 from django.utils.html import format_html
@@ -13,9 +14,9 @@ from django.utils.safestring import mark_safe
 from django_json_widget.widgets import JSONEditorWidget
 from simple_history.admin import SimpleHistoryAdmin
 
-
 from .models import (
     Casebook,
+    CommonTitle,
     ContentAnnotation,
     ContentCollaborator,
     ContentNode,
@@ -23,11 +24,11 @@ from .models import (
     LegalDocument,
     LegalDocumentSource,
     Link,
+    LiveSettings,
     Resource,
     Section,
     TextBlock,
     User,
-    LiveSettings,
 )
 from .utils import clone_model_instance, fix_after_rails
 
@@ -843,6 +844,55 @@ class LegalDocumentAdmin(BaseAdmin, SimpleHistoryAdmin):
     live_annotations_count.short_description = "Annotations"
 
 
+class CasebookInSeriesFormset(BaseInlineFormSet):
+    """Return the casebooks in this series in the inline list, excluding the
+    casebook marked as `current` in the CommonTitle model itself, as removing
+    that would cause the instance to be in an inconsistent state."""
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+
+        self.queryset = self.model.objects.filter(common_title_id=self.instance.pk).exclude(
+            pk=self.instance.current.pk
+        )
+
+    def delete_existing(self, obj: Casebook, **kwargs):
+        """Drop this item from the Series, but don't actually delete it"""
+        obj.common_title = None
+        obj.save()
+
+
+class CasebookInSeriesInline(admin.TabularInline):
+    model = Casebook
+    formset = CasebookInSeriesFormset
+    can_delete = True
+    readonly_fields = ("id", "title", "authors")
+    fields = (
+        "id",
+        "title",
+        "authors",
+    )
+
+    template = "admin/main/casebook/inline_series.html"
+
+    def authors(self, instance) -> str:
+        return ", ".join(
+            [
+                f"{u.attribution if u.attribution != 'Anonymous' else u.email_address}"
+                for u in instance.collaborators.all().order_by("-verified_professor")
+            ]
+        )
+
+
+class CommonTitleAdmin(BaseAdmin):
+    raw_id_fields = ["current"]
+    inlines = [CasebookInSeriesInline]
+    list_display = ["name", "casebook_count", "current"]
+
+    def casebook_count(self, instance) -> int:
+        return Casebook.objects.filter(common_title_id=instance.pk).count()
+
+
 class LiveSettingsAdmin(BaseAdmin):
     readonly_fields = []
     list_select_related = []
@@ -868,4 +918,5 @@ admin_site.register(ContentNode, ContentNodeAdmin)
 admin_site.register(EmailWhitelist, EmailWhitelistAdmin)
 admin_site.register(LegalDocumentSource, LegalDocumentSourceAdmin)
 admin_site.register(LegalDocument, LegalDocumentAdmin)
+admin_site.register(CommonTitle, CommonTitleAdmin)
 admin_site.register(LiveSettings, LiveSettingsAdmin)
