@@ -858,6 +858,9 @@ class CasebookInSeriesFormset(BaseInlineFormSet):
 
     def delete_existing(self, obj: Casebook, **kwargs):
         """Drop this item from the Series, but don't actually delete it"""
+        # This overrides
+        # https://github.com/django/django/blob/e03cdf76e78ea992763df4d3e16217d298929301/django/forms/models.py#L762-L765
+
         obj.common_title = None
         obj.save()
 
