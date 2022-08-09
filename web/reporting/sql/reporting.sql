@@ -49,18 +49,29 @@ group by reporting_professors.user_id, main_casebook.state, main_casebook.create
 
 -- Casebooks
 create materialized view if not exists reporting_casebooks as
-select c.id as casebook_id,
-    c.state,
-    c.created_at,
-    greatest(max_entry_date.entry_date, c.updated_at) as updated_at
-from main_casebook c
-left outer join (
-    select casebook_id, entry_date from main_casebookeditlog
-    group by casebook_id, entry_date
-    order by entry_date desc limit 1
-) max_entry_date on c.id = max_entry_date.casebook_id
-group by c.id, c.created_at, max_entry_date.entry_date
-order by greatest(max_entry_date.entry_date, c.updated_at) desc;
+    with casebooks_with_changes as (
+        select c.id as casebook_id,
+            c.state,
+            c.created_at,
+            main_casebookeditlog.entry_date as entry_date,
+            c.updated_at as casebook_date
+        from main_casebook c
+        left outer join (
+            -- Get the largest auto-incrementing id for this casebook from the edit log
+            select casebook_id, max(id) as log_id from main_casebookeditlog
+            group by casebook_id
+        ) most_recent_log_entry on c.id = most_recent_log_entry.casebook_id
+        left join main_casebookeditlog on main_casebookeditlog.id = most_recent_log_entry.log_id
+        group by c.id, c.created_at, main_casebookeditlog.entry_date, c.updated_at
+    )
+    select casebook_id, state, created_at,
+        case
+            when entry_date is null then casebook_date
+            else entry_date
+        end updated_at
+    from casebooks_with_changes
+    group by casebook_id, state, created_at, updated_at;
+
 
 -- Casebooks created by professors
 create materialized view if not exists reporting_casebooks_from_professors as

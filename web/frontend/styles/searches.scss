@@ -141,6 +141,9 @@ header.advanced-search {
     &.inactive {
       border-bottom: 2px solid $gray;
     }
+    a:focus-visible {
+      @include generic-focus-styles;
+    }
   }
   .type-tab:hover{
     font-weight: bold;
@@ -153,7 +156,7 @@ header.advanced-search {
 }
 
 .results-list {
-    .wrapper:focus {
+    .wrapper:focus-visible {
         outline:none;
         .results-entry {
             background-color: lightgray;

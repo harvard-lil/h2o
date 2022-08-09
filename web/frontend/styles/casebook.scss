@@ -65,7 +65,7 @@ main > header.casebook {
       &.disabled {
         background-color: $light-gray;
       }
-      &:focus {
+      &:focus-visible {
         @include generic-focus-styles;
         z-index: 999;
       }
@@ -142,7 +142,7 @@ main > header.casebook {
       text-decoration: underline !important;
       color: $light-blue;
     }
-    &:focus {
+    &:focus-visible {
       @include generic-focus-styles;
     }
     &:hover {
@@ -225,11 +225,11 @@ main > header.casebook {
       height: 50px;
     }
 
-    &:hover, &:focus-visible {
+    &:hover, &:focus {
       transform: scale(1.2);
     }
 
-    &:focus-visible {
+    &:focus {
       outline: none;
     }
   }
@@ -349,7 +349,7 @@ form.edit_content_resource, form.edit_content_section, form.edit_content_caseboo
         &:first-child {
           margin-left: 0;
         }
-        &:focus {
+        &:focus-visible {
           @include generic-focus-styles;
         }
         &.active {
@@ -432,6 +432,7 @@ form.edit_content_resource, form.edit_content_section, form.edit_content_caseboo
         @include sans-serif($medium, 13px, 13px);
         font-weight: bold;
         display: inline-block;
+        width:fit-content;
         &.verified::before {
           @include square(13px);
           display: inline-block;
@@ -446,7 +447,7 @@ form.edit_content_resource, form.edit_content_section, form.edit_content_caseboo
       font-size: 13px;
       display: inline-block;
 
-      a:focus {
+      a:focus-visible {
         @include generic-focus-styles;
       }
     }

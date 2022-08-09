@@ -934,12 +934,11 @@ class SearchIndex(models.Model):
             if query and order_by == "score":
                 order_by_expression = ["-rank", display_name]
             elif category == "casebook":
-                if order_by in ["created_at", "effective_date"]:
+                if order_by in ["created_at", "effective_date", "decision_date"]:
                     order_by_expression = ["-metadata__created_at", display_name]
             elif category == "case":
                 if order_by in ["created_at", "effective_date"]:
                     order_by_expression = ["-metadata__effective_date", display_name]
-
         results = results.order_by(*order_by_expression)
         results = Paginator(results, page_size).get_page(page)
 
@@ -4941,6 +4940,9 @@ class LiveSettings(models.Model):
     prevent_exports = models.BooleanField(blank=False, default=False, null=False)
     export_average_rate = models.IntegerField(blank=False, default=0)
     export_last_minute_updated = models.IntegerField(blank=False, default=0)
+    enable_printable_html_export = models.BooleanField(
+        default=False, help_text="Enable the view to export entire casebooks as HTML"
+    )
 
     @classmethod
     @transaction.atomic

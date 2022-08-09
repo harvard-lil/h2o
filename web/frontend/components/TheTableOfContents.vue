@@ -21,7 +21,7 @@
         </vue-nestable>
         </div>
         </template>
-        
+
 <script>
 import _ from "lodash";
 import { VueNestable } from "@holtchesley/vue-nestable";
@@ -124,11 +124,11 @@ export default {
       ) {
         path[pathFrom.length] += 1;
       }
-      
+
       let ii = path.splice(0, 1)[0];
       let curr = this.toc[ii];
       while (path.length > 0) {
-        res_path.push({ ii, t: curr.resoure_type });
+        res_path.push({ ii, t: curr.resource_type });
         if (
           (curr.resource_type !== null && curr.resource_type !== "Section") ||
             curr.id === dragItem.id ||
@@ -196,7 +196,7 @@ export default {
             }
         }
     }
-    
+
     .transmute-dropdown:hover {
         color: black;
         border-color: black;
@@ -301,7 +301,7 @@ export default {
         /* padding-right: 42px; */
         margin-top: 6px;
         border: 1px solid $black;
-        
+
         .list-left,
         .list-right {
             display: flex;
@@ -321,14 +321,14 @@ export default {
             .actions {
                 min-height:44px;
             }
-            
+
             align-items: left;
             background-color: $black;
-            
+
             @media (max-width: $screen-xs) {
                 flex-direction: row;
             }
-            
+
             .section-title {
                 display: inline;
                 font-weight: $medium;
@@ -343,10 +343,10 @@ export default {
                 display: flex;
                 align-items: center;
                 justify-content: flex-end;
-                
+
                 @media (max-width: $screen-xs) {
                     margin-right: -4px;
-                    
+
                     .resource-type {
                         padding: 2px 7px;
                     }
@@ -357,57 +357,57 @@ export default {
                 background-color: #c9302c;
                 border-color: #ac2925;
             }
-            
-            
+
+
         }
         &.resource {
             background-color: $white;
-            
+
             @media (max-width: $screen-xs) {
                 .resource-container {
                     margin: 0 9px;
                 }
             }
-            
+
             .section-title {
                 display: inline;
             }
-            
+
             .case-section-title {
                 margin-bottom: 4px;
             }
-            
+
             .section-number,
             .section-title {
                 color: $black;
             }
-            
+
             .case-metadata-container {
                 display: flex;
                 align-items: center;
-                
+
                 @media (max-width: $screen-xxs) {
                     flex-direction: column;
                     align-items: flex-start;
                 }
-                
+
                 .resource-case:empty {
                     display: none;
                 }
-                
+
                 .resource-case {
                     margin-right: 9px;
                 }
             }
-            
+
             .resource-type-container {
                 display: flex;
                 align-items: center;
                 justify-content: flex-end;
-                
+
                 @media (max-width: $screen-xs) {
                     margin-right: -4px;
-                    
+
                     .resource-type {
                         padding: 2px 7px;
                     }
@@ -452,12 +452,12 @@ export default {
             .action-cancel-delete {
                 color: black;
             }
-            
+
             .btn.btn-danger {
                 color: #fff;
                 background-color: #c9302c;
                 border-color: #ac2925;
-                
+
                 &:hover {
                     color: #fff;
                     background-color: #d9534f;
@@ -484,7 +484,7 @@ export default {
                 align-items: baseline;
             }
         }
-        
+
         .section-number,
         .section-number:after {
             font-size: 12px;
@@ -501,11 +501,11 @@ export default {
         .resource-date {
             @include sans-serif($light, 14px, 14px);
             display: inline-block;
-            
+
             text-align: left;
             color: $black;
         }
-        
+
         .resource-type {
             border: 1px solid $light-blue;
             color: $light-blue;
@@ -558,7 +558,7 @@ export default {
         text-decoration: underline;
         color: $light-blue;
         display: inline;
-        
+
         &:hover {
             font-weight: bold;
         }

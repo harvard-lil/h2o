@@ -8,7 +8,8 @@ from test.test_helpers import assert_url_equal, check_response, dump_content_tre
 
 from django.conf import settings
 from django.contrib import messages
-from django.contrib.auth.decorators import login_required
+from django.contrib.auth.decorators import login_required, user_passes_test
+
 from django.contrib.auth.views import PasswordResetView, redirect_to_login
 from django.core.exceptions import PermissionDenied
 from django.core.validators import URLValidator
@@ -17,6 +18,7 @@ from django.db.models import Q
 from django.forms import HiddenInput, modelformset_factory
 from django.http import (
     Http404,
+    HttpRequest,
     HttpResponse,
     HttpResponseBadRequest,
     HttpResponseForbidden,
@@ -65,6 +67,7 @@ from .models import (
     LegalDocument,
     LegalDocumentSource,
     Link,
+    LiveSettings,
     Resource,
     SavedImage,
     SearchIndex,
@@ -2729,7 +2732,7 @@ def export(request, node, file_type="docx"):
     Export casebook. File type can be 'docx' or 'html' (in which case we dump pre-pandoc html directly to the
     browser), and ?annotations=true will include annotations in the exported file.
     """
-    if file_type not in ("docx", "html", "json"):
+    if file_type not in ("docx", "html"):
         raise Http404
     docx_footnotes = (
         request.GET.get("docx_footnotes") == "true"
@@ -2766,6 +2769,59 @@ def export(request, node, file_type="docx"):
     filename = f"{Truncator(node.title).words(45, truncate='-')}{'_annotated' if include_annotations else ''}.docx"
     return StringFileResponse(
         response_data, as_attachment=True, filename=filename, response_flag_cookie=True
+    )
+
+
+@user_passes_test(lambda u: u.is_superuser)
+@hydrate_params
+@user_has_perm("casebook", "viewable_by")
+@method_decorator(
+    perms_test(
+        {
+            "args": ["casebook"],
+            "results": {
+                403: [
+                    "admin_user"
+                ],  # This will be a Forbidden response unless the LiveSetting is enabled
+                "login": [None],
+                302: ["casebook.testing_editor"],
+            },
+        },
+    )
+)
+def as_printable_html(request: HttpRequest, casebook: Casebook):
+    """Load the content of the entire casebook and pass it to an HTML template
+    designed to render it in-place, without site chrome, suitable for printing"""
+
+    # Only available if enabled in LiveSettings:
+    if not LiveSettings.load().enable_printable_html_export:
+        return HttpResponseForbidden("This feature is not currently enabled")
+
+    children = list(casebook.contents.prefetch_resources().prefetch_related("annotations"))
+
+    current_collaborators = set(casebook.primary_authors)
+    cloned_from = {
+        cn.casebook
+        for cn in casebook.ancestor_nodes.prefetch_related("casebook")
+        .prefetch_related("casebook__contentcollaborator_set")
+        .prefetch_related("casebook__contentcollaborator_set__user")
+        if set(cn.casebook.primary_authors) ^ current_collaborators
+    }
+
+    logger.info(f"Exporting Casebook {casebook.id}: serializing to HTML")
+
+    casebook.content_tree__load()
+
+    return render(
+        request,
+        "export/as_printable_html/casebook.html",
+        {
+            "casebook": casebook,
+            "children": children,
+            "export_date": datetime.now().strftime("%Y-%m-%d"),
+            "include_annotations": True,
+            "cloned_from": cloned_from,
+        },
     )
 
 

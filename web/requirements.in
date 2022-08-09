@@ -22,7 +22,6 @@ bleach              # html sanitization
 diff-match-patch    # update annotations when underlying text changes
 django-json-widget  # fancy editor for Case JSON fields in the Django admin
 django-simple-history # history preservation for contents
-python-docx         # experimental method for DOCX export
 
 # Testing
 pytest
@@ -50,9 +49,6 @@ types-requests
 # CAP API requests
 requests
 pyquery
-
-# Who knows?
-importlib-metadata==1.7.0
 
 # instrumentation
 sentry-sdk

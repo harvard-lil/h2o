@@ -1,0 +1,43 @@
+{% load call_method %}
+{% load render_bundle from webpack_loader %}
+<html>
+  <head>
+    <script src="https://unpkg.com/pagedjs@0.4.0-beta.1/dist/paged.polyfill.js"></script>
+    {% render_bundle 'casebook_html' %}
+    {% render_bundle 'chunk-common' %}
+  </head>
+
+<body>
+  <h1 class="casebook title">{{ casebook.title }}</h1>
+  {% if casebook.subtitle %}
+  <h2 class="casebook subtitle">{{ casebook.subtitle }}</h2>
+  {% endif %}
+  {% if casebook.headnote %}
+    {% call_method casebook 'headnote_for_export' as headnote %}
+
+    <section class="casebook headnote">{{ headnote }}</section>
+  {% endif %}
+
+  {% comment TODO figure out TOC %}
+  <div class="table-of-contents">
+    {% for child in children %}
+      <div class="toc-entry" data-depth="{{ child.ordinals|length }}" data-idx="{{ forloop.counter }}"
+           data-ordinal="{{ child.ordinal_string }}" data-ttext="{{ child.title|force_escape|force_escape }}"
+           data-title="{{ child.ordinal_string }} {{ child.title|force_escape|force_escape }}">
+
+          {{ child.title }}
+          </div>
+    {% endfor %}
+  </div>
+  {% endcomment %}
+
+  {% with is_child=True %}
+  {% for child in children %}
+    {% include "export/as_printable_html/node.html" with index=forloop.counter node=child %}
+  {% endfor %}
+  {% endwith %}
+
+  {% include 'export/as_printable_html/credits.html' %}
+
+</body>
+</html>
