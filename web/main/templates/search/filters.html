@@ -3,8 +3,8 @@
     <div class="form-group select required search_sort">
       <select class="form-control select required" name="sort" aria-label="Sort Results" id="search_sort">
         <option {% if request.GET.sort == 'display_name'%}selected {% endif %}value="display_name">Sort by Title</option>
-        <option {% if request.GET.sort == 'decision_date'%}selected {% endif %}value="decision_date">Sort by Date</option>
-        <!-- <option {% if request.GET.sort == 'score'%}selected {% endif %}value="score">Sort by Relevance</option> -->
+        <option {% if request.GET.sort == 'created_at'%}selected {% endif %}value="created_at">Sort by Date</option>
+        <option {% if request.GET.sort == 'score'%}selected {% endif %}value="score">Sort by Relevance</option>
       </select>
       {# Retain for now for spacing #}&nbsp;
     </div>
