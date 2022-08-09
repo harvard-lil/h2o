@@ -3382,20 +3382,40 @@ class Resource(ContentNode):
 
 class CommonTitle(BigPkModel):
     """
-    Commonly referred to as 'series', a many-to-many relationship among casebooks
+    Commonly referred to as 'series' or a 'group', a many-to-many relationship among casebooks
     where a single casebook is designated as the current edition
     """
 
-    name = models.CharField(max_length=300, blank=False, null=False)
+    name = models.CharField(
+        max_length=300,
+        blank=False,
+        null=False,
+        help_text="A value assigned by the user at the time the series is created",
+    )
     public_url = models.CharField(
-        max_length=300, blank=False, null=False, validators=[validate_unicode_slug]
+        max_length=300,
+        blank=False,
+        null=False,
+        validators=[validate_unicode_slug],
+        help_text="""A string derived from `name` which is appended to the user's public_url,
+        if they have one, which becomes a direct link to the current title in the series""",
     )
     current = models.ForeignKey(
-        "Casebook", on_delete=models.DO_NOTHING, blank=False, null=False, related_name="title_name"
+        "Casebook",
+        on_delete=models.DO_NOTHING,
+        blank=False,
+        null=False,
+        related_name="title_name",
+        help_text="The casebook designated as the most-recent edition in the Series",
     )
+
+    def __str__(self):
+        return self.name
 
     class Meta:
         managed = True
+        verbose_name_plural = "Series"
+        ordering = ("name",)
 
     def public_casebooks(self):
         return (

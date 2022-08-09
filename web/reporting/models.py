@@ -102,12 +102,12 @@ class CasebookGPOProf(ReportingCasebook):
 class CasebookSeries(ReportingCasebook):
     class Meta:
         proxy = True
-        verbose_name = "Casebooks in series"
+        verbose_name_plural = "Casebooks in series"
         ordering = ("created_at",)
 
 
 class CasebookSeriesProf(ReportingCasebook):
     class Meta:
         proxy = True
-        verbose_name = "Casebooks in series by professors"
+        verbose_name_plural = "Casebooks in series by professors"
         ordering = ("created_at",)

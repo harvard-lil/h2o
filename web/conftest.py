@@ -29,6 +29,7 @@ from main.models import (
     LegalDocument,
     LegalDocumentSource,
     LiveSettings,
+    CommonTitle,
 )
 from main.utils import re_split_offsets
 
@@ -206,6 +207,16 @@ class TextBlockFactory(factory.DjangoModelFactory):
     name = factory.Sequence(lambda n: f"Some TextBlock Name {n}")
     description = factory.Sequence(lambda n: f"Some TextBlock Description {n}")
     content = factory.Sequence(lambda n: f"Some TextBlock Content {n}")
+
+
+@register_factory
+class CommonTitleFactory(factory.DjangoModelFactory):
+    class Meta:
+        model = CommonTitle
+
+    name = factory.Sequence(lambda n: f"Some Series Name {n}")
+    public_url = factory.Sequence(lambda n: f"Some Series URL {n}")
+    current = factory.SubFactory(CasebookFactory)
 
 
 class MockSourceAPI:
