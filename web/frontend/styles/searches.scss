@@ -1,5 +1,6 @@
 main > section.search-results {
   background-color: $light-gray;
+  margin-left: 0px;
 
   .content {
     padding: 20px 40px;
@@ -7,7 +8,18 @@ main > section.search-results {
     background-color: $white;
     box-shadow: rgba(0, 0, 0, 0.24) 0px 3px 8px;
   }
+  @media (max-width: $navbar-breakpoint){
+    .content{
+      padding: 10px 20px;
+      font-size: 12px;
+    }
+    .type-tab{
+      font-size: 15px;
+    }
+  }
+
 }
+
 
 header.advanced-search {
   padding-top: $padding-base-vertical;
@@ -16,9 +28,16 @@ header.advanced-search {
   p{
     padding-bottom: 2%;
   }
+  @media (max-width: $navbar-breakpoint){
+   h1{
+    font-size: 25px;
+    padding-bottom: 2%;
+   }
+   p{
+    display:none;
+   }
+  }
 }
-
-
 .narrow-inner, .search-options {
   @include make-md-column(7.5);
   float: none !important;
@@ -34,10 +53,16 @@ header.advanced-search {
       background-position: 98% center;
       background-repeat: no-repeat;
       background-size: 30px;
+      @media (max-width: $navbar-breakpoint){
+        background-size: 15px;
+       }
     }
     input::placeholder {
       color:rgba(0, 0, 0, 0.55);
       text-align: left;
+      @media (max-width: $navbar-breakpoint){
+        font-size: 13px;
+       }
     }
   }
 }
@@ -48,6 +73,7 @@ header.advanced-search {
 
   margin-top: $padding-base-vertical;
   margin-bottom: $padding-base-vertical;
+  
 
   .form-group {
     display: flex;
@@ -71,20 +97,33 @@ header.advanced-search {
       -webkit-appearance: none;
       -moz-appearance: none;
       appearance: none;
+      @media (max-width: $navbar-breakpoint){
+        font-size: 12px;
+        background-size: 15px;
+        background-position: 95% 50%;
+      }
       &::-ms-expand {
           display: none; /* remove default arrow in IE 10 and 11 */
       }
+      
     }
   }
 }
 
 .results-container {
   padding: 0 50px 0 50px;
+  @media (max-width: $navbar-breakpoint){
+    padding: 0 20px 0 20px;
+    width: 80vw;
+  }
 }
 
 .type-tabs {
   @include make-row();
   margin-bottom: 20px;
+  display:flex;
+  justify-content: space-between;
+  padding-bottom: 3%;
 
   .type-tab {
     @include make-md-column(4);
@@ -110,6 +149,7 @@ header.advanced-search {
     font-weight: 900;
     outline:none;
   }
+
 }
 
 .results-list {
@@ -133,14 +173,20 @@ header.advanced-search {
       font-size: 14px;
       font-family: $font-family-sans-serif;
       float: left;
+      @media (max-width: $navbar-breakpoint){
+        width:100%;
+      }
     }
     .owner, .casebook-count {
       @include make-md-column(3);
     }
     .owner {
       font-size: 13px;
-      padding: 0;
+      padding:0;
 
+      @media (max-width: $navbar-breakpoint){
+        padding-left:15px;
+      }
       .verified {
         @include square(13px);
         display: inline-block;
@@ -148,6 +194,7 @@ header.advanced-search {
         content: '';
         background: url('~static/images/ui/verified.png') no-repeat;
       }
+      
     }
     .date, .profile-image {
       @include make-md-column(1);
@@ -156,10 +203,14 @@ header.advanced-search {
     .date {
       flex-grow: 1;
       text-align: right;
+      @media (max-width: $navbar-breakpoint){
+        padding-left:15px;
+      }
     }
 
     .citation {
       text-align: right;
+      padding-left: 15px;
     }
 
     .description {
@@ -234,6 +285,7 @@ header.advanced-search {
 
     .citation {
       text-align: right;
+      padding-left: 15px;
     }
 
     .description {
@@ -260,8 +312,12 @@ header.advanced-search {
   text-align: center;
 }
 
+
 .search-results-pagination{
   display: flex;
   justify-content: center;
   padding-top: 4%;
+  @media (max-width: $navbar-breakpoint){
+    font-size: small;
+  }
 }
