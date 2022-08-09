@@ -13,7 +13,7 @@ body {
   #main-header > nav {
     @extend .container;
     margin-top: 24px;
-    *:focus {
+    *:focus-visible {
       @include generic-focus-styles;
     }
     > .content {
