@@ -87,14 +87,14 @@ header.advanced-search {
       border-bottom: 2px solid $gray;
     }
 
-    a:focus {
+    a:focus-visible {
       @include generic-focus-styles;
     }
   }
 }
 
 .results-list {
-    .wrapper:focus {
+    .wrapper:focus-visible {
         outline:none;
         .results-entry {
             @include generic-focus-styles;

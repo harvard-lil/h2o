@@ -32,7 +32,7 @@
   z-index: 2;
 }
 
-.modal .close:focus {
+.modal .close:focus-visible {
   @include generic-focus-styles;
 }
 
@@ -55,7 +55,7 @@
 .modal-button {
   @extend .btn;
   @extend .btn-default;
-  &:focus {
+  &:focus-visible {
     @include generic-focus-styles;
   }
 }
