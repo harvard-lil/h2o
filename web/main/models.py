@@ -1118,7 +1118,7 @@ class FullTextSearchIndex(models.Model):
                 .filter(resource_id__in=[r.result_id for r in results_page])
                 .values_list("resource_id", "ordinals")
             )
-            ids_ordinals = {i: [str(n) for n in h] for i, h in ids_ordinals_nodes}
+            ids_ordinals = {i: [str(n) for n in h] for i, h in ids_ordinals_nodes if h is not None}
 
         for r in results_page:
             try:
@@ -2091,6 +2091,8 @@ class ContentNode(
         If there is no next node, None is returned:
         >>> assert s_2.get_previous_and_next_node_urls() == (r_1_4_3.get_absolute_url(), None)
         """
+        if self.casebook_id is None:
+            return (None, None)
         casebook_ordinals = [
             ordinals
             for [ordinals] in ContentNode.objects.filter(casebook_id=self.casebook_id)

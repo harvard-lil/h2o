@@ -8,6 +8,9 @@ jobs:
 
     steps:
       - uses: actions/checkout@v2
+      - uses: actions/setup-python@v4
+        with:
+          python-version: '3.9'  # Version on our docker img
 
       - name: flake8
         run: |
@@ -19,3 +22,8 @@ jobs:
         run: |
           pip install `egrep -o 'black==\S+' web/requirements.txt`  # install our version of black
           black --check --diff . # Uses pyproject.toml
+
+      - name: mypy
+        run: |
+          pip install -r web/requirements.txt
+          PYTHONPATH=${PYTHONPATH}:${PWD}/web mypy web/main --config-file=web/setup.cfg

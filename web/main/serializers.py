@@ -1,10 +1,12 @@
+from typing import Dict, List
 from rest_framework import serializers
 from django.urls import reverse
-from django.db.models import Exists, QuerySet, OuterRef
+from django.db.models import Exists, OuterRef
 from rest_framework.exceptions import ValidationError
 from main.models import (
     Casebook,
     CommonTitle,
+    ContentNodeQuerySet,
     User,
     ContentCollaborator,
     ContentAnnotation,
@@ -405,7 +407,7 @@ class CasebookInfoSerializer(serializers.ModelSerializer):
         return [author.display_name for author in source.primary_authors]
 
 
-def manually_serialize_content_query(content_query: QuerySet):
+def manually_serialize_content_query(content_query: ContentNodeQuerySet):
     """
     This method makes several interventions to substantially
     optimize the serialization process for casebooks and sections.
@@ -476,7 +478,7 @@ def manually_serialize_content_query(content_query: QuerySet):
     for node_dict in ordinals_to_node_dict.values():
         node_dict["children"] = []
 
-    root = {"children": []}
+    root: Dict[str, List[int]] = {"children": []}
 
     for ordinals, node_dict in ordinals_to_node_dict.items():
         if not ordinals:
