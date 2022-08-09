@@ -31,11 +31,13 @@ body {
       .logo {
         @extend .navbar-brand;
 
-        width: 85px;
+        width: 95px;
         margin-right: 10px;
 
         // The text is hidden and is replaced visually by an image
         background-image: url('~static/images/logo.svg');
+        background-position: 10px center;
+    background-repeat: no-repeat;
         background-size: initial;
         color: transparent;
 

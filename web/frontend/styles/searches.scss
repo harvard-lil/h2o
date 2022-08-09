@@ -1,23 +1,70 @@
 main > section.search-results {
   background-color: $light-gray;
+  margin-left: 0px;
 
   .content {
     padding: 20px 40px;
     margin-top: 25px;
     background-color: $white;
-    border: 1px solid $dark-gray;
+    box-shadow: rgba(0, 0, 0, 0.24) 0px 3px 8px;
   }
+  @media (max-width: $navbar-breakpoint){
+    .content{
+      padding: 10px 20px;
+      font-size: 12px;
+    }
+    .type-tab{
+      font-size: 15px;
+    }
+  }
+
 }
+
 
 header.advanced-search {
   padding-top: $padding-base-vertical;
   padding-bottom: $padding-base-vertical;
+  text-align: center;
+  p{
+    padding-bottom: 2%;
+  }
+  @media (max-width: $navbar-breakpoint){
+   h1{
+    font-size: 25px;
+    padding-bottom: 2%;
+   }
+   p{
+    display:none;
+   }
+  }
 }
-
 .narrow-inner, .search-options {
   @include make-md-column(7.5);
   float: none !important;
   margin: auto;
+  border-radius: 1em;
+
+  .input-group{
+    width: 100%;
+    input{
+      border:none;
+      background-color: #dddddd80;
+      background-image: url('~static/images/search-icon.svg');
+      background-position: 98% center;
+      background-repeat: no-repeat;
+      background-size: 30px;
+      @media (max-width: $navbar-breakpoint){
+        background-size: 15px;
+       }
+    }
+    input::placeholder {
+      color:rgba(0, 0, 0, 0.55);
+      text-align: left;
+      @media (max-width: $navbar-breakpoint){
+        font-size: 13px;
+       }
+    }
+  }
 }
 
 .search-options {
@@ -26,6 +73,7 @@ header.advanced-search {
 
   margin-top: $padding-base-vertical;
   margin-bottom: $padding-base-vertical;
+  
 
   .form-group {
     display: flex;
@@ -38,37 +86,44 @@ header.advanced-search {
       display: inline-block;
       flex-grow: 1;
       border-radius: 4px;
-      font-size: 12px;
-      height: 28px;
-      padding: 0 2em 0 1em;
+      border:transparent;
+      box-shadow: rgba(0, 0, 0, 0.24) 0px 3px 8px;
+      font-size: 14px;
+      height: 48px;
 
-      /* replace the browser's ugly arrow with a caret */
-      /* https://stackoverflow.com/questions/1895476/how-to-style-a-select-dropdown-with-css-only-without-javascript#13968900 */
-      background:
-        linear-gradient(45deg, transparent 50%, #333 50%),
-        linear-gradient(135deg, #333 50%, transparent 50%);
-      background-position:
-        calc(100% - 20px) 1em,
-        calc(100% - 15px) 1em;
-      background-size: 3px 5px, 5px 5px;
-      background-repeat: no-repeat;
+      background-image:  url('~static/images/expand-arrow.svg');
+      background-position: 97% 30%;
+      background-size: 35px;
       -webkit-appearance: none;
       -moz-appearance: none;
       appearance: none;
+      @media (max-width: $navbar-breakpoint){
+        font-size: 12px;
+        background-size: 15px;
+        background-position: 95% 50%;
+      }
       &::-ms-expand {
           display: none; /* remove default arrow in IE 10 and 11 */
       }
+      
     }
   }
 }
 
 .results-container {
   padding: 0 50px 0 50px;
+  @media (max-width: $navbar-breakpoint){
+    padding: 0 20px 0 20px;
+    width: 80vw;
+  }
 }
 
 .type-tabs {
   @include make-row();
   margin-bottom: 20px;
+  display:flex;
+  justify-content: space-between;
+  padding-bottom: 3%;
 
   .type-tab {
     @include make-md-column(4);
@@ -86,24 +141,31 @@ header.advanced-search {
     &.inactive {
       border-bottom: 2px solid $gray;
     }
-
     a:focus-visible {
       @include generic-focus-styles;
     }
   }
+  .type-tab:hover{
+    font-weight: bold;
+  }
+  a:focus{
+    font-weight: 900;
+    outline:none;
+  }
+
 }
 
 .results-list {
     .wrapper:focus-visible {
         outline:none;
         .results-entry {
-            @include generic-focus-styles;
+            background-color: lightgray;
         }
     }
   .results-entry {
     @include make-row();
-    padding: 10px 0;
-    border-top: 1px solid $dark-gray;
+    padding: 15px 0;
+    border-top: 0.5px solid rgb(149, 149, 149);
     display: flex;
     flex-wrap: wrap;
     align-items: center;
@@ -114,14 +176,20 @@ header.advanced-search {
       font-size: 14px;
       font-family: $font-family-sans-serif;
       float: left;
+      @media (max-width: $navbar-breakpoint){
+        width:100%;
+      }
     }
     .owner, .casebook-count {
       @include make-md-column(3);
     }
     .owner {
       font-size: 13px;
-      padding: 0;
+      padding:0;
 
+      @media (max-width: $navbar-breakpoint){
+        padding-left:15px;
+      }
       .verified {
         @include square(13px);
         display: inline-block;
@@ -129,6 +197,7 @@ header.advanced-search {
         content: '';
         background: url('~static/images/ui/verified.png') no-repeat;
       }
+      
     }
     .date, .profile-image {
       @include make-md-column(1);
@@ -137,10 +206,14 @@ header.advanced-search {
     .date {
       flex-grow: 1;
       text-align: right;
+      @media (max-width: $navbar-breakpoint){
+        padding-left:15px;
+      }
     }
 
     .citation {
       text-align: right;
+      padding-left: 15px;
     }
 
     .description {
@@ -156,6 +229,13 @@ header.advanced-search {
     .and-more {
       font-family: $font-family-sans-serif;
     }
+  }
+  .results-entry:hover{
+    background-color: rgb(202, 226, 249);
+  }
+  .results-entry:focus{
+    background-color: rgb(202, 226, 249);
+    outline:none;
   }
   .fts-results-entry {
     @include make-row();
@@ -208,6 +288,7 @@ header.advanced-search {
 
     .citation {
       text-align: right;
+      padding-left: 15px;
     }
 
     .description {
@@ -232,4 +313,14 @@ header.advanced-search {
 
 .no-results {
   text-align: center;
+}
+
+
+.search-results-pagination{
+  display: flex;
+  justify-content: center;
+  padding-top: 4%;
+  @media (max-width: $navbar-breakpoint){
+    font-size: small;
+  }
 }
