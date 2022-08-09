@@ -934,12 +934,11 @@ class SearchIndex(models.Model):
             if query and order_by == "score":
                 order_by_expression = ["-rank", display_name]
             elif category == "casebook":
-                if order_by in ["created_at", "effective_date"]:
+                if order_by in ["created_at", "effective_date", "decision_date"]:
                     order_by_expression = ["-metadata__created_at", display_name]
             elif category == "case":
                 if order_by in ["created_at", "effective_date"]:
                     order_by_expression = ["-metadata__effective_date", display_name]
-
         results = results.order_by(*order_by_expression)
         results = Paginator(results, page_size).get_page(page)
 
