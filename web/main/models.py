@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 from typing import (  # noqa: F401 workaround for django-stubs#1022 until the fix in django-stubs#1028 is released
     Sequence,
 )
@@ -1047,7 +1049,7 @@ class FullTextSearchIndex(models.Model):
         >>> assert len(dump_search_results([FullTextSearchIndex().casebook_fts(casebooks[0].id, 'textblock', query_str='2'),])[0]) == 1
         """
 
-        casebook = Casebook.objects.get(id=casebook_id)
+        casebook: Casebook = Casebook.objects.get(id=casebook_id)
 
         base_query = None
         if category == "legal_doc_fulltext":
@@ -1113,11 +1115,12 @@ class FullTextSearchIndex(models.Model):
 
         if category == "legal_doc_fulltext":
             ids_ordinals: dict[Optional[int], list[str]]
-            ids_ordinals_nodes = (
+            ids_ordinals_nodes: models.QuerySet = (
                 casebook.contents.filter(resource_type="LegalDocument")
                 .filter(resource_id__in=[r.result_id for r in results_page])
                 .values_list("resource_id", "ordinals")
             )
+
             ids_ordinals = {i: [str(n) for n in h] for i, h in ids_ordinals_nodes}
 
         for r in results_page:
@@ -2021,11 +2024,32 @@ class ContentNode(
     resource_id = models.BigIntegerField(blank=True, null=True)
 
     objects = _ContentNodeManager()
+
     tracked_fields = ["headnote"]
 
     # Stores the number of ‘read’ characters in a content
     # Length of content, less elided text and html tags.
     reading_length = models.IntegerField(null=True)
+
+    is_instructional_material = models.BooleanField(
+        default=False,
+        help_text="This content should only be made available on the frontend to verified professors, staff, or users with editing privilege",
+    )
+
+    @classmethod
+    def nodes_for_user_by_casebook(
+        cls, casebook: Casebook, user: Optional[AbstractBaseUser], **kwargs
+    ) -> ContentNodeQuerySet:
+        if user:
+            if user.is_authenticated and (
+                user.verified_professor
+                or casebook.contentcollaborator_set.filter(user=user).exists()
+            ):
+                return ContentNode.objects.filter(casebook=casebook, **kwargs)
+            return ContentNode.objects.filter(casebook=casebook, **kwargs).exclude(
+                is_instructional_material=True
+            )
+        return ContentNode.objects.filter(casebook=casebook, **kwargs)
 
     class Meta:
         indexes = [
@@ -2064,9 +2088,6 @@ class ContentNode(
 
     @property
     def contents(self):
-        """
-        See https://github.com/harvard-lil/h2o/blob/master/app/models/content/concerns/has_children.rb#L5
-        """
         # Django syntax for inspecting a slice of an array field
         # https://docs.djangoproject.com/en/2.2/ref/contrib/postgres/fields/#slice-transforms
         # We want only nodes whose first ordinals match this section's.
@@ -2077,41 +2098,61 @@ class ContentNode(
         res = ContentNode.objects.filter(**filter_map).exclude(id=self.id)
         return res
 
-    def get_previous_and_next_node_urls(self) -> tuple[Optional[str], Optional[str]]:
+    def get_previous_and_next_nodes(
+        self, user: Optional[User] = None
+    ) -> tuple[Optional[ContentNode], Optional[ContentNode]]:
+        """
+        Given:
+        >>> casebook, s_1, r_1_1, r_1_2, r_1_3, s_1_4, r_1_4_1, r_1_4_2, r_1_4_3, s_2 = getfixture('full_casebook_parts')
+
+        Get the ext and previous nodes in the casebook:
+        >>> assert s_1_4.get_previous_and_next_nodes() == (r_1_3 , r_1_4_1)
+
+        If there is no previous node, None is returned:
+        >>> assert s_1.get_previous_and_next_nodes() == (None, r_1_1)
+
+        If there is no next node, None is returned:
+        >>> assert s_2.get_previous_and_next_nodes() == (r_1_4_3, None)
+        """
+        previous = None
+        next = None
+
+        if self.casebook:
+            casebook_ordinals = [
+                ordinals
+                for [ordinals] in self.casebook.nodes_for_user(user)
+                .order_by("ordinals")
+                .values_list("ordinals")
+            ]
+            idx = casebook_ordinals.index(self.ordinals)
+
+            if idx > 0:
+                previous = ContentNode.objects.get(
+                    casebook=self.casebook, ordinals=casebook_ordinals[idx - 1]
+                )
+
+            if idx + 1 < len(casebook_ordinals):
+                next = ContentNode.objects.get(
+                    casebook=self.casebook, ordinals=casebook_ordinals[idx + 1]
+                )
+
+        return (previous, next)
+
+    def get_previous_and_next_node_urls(
+        self, user: Optional[User] = None
+    ) -> tuple[Optional[str], Optional[str]]:
         """
         Given:
         >>> casebook, s_1, r_1_1, r_1_2, r_1_3, s_1_4, r_1_4_1, r_1_4_2, r_1_4_3, s_2 = getfixture('full_casebook_parts')
 
         Get the URLs of the next and previous nodes in the casebook:
         >>> assert s_1_4.get_previous_and_next_node_urls() == (r_1_3.get_absolute_url() , r_1_4_1.get_absolute_url())
-
-        If there is no previous node, None is returned:
-        >>> assert s_1.get_previous_and_next_node_urls() == (None, r_1_1.get_absolute_url())
-
-        If there is no next node, None is returned:
-        >>> assert s_2.get_previous_and_next_node_urls() == (r_1_4_3.get_absolute_url(), None)
         """
-        casebook_ordinals = [
-            ordinals
-            for [ordinals] in ContentNode.objects.filter(casebook_id=self.casebook_id)
-            .order_by("ordinals")
-            .values_list("ordinals")
-        ]
-        idx = casebook_ordinals.index(self.ordinals)
-
-        previous_url = None
-        next_url = None
-        if idx > 0:
-            previous_url = ContentNode.objects.get(
-                casebook_id=self.casebook_id, ordinals=casebook_ordinals[idx - 1]
-            ).get_absolute_url()
-
-        if idx + 1 < len(casebook_ordinals):
-            next_url = ContentNode.objects.get(
-                casebook_id=self.casebook_id, ordinals=casebook_ordinals[idx + 1]
-            ).get_absolute_url()
-
-        return (previous_url, next_url)
+        previous, next = self.get_previous_and_next_nodes(user)
+        return (
+            previous.get_absolute_url() if previous else None,
+            next.get_absolute_url() if next else None,
+        )
 
     def rendered_header(self):
         if self.is_resource and self.resource_type == "LegalDocument":
@@ -2403,8 +2444,22 @@ class ContentNode(
     def get_slug(self):
         return slugify(self.title)
 
-    def viewable_by(self, user):
-        return self.casebook.viewable_by(user)
+    def viewable_by(self, user: User) -> bool:
+        """A node may belong to a viewable casebook, but itself not be viewable because of professor-only content"""
+
+        if not self.casebook:  # An orphaned node isn't viewable, presumably
+            return False
+
+        # Doesn't matter what the permissions are on this node if the casebook itself is not viewable
+        if not self.casebook.viewable_by(user):
+            return False
+
+        if self.is_instructional_material:
+            return user.is_authenticated and (
+                user.verified_professor or user in self.casebook.all_collaborators
+            )
+
+        return True
 
     def directly_editable_by(self, user):
         """
@@ -2424,20 +2479,6 @@ class ContentNode(
     @property
     def is_resource(self):
         return self.resource_id is not None
-
-    @property
-    def sub_sections(self):
-        """
-        See https://github.com/harvard-lil/h2o/blob/master/app/models/content/concerns/has_children.rb#L5
-        """
-        # Django syntax for inspecting a slice of an array field
-        # https://docs.djangoproject.com/en/2.2/ref/contrib/postgres/fields/#slice-transforms
-        # We want only nodes whose first ordinals match this section's.
-        # That is, if this is section [2, 2], we want [2, 2, 1], [2, 2, 2, 7], etc.,
-        # but not [2, 1, 1], [1,1], etc.
-        first_ordinals = f"ordinals__0_{len(self.ordinals)}"
-        filter_map = {"casebook_id": self.casebook_id, first_ordinals: self.ordinals}
-        return ContentNode.objects.filter(**filter_map).exclude(id=self.id)
 
     @property
     def annotatable(self):
@@ -3169,6 +3210,7 @@ class ContentNode(
 
     @property
     def is_private(self):
+
         return not self.is_public
 
     @property
@@ -3551,14 +3593,14 @@ class Casebook(EditTrackedModel, TimestampedModel, BigPkModel, TrackedCloneable)
     def get_slug(self):
         return slugify(self.title)
 
-    def viewable_by(self, user):
+    def viewable_by(self, user: User):
         if (not (self.is_archived or self.is_previous_save)) and (
             self.is_public or user.is_superuser
         ):
             return True
         return bool(self.contentcollaborator_set.filter(user_id=user.id).first())
 
-    def directly_editable_by(self, user):
+    def directly_editable_by(self, user: User):
         """
         Allow a user to make real-time changes (e.g., via edit view),
         rather than requiring them to make changes via the draft mechanism.
@@ -3683,41 +3725,42 @@ class Casebook(EditTrackedModel, TimestampedModel, BigPkModel, TrackedCloneable)
             cls.objects.filter(id__in=ids).delete()
 
     @property
-    def sections(self):
-        return Section.objects.filter(casebook=self).filter(resource_type__isnull=True)
+    def sections(self) -> models.QuerySet[Section]:
+        return Section.objects.filter(casebook=self, resource_type__isnull=True)
 
     @property
-    def resources(self):
+    def resources(self) -> ContentNodeQuerySet:
         return ContentNode.objects.filter(casebook=self, resource_id__isnull=False)
 
     @property
-    def children(self):
+    def children(self) -> ContentNodeQuerySet:
+        """Return top-level children of the casebook using the length of the ordinals array"""
         return ContentNode.objects.filter(casebook=self, ordinals__len=1)
 
-    @property
-    def sub_sections(self):
-        return self.children
+    def nodes_for_user(self, user: Optional[AbstractBaseUser], **kwargs) -> ContentNodeQuerySet:
+        """Filters out nodes the user cannot see if they are not a professor or contributor."""
+        return ContentNode.nodes_for_user_by_casebook(casebook=self, user=user, **kwargs)
 
     @property
-    def reading_time(self):
+    def reading_time(self) -> int:
         return sum((cn.reading_time or 0 for cn in self.children))
 
     @property
-    def num_links(self):
+    def num_links(self) -> int:
         return sum((cn.num_links or 0 for cn in self.children))
 
     @property
-    def descendant_nodes(self):
+    def descendant_nodes(self) -> ContentNodeQuerySet:
         ids = [cn.id for cn in self.contents.all()]
         return ContentNode.objects.filter(provenance__overlap=ids).filter(casebook__state="Public")
 
     @property
-    def ancestor_nodes(self):
+    def ancestor_nodes(self) -> ContentNodeQuerySet:
         ids = [p for cn in self.contents.all() for p in cn.provenance]
         return ContentNode.objects.filter(id__in=ids).filter(casebook__state="Public")
 
     @property
-    def related_docs(self):
+    def related_docs(self) -> ContentNodeQuerySet:
         docs = [x for x in self.contents.filter(resource_type="LegalDocument").prefetch_resources()]
         src_refs = {(doc.resource.source_id, doc.resource.source_ref) for doc in docs}
         legal_doc_sources = {src for src, _ in src_refs}
@@ -4358,7 +4401,7 @@ class Casebook(EditTrackedModel, TimestampedModel, BigPkModel, TrackedCloneable)
     @property
     def primary_authors(self):
         uniq = set()
-        authors = []
+        authors: list[User] = []
         for collab in self.contentcollaborator_set.order_by("id").all():
             if not collab.has_attribution or collab.user.attribution == "Anonymous":
                 continue
@@ -4411,7 +4454,7 @@ class Casebook(EditTrackedModel, TimestampedModel, BigPkModel, TrackedCloneable)
         # filter in the client to allow .prefetch_related('contentcollaborator_set__user') to work:
         return any(c.user_id == user.id for c in self.contentcollaborator_set.all() if c.can_edit)
 
-    def add_collaborator(self, user, **collaborator_kwargs):
+    def add_collaborator(self, user: User, **collaborator_kwargs):
         collaborator_to_add = ContentCollaborator(
             user=user, casebook_id=self.id, **collaborator_kwargs
         )
