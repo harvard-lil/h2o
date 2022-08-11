@@ -2,7 +2,7 @@
     {% if editing %}
     <audit-button :publish-check="{{ publish_check }}"> </audit-button>
     {% elif publishable %}
-    <audit-button :no-save="true"> </audit-button>
+    <audit-button :publish-check="{{ publish_check }}" :no-save="true"> </audit-button>
   {% endif %}
     {% if can_be_directly_edited and not casebook.is_draft %}
       <a class="action edit one-line" data-disable-with="Revise" href="{% firstof section.get_edit_url casebook.get_edit_url %}">{% if casebook.is_draft %}Continue Revising{% else %}Revise{% endif %}</a>

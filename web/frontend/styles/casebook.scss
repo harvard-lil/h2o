@@ -284,45 +284,6 @@ form.edit_content_resource, form.edit_content_section, form.edit_content_caseboo
   section.no-headnote {
     height: 10px;
   }
-
-  div.published-notice {
-    font-size: 1em;
-    background-color: $white;
-    margin: 1em 0 1em 0;
-
-    .top-strip-notice {
-      height: 20px;
-      background-color: orange; 
-    }
-
-    div.congratulations {
-      font-size: 1.5em;
-      font-weight: bolder;
-    }
-
-    div.link {
-      display: block;
-      text-align: center;
-      margin: 1em 0 1em 0;
-
-      a { 
-        background-color: #F7F6EE;
-        // color: #333333;
-        padding: 0.5em;
-        border-radius: 2px;
-        font-size: 1.1em;
-      }
-
-      button {
-        float: right;
-      }
-    }
-
-    div.published-text {
-      padding: 20px 20px 20px 30px;
-    }
-  }
-
   header.casebook-header {
     margin-bottom: 2px;
     padding: 20px 20px 20px 30px;

@@ -13,12 +13,19 @@
         <p>Are you ready to publish your book?</p>
         
         <div v-if=publishCheck.isVerifiedProfessor id="prof-prompt">
-          The following features add visibility to your book:
+          You're almost ready to publish your book! The following elements are
+          optional, but can make your book more discoverable by students and
+          colleagues:
           <ul class="fa-ul">
-            <li v-for="item in liCheck" :key="item.text">
-              <span v-if="item.val" class="fa-li"><font-awesome-icon icon="fa-solid fa-check fa-fw" /></span>
+            <li v-if="this.publishCheck.coverImageFlag">
+              <span v-if="this.publishCheck.coverImageExists" class="fa-li"><font-awesome-icon icon="fa-solid fa-check fa-fw" /></span>
               <span v-else class="fa-li"><font-awesome-icon icon="fa-solid fa-xmark fa-fw" /></span>
-              {{ item.text }}
+              Cover Photo
+            </li>
+            <li>
+              <span v-if="this.publishCheck.descriptionExists" class="fa-li"><font-awesome-icon icon="fa-solid fa-check fa-fw" /></span>
+              <span v-else class="fa-li"><font-awesome-icon icon="fa-solid fa-xmark fa-fw" /></span>
+              Description 
             </li>
           </ul>
           We also encourage you to share your work with your colleagues or on
