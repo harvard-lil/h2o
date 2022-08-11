@@ -79,7 +79,7 @@
       </annotation-cloner>
       {% else %}
       <form class="clone_casebook" method="post" action="{% if casebook %}{% url 'clone' casebook %}{% else %}{% url 'clone' casebook %}{% endif %}">
-        <button class="action annotate-casebook" data-disable-with="Clone" type="submit">Annotate</button>
+        <button class="action annotate-casebook" data-disable-with="Clone" type="submit">Annotate </button>
         {% csrf_token %}
     </form>
       {% endif %}
