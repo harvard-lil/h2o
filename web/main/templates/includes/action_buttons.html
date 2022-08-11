@@ -60,13 +60,29 @@
   <form class="follow_casebook" method="post" action="{% url 'follow_casebook' casebook %}">
     <button class="action follow-casebook" data-disable-with="Follow" type="submit">Follow</button>
     {% csrf_token %}
-</form>
+  </form>
   {% endif %}
   {% if can_unfollow %}
   <form class="unfollow_casebook" method="post" action="{% url 'follow_casebook' casebook %}">
     <button class="action unfollow-casebook" data-disable-with="Unfollow" type="submit">Unfollow</button>
     {% csrf_token %}
-</form>
-
+  </form>
   {% endif %}
+
+  <!-- annotating the casebook will require the user to clone the casebook. It is the same as the clone function but with different wording to help users understand the workflow -->
+  {% if cloneable %}
+      {% if section %}
+      <annotation-cloner :casebook-targets="{{clone_section_targets}}"
+                      section-source="{{section.title}}"
+                      section-type="{% if section.resource_type == 'TextBlock' %}text{% elif section.resource_type == 'LegalDocument'%}Legal Doc{% elif not section.resource_type %}section{% else %}{{section.resource_type|lower}}{% endif %}"
+      >
+      </annotation-cloner>
+      {% else %}
+      <form class="clone_casebook" method="post" action="{% if casebook %}{% url 'clone' casebook %}{% else %}{% url 'clone' casebook %}{% endif %}">
+        <button class="action annotate-casebook" data-disable-with="Clone" type="submit">Annotate</button>
+        {% csrf_token %}
+    </form>
+      {% endif %}
+  {% endif %}
+
 </aside>
