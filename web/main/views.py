@@ -2829,9 +2829,7 @@ def as_printable_html(request: HttpRequest, casebook: Casebook, page=1):
 
     children: ContentNode = casebook.children
 
-    logger.info(
-        f"Exporting Casebook {casebook.id}, starting from section '{children[0]}': serializing to HTML"
-    )
+    logger.info(f"Exporting Casebook {casebook.id}, starting from page {page}: serializing to HTML")
 
     from django.core.paginator import Paginator
 

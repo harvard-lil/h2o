@@ -141,24 +141,25 @@ def test_export_is_rate_limited(live_settings, full_casebook, resource):
     assert live_settings.export_average_rate == prior_count + 2
 
 
-@pytest.mark.xdist_group("pandoc-lambda")
-def test_printable_html_livesetting_required(admin_user_factory, client, casebook_factory):
-    """The printable HTML view requires auth and an explicit setting at this time"""
-    casebook = casebook_factory()
+def test_printable_html_livesetting_required(admin_user_factory, client, full_casebook):
 
-    resp = client.get(reverse("as_printable_html", args=[casebook]), as_user=admin_user_factory())
+    """The printable HTML view requires auth and an explicit setting at this time"""
+    resp = client.get(
+        reverse("as_printable_html", args=[full_casebook]), as_user=admin_user_factory()
+    )
     assert 403 == resp.status_code
 
     # Only when the live setting is enabled should this work
     LiveSettingsFactory(enable_printable_html_export=True)
-    resp = client.get(reverse("as_printable_html", args=[casebook]), as_user=admin_user_factory())
+    resp = client.get(
+        reverse("as_printable_html", args=[full_casebook]), as_user=admin_user_factory()
+    )
     assert 200 == resp.status_code
 
 
 def test_printable_html_casebook(admin_user_factory, client, full_casebook):
     """The casebook printable HTML view should prepare a complete casebook for rendering"""
     LiveSettingsFactory(enable_printable_html_export=True)
-
     resp = client.get(
         reverse("as_printable_html", args=[full_casebook]), as_user=admin_user_factory()
     )
