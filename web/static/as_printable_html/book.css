@@ -1,6 +1,4 @@
 @media print {
-  /* Consider scoping these styles to the shadow DOM of the rendered book so this is unnecessary */
-
   a {
     text-decoration: none;
   }
