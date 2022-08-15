@@ -1,5 +1,14 @@
 <template>
     <div class="table-of-contents" v-bind:class="{ editable: editing }">
+        <button
+            aria-role="heading"
+            :aria-expanded="!tocCollapsed ? 'true' : 'false'"
+            :aria-label="tocCollapsed ? 'expand all' : 'collapse all'"
+            class="action-expand"
+            v-on:click="toggleTocExpanded"
+        >
+            <collapse-triangle :collapsed="tocCollapsed" />
+        </button>
         <vue-nestable
             v-model="toc"
             :max-depth="100"
@@ -28,6 +37,8 @@ import _ from "lodash";
 import { VueNestable } from "@holtchesley/vue-nestable";
 import Placeholder from "./TableOfContents/PlaceHolder";
 import Entry from "./TableOfContents/Entry";
+import CollapseTriangle from "./CollapseTriangle";
+
 import { createNamespacedHelpers } from "vuex";
 const { mapActions, mapMutations } =
     createNamespacedHelpers("table_of_contents");
@@ -37,9 +48,11 @@ export default {
         VueNestable,
         Placeholder,
         Entry,
+        CollapseTriangle,
     },
     data: () => ({
         needsDeleteConfirmation: {},
+        tocCollapsed: false,
     }),
     directives: {
         focus: {
@@ -57,6 +70,7 @@ export default {
         casebook: function () {
             return this.$store.getters["globals/casebook"]();
         },
+
         section: function () {
             return this.$store.getters["globals/section"]();
         },
@@ -166,6 +180,10 @@ export default {
                 parent,
                 index,
             });
+        },
+        toggleTocExpanded: function () {
+            console.log(this);
+            console.log(this.toc.items);
         },
     },
     props: ["editing", "rootOrdinals"],
