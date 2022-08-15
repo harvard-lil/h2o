@@ -1,26 +1,27 @@
 <template>
-<div class="table-of-contents"
-     v-bind:class="{'editable':editing}">
-     <vue-nestable v-model="toc"
-                   :max-depth="100"
-                   :hooks="{'beforeMove':canMove}"
-                   class-prop="cssClasses"
-                   v-on:change="moveSubsection"
-                   :collapsed-groups="collapsedSections"
-                   v-if="dataReady"
-                   >
-         <div slot="placeholder">
-         <placeholder :editing="editing" :node-type="nodeType" />
-         </div>
-         <template v-slot="{item}">
-         <entry :item="item"
-                :root-ordinal-display="rootOrdinalDisplay"
-                :editing="editing"
-         />
-        </template>
+    <div class="table-of-contents" v-bind:class="{ editable: editing }">
+        <vue-nestable
+            v-model="toc"
+            :max-depth="100"
+            :hooks="{ beforeMove: canMove }"
+            class-prop="cssClasses"
+            v-on:change="moveSubsection"
+            :collapsed-groups="collapsedSections"
+            v-if="dataReady"
+        >
+            <div slot="placeholder">
+                <placeholder :editing="editing" :node-type="nodeType" />
+            </div>
+            <template v-slot="{ item }">
+                <entry
+                    :item="item"
+                    :root-ordinal-display="rootOrdinalDisplay"
+                    :editing="editing"
+                />
+            </template>
         </vue-nestable>
-        </div>
-        </template>
+    </div>
+</template>
 
 <script>
 import _ from "lodash";
@@ -28,146 +29,149 @@ import { VueNestable } from "@holtchesley/vue-nestable";
 import Placeholder from "./TableOfContents/PlaceHolder";
 import Entry from "./TableOfContents/Entry";
 import { createNamespacedHelpers } from "vuex";
-const { mapActions, mapMutations } = createNamespacedHelpers(
-  "table_of_contents"
-);
+const { mapActions, mapMutations } =
+    createNamespacedHelpers("table_of_contents");
 
 export default {
-  components: {
-    VueNestable,
-    Placeholder,
-    Entry
-  },
-  data: () => ({
-    needsDeleteConfirmation: {}
-  }),
-  directives: {
-    focus: {
-      inserted: function(el) {
-        el.focus();
-      }
-    }
-  },
-  computed: {
-    collapsedSections: function() {
-      return this.$store.getters["table_of_contents/collapsedNodes"](this.rootNode);
+    components: {
+        VueNestable,
+        Placeholder,
+        Entry,
     },
-    casebook: function() {
-      return this.$store.getters["globals/casebook"]();
+    data: () => ({
+        needsDeleteConfirmation: {},
+    }),
+    directives: {
+        focus: {
+            inserted: function (el) {
+                el.focus();
+            },
+        },
     },
-    section: function() {
-      return this.$store.getters["globals/section"]();
+    computed: {
+        collapsedSections: function () {
+            return this.$store.getters["table_of_contents/collapsedNodes"](
+                this.rootNode
+            );
+        },
+        casebook: function () {
+            return this.$store.getters["globals/casebook"]();
+        },
+        section: function () {
+            return this.$store.getters["globals/section"]();
+        },
+        rootNode: function () {
+            return this.section || this.casebook;
+        },
+        rootOrdinalDisplay: function () {
+            return this.rootOrdinals !== ""
+                ? this.rootOrdinals + "."
+                : this.rootOrdinals;
+        },
+        nodeType: function () {
+            return this.section ? "section" : "casebook";
+        },
+        toc: {
+            get: function () {
+                let toc = _.get(
+                    this.$store,
+                    `state.table_of_contents.toc.${this.rootNode}.children`,
+                    []
+                );
+                return toc;
+            },
+            set: function (newVal) {
+                this.shuffle({ id: this.rootNode, children: newVal });
+            },
+        },
+        dataReady: function () {
+            return this.toc !== [null] && this.toc !== null;
+        },
     },
-    rootNode: function() {
-      return this.section || this.casebook;
-    },
-    rootOrdinalDisplay: function() {
-      return this.rootOrdinals !== ""
-        ? this.rootOrdinals + "."
-        : this.rootOrdinals;
-    },
-    nodeType: function() {
-        return this.section ? "section" : "casebook";
-    },
-    toc: {
-      get: function() {
-        let toc = _.get(
-          this.$store,
-          `state.table_of_contents.toc.${this.rootNode}.children`
-          ,[]);
-        return toc;
-      },
-      set: function(newVal) {
-        this.shuffle({ id: this.rootNode, children: newVal });
-      }
-    },
-    dataReady: function() {
-      return this.toc !== [null] && this.toc !== null;
-    }
-  },
-  mounted: function() {
-    const hash = window.location.hash;
-    let attempts = 0;
-    function waitForID() {
-      if (null !== document.getElementById(hash.substring(1))) {
-        window.location.hash = "";
-        window.location.hash = hash;
-      } else {
-        attempts += 1;
-        if (attempts < 5) {
-          setTimeout(waitForID, 15);
+    mounted: function () {
+        const hash = window.location.hash;
+        let attempts = 0;
+        function waitForID() {
+            if (null !== document.getElementById(hash.substring(1))) {
+                window.location.hash = "";
+                window.location.hash = hash;
+            } else {
+                attempts += 1;
+                if (attempts < 5) {
+                    setTimeout(waitForID, 15);
+                }
+            }
         }
-      }
-    }
-    if (hash !== "") {
-      setTimeout(waitForID, 15);
-    }
-  },
-  methods: {
-    ...mapActions(["fetch", "commitShuffle", "moveNode"]),
-    ...mapMutations(["shuffle"]),
-    canMove: function(movement) {
-      let { dragItem, pathFrom, pathTo } = movement;
-      if (pathTo.length === 1) {
-        return true;
-      }
-      let res_path = [];
-      let path = pathTo.slice(0);
-      // The pathTo potentially restructures the tree in a way that can affect lookup.
-      // we need to do a small adjustment to the lookup path to account for that
-      let lastFromIndex = pathFrom.pop();
-      let pathToStart = path.slice(0, pathFrom.length);
-      if (
-        _.isEqual(pathToStart, pathFrom) &&
-          path.length > pathFrom.length &&
-          path[pathFrom.length] >= lastFromIndex
-      ) {
-        path[pathFrom.length] += 1;
-      }
+        if (hash !== "") {
+            setTimeout(waitForID, 15);
+        }
+    },
+    methods: {
+        ...mapActions(["fetch", "commitShuffle", "moveNode"]),
+        ...mapMutations(["shuffle"]),
+        canMove: function (movement) {
+            let { dragItem, pathFrom, pathTo } = movement;
+            if (pathTo.length === 1) {
+                return true;
+            }
+            let res_path = [];
+            let path = pathTo.slice(0);
+            // The pathTo potentially restructures the tree in a way that can affect lookup.
+            // we need to do a small adjustment to the lookup path to account for that
+            let lastFromIndex = pathFrom.pop();
+            let pathToStart = path.slice(0, pathFrom.length);
+            if (
+                _.isEqual(pathToStart, pathFrom) &&
+                path.length > pathFrom.length &&
+                path[pathFrom.length] >= lastFromIndex
+            ) {
+                path[pathFrom.length] += 1;
+            }
 
-      let ii = path.splice(0, 1)[0];
-      let curr = this.toc[ii];
-      while (path.length > 0) {
-        res_path.push({ ii, t: curr.resource_type });
-        if (
-          (curr.resource_type !== null && curr.resource_type !== "Section") ||
-            curr.id === dragItem.id ||
-            curr.collapsed
-        ) {
-          return false;
-        }
-        ii = path.splice(0, 1)[0];
-        curr = curr.children[ii];
-      }
-      return true;
+            let ii = path.splice(0, 1)[0];
+            let curr = this.toc[ii];
+            while (path.length > 0) {
+                res_path.push({ ii, t: curr.resource_type });
+                if (
+                    (curr.resource_type !== null &&
+                        curr.resource_type !== "Section") ||
+                    curr.id === dragItem.id ||
+                    curr.collapsed
+                ) {
+                    return false;
+                }
+                ii = path.splice(0, 1)[0];
+                curr = curr.children[ii];
+            }
+            return true;
+        },
+        moveSubsection: function ({ id }, { items, pathTo }) {
+            function findIn(tree, id) {
+                let candidates = tree.children
+                    .map((x, index) => {
+                        if (x.id === id) {
+                            return { parent: tree.id, index };
+                        } else {
+                            return findIn(x, id);
+                        }
+                    })
+                    .filter((x) => x !== null);
+                return candidates.length === 1 ? candidates[0] : null;
+            }
+            let { parent, index } = findIn({ id: null, children: items }, id);
+            this.moveNode({
+                casebook: this.casebook,
+                rootNode: this.rootNode,
+                moverId: id,
+                parent,
+                index,
+            });
+        },
     },
-    moveSubsection: function({ id }, { items, pathTo }) {
-      function findIn(tree, id) {
-        let candidates = tree.children
-            .map((x, index) => {
-              if (x.id === id) {
-                return { parent: tree.id, index };
-              } else {
-                return findIn(x, id);
-              }
-            })
-            .filter(x => x !== null);
-        return candidates.length === 1 ? candidates[0] : null;
-      }
-      let { parent, index } = findIn({ id: null, children: items }, id);
-      this.moveNode({
-        casebook: this.casebook,
-        rootNode: this.rootNode,
-        moverId: id,
-        parent,
-        index
-      });
-    }
-  },
-  props: ["editing", "rootOrdinals"],
-  created: function() {
-    this.fetch({ casebook: this.casebook, subsection: this.section });
-  }
+    props: ["editing", "rootOrdinals"],
+    created: function () {
+        this.fetch({ casebook: this.casebook, subsection: this.section });
+    },
 };
 </script>
 
@@ -294,7 +298,7 @@ export default {
     }
     .listing {
         display: flex;
-        justify-content:space-between;
+        justify-content: space-between;
         align-items: baseline;
         width: 100%;
         padding: 12px 16px;
@@ -305,9 +309,9 @@ export default {
         .list-left,
         .list-right {
             display: flex;
-            flex-direction:row;
+            flex-direction: row;
             div {
-                align-self:baseline;
+                align-self: baseline;
             }
         }
         .list-right {
@@ -319,7 +323,7 @@ export default {
         }
         &.section {
             .actions {
-                min-height:44px;
+                min-height: 44px;
             }
 
             align-items: left;
@@ -337,7 +341,7 @@ export default {
             .section-title {
                 color: $white;
                 margin-right: 10px;
-                display:inline;
+                display: inline;
             }
             .resource-type-container {
                 display: flex;
@@ -357,8 +361,6 @@ export default {
                 background-color: #c9302c;
                 border-color: #ac2925;
             }
-
-
         }
         &.resource {
             background-color: $white;
@@ -465,7 +467,7 @@ export default {
                 }
             }
             .btn.specify-case-button {
-                color:black;
+                color: black;
             }
         }
         @media (max-width: $screen-xs) {
@@ -491,7 +493,8 @@ export default {
             display: inline;
             margin-right: 10px;
         }
-        .section-number:after {}
+        .section-number:after {
+        }
         .section-title {
             @include sans-serif($bold, 14px, 14px);
             display: inline-block;
