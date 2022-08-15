@@ -182,8 +182,10 @@ export default {
             });
         },
         toggleTocExpanded: function () {
-            console.log(this);
-            console.log(this.toc.items);
+            const ids = this.$store.getters["table_of_contents/openNodes"](
+                this.rootNode
+            );
+            this.$store.dispatch("table_of_contents/collapseAll", { ids });
         },
     },
     props: ["editing", "rootOrdinals"],
