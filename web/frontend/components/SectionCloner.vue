@@ -21,21 +21,7 @@
 
 <script>
 import Modal from "./Modal";
-
-function getCookie(name) {
-  var cookieValue = null;
-  if (document.cookie && document.cookie !== '') {
-    var cookies = document.cookie.split(';');
-    for (var i = 0; i < cookies.length; i++) {
-      var cookie = jQuery.trim(cookies[i]);
-      if (cookie.substring(0, name.length + 1) === (name + '=')) {
-        cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
-        break;
-      }
-    }
-  }
-  return cookieValue;
-}
+import { get_csrf_token } from "../../frontend/legacy/lib/helpers";
 
 export default {
   components: {
@@ -47,7 +33,7 @@ export default {
     sectionType: {type: String}
   },
   data: () => ({showModal: false,
-                csrftoken: getCookie('csrftoken')}),
+                csrftoken: get_csrf_token()}),
   methods: {
     displayModal: function displayModal() {
       this.showModal = true;
@@ -83,13 +69,17 @@ ul.clone-target-list {
         
         button.link {
             padding:8px;
-            border: 1px solid grey;
+            border: 0.5px solid grey;
             font-weight: bold;
             text-align: left;
             width: 100%;
             background-color: white;
             &:hover {
-                background-color: #EEEEEE;
+                background-color: rgb(202, 226, 249);
+            }
+             &:focus{
+                background-color: rgb(202, 226, 249);
+                outline:none;
             }
         }
     }
