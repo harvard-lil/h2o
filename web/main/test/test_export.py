@@ -132,6 +132,16 @@ def test_export_query_count(assert_num_queries, full_casebook):
         full_casebook.export(include_annotations=True)
 
 
+@pytest.mark.xdist_group("pandoc-lambda")
+def test_export_is_rate_limited(live_settings, full_casebook, resource):
+    prior_count = live_settings.export_average_rate
+    full_casebook.export(False)
+    resource.export(False)
+    live_settings.refresh_from_db()
+    assert live_settings.export_average_rate == prior_count + 2
+
+
+@pytest.mark.xdist_group("pandoc-lambda")
 def test_printable_html_livesetting_required(admin_user_factory, client, casebook_factory):
     """The printable HTML view requires auth and an explicit setting at this time"""
     casebook = casebook_factory()
