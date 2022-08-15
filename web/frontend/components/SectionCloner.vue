@@ -5,7 +5,7 @@
             @close="showModal = false">
     <template slot="title">Clone {{properType()}} To Casebook</template>
     <template slot="body">
-      <p>The {{sectionType}} "<em>{{sectionSource}}</em>" will be copied to the casebook you select below:</p>
+      <p class="cloner-text">The {{sectionType}} "<em>{{sectionSource}}</em>" will be copied to the casebook you select below:</p>
       <ul class="clone-target-list">
         <li v-for="cb in casebookTargets" v-bind:key="cb.form_target">
           <form :action="cb.form_target" method="POST">
@@ -64,6 +64,12 @@ export default {
 .casebook-actions button.action.clone-casebook-nodes {
     background-image: url('~static/images/ui/casebook/clone.svg');
     border: none;
+}
+
+body{
+  .cloner-text{
+    padding-left:40px;
+  }
 }
 
 ul.clone-target-list {

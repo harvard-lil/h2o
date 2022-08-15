@@ -7,7 +7,7 @@
       <span class="annotation-icon"></span>
       <h4>Copying {{properType()}} for Annotation</h4>
     </template>
-    <template class="modal-body" slot="body">
+    <template class="modal-body-annotation" slot="body">
       <p> <b> To Annotate, you need to Create a Copy.<br/><br/> Choose a book</b>  you would like  "<em>{{sectionSource}}</em>" to be copied into : </p>
       <ul class="annotation-target-list">
         <li v-for="cb in casebookTargets" v-bind:key="cb.form_target">
@@ -91,7 +91,7 @@ export default {
   }
 }
 
-.modal-body{
+.modal-body-annotation{
   padding-left: 40px;
   p{
     font-size: 16px;
@@ -108,7 +108,7 @@ ul.annotation-target-list {
     overflow: scroll;
     max-height: 600px;
     padding-top:4px;
-    padding-left: 0px;
+    padding-left: 40px;
     li {
         margin-bottom: .5rem;
         margin-right: 40px;
