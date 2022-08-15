@@ -1,3 +1,4 @@
+from unittest import mock
 import pytest
 from _pytest.fixtures import FixtureLookupError
 
@@ -11,13 +12,13 @@ from test.test_helpers import check_response
 """
     This file applies the tests that are attached to each view via the @perms_test decorator.
     A particular test looks like this:
-    
+
         @perms_test({'method': 'post', 'args': ['casebook'], 'results': {302: ['casebook.testing_editor', 'admin_user'], 403: ['other_user'], 'login': [None]}})
         def some_view(request, casebook): ...
-    
+
     This means the test should POST to `reverse(some_view, args=[casebook])`, and that casebook.testing_editor and admin_user
     should receive a 302 response; other_user should receive a 403; and non-auth requests should redirect to the login
-    form. 
+    form.
 """
 
 
@@ -80,6 +81,7 @@ def test_permissions(
     request_method,
     status_code,
     user_string,
+    monkeypatch,
 ):
     """
     This test function runs a single request on behalf of a single user. The example at the top of this file would
@@ -114,6 +116,10 @@ def test_permissions(
     if status_code == "login":
         status_code = 302
         should_redirect_to_login = True
+
+    # Mock any internals we don't need to test in this scenario
+
+    monkeypatch.setattr("main.models.export_via_aws_lambda", mock.Mock())
 
     # run request
     context = {}
