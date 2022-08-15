@@ -3,10 +3,13 @@
   <button class="action annotate-casebook-nodes" data-disable-with="Clone-Node" v-on:click="displayModal()">Annotate {{properType()}}</button>
   <Modal v-if="showModal"
             @close="showModal = false">
-    <template class="modal-title" slot="title">Copying {{properType()}} for Annotation</template>
+    <template class="modal-title" slot="title">
+      <span class="annotation-icon"></span>
+      <h4>Copying {{properType()}} for Annotation</h4>
+    </template>
     <template class="modal-body" slot="body">
-      <p>Choose a book you would like  "<em>{{sectionSource}}</em>" to be copied into : </p>
-      <ul class="clone-target-list">
+      <p> <b> To Annotate, you need to Create a Copy.<br/><br/> Choose a book</b>  you would like  "<em>{{sectionSource}}</em>" to be copied into : </p>
+      <ul class="annotation-target-list">
         <li v-for="cb in casebookTargets" v-bind:key="cb.form_target">
           <form :action="cb.form_target" method="POST">
             <input type="hidden" name="csrfmiddlewaretoken" :value="csrftoken" />
@@ -74,13 +77,33 @@ export default {
   padding-top: 5px;
   font-weight:600;
   text-align: center;
+  display:flex;
+  flex-direction: row;
+  justify-content: center;
+  .annotation-icon{
+    background-image: url('~static/images/annotation-icon.svg');
+    display: inline-block;
+    height: 35px;
+    width: 35px;
+  }
+  h4{
+    margin-left: 10px;
+  }
 }
 
 .modal-body{
   padding-left: 40px;
+  p{
+    font-size: 16px;
+    padding: 10px;
+    margin-right: 40px;
+  }
+  b{
+    color:#3E72D8;
+  }
 }
 
-ul.clone-target-list {
+ul.annotation-target-list {
     list-style: none;
     overflow: scroll;
     max-height: 600px;
@@ -92,13 +115,13 @@ ul.clone-target-list {
         
         button.link {
             padding:8px;
-            border: 1px solid grey;
+            border: 0.5px solid grey;
             font-weight: bold;
             text-align: left;
             width: 100%;
             background-color: white;
             &:hover {
-                background-color: #EEEEEE;
+                background-color: rgb(202, 226, 249);
             }
         }
     }
