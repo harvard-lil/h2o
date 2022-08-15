@@ -8,7 +8,7 @@
       <h4>Copying {{properType()}} for Annotation</h4>
     </template>
     <template class="modal-body-annotation" slot="body">
-      <p> <b> To Annotate, you need to Create a Copy.<br/><br/> Choose a book</b>  you would like  "<em>{{sectionSource}}</em>" to be copied into : </p>
+      <p class="annotation-cloner-text"> <b> To Annotate, you need to Create a Copy.<br/><br/> Choose a book</b>  you would like  "<em>{{sectionSource}}</em>" to be copied into : </p>
       <ul class="annotation-target-list">
         <li v-for="cb in casebookTargets" v-bind:key="cb.form_target">
           <form :action="cb.form_target" method="POST">
@@ -91,7 +91,7 @@ export default {
   }
 }
 
-.modal-body-annotation{
+.annotation-cloner-text{
   padding-left: 40px;
   p{
     font-size: 16px;
