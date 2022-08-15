@@ -61,7 +61,7 @@ export default {
 </script>
 
 <style lang="scss">
-.casebook-actions button.action.annotate-casebook-nodes {
+.casebook-actions button.action.annotate-casebook {
     background-image: url('~static/images/ui/casebook/a.svg');
     border: none;
 }
