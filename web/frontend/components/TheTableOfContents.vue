@@ -581,7 +581,7 @@ export default {
        font-weight: 900;
     }
     .annotation-icon{
-        background-image:url('~static/images/a.svg') ;
+        background-image:url('~static/images/annotation-icon.svg') ;
         display: inline-block;
         height: 40px;
         width: 40px;

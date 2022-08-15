@@ -62,7 +62,7 @@ export default {
 
 <style lang="scss">
 .casebook-actions button.action.annotate-casebook {
-    background-image: url('~static/images/ui/casebook/a.svg');
+    background-image: url('~static/images/annotation-icon.svg');
     border: none;
 }
 .modal-title{

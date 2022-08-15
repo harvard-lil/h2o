@@ -417,7 +417,7 @@ export function getInitConfig(selector, enhanced, code) {
                           {title: 'Right aligned', value: 'image-right-medium'}
                          ];
   let config = {
-    height:'15vh',
+    height:'25vh',
     plugins: plugins,
     skin_url: '/static/tinymce_skin',
     content_style: semanticStyles,
