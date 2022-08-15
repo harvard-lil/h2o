@@ -118,7 +118,6 @@ def test_permissions(
         should_redirect_to_login = True
 
     # Mock any internals we don't need to test in this scenario
-
     monkeypatch.setattr("main.models.export_via_aws_lambda", mock.Mock())
 
     # run request

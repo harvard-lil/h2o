@@ -2495,13 +2495,6 @@ class ContentNode(
     ):
         """
         Export this node and children as docx, or as html for conversion by pandoc.
-
-        Given:
-        >>> full_casebook, assert_num_queries = [getfixture(f) for f in ['full_casebook', 'assert_num_queries']]
-
-        Export uses 8 queries: selecting descendant nodes, and prefetching ContentAnnotation, Case, TextBlock, and Link, and provenance info
-        >>> with assert_num_queries(select=12, delete=1, insert=1):
-        ...     file_data = full_casebook.export(include_annotations=True)
         """
 
         docx_sections = (
@@ -4422,13 +4415,6 @@ class Casebook(EditTrackedModel, TimestampedModel, BigPkModel, TrackedCloneable)
     ):
         """
         Export this node and children as docx, or as html for conversion by pandoc.
-
-        Given:
-        >>> full_casebook, assert_num_queries = [getfixture(f) for f in ['full_casebook', 'assert_num_queries']]
-
-        Export uses 8 queries: selecting descendant nodes, and prefetching ContentAnnotation, LegalDocument, TextBlock, and Link, and provenance info.
-        >>> with assert_num_queries(select=12, delete=1, insert=1):
-        ...     file_data = full_casebook.export(include_annotations=True)
         """
         docx_footnotes = (
             docx_footnotes if docx_footnotes is not None else settings.FORCE_DOCX_FOOTNOTES

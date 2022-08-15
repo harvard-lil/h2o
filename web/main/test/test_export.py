@@ -1,13 +1,13 @@
-from django.urls import reverse
-from lxml import etree
 from io import BytesIO
 from pathlib import Path
 from zipfile import ZipFile
 
-from django.conf import settings
+import pytest
 from conftest import LiveSettingsFactory
-
-from main.utils import parse_html_fragment, elements_equal
+from django.conf import settings
+from django.urls import reverse
+from lxml import etree
+from main.utils import elements_equal, parse_html_fragment
 
 
 def assert_docx_equal(path_or_file_a, path_or_file_b):
@@ -47,6 +47,7 @@ def assert_html_equal(bytes_a, bytes_b):
     assert elements_equal(tree_a, tree_b, ignore_trailing_whitespace=True, exc_class=AssertionError)
 
 
+@pytest.mark.xdist_group("pandoc-lambda")
 def test_export(
     request, casebook_factory, section_factory, annotations_factory, resource_factory, link_factory
 ):
@@ -122,6 +123,13 @@ def test_export(
                         assert_docx_equal(BytesIO(file_data), BytesIO(comparison_data))
                     else:
                         assert_html_equal(file_data, comparison_data)
+
+
+@pytest.mark.xdist_group("pandoc-lambda")
+def test_export_query_count(assert_num_queries, full_casebook):
+
+    with assert_num_queries(select=12, delete=1, insert=1):
+        full_casebook.export(include_annotations=True)
 
 
 def test_printable_html_livesetting_required(admin_user_factory, client, casebook_factory):
