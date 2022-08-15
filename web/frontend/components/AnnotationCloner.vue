@@ -61,9 +61,13 @@ export default {
 </script>
 
 <style lang="scss">
-.casebook-actions button.action.annotate-casebook {
+.casebook-actions button.action.annotate-casebook-nodes {
     background-image: url('~static/images/annotation-icon.svg');
     border: none;
+}
+.annotate-casebook{
+  background-image: url('~static/images/annotation-icon.svg');
+  border: none;
 }
 .modal-title{
   padding-left: 30px;
