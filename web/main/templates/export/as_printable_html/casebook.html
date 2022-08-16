@@ -1,43 +1,71 @@
 {% load call_method %}
+{% load static %}
 {% load render_bundle from webpack_loader %}
 <html>
   <head>
-    <script src="https://unpkg.com/pagedjs@0.4.0-beta.1/dist/paged.polyfill.js"></script>
-    {% render_bundle 'casebook_html' %}
+    {% render_bundle 'as_printable_html_styles' %}
+    {% render_bundle 'as_printable_html' %}
     {% render_bundle 'chunk-common' %}
+    <style>
+      @media print{
+        .screen-only {
+            display:none;
+        }
+     }
+    </style>
   </head>
 
 <body>
-  <h1 class="casebook title">{{ casebook.title }}</h1>
-  {% if casebook.subtitle %}
-  <h2 class="casebook subtitle">{{ casebook.subtitle }}</h2>
-  {% endif %}
-  {% if casebook.headnote %}
-    {% call_method casebook 'headnote_for_export' as headnote %}
 
-    <section class="casebook headnote">{{ headnote }}</section>
-  {% endif %}
+  <header class="screen-only">
+    <nav>
+      {% if page.has_previous %}
+        <span><a href="{% url 'as_printable_html' casebook page.previous_page_number %}">Previous</a></span>
+      {% else %}
+        <span>Previous</span>
+      {% endif %}
 
-  {% comment TODO figure out TOC %}
-  <div class="table-of-contents">
+      <span>{{ page.number }} of {{ paginator.num_pages }} section{{ paginator.num_pages|pluralize}} </span>
+    {% if page.has_next %}
+       <span><a href="{% url 'as_printable_html' casebook page.next_page_number %}">Next</a></span>
+    {% else %}
+        <span>Next</span>
+    {% endif %}
+    </nav>
+  </header>
+
+  <template id="casebook-content" data-stylesheet="{% static 'as_printable_html/book.css' %}">
+
+    <div class="casebook-metadata" data-paginator-page="{{ page.number }}">
+      <div>
+      <h1 class="casebook title">{{ casebook.title }}</h1>
+      <h2 class="casebook subtitle">{{ casebook.subtitle|default_if_none:""}}</h2>
+      <div class="author-list">
+        <ul>
+        {% for user in casebook.primary_authors %}
+            <li class="user {% if user.verified_professor %} verified{% endif %}">
+                {{ user.display_name }}
+                {% if user.affiliation %}
+                  ({{ user.affiliation }})
+                {% endif %}
+            </li>
+            {% endfor %}
+        </ul>
+      </div>
+      <section class="casebook headnote">{{ casebook.headnote|safe}}</section>
+      </div>
+    </div>
+
     {% for child in children %}
-      <div class="toc-entry" data-depth="{{ child.ordinals|length }}" data-idx="{{ forloop.counter }}"
-           data-ordinal="{{ child.ordinal_string }}" data-ttext="{{ child.title|force_escape|force_escape }}"
-           data-title="{{ child.ordinal_string }} {{ child.title|force_escape|force_escape }}">
-
-          {{ child.title }}
-          </div>
+      {% include "export/as_printable_html/node.html" with index=forloop.counter node=child %}
     {% endfor %}
-  </div>
-  {% endcomment %}
 
-  {% with is_child=True %}
-  {% for child in children %}
-    {% include "export/as_printable_html/node.html" with index=forloop.counter node=child %}
-  {% endfor %}
-  {% endwith %}
+  </template>
 
-  {% include 'export/as_printable_html/credits.html' %}
+  <main id="as-printable-html"></main>
+
+
+
 
 </body>
 </html>

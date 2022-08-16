@@ -217,8 +217,14 @@ urlpatterns = format_suffix_patterns(drf_urlpatterns) + [
     path("casebooks/<casebook:node>/export.<file_type>", views.export, name="export_casebook"),
     path("sections/<section:node>/export.<file_type>", views.export, name="export_section"),
     path("resources/<resource:node>/export.<file_type>", views.export, name="export_resource"),
+    # Printable HTML view
     path(
         "casebooks/<idslug:casebook_param>/as-printable-html/",
+        views.as_printable_html,
+        name="as_printable_html",
+    ),
+    path(
+        "casebooks/<idslug:casebook_param>/as-printable-html/<int:page>/",
         views.as_printable_html,
         name="as_printable_html",
     ),

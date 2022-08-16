@@ -2819,38 +2819,41 @@ def export(request, node, file_type="docx"):
         },
     )
 )
-def as_printable_html(request: HttpRequest, casebook: Casebook):
-    """Load the content of the entire casebook and pass it to an HTML template
+def as_printable_html(request: HttpRequest, casebook: Casebook, page=1):
+    """Load the content of the casebook by top-level nodes, and pass it to an HTML template
     designed to render it in-place, without site chrome, suitable for printing"""
 
     # Only available if enabled in LiveSettings:
     if not LiveSettings.load().enable_printable_html_export:
         return HttpResponseForbidden("This feature is not currently enabled")
 
-    children = list(casebook.contents.prefetch_resources().prefetch_related("annotations"))
+    children: ContentNode = casebook.children
 
-    current_collaborators = set(casebook.primary_authors)
-    cloned_from = {
-        cn.casebook
-        for cn in casebook.ancestor_nodes.prefetch_related("casebook")
-        .prefetch_related("casebook__contentcollaborator_set")
-        .prefetch_related("casebook__contentcollaborator_set__user")
-        if set(cn.casebook.primary_authors) ^ current_collaborators
-    }
+    logger.info(f"Exporting Casebook {casebook.id}, starting from page {page}: serializing to HTML")
 
-    logger.info(f"Exporting Casebook {casebook.id}: serializing to HTML")
+    from django.core.paginator import Paginator
 
-    casebook.content_tree__load()
+    paginator = Paginator(children, 1)
+    page = paginator.page(page)
+    section = page[0]
+    children = (
+        ContentNode.objects.filter(casebook=casebook, ordinals__0=section.ordinals[0])
+        .prefetch_resources()
+        .prefetch_related("annotations")
+        .order_by("ordinals")
+    )
 
     return render(
         request,
         "export/as_printable_html/casebook.html",
         {
             "casebook": casebook,
+            "section": section,
+            "paginator": paginator,
+            "page": page,
             "children": children,
             "export_date": datetime.now().strftime("%Y-%m-%d"),
             "include_annotations": True,
-            "cloned_from": cloned_from,
         },
     )
 

@@ -1,3 +1,27 @@
+/* Customized for navigation component at the top */
+@media screen, pagedjs-ignore {
+  nav {
+    background-color: white;
+    border: 1px solid gray;
+    padding: 10px;
+    position: fixed;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 25vw;
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    z-index: 99;
+    a {
+      text-decoration: underline;
+    }
+    box-shadow: 5px 5px 10px lightgrey;
+  }
+  nav span {
+    display: inline-block;
+    text-align: center;
+  }
+}
+
 /* This is vendored from https://gitlab.coko.foundation/pagedjs/interface-polyfill */
 
 /* CSS for Paged.js interface – v0.3 */
@@ -97,51 +121,51 @@
 
   /* uncomment this part for recto/verso book : ------------------------------------ */
 
-  /*
-    .pagedjs_pages {
-        flex-direction: column;
-        width: 100%;
-    }
+  /*\
+      .pagedjs_pages {
+          flex-direction: column;
+          width: 100%;
+      }
 
-    .pagedjs_first_page {
-        margin-left: 0;
-    }
+      .pagedjs_first_page {
+          margin-left: 0;
+      }
 
-    .pagedjs_page {
-        margin: 0 auto;
-        margin-top: 10mm;
-    }
+      .pagedjs_page {
+          margin: 0 auto;
+          margin-top: 10mm;
+      }
 
-    .pagedjs_left_page{
-        width: calc(var(--pagedjs-bleed-left) + var(--pagedjs-pagebox-width) + var(--pagedjs-bleed-left))!important;
-    }
+      .pagedjs_left_page{
+          width: calc(var(--pagedjs-bleed-left) + var(--pagedjs-pagebox-width) + var(--pagedjs-bleed-left))!important;
+      }
 
-    .pagedjs_left_page .pagedjs_bleed-right .pagedjs_marks-crop{
-        border-color: var(--pagedjs-crop-color);
-    }
+      .pagedjs_left_page .pagedjs_bleed-right .pagedjs_marks-crop{
+          border-color: var(--pagedjs-crop-color);
+      }
 
-    .pagedjs_left_page .pagedjs_bleed-right .pagedjs_marks-middle{
-        width: var(--pagedjs-cross-size)!important;
-    }
+      .pagedjs_left_page .pagedjs_bleed-right .pagedjs_marks-middle{
+          width: var(--pagedjs-cross-size)!important;
+      }
 
-    .pagedjs_right_page{
-        left: 0;
-    }
-    */
+      .pagedjs_right_page{
+          left: 0;
+      }
+      */
 
   /*--------------------------------------------------------------------------------------*/
 
   /* uncomment this par to see the baseline : -------------------------------------------*/
 
   /* .pagedjs_pagebox {
-        --pagedjs-baseline: 22px;
-        --pagedjs-baseline-position: 5px;
-        --pagedjs-baseline-color: cyan;
-        background: linear-gradient(transparent 0%, transparent calc(var(--pagedjs-baseline) - 1px), var(--pagedjs-baseline-color) calc(var(--pagedjs-baseline) - 1px), var(--pagedjs-baseline-color) var(--pagedjs-baseline)), transparent;
-        background-size: 100% var(--pagedjs-baseline);
-        background-repeat: repeat-y;
-        background-position-y: var(--pagedjs-baseline-position);
-    }  */
+          --pagedjs-baseline: 22px;
+          --pagedjs-baseline-position: 5px;
+          --pagedjs-baseline-color: cyan;
+          background: linear-gradient(transparent 0%, transparent calc(var(--pagedjs-baseline) - 1px), var(--pagedjs-baseline-color) calc(var(--pagedjs-baseline) - 1px), var(--pagedjs-baseline-color) var(--pagedjs-baseline)), transparent;
+          background-size: 100% var(--pagedjs-baseline);
+          background-repeat: repeat-y;
+          background-position-y: var(--pagedjs-baseline-position);
+      }  */
 
   /*--------------------------------------------------------------------------------------*/
 }
