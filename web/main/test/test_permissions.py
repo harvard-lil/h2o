@@ -1,13 +1,14 @@
+import json
+from test.test_helpers import check_response
 from unittest import mock
+
 import pytest
 from _pytest.fixtures import FixtureLookupError
-
+from conftest import UserFactory, VerifiedProfessorFactory
 from django.template import Variable
 from django.urls import reverse
 
 from ..urls import urlpatterns
-from test.test_helpers import check_response
-
 
 """
     This file applies the tests that are attached to each view via the @perms_test decorator.
@@ -130,3 +131,76 @@ def test_permissions(
     check_response(response, status_code=status_code, content_type=None)
     if should_redirect_to_login:
         assert response.url.startswith(reverse("login")), "View failed to redirect to login page"
+
+
+def test_node_level_viewability(
+    full_casebook_parts_with_prof_only_resource, user_factory, verified_professor_factory
+):
+    """Nodes marked as professor-only should not be considered viewable by non-professors"""
+    user = user_factory()
+    collaborator = user_factory()
+    prof = verified_professor_factory()
+    (
+        casebook,
+        _,
+        _,
+        private_resource,
+        *__,
+    ) = full_casebook_parts_with_prof_only_resource
+    casebook.add_collaborator(collaborator)
+
+    assert private_resource.viewable_by(prof)
+    assert private_resource.viewable_by(collaborator)
+    assert not private_resource.viewable_by(user)
+
+
+@pytest.mark.parametrize(
+    "user_role_factory,part_index,previous_or_next_index,role_specific_ordinals",
+    [
+        [VerifiedProfessorFactory, 2, 1, [1, 2]],
+        [UserFactory, 2, 1, [1, 3]],  # Going 'next' should skip over instructional node r_1_2
+        [VerifiedProfessorFactory, 4, 0, [1, 2]],
+        [UserFactory, 4, 0, [1, 1]],  # Going 'previous' should skip over instructional node r_1_2
+    ],
+)
+# Given parts: [casebook, s_1, r_1_1, r_1_2 (prof-only), r_1_3, ...]
+def test_previous_next_node_visibility(
+    user_role_factory,
+    part_index,
+    previous_or_next_index,
+    role_specific_ordinals,
+    full_casebook_parts_with_prof_only_resource,
+):
+    user = user_role_factory()
+    public_resource = full_casebook_parts_with_prof_only_resource[
+        part_index
+    ]  # the base public node
+
+    next_previous = public_resource.get_previous_and_next_nodes(user)
+
+    assert next_previous[previous_or_next_index].ordinals == role_specific_ordinals
+
+
+@pytest.mark.parametrize(
+    "user_role_factory,part_title",
+    [
+        [VerifiedProfessorFactory, "Instructional material"],
+        [UserFactory, "Some Link Name"],
+        [lambda: None, "Some Link Name"],  # Not logged in
+    ],
+)
+def test_toc_view(
+    full_casebook_parts_with_prof_only_resource, client, user_role_factory, part_title
+):
+    """The TOC view should respect the user permissions available for specific nodes"""
+    casebook = full_casebook_parts_with_prof_only_resource[0]
+
+    user = user_role_factory()
+    resp = json.loads(
+        client.get(
+            reverse("casebook_toc_list", args=[casebook]),
+            as_user=user,
+            content_type="application/json",
+        ).content.decode()
+    )
+    assert part_title in resp["children"][0]["children"][1]["title"]

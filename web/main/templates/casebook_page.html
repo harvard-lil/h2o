@@ -23,7 +23,7 @@
     <div class="content">
         {% if section and not editing %}
             <div>
-                {% include 'includes/page_buttons.html' with previous_and_next_urls=section.get_previous_and_next_node_urls %}
+                {% include 'includes/page_buttons.html' with previous_and_next_urls=previous_and_next_urls %}
             </div>
         {% endif %}
         <div class="casebook-inner">
@@ -53,7 +53,7 @@
                 {% if can_check_for_updates %}
                     <hr />
                     {% if case_has_update %}
-                    
+
                         <a href="{% url 'update_legal_doc' section %}">Update this Legal Document</a>
 
                     {% elif checked_case_for_updates %}
@@ -63,7 +63,7 @@
                     {% endif %}
                     <hr />
                 {% endif %}
-                
+
                 <form class="edit_content_{% if section and section.has_body %}resource{% elif section%}section{% else %}casebook{% endif %}" method="{{ form.helper.form_method }}" enctype="multipart/form-data">
                     {% crispy form %}
                     {% if embedded_resource_form %}{% crispy embedded_resource_form %}{% endif %}

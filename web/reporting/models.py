@@ -1,4 +1,4 @@
-from datetime import date
+from datetime import date, datetime
 from typing import Optional
 from main.models import Casebook, User
 
@@ -15,10 +15,10 @@ class Professor(User):
         return ""
 
     @property
-    def most_recent_casebook_modified(self) -> str:
+    def most_recent_casebook_modified(self) -> Optional[datetime]:
         if casebook := self.most_recent_casebook:
             return casebook.updated_at
-        return ""
+        return None
 
     class Meta:
         proxy = True
