@@ -18,7 +18,7 @@ class NewCasebookModal extends ModalComponent {
             <h4 id="${this.id}-title" class="modal-title">Create a Casebook</h4>
           </div>
           <div class="modal-body">
-            <p class="create-casebook-text">Would you like to make a new casebook from scratch or search for a casebook you can copy and customize?</p>
+            Would you like to make a new casebook from scratch or search for a casebook you can copy and customize?
 
             <div class="modal-button-container">
               <div class="modal-button-box">
