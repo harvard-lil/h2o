@@ -142,8 +142,8 @@ def test_export_is_rate_limited(live_settings, full_casebook, resource):
 
 
 def test_printable_html_livesetting_required(admin_user_factory, client, full_casebook):
-
     """The printable HTML view requires auth and an explicit setting at this time"""
+
     resp = client.get(
         reverse("as_printable_html", args=[full_casebook]), as_user=admin_user_factory()
     )
