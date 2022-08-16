@@ -2038,7 +2038,7 @@ class ContentNode(
 
     @classmethod
     def nodes_for_user_by_casebook(
-        cls, casebook: Casebook, user: Optional[Union[User, AnonymousUser]], **kwargs
+        cls, casebook: Casebook, user: Union[User, AnonymousUser], **kwargs
     ) -> ContentNodeQuerySet:
         if user:
             if user.is_authenticated and (
@@ -3737,9 +3737,7 @@ class Casebook(EditTrackedModel, TimestampedModel, BigPkModel, TrackedCloneable)
         """Return top-level children of the casebook using the length of the ordinals array"""
         return ContentNode.objects.filter(casebook=self, ordinals__len=1)
 
-    def nodes_for_user(
-        self, user: Optional[Union[User, AnonymousUser]], **kwargs
-    ) -> ContentNodeQuerySet:
+    def nodes_for_user(self, user: Union[User, AnonymousUser], **kwargs) -> ContentNodeQuerySet:
         """Filters out nodes the user cannot see if they are not a professor or contributor."""
         return ContentNode.nodes_for_user_by_casebook(casebook=self, user=user, **kwargs)
 
