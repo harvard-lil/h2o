@@ -134,6 +134,7 @@ def test_export_query_count(assert_num_queries, full_casebook):
 
 @pytest.mark.xdist_group("pandoc-lambda")
 def test_export_is_rate_limited(live_settings, full_casebook, resource):
+
     prior_count = live_settings.export_average_rate
     full_casebook.export(False)
     resource.export(False)
