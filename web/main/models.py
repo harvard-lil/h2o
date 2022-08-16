@@ -2534,13 +2534,6 @@ class ContentNode(
     ):
         """
         Export this node and children as docx, or as html for conversion by pandoc.
-
-        Given:
-        >>> full_casebook, assert_num_queries = [getfixture(f) for f in ['full_casebook', 'assert_num_queries']]
-
-        Export uses 8 queries: selecting descendant nodes, and prefetching ContentAnnotation, Case, TextBlock, and Link, and provenance info
-        >>> with assert_num_queries(select=12, delete=1, insert=1):
-        ...     file_data = full_casebook.export(include_annotations=True)
         """
 
         docx_sections = (
@@ -4463,13 +4456,6 @@ class Casebook(EditTrackedModel, TimestampedModel, BigPkModel, TrackedCloneable)
     ):
         """
         Export this node and children as docx, or as html for conversion by pandoc.
-
-        Given:
-        >>> full_casebook, assert_num_queries = [getfixture(f) for f in ['full_casebook', 'assert_num_queries']]
-
-        Export uses 8 queries: selecting descendant nodes, and prefetching ContentAnnotation, LegalDocument, TextBlock, and Link, and provenance info.
-        >>> with assert_num_queries(select=12, delete=1, insert=1):
-        ...     file_data = full_casebook.export(include_annotations=True)
         """
         docx_footnotes = (
             docx_footnotes if docx_footnotes is not None else settings.FORCE_DOCX_FOOTNOTES
@@ -5009,13 +4995,10 @@ class LiveSettings(models.Model):
     @transaction.atomic
     def export_is_rate_limited(cls):
         """
-        >>> ls, full_casebook, resource = [getfixture(f) for f in ['live_settings','full_casebook','resource']]
-        >>> prior_count = ls.export_average_rate
-        >>> _ = full_casebook.export(False)
-        >>> _ = resource.export(False)
-        >>> ls.refresh_from_db()
-        >>> assert ls.export_average_rate == prior_count + 2
+        Determine whether the current export has exceeded the allowable rate, and if not,
+        increment the counter tracking the number of exports over time.
         """
+        # FIXME consider doing this with Django F() expressions to avoid race conditions
         live_settings = LiveSettings.load()
         current_time = datetime.now()
         minute = current_time.hour * 60 + current_time.minute

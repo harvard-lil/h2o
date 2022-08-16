@@ -1,5 +1,6 @@
 import json
 from test.test_helpers import check_response
+from unittest import mock
 
 import pytest
 from _pytest.fixtures import FixtureLookupError
@@ -81,6 +82,7 @@ def test_permissions(
     request_method,
     status_code,
     user_string,
+    monkeypatch,
 ):
     """
     This test function runs a single request on behalf of a single user. The example at the top of this file would
@@ -115,6 +117,9 @@ def test_permissions(
     if status_code == "login":
         status_code = 302
         should_redirect_to_login = True
+
+    # Mock any internals we don't need to test in this scenario
+    monkeypatch.setattr("main.models.export_via_aws_lambda", mock.Mock())
 
     # run request
     context = {}

@@ -258,6 +258,10 @@ djangorestframework==3.12.4 \
     --hash=sha256:6d1d59f623a5ad0509fe0d6bfe93cbdfe17b8116ebc8eda86d45f6e16e819aaf \
     --hash=sha256:f747949a8ddac876e879190df194b925c177cdeb725a099db1460872f7c0a7f2
     # via -r requirements.in
+execnet==1.9.0 \
+    --hash=sha256:8f694f3ba9cc92cab508b152dcfe322153975c29bda272e2fd7f3f00f36e47c5 \
+    --hash=sha256:a295f7cc774947aac58dde7fdc85f4aa00c42adf5d8f5468fc630c1acf30a142
+    # via pytest-xdist
 fabric3==1.14.post1 \
     --hash=sha256:647e485ec83f30b587862f92374d6affc217f3d79819d1d7f512e42e7ae51e81 \
     --hash=sha256:7c5a5f2eb3079eb6bd2a69931f1ca298844c730ce3fdc68111db16e8857a0408
@@ -490,7 +494,9 @@ psycopg2==2.9.1 \
 py==1.10.0 \
     --hash=sha256:21b81bda15b66ef5e1a777a21c4dcd9c20ad3efd0b3f817e7a809035269e1bd3 \
     --hash=sha256:3b80836aa6d1feeaa108e046da6423ab8f6ceda6468545ae8d02d9d58d18818a
-    # via pytest
+    # via
+    #   pytest
+    #   pytest-forked
 py-spy==0.3.11 \
     --hash=sha256:249af0490f04aea58606fa18c82ea33a25a3894e32ba019367b62a4b8d54f5a6 \
     --hash=sha256:3115c6e45cdab657f81c886f8b1664e7e2208b775396031eeea60e4d16fc861d \
@@ -540,7 +546,9 @@ pytest==6.2.4 \
     #   -r requirements.in
     #   pytest-cov
     #   pytest-django
+    #   pytest-forked
     #   pytest-mock
+    #   pytest-xdist
 pytest-cov==2.12.1 \
     --hash=sha256:261bb9e47e65bd099c89c3edf92972865210c36813f80ede5277dceb77a4a62a \
     --hash=sha256:261ceeb8c227b726249b376b8526b600f38667ee314f910353fa318caa01f4d7
@@ -549,9 +557,17 @@ pytest-django==4.4.0 \
     --hash=sha256:65783e78382456528bd9d79a35843adde9e6a47347b20464eb2c885cb0f1f606 \
     --hash=sha256:b5171e3798bf7e3fc5ea7072fe87324db67a4dd9f1192b037fed4cc3c1b7f455
     # via -r requirements.in
+pytest-forked==1.4.0 \
+    --hash=sha256:8b67587c8f98cbbadfdd804539ed5455b6ed03802203485dd2f53c1422d7440e \
+    --hash=sha256:bbbb6717efc886b9d64537b41fb1497cfaf3c9601276be8da2cccfea5a3c8ad8
+    # via pytest-xdist
 pytest-mock==3.6.1 \
     --hash=sha256:30c2f2cc9759e76eee674b81ea28c9f0b94f8f0445a1b87762cadf774f0df7e3 \
     --hash=sha256:40217a058c52a63f1042f0784f62009e976ba824c418cced42e88d5f40ab0e62
+    # via -r requirements.in
+pytest-xdist==2.5.0 \
+    --hash=sha256:4580deca3ff04ddb2ac53eba39d76cb5dd5edeac050cb6fbc768b0dd712b4edf \
+    --hash=sha256:6fe5c74fec98906deb8f2d2b616b5c782022744978e7bd4695d39c8f42d0ce65
     # via -r requirements.in
 python-dateutil==2.8.1 \
     --hash=sha256:73ebfe9dbf22e832286dafa60473e4cd239f8592f699aa5adaf10050e6e1823c \

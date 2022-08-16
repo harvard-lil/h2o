@@ -38,7 +38,7 @@ jobs:
           set -x
           docker-compose exec web pytest \
             --cov --cov-config=setup.cfg --cov-report xml  `# write coverage data to .coverage for upload by codecov` \
-            -vv
+            -vv -n auto --dist loadgroup
 
       - name: Javascript tests
         shell: 'script -q -e -c "bash --noprofile --norc -eo pipefail {0}"'  # avoid docker-compose "the input device is not a TTY" -- see https://github.com/actions/runner/issues/241#issuecomment-842566950
