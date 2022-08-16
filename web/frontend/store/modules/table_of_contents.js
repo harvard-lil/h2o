@@ -211,11 +211,18 @@ const actions = {
     });
   },
   collapseAll: ({ commit }, { ids }) => {
-    console.log(ids);
     ids.forEach((id) => {
       commit("modifyAugment", {
         id,
         modifyFn: collapseNode,
+      });
+    });
+  },
+  expandAll: ({ commit }, { ids }) => {
+    ids.forEach((id) => {
+      commit("modifyAugment", {
+        id,
+        modifyFn: expandNode,
       });
     });
   },

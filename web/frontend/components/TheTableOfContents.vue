@@ -5,9 +5,10 @@
             :aria-expanded="!tocCollapsed ? 'true' : 'false'"
             :aria-label="tocCollapsed ? 'expand all' : 'collapse all'"
             class="action-expand"
-            v-on:click="toggleTocExpanded"
+            @click="toggleToc"
         >
             <collapse-triangle :collapsed="tocCollapsed" />
+            {{ tocCollapsed ? "Expand all" : "Collapse all" }}
         </button>
         <vue-nestable
             v-model="toc"
@@ -181,11 +182,26 @@ export default {
                 index,
             });
         },
-        toggleTocExpanded: function () {
+        collapseToc() {
             const ids = this.$store.getters["table_of_contents/openNodes"](
                 this.rootNode
             );
             this.$store.dispatch("table_of_contents/collapseAll", { ids });
+        },
+        expandToc() {
+            const ids = this.$store.getters["table_of_contents/collapsedNodes"](
+                this.rootNode
+            );
+            this.$store.dispatch("table_of_contents/expandAll", { ids });
+        },
+        toggleToc() {
+            if (this.tocCollapsed) {
+                this.tocCollapsed = false;
+                this.expandToc();
+            } else {
+                this.tocCollapsed = true;
+                this.collapseToc();
+            }
         },
     },
     props: ["editing", "rootOrdinals"],
