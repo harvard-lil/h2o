@@ -2040,16 +2040,14 @@ class ContentNode(
     def nodes_for_user_by_casebook(
         cls, casebook: Casebook, user: Union[User, AnonymousUser], **kwargs
     ) -> ContentNodeQuerySet:
-        if user:
-            if user.is_authenticated and (
-                user.verified_professor
-                or casebook.contentcollaborator_set.filter(user=user).exists()
-            ):
-                return ContentNode.objects.filter(casebook=casebook, **kwargs)
-            return ContentNode.objects.filter(casebook=casebook, **kwargs).exclude(
-                is_instructional_material=True
-            )
-        return ContentNode.objects.filter(casebook=casebook, **kwargs)
+
+        if user.is_authenticated and (
+            user.verified_professor or casebook.contentcollaborator_set.filter(user=user).exists()
+        ):
+            return ContentNode.objects.filter(casebook=casebook, **kwargs)
+        return ContentNode.objects.filter(casebook=casebook, **kwargs).exclude(
+            is_instructional_material=True
+        )
 
     class Meta:
         indexes = [
@@ -2099,20 +2097,21 @@ class ContentNode(
         return res
 
     def get_previous_and_next_nodes(
-        self, user: Optional[User] = None
+        self, user: User
     ) -> tuple[Optional[ContentNode], Optional[ContentNode]]:
         """
         Given:
         >>> casebook, s_1, r_1_1, r_1_2, r_1_3, s_1_4, r_1_4_1, r_1_4_2, r_1_4_3, s_2 = getfixture('full_casebook_parts')
+        >>> user = getfixture('user')
 
         Get the ext and previous nodes in the casebook:
-        >>> assert s_1_4.get_previous_and_next_nodes() == (r_1_3 , r_1_4_1)
+        >>> assert s_1_4.get_previous_and_next_nodes(user) == (r_1_3 , r_1_4_1)
 
         If there is no previous node, None is returned:
-        >>> assert s_1.get_previous_and_next_nodes() == (None, r_1_1)
+        >>> assert s_1.get_previous_and_next_nodes(user) == (None, r_1_1)
 
         If there is no next node, None is returned:
-        >>> assert s_2.get_previous_and_next_nodes() == (r_1_4_3, None)
+        >>> assert s_2.get_previous_and_next_nodes(user) == (r_1_4_3, None)
         """
         previous = None
         next = None
@@ -2138,15 +2137,14 @@ class ContentNode(
 
         return (previous, next)
 
-    def get_previous_and_next_node_urls(
-        self, user: Optional[User] = None
-    ) -> tuple[Optional[str], Optional[str]]:
+    def get_previous_and_next_node_urls(self, user: User) -> tuple[Optional[str], Optional[str]]:
         """
         Given:
         >>> casebook, s_1, r_1_1, r_1_2, r_1_3, s_1_4, r_1_4_1, r_1_4_2, r_1_4_3, s_2 = getfixture('full_casebook_parts')
+        >>> user = getfixture('user')
 
         Get the URLs of the next and previous nodes in the casebook:
-        >>> assert s_1_4.get_previous_and_next_node_urls() == (r_1_3.get_absolute_url() , r_1_4_1.get_absolute_url())
+        >>> assert s_1_4.get_previous_and_next_node_urls(user) == (r_1_3.get_absolute_url() , r_1_4_1.get_absolute_url())
         """
         previous, next = self.get_previous_and_next_nodes(user)
         return (
