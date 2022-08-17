@@ -1,33 +1,17 @@
 <template>
     <div class="table-of-contents" v-bind:class="{ editable: editing }">
-        <button
-            aria-role="heading"
-            :aria-expanded="!tocCollapsed ? 'true' : 'false'"
-            :aria-label="tocCollapsed ? 'expand all' : 'collapse all'"
-            class="action-expand"
-            @click="toggleToc"
-        >
+        <button aria-role="heading" :aria-expanded="!tocCollapsed ? 'true' : 'false'"
+            :aria-label="tocCollapsed ? 'expand all' : 'collapse all'" class="action-expand" @click="toggleToc">
             <collapse-triangle :collapsed="tocCollapsed" />
             {{ tocCollapsed ? "Expand all" : "Collapse all" }}
         </button>
-        <vue-nestable
-            v-model="toc"
-            :max-depth="100"
-            :hooks="{ beforeMove: canMove }"
-            class-prop="cssClasses"
-            v-on:change="moveSubsection"
-            :collapsed-groups="collapsedSections"
-            v-if="dataReady"
-        >
+        <vue-nestable v-model="toc" :max-depth="100" :hooks="{ beforeMove: canMove }" class-prop="cssClasses"
+            v-on:change="moveSubsection" :collapsed-groups="collapsedSections" v-if="dataReady">
             <div slot="placeholder">
                 <placeholder :editing="editing" :node-type="nodeType" />
             </div>
             <template v-slot="{ item }">
-                <entry
-                    :item="item"
-                    :root-ordinal-display="rootOrdinalDisplay"
-                    :editing="editing"
-                />
+                <entry :item="item" :root-ordinal-display="rootOrdinalDisplay" :editing="editing" />
             </template>
         </vue-nestable>
     </div>
@@ -102,6 +86,8 @@ export default {
         dataReady: function () {
             return this.toc !== [null] && this.toc !== null;
         },
+
+
     },
     mounted: function () {
         const hash = window.location.hash;
@@ -115,10 +101,10 @@ export default {
                 if (attempts < 5) {
                     setTimeout(waitForID, 15);
                 }
+                if (hash !== "") {
+                    setTimeout(waitForID, 15);
+                }
             }
-        }
-        if (hash !== "") {
-            setTimeout(waitForID, 15);
         }
     },
     methods: {
@@ -215,13 +201,15 @@ export default {
 @import "../styles/vars-and-mixins";
 
 #table-of-contents {
-    > .table-of-contents > .nestable > ol {
-        > li.nestable-item > .nestable-item-content {
-            > .listing-wrapper > .listing.resource {
+    >.table-of-contents>.nestable>ol {
+        >li.nestable-item>.nestable-item-content {
+            >.listing-wrapper>.listing.resource {
                 padding-left: 60px;
             }
-            > div > .listing-wrapper > .listing.resource {
+
+            >div>.listing-wrapper>.listing.resource {
                 padding-left: 60px;
+
                 &.temporary {
                     border: 4px solid $red;
                     padding-left: 58px;
@@ -229,9 +217,10 @@ export default {
             }
         }
     }
-    > .table-of-contents > .nestable > ol {
-        > li.nestable-item > .nestable-item-content {
-            > .listing-wrapper > .listing.resource.temporary {
+
+    >.table-of-contents>.nestable>ol {
+        >li.nestable-item>.nestable-item-content {
+            >.listing-wrapper>.listing.resource.temporary {
                 background-color: $red;
             }
         }
@@ -241,29 +230,36 @@ export default {
         color: black;
         border-color: black;
     }
+
     li.nestable-item.collapsed ol,
     li.nestable-item-copy.collapsed ol {
         display: none;
     }
+
     ol {
         counter-reset: item;
     }
+
     li {
         counter-increment: item;
         display: block;
     }
+
     button.action-expand {
         border: 0 solid transparent;
         background: transparent;
         margin: -8px;
     }
+
     .no-collapse-padded {
         width: 32px;
         height: 32px;
         margin: 4px 7px;
     }
+
     .nestable-item {
         position: relative;
+
         .actions {
             display: flex;
             flex-direction: column;
@@ -271,12 +267,14 @@ export default {
             justify-content: center;
         }
     }
+
     .action-confirmation {
         /* margin-top: 1.5rem; */
         display: flex;
         flex-direction: row;
         justify-content: space-between;
         padding-right: 10px;
+
         button {
             width: unset;
             height: unset;
@@ -291,37 +289,46 @@ export default {
             margin: 2px;
             padding: 6px 16px;
         }
+
         .action-cancel-delete {
             background-color: $white;
             color: $black;
             border: 1px solid black;
         }
     }
+
     li.nestable-item.is-dragging {
         border: 4px dashed grey;
         border-radius: 8px;
         margin-top: 8px;
         margin-bottom: 8px;
+
         .listing {
             margin-top: 0px;
+
             &.section:hover,
             &.section:focus-within {
                 background-color: $black;
+
                 .section-number,
                 .section-title {
                     color: $white;
                 }
+
                 .action-cancel-delete {
                     color: black;
                 }
+
                 .transmute-dropdown {
                     color: black;
                     border-color: black;
                 }
             }
+
             &.resource:hover,
             &.resource:focus-within {
                 background-color: $white;
+
                 .resource-case,
                 .resource-date,
                 .section-number,
@@ -332,6 +339,7 @@ export default {
             }
         }
     }
+
     .listing {
         display: flex;
         justify-content: space-between;
@@ -346,17 +354,21 @@ export default {
         .list-right {
             display: flex;
             flex-direction: row;
+
             div {
                 align-self: baseline;
             }
         }
+
         .list-right {
             margin-left: 8px;
         }
+
         .actions {
             position: relative;
             top: 12px;
         }
+
         &.section {
             .actions {
                 min-height: 44px;
@@ -373,12 +385,14 @@ export default {
                 display: inline;
                 font-weight: $medium;
             }
+
             .section-number,
             .section-title {
                 color: $white;
                 margin-right: 10px;
                 display: inline;
             }
+
             .resource-type-container {
                 display: flex;
                 align-items: center;
@@ -392,12 +406,14 @@ export default {
                     }
                 }
             }
+
             .btn.btn-danger {
                 color: #fff;
                 background-color: #c9302c;
                 border-color: #ac2925;
             }
         }
+
         &.resource {
             background-color: $white;
 
@@ -451,12 +467,14 @@ export default {
                     }
                 }
             }
+
             .btn.btn-danger {
                 color: #fff;
                 background-color: #c9302c;
                 border-color: #ac2925;
             }
         }
+
         &.empty {
             border: 1px dashed $gray;
             text-align: center;
@@ -464,6 +482,7 @@ export default {
             background: transparent;
             padding: 60px;
         }
+
         &.section:hover,
         &.section:focus,
         &.section:focus-within,
@@ -473,20 +492,25 @@ export default {
             outline: 2px solid $white;
             background-color: $light-blue;
             border-color: $light-blue;
+
             * {
                 color: $white;
                 border-color: $white;
             }
+
             *:focus {
                 outline: none !important;
             }
+
             *:focus-visible {
-                outline: 2px solid $white !important;
+                outline: 2px solid $white  !important;
             }
+
             .transmute-dropdown {
                 color: black;
                 border-color: black;
             }
+
             .action-cancel-delete {
                 color: black;
             }
@@ -502,11 +526,14 @@ export default {
                     border-color: #d43f3a;
                 }
             }
+
             .btn.specify-case-button {
                 color: black;
             }
         }
+
         @media (max-width: $screen-xs) {
+
             &.section,
             &.resource {
                 div {
@@ -516,6 +543,7 @@ export default {
                 }
             }
         }
+
         @media (min-width: $screen-xs) {
             &.section {
                 flex-direction: row;
@@ -529,12 +557,14 @@ export default {
             display: inline;
             margin-right: 10px;
         }
-        .section-number:after {
-        }
+
+        .section-number:after {}
+
         .section-title {
             @include sans-serif($bold, 14px, 14px);
             display: inline-block;
         }
+
         .resource-type,
         .resource-case,
         .resource-date {
@@ -557,12 +587,15 @@ export default {
             width: 82px;
         }
     }
+
     &.confirm-delete {
         margin-right: 160px;
     }
+
     ol.nestable-list.nestable-group {
         padding-left: 0px;
     }
+
     .nestable-list {
         .nestable-list {
             border-left: 8px solid $light-blue;
@@ -570,11 +603,13 @@ export default {
             margin-left: 30px;
         }
     }
+
     div.editable .nestable-list .nestable-list {
         border-left: 8px solid $yellow;
         padding-left: 16px;
         margin-left: 30px;
     }
+
     .nestable-drag-layer {
         opacity: 0.7;
         position: fixed;
@@ -582,6 +617,7 @@ export default {
         left: 0;
         z-index: 100;
         pointer-events: none;
+
         .listing {
             .section-number:before {
                 content: "-";
@@ -589,8 +625,10 @@ export default {
         }
     }
 }
+
 .table-of-contents .add-content-link div {
     display: inline;
+
     button.action.one-line.add-resource {
         border: none;
         background-color: rgba(0, 0, 0, 0);
@@ -601,6 +639,27 @@ export default {
         &:hover {
             font-weight: bold;
         }
+    }
+}
+
+.editable .annotation-tip {
+    justify-content: center;
+    margin: 5%;
+    display: flex;
+    flex-direction: row;
+
+    p {
+        padding: 12px;
+        margin: 0px;
+        text-align: center;
+        font-weight: 900;
+    }
+
+    .annotation-icon {
+        background-image: url('~static/images/annotation-icon.svg');
+        display: inline-block;
+        height: 40px;
+        width: 40px;
     }
 }
 

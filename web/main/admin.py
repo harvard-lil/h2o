@@ -440,6 +440,7 @@ class ContentNodeAdmin(BaseAdmin, SimpleHistoryAdmin):
         "headnote",
         "created_at",
         "updated_at",
+        "is_instructional_material",
     ]
     raw_id_fields = ["casebook"]
     inlines = [AnnotationInline]

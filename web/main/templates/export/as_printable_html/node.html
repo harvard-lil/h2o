@@ -12,12 +12,13 @@
 
     {% if node.type == 'section' %}
 
-      <div class="ordinal" data-toc-idx="{{ index }}">{{ node.ordinal_string }}
-
-      <h4 class="title" >{{ node.title }}</h4>
+      <h1 class="title">
+        <span class="section ordinal" data-toc-idx="{{ index }}">{{ node.ordinal_string }}</span>
+        {{ node.title }}
+      </h1>
 
       {% if node.subtitle %}
-        <h5 class="subtitle">{{ node.subtitle }}</h5>
+        <h2 class="subtitle">{{ node.subtitle }}</h2>
       {% endif %}
 
       {% if node.headnote %}
@@ -27,16 +28,23 @@
 
     {% elif node.type == 'resource' %}
 
-      <div class="resource ordinal" data-toc-idx="{{ index }}">{{ node.ordinal_string }}.
-        {% if node.resource_type == 'Link' %}
-        Hyperlink to a web resource
-        {% endif %}
-      </div>
+      {% if node.resource_type == 'Link' %}
+        <span class="resource ordinal {{ node.resource_type|lower }}" data-toc-idx="{{ index }}">{{ node.ordinal_string }}.
+          Hyperlink to a web resource
+        </span>
+        <h1 class="resource title" >{{ node.title }}</h1>
 
-      <h4 class="resource title" >{{ node.title }}</h4>
+      {% else %}
+        <h1 class="title">
+          <span class="resource ordinal non-link" data-toc-idx="{{ index }}">{{ node.ordinal_string }}</span>
+          {{ node.title }}
+        </h1>
+      {% endif %}
+
+
 
       {% if node.subtitle %}
-        <h5 class="subtitle">{{ node.subtitle }}</h5>
+        <h2 class="subtitle">{{ node.subtitle }}</h2>
       {% endif %}
 
       {# I think the headnote should go below a link, but above a resource which is why this block prints headnotes#}
@@ -77,9 +85,4 @@
   {% endif %}
   </div>
   </section>
-
-{% if not is_child %}
-  {% include 'export/as_printable_html/credits.html' %}
-{% endif %}
-
 

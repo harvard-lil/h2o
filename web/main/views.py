@@ -115,8 +115,8 @@ logger = logging.getLogger("django")
 ### helpers ###
 
 
-def login_required_response(request):
-    if request.user.is_authenticated:
+def login_required_response(request: HttpRequest, always_raise=False):
+    if request.user.is_authenticated or always_raise:
         raise PermissionDenied
     else:
         return redirect_to_login(request.build_absolute_uri())
@@ -515,11 +515,14 @@ class CasebookTOCView(APIView):
     @method_decorator(hydrate_params)
     @method_decorator(user_has_perm("casebook", "viewable_by"))
     def get(self, request, casebook, format=None):
-        return Response(self.format_casebook(casebook), status=200)
+        return Response(self.format_casebook(casebook, request), status=200)
 
     @staticmethod
-    def format_casebook(casebook):
-        return {"id": casebook.id, "children": manually_serialize_content_query(casebook.contents)}
+    def format_casebook(casebook: Casebook, request: HttpRequest):
+        return {
+            "id": casebook.id,
+            "children": manually_serialize_content_query(casebook.nodes_for_user(request.user)),
+        }
 
 
 class CasebookInfoView(APIView):
@@ -643,7 +646,7 @@ class SectionTOCView(APIView):
         except IndexError:
             casebook.content_tree__repair()
 
-        return Response(CasebookTOCView.format_casebook(casebook), status=200)
+        return Response(CasebookTOCView.format_casebook(casebook, request), status=200)
 
 
 class AnnotationListView(APIView):
@@ -1514,6 +1517,7 @@ class CasebookView(View):
             return HttpResponseRedirect(url)
 
         contents = casebook.contents.prefetch_resources()
+
         return render_with_actions(
             request,
             "casebook_page.html",
@@ -2132,6 +2136,9 @@ class SectionView(View):
                 "tabs": section.tabs_for_user(request.user),
                 "casebook_color_class": casebook.casebook_color_indicator,
                 "edit_mode": casebook.directly_editable_by(request.user),
+                "previous_and_next_urls": section.get_previous_and_next_node_urls(
+                    user=request.user
+                ),
             },
         )
 
@@ -2258,15 +2265,20 @@ class ResourceView(View):
     @method_decorator(perms_test(viewable_resource))
     @method_decorator(requires_csrf_token)
     @method_decorator(hydrate_params)
-    def get(self, request, casebook, resource):
+    def get(self, request, casebook: Casebook, resource: Resource):
         """
         Show a resource within a casebook.
 
         Given:
-        >>> published, private, with_draft, client = [getfixture(f) for f in ['full_casebook', 'full_private_casebook', 'full_casebook_with_draft', 'client']]
+        >>> published, private, with_draft, prof_only, client, verified_professor_factory, user_factory = [getfixture(f)
+        ...     for f in ['full_casebook',
+        ...    'full_private_casebook', 'full_casebook_with_draft', 'full_casebook_parts_with_prof_only_resource',
+        ...    'client', 'verified_professor_factory', 'user_factory']]
         >>> published_resource = published.resources.first()
         >>> private_resource = private.resources.first()
         >>> draft_resource = with_draft.draft.resources.first()
+        >>> prof_only_resource = prof_only[0].resources[1]
+        >>> assert prof_only_resource.is_instructional_material
 
         All users can see resources in public casebooks:
         >>> check_response(client.get(published_resource.get_absolute_url(), content_includes=published_resource.title))
@@ -2278,9 +2290,21 @@ class ResourceView(View):
         ... )
 
         Owners see the "preview mode" of resources in draft casebooks:
-        >>> check_response(client.get(draft_resource.get_absolute_url(), as_user=draft_resource.testing_editor), content_includes="You are viewing a preview")
+        >>> check_response(client.get(draft_resource.get_absolute_url(),
+        ...     as_user=draft_resource.testing_editor), content_includes="You are viewing a preview")
+
+        Professors can see professor-only resources
+        >>> other_prof = verified_professor_factory()
+        >>> check_response(client.get(prof_only_resource.get_absolute_url(), as_user=other_prof,
+        ...     content_includes="This is instructional"))
+
+        Other users and anonymous users cannot
+        >>> other_user = user_factory()
+        >>> assert 403 == client.get(prof_only_resource.get_absolute_url(), as_user=other_user).status_code
+        >>> assert 403 == client.get(prof_only_resource.get_absolute_url()).status_code
+
         """
-        if not casebook.viewable_by(request.user):
+        if not resource.viewable_by(request.user):
             if (
                 request.user.is_authenticated
                 and casebook.contentcollaborator_set.filter(
@@ -2288,6 +2312,7 @@ class ResourceView(View):
                 ).exists()
             ):
                 return HttpResponseRedirect(reverse("casebook_settings", args=[casebook]))
+
             else:
                 if casebook.is_previous_save:
                     if not casebook.provenance:
@@ -2312,7 +2337,9 @@ class ResourceView(View):
                             current_node.content_tree__load()
                             current_node = current_node.content_tree__parent
                     return HttpResponseRedirect(casebook.get_absolute_url())
-                return login_required_response(request)
+                return login_required_response(
+                    request, always_raise=resource.is_instructional_material
+                )
         # canonical redirect
         section = resource
         canonical = section.get_absolute_url()
@@ -2338,6 +2365,9 @@ class ResourceView(View):
                 "edit_mode": section.directly_editable_by(request.user),
                 "tabs": section.tabs_for_user(request.user),
                 "casebook_color_class": casebook.casebook_color_indicator,
+                "previous_and_next_urls": resource.get_previous_and_next_node_urls(
+                    user=request.user
+                ),
             },
         )
 
@@ -2789,38 +2819,41 @@ def export(request, node, file_type="docx"):
         },
     )
 )
-def as_printable_html(request: HttpRequest, casebook: Casebook):
-    """Load the content of the entire casebook and pass it to an HTML template
+def as_printable_html(request: HttpRequest, casebook: Casebook, page=1):
+    """Load the content of the casebook by top-level nodes, and pass it to an HTML template
     designed to render it in-place, without site chrome, suitable for printing"""
 
     # Only available if enabled in LiveSettings:
     if not LiveSettings.load().enable_printable_html_export:
         return HttpResponseForbidden("This feature is not currently enabled")
 
-    children = list(casebook.contents.prefetch_resources().prefetch_related("annotations"))
+    children: ContentNode = casebook.children
 
-    current_collaborators = set(casebook.primary_authors)
-    cloned_from = {
-        cn.casebook
-        for cn in casebook.ancestor_nodes.prefetch_related("casebook")
-        .prefetch_related("casebook__contentcollaborator_set")
-        .prefetch_related("casebook__contentcollaborator_set__user")
-        if set(cn.casebook.primary_authors) ^ current_collaborators
-    }
+    logger.info(f"Exporting Casebook {casebook.id}, starting from page {page}: serializing to HTML")
 
-    logger.info(f"Exporting Casebook {casebook.id}: serializing to HTML")
+    from django.core.paginator import Paginator
 
-    casebook.content_tree__load()
+    paginator = Paginator(children, 1)
+    page = paginator.page(page)
+    section = page[0]
+    children = (
+        ContentNode.objects.filter(casebook=casebook, ordinals__0=section.ordinals[0])
+        .prefetch_resources()
+        .prefetch_related("annotations")
+        .order_by("ordinals")
+    )
 
     return render(
         request,
         "export/as_printable_html/casebook.html",
         {
             "casebook": casebook,
+            "section": section,
+            "paginator": paginator,
+            "page": page,
             "children": children,
             "export_date": datetime.now().strftime("%Y-%m-%d"),
             "include_annotations": True,
-            "cloned_from": cloned_from,
         },
     )
 
@@ -3041,7 +3074,7 @@ def new_from_outline(request, casebook=None):
             ContentNode.objects.filter(id=section.id) | section.contents
         )
         return JsonResponse(mscq, status=200)
-    return JsonResponse(CasebookTOCView.format_casebook(casebook), status=200)
+    return JsonResponse(CasebookTOCView.format_casebook(casebook, request), status=200)
 
 
 @no_perms_test

@@ -88,6 +88,7 @@ Or, you can clean up everything Docker-related, so you can start fresh, as with 
 ### Test Commands
 
 1. `pytest` runs python tests
+1. `pytest -n auto --dist loadgroup` runs python tests with concurrency (faster, same config as CI)
 1. `flake8` runs python lints
 1. `npm run test` runs javascript tests using [Mocha](https://mochajs.org)
 1. `npm run lint` runs javascript lints
@@ -98,7 +99,7 @@ Coverage will be generated automatically for all manually-run tests.
 
 ## Migrations
 
-We use standard Django migrations
+We use standard Django migrations.
 
 ## Contributions
 
