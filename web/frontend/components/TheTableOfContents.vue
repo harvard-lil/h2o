@@ -86,7 +86,9 @@ export default {
         dataReady: function () {
             return this.toc !== [null] && this.toc !== null;
         },
-
+        dataExist: function () {
+            return this.toc !== [null];
+        }
 
     },
     mounted: function () {
@@ -101,10 +103,10 @@ export default {
                 if (attempts < 5) {
                     setTimeout(waitForID, 15);
                 }
-                if (hash !== "") {
-                    setTimeout(waitForID, 15);
-                }
             }
+        }
+        if (hash !== "") {
+            setTimeout(waitForID, 15);
         }
     },
     methods: {
