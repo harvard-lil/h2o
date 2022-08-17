@@ -1,7 +1,7 @@
 <template>
 <div class="table-of-contents"
      v-bind:class="{'editable':editing}">
-     <div class="annotation-tip" v-if="this.toc.length !== 0">
+     <div class="annotation-tip" v-if="this.toc.length !== 0 && editing && verified_professor=='False'">
         <span class="annotation-icon"></span>
         <p>Click on the content below to start Annotation!</p>
      </div>
@@ -87,9 +87,6 @@ export default {
     },
     dataReady: function() {
       return this.toc !== [null] && this.toc !== null;
-    },
-    dataExist: function() {
-      return this.toc !== [null];
     }
   },
   mounted: function() {
@@ -171,7 +168,7 @@ export default {
       });
     }
   },
-  props: ["editing", "rootOrdinals"],
+  props: ["editing", "rootOrdinals","verified_professor"],
   created: function() {
     this.fetch({ casebook: this.casebook, subsection: this.section });
   }

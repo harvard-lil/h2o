@@ -1,6 +1,7 @@
 <section id="table-of-contents">
     <the-table-of-contents
         :editing="{{ casebook.in_edit_state|lower }}"
-        root-ordinals="{{ section.ordinal_string }}">
+        root-ordinals="{{ section.ordinal_string }}"
+        verified_professor="{{ user.verified_professor }}">
     </the-table-of-contents>
 </section>
