@@ -1,6 +1,10 @@
 <template>
 <div class="table-of-contents"
      v-bind:class="{'editable':editing}">
+     <div class="annotation-tip" v-if="this.toc.length !== 0">
+        <span class="annotation-icon"></span>
+        <p>Click on the content below to start Annotation!</p>
+     </div>
      <vue-nestable v-model="toc"
                    :max-depth="100"
                    :hooks="{'beforeMove':canMove}"
@@ -83,6 +87,9 @@ export default {
     },
     dataReady: function() {
       return this.toc !== [null] && this.toc !== null;
+    },
+    dataExist: function() {
+      return this.toc !== [null];
     }
   },
   mounted: function() {
@@ -562,6 +569,25 @@ export default {
         &:hover {
             font-weight: bold;
         }
+    }
+}
+
+.editable .annotation-tip{
+    justify-content: center;
+    margin: 5%;
+    display:flex;
+    flex-direction: row;
+    p{
+       padding:12px;
+       margin:0px;
+       text-align: center;
+       font-weight: 900;
+    }
+    .annotation-icon{
+        background-image:url('~static/images/annotation-icon.svg') ;
+        display: inline-block;
+        height: 40px;
+        width: 40px;
     }
 }
 

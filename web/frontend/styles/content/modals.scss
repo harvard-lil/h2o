@@ -67,6 +67,10 @@
 }
 
 .modal-body {
+  .create-casebook-text{
+    padding-left: 20px;
+    padding-right: 20px;
+  }
   .search-tabs {
     @include make-row();
 
