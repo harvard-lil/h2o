@@ -1,30 +1,26 @@
-import "../config/axios";
-import "../directives/selectionchange";
-
-import * as Sentry from "@sentry/vue";
-
-import AddContent from "../components/AddContent";
-import AnnotationCloner from "../components/AnnotationCloner";
-import AuditButton from "../components/AuditButton";
-import Dashboard from "../components/Dashboard";
-import Globals from "../components/Globals";
-import PortalVue from "portal-vue";
-import QuickAdd from "../components/QuickAdd";
-import ResourceTypePicker from "../components/ResourceTypePicker";
-import SectionCloner from "../components/SectionCloner";
-import TheResource from "../components/TheResource";
-import TheTableOfContents from "../components/TheTableOfContents";
 import Vue from "vue";
 import VueRouter from 'vue-router';
-import contenteditableDirective from "vue-contenteditable-directive";
-import store from "../store/index";
-
+import * as Sentry from "@sentry/vue";
 Vue.use(VueRouter);
 Vue.config.productionTip = process.env.NODE_ENV == "development";
 
+import store from "../store/index";
+import "../config/axios";
+import "../directives/selectionchange";
 
+import contenteditableDirective from "vue-contenteditable-directive";
 Vue.use(contenteditableDirective);
 
+import TheResource from "../components/TheResource";
+import SectionCloner from "../components/SectionCloner";
+import AddContent from "../components/AddContent";
+import TheTableOfContents from "../components/TheTableOfContents";
+import PortalVue from "portal-vue";
+import QuickAdd from "../components/QuickAdd";
+import ResourceTypePicker from "../components/ResourceTypePicker";
+import Globals from "../components/Globals";
+import AuditButton from "../components/AuditButton";
+import Dashboard from "../components/Dashboard";
 
 document.addEventListener("DOMContentLoaded", () => {
   const routes = [
@@ -43,7 +39,6 @@ document.addEventListener("DOMContentLoaded", () => {
     components: {
         TheResource,
         SectionCloner,
-        AnnotationCloner,
         AddContent,
         TheTableOfContents,
         PortalVue,

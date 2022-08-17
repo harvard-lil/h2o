@@ -1,6 +1,6 @@
-import ModalComponent from 'legacy/lib/ui/modal';
-import delegate from 'delegate';
 import {html} from 'es6-string-html-template';
+import delegate from 'delegate';
+import ModalComponent from 'legacy/lib/ui/modal';
 
 delegate(document, '.clone-casebook', 'click', showCloneModal);
 
@@ -16,7 +16,7 @@ class CloneModal extends ModalComponent {
       <div class="modal-dialog" role="document">
         <div class="modal-content">
           <div class="spinner-group">
-            <p class="spinner-header">Cloning Casebook</p>
+            <p class="spinner-header">Cloning casebook</p>
             <div class="spinner">
               <div class="bounce1"></div>
               <div class="bounce2"></div>

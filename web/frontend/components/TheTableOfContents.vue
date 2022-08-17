@@ -33,6 +33,7 @@
   </div>
 </template>
 
+
 <script>
 import _ from "lodash";
 import { VueNestable } from "@holtchesley/vue-nestable";
@@ -655,27 +656,6 @@ export default {
     &:hover {
       font-weight: bold;
     }
-  }
-}
-
-.editable .annotation-tip {
-  justify-content: center;
-  margin: 5%;
-  display: flex;
-  flex-direction: row;
-
-  p {
-    padding: 12px;
-    margin: 0px;
-    text-align: center;
-    font-weight: 900;
-  }
-
-  .annotation-icon {
-    background-image: url("~static/images/annotation-icon.svg");
-    display: inline-block;
-    height: 40px;
-    width: 40px;
   }
 }
 
