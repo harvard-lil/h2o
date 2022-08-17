@@ -70,7 +70,6 @@
   overflow: hidden;
   position: relative;
   visibility: inherit !important;
-  height: 15vh;
 }
 .tox-tinymce-inline {
   border: none;

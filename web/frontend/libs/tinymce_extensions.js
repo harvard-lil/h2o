@@ -1,6 +1,6 @@
+import uuid from 'uuid';
 import Axios from '../config/axios';
 import _ from 'lodash';
-import uuid from 'uuid';
 
 const defaultDescription = 'Image description';
 
@@ -417,7 +417,7 @@ export function getInitConfig(selector, enhanced, code) {
                           {title: 'Right aligned', value: 'image-right-medium'}
                          ];
   let config = {
-    height:'25vh',
+    height:'60vh',
     plugins: plugins,
     skin_url: '/static/tinymce_skin',
     content_style: semanticStyles,
