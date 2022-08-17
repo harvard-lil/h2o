@@ -1,12 +1,15 @@
 <template>
-<div id="section-cloner">
-  <button class="action clone-casebook-nodes" data-disable-with="Clone-Node" v-on:click="displayModal()">Clone {{properType()}}</button>
+<div id="annotation-cloner">
+  <button class="action annotate-casebook-nodes" data-disable-with="Clone-Node" v-on:click="displayModal()">Annotate {{properType()}}</button>
   <Modal v-if="showModal"
             @close="showModal = false">
-    <template slot="title">Clone {{properType()}} To Casebook</template>
-    <template slot="body">
-      <p class="cloner-text">The {{sectionType}} "<em>{{sectionSource}}</em>" will be copied to the casebook you select below:</p>
-      <ul class="clone-target-list">
+    <template class="modal-title" slot="title">
+      <span class="annotation-icon"></span>
+      <h4>Copying {{properType()}} for Annotation</h4>
+    </template>
+    <template class="modal-body-annotation" slot="body">
+      <p class="annotation-cloner-text"> <b> To Annotate, you need to Create a Copy.<br/><br/> Choose a book</b>  you would like  "<em>{{sectionSource}}</em>" to be copied into : </p>
+      <ul class="annotation-target-list">
         <li v-for="cb in casebookTargets" v-bind:key="cb.form_target">
           <form :action="cb.form_target" method="POST">
             <input type="hidden" name="csrfmiddlewaretoken" :value="csrftoken" />
@@ -47,22 +50,51 @@ export default {
 </script>
 
 <style lang="scss">
-.casebook-actions button.action.clone-casebook-nodes {
-    background-image: url('~static/images/ui/casebook/clone.svg');
+.casebook-actions button.action.annotate-casebook-nodes {
+    background-image: url('~static/images/annotation-icon.svg');
     border: none;
 }
-
-body{
-  .cloner-text{
-    padding-left:40px;
+.annotate-casebook{
+  background-image: url('~static/images/annotation-icon.svg');
+  border: none;
+}
+.modal-title{
+  padding-left: 30px;
+  padding-top: 5px;
+  font-weight:600;
+  text-align: center;
+  display:flex;
+  flex-direction: row;
+  justify-content: center;
+  .annotation-icon{
+    background-image: url('~static/images/annotation-icon.svg');
+    display: inline-block;
+    height: 35px;
+    width: 35px;
+  }
+  h4{
+    margin-left: 10px;
   }
 }
 
-ul.clone-target-list {
+.annotation-cloner-text{
+  padding-left: 40px;
+  p{
+    font-size: 16px;
+    padding: 10px;
+    margin-right: 40px;
+  }
+  b{
+    color:#3E72D8;
+  }
+}
+
+ul.annotation-target-list {
     list-style: none;
     overflow: scroll;
     max-height: 600px;
     padding-top:4px;
+    padding-left: 40px;
     li {
         margin-bottom: .5rem;
         margin-right: 40px;
@@ -77,8 +109,8 @@ ul.clone-target-list {
             &:hover {
                 background-color: rgb(202, 226, 249);
             }
-             &:focus{
-                background-color: rgb(202, 226, 249);
+            &:focus{
+                background-color: rgb(202, 226, 249);;
                 outline:none;
             }
         }

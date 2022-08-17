@@ -1,5 +1,12 @@
 <template>
   <div class="table-of-contents" v-bind:class="{ editable: editing }">
+    <div
+      class="annotation-tip"
+      v-if="this.toc.length !== 0 && editing && verified_professor == 'False'"
+    >
+      <span class="annotation-icon"></span>
+      <p>Click on the content below to start Annotation!</p>
+    </div>
     <button
       aria-role="heading"
       :aria-expanded="!tocCollapsed ? 'true' : 'false'"
@@ -32,6 +39,7 @@
     </vue-nestable>
   </div>
 </template>
+
 
 
 <script>
@@ -207,7 +215,8 @@ export default {
       }
     },
   },
-  props: ["editing", "rootOrdinals"],
+
+  props: ["editing", "rootOrdinals", "verified_professor"],
   created: function () {
     this.fetch({ casebook: this.casebook, subsection: this.section });
   },
@@ -653,6 +662,25 @@ export default {
     &:hover {
       font-weight: bold;
     }
+  }
+}
+
+.editable .annotation-tip {
+  justify-content: center;
+  margin: 5%;
+  display: flex;
+  flex-direction: row;
+  p {
+    padding: 12px;
+    margin: 0px;
+    text-align: center;
+    font-weight: 900;
+  }
+  .annotation-icon {
+    background-image: url("~static/images/annotation-icon.svg");
+    display: inline-block;
+    height: 40px;
+    width: 40px;
   }
 }
 
