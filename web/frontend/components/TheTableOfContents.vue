@@ -574,9 +574,6 @@ export default {
       margin-right: 10px;
     }
 
-    .section-number:after {
-    }
-
     .section-title {
       @include sans-serif($bold, 14px, 14px);
       display: inline-block;
