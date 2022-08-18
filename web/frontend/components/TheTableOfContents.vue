@@ -55,7 +55,8 @@ export default {
     CollapseTriangle,
   },
   data: () => ({
-    needsDeleteConfirmation: {}
+    needsDeleteConfirmation: {},
+    tocCollapsed: false
   }),
   directives: {
     focus: {
@@ -180,13 +181,13 @@ export default {
       });
     },
     collapseToc() {
-      const ids = this.$store.getters["table_of_contents/openNodes"](
+      const ids = this.$store.getters["table_of_contents/topLevelNodes"](
         this.rootNode
       );
       this.$store.dispatch("table_of_contents/collapseAll", { ids });
     },
     expandToc() {
-      const ids = this.$store.getters["table_of_contents/collapsedNodes"](
+      const ids = this.$store.getters["table_of_contents/topLevelNodes"](
         this.rootNode
       );
       this.$store.dispatch("table_of_contents/expandAll", { ids });

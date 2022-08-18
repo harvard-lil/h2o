@@ -99,6 +99,12 @@ const helpers = {
         }
         return helpers.flatFilter(toc[casebook], isOpen).map((node) => node.id);
     },
+    topLevelIDs: (toc, casebook) => {
+        if (!(casebook in toc)) {
+          return [];
+        }
+        return toc[casebook].children.map((node) => node.id);
+    },
     augmentNode,
     augmentNodes: (tree, augments) => {
         const base = {};
@@ -116,12 +122,12 @@ const getters = {
     auditTargets: state => (casebook) => helpers.auditIDs(state.toc, casebook),
     collapsedNodes: state => (casebook) => helpers.collapsedIDs(state.toc, casebook),
     openNodes: (state) => (casebook) => helpers.openIDs(state.toc, casebook),
+    topLevelNodes: (state) => (casebook) => helpers.topLevelIDs(state.toc, casebook),
 
 };
 
 const collapseNode = (node) => helpers.addCSSClass('collapsed')(helpers.addFlag('collapsed')(node));
 const expandNode = (node) => helpers.removeCSSClass('collapsed')(helpers.removeFlag('collapsed')(node));
-//const setLoading = helpers.addFlag('loading');
 const setLoaded = (node) => helpers.removeCSSClass('loading')(helpers.addCSSClass('loaded')(node));
 const setAudit = helpers.addFlag('audit');
 const removeAudit = helpers.removeFlag('audit');
@@ -193,21 +199,17 @@ const actions = {
         });
     },
     collapseAll: ({ commit }, { ids }) => {
-        ids.forEach((id) => {
-          commit("modifyAugment", {
-            id,
+        commit("modifyAugment", {
+            ids,
             modifyFn: collapseNode,
-          });
         });
-      },
-      expandAll: ({ commit }, { ids }) => {
-        ids.forEach((id) => {
-          commit("modifyAugment", {
-            id,
+    },
+    expandAll: ({ commit }, { ids }) => {
+        commit("modifyAugment", {
+            ids,
             modifyFn: expandNode,
-          });
         });
-      },
+    },
     setAudit: ({ commit, state }, { id }) => {
         let currentAudits = _.keys(state.augments).filter(k => _.get(state.augments[k], 'audit', false)).map(parseInt);
         commit('modifyAugment', { ids: currentAudits, modifyFn: removeAudit });
