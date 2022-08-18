@@ -150,7 +150,7 @@ def test_node_level_viewability(
     casebook.add_collaborator(collaborator)
 
     assert private_resource.viewable_by(prof)
-    assert private_resource.viewable_by(collaborator)
+    assert not private_resource.viewable_by(collaborator)
     assert not private_resource.viewable_by(user)
 
 
