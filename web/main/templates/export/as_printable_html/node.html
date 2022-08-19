@@ -2,7 +2,7 @@
 
 
 
-<section class="{{ node.type }} {{ node.resource_type | lower }} depth-{{ node.ordinals | length }}">
+<section class="{{ node.type }} {{ node.resource_type|default:'' | lower }} depth-{{ node.ordinals | length }}">
 
   {% if node.resource_type == 'Link' %}
   <div class="link-icon"></div>

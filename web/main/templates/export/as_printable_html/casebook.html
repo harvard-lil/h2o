@@ -34,10 +34,14 @@
     </nav>
   </header>
 
+  <template id="casebook-toc">
+
+  </template>
+
   <template id="casebook-content" data-stylesheet="{% static 'as_printable_html/book.css' %}">
 
+
     <div class="casebook-metadata" data-paginator-page="{{ page.number }}">
-      <div>
       <h1 class="casebook title">{{ casebook.title }}</h1>
       <h2 class="casebook subtitle">{{ casebook.subtitle|default_if_none:""}}</h2>
       <div class="author-list">
@@ -53,6 +57,8 @@
         </ul>
       </div>
       <section class="casebook headnote">{{ casebook.headnote|safe}}</section>
+      <div id="toc">
+        {% include "export/as_printable_html/toc.html" with toc=toc %}
       </div>
     </div>
 

@@ -1,4 +1,26 @@
+@import "cap.css" print;
+@import "toc.css" print;
+
 @media print {
+
+  @font-face {
+    font-family: 'LibreCaslon';
+    src:  url('../fonts/LibreCaslonText-Regular.woff2') format('woff2');
+    font-weight: normal;
+  }
+  @font-face {
+    font-family: 'LibreCaslon';
+    src:  url('../fonts/LibreCaslonText-Italic.woff2') format('woff2');
+    font-style: italic;
+  }
+
+  :root {
+    --casebook-font-size: 4mm;
+    --casebook-line-height: 170%;
+    --casebook-font-family: "LibreCaslon";
+  }
+
+
   a {
     text-decoration: none;
   }
@@ -8,27 +30,30 @@
     margin: 0 1em 0 0;
   }
 
-  /* Enable subdividing sections if we want
-  section.section.depth-2 {
-      break-before: right;
-  } */
+  /* Always start a top-level section on a new page, even if there's preface matter */
+  section.section.depth-1 {
+    break-before: right;
+  }
 
-  /* Unset some specific values in the source content that we believe are safe to override. */
   span,
   p {
     color: unset !important;
-    line-height: unset !important;
     letter-spacing: unset !important;
+    font-size: unset !important;
+    line-height: unset !important;
+
   }
 
-  /* Set specific ones */
-
-  section p {
-    line-height: 140% !important;
+  span, p, div {
+    font-size: var(--casebook-font-size) !important;
+    line-height: var(--casebook-line-height) !important;
+    font-family: var(--casebook-font-family), serif !important;
   }
+
   h1.casebook.title {
-    font-size: 400%;
+    font-size: 300%;
   }
+
   h1,
   h2,
   h3,
@@ -37,34 +62,46 @@
   h6 {
     line-height: 110%;
     margin: 10mm 0 0.5em 0;
+    font-family: var(--casebook-font-family), serif;
+
   }
+
   h1 {
     font-size: 200%;
   }
+
   h2 {
     font-size: 150%;
   }
+
   h3 {
     font-size: 125%;
   }
+
   h3 {
     font-size: 125%;
   }
+
   .depth-2 h1 {
     font-size: 150%;
   }
+
   .depth-2 h2 {
     font-size: 125%;
   }
+
   .depth-2 h3 {
     font-size: 110%;
   }
+
   .depth-3 h1 {
     font-size: 100%;
   }
+
   .depth-3 h2 {
     font-size: 100%;
   }
+
   .depth-3 h3 {
     font-size: 100%;
   }
@@ -80,7 +117,8 @@
     background: url("../images/Link.svg");
     background-size: cover;
   }
-  .link-icon + .node-container {
+
+  .link-icon+.node-container {
     margin-left: 14mm;
   }
 
@@ -91,33 +129,30 @@
   .casebook-metadata:not([data-paginator-page="1"]) {
     display: none;
   }
+
   .casebook-metadata div {
     margin-bottom: 20mm;
   }
+
   .casebook-metadata li,
   ul {
     list-style-type: none;
     margin: 0;
     padding: 0;
   }
-  /* Cap-specific style */
 
-  /* TODO something about footnotes */
-  .footnote p,
-  .footnote blockquote {
-    margin-left: 13px;
-  }
-  .footnotemark {
-    font-size: 16px;
-    vertical-align: super;
-  }
   section.depth-1 p:first-child {
     margin-top: 4em !important;
+  }
+  sup {
+    font-size: calc(var(--casebook-font-size) / 2.5);
+
   }
   @page {
     @bottom-right {
       content: counter(page);
     }
+
     @top-center {
       content: string(title);
     }
