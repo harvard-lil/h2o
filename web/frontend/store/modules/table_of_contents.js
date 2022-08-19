@@ -90,6 +90,21 @@ const helpers = {
         }
         return helpers.flatFilter(toc[casebook], isCollapsed).map(node => node.id);
     },
+    openIDs: (toc, casebook) => {
+        function isOpen(node) {
+          return !node.collapsed;
+        }
+        if (!(casebook in toc)) {
+          return [];
+        }
+        return helpers.flatFilter(toc[casebook], isOpen).map((node) => node.id);
+    },
+    topLevelIDs: (toc, casebook) => {
+        if (!(casebook in toc)) {
+          return [];
+        }
+        return toc[casebook].children.map((node) => node.id);
+    },
     augmentNode,
     augmentNodes: (tree, augments) => {
         const base = {};
@@ -105,12 +120,14 @@ const helpers = {
 const getters = {
     getNode: state => (id) => helpers.findNode(state.toc, id),
     auditTargets: state => (casebook) => helpers.auditIDs(state.toc, casebook),
-    collapsedNodes: state => (casebook) => helpers.collapsedIDs(state.toc, casebook)
+    collapsedNodes: state => (casebook) => helpers.collapsedIDs(state.toc, casebook),
+    openNodes: (state) => (casebook) => helpers.openIDs(state.toc, casebook),
+    topLevelNodes: (state) => (casebook) => helpers.topLevelIDs(state.toc, casebook),
+
 };
 
 const collapseNode = (node) => helpers.addCSSClass('collapsed')(helpers.addFlag('collapsed')(node));
 const expandNode = (node) => helpers.removeCSSClass('collapsed')(helpers.removeFlag('collapsed')(node));
-//const setLoading = helpers.addFlag('loading');
 const setLoaded = (node) => helpers.removeCSSClass('loading')(helpers.addCSSClass('loaded')(node));
 const setAudit = helpers.addFlag('audit');
 const removeAudit = helpers.removeFlag('audit');
@@ -179,6 +196,18 @@ const actions = {
         commit('modifyAugment', {
             id,
             modifyFn: (node) => _.get(node, 'collapsed', false) ? expandNode(node) : collapseNode(node)
+        });
+    },
+    collapseAll: ({ commit }, { ids }) => {
+        commit("modifyAugment", {
+            ids,
+            modifyFn: collapseNode,
+        });
+    },
+    expandAll: ({ commit }, { ids }) => {
+        commit("modifyAugment", {
+            ids,
+            modifyFn: expandNode,
         });
     },
     setAudit: ({ commit, state }, { id }) => {

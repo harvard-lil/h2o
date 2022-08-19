@@ -5,6 +5,15 @@
         <span class="annotation-icon"></span>
         <p>Click on the content below to start Annotation!</p>
      </div>
+     <button
+        :aria-expanded="!tocCollapsed ? 'true' : 'false'"
+        :aria-label="tocCollapsed ? 'expand all' : 'collapse all'"
+        class="action-expand toc-expand"
+        @click="toggleToc"
+      >
+      <collapse-triangle :collapsed="tocCollapsed" />
+      {{ tocCollapsed ? "Expand all" : "Collapse all" }}
+     </button>
      <vue-nestable v-model="toc"
                    :max-depth="100"
                    :hooks="{'beforeMove':canMove}"
@@ -31,6 +40,8 @@ import _ from "lodash";
 import { VueNestable } from "@holtchesley/vue-nestable";
 import Placeholder from "./TableOfContents/PlaceHolder";
 import Entry from "./TableOfContents/Entry";
+import CollapseTriangle from "./CollapseTriangle";
+
 import { createNamespacedHelpers } from "vuex";
 const { mapActions, mapMutations } = createNamespacedHelpers(
   "table_of_contents"
@@ -40,10 +51,12 @@ export default {
   components: {
     VueNestable,
     Placeholder,
-    Entry
+    Entry,
+    CollapseTriangle,
   },
   data: () => ({
-    needsDeleteConfirmation: {}
+    needsDeleteConfirmation: {},
+    tocCollapsed: false
   }),
   directives: {
     focus: {
@@ -166,7 +179,28 @@ export default {
         parent,
         index
       });
-    }
+    },
+    collapseToc() {
+      const ids = this.$store.getters["table_of_contents/topLevelNodes"](
+        this.rootNode
+      );
+      this.$store.dispatch("table_of_contents/collapseAll", { ids });
+    },
+    expandToc() {
+      const ids = this.$store.getters["table_of_contents/topLevelNodes"](
+        this.rootNode
+      );
+      this.$store.dispatch("table_of_contents/expandAll", { ids });
+    },
+    toggleToc() {
+      if (this.tocCollapsed) {
+        this.tocCollapsed = false;
+        this.expandToc();
+      } else {
+        this.tocCollapsed = true;
+        this.collapseToc();
+      }
+    },
   },
   props: ["editing", "rootOrdinals","verified_professor"],
   created: function() {
@@ -220,6 +254,20 @@ export default {
         border: 0 solid transparent;
         background: transparent;
         margin: -8px;
+    }
+    button.toc-expand {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin: 10px 0 10px -5px;
+        padding: 0;
+        font-weight: bold;
+
+        svg polygon {
+          fill: $light-blue;
+          stroke: transparent;
+        }
+
     }
     .no-collapse-padded {
         width: 32px;

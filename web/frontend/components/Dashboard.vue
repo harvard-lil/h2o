@@ -625,8 +625,7 @@ export default {
     margin-bottom: 15px;
 
     .create-casebook-text{
-        position:relative;
-        top:15%;
+        margin-top: 40%;
     }
 }
 .create-casebook-button:hover{
