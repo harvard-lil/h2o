@@ -16,7 +16,7 @@ class AnnotateModal extends ModalComponent {
       <div class="modal-dialog" role="document">
         <div class="modal-content">
           <div class="spinner-group">
-            <p class="spinner-header">Copying for Annotation</p>
+            <p class="spinner-header">Copying for Taking Notes</p>
             <p>You can view this copy on your Dashboard</p>
             <span class=""></span>
             <div class="spinner">

@@ -4,7 +4,6 @@ import "../directives/selectionchange";
 import * as Sentry from "@sentry/vue";
 
 import AddContent from "../components/AddContent";
-import AnnotationCloner from "../components/AnnotationCloner";
 import AuditButton from "../components/AuditButton";
 import Dashboard from "../components/Dashboard";
 import Globals from "../components/Globals";
@@ -12,6 +11,7 @@ import PortalVue from "portal-vue";
 import QuickAdd from "../components/QuickAdd";
 import ResourceTypePicker from "../components/ResourceTypePicker";
 import SectionCloner from "../components/SectionCloner";
+import TakeNotesCloner from "../components/TakeNotesCloner";
 import TheResource from "../components/TheResource";
 import TheTableOfContents from "../components/TheTableOfContents";
 import Vue from "vue";
@@ -43,7 +43,7 @@ document.addEventListener("DOMContentLoaded", () => {
     components: {
         TheResource,
         SectionCloner,
-        AnnotationCloner,
+        TakeNotesCloner,
         AddContent,
         TheTableOfContents,
         PortalVue,
