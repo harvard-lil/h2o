@@ -204,3 +204,27 @@ def test_toc_view(
         ).content.decode()
     )
     assert part_title in resp["children"][0]["children"][1]["title"]
+
+
+def test_export_view(
+    full_casebook_parts_with_prof_only_resource, client, user_factory, verified_professor_factory
+):
+    """The export view should respect the user permissions available for specific nodes"""
+    (
+        casebook,
+        _,
+        _,
+        private_resource,
+        *__,
+    ) = full_casebook_parts_with_prof_only_resource
+    resp = client.get(
+        reverse("export_casebook", kwargs={"node": casebook, "file_type": "html"}),
+        as_user=verified_professor_factory(),
+    )
+    assert private_resource.title in resp.content.decode()
+
+    resp = client.get(
+        reverse("export_casebook", kwargs={"node": casebook, "file_type": "html"}),
+        as_user=user_factory(),
+    )
+    assert private_resource.title not in resp.content.decode()

@@ -2850,6 +2850,7 @@ def export(request, node, file_type="docx"):
     try:
         response_data = node.export(
             include_annotations,
+            request.user,
             file_type,
             export_options=export_options,
             docx_footnotes=docx_footnotes,

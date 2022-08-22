@@ -819,7 +819,7 @@ def assert_num_queries(pytestconfig, monkeypatch):
                             q["stack"]
                             if pytestconfig.getoption("verbose") > 1
                             else [q["userland_stack_frame"]]
-                            if q["userland_stack_frame"]
+                            if q.get("userland_stack_frame")
                             else []
                         )
                         for stack_frame in stack_frames:
