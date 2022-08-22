@@ -11,9 +11,34 @@
       <template slot="title">Confirm Publish</template>
       <template slot="body">
         <p>Are you ready to publish your book?</p>
+        
+        <div v-if=publishCheck.isVerifiedProfessor id="prof-prompt">
+          You're almost ready to publish your book! The following elements are
+          optional, but can make your book more discoverable by students and
+          colleagues:
+          <ul class="fa-ul">
+            <li v-if="this.publishCheck.coverImageFlag">
+              <span v-if="this.publishCheck.coverImageExists" class="fa-li"><font-awesome-icon icon="fa-solid fa-check fa-fw" /></span>
+              <span v-else class="fa-li"><font-awesome-icon icon="fa-solid fa-xmark fa-fw" /></span>
+              Cover Photo
+            </li>
+            <li>
+              <span v-if="this.publishCheck.descriptionExists" class="fa-li"><font-awesome-icon icon="fa-solid fa-check fa-fw" /></span>
+              <span v-else class="fa-li"><font-awesome-icon icon="fa-solid fa-xmark fa-fw" /></span>
+              Description 
+            </li>
+          </ul>
+          We also encourage you to share your work with your colleagues or on
+          social media! Your book is an important contribution to open education
+          for law and we hope you'll help others find it and use it in their own
+          classrooms. Because you are a verified professor, your book will
+          automatically be surfaced on H2O's search page and will appear in web
+          searches.
+        </div>
+
         <div class="modal-footer">
-          <button class="modal-button cancel" @click="cancelPublish">No</button>
-          <button class="modal-button confirm" @click="confirmPublish">Yes</button>
+          <button class="modal-button cancel" @click="cancelPublish">Go Back</button>
+          <button class="modal-button confirm" @click="confirmPublish">Publish</button>
         </div>
       </template>
     </Modal>
@@ -23,7 +48,6 @@
 <script>
 import Modal from "./Modal";
 import Axios from "../config/axios";
-
 
 function getCookie(name) {
   var cookieValue = null;
@@ -44,11 +68,20 @@ export default {
   components: {
     Modal
   },
-  props: ['disabled'],
-  data: () => ({
+  props: {
+    disabled: Boolean,
+    publishCheck: Object
+  },
+  data() {
+    return {
     showModal: false,
-    csrftoken: getCookie("csrftoken")
-  }),
+    csrftoken: getCookie("csrftoken"),
+    liCheck: [
+      {text: "Cover image added", val: this.publishCheck.coverImageExists},
+      {text: "Description added", val: this.publishCheck.descriptionExists},
+    ]
+      
+  }},
   computed: {
       casebook: function() {
           return this.$store.getters['globals/casebook']();
