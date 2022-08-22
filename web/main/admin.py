@@ -440,6 +440,7 @@ class ContentNodeAdmin(BaseAdmin, SimpleHistoryAdmin):
         "headnote",
         "created_at",
         "updated_at",
+        "does_display_ordinals",
         "is_instructional_material",
     ]
     raw_id_fields = ["casebook"]
@@ -464,6 +465,17 @@ class ContentNodeAdmin(BaseAdmin, SimpleHistoryAdmin):
 
     def annotation_count(self, obj):
         return "n/a" if obj.is_annotated == "Link" else obj.annotations_count
+
+    def save_model(self, request, obj, form, *args, **kwargs):
+        """If either of the node-numbering options have been toggled this session, update the
+        content tree for the whole casebook"""
+        super().save_model(request, obj, form, *args, **kwargs)
+
+        if (
+            "is_instructional_material" in form.cleaned_data
+            or "does_display_ordinals" in form.cleaned_data
+        ):
+            obj.casebook.content_tree__repair()
 
 
 class ResourceAdmin(BaseAdmin, SimpleHistoryAdmin):

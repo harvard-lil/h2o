@@ -1554,6 +1554,17 @@ class MaterializedPathTreeMixin(models.Model):
         help_text="Whether this node will display its section number",
     )
 
+    def save(self, *args, **kwargs):
+        """If this node is instructional, it cannot display ordinals. Callers should
+        call content_tree__repair() on the casebook any place this can be toggled."""
+        if (
+            hasattr(self, "is_instructional_material")
+            and self.is_instructional_material
+            and self.does_display_ordinals
+        ):
+            self.does_display_ordinals = False
+        super().save(*args, **kwargs)
+
     ##
     # Content tree methods
     ##

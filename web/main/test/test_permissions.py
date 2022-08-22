@@ -228,3 +228,48 @@ def test_export_view(
         as_user=user_factory(),
     )
     assert private_resource.title not in resp.content.decode()
+
+
+def test_ordinals_never_displayed(full_casebook_parts_with_prof_only_resource):
+    """If a node is instructional material, it can never display ordinals"""
+    (
+        _,
+        _,
+        public_resource,
+        private_resource,
+        *__,
+    ) = full_casebook_parts_with_prof_only_resource
+
+    assert public_resource.does_display_ordinals
+    public_resource.is_instructional_material = True
+    public_resource.save()
+    public_resource.refresh_from_db()
+
+    assert not public_resource.does_display_ordinals
+    assert not private_resource.does_display_ordinals
+
+
+def test_reorder_ordinals_after_change(full_casebook_parts):
+    """When a node is made instructional material, the content tree should reflect its omission from the ordinal list"""
+
+    (
+        casebook,
+        _,
+        _,
+        r_1_2,
+        r_1_3,
+        *__,
+    ) = full_casebook_parts
+    assert r_1_2.ordinal_string() == "1.2"
+    assert r_1_3.ordinal_string() == "1.3"
+    assert not r_1_2.is_instructional_material
+
+    r_1_2.is_instructional_material = True
+    r_1_2.save()
+
+    casebook.content_tree__repair()
+    r_1_2.refresh_from_db()
+    r_1_3.refresh_from_db()
+
+    assert r_1_2.ordinal_string() == ""
+    assert r_1_3.ordinal_string() == "1.2"
