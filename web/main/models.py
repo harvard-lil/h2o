@@ -1539,9 +1539,20 @@ class MaterializedPathTreeMixin(models.Model):
     class Meta:
         abstract = True
 
-    ordinals = ArrayField(models.IntegerField(), default=list)
-    display_ordinals = ArrayField(models.IntegerField(), default=list)
-    does_display_ordinals = models.BooleanField(default=True)
+    ordinals = ArrayField(
+        models.IntegerField(),
+        default=list,
+        help_text="The internal representation of the position of this node in the tree",
+    )
+    display_ordinals = ArrayField(
+        models.IntegerField(),
+        default=list,
+        help_text="The external representation of this node in the tree, accounting for unnumbered nodes",
+    )
+    does_display_ordinals = models.BooleanField(
+        default=True,
+        help_text="Whether this node will display its section number",
+    )
 
     ##
     # Content tree methods
@@ -2033,7 +2044,7 @@ class ContentNode(
 
     is_instructional_material = models.BooleanField(
         default=False,
-        help_text="This content should only be made available on the frontend to verified professors, staff, or users with editing privilege",
+        help_text="This content should only be made available on the front end to verified professors",
     )
 
     @classmethod
@@ -2041,9 +2052,7 @@ class ContentNode(
         cls, casebook: Casebook, user: Union[User, AnonymousUser], **kwargs
     ) -> ContentNodeQuerySet:
 
-        if user.is_authenticated and (
-            user.verified_professor or casebook.contentcollaborator_set.filter(user=user).exists()
-        ):
+        if user.is_authenticated and user.verified_professor:
             return ContentNode.objects.filter(casebook=casebook, **kwargs)
         return ContentNode.objects.filter(casebook=casebook, **kwargs).exclude(
             is_instructional_material=True
@@ -2453,9 +2462,7 @@ class ContentNode(
             return False
 
         if self.is_instructional_material:
-            return user.is_authenticated and (
-                user.verified_professor or user in self.casebook.all_collaborators
-            )
+            return user.is_authenticated and user.verified_professor
 
         return True
 
