@@ -5,6 +5,7 @@ import django.contrib.auth.forms as auth_forms
 from django.conf import settings
 
 from django.core.exceptions import ValidationError
+from django.core.validators import URLValidator
 from django.core.mail import send_mail
 from django.forms import ModelForm, Textarea
 from django import forms
@@ -237,6 +238,19 @@ class NewTextBlockForm(ModelForm):
         fields = ["name", "content"]
 
 
+"""
+URLValidator by default requires defining schema. Defaulting to https if not provided.
+https://stackoverflow.com/questions/49983328/cleanest-way-to-allow-empty-scheme-in-django-urlfield
+"""
+
+
+class OptionalSchemeURLValidator(URLValidator):
+    def __call__(self, value):
+        if "://" not in value:
+            value = "https://" + value
+        super(OptionalSchemeURLValidator, self).__call__(value)
+
+
 class UserProfileForm(ModelForm):
     class Meta:
         model = User
@@ -245,6 +259,9 @@ class UserProfileForm(ModelForm):
             "attribution",
             "affiliation",
             "professor_verification_requested",
+            "pronouns",
+            "personal_site",
+            "short_bio",
             "public_url",
         ]
 
@@ -252,6 +269,21 @@ class UserProfileForm(ModelForm):
         label="Public url",
         help_text="Your public casebooks will be accessible at https://opencasebook.org/author/[public url]/",
         required=False,
+    )
+
+    personal_site = forms.CharField(
+        label="Personal site link",
+        initial="https://",
+        required=False,
+        validators=[OptionalSchemeURLValidator()],
+    )
+
+    short_bio = forms.CharField(
+        label="Short Biography",
+        help_text="Tell us a little bit about yourself (max 500 characters)",
+        max_length=500,
+        required=False,
+        widget=forms.Textarea,
     )
 
     def __init__(self, *args, **kwargs):
@@ -269,6 +301,9 @@ class UserProfileForm(ModelForm):
         self.helper.layout = Layout(
             "email_address",
             "attribution",
+            "pronouns",
+            "personal_site",
+            "short_bio",
             "affiliation",
             "public_url",
             (
@@ -301,8 +336,11 @@ class UserProfileForm(ModelForm):
         return public_url
 
     def save(self, commit=True):
-        super(UserProfileForm, self).save()
+        # Add protocol if not provided
+        if self.instance.personal_site and "://" not in self.instance.personal_site:
+            self.instance.personal_site = "https://" + self.cleaned_data["personal_site"]
 
+        super(UserProfileForm, self).save()
         # let admin know of professor verification requests
         user = self.instance
         if (

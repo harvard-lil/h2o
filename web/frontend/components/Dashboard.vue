@@ -38,15 +38,20 @@
         </form>
       </template>
     </Modal>
-    <div v-if="user.active">
-      <h2 class="casebooks">My Casebooks</h2>
-      <div class="archived-link"><a href="/casebooks/archived/">[View Archived Casebooks]</a></div>
-      <hr class="owned"/>
+    <div class="dashboard-header"> 
+      <h1>{{ user.name }}</h1> 
+      <span v-if="user.pronouns" class="pronouns"> ({{ user.pronouns }})</span>
+      <a v-if="user.personal_site" class="personal-site" :href="user.personal_site">
+        <!-- <font-awesome-icon icon="fa-solid fa-link" /> -->
+        {{ user.personal_site }}
+      </a> 
     </div>
-    <div v-else>
-      <h2 class="casebooks">{{ user.name }}'s Casebooks</h2>
-      <hr class="owned"/>
+    <div v-if="user.short-bio" class="short-bio">
+      {{ user.short_bio }}
     </div>
+    <h2 class="casebooks">Casebooks</h2>
+    <div v-if="user.active" class="archived-link"><a href="/casebooks/archived/">[View Archived Casebooks]</a></div>
+    <hr class="owned"/>
     <div class="management-links" v-if="user.active && !managingCasebooks"> <a href="#" role="button" @click="startManagement">Manage Casebooks</a> </div>
     <div class="management-links" v-if="user.active && managingCasebooks">
       <ul>
@@ -631,8 +636,28 @@ export default {
     outline:none;
 }
 
-  .content-page:focus{
-    box-shadow: 0 3px 40px rgb(0 0 0 / 0.3);
-  }
+.content-page:focus{
+box-shadow: 0 3px 40px rgb(0 0 0 / 0.3);
+}
+
+.dashboard-header {
+	display:  flex;
+	flex-direction: row;
+	align-items: baseline;
+}
+
+.dashboard-header > h1 {
+    display: inline-block;
+    font-size: 2em;
+    margin-right: 0.2em;
+}
+
+.dashboard-header > .pronouns {
+    font-size: 1.3em;
+}
+
+.dashboard-header > .personal-site {
+	margin-left: auto 
+}
 
 </style>

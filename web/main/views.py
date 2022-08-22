@@ -1007,6 +1007,9 @@ def dashboard(request, user_id=None, user_slug=None):
                 "name": user.display_name,
                 "public_url": user.public_url,
                 "active": user == request.user,
+                "pronouns": user.pronouns,
+                "personal_site": user.personal_site,
+                "short_bio": user.short_bio,
             },
         }
     )
@@ -1039,7 +1042,11 @@ def sign_up(request):
     >>> check_response(client.post(new_password_form_response.redirect_chain[0][0], {'new_password1': 'anewpass', 'new_password2': 'anewpass'}, follow=True), content_includes=['Your password has been updated'])
 
     Can log in with the new account:
-    >>> check_response(client.post(reverse('login'), {'username': 'user@example.edu', 'password': 'anewpass'}, follow=True), content_includes=['{&quot;name&quot;: &quot;Anonymous&quot;, &quot;public_url&quot;: null, &quot;active&quot;: true}}'])
+    >>> check_response(client.post(reverse('login'), {'username': 'user@example.edu', 'password': 'anewpass'}, follow=True),
+    ...                  content_includes=['&quot;name&quot;: &quot;Anonymous&quot;',
+    ...                                    '&quot;public_url&quot;: null',
+    ...                                    '&quot;active&quot;: true']
+    ...                )
 
     Received the welcome email after setting password:
     >>> assert len(mailoutbox) == 2
