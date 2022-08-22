@@ -49,7 +49,7 @@ def assert_html_equal(bytes_a, bytes_b):
 
 @pytest.mark.xdist_group("pandoc-lambda")
 def test_export(
-    request, casebook_factory, section_factory, annotations_factory, resource_factory, link_factory
+    request, casebook_factory, section_factory, annotations_factory, resource_factory, user_factory
 ):
     """
     This test generates the contents of all exported files in test/files/export/ and compares them to the versions
@@ -109,6 +109,7 @@ def test_export(
             for include_annotations in [True, False]:
                 file_data = node.export(
                     include_annotations=include_annotations,
+                    user=user_factory(),
                     file_type=file_type,
                     export_options=None,
                 )
@@ -126,18 +127,20 @@ def test_export(
 
 
 @pytest.mark.xdist_group("pandoc-lambda")
-def test_export_query_count(assert_num_queries, full_casebook):
+def test_export_query_count(assert_num_queries, full_casebook, user_factory):
+
+    user = user_factory()
 
     with assert_num_queries(select=12, delete=1, insert=1):
-        full_casebook.export(include_annotations=True)
+        full_casebook.export(include_annotations=True, user=user)
 
 
 @pytest.mark.xdist_group("pandoc-lambda")
-def test_export_is_rate_limited(live_settings, full_casebook, resource):
+def test_export_is_rate_limited(live_settings, full_casebook, resource, user_factory):
 
     prior_count = live_settings.export_average_rate
-    full_casebook.export(False)
-    resource.export(False)
+    full_casebook.export(False, user=user_factory())
+    resource.export(False, user=user_factory())
     live_settings.refresh_from_db()
     assert live_settings.export_average_rate == prior_count + 2
 

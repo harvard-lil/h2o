@@ -2049,14 +2049,17 @@ class ContentNode(
 
     @classmethod
     def nodes_for_user_by_casebook(
-        cls, casebook: Casebook, user: Union[User, AnonymousUser], **kwargs
+        cls,
+        casebook: Casebook,
+        user: Union[User, AnonymousUser],
+        queryset: Optional[models.QuerySet] = None,
+        **kwargs,
     ) -> ContentNodeQuerySet:
 
+        queryset = queryset or ContentNode.objects.all()
         if user.is_authenticated and user.verified_professor:
-            return ContentNode.objects.filter(casebook=casebook, **kwargs)
-        return ContentNode.objects.filter(casebook=casebook, **kwargs).exclude(
-            is_instructional_material=True
-        )
+            return queryset.filter(casebook=casebook, **kwargs)
+        return queryset.filter(casebook=casebook, **kwargs).exclude(is_instructional_material=True)
 
     class Meta:
         indexes = [
@@ -2104,6 +2107,9 @@ class ContentNode(
         filter_map = {"casebook_id": self.casebook_id, first_ordinals: self.ordinals}
         res = ContentNode.objects.filter(**filter_map).exclude(id=self.id)
         return res
+
+    def contents_for_user(self, user: Union[User, AnonymousUser]):
+        return self.nodes_for_user_by_casebook(self.casebook, user, queryset=self.contents)
 
     def get_previous_and_next_nodes(
         self, user: User
@@ -2534,6 +2540,7 @@ class ContentNode(
     def export(
         self,
         include_annotations,
+        user: Union[User, AnonymousUser],
         file_type="docx",
         export_options=None,
         is_child=False,
@@ -2561,7 +2568,11 @@ class ContentNode(
         )
 
         children = (
-            list(self.contents.prefetch_resources().prefetch_related("annotations"))
+            list(
+                self.contents_for_user(user=user)
+                .prefetch_resources()
+                .prefetch_related("annotations")
+            )
             if type(self) is not Resource
             else None
         )
@@ -4459,7 +4470,12 @@ class Casebook(EditTrackedModel, TimestampedModel, BigPkModel, TrackedCloneable)
         collaborator_to_add.save()
 
     def export(
-        self, include_annotations, file_type="docx", export_options=None, docx_footnotes=None
+        self,
+        include_annotations: bool,
+        user: Union[User, AnonymousUser],
+        file_type="docx",
+        export_options=None,
+        docx_footnotes=None,
     ):
         """
         Export this node and children as docx, or as html for conversion by pandoc.
@@ -4480,7 +4496,7 @@ class Casebook(EditTrackedModel, TimestampedModel, BigPkModel, TrackedCloneable)
             )
             return None
         children = (
-            list(self.contents.prefetch_resources().prefetch_related("annotations"))
+            list(self.nodes_for_user(user).prefetch_resources().prefetch_related("annotations"))
             if type(self) is not Resource
             else None
         )

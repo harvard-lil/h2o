@@ -818,9 +818,7 @@ def assert_num_queries(pytestconfig, monkeypatch):
                         stack_frames = (
                             q["stack"]
                             if pytestconfig.getoption("verbose") > 1
-                            else [q["userland_stack_frame"]]
-                            if q["userland_stack_frame"]
-                            else []
+                            else q.get("userland_stack_frame", [])
                         )
                         for stack_frame in stack_frames:
                             msg += f"{stack_frame.filename}:{stack_frame.lineno}:\n{stack_frame.code_context[0].rstrip()}\n"
