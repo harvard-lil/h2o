@@ -64,6 +64,7 @@ from .models import (
     ContentAnnotation,
     ContentCollaborator,
     ContentNode,
+    ContentNodeQuerySet,
     LegalDocument,
     LegalDocumentSource,
     Link,
@@ -1775,7 +1776,7 @@ def edit_casebook(request, casebook: Casebook):
         form = form_class(instance=casebook)
 
     casebook.contents.prefetch_resources()
-    search_sources = LegalDocumentSource.objects
+    search_sources = LegalDocumentSource.objects.all()
     if not (request.user and request.user.is_superuser):
         search_sources = search_sources.filter(active=True)
     doc_sources = list(search_sources.order_by("priority").all())
@@ -2894,7 +2895,7 @@ def as_printable_html(request: HttpRequest, casebook: Casebook, page=1):
     if not LiveSettings.load().enable_printable_html_export:
         return HttpResponseForbidden("This feature is not currently enabled")
 
-    children: ContentNode = casebook.children
+    children: ContentNodeQuerySet = casebook.children
 
     logger.info(f"Exporting Casebook {casebook.id}, starting from page {page}: serializing to HTML")
 

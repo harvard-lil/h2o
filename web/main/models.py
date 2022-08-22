@@ -3591,7 +3591,7 @@ class Casebook(EditTrackedModel, TimestampedModel, BigPkModel, TrackedCloneable)
     def get_slug(self):
         return slugify(self.title)
 
-    def viewable_by(self, user: User):
+    def viewable_by(self, user: Union[User, AnonymousUser]):
         if (not (self.is_archived or self.is_previous_save)) and (
             self.is_public or user.is_superuser
         ):
