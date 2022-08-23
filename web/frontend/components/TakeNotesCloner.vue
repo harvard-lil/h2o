@@ -1,6 +1,6 @@
 <template>
 <div id="take-notes-cloner">
-  <button class="action annotate-casebook-nodes" data-disable-with="Clone-Node" v-on:click="displayModal()">Take notes in {{properType()}}</button>
+  <button class="action annotate-casebook-nodes" data-disable-with="Clone-Node" v-on:click="displayModal()">Take notes</button>
   <Modal v-if="showModal"
             @close="showModal = false">
     <template class="modal-title" slot="title">
