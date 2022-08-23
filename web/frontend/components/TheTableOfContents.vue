@@ -1,9 +1,9 @@
 <template>
 <div class="table-of-contents"
      v-bind:class="{'editable':editing}">
-     <div class="annotation-tip" v-if="this.toc.length !== 0 && editing && verified_professor=='False'">
-        <span class="annotation-icon"></span>
-        <p>Click on the content below to start Annotation!</p>
+     <div class="take-notes-tip" v-if="this.toc.length !== 0 && editing && verified_professor=='False'">
+        <span class="take-notes-icon"></span>
+        <p>Click on the content below to Take Notes!</p>
      </div>
      <button
         :aria-expanded="!tocCollapsed ? 'true' : 'false'"
@@ -617,7 +617,7 @@ export default {
     }
 }
 
-.editable .annotation-tip{
+.editable .take-notes-tip{
     justify-content: center;
     margin: 5%;
     display:flex;
@@ -628,8 +628,8 @@ export default {
        text-align: center;
        font-weight: 900;
     }
-    .annotation-icon{
-        background-image:url('~static/images/annotation-icon.svg') ;
+    .take-notes-icon{
+        background-image:url('~static/images/take-notes-icon.svg') ;
         display: inline-block;
         height: 40px;
         width: 40px;

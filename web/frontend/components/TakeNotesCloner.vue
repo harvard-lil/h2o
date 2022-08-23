@@ -1,15 +1,15 @@
 <template>
-<div id="annotation-cloner">
-  <button class="action annotate-casebook-nodes" data-disable-with="Clone-Node" v-on:click="displayModal()">Annotate {{properType()}}</button>
+<div id="take-notes-cloner">
+  <button class="action annotate-casebook-nodes" data-disable-with="Clone-Node" v-on:click="displayModal()">Take notes</button>
   <Modal v-if="showModal"
             @close="showModal = false">
     <template class="modal-title" slot="title">
-      <span class="annotation-icon"></span>
-      <h4>Copying {{properType()}} for Annotation</h4>
+      <span class="take-notes-icon"></span>
+      <h4>Copy this {{properType()}} to Take Notes</h4>
     </template>
-    <template class="modal-body-annotation" slot="body">
-      <p class="annotation-cloner-text"> <b> To Annotate, you need to Create a Copy.<br/><br/> Choose a book</b>  you would like  "<em>{{sectionSource}}</em>" to be copied into : </p>
-      <ul class="annotation-target-list">
+    <template class="modal-body-take-notes" slot="body">
+      <p class="take-notes-cloner-text"> <b> To Take Notes on a specific section or resource, you need to first add a copy to an existing book in your dashboard.<br/><br/> Choose the book</b>  where you would like  "<em>{{sectionSource}}</em>" to appear: </p>
+      <ul class="take-notes-target-list">
         <li v-for="cb in casebookTargets" v-bind:key="cb.form_target">
           <form :action="cb.form_target" method="POST">
             <input type="hidden" name="csrfmiddlewaretoken" :value="csrftoken" />
@@ -24,7 +24,7 @@
 
 <script>
 import Modal from "./Modal";
-import { get_csrf_token } from "../../frontend/legacy/lib/helpers";
+import { get_csrf_token } from "../legacy/lib/helpers";
 
 export default {
   components: {
@@ -51,11 +51,11 @@ export default {
 
 <style lang="scss">
 .casebook-actions button.action.annotate-casebook-nodes {
-    background-image: url('~static/images/annotation-icon.svg');
+    background-image: url('~static/images/take-notes-icon.svg');
     border: none;
 }
 .annotate-casebook{
-  background-image: url('~static/images/annotation-icon.svg');
+  background-image: url('~static/images/take-notes-icon.svg');
   border: none;
 }
 .modal-title{
@@ -66,8 +66,8 @@ export default {
   display:flex;
   flex-direction: row;
   justify-content: center;
-  .annotation-icon{
-    background-image: url('~static/images/annotation-icon.svg');
+  .take-notes-icon{
+    background-image: url('~static/images/take-notes-icon.svg');
     display: inline-block;
     height: 35px;
     width: 35px;
@@ -77,7 +77,7 @@ export default {
   }
 }
 
-.annotation-cloner-text{
+.take-notes-cloner-text{
   padding-left: 40px;
   p{
     font-size: 16px;
@@ -89,7 +89,7 @@ export default {
   }
 }
 
-ul.annotation-target-list {
+ul.take-notes-target-list {
     list-style: none;
     overflow: scroll;
     max-height: 600px;
