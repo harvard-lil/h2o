@@ -5,7 +5,7 @@
             @close="showModal = false">
     <template class="modal-title" slot="title">
       <span class="take-notes-icon"></span>
-      <h4>Copying {{properType()}} for Taking Notes</h4>
+      <h4>Copy this {{properType()}} to Take Notes</h4>
     </template>
     <template class="modal-body-take-notes" slot="body">
       <p class="take-notes-cloner-text"> <b> To Take Notes, you need to Create a Copy.<br/><br/> Choose a book</b>  you would like  "<em>{{sectionSource}}</em>" to be copied into : </p>
