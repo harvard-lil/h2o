@@ -3265,27 +3265,10 @@ casebook_search_categories = set(("legal_doc_fulltext", "textblock", "link"))
 @hydrate_params
 def casebook_search(request, casebook):
     """
-    Search content of a specific casebook. Currently only searches legal docs.
+    Search full-text content of a specific casebook.
 
-        Given:
-        >>> _, legal_document_factory, casebook_factory, content_node_factory = [getfixture(i) for i in ['reset_sequences', 'legal_document_factory', 'casebook_factory', 'content_node_factory']]
-        >>> capapi_mock, client = [getfixture(i) for i in ['capapi_mock', 'client']]
-        >>> casebooks = [casebook_factory() for i in range(3)]
-        >>> nodes = [content_node_factory() for i in range(3)]
-        >>> docs = [legal_document_factory() for i in range(3)]
-        >>> for d, n in zip(docs, nodes):
-        ...     n.resource_type = 'LegalDocument'
-        ...     n.resource_id = d.id
-        ...     n.casebook_id = casebooks[0].id
-        ...     n.ordinals = [1, 1]
-        ...     n.save()
-        >>> FullTextSearchIndex().create_search_index()
-        >>> url = reverse('casebook_search', args=[casebooks[0].id])
-
-    Show all legal documents by default:
-    >>> check_response(client.get(url), content_includes=[d.name for d in docs])
+    See test/test_search.py
     """
-    # read query parameters
     try:
         page = int(request.GET.get("page"))
     except (TypeError, ValueError):
@@ -3300,7 +3283,6 @@ def casebook_search(request, casebook):
         category,
         page=page,
         query_str=query,
-        # order_by=request.GET.get('sort')
     )
     results.from_capapi = False
     return render(

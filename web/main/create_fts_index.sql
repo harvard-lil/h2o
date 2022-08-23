@@ -1,7 +1,7 @@
 DROP MATERIALIZED VIEW IF EXISTS tmp_fts_search_view;
 DROP MATERIALIZED VIEW IF EXISTS tmp_fts_internal_search_view;
 CREATE MATERIALIZED VIEW tmp_fts_internal_search_view AS
-    -- seperate category for full-text search
+    -- separate category for full-text search of legal documents
     SELECT
            row_number() OVER (PARTITION BY true) AS id,
            c.id AS result_id,
@@ -20,7 +20,7 @@ CREATE MATERIALIZED VIEW tmp_fts_internal_search_view AS
         main_legaldocument c
     GROUP BY c.id
 UNION ALL
-    -- seperate category for full-text search of textblocks
+    -- separate category for full-text search of textblocks
     SELECT
            row_number() OVER (PARTITION BY true) AS id,
            t.id AS result_id,
@@ -33,7 +33,8 @@ UNION ALL
                'name', t.name,
                'description', t.description,
                'ordinals', array_to_string(cn.ordinals, '.'),
-               'casebook_id', cn.casebook_id
+               'casebook_id', cn.casebook_id,
+               'is_instructional_material', cn.is_instructional_material
            ) AS metadata,
            'textblock'::text AS category
     FROM
@@ -41,7 +42,7 @@ UNION ALL
         INNER JOIN main_contentnode cn ON cn.resource_id = t.id AND cn.resource_type = 'TextBlock'
     GROUP BY t.id, cn.id
 UNION ALL
-    -- seperate category for searching through links
+    -- separate category for searching through links
     SELECT
            row_number() OVER (PARTITION BY true) AS id,
            l.id AS result_id,
