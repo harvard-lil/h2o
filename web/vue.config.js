@@ -59,7 +59,7 @@ let vueConfig = {
         : [
             new RelativeBundleTracker({
               // output location of bundles so they can be found by django
-              filename: "./webpack-stats.json",
+              filename: devMode ? "./.webpack-stats-dev.json" : "./webpack-stats.json",
             }),
           ]
     ),

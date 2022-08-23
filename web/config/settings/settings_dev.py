@@ -40,3 +40,10 @@ EMAIL_BACKEND = "django.core.mail.backends.console.EmailBackend"
 ADMINS = [("John", "john@example.com"), ("Mary", "mary@example.com")]
 
 LOGGING["loggers"]["main"] = {"level": "DEBUG", "handlers": ["console", "file"]}
+
+WEBPACK_LOADER = {
+    "DEFAULT": {
+        "BUNDLE_DIR_NAME": "dist/",
+        "STATS_FILE": os.path.join(BASE_DIR, ".webpack-stats-dev.json"),
+    }
+}
