@@ -8,7 +8,7 @@
       <h4>Copy this {{properType()}} to Take Notes</h4>
     </template>
     <template class="modal-body-take-notes" slot="body">
-      <p class="take-notes-cloner-text"> <b> To Take Notes, you need to Create a Copy.<br/><br/> Choose a book</b>  you would like  "<em>{{sectionSource}}</em>" to be copied into : </p>
+      <p class="take-notes-cloner-text"> <b> To Take Notes on a specific section or resource, you need to first add a copy to an existing book in your dashboard.<br/><br/> Choose the book</b>  where you would like  "<em>{{sectionSource}}</em>" to appear: </p>
       <ul class="take-notes-target-list">
         <li v-for="cb in casebookTargets" v-bind:key="cb.form_target">
           <form :action="cb.form_target" method="POST">
