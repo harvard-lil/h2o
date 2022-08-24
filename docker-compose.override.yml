@@ -12,10 +12,6 @@ services:
         platforms:
           - linux/amd64
           - linux/arm64
-        cache-from:
-          - type=registry,ref=registry.lil.tools/harvardlil/h2o-pandoc-lambda:buildcache
-        cache-to:
-          - type=registry,ref=registry.lil.tools/harvardlil/h2o-pandoc-lambda:buildcache,mode=max
       x-hash-paths:
         - .
   web:
@@ -28,10 +24,6 @@ services:
         platforms:
           - linux/amd64
           - linux/arm64
-        cache-from:
-          - type=registry,ref=registry.lil.tools/harvardlil/h2o-python:buildcache
-        cache-to:
-          - type=registry,ref=registry.lil.tools/harvardlil/h2o-python:buildcache,mode=max
       x-hash-paths:
         - web/requirements.txt
     environment:
