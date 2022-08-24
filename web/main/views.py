@@ -1,5 +1,6 @@
 import json
 import logging
+from typing import Union
 import uuid
 from collections import OrderedDict
 from datetime import datetime
@@ -9,6 +10,7 @@ from test.test_helpers import assert_url_equal, check_response, dump_content_tre
 from django.conf import settings
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required, user_passes_test
+from django.contrib.auth.models import AnonymousUser
 from django.contrib.auth.views import PasswordResetView, redirect_to_login
 from django.core.exceptions import PermissionDenied
 from django.core.paginator import Paginator
@@ -3263,44 +3265,24 @@ casebook_search_categories = set(("legal_doc_fulltext", "textblock", "link"))
 
 @no_perms_test
 @hydrate_params
-def casebook_search(request, casebook):
+def casebook_search(request: HttpRequest, casebook: Casebook):
     """
-    Search content of a specific casebook. Currently only searches legal docs.
-
-        Given:
-        >>> _, legal_document_factory, casebook_factory, content_node_factory = [getfixture(i) for i in ['reset_sequences', 'legal_document_factory', 'casebook_factory', 'content_node_factory']]
-        >>> capapi_mock, client = [getfixture(i) for i in ['capapi_mock', 'client']]
-        >>> casebooks = [casebook_factory() for i in range(3)]
-        >>> nodes = [content_node_factory() for i in range(3)]
-        >>> docs = [legal_document_factory() for i in range(3)]
-        >>> for d, n in zip(docs, nodes):
-        ...     n.resource_type = 'LegalDocument'
-        ...     n.resource_id = d.id
-        ...     n.casebook_id = casebooks[0].id
-        ...     n.ordinals = [1, 1]
-        ...     n.save()
-        >>> FullTextSearchIndex().create_search_index()
-        >>> url = reverse('casebook_search', args=[casebooks[0].id])
-
-    Show all legal documents by default:
-    >>> check_response(client.get(url), content_includes=[d.name for d in docs])
+    Search content of a specific casebook.
     """
     # read query parameters
     try:
-        page = int(request.GET.get("page"))
+        page = int(request.GET.get("page", 1))
     except (TypeError, ValueError):
         page = 1
-    query = request.GET.get("q")
+    query = request.GET.get("q", "")
     category = request.GET.get("type", "")
     if category not in casebook_search_categories:
         category = "legal_doc_fulltext"
 
+    user: Union[AnonymousUser, User] = request.user
+
     results = FullTextSearchIndex.casebook_fts(
-        casebook.id,
-        category,
-        page=page,
-        query_str=query,
-        # order_by=request.GET.get('sort')
+        casebook.id, category, page=page, query_str=query, user=user
     )
     results.from_capapi = False
     return render(
@@ -3312,7 +3294,7 @@ def casebook_search(request, casebook):
             "category": category,
             "tabs": casebook.tabs_for_user(request.user, current_tab="Search Inside"),
             "casebook_color_class": casebook.casebook_color_indicator,
-            "edit_mode": casebook.directly_editable_by(request.user),
+            "edit_mode": casebook.directly_editable_by(user),
         },
     )
 
