@@ -2656,6 +2656,15 @@ def annotate_resource(request, casebook, resource):
             "editing": True,
             "edit_mode": True,
             "body_json": body_json,
+            "publish_check": json.dumps(
+                {
+                    "isVerifiedProfessor": request.user.is_authenticated
+                    and request.user.verified_professor,
+                    "coverImageFlag": settings.COVER_IMAGES,
+                    "coverImageExists": bool(casebook.cover_image),  # Handling both blank and None
+                    "descriptionExists": bool(casebook.description),
+                }
+            ),
         },
     )
 
