@@ -9,9 +9,9 @@ from test.test_helpers import assert_url_equal, check_response, dump_content_tre
 from django.conf import settings
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required, user_passes_test
-
 from django.contrib.auth.views import PasswordResetView, redirect_to_login
 from django.core.exceptions import PermissionDenied
+from django.core.paginator import Paginator
 from django.core.validators import URLValidator
 from django.db import transaction
 from django.db.models import Q
@@ -65,6 +65,7 @@ from .models import (
     ContentCollaborator,
     ContentNode,
     ContentNodeQuerySet,
+    FullTextSearchIndex,
     LegalDocument,
     LegalDocumentSource,
     Link,
@@ -72,7 +73,6 @@ from .models import (
     Resource,
     SavedImage,
     SearchIndex,
-    FullTextSearchIndex,
     Section,
     TextBlock,
     User,
@@ -103,13 +103,13 @@ from .test.test_permissions_helpers import (
     viewable_section,
 )
 from .utils import (
+    BadFiletypeError,
+    LambdaExportTooLarge,
     StringFileResponse,
     fix_after_rails,
     get_link_title,
     send_verification_email,
-    LambdaExportTooLarge,
     validate_image,
-    BadFiletypeError,
 )
 
 logger = logging.getLogger("django")
@@ -2905,21 +2905,23 @@ def as_printable_html(request: HttpRequest, casebook: Casebook, page=1):
     if not LiveSettings.load().enable_printable_html_export:
         return HttpResponseForbidden("This feature is not currently enabled")
 
-    children: ContentNodeQuerySet = casebook.children
+    top_level_nodes: ContentNodeQuerySet = casebook.nodes_for_user(request.user).filter(
+        ordinals__len=1
+    )
 
     logger.info(f"Exporting Casebook {casebook.id}, starting from page {page}: serializing to HTML")
 
-    from django.core.paginator import Paginator
-
-    paginator = Paginator(children, 1)
+    paginator = Paginator(top_level_nodes, 1)
     page = paginator.page(page)
     section = page[0]
-    children = (
-        ContentNode.objects.filter(casebook=casebook, ordinals__0=section.ordinals[0])
+    children: ContentNodeQuerySet = (
+        casebook.nodes_for_user(request.user)
+        .filter(ordinals__0=section.ordinals[0])
         .prefetch_resources()
         .prefetch_related("annotations")
         .order_by("ordinals")
     )
+    toc = manually_serialize_content_query(casebook.nodes_for_user(request.user))
 
     return render(
         request,
@@ -2930,6 +2932,7 @@ def as_printable_html(request: HttpRequest, casebook: Casebook, page=1):
             "paginator": paginator,
             "page": page,
             "children": children,
+            "toc": toc,
             "export_date": datetime.now().strftime("%Y-%m-%d"),
             "include_annotations": True,
         },

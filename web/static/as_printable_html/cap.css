@@ -1,0 +1,13 @@
+
+  /* Cap-specific style */
+
+  /* TODO something about footnotes */
+  .footnote p,
+  .footnote blockquote {
+    margin-left: 13px;
+  }
+
+  .footnotemark {
+    font-size: calc(var(--casebook-font-size) / 2);
+    vertical-align: super;
+  }

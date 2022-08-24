@@ -1,24 +1,30 @@
 /* Customized for navigation component at the top */
 @media screen, pagedjs-ignore {
-  nav {
-    background-color: white;
-    border: 1px solid gray;
-    padding: 10px;
-    position: fixed;
-    left: 50%;
-    transform: translateX(-50%);
-    width: 25vw;
-    display: grid;
-    grid-template-columns: 1fr 1fr 1fr;
-    z-index: 99;
-    a {
-      text-decoration: underline;
+  .screen-only {
+      nav {
+        background-color: white;
+        border: 1px solid gray;
+        padding: 10px;
+        position: fixed;
+        left: 50%;
+        transform: translateX(-50%);
+        width: 25vw;
+        display: grid;
+        grid-template-columns: 1fr 1fr 1fr;
+        z-index: 99;
+        box-shadow: 5px 5px 10px lightgrey;
+        a {
+          text-decoration: underline;
+        }
     }
-    box-shadow: 5px 5px 10px lightgrey;
+    nav span {
+      display: inline-block;
+      text-align: center;
+    }
   }
-  nav span {
-    display: inline-block;
-    text-align: center;
+  /* Show underlining for TOC hyperlinks in the web view only */
+  nav.toc a {
+    text-decoration: underline;
   }
 }
 
