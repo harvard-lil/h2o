@@ -1,3 +1,4 @@
+from typing import Optional
 from crispy_forms.helper import FormHelper
 from crispy_forms.layout import Layout, Field, Div, HTML, Submit
 
@@ -147,17 +148,55 @@ class ResourceForm(ContentNodeForm):
     does_display_ordinals = forms.BooleanField(
         label="Number this section in the table of contents", required=False
     )
+    is_instructional_material = forms.BooleanField(
+        label="This resource should only be displayed to other verified professors", required=False
+    )
 
     class Meta:
         model = ContentNode
-        fields = ["title", "subtitle", "does_display_ordinals", "headnote"]
+        fields = [
+            "title",
+            "subtitle",
+            "does_display_ordinals",
+            "headnote",
+            "is_instructional_material",
+        ]
 
     def __init__(self, *args, **kwargs):
+        request = kwargs.pop("request", None)
+        self.user: Optional[User] = request.user if request else None
+
         super().__init__(*args, **kwargs)
+
+        does_display_ordinals_options = (
+            {"disabled": True} if self.instance.is_instructional_material else {}
+        )
+
+        is_instruction_material_layout = (
+            Div(
+                Field(
+                    "is_instructional_material",
+                    onClick=(
+                        "document.querySelector('#id_does_display_ordinals').disabled=event.target.checked;"
+                        "document.querySelector('#id_does_display_ordinals').checked=!event.target.checked;"
+                    ),
+                ),
+                css_class="visible-in-form",
+            )
+            if self.instance.resource_type == "TextBlock"
+            and self.user
+            and User.user_can_view_instructional_material(self.user)
+            else Div()
+        )
+
         self.helper.layout = Layout(
             Field("title", placeholder="Enter a concise title."),
             Field("subtitle", placeholder="Subtitle (optional)"),
-            Div(Field("does_display_ordinals"), css_class="visible-in-form"),
+            Div(
+                Field("does_display_ordinals", **does_display_ordinals_options),
+                css_class="visible-in-form",
+            ),
+            is_instruction_material_layout,
             Div(
                 HTML('<h5 id="headnote-label">Headnote</h5>'),
                 Field(
@@ -170,12 +209,18 @@ class ResourceForm(ContentNodeForm):
         )
         self.helper.form_class = "edit_content_resource"
 
+    def clean(self):
+        pass
+
     def save(self, commit=True):
         cn = self.instance
         # null reading_length so it can be recalculated later
         cn.reading_length = None
         super(ContentNodeForm, self).save()
-        if "does_display_ordinals" in self.changed_data:
+        if (
+            "does_display_ordinals" in self.changed_data
+            or "is_instructional_material" in self.changed_data
+        ):
             cn.content_tree__load()
             (cn.content_tree__parent or cn.casebook).content_tree__repair()
         return cn

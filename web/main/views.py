@@ -2551,7 +2551,7 @@ def edit_resource(request, casebook, resource):
     """
     if not (resource.is_resource or resource.is_temporary):
         return HttpResponseRedirect(reverse("edit_section", args=[casebook, resource]))
-    form = ResourceForm(request.POST or None, instance=resource)
+    form = ResourceForm(request.POST or None, instance=resource, request=request)
 
     # Let users edit Link and TextBlock resources directly from this page
     embedded_resource_form = None
@@ -2568,6 +2568,9 @@ def edit_resource(request, casebook, resource):
                 form.save()
                 resource.resource.refresh_from_db()
                 resource.refresh_from_db()
+                form = ResourceForm(
+                    instance=resource, request=request
+                )  # workaround for no redirect-after-post
             else:
                 return server_error(request)
         else:
