@@ -209,9 +209,6 @@ class ResourceForm(ContentNodeForm):
         )
         self.helper.form_class = "edit_content_resource"
 
-    def clean(self):
-        pass
-
     def save(self, commit=True):
         cn = self.instance
         # null reading_length so it can be recalculated later
