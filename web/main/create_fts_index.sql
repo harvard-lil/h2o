@@ -1,10 +1,11 @@
 DROP MATERIALIZED VIEW IF EXISTS tmp_fts_search_view;
 DROP MATERIALIZED VIEW IF EXISTS tmp_fts_internal_search_view;
 CREATE MATERIALIZED VIEW tmp_fts_internal_search_view AS
-    -- seperate category for full-text search
+    -- separate category for full-text search of legal documents
     SELECT
            row_number() OVER (PARTITION BY true) AS id,
            c.id AS result_id,
+           false AS is_instructional_material,
            (
                 setweight(to_tsvector('english',coalesce(c.content, '')), 'D')
             )  AS document,
@@ -20,10 +21,11 @@ CREATE MATERIALIZED VIEW tmp_fts_internal_search_view AS
         main_legaldocument c
     GROUP BY c.id
 UNION ALL
-    -- seperate category for full-text search of textblocks
+    -- separate category for full-text search of textblocks
     SELECT
            row_number() OVER (PARTITION BY true) AS id,
            t.id AS result_id,
+           cn.is_instructional_material AS is_instructional_material,
            (
                 setweight(to_tsvector('english',coalesce(t.content, '')), 'D') ||
                 setweight(to_tsvector('english',coalesce(t.name, '')), 'A') ||
@@ -41,10 +43,11 @@ UNION ALL
         INNER JOIN main_contentnode cn ON cn.resource_id = t.id AND cn.resource_type = 'TextBlock'
     GROUP BY t.id, cn.id
 UNION ALL
-    -- seperate category for searching through links
+    -- separate category for searching through links
     SELECT
            row_number() OVER (PARTITION BY true) AS id,
            l.id AS result_id,
+           false AS is_instructional_material,
            (
                 setweight(to_tsvector('english',coalesce(l.url, '')), 'B') ||
                 setweight(to_tsvector('english',coalesce(l.name, '')), 'A') ||

@@ -587,6 +587,7 @@ def full_casebook_parts_with_prof_only_resource(full_casebook_parts_factory):
     parts: list[ContentNode] = full_casebook_parts_factory(user=prof)
     parts[3].is_instructional_material = True
     parts[3].title = "Instructional material"
+    parts[3].resource.name = "Instructional material"
     parts[3].resource.content = "This is instructional material"
     parts[3].resource.save()
     parts[3].save()

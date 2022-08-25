@@ -973,6 +973,7 @@ class FullTextSearchIndex(models.Model):
     document = SearchVectorField()
     metadata = JSONField()
     category = models.CharField(max_length=255)
+    is_instructional_material = models.BooleanField(default=False)
 
     class Meta:
         managed = False
@@ -980,7 +981,7 @@ class FullTextSearchIndex(models.Model):
 
     @classmethod
     def create_search_index(cls):
-        """Create or replace the materialized view 'search_view', which backs this model"""
+        """Create or replace the materialized view 'fts_internal_search_view', which backs this model"""
         with connection.cursor() as cursor:
             cursor.execute(Path(__file__).parent.joinpath("create_fts_index.sql").read_text())
 
@@ -1011,6 +1012,7 @@ class FullTextSearchIndex(models.Model):
         casebook_id: int,
         category: str,
         query_str: str,
+        user: Union[AnonymousUser, User],
         page_size=10,
         page=1,
         *args,
@@ -1018,61 +1020,33 @@ class FullTextSearchIndex(models.Model):
     ):
         """
         Given a casebook ID and search parameters, run a full-text search on
-        all text within the casebook. Currently, this only searches through legal
-        documents. However, this will be expanded to include all casebook text.
-
-        Given:
-        >>> _, legal_document_factory, casebook_factory, content_node_factory, text_block_factory = [getfixture(i) for i in ['reset_sequences', 'legal_document_factory', 'casebook_factory', 'content_node_factory', 'text_block_factory']]
-        >>> casebooks = [casebook_factory() for i in range(3)]
-        >>> nodes = [content_node_factory() for i in range(6)]
-        >>> docs = [legal_document_factory() for i in range(3)]
-        >>> text = [text_block_factory() for i in range(3)]
-        >>> for d, n in zip(docs, nodes[:3]):
-        ...     n.resource_type = 'LegalDocument'
-        ...     n.resource_id = d.id
-        ...     n.casebook_id = casebooks[0].id
-        ...     n.save()
-        >>> for t, n in zip(text, nodes[3:]):
-        ...     n.resource_type = 'TextBlock'
-        ...     n.resource_id = t.id
-        ...     n.casebook_id = casebooks[0].id
-        ...     n.save()
-        >>> FullTextSearchIndex().create_search_index()
-
-        Search in casebook by query:
-        >>> assert dump_search_results([FullTextSearchIndex().casebook_fts(casebooks[0].id, 'legal_doc_fulltext', query_str='2'),]) == (
-        ...     [
-        ...         {'citations': ['Adventures in criminality, 1 Fake 1, (2001)',], 'display_name': 'Legal Doc 2', 'jurisdiction': None, 'effective_date': '1900-01-01T00:00:00+00:00', 'effective_date_formatted': 'January   1, 1900', 'headlines': ['Dubious legal claim <b>2</b>'], 'ordinals': '', 'year': '1900'}
-        ...     ],
-        ... )
-        >>> assert len(dump_search_results([FullTextSearchIndex().casebook_fts(casebooks[0].id, "legal_doc_fulltext", query_str='Dubious'),])[0]) == 3
-        >>> assert len(dump_search_results([FullTextSearchIndex().casebook_fts(casebooks[0].id, 'textblock', query_str='2'),])[0]) == 1
+        all text within the casebook.
         """
 
         casebook: Casebook = Casebook.objects.get(id=casebook_id)
 
-        base_query = None
+        if User.user_can_view_instructional_material(user):
+            base_query = FullTextSearchIndex.objects.all()
+        else:
+            base_query = FullTextSearchIndex.objects.exclude(is_instructional_material=True)
+
         if category == "legal_doc_fulltext":
             legal_doc_ids = casebook.contents.filter(resource_type="LegalDocument").values_list(
                 "resource_id", flat=True
             )
-            base_query = FullTextSearchIndex.objects.filter(category="legal_doc_fulltext").filter(
+            base_query = base_query.filter(category="legal_doc_fulltext").filter(
                 result_id__in=legal_doc_ids
             )
         elif category == "textblock":
             textblock_ids = casebook.contents.filter(resource_type="TextBlock").values_list(
                 "resource_id", flat=True
             )
-            base_query = FullTextSearchIndex.objects.filter(category=category).filter(
-                result_id__in=textblock_ids
-            )
+            base_query = base_query.filter(category=category).filter(result_id__in=textblock_ids)
         else:
             textblock_ids = casebook.contents.filter(resource_type="Link").values_list(
                 "resource_id", flat=True
             )
-            base_query = FullTextSearchIndex.objects.filter(category=category).filter(
-                result_id__in=textblock_ids
-            )
+            base_query = base_query.filter(category=category).filter(result_id__in=textblock_ids)
 
         query_vector: Union[SearchQuery, str]
         if query_str:
@@ -2068,7 +2042,7 @@ class ContentNode(
     ) -> ContentNodeQuerySet:
 
         queryset = queryset or ContentNode.objects.all()
-        if user.is_authenticated and user.verified_professor:
+        if User.user_can_view_instructional_material(user):
             return queryset.filter(casebook=casebook, **kwargs)
         return queryset.filter(casebook=casebook, **kwargs).exclude(is_instructional_material=True)
 
@@ -2479,7 +2453,7 @@ class ContentNode(
             return False
 
         if self.is_instructional_material:
-            return user.is_authenticated and user.verified_professor
+            return User.user_can_view_instructional_material(user)
 
         return True
 
@@ -3620,7 +3594,7 @@ class Casebook(EditTrackedModel, TimestampedModel, BigPkModel, TrackedCloneable)
             return True
         return bool(self.contentcollaborator_set.filter(user_id=user.id).first())
 
-    def directly_editable_by(self, user: User):
+    def directly_editable_by(self, user: Union[User, AnonymousUser]):
         """
         Allow a user to make real-time changes (e.g., via edit view),
         rather than requiring them to make changes via the draft mechanism.
@@ -4969,6 +4943,15 @@ class User(NullableTimestampedModel, PermissionsMixin, AbstractBaseUser):
             )
             followed_casebooks.append(cb)
         return followed_casebooks
+
+    @property
+    def can_view_instructional_material(self) -> bool:
+        """A user passing this check can view instructional material"""
+        return User.user_can_view_instruction_material(self)
+
+    @staticmethod
+    def user_can_view_instructional_material(user: Union[AnonymousUser, User]) -> bool:
+        return user.is_authenticated and user.verified_professor
 
 
 def update_user_login_fields(sender, request, user, **kwargs):
