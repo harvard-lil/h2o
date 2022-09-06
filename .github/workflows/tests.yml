@@ -91,12 +91,12 @@ jobs:
           git config user.name "Github Actions"
           if [[ `git status docker-compose.yml docker-compose.override.yml --porcelain` ]] ; then
             git add docker-compose.yml docker-compose.override.yml
-            git commit -m "Bump image version"
+            git commit -m "Bump image version [skip ci]"
             git push origin develop || exit 1
           fi
           if [[ `git status web/static/dist/ web/webpack-stats.json --porcelain` ]] ; then
               git add web/static/dist/ web/webpack-stats.json
-              git commit -m "Add built JS"
+              git commit -m "Add built JS [skip ci]"
               git push origin develop || exit 1
           fi
           export DEPLOY_CONTENT='{"GITHUB_RUN_NUMBER":"'$GITHUB_RUN_NUMBER'","GITHUB_SHA":"'$GITHUB_SHA'","GITHUB_REF":"'$GITHUB_REF'","GITHUB_REPOSITORY":"'$GITHUB_REPOSITORY'","GITHUB_ACTOR":"'$GITHUB_ACTOR'"}' ;
