@@ -6,7 +6,11 @@
     {% call_method content 'ordinals_with_urls' editing=editing as ordinals %}
     {% for ordinal in ordinals %}
       {% if forloop.last %}
-        <span class="breadcrumb active">{{ ordinal.ordinal }}</span>
+          <span class="breadcrumb active {{ content.is_instructional_material|yesno:'is-instructional-material,' }}">
+            {% if content.does_display_ordinals %}
+              {{ ordinal.ordinal }}
+            {% endif %}
+            </span>
       {% else %}
         <a class="breadcrumb" href="{{ ordinal.url }}">{{ ordinal.ordinal }}</a>
         <span class="separator">.</span>

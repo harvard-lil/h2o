@@ -343,13 +343,16 @@ form.edit_content_resource, form.edit_content_section, form.edit_content_caseboo
       font-size: 16px;
       font-weight: bold;
       color: $dark-gray;
+      line-height: 20px;
+      margin-bottom: 20px;
+      padding-top: 4px;
 
       .breadcrumb {
         display: inline-block;
-        line-height: 20px;
+
         color: $light-blue;
-        margin-left: 8px;
-        padding: 4px 8px 0 8px;
+        margin: 8px 0 0 0;
+        padding: 0 8px 0 8px;
         border: none;
         &:first-child {
           margin-left: 0;
@@ -361,6 +364,13 @@ form.edit_content_resource, form.edit_content_section, form.edit_content_caseboo
           color: $dark-gray;
           font-weight: bold;
           background-color: transparent !important;
+        }
+        &.is-instructional-material {
+          background-image:url('~static/images/ui/casebook/lock.svg') ;
+          height: 20px;
+          width: 20px;
+          display: inline-block;
+          margin: 0 0 0 10px;
         }
       }
       span.breadcrumb {
