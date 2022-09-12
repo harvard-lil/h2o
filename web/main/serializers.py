@@ -78,6 +78,7 @@ class ContentNodeSerializer(serializers.ModelSerializer):
 
     decision_date = serializers.DateField(source="resource.decision_date", default=None)
     is_transmutable = serializers.BooleanField()
+    is_instructional_material = serializers.BooleanField()
 
     def get_resource_type(self, node):
         return node.doc_class
@@ -100,6 +101,7 @@ class ContentNodeSerializer(serializers.ModelSerializer):
             "is_transmutable",
             "ordinal_string",
             "ordinals",
+            "is_instructional_material",
         )
 
 
