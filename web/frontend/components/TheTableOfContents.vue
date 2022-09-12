@@ -361,6 +361,14 @@ export default {
             div {
                 align-self:baseline;
             }
+            .is-instructional-material {
+                background-image:url('~static/images/ui/casebook/lock.svg') ;
+                height: 20px;
+                width: 20px;
+                margin-left: -5px;
+                display: inline-block;
+                align-self: flex-end;
+            }
         }
         .list-right {
             margin-left: 8px;
@@ -536,7 +544,6 @@ export default {
                 align-items: baseline;
             }
         }
-
         .section-number,
         .section-number:after {
             font-size: 12px;
