@@ -5,12 +5,13 @@
 
   @font-face {
     font-family: 'LibreCaslon';
-    src:  url('../fonts/LibreCaslonText-Regular.woff2') format('woff2');
+    src: url('../fonts/LibreCaslonText-Regular.woff2') format('woff2');
     font-weight: normal;
   }
+
   @font-face {
     font-family: 'LibreCaslon';
-    src:  url('../fonts/LibreCaslonText-Italic.woff2') format('woff2');
+    src: url('../fonts/LibreCaslonText-Italic.woff2') format('woff2');
     font-style: italic;
   }
 
@@ -44,7 +45,9 @@
 
   }
 
-  span, p, div {
+  span,
+  p,
+  div {
     font-size: var(--casebook-font-size) !important;
     line-height: var(--casebook-line-height) !important;
     font-family: var(--casebook-font-family), serif !important;
@@ -118,7 +121,7 @@
     background-size: cover;
   }
 
-  .link-icon+.node-container {
+  .link-icon + .node-container {
     margin-left: 14mm;
   }
 
@@ -141,13 +144,23 @@
     padding: 0;
   }
 
-  section.depth-1 p:first-child {
-    margin-top: 4em !important;
+  section.depth-1 {
+    padding: 4em;
   }
+
+  section.depth-2.legaldocument {
+    break-before: page;
+  }
+
+  section.depth-2 {
+    padding: 2em;
+  }
+
   sup {
     font-size: calc(var(--casebook-font-size) / 2.5);
 
   }
+
   @page {
     @bottom-right {
       content: counter(page);

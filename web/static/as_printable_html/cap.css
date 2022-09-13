@@ -1,13 +1,79 @@
+/* Cap-specific style */
 
-  /* Cap-specific style */
+.legaldocument sup {
+  font-size: calc(var(--casebook-font-size) * .75);
+}
 
-  /* TODO something about footnotes */
-  .footnote p,
-  .footnote blockquote {
-    margin-left: 13px;
-  }
+/* Add some breathing room after internal footnotes */
+.legaldocument a[href^="#"] {
+  margin-right: .25em;
+}
 
-  .footnotemark {
-    font-size: calc(var(--casebook-font-size) / 2);
-    vertical-align: super;
-  }
+.footnote p,
+.footnote blockquote {
+  margin-left: 13px;
+}
+
+.footnotemark {
+  font-size: calc(var(--casebook-font-size) / 2);
+  vertical-align: super;
+}
+
+
+header.case-header .title,
+header.case-header .citation,
+header.case-header .decisiondate,
+header.case-header .docketnumber,
+header.case-header .court {
+  text-align: center;
+}
+
+header.case-header .citation,
+header.case-header .decisiondate,
+header.case-header .docketnumber,
+header.case-header .court {
+  letter-spacing: 1px;
+  padding: 4px;
+}
+
+header.case-header .court {
+  font-size: 24px;
+}
+
+header.case-header .citation,
+header.case-header .decisiondate,
+header.case-header .docketnumber {
+  font-size: 18px;
+}
+
+header.case-header .title {
+  font-weight: bold;
+  font-size: calc(var(--casebook-font-size) * 1.5) !important;
+  line-height: 1.4em !important;
+  padding: 20px 4px 10px 4px;
+
+}
+
+.case-text .parties,
+.case-text .decisiondate,
+.case-text .docketnumber,
+.case-text .citations,
+.case-text .syllabus,
+.case-text .synopsis,
+.case-text .court {
+  display: none;
+}
+
+.case-text .page-label {
+  display: none;
+}
+
+.case-text aside.footnote > a {
+  float: left;
+}
+
+.case-text img {
+  max-width: 100%;
+  width: auto;
+  height: auto;
+}
