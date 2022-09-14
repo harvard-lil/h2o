@@ -1,6 +1,5 @@
 {% if USE_ANALYTICS %}
 {# Ensure that MATOMO_SITE_ID and MATOMO_SITE_URL are both set for this environment #}
-{% verbatim %}
     <script>
       var _gaq = [];
       var _paq = _paq || [];
@@ -15,5 +14,4 @@
       g.type='text/javascript'; g.async=true; g.defer=true; g.src=u+'piwik.js'; s.parentNode.insertBefore(g,s);
       })();
     </script>
-  {% endverbatim %}
 {% endif %}
