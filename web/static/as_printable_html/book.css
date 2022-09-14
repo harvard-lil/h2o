@@ -53,6 +53,11 @@
     font-family: var(--casebook-font-family), serif !important;
   }
 
+  /* Book content (but not metadata or other types) should be indented. */
+  .node-container p {
+    text-indent: 2em;
+  }
+
   h1.casebook.title {
     font-size: 300%;
   }
@@ -63,7 +68,6 @@
   h4,
   h5,
   h6 {
-    line-height: 110%;
     margin: 10mm 0 0.5em 0;
     font-family: var(--casebook-font-family), serif;
 
@@ -129,6 +133,10 @@
     string-set: title content(text);
   }
 
+  h1.casebook.title {
+    string-set: casebook-title content(text);
+  }
+
   .casebook-metadata:not([data-paginator-page="1"]) {
     display: none;
   }
@@ -144,16 +152,8 @@
     padding: 0;
   }
 
-  section.depth-1 {
-    padding: 4em;
-  }
-
   section.depth-2.legaldocument {
     break-before: page;
-  }
-
-  section.depth-2 {
-    padding: 2em;
   }
 
   sup {
@@ -165,9 +165,25 @@
     @bottom-right {
       content: counter(page);
     }
+  }
 
+  @page:right {
     @top-center {
       content: string(title);
+      max-width: 100mm;
+      height: 9mm;
     }
+  }
+  @page:left {
+    @top-center {
+      content: string(casebook-title);
+    }
+  }
+  .pagedjs_right_page .pagedjs_margin-top-center .pagedjs_margin-content {
+    text-overflow: ellipsis;
+    line-height: 1em;
+    background: green;
+    max-height: 1em;
+
   }
 }

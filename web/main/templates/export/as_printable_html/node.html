@@ -1,5 +1,4 @@
-{% load call_method %}
-
+{% load call_method string_strip %}
 
 
 <section class="{{ node.type }} {{ node.resource_type|default:'' | lower }} depth-{{ node.ordinals | length }}">
@@ -60,6 +59,7 @@
 
     {% elif node.is_resource %}  {# case or textblock #}
 
+      {# TODO understand what is going on here #}
       {# Duplicated in the link block because headnotes should go below a link but above cases and text blocks #}
       {% if node.headnote %}
         <section class="headnote">{{ node.headnote_for_export }}</section>
@@ -67,19 +67,16 @@
 
       <section class="resource">
 
-        {% if include_annotations %}
-          {% call_method node 'annotated_content_for_export' export_options=export_options as contents %}
+        {# TODO adapt annotation methods for printable HTML #}
+        {% call_method node 'annotated_content_for_export' export_options=export_options as contents %}
 
-          {{ contents }}
+        {# Strip out any manual whitespace, and mark the output as safe because this operation should not result in broken HTML #}
+        {{ contents|string_strip:"&nbsp;"|safe }}
 
-          {% call_method node 'footnote_annotations' export_options=export_options as footnote_contents %}
-          <div class="footnote">{{ footnote_contents }}</div>
-        {% else %}
+        {# TODO adapt footnote methods for printable HTML #}
+        {% call_method node 'footnote_annotations' export_options=export_options as footnote_contents %}
+        <div class="footnote">{{ footnote_contents }}</div>
 
-        {% call_method node 'content_for_export' export_options=export_options as contents %}
-        {{ contents }}
-
-        {% endif %}
       </section>
     {% endif %}
   {% endif %}
