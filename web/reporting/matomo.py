@@ -104,6 +104,12 @@ def api(
         logger.error(resp.content)
         return web_usage
 
+    if len(data) == 0:
+        web_usage.status = "The Matomo API did not report any data for this period"
+        logger.error(web_usage.status)
+        logger.error(params)
+        return web_usage
+
     if "message" in data:
         web_usage.status = data["message"]
         logger.error(web_usage.status)
