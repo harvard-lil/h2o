@@ -36,16 +36,14 @@
     break-before: right;
   }
 
+  div,
   span,
   p {
     color: unset !important;
     letter-spacing: unset !important;
-    font-size: unset !important;
-    line-height: unset !important;
-
+    font-family: var(--casebook-font-family), serif !important;
   }
 
-  span,
   p,
   div {
     font-size: var(--casebook-font-size) !important;
@@ -70,7 +68,7 @@
   h6 {
     margin: 10mm 0 0.5em 0;
     font-family: var(--casebook-font-family), serif;
-
+    line-height: 140%;
   }
 
   h1 {
@@ -116,21 +114,24 @@
   section.link {
     margin-top: 10mm;
   }
-
+  .link-container {
+    min-height: 10mm;
+    height: 100%;
+    width: 100%;
+  }
   .link-icon {
     width: 10mm;
     height: 10mm;
-    position: absolute;
     background: url("../images/Link.svg");
     background-size: cover;
+    float: left;
+    padding-right: 5mm;
   }
 
-  .link-icon + .node-container {
-    margin-left: 14mm;
-  }
 
-  h1.title {
+  .truncated-title {
     string-set: title content(text);
+    display: none;
   }
 
   h1.casebook.title {
@@ -161,29 +162,21 @@
 
   }
 
-  @page {
-    @bottom-right {
-      content: counter(page);
-    }
-  }
-
   @page:right {
     @top-center {
       content: string(title);
-      max-width: 100mm;
-      height: 9mm;
+    }
+    @bottom-right {
+      content: counter(page);
     }
   }
   @page:left {
     @top-center {
       content: string(casebook-title);
     }
+    @bottom-left {
+      content: counter(page);
+    }
   }
-  .pagedjs_right_page .pagedjs_margin-top-center .pagedjs_margin-content {
-    text-overflow: ellipsis;
-    line-height: 1em;
-    background: green;
-    max-height: 1em;
 
-  }
 }

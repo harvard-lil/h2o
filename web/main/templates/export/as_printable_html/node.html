@@ -4,82 +4,47 @@
 <section class="{{ node.type }} {{ node.resource_type|default:'' | lower }} depth-{{ node.ordinals | length }}">
 
   {% if node.resource_type == 'Link' %}
-  <div class="link-icon"></div>
+    <div class="link-container">
+      <div class="link-icon"></div>
+
+      <h4 class="resource ordinal {{ node.resource_type|lower }}" data-toc-idx="{{ index }}">{{ node.ordinal_string }}.
+        Hyperlink to a web resource
+      </h4>
+
+      <p><a href="{{ node.resource.url }}" target="_blank">{{ node.resource.url }}</a></p>
+    </div>
   {% endif %}
 
   <div class="node-container">
 
-    {% if node.type == 'section' %}
+    <h1 class="{{ node.type }} title">
+      <span class="{{ node.type }} ordinal" data-toc-idx="{{ index }}">{{ node.ordinal_string }}</span>
+      {{ node.title }}
+    </h1>
 
-      <h1 class="title">
-        <span class="section ordinal" data-toc-idx="{{ index }}">{{ node.ordinal_string }}</span>
-        {{ node.title }}
-      </h1>
+    {% if node.subtitle %}
+      <h2 class="subtitle">{{ node.subtitle }}</h2>
+    {% endif %}
 
-      {% if node.subtitle %}
-        <h2 class="subtitle">{{ node.subtitle }}</h2>
-      {% endif %}
-
-      {% if node.headnote %}
-        {% call_method node 'headnote_for_export' export_options=export_options as headnote %}
-        <section class="headnote" data-custom-style="Section Headnote">{{ headnote }}</section>
-      {% endif %}
-
-    {% elif node.type == 'resource' %}
-
-      {% if node.resource_type == 'Link' %}
-        <span class="resource ordinal {{ node.resource_type|lower }}" data-toc-idx="{{ index }}">{{ node.ordinal_string }}.
-          Hyperlink to a web resource
-        </span>
-        <h1 class="resource title" >{{ node.title }}</h1>
-
-      {% else %}
-        <h1 class="title">
-          <span class="resource ordinal non-link" data-toc-idx="{{ index }}">{{ node.ordinal_string }}</span>
-          {{ node.title }}
-        </h1>
-      {% endif %}
+    {% if node.headnote %}
+      {% call_method node 'headnote_for_export' export_options=export_options as headnote %}
+      <section class="headnote">{{ headnote }}</section>
+    {% endif %}
 
 
-
-      {% if node.subtitle %}
-        <h2 class="subtitle">{{ node.subtitle }}</h2>
-      {% endif %}
-
-      {# I think the headnote should go below a link, but above a resource which is why this block prints headnotes#}
-      {% if node.resource_type == 'Link' %}
-
-      <div class="link-container">
-        <a href="{{ node.resource.url }}" target="_blank">{{ node.resource.url }}</a>
-      </div>
-
-      {% if node.headnote %}
-        <section class="headnote">{{ node.headnote_for_export }}</section>
-      {% endif %}
-
-    {% elif node.is_resource %}  {# case or textblock #}
-
-      {# TODO understand what is going on here #}
-      {# Duplicated in the link block because headnotes should go below a link but above cases and text blocks #}
-      {% if node.headnote %}
-        <section class="headnote">{{ node.headnote_for_export }}</section>
-      {% endif %}
-
+    {% if node.is_resource %}
       <section class="resource">
 
-        {# TODO adapt annotation methods for printable HTML #}
-        {% call_method node 'annotated_content_for_export' export_options=export_options as contents %}
+        {% if node.resource.content %}
+          {% call_method node 'annotated_content_for_export' export_options=export_options as contents %}
+        {% endif %}
 
         {# Strip out any manual whitespace, and mark the output as safe because this operation should not result in broken HTML #}
         {{ contents|string_strip:"&nbsp;"|safe }}
 
-        {# TODO adapt footnote methods for printable HTML #}
-        {% call_method node 'footnote_annotations' export_options=export_options as footnote_contents %}
-        <div class="footnote">{{ footnote_contents }}</div>
-
       </section>
     {% endif %}
-  {% endif %}
   </div>
   </section>
 
+<span class="truncated-title">{{ node.ordinal_string }} {{ node.title|truncatechars:50 }}</span>
