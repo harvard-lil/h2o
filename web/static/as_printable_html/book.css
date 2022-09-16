@@ -36,21 +36,24 @@
     break-before: right;
   }
 
+  div,
   span,
   p {
     color: unset !important;
     letter-spacing: unset !important;
-    font-size: unset !important;
-    line-height: unset !important;
-
+    font-family: var(--casebook-font-family), serif !important;
   }
 
-  span,
   p,
   div {
     font-size: var(--casebook-font-size) !important;
     line-height: var(--casebook-line-height) !important;
     font-family: var(--casebook-font-family), serif !important;
+  }
+
+  /* Book content (but not metadata or other types) should be indented. */
+  .node-container p {
+    text-indent: 2em;
   }
 
   h1.casebook.title {
@@ -63,10 +66,9 @@
   h4,
   h5,
   h6 {
-    line-height: 110%;
     margin: 10mm 0 0.5em 0;
     font-family: var(--casebook-font-family), serif;
-
+    line-height: 140%;
   }
 
   h1 {
@@ -112,21 +114,28 @@
   section.link {
     margin-top: 10mm;
   }
-
+  .link-container {
+    min-height: 10mm;
+    height: 100%;
+    width: 100%;
+  }
   .link-icon {
     width: 10mm;
     height: 10mm;
-    position: absolute;
     background: url("../images/Link.svg");
     background-size: cover;
+    float: left;
+    padding-right: 5mm;
   }
 
-  .link-icon + .node-container {
-    margin-left: 14mm;
-  }
 
-  h1.title {
+  .truncated-title {
     string-set: title content(text);
+    display: none;
+  }
+
+  h1.casebook.title {
+    string-set: casebook-title content(text);
   }
 
   .casebook-metadata:not([data-paginator-page="1"]) {
@@ -144,16 +153,8 @@
     padding: 0;
   }
 
-  section.depth-1 {
-    padding: 4em;
-  }
-
   section.depth-2.legaldocument {
     break-before: page;
-  }
-
-  section.depth-2 {
-    padding: 2em;
   }
 
   sup {
@@ -161,13 +162,21 @@
 
   }
 
-  @page {
-    @bottom-right {
-      content: counter(page);
-    }
-
+  @page:right {
     @top-center {
       content: string(title);
     }
+    @bottom-right {
+      content: counter(page);
+    }
   }
+  @page:left {
+    @top-center {
+      content: string(casebook-title);
+    }
+    @bottom-left {
+      content: counter(page);
+    }
+  }
+
 }
