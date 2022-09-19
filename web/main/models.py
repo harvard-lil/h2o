@@ -41,7 +41,7 @@ from django.core.exceptions import ValidationError
 from django.core.validators import validate_unicode_slug, MaxLengthValidator
 from django.db import models, connection, transaction, ProgrammingError
 from django.core.paginator import Paginator
-from django.db.models import Count, F, JSONField
+from django.db.models import Count, F, JSONField, QuerySet
 from django.template.defaultfilters import truncatechars
 from django.template.loader import render_to_string
 from django.urls import reverse
@@ -872,16 +872,23 @@ class SearchIndex(models.Model):
             raise
 
     @classmethod
+    def counts(cls, query: QuerySet) -> dict:
+        """Return the set of counts only for this queryset"""
+        return {
+            c["category"]: c["total"]
+            for c in query.values("category").annotate(total=Count("category"))
+        }
+
+    @classmethod
     def _search(
         cls,
-        category,
-        query=None,
+        category: str,
+        query: Optional[str] = None,
         page_size=10,
         page=1,
-        filters={},
-        facet_fields=[],
-        order_by=None,
-        base_query=None,
+        filters: Optional[dict[str, str]] = None,
+        facet_fields: Optional[list[str]] = None,
+        order_by: str = None,
     ):
         """
         Given:
@@ -914,8 +921,10 @@ class SearchIndex(models.Model):
         Get all cases:
         >>> assert len(dump_search_results(SearchIndex().search('legal_doc'))[0]) == 3
         """
-        if base_query is None:
-            base_query = cls.objects.all()
+        filters = filters or {}
+        facet_fields = facet_fields or []
+
+        base_query = cls.objects.all()
         query_vector = SearchQuery(query, config="english") if query else None
         if query_vector:
             base_query = base_query.filter(document=query_vector)
@@ -942,14 +951,12 @@ class SearchIndex(models.Model):
                 if order_by in ["created_at", "effective_date"]:
                     order_by_expression = ["-metadata__effective_date", display_name]
         results = results.order_by(*order_by_expression)
-        results = Paginator(results, page_size).get_page(page)
+        paged_results = Paginator(results, page_size).get_page(page)
 
         # get counts
-        counts = {
-            c["category"]: c["total"]
-            for c in base_query.values("category").annotate(total=Count("category"))
-        }
-        results.__dict__["count"] = counts.get(
+        counts = cls.counts(base_query)
+
+        paged_results.__dict__["count"] = counts.get(
             category, 0
         )  # hack to avoid redundant query for count
 
@@ -965,7 +972,7 @@ class SearchIndex(models.Model):
                 .distinct()
             )
 
-        return results, counts, facets
+        return paged_results, counts, facets
 
 
 class FullTextSearchIndex(models.Model):

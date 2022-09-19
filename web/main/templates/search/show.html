@@ -1,13 +1,15 @@
 {% extends 'base.html' %}
 {% load current_query_string %}
+{% load humanize %}
 
 {% block mainContent %}
   <header class="advanced-search view-searches-show">
     <h1>H2O Casebook Collection</h1>
     {% if counts %}
     <p>
-      Search inside H2O's Collection of {{ counts.casebook|default:"0" }} casebooks, {{ counts.legal_doc|default:"0" }} legal documents, and 
-      {{ counts.user|default:"0" }} authors.
+      Search inside H2O's Collection of {{ full_counts.casebook|intcomma|default:"0" }} casebooks,
+      {{ full_counts.legal_doc|intcomma|default:"0" }} legal documents, and
+      {{ full_counts.user|intcomma|default:"0" }} authors.
     </p>
     {% endif %}
     <form novalidate="novalidate" class="simple_form search" accept-charset="UTF-8">
@@ -32,19 +34,19 @@
 
             <div class="type-tab {% if category == 'casebook' %}active{% endif %}" {% if category == 'casebook' %}aria-current="location"{% endif %}>
               <a href="?{% current_query_string type="casebooks" page=1 %}" class="wrapper">
-                Casebooks ({{ counts.casebook|default:"0" }})
+                Casebooks ({{ counts.casebook|intcomma|default:"0" }})
               </a>
             </div>
 
             <div class="type-tab {% if category == 'legal_doc' %}active{% endif %}" {% if category == 'legal_doc' %}aria-current="location"{% endif %}>
               <a href="?{% current_query_string type="legal_doc" page=1 %}" class="wrapper">
-                Legal Documents ({{ counts.legal_doc|default:"0" }})
+                Legal Documents ({{ counts.legal_doc|intcomma|default:"0" }})
               </a>
             </div>
 
             <div class="type-tab {% if category == 'user' %}active{% endif %}" {% if category == 'user' %}aria-current="location"{% endif %}>
               <a href="?{% current_query_string type="user" page=1 %}" class="wrapper">
-                Authors ({{ counts.user|default:"0" }})
+                Authors ({{ counts.user|intcomma|default:"0" }})
               </a>
             </div>
           </div>
@@ -54,7 +56,7 @@
         {% include 'search/results.html' %}
       {% else %}
         <div class="no-results">
-          <h3>No results found</h3>
+          <h3>No results were found.</h3>
         </div>
       {% endif %}
     </div>
