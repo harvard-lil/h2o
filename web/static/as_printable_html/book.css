@@ -19,16 +19,14 @@
     --casebook-font-size: 4mm;
     --casebook-line-height: 170%;
     --casebook-font-family: "LibreCaslon";
+    --link-icon-height: 10mm;
+    --link-icon-width: 10mm;
+    --link-icon-margin: 5mm;
+    --highlight-background-color: #ededed;
   }
-
 
   a {
     text-decoration: none;
-  }
-
-  .ordinal {
-    display: inline-block;
-    margin: 0 1em 0 0;
   }
 
   /* Always start a top-level section on a new page, even if there's preface matter */
@@ -51,10 +49,6 @@
     font-family: var(--casebook-font-family), serif !important;
   }
 
-  /* Book content (but not metadata or other types) should be indented. */
-  .node-container p {
-    text-indent: 2em;
-  }
 
   h1.casebook.title {
     font-size: 300%;
@@ -114,20 +108,40 @@
   section.link {
     margin-top: 10mm;
   }
+  section.depth-2.legaldocument {
+    break-before: page;
+  }
+  sup {
+    font-size: calc(var(--casebook-font-size) / 2.5);
+  }
+
+  /* Book content (but not metadata or other types) should be indented. */
+  .node-container p {
+    text-indent: 2em;
+  }
+  .ordinal {
+    display: inline-block;
+    margin: 0 1em 0 0;
+  }
+
   .link-container {
-    min-height: 10mm;
+    min-height: var(--link-icon-height);
     height: 100%;
     width: 100%;
   }
+  .link-container p {
+    margin-left: calc(var(--link-icon-width) + var(--link-icon-margin));
+    word-break: break-all;
+    text-indent: 0;
+  }
   .link-icon {
-    width: 10mm;
-    height: 10mm;
+    width: var(--link-icon-width);
+    height: var(--link-icon-height);
+    margin-right: var(--link-icon-margin);
     background: url("../images/Link.svg");
     background-size: cover;
     float: left;
-    padding-right: 5mm;
   }
-
 
   .truncated-title {
     string-set: title content(text);
@@ -152,14 +166,13 @@
     margin: 0;
     padding: 0;
   }
-
-  section.depth-2.legaldocument {
-    break-before: page;
+  .highlighted {
+    background:var(--highlight-background-color);
   }
-
-  sup {
-    font-size: calc(var(--casebook-font-size) / 2.5);
-
+  p:has(.highlighted) {
+    background: var(--highlight-background-color);
+    box-shadow: 0 0 0 5mm var(--highlight-background-color);
+    clip-path: inset(-2mm -5mm -2mm -5mm);
   }
 
   @page:right {
