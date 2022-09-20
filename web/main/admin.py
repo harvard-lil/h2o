@@ -537,29 +537,41 @@ class ResourceAdmin(BaseAdmin, SimpleHistoryAdmin):
 
 
 class AnnotationsAdmin(BaseAdmin, SimpleHistoryAdmin):
-    readonly_fields = ["created_at", "updated_at", "kind"]
+    readonly_fields = ["created_at", "updated_at", "kind", "resource", "casebook"]
     fields = [
         "resource",
+        "casebook",
         ("global_start_offset", "global_end_offset"),
         "kind",
         "content",
         "created_at",
         "updated_at",
     ]
-    list_select_related = ["resource"]
-    list_display = ["id", "resource_type", "resource_id", "kind", "created_at", "updated_at"]
-    list_filter = ["resource__resource_type"]
-    raw_id_fields = ["resource"]
+    list_select_related = ["resource", "resource__casebook"]
+    list_display = [
+        "id",
+        "casebook",
+        "resource",
+        "resource_type",
+        "kind",
+        "created_at",
+        "updated_at",
+    ]
+    list_filter = ["kind", "resource__resource_type"]
 
-    def resource_type(self, obj):
+    # This table isn't ordered on an index by default; use this as a proxy for recency
+    ordering = ("-id",)
+
+    def resource_type(self, obj) -> str:
         return obj.resource.resource_type
 
     resource_type.admin_order_field = "resource__resource_type"
 
-    def resource_id(self, obj):
-        return obj.resource.resource_id
+    def casebook(self, obj) -> Casebook:
+        return obj.resource.casebook
 
-    resource_id.admin_order_field = "resource__resource_id"
+    def resource(self, obj) -> ContentNode:
+        return obj.resource
 
 
 ## Resources
