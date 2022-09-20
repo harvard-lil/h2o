@@ -3281,7 +3281,7 @@ class ContentNode(
 
         This method should be implemented by all children.
         """
-        return self.casebook.get_draft_url
+        return self.casebook.get_draft_url()
 
     def get_edit_or_absolute_url(self, editing=False):
         if self.resource_id:
