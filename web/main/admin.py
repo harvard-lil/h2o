@@ -565,8 +565,6 @@ class AnnotationsAdmin(BaseAdmin, SimpleHistoryAdmin):
     def resource_type(self, obj) -> str:
         return obj.resource.resource_type
 
-    resource_type.admin_order_field = "resource__resource_type"
-
     def casebook(self, obj) -> Casebook:
         return obj.resource.casebook
 
