@@ -3233,7 +3233,6 @@ def internal_search(request):
         page = 1
     query = request.GET.get("q")
 
-    # else query postgres:
     filters = {}
     author = request.GET.get("author")
     school = request.GET.get("school")
@@ -3250,13 +3249,17 @@ def internal_search(request):
         facet_fields=["attribution", "affiliation"],
         order_by=request.GET.get("sort"),
     )
+    full_counts = SearchIndex.counts(query=SearchIndex.objects.all())
+
     results.from_capapi = False
+
     return render(
         request,
         "search/show.html",
         {
             "results": results,
             "counts": counts,
+            "full_counts": full_counts,
             "facets": facets,
             "category": category,
         },
