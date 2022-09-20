@@ -109,7 +109,7 @@ main > header.casebook {
     display: block;
     position: absolute;
     right: percentage((-1.5 / $grid-columns));
-    top: -40px;
+    top: 0;
     width: 12.5%;
     margin: 0;
   }
