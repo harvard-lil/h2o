@@ -33,18 +33,22 @@
 
 
     {% if node.is_resource %}
-      <section class="resource">
+     {# Whitespace beteen the <section> element and the content must not be introduced to avoid throwing off the annotation offset values #}
+      <section class="resource" data-node-id="{{ node.id }}" data-resource-id="{{ node.resource_id }}">{{ node.resource.content|safe }}</section>
 
-        {% if node.resource.content %}
-          {% call_method node 'annotated_content_for_export' export_options=export_options as contents %}
-        {% endif %}
-
-        {# Strip out any manual whitespace, and mark the output as safe because this operation should not result in broken HTML #}
-        {{ contents|string_strip:"&nbsp;"|safe }}
-
-      </section>
+      {% for annotation in node.highlights %}
+      <li data-annotation-type="highlight"
+          data-start-offset="{{ annotation.global_start_offset }}"
+          data-end-offset="{{ annotation.global_end_offset }}"
+          class="hidden">{{ annotation.resource_id }}</li>
+      {% endfor %}
     {% endif %}
   </div>
-  </section>
 
-<span class="truncated-title">{{ node.ordinal_string }} {{ node.title|truncatechars:50 }}</span>
+
+</section>
+
+<span class="truncated-title hidden">{{ node.ordinal_string }} {{ node.title|truncatechars:50 }}</span>
+
+
+

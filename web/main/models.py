@@ -2499,6 +2499,10 @@ class ContentNode(
             return reverse("annotate_resource", args=[self.casebook, self])
         raise ValueError("Only Resources (LegalDocument and TextBlock) can be annotated.")
 
+    def highlights(self):
+        """Return all annotations of type highlight for this node"""
+        return self.annotations.filter(kind="highlight")
+
     @property
     def get_preferred_url(self):
         """
