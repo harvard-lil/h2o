@@ -174,16 +174,27 @@
     margin: 0;
     padding: 0;
   }
+
   .highlighted {
     background: var(--highlight-background-color);
     padding: calc(var(--casebook-line-height) * .2) 0;
   }
+
+  .elided {
+    display: none;
+  }
+  .elision-marker {
+    text-decoration: none;
+  }
+
   /* Support for greyscale-only printing */
   @media not color {
     .highlighted {
       background: var(--highlight-background-greyscale);
     }
   }
+
+
   @page:right {
     @top-center {
       content: string(title);

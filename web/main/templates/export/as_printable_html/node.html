@@ -36,10 +36,11 @@
      {# Whitespace between the <section> element and the content must not be introduced to avoid throwing off the annotation offset values #}
       <section class="resource" data-node-id="{{ node.id }}" data-resource-id="{{ node.resource_id }}">{{ node.resource.content|safe }}</section>
 
-      {% for annotation in node.highlights %}
-      <li data-annotation-type="highlight"
+      {% for annotation in node.annotations.valid %}
+      <li data-annotation-type="{{ annotation.kind }}"
           data-start-offset="{{ annotation.global_start_offset }}"
           data-end-offset="{{ annotation.global_end_offset }}"
+          data-datetime="{{ annotation.created_at|date:'c' }}"
           class="hidden">{{ annotation.resource_id }}</li>
       {% endfor %}
     {% endif %}
