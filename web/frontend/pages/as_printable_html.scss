@@ -125,9 +125,9 @@
     box-shadow: 0 0 0 1px inset var(--color-marginBox);
   }
 
-  /* uncomment this part for recto/verso book : ------------------------------------ */
+  /* uncomment this part for one-up layout: ------------------------------------ */
 
-  /*\
+/*
       .pagedjs_pages {
           flex-direction: column;
           width: 100%;
@@ -157,7 +157,7 @@
       .pagedjs_right_page{
           left: 0;
       }
-      */
+*/
 
   /*--------------------------------------------------------------------------------------*/
 
