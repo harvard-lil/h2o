@@ -33,7 +33,7 @@
 
 
     {% if node.is_resource %}
-     {# Whitespace beteen the <section> element and the content must not be introduced to avoid throwing off the annotation offset values #}
+     {# Whitespace between the <section> element and the content must not be introduced to avoid throwing off the annotation offset values #}
       <section class="resource" data-node-id="{{ node.id }}" data-resource-id="{{ node.resource_id }}">{{ node.resource.content|safe }}</section>
 
       {% for annotation in node.highlights %}
