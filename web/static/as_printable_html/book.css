@@ -15,6 +15,12 @@
     font-style: italic;
   }
 
+  @font-face {
+    font-family: 'LibreCaslon';
+    src: url('../fonts/LibreCaslonText-Bold.woff2') format('woff2');
+    font-weight: bold;
+  }
+
   :root {
     --casebook-font-size: 4mm;
     --casebook-line-height: 7mm;
@@ -64,6 +70,7 @@
     margin: 10mm 0 0.5em 0;
     font-family: var(--casebook-font-family), serif;
     line-height: 140%;
+    font-weight: normal;
   }
 
   h1 {
@@ -96,14 +103,17 @@
 
   .depth-3 h1 {
     font-size: 100%;
+    font-weight: bold;
   }
 
   .depth-3 h2 {
     font-size: 100%;
+    font-weight: bold;
   }
 
   .depth-3 h3 {
     font-size: 100%;
+    font-weight: bold;
   }
 
   section.link {
@@ -121,11 +131,13 @@
   li {
     list-style-type: initial;
   }
+
+
   /* Book content (but not metadata or other types) should be indented. */
-  .node-container p {
+  .node-container > p, section > p {
     text-indent: 2em;
   }
-  .ordinal {
+  .ordinal:not(:empty) {
     display: inline-block;
     margin: 0 1em 0 0;
   }
@@ -185,6 +197,27 @@
   }
   .elision-marker {
     text-decoration: none;
+  }
+
+  /* Set up a new container that avoids inheriting styles from block parents
+     and also avoids page breaks; */
+  .authors-note {
+    break-inside: avoid;
+    font-weight: initial;
+    text-align: initial;
+    font-style: initial;
+    text-indent: initial;
+    margin: var(--casebook-line-height) 10mm;
+    border-left: 1px var(--highlight-background-greyscale) solid;
+    padding: 0 var(--casebook-font-size);
+  }
+  .authors-note h4 {
+    font-style: italic;
+    margin: 0 0 calc(var(--casebook-line-height) / 2) 0;
+  }
+  .authors-note blockquote {
+    margin: 0;
+    padding: 0;
   }
 
   /* Support for greyscale-only printing */
