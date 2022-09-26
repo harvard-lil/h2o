@@ -5,7 +5,7 @@ from django.contrib import admin, messages
 from django.contrib.auth.admin import UserAdmin as DjangoUserAdmin
 from django.contrib.postgres import fields
 from django.core.mail import send_mail
-from django.db.models import Count
+from django.db.models import Count, JSONField
 from django.forms.models import BaseInlineFormSet
 from django.http import HttpResponseRedirect
 from django.urls import path, reverse
@@ -21,6 +21,7 @@ from .models import (
     ContentCollaborator,
     ContentNode,
     EmailWhitelist,
+    Institution,
     LegalDocument,
     LegalDocumentSource,
     Link,
@@ -107,7 +108,7 @@ class BaseAdmin(admin.ModelAdmin):
 
     actions = None  # use ['delete_selected'] to allow delete action
     formfield_overrides = {
-        fields.JSONField: {"widget": JSONEditorWidget},
+        JSONField: {"widget": JSONEditorWidget},
     }
 
     def has_add_permission(self, request):
@@ -669,6 +670,7 @@ class UserAdmin(BaseAdmin, DjangoUserAdmin):
         "display_name",
         "email_address",
         "is_active",
+        "institution",
         "professor_verification_requested",
         "verified_professor",
         "is_staff",
@@ -689,7 +691,7 @@ class UserAdmin(BaseAdmin, DjangoUserAdmin):
     search_fields = ["attribution", "email_address"]
     fieldsets = (
         (None, {"fields": ("email_address", "password")}),
-        ("Personal info", {"fields": ("attribution", "affiliation", "public_url")}),
+        ("Personal info", {"fields": ("attribution", "institution", "affiliation", "public_url")}),
         (
             "Permissions",
             {
@@ -717,7 +719,7 @@ class UserAdmin(BaseAdmin, DjangoUserAdmin):
     )
     add_fieldsets = (
         (None, {"fields": ("email_address",)}),
-        ("Personal info", {"fields": ("attribution", "affiliation")}),
+        ("Personal info", {"fields": ("attribution", "institution", "affiliation")}),
         (
             "Permissions",
             {
@@ -774,6 +776,28 @@ class EmailWhitelistAdmin(BaseAdmin):
 
     def has_add_permission(self, request):
         return super(BaseAdmin, self).has_add_permission(request)
+
+
+class InstitutionAdmin(BaseAdmin):
+    prepopulated_fields = {"slug": ("name",)}
+    list_display = ["name", "url", "email_domains", "user_count"]
+
+    def has_add_permission(self, request):
+        return super(BaseAdmin, self).has_add_permission(request)
+
+    def get_queryset(self, request):
+        return super().get_queryset(request).annotate(user_count=Count("user"))
+
+    @admin.display(
+        ordering="user_count",
+        description="Users in this institution",
+    )
+    def user_count(self, obj):
+        return obj.user_count
+
+    class Meta:
+        model = Institution
+        fields = "__all__"
 
 
 class LegalDocumentSourceAdmin(BaseAdmin):
@@ -940,6 +964,7 @@ admin_site.register(Link, LinkAdmin)
 admin_site.register(TextBlock, TextBlockAdmin)
 admin_site.register(User, UserAdmin)
 admin_site.register(ContentCollaborator, CollaboratorsAdmin)
+admin_site.register(Institution, InstitutionAdmin)
 admin_site.register(ContentNode, ContentNodeAdmin)
 admin_site.register(EmailWhitelist, EmailWhitelistAdmin)
 admin_site.register(LegalDocumentSource, LegalDocumentSourceAdmin)
