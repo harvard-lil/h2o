@@ -4998,7 +4998,7 @@ class Institution(TimestampedModel):
     email_domains = ArrayField(
         models.CharField(max_length=255),
         default=list,
-        help_text="A list of valid email domains for this institutions, comma-separated",
+        help_text="A list of valid email domains for this institution, comma-separated",
     )
 
     class Meta:
