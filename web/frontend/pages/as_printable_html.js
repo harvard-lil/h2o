@@ -133,18 +133,20 @@ document.addEventListener("DOMContentLoaded", () => {
         case "note": {
           let lastRange;
 
+          // Wrap the specific text the author highlighted to allow for downstream styling
           ranges.forEach((range) => {
             const wrap = document.createElement("span");
-            wrap.classList.add("highlighted");
             range.surroundContents(wrap);
             lastRange = wrap;
           });
+
           // Add the note after the last range
           const note = document.createElement("aside");
           note.classList.add("authors-note");
-          note.innerHTML = `<h4>Author’s note:</h4>
-            <blockquote>${content}</blockquote>
-          `;
+
+          // Ask PagedJS to render it as a footnote on the current page
+          note.classList.add("footnote-generated");
+          note.innerText = content
           lastRange.insertAdjacentElement("afterend", note);
           break;
         }

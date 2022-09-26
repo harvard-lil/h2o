@@ -199,25 +199,21 @@
     text-decoration: none;
   }
 
-  /* Set up a new container that avoids inheriting styles from block parents
-     and also avoids page breaks; */
+  /* Set up a new container that avoids inheriting styles from block parents */
   .authors-note {
     break-inside: avoid;
     font-weight: initial;
     text-align: initial;
     font-style: initial;
     text-indent: initial;
-    margin: var(--casebook-line-height) 10mm;
-    border-left: 1px var(--highlight-background-greyscale) solid;
-    padding: 0 var(--casebook-font-size);
   }
-  .authors-note h4 {
-    font-style: italic;
-    margin: 0 0 calc(var(--casebook-line-height) / 2) 0;
+
+  /* PageJS handling of footnotes */
+  .footnote-generated {
+    float: footnote;
   }
-  .authors-note blockquote {
-    margin: 0;
-    padding: 0;
+  ::footnote-call {
+    margin-left: .5mm;
   }
 
   /* Support for greyscale-only printing */
@@ -244,5 +240,9 @@
       content: counter(page);
     }
   }
-
+  @page {
+    @footnote {
+      float: bottom;
+    }
+  }
 }
