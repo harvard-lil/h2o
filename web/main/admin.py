@@ -3,7 +3,6 @@ from django import forms
 from django.conf import settings
 from django.contrib import admin, messages
 from django.contrib.auth.admin import UserAdmin as DjangoUserAdmin
-from django.contrib.postgres import fields
 from django.core.mail import send_mail
 from django.db.models import Count, JSONField
 from django.forms.models import BaseInlineFormSet
