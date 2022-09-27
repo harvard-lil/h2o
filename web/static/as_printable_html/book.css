@@ -15,6 +15,12 @@
     font-style: italic;
   }
 
+  @font-face {
+    font-family: 'LibreCaslon';
+    src: url('../fonts/LibreCaslonText-Bold.woff2') format('woff2');
+    font-weight: bold;
+  }
+
   :root {
     --casebook-font-size: 4mm;
     --casebook-line-height: 7mm;
@@ -64,6 +70,7 @@
     margin: 10mm 0 0.5em 0;
     font-family: var(--casebook-font-family), serif;
     line-height: 140%;
+    font-weight: normal;
   }
 
   h1 {
@@ -96,14 +103,17 @@
 
   .depth-3 h1 {
     font-size: 100%;
+    font-weight: bold;
   }
 
   .depth-3 h2 {
     font-size: 100%;
+    font-weight: bold;
   }
 
   .depth-3 h3 {
     font-size: 100%;
+    font-weight: bold;
   }
 
   section.link {
@@ -121,11 +131,13 @@
   li {
     list-style-type: initial;
   }
+
+
   /* Book content (but not metadata or other types) should be indented. */
-  .node-container p {
+  .node-container > p, section > p {
     text-indent: 2em;
   }
-  .ordinal {
+  .ordinal:not(:empty) {
     display: inline-block;
     margin: 0 1em 0 0;
   }
@@ -187,6 +199,23 @@
     text-decoration: none;
   }
 
+  /* Set up a new container that avoids inheriting styles from block parents */
+  .authors-note {
+    break-inside: avoid;
+    font-weight: initial;
+    text-align: initial;
+    font-style: initial;
+    text-indent: initial;
+  }
+
+  /* PageJS handling of footnotes */
+  .footnote-generated {
+    float: footnote;
+  }
+  ::footnote-call {
+    margin-left: .5mm;
+  }
+
   /* Support for greyscale-only printing */
   @media not color {
     .highlighted {
@@ -211,5 +240,9 @@
       content: counter(page);
     }
   }
-
+  @page {
+    @footnote {
+      float: bottom;
+    }
+  }
 }
