@@ -434,7 +434,7 @@ def handler(event, context):
                 "--to",
                 "docx",
                 "--reference-doc",
-                "reference.docx" if options["docx_sections"] else "old_pr1491/reference.docx",
+                "reference.docx",
                 "--output",
                 pandoc_out.name,
                 "--quiet",
@@ -444,8 +444,6 @@ def handler(event, context):
                     [
                         "--lua-filter",
                         "table_of_contents.lua"
-                        if options["docx_sections"]
-                        else "old_pr1491/table_of_contents.lua",
                     ]
                 )
             try:
@@ -477,15 +475,13 @@ def handler(event, context):
             if not os.path.getsize(pandoc_out.name) > 0:
                 raise Exception("Pandoc produced no output.")
 
-            if options.get("word_footnotes", False) or options.get("docx_sections", False):
-                doc = Document(pandoc_out)
-                if options.get("word_footnotes", False):
-                    promote_case_footnotes(doc, docx_sections=options.get("docx_sections", False))
-                if options.get("docx_sections", False):
-                    sectionizer(doc)
-                output = io.BytesIO()
-                doc.save(output)
-                output.seek(0, 0)
-                return output.read()
+            doc = Document(pandoc_out)
+            if options.get("word_footnotes", False):
+                promote_case_footnotes(doc, docx_sections=True)
+            sectionizer(doc)
+            output = io.BytesIO()
+            doc.save(output)
+            output.seek(0, 0)
+            return output.read()
 
             return pandoc_out.read()

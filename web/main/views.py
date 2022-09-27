@@ -2839,27 +2839,17 @@ def update_legal_doc(request, node=None):
     )
 )
 @user_has_perm("node", "viewable_by")
-def export(request, node, file_type="docx"):
+def export(request: HttpRequest, node: Union[ContentNode, Casebook], file_type="docx"):
     """
     Export casebook. File type can be 'docx' or 'html' (in which case we dump pre-pandoc html directly to the
     browser), and ?annotations=true will include annotations in the exported file.
     """
     if file_type not in ("docx", "html"):
         raise Http404
-    docx_footnotes = (
-        request.GET.get("docx_footnotes") == "true"
-        if "docx_footnotes" in request.GET
-        else settings.FORCE_DOCX_FOOTNOTES
-    )
-    docx_sections = (
-        request.GET.get("docx_sections") == "true"
-        if "docx_sections" in request.GET
-        else settings.FORCE_DOCX_SECTIONS
-    )
+
     include_annotations = request.GET.get("annotations") == "true"
     export_options = {"request": request}
-    export_options["docx_footnotes"] = docx_footnotes
-    export_options["docx_sections"] = docx_sections
+
     # get response data
     try:
         response_data = node.export(
@@ -2867,7 +2857,6 @@ def export(request, node, file_type="docx"):
             request.user,
             file_type,
             export_options=export_options,
-            docx_footnotes=docx_footnotes,
         )
     except LambdaExportTooLarge as too_large:
         logger.warning(f"Export node({node.id}): " + too_large.args[0])
