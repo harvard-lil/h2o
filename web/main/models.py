@@ -2046,7 +2046,7 @@ class ContentNode(
         cls,
         casebook: Casebook,
         user: Union[User, AnonymousUser],
-        queryset: Optional[models.QuerySet] = None,
+        queryset: Optional[ContentNodeQuerySet] = None,
         **kwargs,
     ) -> ContentNodeQuerySet:
 
@@ -2102,8 +2102,11 @@ class ContentNode(
         res = ContentNode.objects.filter(**filter_map).exclude(id=self.id)
         return res
 
-    def contents_for_user(self, user: Union[User, AnonymousUser]):
-        return self.nodes_for_user_by_casebook(self.casebook, user, queryset=self.contents)
+    def contents_for_user(self, user: Union[User, AnonymousUser]) -> ContentNodeQuerySet:
+        if self.casebook:
+            return self.nodes_for_user_by_casebook(self.casebook, user, queryset=self.contents)
+        else:
+            return ContentNodeQuerySet().none()
 
     def get_previous_and_next_nodes(
         self, user: User
@@ -2571,7 +2574,7 @@ class ContentNode(
             else None
         )
 
-        current_collaborators = set(self.casebook.primary_authors)
+        current_collaborators = set(self.casebook.primary_authors) if self.casebook else set()
         cloned_from = {
             cn.casebook
             for cn in self.ancestor_nodes.prefetch_related("casebook")
@@ -4954,15 +4957,9 @@ class User(NullableTimestampedModel, PermissionsMixin, AbstractBaseUser):
             followed_casebooks.append(cb)
         return followed_casebooks
 
-    @property
-    def can_view_instructional_material(self) -> bool:
-        """A user passing this check can view instructional material"""
-        return User.user_can_view_instruction_material(self)
-
     @staticmethod
     def user_can_view_instructional_material(user: Union[AnonymousUser, User]) -> bool:
         return user.is_authenticated and (user.verified_professor or user.is_staff)
-
 
 def update_user_login_fields(sender, request, user, **kwargs):
     """
