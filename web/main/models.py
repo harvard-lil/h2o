@@ -1,46 +1,47 @@
 from __future__ import annotations
 
-from typing import (  # noqa: F401 workaround for django-stubs#1022 until the fix in django-stubs#1028 is released
-    Sequence,
-)
-from typing import Type, Union, Optional
-from dateutil import parser
-import time
 import logging
-from pathlib import Path
 import re
-import requests
+import time
 from datetime import datetime
 from enum import Enum
 from os.path import commonprefix
+from pathlib import Path
 from test.test_helpers import (
     dump_annotated_text,
     dump_casebook_outline,
     dump_content_tree,
     dump_content_tree_children,
 )
+from typing import (  # noqa: F401 workaround for django-stubs#1022 until the fix in django-stubs#1028 is released
+    Optional,
+    Sequence,
+    Type,
+    Union,
+)
 from urllib.parse import urlparse
 
 import lxml.etree
 import lxml.sax
-from lxml import html
+import requests
+from dateutil import parser
 from django.conf import settings
 from django.contrib.auth import user_logged_in
 from django.contrib.auth.base_user import AbstractBaseUser, BaseUserManager
-from django.contrib.auth.models import PermissionsMixin, AnonymousUser
+from django.contrib.auth.models import AnonymousUser, PermissionsMixin
 from django.contrib.postgres.fields import ArrayField
 from django.contrib.postgres.indexes import GinIndex
 from django.contrib.postgres.search import (
-    SearchVector,
-    SearchVectorField,
+    SearchHeadline,
     SearchQuery,
     SearchRank,
-    SearchHeadline,
+    SearchVector,
+    SearchVectorField,
 )
 from django.core.exceptions import ValidationError
-from django.core.validators import validate_unicode_slug, MaxLengthValidator
-from django.db import models, connection, transaction, ProgrammingError
 from django.core.paginator import Paginator
+from django.core.validators import MaxLengthValidator, validate_unicode_slug
+from django.db import ProgrammingError, connection, models, transaction
 from django.db.models import Count, F, JSONField, QuerySet
 from django.template.defaultfilters import truncatechars
 from django.template.loader import render_to_string
@@ -49,6 +50,7 @@ from django.utils import timezone
 from django.utils.html import format_html
 from django.utils.safestring import mark_safe
 from django.utils.text import slugify
+from lxml import html
 from pyquery import PyQuery
 from pytest import raises as assert_raises
 from simple_history.models import HistoricalRecords
@@ -56,25 +58,25 @@ from simple_history.utils import bulk_create_with_history, bulk_update_with_hist
 
 from .differ import AnnotationUpdater
 from .sanitize import sanitize
+from .storages import get_s3_storage
 from .utils import (
+    APICommunicationError,
     block_level_elements,
     clone_model_instance,
     elements_equal,
+    export_via_aws_lambda,
+    fix_after_rails,
     get_ip_address,
     looks_like_case_law_link,
     looks_like_citation,
     normalize_newlines,
     parse_html_fragment,
+    prefix_ids_hrefs,
     remove_empty_tags,
+    rich_text_export,
     strip_trailing_block_level_whitespace,
     void_elements,
-    rich_text_export,
-    prefix_ids_hrefs,
-    APICommunicationError,
-    fix_after_rails,
-    export_via_aws_lambda,
 )
-from .storages import get_s3_storage
 
 logger = logging.getLogger(__name__)
 
@@ -4854,6 +4856,7 @@ class User(NullableTimestampedModel, PermissionsMixin, AbstractBaseUser):
     email_address = models.CharField(max_length=255, unique=True)
     attribution = models.CharField(max_length=255, default="Anonymous", verbose_name="Display name")
     affiliation = models.CharField(max_length=255, blank=True, null=True)
+    institution = models.ForeignKey("Institution", blank=True, null=True, on_delete=models.SET_NULL)
     public_url = models.CharField(
         max_length=255,
         blank=True,
@@ -4984,6 +4987,27 @@ def update_user_login_fields(sender, request, user, **kwargs):
 
 
 user_logged_in.connect(update_user_login_fields)
+
+
+class Institution(TimestampedModel):
+    """An educational institution that a user can be a member of, typically for verified professors"""
+
+    name = models.CharField(max_length=1000, unique=True, db_index=True)
+    url = models.URLField(blank=True, null=True)
+    slug = models.SlugField(max_length=100)
+    email_domains = ArrayField(
+        models.CharField(max_length=255),
+        default=list,
+        help_text="A list of valid email domains for this institution, comma-separated",
+    )
+
+    class Meta:
+        ordering = [
+            "name",
+        ]
+
+    def __str__(self):
+        return self.name
 
 
 class SavedImage(TimestampedModel):
