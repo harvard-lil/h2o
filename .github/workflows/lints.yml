@@ -8,7 +8,9 @@ jobs:
 
     steps:
       - uses: actions/checkout@v2
-
+      - uses: actions/setup-python@v4
+        with:
+          python-version: '3.9'
       - name: flake8
         run: |
           pip install `egrep -o 'flake8==\S+' web/requirements.txt`  # install our version of flake8
@@ -19,3 +21,9 @@ jobs:
         run: |
           pip install `egrep -o 'black==\S+' web/requirements.txt`  # install our version of black
           black --check --diff . # Uses pyproject.toml
+
+      - name: mypy
+        run: |
+          cd web
+          pip install -r requirements.txt  # install a full environment for mypy
+          PYTHONPATH=. mypy
