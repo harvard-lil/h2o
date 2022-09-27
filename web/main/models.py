@@ -2541,17 +2541,10 @@ class ContentNode(
         file_type="docx",
         export_options=None,
         is_child=False,
-        docx_footnotes=None,
     ):
         """
         Export this node and children as docx, or as html for conversion by pandoc.
         """
-
-        docx_sections = (
-            export_options["docx_sections"]
-            if export_options and "docx_sections" in export_options
-            else settings.FORCE_DOCX_SECTIONS
-        )
 
         # prefetch all child nodes and related data
         if LiveSettings.load().prevent_exports:
@@ -2559,10 +2552,6 @@ class ContentNode(
                 f"Exporting Casebook {self.id}: attempt rejected (too many previous failures)"
             )
             return None
-
-        docx_footnotes = (
-            docx_footnotes if docx_footnotes is not None else settings.FORCE_DOCX_FOOTNOTES
-        )
 
         children = (
             list(
@@ -2591,9 +2580,6 @@ class ContentNode(
         else:
             template_name = "export/node.html"
 
-        if not docx_sections:
-            template_name = template_name.replace("export/", "export/old_pr1491/")
-
         html = render_to_string(
             template_name,
             {
@@ -2611,9 +2597,7 @@ class ContentNode(
         if file_type == "html":
             return html
         if not LiveSettings.export_is_rate_limited():
-            return export_via_aws_lambda(
-                self, html, file_type, docx_footnotes=docx_footnotes, docx_sections=docx_sections
-            )
+            return export_via_aws_lambda(self, html, file_type)
         logger.info(f"Exporting {self.type} {self.id} prevented due to rate limits")
         return None
 
@@ -4472,19 +4456,10 @@ class Casebook(EditTrackedModel, TimestampedModel, BigPkModel, TrackedCloneable)
         user: Union[User, AnonymousUser],
         file_type="docx",
         export_options=None,
-        docx_footnotes=None,
     ):
         """
         Export this node and children as docx, or as html for conversion by pandoc.
         """
-        docx_footnotes = (
-            docx_footnotes if docx_footnotes is not None else settings.FORCE_DOCX_FOOTNOTES
-        )
-        docx_sections = (
-            export_options["docx_sections"]
-            if export_options and "docx_sections" in export_options
-            else settings.FORCE_DOCX_SECTIONS
-        )
 
         # prefetch all child nodes and related data
         if self.export_embargoed() or LiveSettings.load().prevent_exports:
@@ -4509,9 +4484,7 @@ class Casebook(EditTrackedModel, TimestampedModel, BigPkModel, TrackedCloneable)
 
         # render html
         logger.info(f"Exporting Casebook {self.id}: serializing to HTML")
-        template_name = (
-            "export/casebook.html" if docx_sections else "export/old_pr1491/casebook.html"
-        )
+        template_name = "export/casebook.html"
 
         html = render_to_string(
             template_name,
@@ -4527,16 +4500,11 @@ class Casebook(EditTrackedModel, TimestampedModel, BigPkModel, TrackedCloneable)
         )
         if file_type == "html":
             return html
-        if docx_sections:
-            html = (
-                html.replace("&nbsp;", " ")
-                .replace("_h2o_keep_element", "&nbsp;")
-                .replace("\xa0", " ")
-            )
+        html = (
+            html.replace("&nbsp;", " ").replace("_h2o_keep_element", "&nbsp;").replace("\xa0", " ")
+        )
         if not LiveSettings.export_is_rate_limited():
-            return export_via_aws_lambda(
-                self, html, file_type, docx_sections=docx_sections, docx_footnotes=docx_footnotes
-            )
+            return export_via_aws_lambda(self, html, file_type)
         logger.info(f"Exporting Casebook {self.id} prevented due to rate limits")
         return None
 

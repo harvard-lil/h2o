@@ -623,7 +623,7 @@ class LambdaExportTooLarge(RuntimeError):
     pass
 
 
-def export_via_aws_lambda(obj, html, file_type, docx_footnotes=None, docx_sections=False):
+def export_via_aws_lambda(obj, html, file_type):
     export_settings = settings.AWS_LAMBDA_EXPORT_SETTINGS
     export_type = obj.__class__.__name__
     log_line_prefix = f"Exporting {export_type} {obj.id}"
@@ -655,10 +655,8 @@ def export_via_aws_lambda(obj, html, file_type, docx_footnotes=None, docx_sectio
                 "filename": filename,
                 "is_casebook": export_type == "Casebook",
                 "options": {
-                    "word_footnotes": settings.FORCE_DOCX_FOOTNOTES
-                    if docx_footnotes is None
-                    else docx_footnotes,
-                    "docx_sections": docx_sections,
+                    "word_footnotes": True,
+                    "docx_sections": True,
                 },
             }
             if export_settings.get("function_arn"):
