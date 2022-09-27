@@ -4961,6 +4961,7 @@ class User(NullableTimestampedModel, PermissionsMixin, AbstractBaseUser):
     def user_can_view_instructional_material(user: Union[AnonymousUser, User]) -> bool:
         return user.is_authenticated and (user.verified_professor or user.is_staff)
 
+
 def update_user_login_fields(sender, request, user, **kwargs):
     """
     Register signal to record user login details on successful login, following the behavior of the Rails authlogic gem.
