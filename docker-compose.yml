@@ -59,7 +59,7 @@ services:
           - 'opencasebook.minio.test'
 
   pandoc-lambda:
-    image: registry.lil.tools/harvardlil/h2o-pandoc-lambda:0.62-4834506621d03f471dd55d748026c1bd
+    image: registry.lil.tools/harvardlil/h2o-pandoc-lambda:0.63-8b8bf8d090ea67d062b4628f310fb8fe
     tty: true
     environment:
       - USE_S3_CREDENTIALS=True

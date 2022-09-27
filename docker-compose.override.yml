@@ -8,7 +8,7 @@ services:
       context: ./docker/pandoc-lambda
       x-bake:
         tags:
-          - registry.lil.tools/harvardlil/h2o-pandoc-lambda:0.62-4834506621d03f471dd55d748026c1bd
+          - registry.lil.tools/harvardlil/h2o-pandoc-lambda:0.63-8b8bf8d090ea67d062b4628f310fb8fe
         platforms:
           - linux/amd64
           - linux/arm64
