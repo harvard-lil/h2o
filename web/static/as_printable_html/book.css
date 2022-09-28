@@ -198,6 +198,12 @@
   .elision-marker {
     text-decoration: none;
   }
+  del.replace, del.correction {
+    display: none;
+  }
+  ins.replace, ins.correction {
+    text-decoration: none;
+  }
 
   /* Set up a new container that avoids inheriting styles from block parents */
   .authors-note {

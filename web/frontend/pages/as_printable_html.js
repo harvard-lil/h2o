@@ -114,6 +114,7 @@ document.addEventListener("DOMContentLoaded", () => {
             elision.setAttribute("datetime", datetime);
 
             const marker = document.createElement("ins");
+            marker.setAttribute("datetime", datetime);
             marker.classList.add("elision-marker");
             marker.innerText = " … ";
             range.surroundContents(elision);
@@ -149,6 +150,22 @@ document.addEventListener("DOMContentLoaded", () => {
           note.innerText = content
           lastRange.insertAdjacentElement("afterend", note);
           break;
+        }
+        case "replace":
+        case "correction": {
+          // Transparently replace the content inside the node
+          ranges.forEach((range) => {
+            const deletion = document.createElement("del");
+            deletion.classList.add(type);
+            deletion.setAttribute("datetime", datetime);
+
+            const replacement = document.createElement("ins");
+            replacement.setAttribute("datetime", datetime);
+            replacement.classList.add(type);
+            replacement.innerText = content;
+            range.surroundContents(deletion);
+            deletion.insertAdjacentElement("afterend", replacement);
+          });
         }
       }
     });
