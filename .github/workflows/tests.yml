@@ -9,7 +9,7 @@ jobs:
     if: github.event_name == 'pull_request' || github.repository == 'harvard-lil/h2o'
 
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v3
 
       ### build docker images locally ###
 
