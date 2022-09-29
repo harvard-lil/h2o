@@ -1,7 +1,9 @@
 {% load call_method string_strip %}
 
 
-<section class="{{ node.type }} {{ node.resource_type|default:'' | lower }} depth-{{ node.ordinals | length }}">
+<section
+  data-datetime="{{ node.created_at|date:'c' }}"
+  class="{{ node.type }} {{ node.resource_type|default:'' | lower }} depth-{{ node.ordinals | length }}">
 
   {% if node.resource_type == 'Link' %}
     <div class="link-container">

@@ -34,6 +34,7 @@
 
   a {
     text-decoration: none;
+    color: inherit;
   }
 
   /* Always start a top-level section on a new page, even if there's preface matter */
