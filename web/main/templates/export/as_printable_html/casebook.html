@@ -44,6 +44,7 @@
     <div class="casebook-metadata" data-paginator-page="{{ page.number }}">
       <h1 class="casebook title">{{ casebook.title }}</h1>
       <h2 class="casebook subtitle">{{ casebook.subtitle|default_if_none:""}}</h2>
+      <span class="truncated-title hidden">{{ casebook.title }}</span>
       <div class="author-list">
         <ul>
         {% for user in casebook.primary_authors %}
@@ -69,9 +70,6 @@
   </template>
 
   <main id="as-printable-html"></main>
-
-
-
 
 </body>
 </html>
