@@ -130,7 +130,6 @@
   /* Headnotes don't have indentation */
   section.headnote p {
     text-indent: initial;
-    margin: 0;
   }
 
   section.link {
@@ -161,7 +160,6 @@
 
   .link-container {
     min-height: var(--link-icon-height);
-    height: 100%;
     width: 100%;
   }
   .link-container p {
