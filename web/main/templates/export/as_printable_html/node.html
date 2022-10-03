@@ -5,48 +5,58 @@
   data-datetime="{{ node.created_at|date:'c' }}"
   class="{{ node.type }} {{ node.resource_type|default:'' | lower }} depth-{{ node.ordinals | length }}">
 
-  {% if node.resource_type == 'Link' %}
-    <div class="link-container">
-      <div class="link-icon"></div>
 
-      <h4 class="resource ordinal {{ node.resource_type|lower }}" data-toc-idx="{{ index }}">{{ node.ordinal_string }}.
-        Hyperlink to a web resource
-      </h4>
-
-      <p><a href="{{ node.resource.url }}" target="_blank">{{ node.resource.url }}</a></p>
-    </div>
-  {% endif %}
 
   <div class="node-container">
 
-    <h1 class="{{ node.type }} title">
-      <span class="{{ node.type }} ordinal" data-toc-idx="{{ index }}">{{ node.ordinal_string }}</span>
-      {{ node.title }}
-    </h1>
+    {% if node.resource_type == 'Link' %}
+      <div class="link-container">
+        <div class="link-icon"></div>
 
-    {% if node.subtitle %}
-      <h2 class="subtitle">{{ node.subtitle }}</h2>
+        <h1 class="resource ordinal {{ node.resource_type|lower }}" data-toc-idx="{{ index }}">{{ node.ordinal_string }}.
+          Hyperlink to a web resource
+        </h4>
+        <h2 class="subtitle">{{ node.subtitle }}</h2>
+
+        {% if node.headnote %}
+          {% call_method node 'headnote_for_export' export_options=export_options as headnote %}
+          <section class="headnote">{{ headnote }}</section>
+        {% endif %}
+
+        <a href="{{ node.resource.url }}" target="_blank" data-type="resource">{{ node.resource.url }}</a>
+      </div>
+
+    {% else %}
+
+        <h1 class="{{ node.type }} title">
+          <span class="{{ node.type }} ordinal" data-toc-idx="{{ index }}">{{ node.ordinal_string }}</span>
+          {{ node.title }}
+        </h1>
+
+        {% if node.subtitle %}
+          <h2 class="subtitle">{{ node.subtitle }}</h2>
+        {% endif %}
+
+        {% if node.headnote %}
+          {% call_method node 'headnote_for_export' export_options=export_options as headnote %}
+          <section class="headnote">{{ headnote }}</section>
+        {% endif %}
+
+        {% if node.is_resource %}
+        {# Whitespace between the <section> element and the content must not be introduced to avoid throwing off the annotation offset values #}
+          <section class="resource" data-node-id="{{ node.id }}" data-resource-id="{{ node.resource_id }}">{{ node.resource.content|safe }}</section>
+
+          {% for annotation in node.annotations.valid %}
+          <li data-annotation-type="{{ annotation.kind }}"
+              data-node-id="{{ annotation.resource_id }}"
+              data-start-offset="{{ annotation.global_start_offset }}"
+              data-end-offset="{{ annotation.global_end_offset }}"
+              data-datetime="{{ annotation.created_at|date:'c' }}"
+              class="hidden">{{ annotation.content }}</li>
+          {% endfor %}
+        {% endif %}
     {% endif %}
 
-    {% if node.headnote %}
-      {% call_method node 'headnote_for_export' export_options=export_options as headnote %}
-      <section class="headnote">{{ headnote }}</section>
-    {% endif %}
-
-
-    {% if node.is_resource %}
-     {# Whitespace between the <section> element and the content must not be introduced to avoid throwing off the annotation offset values #}
-      <section class="resource" data-node-id="{{ node.id }}" data-resource-id="{{ node.resource_id }}">{{ node.resource.content|safe }}</section>
-
-      {% for annotation in node.annotations.valid %}
-      <li data-annotation-type="{{ annotation.kind }}"
-          data-node-id="{{ annotation.resource_id }}"
-          data-start-offset="{{ annotation.global_start_offset }}"
-          data-end-offset="{{ annotation.global_end_offset }}"
-          data-datetime="{{ annotation.created_at|date:'c' }}"
-          class="hidden">{{ annotation.content }}</li>
-      {% endfor %}
-    {% endif %}
   </div>
 
 

@@ -109,8 +109,8 @@ document.addEventListener("DOMContentLoaded", () => {
     const css = tmpl.getAttribute("data-stylesheet");
     const paged = new Previewer();
 
-    // For any existing URLs, turn them into footnotes
-    tmpl.content.querySelectorAll('a[href^="http"]').forEach((el) => {
+    // For any existing URLs that aren't resources, turn them into footnotes
+    tmpl.content.querySelectorAll('a[href^="http"]:not([data-type])').forEach((el) => {
       hyperlinkFootnote(el, el['href'],
       new Date(tmpl.content.querySelector('section[data-datetime]').getAttribute('data-datetime')))
     });
@@ -131,7 +131,7 @@ document.addEventListener("DOMContentLoaded", () => {
       switch (type) {
         case "highlight": {
           ranges.forEach((range) => {
-            const wrap = document.createElement("span");
+            const wrap = document.createElement("mark");
             wrap.classList.add("highlighted");
             range.surroundContents(wrap);
           });
@@ -166,7 +166,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
           // Wrap the specific text the author highlighted to allow for downstream styling
           ranges.forEach((range) => {
-            const wrap = document.createElement("span");
+            const wrap = document.createElement("mark");
             range.surroundContents(wrap);
             lastRange = wrap;
           });

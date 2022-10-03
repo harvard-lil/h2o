@@ -117,6 +117,22 @@
     font-weight: bold;
   }
 
+  /* Headers for links are much smaller */
+  h1.link {
+    font-size: 110%;
+    font-weight: bold;
+  }
+  h2.subtitle {
+    font-size: 100%;
+    font-style: italic;
+  }
+
+  /* Headnotes don't have indentation */
+  section.headnote p {
+    text-indent: initial;
+    margin: 0;
+  }
+
   section.link {
     margin-top: 10mm;
   }
