@@ -229,12 +229,23 @@
     text-indent: initial;
   }
 
-  /* PageJS handling of footnotes */
+  /* Style footnotes, allowing the URLs to break midway. PagedJS will put these in the bottom margin */
   .footnote-generated {
     float: footnote;
+    word-wrap: break-word;
   }
+  /* Add some spacing to the superscript indicating a footnote. */
   ::footnote-call {
     margin-left: .5mm;
+  }
+  /* Generate the corresponding footnote reference in the footer as e.g. "2. <footnote-text>"
+   Don't allow long URLs to break on the space in this marker. */
+  [data-footnote-marker]::marker {
+    content: counter(footnote-marker) ". ";
+    white-space: nowrap;
+  }
+  [data-footnote-marker]::after {
+    content: " ";
   }
 
   /* Support for greyscale-only printing */
