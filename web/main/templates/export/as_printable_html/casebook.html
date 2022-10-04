@@ -58,9 +58,11 @@
         </ul>
       </div>
       <section class="casebook headnote">{{ casebook.headnote|safe}}</section>
+      {% if page.number == 1%}
       <div id="toc">
         {% include "export/as_printable_html/toc.html" with toc=toc %}
       </div>
+      {% endif %}
     </div>
 
     {% for child in children %}

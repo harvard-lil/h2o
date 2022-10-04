@@ -153,20 +153,23 @@
   .node-container > p, section > p {
     text-indent: 2em;
   }
-  .ordinal:not(:empty) {
-    display: inline-block;
-    margin: 0 1em 0 0;
+  .title > .ordinal:not(:empty) {
+    float: left;
+    width: 10mm;
   }
-
+  .title > span:nth-of-type(2) {
+    display: block;
+    margin-left: 10mm;
+  }
   .link-container {
     min-height: var(--link-icon-height);
     width: 100%;
   }
-  .link-container p {
-    margin-left: calc(var(--link-icon-width) + var(--link-icon-margin));
+
+  a[data-type~="link"] {
     word-break: break-all;
-    text-indent: 0;
   }
+
   .link-icon {
     width: var(--link-icon-width);
     height: var(--link-icon-height);

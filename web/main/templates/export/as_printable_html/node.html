@@ -22,13 +22,13 @@
         <section class="headnote">{{ headnote }}</section>
       {% endif %}
 
-      <a href="{{ node.resource.url }}" target="_blank" data-type="resource">{{ node.resource.url }}</a>
+      <a href="{{ node.resource.url }}" target="_blank" data-type="resource link">{{ node.resource.url }}</a>
 
     {% else %}
 
         <h1 class="{{ node.type }} title">
           <span class="{{ node.type }} ordinal" data-toc-idx="{{ index }}">{{ node.ordinal_string }}</span>
-          {{ node.title }}
+          <span>{{ node.title }}</span>
         </h1>
 
         {% if node.subtitle %}

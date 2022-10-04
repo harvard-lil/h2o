@@ -2,6 +2,7 @@ nav.toc {
     --toc-column-gap: 2mm;
     --toc-row-gap: 5mm;
     --toc-left-width: 10mm;
+    break-before: right;
 }
 nav.toc h2 {
     margin: calc(var(--toc-row-gap) * 2) 0;
