@@ -25,6 +25,10 @@
   /* Show underlining for TOC hyperlinks in the web view only */
   nav.toc a {
     text-decoration: underline;
+    text-decoration-style: dotted;
+    text-underline-offset: 1mm;
+    text-decoration-color: gray;
+
   }
 }
 

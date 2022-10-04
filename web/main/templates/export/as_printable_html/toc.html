@@ -9,7 +9,10 @@
 
             <ol>
             {% for child in top_level_node.children %}
-                <li><span class="ordinals">{{ child.ordinal_string }}</span> {{ child.title }}</li>
+                <li>
+                    <span class="ordinals">{{ child.ordinal_string }}</span>
+                    <span class="node-title">{{ child.title }}</span>
+                </li>
             {% endfor %}
             </ol>
         </li>
