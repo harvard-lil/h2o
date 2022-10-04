@@ -1,7 +1,9 @@
-import { Previewer } from "pagedjs";
+import {
+  Previewer
+} from "pagedjs";
 
 /**
- *  Collect groups of ranges for each annotation offset start and end. Note that start/end offset may
+ * Collect groups of ranges for each annotation offset start and end. Note that start/end offset may
  * cross multiple block-level node boundaries; this will construct one node range for each block-level element.
  * @param  {NodeList} annotations The list of annotation elements in the parent DOM injected by Django.
  * @param {DocumentFragment} content The DOM content of the page
@@ -84,11 +86,34 @@ function annotationsToRanges(annotations, content) {
   return annotationRanges;
 }
 
+/**
+ * Create a footnote element in PagedJS containing the provided URL.
+ * @param {Node} node
+ * @param {string} url
+ * @param {Date} dateCreated
+ */
+function hyperlinkFootnote(node, url, dateCreated) {
+  const footnote = document.createElement("a");
+  footnote.setAttribute("href", url)
+  const displayDate = dateCreated.toLocaleString('en-US', {day: 'numeric', month: 'short', year: 'numeric'})
+  footnote.innerHTML = `${url}
+    <span class="citation">(link created ${displayDate})</span>`
+  // Ask PagedJS to render it as a footnote on the current page
+  footnote.classList.add("footnote-generated");
+  node.insertAdjacentElement("afterend", footnote);
+}
+
 document.addEventListener("DOMContentLoaded", () => {
   document.querySelectorAll("main").forEach((main) => {
     const tmpl = document.querySelector("#casebook-content");
     const css = tmpl.getAttribute("data-stylesheet");
     const paged = new Previewer();
+
+    // For any existing URLs that aren't resources, turn them into footnotes
+    tmpl.content.querySelectorAll('a[href^="http"]:not([data-type])').forEach((el) => {
+      hyperlinkFootnote(el, el['href'],
+      new Date(tmpl.content.querySelector('section[data-datetime]').getAttribute('data-datetime')))
+    });
 
     const annotationRanges = annotationsToRanges(
       Array.from(tmpl.content.querySelectorAll("[data-annotation-type]")),
@@ -97,11 +122,16 @@ document.addEventListener("DOMContentLoaded", () => {
 
     // When all Ranges are ready, start updating the DOM
     annotationRanges.forEach((rg) => {
-      const { type, datetime, ranges, content } = rg;
+      const {
+        type,
+        datetime,
+        ranges,
+        content
+      } = rg;
       switch (type) {
         case "highlight": {
           ranges.forEach((range) => {
-            const wrap = document.createElement("span");
+            const wrap = document.createElement("mark");
             wrap.classList.add("highlighted");
             range.surroundContents(wrap);
           });
@@ -136,7 +166,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
           // Wrap the specific text the author highlighted to allow for downstream styling
           ranges.forEach((range) => {
-            const wrap = document.createElement("span");
+            const wrap = document.createElement("mark");
             range.surroundContents(wrap);
             lastRange = wrap;
           });
@@ -166,7 +196,18 @@ document.addEventListener("DOMContentLoaded", () => {
             range.surroundContents(deletion);
             deletion.insertAdjacentElement("afterend", replacement);
           });
+          break;
+
         }
+        case "link":
+          // Inject a hyperlink which in print will be styled as a footnote
+          ranges.forEach((range) => {
+            const anchor = document.createElement("a");
+            anchor.setAttribute("href", content);
+            range.surroundContents(anchor);
+            hyperlinkFootnote(anchor, content, new Date(datetime))
+          });
+          break
       }
     });
 

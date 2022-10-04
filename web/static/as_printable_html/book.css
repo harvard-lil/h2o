@@ -34,6 +34,7 @@
 
   a {
     text-decoration: none;
+    color: inherit;
   }
 
   /* Always start a top-level section on a new page, even if there's preface matter */
@@ -116,6 +117,21 @@
     font-weight: bold;
   }
 
+  /* Headers for links are much smaller */
+  h1.link {
+    font-size: 110%;
+    font-weight: bold;
+  }
+  h2.subtitle {
+    font-size: 100%;
+    font-style: italic;
+  }
+
+  /* Headnotes don't have indentation */
+  section.headnote p {
+    text-indent: initial;
+  }
+
   section.link {
     margin-top: 10mm;
   }
@@ -144,7 +160,6 @@
 
   .link-container {
     min-height: var(--link-icon-height);
-    height: 100%;
     width: 100%;
   }
   .link-container p {
@@ -214,12 +229,23 @@
     text-indent: initial;
   }
 
-  /* PageJS handling of footnotes */
+  /* Style footnotes, allowing the URLs to break midway. PagedJS will put these in the bottom margin */
   .footnote-generated {
     float: footnote;
+    word-wrap: break-word;
   }
+  /* Add some spacing to the superscript indicating a footnote. */
   ::footnote-call {
     margin-left: .5mm;
+  }
+  /* Generate the corresponding footnote reference in the footer as e.g. "2. <footnote-text>"
+   Don't allow long URLs to break on the space in this marker. */
+  [data-footnote-marker]::marker {
+    content: counter(footnote-marker) ". ";
+    white-space: nowrap;
+  }
+  [data-footnote-marker]::after {
+    content: " ";
   }
 
   /* Support for greyscale-only printing */
