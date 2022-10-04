@@ -81,7 +81,7 @@ describe('getClosestElement', () => {
   });
 });
 
-describe('getOffsetWithinELement', () => {
+describe('getOffsetWithinElement', () => {
   it('returns the correct offset for a child text node within its parent', () => {
     const parent = parseHTML('<div>foo <span>bar <em>buzz</em></span> fizz</div>');
     const child = parent.childNodes[2];
@@ -99,5 +99,12 @@ describe('getOffsetWithinELement', () => {
     const child = parent.childNodes[2];
     const wrapper = mount(TheAnnotator);
     expect(getOffsetWithinParent(parent, child, wrapper.vm.contributesToOffsets)).toBe(8);
+  });
+
+  it('returns the correct offset when the selection moves through an image', () => {
+    const parent = parseHTML('<div>foo <span>bar <em>buzz</em></span><img src="" /> fizz</div>');
+    const child = parent.childNodes[2];
+    const wrapper = mount(TheAnnotator);
+    expect(getOffsetWithinParent(parent, child, wrapper.vm.contributesToOffsets)).toBe(12);
   });
 });

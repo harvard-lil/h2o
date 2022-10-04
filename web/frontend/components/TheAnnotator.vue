@@ -77,7 +77,7 @@ export default {
       const wrapperRect = this.$parent.$el.getBoundingClientRect();
       const viewportTop = window.scrollY - (wrapperRect.top + window.scrollY);
       const targetRect = this.ranges[1].getBoundingClientRect();
-      
+
       return Math.min(Math.max(targetRect.top - wrapperRect.top, viewportTop + 20),
                       targetRect.bottom - wrapperRect.top).toString(10) + "px";
     },
@@ -92,17 +92,18 @@ export default {
     },
     offsets() {
       if(!this.hasValidRanges) return;
-      
+
       const el = document.querySelector(".case-text");
-      
-      const ret = ["start", "end"].map((s, i) =>
-        this.ranges[i][`${s}Offset`] + getOffsetWithinParent(el, this.ranges[i][`${s}Container`], this.contributesToOffsets)
+
+      const ret = ["start", "end"].map((s, i) => {
+        return this.ranges[i][`${s}Offset`] + getOffsetWithinParent(el, this.ranges[i][`${s}Container`], this.contributesToOffsets)
+      }
       );
       const sel_length = this.selection.toString().length;
 
       let sp = (this.ranges[0].startContainer == this.ranges[0].commonAncestorContainer);
       let ep = (this.ranges[1].endContainer == this.ranges[1].commonAncestorContainer);
-      
+
       if (sp ? !ep : ep) {
         // If the edge of a selection lies on an image, the offsets are calculated incorrectly
         if (sp) {
@@ -116,20 +117,23 @@ export default {
   },
   methods: {
     ...mapActions(["create"]),
-    
+
     tempId() {
       return Math.floor(Math.random() * Math.floor(10000000)) * -1;
     },
-    
+
     // returns false if the text or element node is the child of an
-    // element with a special attribute
+    // element with a special attribute, or is not a computable type
     contributesToOffsets(node) {
-      return !getClosestElement(node).closest("[data-exclude-from-offset-calcs='true']")
+      if (node && (node.nodeType === Node.TEXT_NODE || node.nodeType === Node.ELEMENT_NODE)) {
+        return !getClosestElement(node).closest("[data-exclude-from-offset-calcs='true']")
+      }
+      return false;
     },
-    
+
     selectionchange(e, sel) {
       if(sel && !this.contributesToOffsets(sel.anchorNode)) return;
-      
+
       this.ranges =
         (!sel || sel.type != "Range")
         ? null
@@ -137,7 +141,7 @@ export default {
            sel.getRangeAt(sel.rangeCount-1)];
       this.selection = sel;
     },
-    
+
     close() {
       document.getSelection().empty();
       this.ranges = null;
