@@ -250,9 +250,9 @@ django-stubs-ext==0.5.0 \
     --hash=sha256:9bd7418376ab00b7f88d6d56be9fece85bfa0c7c348ac621155fa4d7a91146f2 \
     --hash=sha256:c5d8db53d29c756e7e3d0820a5a079a43bc38d8fab0e1b8bd5df2f3366c54b5a
     # via django-stubs
-django-webpack-loader==0.7.0 \
-    --hash=sha256:7a3c88201aa54481f9399465615cbe7b9aece8081496a6d0287b7cb8e232f447 \
-    --hash=sha256:d28a276ed3d89e97a313b74967e373693f8b86afe629f4c91eea91c5b4f2ec20
+django-webpack-loader==1.6.0 \
+    --hash=sha256:2c0c418cb6a6be9792d9d04b9a75ad0aaf8e9b1062cea04920b52874e86adaae \
+    --hash=sha256:a29418ff41690035be10d2c94a0655dab099009c68b898839813d6a109b14d71
     # via -r requirements.in
 djangorestframework==3.12.4 \
     --hash=sha256:6d1d59f623a5ad0509fe0d6bfe93cbdfe17b8116ebc8eda86d45f6e16e819aaf \

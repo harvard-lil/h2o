@@ -7,25 +7,6 @@ const webpack = require("webpack");
 const devMode = process.env.NODE_ENV !== "production";
 const testMode = process.env.NODE_ENV === "test";
 
-// BundleTracker includes absolute paths, which causes webpack-stats.json to change when it shouldn't.
-// We use this RelativeBundleTracker workaround via https://github.com/owais/webpack-bundle-tracker/issues/25
-const RelativeBundleTracker = function (options) {
-  BundleTracker.call(this, options);
-};
-RelativeBundleTracker.prototype = Object.create(BundleTracker.prototype);
-RelativeBundleTracker.prototype.writeOutput = function (compiler, contents) {
-  if (contents.chunks) {
-    const relativePathRoot = path.join(__dirname) + path.sep;
-    for (const bundle of Object.values(contents.chunks)) {
-      for (const chunk of bundle) {
-        if (chunk.path.startsWith(relativePathRoot)) {
-          chunk.path = chunk.path.substr(relativePathRoot.length);
-        }
-      }
-    }
-  }
-  BundleTracker.prototype.writeOutput.call(this, compiler, contents);
-};
 
 /*** Vue config ***/
 let devServerHost = process.env.DOCKERIZED ? "0.0.0.0" : "127.0.0.1";
@@ -57,9 +38,10 @@ let vueConfig = {
       testMode
         ? []
         : [
-            new RelativeBundleTracker({
+            new BundleTracker({
               // output location of bundles so they can be found by django
               filename: "./webpack-stats.json",
+              relativePath: true
             }),
           ]
     ),
@@ -93,26 +75,6 @@ let vueConfig = {
       config.plugins.delete("html-" + key);
       config.plugins.delete("preload-" + key);
       config.plugins.delete("prefetch-" + key);
-    });
-
-    // use same chunks config for dev as prod so {% render_bundle %} works on both
-    // copied from node_modules/@vue/cli-service/lib/config/app.js
-    config.optimization.splitChunks({
-      cacheGroups: {
-        // vendors: {
-        //   name: `chunk-vendors`,
-        //   test: /[\\/]node_modules[\\/]/,
-        //   priority: -10,
-        //   chunks: 'initial'
-        // },
-        common: {
-          name: `chunk-common`,
-          minChunks: 2,
-          priority: -20,
-          chunks: "initial",
-          reuseExistingChunk: true,
-        },
-      },
     });
 
     // workaround for "SASS files from NPM modules referencing relative imports won't build [in mocha]"

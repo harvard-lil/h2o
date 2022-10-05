@@ -10,7 +10,7 @@ django-extensions
 djangorestframework
 django-crispy-forms # tidier custom model forms
 whitenoise          # static file serving
-django-webpack-loader~=0.7.0   # serving frontend assets
+django-webpack-loader~=1.6.0   # serving frontend assets
 django-storages
 boto3
 pillow

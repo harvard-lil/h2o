@@ -1,1 +1,407 @@
-{"status":"done","publicPath":"/static/dist/","chunks":{"application":[{"name":"js/application.f79a75ae.js","publicPath":"/static/dist/js/application.f79a75ae.js","path":"static/dist/js/application.f79a75ae.js"},{"name":"js/application.f79a75ae.js.map","publicPath":"/static/dist/js/application.f79a75ae.js.map","path":"static/dist/js/application.f79a75ae.js.map"}],"as_printable_html":[{"name":"js/as_printable_html.ddad1b38.js","publicPath":"/static/dist/js/as_printable_html.ddad1b38.js","path":"static/dist/js/as_printable_html.ddad1b38.js"},{"name":"js/as_printable_html.ddad1b38.js.map","publicPath":"/static/dist/js/as_printable_html.ddad1b38.js.map","path":"static/dist/js/as_printable_html.ddad1b38.js.map"}],"as_printable_html_styles":[{"name":"css/as_printable_html_styles.cf23e016.css","publicPath":"/static/dist/css/as_printable_html_styles.cf23e016.css","path":"static/dist/css/as_printable_html_styles.cf23e016.css"},{"name":"js/as_printable_html_styles.bc7abb27.js","publicPath":"/static/dist/js/as_printable_html_styles.bc7abb27.js","path":"static/dist/js/as_printable_html_styles.bc7abb27.js"},{"name":"css/as_printable_html_styles.cf23e016.css.map","publicPath":"/static/dist/css/as_printable_html_styles.cf23e016.css.map","path":"static/dist/css/as_printable_html_styles.cf23e016.css.map"},{"name":"js/as_printable_html_styles.bc7abb27.js.map","publicPath":"/static/dist/js/as_printable_html_styles.bc7abb27.js.map","path":"static/dist/js/as_printable_html_styles.bc7abb27.js.map"}],"chunk-common":[{"name":"js/chunk-common.72c81192.js","publicPath":"/static/dist/js/chunk-common.72c81192.js","path":"static/dist/js/chunk-common.72c81192.js"},{"name":"js/chunk-common.72c81192.js.map","publicPath":"/static/dist/js/chunk-common.72c81192.js.map","path":"static/dist/js/chunk-common.72c81192.js.map"}],"main":[{"name":"css/main.1b70b039.css","publicPath":"/static/dist/css/main.1b70b039.css","path":"static/dist/css/main.1b70b039.css"},{"name":"js/main.8272c3ff.js","publicPath":"/static/dist/js/main.8272c3ff.js","path":"static/dist/js/main.8272c3ff.js"},{"name":"css/main.1b70b039.css.map","publicPath":"/static/dist/css/main.1b70b039.css.map","path":"static/dist/css/main.1b70b039.css.map"},{"name":"js/main.8272c3ff.js.map","publicPath":"/static/dist/js/main.8272c3ff.js.map","path":"static/dist/js/main.8272c3ff.js.map"}],"rich_text_editor":[{"name":"js/rich_text_editor.97659da1.js","publicPath":"/static/dist/js/rich_text_editor.97659da1.js","path":"static/dist/js/rich_text_editor.97659da1.js"},{"name":"js/rich_text_editor.97659da1.js.map","publicPath":"/static/dist/js/rich_text_editor.97659da1.js.map","path":"static/dist/js/rich_text_editor.97659da1.js.map"}],"test":[{"name":"js/test.2ff30b1f.js","publicPath":"/static/dist/js/test.2ff30b1f.js","path":"static/dist/js/test.2ff30b1f.js"},{"name":"js/test.2ff30b1f.js.map","publicPath":"/static/dist/js/test.2ff30b1f.js.map","path":"static/dist/js/test.2ff30b1f.js.map"}],"vue_app":[{"name":"css/vue_app.aed3969a.css","publicPath":"/static/dist/css/vue_app.aed3969a.css","path":"static/dist/css/vue_app.aed3969a.css"},{"name":"js/vue_app.542c8262.js","publicPath":"/static/dist/js/vue_app.542c8262.js","path":"static/dist/js/vue_app.542c8262.js"},{"name":"css/vue_app.aed3969a.css.map","publicPath":"/static/dist/css/vue_app.aed3969a.css.map","path":"static/dist/css/vue_app.aed3969a.css.map"},{"name":"js/vue_app.542c8262.js.map","publicPath":"/static/dist/js/vue_app.542c8262.js.map","path":"static/dist/js/vue_app.542c8262.js.map"}]}}
+{
+  "status": "done",
+  "assets": {
+    "img/audit-casebook.f96e34fb.svg": {
+      "name": "img/audit-casebook.f96e34fb.svg",
+      "path": "img/audit-casebook.f96e34fb.svg",
+      "publicPath": "/static/dist/img/audit-casebook.f96e34fb.svg"
+    },
+    "img/clone.fc6eb4b4.svg": {
+      "name": "img/clone.fc6eb4b4.svg",
+      "path": "img/clone.fc6eb4b4.svg",
+      "publicPath": "/static/dist/img/clone.fc6eb4b4.svg"
+    },
+    "img/external-link-icon.3e1fd22b.svg": {
+      "name": "img/external-link-icon.3e1fd22b.svg",
+      "path": "img/external-link-icon.3e1fd22b.svg",
+      "publicPath": "/static/dist/img/external-link-icon.3e1fd22b.svg"
+    },
+    "img/add-casebook.ff004159.svg": {
+      "name": "img/add-casebook.ff004159.svg",
+      "path": "img/add-casebook.ff004159.svg",
+      "publicPath": "/static/dist/img/add-casebook.ff004159.svg"
+    },
+    "img/take-notes-icon.26352bcb.svg": {
+      "name": "img/take-notes-icon.26352bcb.svg",
+      "path": "img/take-notes-icon.26352bcb.svg",
+      "publicPath": "/static/dist/img/take-notes-icon.26352bcb.svg"
+    },
+    "img/lock.0ee492f3.svg": {
+      "name": "img/lock.0ee492f3.svg",
+      "path": "img/lock.0ee492f3.svg",
+      "publicPath": "/static/dist/img/lock.0ee492f3.svg"
+    },
+    "img/expand-arrow.6bf1cea3.svg": {
+      "name": "img/expand-arrow.6bf1cea3.svg",
+      "path": "img/expand-arrow.6bf1cea3.svg",
+      "publicPath": "/static/dist/img/expand-arrow.6bf1cea3.svg"
+    },
+    "img/search-icon.8c383980.svg": {
+      "name": "img/search-icon.8c383980.svg",
+      "path": "img/search-icon.8c383980.svg",
+      "publicPath": "/static/dist/img/search-icon.8c383980.svg"
+    },
+    "img/customize-casebook.d78e11a3.svg": {
+      "name": "img/customize-casebook.d78e11a3.svg",
+      "path": "img/customize-casebook.d78e11a3.svg",
+      "publicPath": "/static/dist/img/customize-casebook.d78e11a3.svg"
+    },
+    "img/add-section.a7b07d92.svg": {
+      "name": "img/add-section.a7b07d92.svg",
+      "path": "img/add-section.a7b07d92.svg",
+      "publicPath": "/static/dist/img/add-section.a7b07d92.svg"
+    },
+    "img/add-material.d109215f.svg": {
+      "name": "img/add-material.d109215f.svg",
+      "path": "img/add-material.d109215f.svg",
+      "publicPath": "/static/dist/img/add-material.d109215f.svg"
+    },
+    "img/export-anim.c043e5fa.svg": {
+      "name": "img/export-anim.c043e5fa.svg",
+      "path": "img/export-anim.c043e5fa.svg",
+      "publicPath": "/static/dist/img/export-anim.c043e5fa.svg"
+    },
+    "img/export.13e242d7.svg": {
+      "name": "img/export.13e242d7.svg",
+      "path": "img/export.13e242d7.svg",
+      "publicPath": "/static/dist/img/export.13e242d7.svg"
+    },
+    "img/publish.9455f1e6.svg": {
+      "name": "img/publish.9455f1e6.svg",
+      "path": "img/publish.9455f1e6.svg",
+      "publicPath": "/static/dist/img/publish.9455f1e6.svg"
+    },
+    "img/export-html.a6acb1d4.svg": {
+      "name": "img/export-html.a6acb1d4.svg",
+      "path": "img/export-html.a6acb1d4.svg",
+      "publicPath": "/static/dist/img/export-html.a6acb1d4.svg"
+    },
+    "img/logo.454a3835.svg": {
+      "name": "img/logo.454a3835.svg",
+      "path": "img/logo.454a3835.svg",
+      "publicPath": "/static/dist/img/logo.454a3835.svg"
+    },
+    "img/export-fancy.34054532.svg": {
+      "name": "img/export-fancy.34054532.svg",
+      "path": "img/export-fancy.34054532.svg",
+      "publicPath": "/static/dist/img/export-fancy.34054532.svg"
+    },
+    "img/banner-draft-icon.514d5145.svg": {
+      "name": "img/banner-draft-icon.514d5145.svg",
+      "path": "img/banner-draft-icon.514d5145.svg",
+      "publicPath": "/static/dist/img/banner-draft-icon.514d5145.svg"
+    },
+    "img/landing-demo.769625d8.png": {
+      "name": "img/landing-demo.769625d8.png",
+      "path": "img/landing-demo.769625d8.png",
+      "publicPath": "/static/dist/img/landing-demo.769625d8.png"
+    },
+    "img/preview.a015216b.svg": {
+      "name": "img/preview.a015216b.svg",
+      "path": "img/preview.a015216b.svg",
+      "publicPath": "/static/dist/img/preview.a015216b.svg"
+    },
+    "img/edit-icon.d38c8fff.svg": {
+      "name": "img/edit-icon.d38c8fff.svg",
+      "path": "img/edit-icon.d38c8fff.svg",
+      "publicPath": "/static/dist/img/edit-icon.d38c8fff.svg"
+    },
+    "img/save-icon.82eb3293.svg": {
+      "name": "img/save-icon.82eb3293.svg",
+      "path": "img/save-icon.82eb3293.svg",
+      "publicPath": "/static/dist/img/save-icon.82eb3293.svg"
+    },
+    "img/follow.2e7d7ca7.svg": {
+      "name": "img/follow.2e7d7ca7.svg",
+      "path": "img/follow.2e7d7ca7.svg",
+      "publicPath": "/static/dist/img/follow.2e7d7ca7.svg"
+    },
+    "img/cancel-icon.101f571f.svg": {
+      "name": "img/cancel-icon.101f571f.svg",
+      "path": "img/cancel-icon.101f571f.svg",
+      "publicPath": "/static/dist/img/cancel-icon.101f571f.svg"
+    },
+    "img/prev_page.8adf0763.svg": {
+      "name": "img/prev_page.8adf0763.svg",
+      "path": "img/prev_page.8adf0763.svg",
+      "publicPath": "/static/dist/img/prev_page.8adf0763.svg"
+    },
+    "img/unfollow.54f63882.svg": {
+      "name": "img/unfollow.54f63882.svg",
+      "path": "img/unfollow.54f63882.svg",
+      "publicPath": "/static/dist/img/unfollow.54f63882.svg"
+    },
+    "img/next_page.13726d8a.svg": {
+      "name": "img/next_page.13726d8a.svg",
+      "path": "img/next_page.13726d8a.svg",
+      "publicPath": "/static/dist/img/next_page.13726d8a.svg"
+    },
+    "img/export-anim-fancy.36fc4195.svg": {
+      "name": "img/export-anim-fancy.36fc4195.svg",
+      "path": "img/export-anim-fancy.36fc4195.svg",
+      "publicPath": "/static/dist/img/export-anim-fancy.36fc4195.svg"
+    },
+    "img/link-go.4122dfcb.svg": {
+      "name": "img/link-go.4122dfcb.svg",
+      "path": "img/link-go.4122dfcb.svg",
+      "publicPath": "/static/dist/img/link-go.4122dfcb.svg"
+    },
+    "img/Link.148d855f.svg": {
+      "name": "img/Link.148d855f.svg",
+      "path": "img/Link.148d855f.svg",
+      "publicPath": "/static/dist/img/Link.148d855f.svg"
+    },
+    "fonts/AtlasGrotesk-Medium.83bc0a62.woff": {
+      "name": "fonts/AtlasGrotesk-Medium.83bc0a62.woff",
+      "path": "fonts/AtlasGrotesk-Medium.83bc0a62.woff",
+      "publicPath": "/static/dist/fonts/AtlasGrotesk-Medium.83bc0a62.woff"
+    },
+    "fonts/AtlasGrotesk-Regular.1f499573.ttf": {
+      "name": "fonts/AtlasGrotesk-Regular.1f499573.ttf",
+      "path": "fonts/AtlasGrotesk-Regular.1f499573.ttf",
+      "publicPath": "/static/dist/fonts/AtlasGrotesk-Regular.1f499573.ttf"
+    },
+    "fonts/AtlasGrotesk-Medium.14791ebe.eot": {
+      "name": "fonts/AtlasGrotesk-Medium.14791ebe.eot",
+      "path": "fonts/AtlasGrotesk-Medium.14791ebe.eot",
+      "publicPath": "/static/dist/fonts/AtlasGrotesk-Medium.14791ebe.eot"
+    },
+    "img/AtlasGrotesk-Medium.3e829f26.svg": {
+      "name": "img/AtlasGrotesk-Medium.3e829f26.svg",
+      "path": "img/AtlasGrotesk-Medium.3e829f26.svg",
+      "publicPath": "/static/dist/img/AtlasGrotesk-Medium.3e829f26.svg"
+    },
+    "fonts/AtlasGrotesk-Regular.d2997fb4.woff": {
+      "name": "fonts/AtlasGrotesk-Regular.d2997fb4.woff",
+      "path": "fonts/AtlasGrotesk-Regular.d2997fb4.woff",
+      "publicPath": "/static/dist/fonts/AtlasGrotesk-Regular.d2997fb4.woff"
+    },
+    "fonts/AtlasGrotesk-Light.bcfd7cf6.woff": {
+      "name": "fonts/AtlasGrotesk-Light.bcfd7cf6.woff",
+      "path": "fonts/AtlasGrotesk-Light.bcfd7cf6.woff",
+      "publicPath": "/static/dist/fonts/AtlasGrotesk-Light.bcfd7cf6.woff"
+    },
+    "img/AtlasGrotesk-Regular.26133821.svg": {
+      "name": "img/AtlasGrotesk-Regular.26133821.svg",
+      "path": "img/AtlasGrotesk-Regular.26133821.svg",
+      "publicPath": "/static/dist/img/AtlasGrotesk-Regular.26133821.svg"
+    },
+    "fonts/AtlasGrotesk-Light.e69872f9.ttf": {
+      "name": "fonts/AtlasGrotesk-Light.e69872f9.ttf",
+      "path": "fonts/AtlasGrotesk-Light.e69872f9.ttf",
+      "publicPath": "/static/dist/fonts/AtlasGrotesk-Light.e69872f9.ttf"
+    },
+    "fonts/AtlasGrotesk-Light.be1c731f.eot": {
+      "name": "fonts/AtlasGrotesk-Light.be1c731f.eot",
+      "path": "fonts/AtlasGrotesk-Light.be1c731f.eot",
+      "publicPath": "/static/dist/fonts/AtlasGrotesk-Light.be1c731f.eot"
+    },
+    "fonts/ChronicleTextG3-Roman.f9c467a3.eot": {
+      "name": "fonts/ChronicleTextG3-Roman.f9c467a3.eot",
+      "path": "fonts/ChronicleTextG3-Roman.f9c467a3.eot",
+      "publicPath": "/static/dist/fonts/ChronicleTextG3-Roman.f9c467a3.eot"
+    },
+    "img/AtlasGrotesk-Light.219d1463.svg": {
+      "name": "img/AtlasGrotesk-Light.219d1463.svg",
+      "path": "img/AtlasGrotesk-Light.219d1463.svg",
+      "publicPath": "/static/dist/img/AtlasGrotesk-Light.219d1463.svg"
+    },
+    "fonts/ChronicleTextG3-Roman.f77c0515.woff": {
+      "name": "fonts/ChronicleTextG3-Roman.f77c0515.woff",
+      "path": "fonts/ChronicleTextG3-Roman.f77c0515.woff",
+      "publicPath": "/static/dist/fonts/ChronicleTextG3-Roman.f77c0515.woff"
+    },
+    "fonts/ChronicleTextG3-Roman.6a453768.ttf": {
+      "name": "fonts/ChronicleTextG3-Roman.6a453768.ttf",
+      "path": "fonts/ChronicleTextG3-Roman.6a453768.ttf",
+      "publicPath": "/static/dist/fonts/ChronicleTextG3-Roman.6a453768.ttf"
+    },
+    "fonts/RobotoMono-Bold.c0c4a337.ttf": {
+      "name": "fonts/RobotoMono-Bold.c0c4a337.ttf",
+      "path": "fonts/RobotoMono-Bold.c0c4a337.ttf",
+      "publicPath": "/static/dist/fonts/RobotoMono-Bold.c0c4a337.ttf"
+    },
+    "fonts/AtlasGrotesk-Medium.d9cc5003.ttf": {
+      "name": "fonts/AtlasGrotesk-Medium.d9cc5003.ttf",
+      "path": "fonts/AtlasGrotesk-Medium.d9cc5003.ttf",
+      "publicPath": "/static/dist/fonts/AtlasGrotesk-Medium.d9cc5003.ttf"
+    },
+    "img/ChronicleTextG3-Roman.0e3646cf.svg": {
+      "name": "img/ChronicleTextG3-Roman.0e3646cf.svg",
+      "path": "img/ChronicleTextG3-Roman.0e3646cf.svg",
+      "publicPath": "/static/dist/img/ChronicleTextG3-Roman.0e3646cf.svg"
+    },
+    "fonts/AtlasGrotesk-Regular.94001d71.eot": {
+      "name": "fonts/AtlasGrotesk-Regular.94001d71.eot",
+      "path": "fonts/AtlasGrotesk-Regular.94001d71.eot",
+      "publicPath": "/static/dist/fonts/AtlasGrotesk-Regular.94001d71.eot"
+    },
+    "fonts/glyphicons-halflings-regular.448c34a5.woff2": {
+      "name": "fonts/glyphicons-halflings-regular.448c34a5.woff2",
+      "path": "fonts/glyphicons-halflings-regular.448c34a5.woff2",
+      "publicPath": "/static/dist/fonts/glyphicons-halflings-regular.448c34a5.woff2"
+    },
+    "fonts/glyphicons-halflings-regular.e18bbf61.ttf": {
+      "name": "fonts/glyphicons-halflings-regular.e18bbf61.ttf",
+      "path": "fonts/glyphicons-halflings-regular.e18bbf61.ttf",
+      "publicPath": "/static/dist/fonts/glyphicons-halflings-regular.e18bbf61.ttf"
+    },
+    "fonts/glyphicons-halflings-regular.f4769f9b.eot": {
+      "name": "fonts/glyphicons-halflings-regular.f4769f9b.eot",
+      "path": "fonts/glyphicons-halflings-regular.f4769f9b.eot",
+      "publicPath": "/static/dist/fonts/glyphicons-halflings-regular.f4769f9b.eot"
+    },
+    "fonts/glyphicons-halflings-regular.fa277232.woff": {
+      "name": "fonts/glyphicons-halflings-regular.fa277232.woff",
+      "path": "fonts/glyphicons-halflings-regular.fa277232.woff",
+      "publicPath": "/static/dist/fonts/glyphicons-halflings-regular.fa277232.woff"
+    },
+    "img/glyphicons-halflings-regular.89889688.svg": {
+      "name": "img/glyphicons-halflings-regular.89889688.svg",
+      "path": "img/glyphicons-halflings-regular.89889688.svg",
+      "publicPath": "/static/dist/img/glyphicons-halflings-regular.89889688.svg"
+    },
+    "js/application.f876f0db.js": {
+      "name": "js/application.f876f0db.js",
+      "path": "js/application.f876f0db.js",
+      "publicPath": "/static/dist/js/application.f876f0db.js"
+    },
+    "js/as_printable_html.2d38560a.js": {
+      "name": "js/as_printable_html.2d38560a.js",
+      "path": "js/as_printable_html.2d38560a.js",
+      "publicPath": "/static/dist/js/as_printable_html.2d38560a.js"
+    },
+    "css/as_printable_html_styles.cf23e016.css": {
+      "name": "css/as_printable_html_styles.cf23e016.css",
+      "path": "css/as_printable_html_styles.cf23e016.css",
+      "publicPath": "/static/dist/css/as_printable_html_styles.cf23e016.css"
+    },
+    "js/as_printable_html_styles.bc7abb27.js": {
+      "name": "js/as_printable_html_styles.bc7abb27.js",
+      "path": "js/as_printable_html_styles.bc7abb27.js",
+      "publicPath": "/static/dist/js/as_printable_html_styles.bc7abb27.js"
+    },
+    "js/chunk-vendors.f9bb699c.js": {
+      "name": "js/chunk-vendors.f9bb699c.js",
+      "path": "js/chunk-vendors.f9bb699c.js",
+      "publicPath": "/static/dist/js/chunk-vendors.f9bb699c.js"
+    },
+    "css/main.1b70b039.css": {
+      "name": "css/main.1b70b039.css",
+      "path": "css/main.1b70b039.css",
+      "publicPath": "/static/dist/css/main.1b70b039.css"
+    },
+    "js/main.8272c3ff.js": {
+      "name": "js/main.8272c3ff.js",
+      "path": "js/main.8272c3ff.js",
+      "publicPath": "/static/dist/js/main.8272c3ff.js"
+    },
+    "js/rich_text_editor.3fc72fd6.js": {
+      "name": "js/rich_text_editor.3fc72fd6.js",
+      "path": "js/rich_text_editor.3fc72fd6.js",
+      "publicPath": "/static/dist/js/rich_text_editor.3fc72fd6.js"
+    },
+    "js/test.314942a0.js": {
+      "name": "js/test.314942a0.js",
+      "path": "js/test.314942a0.js",
+      "publicPath": "/static/dist/js/test.314942a0.js"
+    },
+    "css/vue_app.aed3969a.css": {
+      "name": "css/vue_app.aed3969a.css",
+      "path": "css/vue_app.aed3969a.css",
+      "publicPath": "/static/dist/css/vue_app.aed3969a.css"
+    },
+    "js/vue_app.f2e21bfc.js": {
+      "name": "js/vue_app.f2e21bfc.js",
+      "path": "js/vue_app.f2e21bfc.js",
+      "publicPath": "/static/dist/js/vue_app.f2e21bfc.js"
+    },
+    "js/application.f876f0db.js.map": {
+      "name": "js/application.f876f0db.js.map",
+      "path": "js/application.f876f0db.js.map",
+      "publicPath": "/static/dist/js/application.f876f0db.js.map"
+    },
+    "js/as_printable_html.2d38560a.js.map": {
+      "name": "js/as_printable_html.2d38560a.js.map",
+      "path": "js/as_printable_html.2d38560a.js.map",
+      "publicPath": "/static/dist/js/as_printable_html.2d38560a.js.map"
+    },
+    "js/as_printable_html_styles.bc7abb27.js.map": {
+      "name": "js/as_printable_html_styles.bc7abb27.js.map",
+      "path": "js/as_printable_html_styles.bc7abb27.js.map",
+      "publicPath": "/static/dist/js/as_printable_html_styles.bc7abb27.js.map"
+    },
+    "js/chunk-vendors.f9bb699c.js.map": {
+      "name": "js/chunk-vendors.f9bb699c.js.map",
+      "path": "js/chunk-vendors.f9bb699c.js.map",
+      "publicPath": "/static/dist/js/chunk-vendors.f9bb699c.js.map"
+    },
+    "js/main.8272c3ff.js.map": {
+      "name": "js/main.8272c3ff.js.map",
+      "path": "js/main.8272c3ff.js.map",
+      "publicPath": "/static/dist/js/main.8272c3ff.js.map"
+    },
+    "js/rich_text_editor.3fc72fd6.js.map": {
+      "name": "js/rich_text_editor.3fc72fd6.js.map",
+      "path": "js/rich_text_editor.3fc72fd6.js.map",
+      "publicPath": "/static/dist/js/rich_text_editor.3fc72fd6.js.map"
+    },
+    "js/test.314942a0.js.map": {
+      "name": "js/test.314942a0.js.map",
+      "path": "js/test.314942a0.js.map",
+      "publicPath": "/static/dist/js/test.314942a0.js.map"
+    },
+    "js/vue_app.f2e21bfc.js.map": {
+      "name": "js/vue_app.f2e21bfc.js.map",
+      "path": "js/vue_app.f2e21bfc.js.map",
+      "publicPath": "/static/dist/js/vue_app.f2e21bfc.js.map"
+    }
+  },
+  "chunks": {
+    "application": [
+      "js/chunk-vendors.f9bb699c.js",
+      "js/chunk-vendors.f9bb699c.js.map",
+      "js/application.f876f0db.js",
+      "js/application.f876f0db.js.map"
+    ],
+    "rich_text_editor": [
+      "js/chunk-vendors.f9bb699c.js",
+      "js/chunk-vendors.f9bb699c.js.map",
+      "js/rich_text_editor.3fc72fd6.js",
+      "js/rich_text_editor.3fc72fd6.js.map"
+    ],
+    "main": [
+      "css/main.1b70b039.css",
+      "js/main.8272c3ff.js",
+      "css/main.1b70b039.css.map",
+      "js/main.8272c3ff.js.map"
+    ],
+    "test": [
+      "js/chunk-vendors.f9bb699c.js",
+      "js/chunk-vendors.f9bb699c.js.map",
+      "js/test.314942a0.js",
+      "js/test.314942a0.js.map"
+    ],
+    "vue_app": [
+      "js/chunk-vendors.f9bb699c.js",
+      "js/chunk-vendors.f9bb699c.js.map",
+      "css/vue_app.aed3969a.css",
+      "js/vue_app.f2e21bfc.js",
+      "css/vue_app.aed3969a.css.map",
+      "js/vue_app.f2e21bfc.js.map"
+    ],
+    "as_printable_html_styles": [
+      "css/as_printable_html_styles.cf23e016.css",
+      "js/as_printable_html_styles.bc7abb27.js",
+      "css/as_printable_html_styles.cf23e016.css.map",
+      "js/as_printable_html_styles.bc7abb27.js.map"
+    ],
+    "as_printable_html": [
+      "js/chunk-vendors.f9bb699c.js",
+      "js/chunk-vendors.f9bb699c.js.map",
+      "js/as_printable_html.2d38560a.js",
+      "js/as_printable_html.2d38560a.js.map"
+    ]
+  },
+  "publicPath": "/static/dist/"
+}
