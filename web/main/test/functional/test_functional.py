@@ -1,8 +1,12 @@
 # These tests are run through LiveServerTestCase and playwright
+from pathlib import Path
 import pytest
 from django.core.management import call_command
 from playwright.sync_api import Page, expect
 from pytest_django.live_server_helper import LiveServer
+from main.pdf import generate_pdf
+from main.models import Casebook
+from django.urls import reverse
 
 
 @pytest.fixture(autouse=True, scope="function")
@@ -41,12 +45,14 @@ def login(static_live_server, page: Page, user="test@example.edu", password="cha
     page.get_by_role("button", name="Sign in").click()
 
 
+@pytest.mark.xdist_group("functional")
 def test_home(static_live_server, page: Page):
     """The unauthenticated home page should have the expected content"""
     page.goto(static_live_server.url)
     expect(page).to_have_title("Open Casebooks | H2O")
 
 
+@pytest.mark.xdist_group("functional")
 def test_auth(static_live_server, page: Page):
     """A user with an account should be able to log in"""
     page.goto(static_live_server.url)
@@ -61,6 +67,7 @@ def test_auth(static_live_server, page: Page):
     expect(page).to_have_url(f"{static_live_server.url}/")
 
 
+@pytest.mark.xdist_group("functional")
 def test_view_casebook(static_live_server, page: Page, login):
     """An authenticated user should be able to view their casebooks in edit mode"""
     page.goto(static_live_server.url)
@@ -71,3 +78,14 @@ def test_view_casebook(static_live_server, page: Page, login):
     expect(page).to_have_url(
         f"{static_live_server.url}/casebooks/6108-simple-casebook/resources/1-first-content/annotate/"
     )
+
+
+@pytest.mark.xdist_group("functional")
+def test_pdf_export(static_live_server, tmp_path: Path):
+    """The PDF helper function should generate a PDF for a public casebook"""
+    casebook = Casebook.objects.get(title="Public casebook")
+    assert casebook
+    url = static_live_server.url + reverse("printable_all", args=[casebook])
+    output_file = tmp_path / "example.pdf"
+    generate_pdf(url, output_file, timeout=5_000)
+    assert output_file.read_bytes()[:4] == b"%PDF"

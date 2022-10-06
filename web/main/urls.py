@@ -228,6 +228,12 @@ urlpatterns = format_suffix_patterns(drf_urlpatterns) + [
         views.as_printable_html,
         name="as_printable_html",
     ),
+    path(
+        "casebooks/<idslug:casebook_param>/as-printable-html/all/",
+        views.as_printable_html,
+        {"whole_book": True},
+        name="printable_all",
+    ),
     # images
     path("image/", no_perms_test(views.upload_image), name="upload_image"),
     path("image/<image_uuid>", no_perms_test(views.view_image), name="image_url"),

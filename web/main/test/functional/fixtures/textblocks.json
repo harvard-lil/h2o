@@ -1,11 +1,35 @@
 [
 {
   "model": "main.textblock",
-  "pk": 226109,
+  "pk": 1,
   "fields": {
     "created_at": "2022-10-13T20:15:43.905",
     "updated_at": "2022-10-13T20:15:43.905",
     "name": "First content",
+    "description": null,
+    "content": "",
+    "doc_class": "Text"
+  }
+},
+{
+  "model": "main.textblock",
+  "pk": 2,
+  "fields": {
+    "created_at": "2022-10-13T20:15:43.905",
+    "updated_at": "2022-10-13T20:15:43.905",
+    "name": "Public 1 textblock",
+    "description": null,
+    "content": "",
+    "doc_class": "Text"
+  }
+},
+{
+  "model": "main.textblock",
+  "pk": 3,
+  "fields": {
+    "created_at": "2022-10-13T20:15:43.905",
+    "updated_at": "2022-10-13T20:15:43.905",
+    "name": "Public 2 textblock",
     "description": null,
     "content": "",
     "doc_class": "Text"

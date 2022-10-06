@@ -3,9 +3,11 @@
 {% load render_bundle from webpack_loader %}
 <html>
   <head>
+    <link href="{% static 'images/favicon.ico' %}" rel="shortcut icon" type="image/vnd.microsoft.icon" />
+
     {% render_bundle 'as_printable_html_styles' %}
-    {% render_bundle 'as_printable_html' %}
-    {% render_bundle 'chunk-common' %}
+    {% render_bundle 'as_printable_html' attrs="defer" %}
+    {% render_bundle 'chunk-common' attrs="defer" %}
     <style>
       @media print{
         .screen-only {
@@ -16,31 +18,31 @@
   </head>
 
 <body>
-
   <header class="screen-only">
     <nav>
-      {% if page.has_previous %}
-        <span><a href="{% url 'as_printable_html' casebook page.previous_page_number %}">Previous</a></span>
-      {% else %}
-        <span>Previous</span>
-      {% endif %}
+      {% if whole_book %}
 
-      <span>{{ page.number }} of {{ paginator.num_pages }} section{{ paginator.num_pages|pluralize}} </span>
-    {% if page.has_next %}
-       <span><a href="{% url 'as_printable_html' casebook page.next_page_number %}">Next</a></span>
-    {% else %}
-        <span>Next</span>
+        <span><a href="{% url 'casebook' casebook %}">Exit preview</a></span>
+
+      {% else %}
+        {% if page.has_previous %}
+          <span><a href="{% url 'as_printable_html' casebook page.previous_page_number %}">Previous</a></span>
+        {% else %}
+          <span>Previous</span>
+        {% endif %}
+
+        <span>{{ page.number }} of {{ paginator.num_pages }} section{{ paginator.num_pages|pluralize}} </span>
+        <span><a href="{% url 'casebook' casebook %}">Exit preview</a></span>
+      {% if page.has_next %}
+        <span><a href="{% url 'as_printable_html' casebook page.next_page_number %}">Next</a></span>
+      {% else %}
+          <span>Next</span>
+      {% endif %}
     {% endif %}
     </nav>
   </header>
 
-  <template id="casebook-toc">
-
-  </template>
-
   <template id="casebook-content" data-stylesheet="{% static 'as_printable_html/book.css' %}">
-
-
     <div class="casebook-metadata" data-paginator-page="{{ page.number }}">
       <h1 class="casebook title">{{ casebook.title }}</h1>
       <h2 class="casebook subtitle">{{ casebook.subtitle|default_if_none:""}}</h2>

@@ -1,25 +1,33 @@
+@import 'variables';
+@import 'font-vars-and-mixins';
+@import 'font-faces';
+
 /* Customized for navigation component at the top */
 @media screen, pagedjs-ignore {
   .screen-only {
       nav {
-        background-color: white;
-        border: 1px solid gray;
+        background-color: $light-blue;
+        border: 1px solid $white;
+        color: $white;
         padding: 10px;
         position: fixed;
+
         left: 50%;
+        bottom: 0;
         transform: translateX(-50%);
-        width: 25vw;
-        display: grid;
-        grid-template-columns: 1fr 1fr 1fr;
+        width: 100%;
+        display: flex;
+        justify-content: space-evenly;
         z-index: 99;
-        box-shadow: 5px 5px 10px lightgrey;
         a {
           text-decoration: underline;
+
         }
     }
     nav span {
       display: inline-block;
       text-align: center;
+      font-family: $preferred-sans-serif !important;
     }
   }
   /* Show underlining for TOC hyperlinks in the web view only */
