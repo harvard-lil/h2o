@@ -1,14 +1,26 @@
 [
 {
   "model": "main.contentcollaborator",
-  "pk": 13481,
+  "pk": 1,
   "fields": {
     "created_at": "2022-10-13T20:15:29.544",
     "updated_at": "2022-10-13T20:15:29.544",
     "has_attribution": true,
     "can_edit": true,
-    "user": 125097,
-    "casebook": 6108
+    "user": 1,
+    "casebook": 1
+  }
+},
+{
+  "model": "main.contentcollaborator",
+  "pk": 2,
+  "fields": {
+    "created_at": "2022-10-13T20:15:29.544",
+    "updated_at": "2022-10-13T20:15:29.544",
+    "has_attribution": true,
+    "can_edit": true,
+    "user": 1,
+    "casebook": 2
   }
 }
 ]

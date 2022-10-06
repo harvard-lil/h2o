@@ -6,7 +6,7 @@
     <meta charset="utf-8"/>
     <title>{% block page_title %}{{ page_title|default:"Open Casebooks" }}{% endblock %} | H2O</title>
     <link rel="icon" href="#" type="image/png"/>
-    <link href="{% static "images/favicon.ico" %}" rel="shortcut icon" type="image/vnd.microsoft.icon" />
+    <link href="{% static 'images/favicon.ico' %}" rel="shortcut icon" type="image/vnd.microsoft.icon" />
     <script>
      {# frontend_urls is set by config.context_processors.frontend_urls #}
      const FRONTEND_URLS = {{ frontend_urls | safe}};

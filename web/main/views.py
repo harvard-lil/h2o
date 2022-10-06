@@ -2874,6 +2874,7 @@ def export(request: HttpRequest, node: Union[ContentNode, Casebook], file_type="
 
 
 @hydrate_params
+@user_has_perm("casebook", "viewable_by")
 @method_decorator(
     perms_test(
         {
@@ -2890,8 +2891,7 @@ def export(request: HttpRequest, node: Union[ContentNode, Casebook], file_type="
         },
     )
 )
-@user_has_perm("casebook", "viewable_by")
-def as_printable_html(request: HttpRequest, casebook: Casebook, page=1):
+def as_printable_html(request: HttpRequest, casebook: Casebook, page=1, whole_book=False):
     """Load the content of the casebook by top-level nodes, and pass it to an HTML template
     designed to render it in-place, without site chrome, suitable for printing"""
     top_level_nodes: ContentNodeQuerySet = casebook.nodes_for_user(request.user).filter(
@@ -2903,9 +2903,12 @@ def as_printable_html(request: HttpRequest, casebook: Casebook, page=1):
     paginator = Paginator(top_level_nodes, 1)
     page = paginator.page(page)
     section = page[0]
+
+    node_filter = {} if whole_book else {"ordinals__0": section.ordinals[0]}
+
     children: ContentNodeQuerySet = (
         casebook.nodes_for_user(request.user)
-        .filter(ordinals__0=section.ordinals[0])
+        .filter(**node_filter)
         .prefetch_resources()
         .prefetch_related("annotations")
         .order_by("ordinals")
@@ -2923,7 +2926,7 @@ def as_printable_html(request: HttpRequest, casebook: Casebook, page=1):
             "children": children,
             "toc": toc,
             "export_date": datetime.now().strftime("%Y-%m-%d"),
-            "include_annotations": True,
+            "whole_book": whole_book,
         },
     )
 
