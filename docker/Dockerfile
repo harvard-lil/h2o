@@ -21,3 +21,15 @@ COPY web/requirements.txt /app/web
 RUN pip install pip==21.3.1 \
     && pip install -r requirements.txt \
     && rm requirements.txt
+
+# Install Chromium and driver
+ENV CHROMIUM_VERSION=106.0.5249.91-1~deb11u1
+RUN apt-get update && apt-get install -y chromium=${CHROMIUM_VERSION} \
+    chromium-common=${CHROMIUM_VERSION} \
+    chromium-driver=${CHROMIUM_VERSION} \
+    chromium-l10n=${CHROMIUM_VERSION} \
+    chromium-sandbox=${CHROMIUM_VERSION}
+
+# Install Playwright browsers for integration tests
+RUN apt install --no-install-recommends libdbus-glib-1-2
+RUN playwright install chromium firefox

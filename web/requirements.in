@@ -34,6 +34,7 @@ requests-mock       # mock the requests library
 pytest-mock
 py-spy
 freezegun
+pytest-playwright
 
 # Dev convenience
 django-debug-toolbar
