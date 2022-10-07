@@ -1,43 +1,45 @@
 import inspect
+import os
 import re
 from collections import defaultdict
 from contextlib import contextmanager
 from datetime import datetime
 from distutils.sysconfig import get_python_lib
-import pytest
-import factory
-from requests_mock import ANY
+from test.test_helpers import dump_casebook_outline
 
+import factory
+import pytest
 from django.conf import settings
 from django.db import connections
+from django.db.backends import utils as django_db_utils
 from django.db.backends.base.base import BaseDatabaseWrapper
 from django.test.utils import CaptureQueriesContext
 from django.utils import timezone
-from django.db.backends import utils as django_db_utils
+from requests_mock import ANY
 
 from main.models import (
-    ContentNode,
-    User,
     Casebook,
     CasebookEditLog,
-    Section,
-    Resource,
-    ContentCollaborator,
-    Link,
-    TextBlock,
+    CommonTitle,
     ContentAnnotation,
+    ContentCollaborator,
+    ContentNode,
     LegalDocument,
     LegalDocumentSource,
+    Link,
     LiveSettings,
-    CommonTitle,
+    Resource,
+    Section,
+    TextBlock,
+    User,
 )
 from main.utils import re_split_offsets
 
-from test.test_helpers import dump_casebook_outline
-
-
 # This file defines test fixtures available to all tests.
 # To see available fixtures run pytest --fixtures
+
+# Allow setup of live server test cases; see https://github.com/microsoft/playwright-python/issues/439
+os.environ.setdefault("DJANGO_ALLOW_ASYNC_UNSAFE", "true")
 
 
 ### pytest configuration ###
