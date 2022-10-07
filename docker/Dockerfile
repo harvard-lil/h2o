@@ -23,5 +23,21 @@ RUN pip install pip==21.3.1 \
     && rm requirements.txt
 
 # Install Playwright browsers for integration tests
-RUN apt-get update && apt install -y --no-install-recommends libdbus-glib-1-2
+RUN  apt-get update && apt install -y --no-install-recommends libdbus-glib-1-2 \
+    libnss3 \
+    libnspr4 \
+    libatk1.0-0 \
+    libatk-bridge2.0-0 \
+    libcups2 \
+    libdrm2 \
+    libxkbcommon0 \
+    libxcomposite1 \
+    libxdamage1 \
+    libxfixes3 \
+    libxrandr2 \
+    libgbm1 \
+    libasound2 \
+    libatspi2.0-0 \
+    libwayland-client0
+
 RUN playwright install chromium firefox
