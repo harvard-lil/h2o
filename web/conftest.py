@@ -370,7 +370,6 @@ class LiveSettingsFactory(factory.DjangoModelFactory):
     prevent_exports = False
     export_average_rate = 0
     export_last_minute_updated = 0
-    enable_printable_html_export = False
 
 
 ### fixture functions ###
