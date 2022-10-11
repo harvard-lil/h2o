@@ -3,7 +3,6 @@ from pathlib import Path
 from zipfile import ZipFile
 
 import pytest
-from conftest import LiveSettingsFactory
 from django.conf import settings
 from django.urls import reverse
 from lxml import etree
@@ -145,26 +144,10 @@ def test_export_is_rate_limited(live_settings, full_casebook, resource, user_fac
     assert live_settings.export_average_rate == prior_count + 2
 
 
-def test_printable_html_livesetting_required(admin_user_factory, client, full_casebook):
-    """The printable HTML view requires auth and an explicit setting at this time"""
-
-    resp = client.get(
-        reverse("as_printable_html", args=[full_casebook]), as_user=admin_user_factory()
-    )
-    assert 403 == resp.status_code
-
-    # Only when the live setting is enabled should this work
-    LiveSettingsFactory(enable_printable_html_export=True)
-    resp = client.get(
-        reverse("as_printable_html", args=[full_casebook]), as_user=admin_user_factory()
-    )
-    assert 200 == resp.status_code
-
-
-def test_printable_html_casebook(admin_user_factory, client, full_casebook):
+def test_printable_html_casebook(client, full_casebook):
     """The casebook printable HTML view should prepare a complete casebook for rendering"""
-    LiveSettingsFactory(enable_printable_html_export=True)
     resp = client.get(
-        reverse("as_printable_html", args=[full_casebook]), as_user=admin_user_factory()
+        reverse("as_printable_html", args=[full_casebook]),
+        as_user=full_casebook.contentcollaborator_set.first().user,
     )
     assert full_casebook == resp.context["casebook"]

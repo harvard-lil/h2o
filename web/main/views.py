@@ -9,7 +9,7 @@ from test.test_helpers import assert_url_equal, check_response, dump_content_tre
 
 from django.conf import settings
 from django.contrib import messages
-from django.contrib.auth.decorators import login_required, user_passes_test
+from django.contrib.auth.decorators import login_required
 from django.contrib.auth.models import AnonymousUser
 from django.contrib.auth.views import PasswordResetView, redirect_to_login
 from django.core.exceptions import PermissionDenied
@@ -71,7 +71,6 @@ from .models import (
     LegalDocument,
     LegalDocumentSource,
     Link,
-    LiveSettings,
     Resource,
     SavedImage,
     SearchIndex,
@@ -2874,31 +2873,27 @@ def export(request: HttpRequest, node: Union[ContentNode, Casebook], file_type="
     )
 
 
-@user_passes_test(lambda u: u.is_superuser)
 @hydrate_params
-@user_has_perm("casebook", "viewable_by")
 @method_decorator(
     perms_test(
         {
-            "args": ["casebook"],
+            "args": ["full_casebook"],
+            "results": {200: [None, "other_user", "full_casebook.testing_editor"]},
+        },
+        {
+            "args": ["full_private_casebook"],
             "results": {
-                403: [
-                    "admin_user"
-                ],  # This will be a Forbidden response unless the LiveSetting is enabled
-                "login": [None],
-                302: ["casebook.testing_editor"],
+                200: ["full_private_casebook.testing_editor"],
+                302: [None],
+                403: ["other_user"],
             },
         },
     )
 )
+@user_has_perm("casebook", "viewable_by")
 def as_printable_html(request: HttpRequest, casebook: Casebook, page=1):
     """Load the content of the casebook by top-level nodes, and pass it to an HTML template
     designed to render it in-place, without site chrome, suitable for printing"""
-
-    # Only available if enabled in LiveSettings:
-    if not LiveSettings.load().enable_printable_html_export:
-        return HttpResponseForbidden("This feature is not currently enabled")
-
     top_level_nodes: ContentNodeQuerySet = casebook.nodes_for_user(request.user).filter(
         ordinals__len=1
     )
