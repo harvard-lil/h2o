@@ -34,6 +34,7 @@ requests-mock       # mock the requests library
 pytest-mock
 py-spy
 freezegun
+playwright>=1.27
 pytest-playwright
 playwright>=1.27
 
