@@ -5,16 +5,16 @@ from playwright.sync_api import Page, expect
 from pytest_django.live_server_helper import LiveServer
 
 
-@pytest.fixture(autouse=True)
+@pytest.fixture(autouse=True, scope="function")
 def load_fixtures(transactional_db, django_db_serialized_rollback):
     call_command(
         "loaddata",
         [
-            "main/fixtures/casebooks.json",
-            "main/fixtures/contentcollaborators.json",
-            "main/fixtures/contentnodes.json",
-            "main/fixtures/textblocks.json",
-            "main/fixtures/users.json",
+            "main/test/functional/fixtures/casebooks.json",
+            "main/test/functional/fixtures/contentcollaborators.json",
+            "main/test/functional/fixtures/contentnodes.json",
+            "main/test/functional/fixtures/textblocks.json",
+            "main/test/functional/fixtures/users.json",
         ],
     )
 
