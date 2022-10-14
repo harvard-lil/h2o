@@ -32,7 +32,7 @@ def static_live_server(request, settings):
 
 
 @pytest.fixture
-def login(static_live_server, page: Page, user="text@example.edu", password="changeme"):
+def login(static_live_server, page: Page, user="test@example.edu", password="changeme"):
     """Do the login step for the default user"""
     page.goto(static_live_server.url)
     page.get_by_role("link", name="Sign In").click()
@@ -57,6 +57,7 @@ def test_auth(static_live_server, page: Page):
     page.get_by_label("Email address*").fill("test@example.edu")
     page.get_by_label("Password*").fill("changeme")
     page.get_by_role("button", name="Sign in").click()
+    assert page.locator("text=Please enter a correct email address and password*").count() == 0
     expect(page).to_have_url(f"{static_live_server.url}/")
 
 
