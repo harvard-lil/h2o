@@ -36,8 +36,8 @@ def login(static_live_server, page: Page, user="text@example.edu", password="cha
     """Do the login step for the default user"""
     page.goto(static_live_server.url)
     page.get_by_role("link", name="Sign In").click()
-    page.get_by_label("Email address*").fill("test@example.edu")
-    page.get_by_label("Password*").fill("changeme")
+    page.get_by_label("Email address*").fill(user)
+    page.get_by_label("Password*").fill(password)
     page.get_by_role("button", name="Sign in").click()
 
 
