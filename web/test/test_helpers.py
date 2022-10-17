@@ -59,8 +59,9 @@ def dump_casebook_outline(casebook):
     """
     Helper function to serialize the full tree for a casebook, for testing casebook clone/merge functions.
 
-    >>> reset_sequences, full_casebook = [getfixture(i) for i in ['reset_sequences', 'full_casebook']]
-    >>> assert dump_casebook_outline(full_casebook) == [
+    Return a data structure like:
+
+    dump_casebook_outline(full_casebook) == [
     ...     'Casebook<1>: Some Title 0',
     ...     ' Section<1>: Some Section 0',
     ...     '  ContentNode<2> -> TextBlock<1>: Some TextBlock Name 0',
@@ -76,8 +77,7 @@ def dump_casebook_outline(casebook):
     ...     '   ContentNode<8> -> Link<2>: Some Link Name 1',
     ...     ' Section<9>: Some Section 8']
     """
-    out = []
-    out.append(f"Casebook<{casebook.id}>: {casebook.title}")
+    out = [(f"Casebook<{casebook.id}>: {casebook.title}")]
     for node in casebook.contents.prefetch_resources().prefetch_related("annotations"):
         node_type = node.type
         indent = " " * len(node.ordinals)
