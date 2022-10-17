@@ -36,7 +36,7 @@ def static_live_server(request, settings):
 
 
 @pytest.fixture
-def login(static_live_server, page: Page, user="test@example.edu", password="changeme"):
+def login(static_live_server, page: Page, user="functional-test@example.edu", password="changeme"):
     """Do the login step for the default user"""
     page.goto(static_live_server.url)
     page.get_by_role("link", name="Sign In").click()
@@ -60,7 +60,7 @@ def test_auth(static_live_server, page: Page):
     expect(page).to_have_url(f"{static_live_server.url}/accounts/login/")
 
     page.get_by_role("link", name="Sign In").click()
-    page.get_by_label("Email address*").fill("test@example.edu")
+    page.get_by_label("Email address*").fill("functional-test@example.edu")
     page.get_by_label("Password*").fill("changeme")
     page.get_by_role("button", name="Sign in").click()
     assert page.locator("text=Please enter a correct email address and password*").count() == 0
@@ -76,16 +76,16 @@ def test_view_casebook(static_live_server, page: Page, login):
     page.get_by_role("link", name="First content").click()
 
     expect(page).to_have_url(
-        f"{static_live_server.url}/casebooks/6108-simple-casebook/resources/1-first-content/annotate/"
+        f"{static_live_server.url}/casebooks/1-simple-casebook/resources/1-first-content/annotate/"
     )
 
 
 @pytest.mark.xdist_group("functional")
-def test_pdf_export(static_live_server, tmp_path: Path):
+def test_pdf_export(static_live_server, page: Page, tmp_path: Path):
     """The PDF helper function should generate a PDF for a public casebook"""
     casebook = Casebook.objects.get(title="Public casebook")
     assert casebook
     url = static_live_server.url + reverse("printable_all", args=[casebook])
     output_file = tmp_path / "example.pdf"
-    generate_pdf(url, output_file, timeout=5_000)
+    generate_pdf(url, output_file, page, timeout=5_000)
     assert output_file.read_bytes()[:4] == b"%PDF"
