@@ -18,6 +18,7 @@ def generate_pdf(
         logger.info(f"Requesting {url}...")
 
         resp = page.goto(url)
+        assert resp
         assert resp.ok
         assert "/accounts/login" not in resp.url
 
