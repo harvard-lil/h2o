@@ -1,4 +1,3 @@
- /* eslint-disable */
 import { Previewer } from "pagedjs";
 
 /**
