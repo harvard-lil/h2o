@@ -1,6 +1,6 @@
 # Generate a PDF via playwright
 from pathlib import Path
-from playwright.sync_api import sync_playwright, expect
+from playwright.sync_api import sync_playwright, expect, Page
 import logging
 
 logger = logging.getLogger(__name__)
@@ -8,29 +8,29 @@ logging.basicConfig(level=logging.INFO)
 
 
 def generate_pdf(
-    url: str, output_file: Path, selector: str = "main.preview-ready", timeout=120_000, headed=False
+    url: str,
+    output_file: Path,
+    page: Page,
+    selector: str = "main.preview-ready",
+    timeout=120_000,
 ):
     """Generate a PDF from a given URL, return a Path object to the pdf on the filesystem"""
-    with sync_playwright() as p:
-        logger.info("Launching browser")
-        browser = p.chromium.launch(headless=not headed)
-        page = browser.new_page()
-        logger.info(f"Requesting {url}...")
+    logger.info(f"Requesting {url}...")
 
-        resp = page.goto(url)
-        assert resp
-        assert resp.ok
-        assert "/accounts/login" not in resp.url
+    resp = page.goto(url)
+    assert resp
+    assert resp.ok
+    assert "/accounts/login" not in resp.url
 
-        logger.info(
-            f"Got status code {resp.status}, waiting for printable page and selector {selector}"
-        )
-        page.on("console", lambda msg: logger.warning(f"From browser console: {msg}"))
-        expect(page.locator(selector)).to_be_visible(timeout=timeout)
-        pdf = page.pdf()
-        output_file.write_bytes(pdf)
+    logger.info(
+        f"Got status code {resp.status}, waiting for printable page and selector {selector}"
+    )
+    page.on("console", lambda msg: logger.warning(f"From browser console: {msg}"))
+    expect(page.locator(selector)).to_be_visible(timeout=timeout)
+    pdf = page.pdf()
+    output_file.write_bytes(pdf)
 
-        logger.info(f"Wrote output to {output_file}")
+    logger.info(f"Wrote output to {output_file}")
 
 
 if __name__ == "__main__":
@@ -44,4 +44,9 @@ if __name__ == "__main__":
     parser.add_argument("--headed", action="store_true", help="Run in headed mode")
     args = parser.parse_args()
     output_file = Path(args.pdf)
-    generate_pdf(args.url, output_file, headed=args.headed)
+
+    with sync_playwright() as p:
+        logger.info("Launching browser")
+        browser = p.chromium.launch(headless=not args.headed)
+        page = browser.new_page()
+        generate_pdf(args.url, output_file, page)
