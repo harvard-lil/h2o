@@ -1,0 +1,32 @@
+[
+{
+  "model": "main.user",
+  "pk": 125097,
+  "fields": {
+    "password": "pbkdf2_sha256$150000$wfDNGY2KLU8l$aNDSxDbmwyPXnBmKK4dwmfQuzYkyrkwhcKbBDTPZxbI=",
+    "is_superuser": false,
+    "created_at": "2020-01-07T16:41:49.285",
+    "updated_at": "2020-01-07T16:41:49.285",
+    "email_address": "test@example.edu",
+    "attribution": "Anonymous",
+    "affiliation": "Test Law School",
+    "institution": null,
+    "public_url": null,
+    "verified_professor": false,
+    "professor_verification_requested": false,
+    "is_staff": false,
+    "is_active": true,
+    "pronouns": "",
+    "short_bio": "",
+    "personal_site": "",
+    "last_request_at": null,
+    "login_count": 0,
+    "current_login_at": null,
+    "last_login_at": null,
+    "current_login_ip": null,
+    "last_login_ip": null,
+    "groups": [],
+    "user_permissions": []
+  }
+}
+]
