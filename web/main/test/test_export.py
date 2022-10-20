@@ -48,7 +48,13 @@ def assert_html_equal(bytes_a, bytes_b):
 
 @pytest.mark.xdist_group("pandoc-lambda")
 def test_export(
-    request, casebook_factory, section_factory, annotations_factory, resource_factory, user_factory
+    request,
+    casebook_factory,
+    section_factory,
+    annotations_factory,
+    resource_factory,
+    user_factory,
+    reset_sequences,
 ):
     """
     This test generates the contents of all exported files in test/files/export/ and compares them to the versions
