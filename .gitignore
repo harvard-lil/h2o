@@ -48,3 +48,6 @@ python-shell.sh
 *.iml
 .vscode
 .mypy_cache
+
+# Dev-only webpack stats
+web/webpack-stats-serve.json

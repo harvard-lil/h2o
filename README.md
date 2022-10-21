@@ -63,12 +63,12 @@ Run the development server with hot-reloading vue-cli pipeline:
     or, with [Django Debug Toolbar](https://django-debug-toolbar.readthedocs.io/en/latest/index.html#) enabled,
     # fab run_frontend:debug_toolbar=True
 
-After making changes to frontend/, compile new assets:
+After making changes to frontend/, compile new assets if you want to see them from plain `fab run`:
 
     # npm run build
 
-(Or if you run_frontend and don't end up changing anything, then instead of running `npm run build` afterward
-you can just revert the changes to `webpack-stats.json`)
+`npm run build` will be automatically run by Github Actions as well, so it is unnecessary (but harmless) to build and
+commit the new assets locally, unless you want to use them immediately.
 
 ### Stop
 

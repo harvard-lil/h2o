@@ -38,8 +38,8 @@ def setup_django(func):
 
 
 @task(alias="run")
-def run_django(port=None, debug_toolbar=""):
-    with shell_env(DEBUG_TOOLBAR=debug_toolbar):
+def run_django(port=None, debug_toolbar="", live_js_assets=""):
+    with shell_env(DEBUG_TOOLBAR=debug_toolbar, LIVE_JS_ASSETS=live_js_assets):
         if port is None:
             port = "0.0.0.0:8000" if os.environ.get("DOCKERIZED") else "127.0.0.1:8000"
         local(f"python manage.py runserver {port}")
@@ -49,7 +49,7 @@ def run_django(port=None, debug_toolbar=""):
 def run_frontend(port=None, debug_toolbar=""):
     node_proc = subprocess.Popen("npm run serve", shell=True, stdout=sys.stdout, stderr=sys.stderr)
     try:
-        run_django(port, debug_toolbar)
+        run_django(port, debug_toolbar=debug_toolbar, live_js_assets="1")
     finally:
         os.kill(node_proc.pid, signal.SIGKILL)
 

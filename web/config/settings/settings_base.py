@@ -224,7 +224,12 @@ WHITENOISE_USE_FINDERS = True
 WEBPACK_LOADER = {
     "DEFAULT": {
         "BUNDLE_DIR_NAME": "dist/",
-        "STATS_FILE": os.path.join(BASE_DIR, "webpack-stats.json"),
+        "STATS_FILE": os.path.join(
+            BASE_DIR,
+            "webpack-stats-serve.json"
+            if os.environ.get("LIVE_JS_ASSETS")
+            else "webpack-stats.json",
+        ),
     }
 }
 
