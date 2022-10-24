@@ -1,6 +1,4 @@
-import {
-  Previewer
-} from "pagedjs";
+import { Previewer } from "pagedjs";
 
 /**
  * Collect groups of ranges for each annotation offset start and end. Note that start/end offset may
@@ -103,116 +101,117 @@ function hyperlinkFootnote(node, url, dateCreated) {
   node.insertAdjacentElement("afterend", footnote);
 }
 
-document.addEventListener("DOMContentLoaded", () => {
-  document.querySelectorAll("main").forEach((main) => {
-    const tmpl = document.querySelector("#casebook-content");
-    const css = tmpl.getAttribute("data-stylesheet");
-    const paged = new Previewer();
+const main = document.querySelector("main")
 
-    // For any existing URLs that aren't resources, turn them into footnotes
-    tmpl.content.querySelectorAll('a[href^="http"]:not([data-type])').forEach((el) => {
-      hyperlinkFootnote(el, el['href'],
-      new Date(tmpl.content.querySelector('section[data-datetime]').getAttribute('data-datetime')))
-    });
 
-    const annotationRanges = annotationsToRanges(
-      Array.from(tmpl.content.querySelectorAll("[data-annotation-type]")),
-      tmpl.content
-    );
+const tmpl = document.querySelector("#casebook-content");
+const css = tmpl.getAttribute("data-stylesheet");
+const paged = new Previewer();
 
-    // When all Ranges are ready, start updating the DOM
-    annotationRanges.forEach((rg) => {
-      const {
-        type,
-        datetime,
-        ranges,
-        content
-      } = rg;
-      switch (type) {
-        case "highlight": {
-          ranges.forEach((range) => {
-            const wrap = document.createElement("mark");
-            wrap.classList.add("highlighted");
-            range.surroundContents(wrap);
-          });
-          break;
+// For any existing URLs that aren't resources, turn them into footnotes
+tmpl.content.querySelectorAll('a[href^="http"]:not([data-type])').forEach((el) => {
+  hyperlinkFootnote(el, el['href'],
+  new Date(tmpl.content.querySelector('section[data-datetime]').getAttribute('data-datetime')))
+});
+
+const annotationRanges = annotationsToRanges(
+  Array.from(tmpl.content.querySelectorAll("[data-annotation-type]")),
+  tmpl.content
+);
+
+// When all Ranges are ready, start updating the DOM
+annotationRanges.forEach((rg) => {
+  const {
+    type,
+    datetime,
+    ranges,
+    content
+  } = rg;
+  switch (type) {
+    case "highlight": {
+      ranges.forEach((range) => {
+        const wrap = document.createElement("mark");
+        wrap.classList.add("highlighted");
+        range.surroundContents(wrap);
+      });
+      break;
+    }
+    case "elide": {
+      ranges.forEach((range) => {
+        const elision = document.createElement("del");
+        elision.classList.add("elided");
+        elision.setAttribute("datetime", datetime);
+
+        const marker = document.createElement("ins");
+        marker.setAttribute("datetime", datetime);
+        marker.classList.add("elision-marker");
+        marker.innerText = " … ";
+        range.surroundContents(elision);
+        elision.insertAdjacentElement("afterend", marker);
+
+        // If the previous sibling is another marker, or if it's an empty text node,
+        // hide the marker
+        if (
+          elision.previousSibling.classList?.contains("elision-marker") ||
+          elision.previousSibling.textContent.trim() === ""
+        ) {
+          marker.classList.add("hidden");
         }
-        case "elide": {
-          ranges.forEach((range) => {
-            const elision = document.createElement("del");
-            elision.classList.add("elided");
-            elision.setAttribute("datetime", datetime);
+      });
+      break;
+    }
+    case "note": {
+      let lastRange;
 
-            const marker = document.createElement("ins");
-            marker.setAttribute("datetime", datetime);
-            marker.classList.add("elision-marker");
-            marker.innerText = " … ";
-            range.surroundContents(elision);
-            elision.insertAdjacentElement("afterend", marker);
+      // Wrap the specific text the author highlighted to allow for downstream styling
+      ranges.forEach((range) => {
+        const wrap = document.createElement("mark");
+        range.surroundContents(wrap);
+        lastRange = wrap;
+      });
 
-            // If the previous sibling is another marker, or if it's an empty text node,
-            // hide the marker
-            if (
-              elision.previousSibling.classList?.contains("elision-marker") ||
-              elision.previousSibling.textContent.trim() === ""
-            ) {
-              marker.classList.add("hidden");
-            }
-          });
-          break;
-        }
-        case "note": {
-          let lastRange;
+      // Add the note after the last range
+      const note = document.createElement("aside");
+      note.classList.add("authors-note");
 
-          // Wrap the specific text the author highlighted to allow for downstream styling
-          ranges.forEach((range) => {
-            const wrap = document.createElement("mark");
-            range.surroundContents(wrap);
-            lastRange = wrap;
-          });
+      // Ask PagedJS to render it as a footnote on the current page
+      note.classList.add("footnote-generated");
+      note.innerText = content
+      lastRange.insertAdjacentElement("afterend", note);
+      break;
+    }
+    case "replace":
+    case "correction": {
+      // Transparently replace the content inside the node
+      ranges.forEach((range) => {
+        const deletion = document.createElement("del");
+        deletion.classList.add(type);
+        deletion.setAttribute("datetime", datetime);
 
-          // Add the note after the last range
-          const note = document.createElement("aside");
-          note.classList.add("authors-note");
+        const replacement = document.createElement("ins");
+        replacement.setAttribute("datetime", datetime);
+        replacement.classList.add(type);
+        replacement.innerText = content;
+        range.surroundContents(deletion);
+        deletion.insertAdjacentElement("afterend", replacement);
+      });
+      break;
 
-          // Ask PagedJS to render it as a footnote on the current page
-          note.classList.add("footnote-generated");
-          note.innerText = content
-          lastRange.insertAdjacentElement("afterend", note);
-          break;
-        }
-        case "replace":
-        case "correction": {
-          // Transparently replace the content inside the node
-          ranges.forEach((range) => {
-            const deletion = document.createElement("del");
-            deletion.classList.add(type);
-            deletion.setAttribute("datetime", datetime);
+    }
+    case "link":
+      // Inject a hyperlink which in print will be styled as a footnote
+      ranges.forEach((range) => {
+        const anchor = document.createElement("a");
+        anchor.setAttribute("href", content);
+        range.surroundContents(anchor);
+        hyperlinkFootnote(anchor, content, new Date(datetime))
+      });
+      break
+  }
+});
 
-            const replacement = document.createElement("ins");
-            replacement.setAttribute("datetime", datetime);
-            replacement.classList.add(type);
-            replacement.innerText = content;
-            range.surroundContents(deletion);
-            deletion.insertAdjacentElement("afterend", replacement);
-          });
-          break;
+paged.preview(tmpl.content, [css], main).then((flow) => {
+  console.log("Rendered", flow.total, "pages.");
+  main.classList.add("preview-ready")
 
-        }
-        case "link":
-          // Inject a hyperlink which in print will be styled as a footnote
-          ranges.forEach((range) => {
-            const anchor = document.createElement("a");
-            anchor.setAttribute("href", content);
-            range.surroundContents(anchor);
-            hyperlinkFootnote(anchor, content, new Date(datetime))
-          });
-          break
-      }
-    });
-
-    paged.preview(tmpl.content, [css], main).then((flow) => {
-      console.log("Rendered", flow.total, "pages.");
-    });
-  });
 });

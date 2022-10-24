@@ -1,6 +1,6 @@
 nav.toc {
     --toc-column-gap: 2mm;
-    --toc-row-gap: 5mm;
+    --toc-row-gap: calc(var(--casebook-font-size) * 1);
     --toc-left-width: 10mm;
     break-before: right;
 }
@@ -31,7 +31,7 @@ nav.toc .node-title {
 }
 
 nav.toc > ol > li > ol li {
-    line-height: 2em;
+    line-height: calc(var(--casebook-line-height) * 0.8);
 }
 nav.toc > ol > li > ol li span {
     display: inline-block;

@@ -1,7 +1,7 @@
 [
 {
   "model": "main.contentnode",
-  "pk": 942007,
+  "pk": 1,
   "fields": {
     "created_at": "2022-10-13T20:15:43.919",
     "updated_at": "2022-10-13T20:15:45.900",
@@ -17,9 +17,59 @@
     "public": false,
     "draft_mode_of_published_casebook": null,
     "old_casebook": null,
-    "casebook": 6108,
+    "casebook": 1,
     "resource_type": "TextBlock",
-    "resource_id": 226109,
+    "resource_id": 1,
+    "reading_length": 0,
+    "is_instructional_material": false
+  }
+},
+{
+  "model": "main.contentnode",
+  "pk": 2,
+  "fields": {
+    "created_at": "2022-10-13T20:15:43.919",
+    "updated_at": "2022-10-13T20:15:45.900",
+    "ordinals": "[\"1\"]",
+    "display_ordinals": "[\"1\"]",
+    "does_display_ordinals": true,
+    "provenance": "[]",
+    "title": "First public content",
+    "subtitle": null,
+    "headnote": null,
+    "headnote_doc_class": "Text",
+    "copy_of": null,
+    "public": false,
+    "draft_mode_of_published_casebook": null,
+    "old_casebook": null,
+    "casebook": 2,
+    "resource_type": "TextBlock",
+    "resource_id": 2,
+    "reading_length": 0,
+    "is_instructional_material": false
+  }
+},
+{
+  "model": "main.contentnode",
+  "pk": 3,
+  "fields": {
+    "created_at": "2022-10-13T20:15:43.919",
+    "updated_at": "2022-10-13T20:15:45.900",
+    "ordinals": "[\"1\"]",
+    "display_ordinals": "[\"1\"]",
+    "does_display_ordinals": true,
+    "provenance": "[]",
+    "title": "Second public content",
+    "subtitle": null,
+    "headnote": null,
+    "headnote_doc_class": "Text",
+    "copy_of": null,
+    "public": false,
+    "draft_mode_of_published_casebook": null,
+    "old_casebook": null,
+    "casebook": 2,
+    "resource_type": "TextBlock",
+    "resource_id": 3,
     "reading_length": 0,
     "is_instructional_material": false
   }

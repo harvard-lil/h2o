@@ -2,7 +2,9 @@
 @import "toc.css" print;
 
 @media print {
-
+  @page {
+    size: letter;
+  }
   @font-face {
     font-family: 'LibreCaslon';
     src: url('../fonts/LibreCaslonText-Regular.woff2') format('woff2');
@@ -22,8 +24,8 @@
   }
 
   :root {
-    --casebook-font-size: 4mm;
-    --casebook-line-height: 7mm;
+    --casebook-font-size: 3.5mm;
+    --casebook-line-height: calc(var(--casebook-font-size) * 1.8);
     --casebook-font-family: "LibreCaslon";
     --link-icon-height: 10mm;
     --link-icon-width: 10mm;
@@ -55,6 +57,7 @@
     font-size: var(--casebook-font-size) !important;
     line-height: var(--casebook-line-height) !important;
     font-family: var(--casebook-font-family), serif !important;
+    margin: 0;
   }
 
 
@@ -68,7 +71,10 @@
   h4,
   h5,
   h6 {
-    margin: 10mm 0 0.5em 0;
+    margin: calc(var(--casebook-font-size) * 1.5)
+            0
+            calc(var(--casebook-font-size) * 1.8)
+            0;
     font-family: var(--casebook-font-family), serif;
     line-height: 140%;
     font-weight: normal;
@@ -150,7 +156,7 @@
 
 
   /* Book content (but not metadata or other types) should be indented. */
-  .node-container > p, section > p {
+  .node-container > p, section > p, article.opinion > p {
     text-indent: 2em;
   }
   .title > .ordinal:not(:empty) {
@@ -205,7 +211,7 @@
     padding: 0;
   }
 
-  .highlighted {
+  .highlighted, mark {
     background: var(--highlight-background-color);
     padding: calc(var(--casebook-line-height) * .2) 0;
   }
@@ -236,10 +242,15 @@
   .footnote-generated {
     float: footnote;
     word-wrap: break-word;
+    font-size: calc(var(--casebook-font-size) * .75);
   }
   /* Add some spacing to the superscript indicating a footnote. */
   ::footnote-call {
     margin-left: .5mm;
+  }
+  .pagedjs_page .pagedjs_footnote_content {
+    border-top: 1px solid var(--highlight-background-greyscale);
+    margin-top: 2mm;
   }
   /* Generate the corresponding footnote reference in the footer as e.g. "2. <footnote-text>"
    Don't allow long URLs to break on the space in this marker. */
