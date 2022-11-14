@@ -24,11 +24,10 @@ from django.http import (
     HttpResponse,
     HttpResponseBadRequest,
     HttpResponseForbidden,
-    HttpResponseRedirect,
     HttpResponseServerError,
     JsonResponse,
 )
-from django.shortcuts import get_object_or_404, render
+from django.shortcuts import get_object_or_404, redirect, render
 from django.urls import reverse
 from django.utils.decorators import method_decorator
 from django.utils.html import escape
@@ -1063,7 +1062,7 @@ def sign_up(request):
                 request,
                 "Thanks! Please check your email for a link that will let you confirm your account and set a password.",
             )
-            return HttpResponseRedirect(reverse("index"))
+            return redirect("index")
     return render(request, "registration/sign_up.html", {"form": form})
 
 
@@ -1118,7 +1117,7 @@ def new_casebook(request):
     casebook.state = Casebook.LifeCycle.PRIVATELY_EDITING.value
     casebook.save()
     casebook.add_collaborator(user=request.user, has_attribution=True, can_edit=True)
-    return HttpResponseRedirect(casebook.get_edit_url())
+    return redirect(casebook.get_edit_url())
 
 
 @perms_test(
@@ -1353,7 +1352,7 @@ def follow_casebook(request, casebook):
         check.delete()
     else:
         CasebookFollow.objects.create(user=request.user, casebook=casebook)
-    return HttpResponseRedirect(request.META.get("HTTP_REFERER", casebook.get_absolute_url()))
+    return redirect(request.META.get("HTTP_REFERER", casebook.get_absolute_url()))
 
 
 @requires_csrf_token
@@ -1426,7 +1425,7 @@ def casebook_settings(request, casebook):
                     ).first()
                     if collab:
                         collab.delete()
-                    return HttpResponseRedirect("/")
+                    return redirect("/")
 
     only_editor = not [
         c for c in collaborator_queryset if c.can_edit and not c.user.id == request.user.id
@@ -1507,14 +1506,14 @@ class CasebookView(View):
         if not casebook.viewable_by(request.user):
             if casebook.is_previous_save:
                 parent = casebook.version_tree__parent()
-                return HttpResponseRedirect(reverse("casebook", args=[parent]))
+                return redirect("casebook", parent)
             if (
                 request.user.is_authenticated
                 and casebook.contentcollaborator_set.filter(
                     user=request.user, can_edit=True
                 ).exists()
             ):
-                return HttpResponseRedirect(reverse("casebook_settings", args=[casebook]))
+                return redirect("casebook_settings", casebook)
             else:
                 return login_required_response(request)
 
@@ -1523,7 +1522,7 @@ class CasebookView(View):
             url = reverse("casebook", args=[parent])
             if parent.draft and parent.draft.directly_editable_by(request.user):
                 url = reverse("edit_casebook", args=[parent.draft])
-            return HttpResponseRedirect(url)
+            return redirect(url)
 
         contents = casebook.contents.prefetch_resources()
 
@@ -1626,7 +1625,7 @@ class CasebookView(View):
         # The javascript that makes these PATCH requests expects a redirect
         # to the published casebook.
         # https://github.com/harvard-lil/h2o/issues/1050
-        return HttpResponseRedirect(reverse("casebook", args=[casebook]))
+        return redirect("casebook", casebook)
 
 
 @perms_test(
@@ -1650,7 +1649,7 @@ def clone_casebook(request, casebook):
     """
     if casebook.permits_cloning:
         clone = casebook.clone(request.user)
-        return HttpResponseRedirect(reverse("edit_casebook", args=[clone]))
+        return redirect("edit_casebook", clone)
     raise PermissionDenied
 
 
@@ -1672,7 +1671,7 @@ def clone_casebook_nodes(request, from_casebook_dict, from_section_dict, to_case
     to_casebook.refresh_from_db()
     new_add = to_casebook.children.order_by("-ordinals").first()
     link_hash = new_add.ordinal_string() + "-" + new_add.get_slug()
-    return HttpResponseRedirect(to_casebook.get_edit_url() + "#" + link_hash)
+    return redirect(to_casebook.get_edit_url() + "#" + link_hash)
 
 
 @perms_test(
@@ -1703,7 +1702,7 @@ def create_draft(request, casebook):
     Create a draft of a casebook and redirect to its edit page.
     """
     clone = casebook.make_draft()
-    return HttpResponseRedirect(reverse("edit_casebook", args=[clone]))
+    return redirect("edit_casebook", clone)
 
 
 @perms_test(
@@ -1764,7 +1763,7 @@ def edit_casebook(request, casebook: Casebook):
     ... )
     """
     if not request.user.is_authenticated or not casebook.directly_editable_by(request.user):
-        return HttpResponseRedirect(reverse("casebook", args=[casebook]))
+        return redirect("casebook", casebook)
 
     form_class = (
         CasebookFormWithCoverImage
@@ -1820,7 +1819,7 @@ def create_from_form(casebook, parent_section, form):
         resource_type=type(fresh_body).__name__,
     )
     fresh_resource.save()
-    return HttpResponseRedirect(fresh_resource.get_edit_url())
+    return redirect(fresh_resource.get_edit_url())
 
 
 @perms_test(
@@ -1878,7 +1877,7 @@ def new_section(request, casebook):
         fresh_section.display_ordinals = display_ordinals
         fresh_section.casebook = casebook
         fresh_section.save()
-        return HttpResponseRedirect(fresh_section.get_edit_url())
+        return redirect(fresh_section.get_edit_url())
     else:
         return JsonResponse(form.errors.as_data(), status=status.HTTP_400_BAD_REQUEST)
 
@@ -2033,7 +2032,7 @@ def new_legal_doc(request, casebook):
         resource_type="LegalDocument",
     )
     fresh_resource.save()
-    return HttpResponseRedirect(reverse("annotate_resource", args=[casebook, fresh_resource]))
+    return redirect("annotate_resource", casebook, fresh_resource)
 
 
 def switch_node_type(request, casebook, content_node):
@@ -2112,7 +2111,7 @@ def switch_node_type(request, casebook, content_node):
     if old_resource:
         logger.info(f"Deleting resource: {old_resource.id}")
         old_resource.delete()
-    return HttpResponseRedirect(content_node.get_preferred_url)
+    return redirect(content_node.get_preferred_url)
 
 
 class SectionView(View):
@@ -2149,13 +2148,13 @@ class SectionView(View):
                     user=request.user, can_edit=True
                 ).exists()
             ):
-                return HttpResponseRedirect(reverse("casebook_settings", args=[casebook]))
+                return redirect("casebook_settings", casebook)
             else:
                 return login_required_response(request)
 
         canonical = section.get_absolute_url()
         if request.path != canonical:
-            return HttpResponseRedirect(canonical)
+            return redirect(canonical, permanent=True)
         return render_with_actions(
             request,
             "casebook_page.html",
@@ -2360,7 +2359,7 @@ class ResourceView(View):
                     user=request.user, can_edit=True
                 ).exists()
             ):
-                return HttpResponseRedirect(reverse("casebook_settings", args=[casebook]))
+                return redirect("casebook_settings", casebook)
 
             else:
                 if casebook.is_previous_save:
@@ -2368,7 +2367,7 @@ class ResourceView(View):
                         return login_required_response(request)
                     current_casebook = Casebook.objects.filter(id=casebook.provenance[-1]).get()
                     if not resource:
-                        return HttpResponseRedirect(casebook.get_absolute_url())
+                        return redirect(casebook.get_absolute_url())
                     casebook.content_tree__load()
                     current_node = resource
                     while current_node:
@@ -2378,14 +2377,14 @@ class ResourceView(View):
                         )
                         if time_step:
                             if time_step.casebook == current_casebook:
-                                return HttpResponseRedirect(time_step.get_absolute_url())
+                                return redirect(time_step.get_absolute_url())
                             else:
                                 current_node = time_step
                                 next
                         else:
                             current_node.content_tree__load()
                             current_node = current_node.content_tree__parent
-                    return HttpResponseRedirect(casebook.get_absolute_url())
+                    return redirect(casebook.get_absolute_url())
                 return login_required_response(
                     request, always_raise=resource.is_instructional_material
                 )
@@ -2393,7 +2392,7 @@ class ResourceView(View):
         section = resource
         canonical = section.get_absolute_url()
         if request.path != canonical:
-            return HttpResponseRedirect(canonical)
+            return redirect(canonical, permanent=True)
 
         if section.resource_type == "TextBlock":
             body_json = json.dumps(TextBlockSerializer(section.resource).data)
@@ -2549,7 +2548,7 @@ def edit_resource(request, casebook, resource):
     ...     )
     """
     if not (resource.is_resource or resource.is_temporary):
-        return HttpResponseRedirect(reverse("edit_section", args=[casebook, resource]))
+        return redirect("edit_section", casebook, resource)
     form = ResourceForm(request.POST or None, instance=resource, request=request)
 
     # Let users edit Link and TextBlock resources directly from this page
@@ -2639,7 +2638,7 @@ def annotate_resource(request, casebook, resource):
         # Only Cases and TextBlocks can be annotated.
         # Rails serves the "edit" page contents at both "edit" and "annotate" when resources can't be annotated;
         # let's redirect instead.
-        return HttpResponseRedirect(reverse("edit_resource", args=[resource.casebook, resource]))
+        return redirect("edit_resource", resource.casebook, resource)
 
     search_sources = LegalDocumentSource.objects
     if not (request.user and request.user.is_superuser):
@@ -2719,9 +2718,9 @@ def reorder_node(request, casebook, section=None, node=None):
 
     # redirect back where we came from
     if section:
-        return HttpResponseRedirect(reverse("edit_section", args=[casebook, section]))
+        return redirect("edit_section", casebook, section)
     else:
-        return HttpResponseRedirect(reverse("edit_casebook", args=[casebook]))
+        return redirect("edit_casebook", casebook)
 
 
 def internal_doc_id_from_source(legal_doc_source, id):
@@ -2803,14 +2802,14 @@ def update_legal_doc(request, node=None):
     original_legal_doc = node.resource
     new_legal_doc = original_legal_doc.get_latest_version()
     if new_legal_doc == original_legal_doc:
-        return HttpResponseRedirect(reverse("edit_section", args=[node.casebook, node]))
+        return redirect("edit_section", node.casebook, node)
     new_legal_doc.save()
     ContentAnnotation.update_annotations(
         node.annotations.all(), original_legal_doc.content, new_legal_doc.content
     )
     node.resource_id = new_legal_doc.id
     node.save()
-    return HttpResponseRedirect(reverse("annotate_resource", args=[node.casebook, node]))
+    return redirect("annotate_resource", node.casebook, node)
 
 
 @method_decorator(
@@ -3355,4 +3354,4 @@ def view_image(request, image_uuid):
 
     """
     saved_image = get_object_or_404(SavedImage.objects.filter(external_id=image_uuid))
-    return HttpResponseRedirect(saved_image.image.url)
+    return redirect(saved_image.image.url)
