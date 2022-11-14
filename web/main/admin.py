@@ -583,11 +583,10 @@ class LinkAdmin(BaseAdmin, SimpleHistoryAdmin):
         "related_resources",
         "created_at",
         "updated_at",
-        "content_type",
     ]
-    list_filter = ["public", "content_type"]
+    list_filter = ["public"]
     search_fields = ["name", "url"]
-    fields = ["name", "url", "description", "public", "created_at", "updated_at", "content_type"]
+    fields = ["name", "url", "description", "public", "created_at", "updated_at"]
 
     def related_resources(self, obj):
         return format_html(
