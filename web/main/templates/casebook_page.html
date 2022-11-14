@@ -33,6 +33,14 @@
                 <div class="casebook-title">
                     {{ casebook.title }}
                 </div>
+                {% if page == "casebook_page" and casebook.first_published.entry_date %}
+                    <div class="casebook-date">
+                        First published {{ casebook.first_published.entry_date | date:"M Y" }}
+                        {% if casebook.last_updated.entry_date > casebook.first_published.entry_date %}
+                        and updated {{ casebook.last_updated.entry_date | date:"M Y" }}
+                        {% endif %}
+                    </div>
+                {% endif %}
             </header>
             {% if section %}
             <header class="content">

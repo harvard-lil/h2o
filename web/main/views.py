@@ -1535,6 +1535,7 @@ class CasebookView(View):
                 "tabs": casebook.tabs_for_user(request.user),
                 "casebook_color_class": casebook.casebook_color_indicator,
                 "contents": contents,
+                "page": "casebook_page",  # The name of this page, the main casebook entry page
                 "publish_check": json.dumps(
                     {
                         "isVerifiedProfessor": request.user.is_authenticated

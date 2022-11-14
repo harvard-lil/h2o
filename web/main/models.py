@@ -4527,8 +4527,11 @@ class Casebook(EditTrackedModel, TimestampedModel, BigPkModel, TrackedCloneable)
     def revising(self):
         return self.draft_of
 
+    # Modification dates
+
     @property
     def grouped_edit_log(self):
+        # TODO document this method
         def change_priority(entry):
             return [
                 CasebookEditLog.ChangeType.ORIGINAL_PUBLISH.value,
@@ -4564,6 +4567,29 @@ class Casebook(EditTrackedModel, TimestampedModel, BigPkModel, TrackedCloneable)
                 )
         results.append(list(log_line.values()))
         return results
+
+    @property
+    def first_published(self) -> Optional[CasebookEditLog]:
+        """Return the edit log record representing the datetime of the first publication date, for user display"""
+        return (
+            self.edit_log.filter(change=CasebookEditLog.ChangeType.ORIGINAL_PUBLISH.value)
+            .order_by("-entry_date")
+            .first()
+        )
+
+    @property
+    def last_updated(self) -> Optional[CasebookEditLog]:
+        """Return the edit log record representing the datetime of the most-recent modification date, for user display"""
+        return (
+            self.edit_log.filter(
+                change__in=(
+                    CasebookEditLog.ChangeType.EDITED.value,
+                    CasebookEditLog.ChangeType.ANNOTATED.value,
+                )
+            )
+            .order_by("-entry_date")
+            .first()
+        )
 
 
 class Link(NullableTimestampedModel):
