@@ -28,6 +28,7 @@ def test_change_password(user, client):
                 "new_password1": "new_password",
                 "new_password2": "new_password",
             },
+            follow=True,
         ),
         content_includes=["Your old password was entered incorrectly."],
     )
