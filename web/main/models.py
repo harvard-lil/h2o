@@ -4597,7 +4597,6 @@ class Link(NullableTimestampedModel):
     description = models.CharField(max_length=5242880, blank=True, null=True)
     url = models.URLField(max_length=1024)
     public = models.BooleanField(null=True, default=True)
-    content_type = models.CharField(max_length=255, blank=True, null=True)
     history = HistoricalRecords()
 
     def get_name(self):
