@@ -30,7 +30,6 @@ from django.http import (
 from django.shortcuts import get_object_or_404, redirect, render
 from django.urls import reverse
 from django.utils.decorators import method_decorator
-from django.utils.html import escape
 from django.utils.text import Truncator
 from django.views import View
 from django.views.decorators.cache import never_cache
