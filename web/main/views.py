@@ -2565,18 +2565,14 @@ def edit_resource(request, casebook, resource):
             if form.is_valid() and embedded_resource_form.is_valid():
                 embedded_resource_form.save()
                 form.save()
-                resource.resource.refresh_from_db()
-                resource.refresh_from_db()
-                form = ResourceForm(
-                    instance=resource, request=request
-                )  # workaround for no redirect-after-post
+                return redirect("edit_resource", casebook, resource)
             else:
                 return server_error(request)
         else:
             if form.is_valid():
                 form.save()
-                resource.resource.refresh_from_db()
-                resource.refresh_from_db()
+                return redirect("edit_resource", casebook, resource)
+
             else:
                 return server_error(request)
     if resource.resource_type == "TextBlock":
