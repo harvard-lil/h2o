@@ -238,7 +238,7 @@ class LinkForm(ModelForm):
         self.helper.layout = Layout(
             Div(
                 HTML('<h5 id="url-label">URL</h5>'),
-                Field("url", aria_labelledby="url-label"),
+                Field("url", aria_labelledby="url-label", type="url"),
             )
         )
         # Remove the explicit label on the "url" field, since it is

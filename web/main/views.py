@@ -2504,49 +2504,7 @@ class ResourceView(View):
 def edit_resource(request, casebook, resource):
     """
     Let authorized users update Resource metadata.
-
-    Given:
-    >>> private, with_draft, client = [getfixture(f) for f in ['full_private_casebook', 'full_casebook_with_draft', 'client']]
-    >>> draft = with_draft.draft
-    >>> private_resources = {'TextBlock': private.contents.all()[1], 'LegalDocument': private.contents.all()[2], 'Link': private.contents.all()[3]}
-    >>> draft_resources = {'TextBlock': draft.contents.all()[1], 'LegalDocument': draft.contents.all()[2], 'Link': draft.contents.all()[3]}
-
-    Users can edit resources in their unpublished and draft casebooks:
-    >>> for resource in [*private_resources.values(), *draft_resources.values()]:
-    ...     original_title = resource.title
-    ...     new_title = 'owner-edited title'
-    ...     check_response(
-    ...         client.get(resource.get_edit_url(), as_user=resource.testing_editor),
-    ...         content_includes=[resource.title, "casebook-draft"],
-    ...     )
-    ...     form_body = {'title': new_title}
-    ...     if resource.resource_type == 'Link':
-    ...         form_body['url'] = resource.resource.url
-    ...     check_response(
-    ...         client.post(resource.get_edit_url(), form_body, as_user=resource.testing_editor),
-    ...         content_includes=new_title,
-    ...         content_excludes=original_title
-    ...     )
-
-    You can edit the URL associated with a 'Link' resource, from its edit page:
-    >>> for resource in [private_resources['Link'], draft_resources['Link']]:
-    ...     original_url = resource.resource.url
-    ...     new_url = "http://new-test-url.com"
-    ...     check_response(
-    ...         client.post(resource.get_edit_url(), {'title': resource.title, 'url': new_url}, as_user=resource.testing_editor),
-    ...         content_includes=new_url,
-    ...         content_excludes=original_url
-    ...     )
-
-    You can edit the text associated with a 'TextBlock' resource, from its edit page:
-    >>> for resource in [private_resources['TextBlock'], draft_resources['TextBlock']]:
-    ...     original_text = resource.resource.content
-    ...     new_text = "<p>I'm new text</p>"
-    ...     check_response(
-    ...         client.post(resource.get_edit_url(), {'title': resource.title, 'content': new_text}, as_user=resource.testing_editor),
-    ...         content_includes=escape(new_text),
-    ...         content_excludes=escape(original_text)
-    ...     )
+    See tests/test_editing.py
     """
     if not (resource.is_resource or resource.is_temporary):
         return redirect("edit_section", casebook, resource)
@@ -2566,15 +2524,10 @@ def edit_resource(request, casebook, resource):
                 embedded_resource_form.save()
                 form.save()
                 return redirect("edit_resource", casebook, resource)
-            else:
-                return server_error(request)
-        else:
-            if form.is_valid():
-                form.save()
-                return redirect("edit_resource", casebook, resource)
+        elif form.is_valid():
+            form.save()
+            return redirect("edit_resource", casebook, resource)
 
-            else:
-                return server_error(request)
     if resource.resource_type == "TextBlock":
         body_json = json.dumps(TextBlockSerializer(resource.resource).data)
     elif resource.resource_type == "LegalDocument":
@@ -2585,9 +2538,8 @@ def edit_resource(request, casebook, resource):
     # Check to see if an update to a case is available
     case_has_update = False
     checked_case_for_updates = False
-    can_check_for_updates = False
-    if resource.resource_type == "LegalDocument" and request.user.is_superuser:
-        can_check_for_updates = True
+    can_check_for_updates = resource.resource_type == "LegalDocument" and request.user.is_superuser
+    if can_check_for_updates:
         case_has_update = resource.resource.has_newer_version()
         checked_case_for_updates = resource.resource.source.name != "Legacy"
 
