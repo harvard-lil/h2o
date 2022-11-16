@@ -30,6 +30,21 @@ def test_collaborator_invite(casebook_factory, faker):
     assert User.objects.filter(email_address__iexact=email).count() == 1
 
 
+def test_collaborator_invite_existing(casebook_factory, faker, mailoutbox):
+    """Don't try to create duplicate collaborators if they already exist"""
+    email = faker.email()
+
+    casebook = casebook_factory()
+    form = InviteCollaboratorForm(data={"casebook": casebook.id, "email": email})
+    assert form.is_valid()
+    form.save(Mock())
+    assert len(mailoutbox) == 1
+
+    form = InviteCollaboratorForm(data={"casebook": casebook.id, "email": email})
+    assert form.is_valid()
+    assert len(mailoutbox) == 1  # Unchanged
+
+
 def test_resourceform_user(full_private_casebook, client):
     """The resource form should only render the instructional toggle if the user is a verified professor"""
     user = full_private_casebook.testing_editor
