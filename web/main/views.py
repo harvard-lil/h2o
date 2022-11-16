@@ -1069,28 +1069,14 @@ def sign_up(request):
 @login_required
 def edit_user(request):
     """
-    Given:
-    >>> user, client, mailoutbox = [getfixture(f) for f in ['user', 'client', 'mailoutbox']]
-    >>> url = reverse('edit_user')
-    >>> post_kwargs = {'email_address': user.email_address, 'affiliation': user.affiliation, 'attribution': user.attribution}
-
-    Verified professor flow:
-    >>> check_response(client.get(url, as_user=user), content_includes=['Request Professor Verification'])
-    >>> check_response(client.post(url, {'professor_verification_requested': 'on', **post_kwargs}, as_user=user), content_includes=['Your changes have been saved', 'Professor Verification Requested'])
-    >>> assert len(mailoutbox) == 1
-    >>> user.verified_professor = True; user.save()
-    >>> check_response(client.get(url, as_user=user), content_includes=['Verified Professor'])
-    >>> check_response(client.post(url, post_kwargs, as_user=user), content_includes=['Your changes have been saved'])
-    >>> assert len(mailoutbox) == 1  # no emails sent if setting isn't changed
+    See tests/test_user_profile.py
     """
     form = UserProfileForm(request.POST or None, instance=request.user, request=request)
     if request.method == "POST":
         if form.is_valid():
             form.save()
             messages.success(request, "Your changes have been saved.")
-            form = UserProfileForm(
-                instance=request.user
-            )  # workaround so professor verification checkbox updates
+            return redirect("edit_user")
     return render(request, "user_edit.html", {"form": form})
 
 
@@ -1389,24 +1375,21 @@ def casebook_settings(request, casebook):
                 )
                 if modify_collaborator_form.is_valid():
                     modify_collaborator_form.save()
-                    modify_collaborator_form = ModificationFormSet(
-                        queryset=casebook.contentcollaborator_set.order_by("id")
-                        .select_related("user")
-                        .all(),
-                        auto_id="",
-                        prefix="form",
+                    messages.success(
+                        request,
+                        "Collaborator access updated.",
                     )
+                    return redirect("casebook_settings", casebook)
             if form_type == "add_collaborator":
                 invite_collab_form = InviteCollaboratorForm(request.POST)
                 if invite_collab_form.is_valid():
                     invite_collab_form.save(request)
-                    modify_collaborator_form = ModificationFormSet(
-                        queryset=casebook.contentcollaborator_set.order_by("id")
-                        .select_related("user")
-                        .all(),
-                        auto_id="",
-                        prefix="form",
+                    messages.success(
+                        request,
+                        "Invitation sent.",
                     )
+                    return redirect("casebook_settings", casebook)
+
             if form_type == "change_visibility":
                 settings = CasebookSettingsTransitionForm(request.POST)
                 if settings.is_valid():
@@ -1417,6 +1400,12 @@ def casebook_settings(request, casebook):
                     )
                     if transition_to and casebook.can_transition_to(transition_to):
                         casebook.transition_to(transition_to)
+                    messages.success(
+                        request,
+                        "This casebook's visibility was changed.",
+                    )
+                    return redirect("casebook_settings", casebook)
+
             if form_type == "leave_collaboration":
                 if not only_editor:
                     collab = ContentCollaborator.objects.filter(
@@ -1424,6 +1413,10 @@ def casebook_settings(request, casebook):
                     ).first()
                     if collab:
                         collab.delete()
+                    messages.success(
+                        request,
+                        "You have left this casebook.",
+                    )
                     return redirect("/")
 
     only_editor = not [
@@ -2268,7 +2261,7 @@ def edit_section(request, casebook, section):
     ...         content_includes=[section.title, "casebook-draft"],
     ...     )
     ...     check_response(
-    ...         client.post(section.get_edit_url(), {'title': new_title}, as_user=section.testing_editor),
+    ...         client.post(section.get_edit_url(), {'title': new_title}, as_user=section.testing_editor, follow=True),
     ...         content_includes=new_title,
     ...         content_excludes=section.title
     ...     )
@@ -2278,6 +2271,8 @@ def edit_section(request, casebook, section):
     form = SectionForm(request.POST or None, instance=section)
     if request.method == "POST" and form.is_valid():
         form.save()
+        return redirect("edit_section", casebook, section)
+
     section.contents.prefetch_resources()
     search_sources = LegalDocumentSource.objects
     if not (request.user and request.user.is_superuser):
@@ -2904,7 +2899,6 @@ def reset_password(request):
             target_user = None
         if target_user and not target_user.is_active:
             send_verification_email(request, target_user)
-
     return PasswordResetView.as_view()(request)
 
 
