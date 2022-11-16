@@ -509,4 +509,3 @@ class InviteCollaboratorForm(forms.Form):
                 has_attribution=False, can_edit=False, user=user, casebook=casebook
             )
             send_invitation_email(request, user, casebook)
-
