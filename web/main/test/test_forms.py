@@ -42,6 +42,7 @@ def test_collaborator_invite_existing(casebook_factory, faker, mailoutbox):
 
     form = InviteCollaboratorForm(data={"casebook": casebook.id, "email": email})
     assert form.is_valid()
+    form.save(Mock())
     assert len(mailoutbox) == 1  # Unchanged
 
 
