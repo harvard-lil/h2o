@@ -492,20 +492,20 @@ class InviteCollaboratorForm(forms.Form):
         [email_user, email_domain] = self.cleaned_data["email"].split("@")
         return f"{email_user}@{email_domain.lower()}"
 
-    def save(self, request, commit=True):
+    def save(self, request, commit=True) -> None:
         email_address = self.cleaned_data["email"]
         casebook = Casebook.objects.get(id=self.cleaned_data["casebook"])
 
         if user := User.objects.filter(email_address__iexact=email_address).first():
-            collaborator = ContentCollaborator.objects.create(
-                has_attribution=False, can_edit=False, user=user, casebook=casebook
-            )
-            send_collaboration_email(request, user, casebook)
+            # If this user exists and is not yet a collaborator, create them and notify them via email
+            if ContentCollaborator.objects.filter(user=user, casebook=casebook).count() == 0:
+                ContentCollaborator.objects.create(
+                    has_attribution=False, can_edit=False, user=user, casebook=casebook
+                )
+                send_collaboration_email(request, user, casebook)
         else:
             user = User.objects.create(email_address=email_address)
-            collaborator = ContentCollaborator.objects.create(
+            ContentCollaborator.objects.create(
                 has_attribution=False, can_edit=False, user=user, casebook=casebook
             )
             send_invitation_email(request, user, casebook)
-
-        return collaborator
