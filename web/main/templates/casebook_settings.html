@@ -91,6 +91,7 @@
                     <br />
                     <h4>Leave Collaboration</h4>
                     <form action="{% url 'casebook_settings' casebook %}" method="POST" class="form-control-group" >
+                        {% csrf_token %}
                         <button type="submit"
                                 class="btn btn-danger"
                                 name="submission_type"
