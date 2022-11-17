@@ -1163,6 +1163,14 @@ class LegalDocumentSource(models.Model):
         if api.details["name"] not in cls.source_apis:
             cls.source_apis[api.details["name"]] = api
 
+    @classmethod
+    def active_sources(cls, user: Optional[AnonymousUser | User]) -> QuerySet[LegalDocumentSource]:
+        """Return the queryset of active sources based on the user's current permissions"""
+        search_sources = LegalDocumentSource.objects.order_by("priority")
+        if user.is_anonymous or not user.is_superuser:
+            search_sources = search_sources.filter(active=True)
+        return search_sources
+
     def api_model(self):
         # short_description, long_description, bulk_process, search(long_citation_json), import(id)
         if self.search_class in self.source_apis:
