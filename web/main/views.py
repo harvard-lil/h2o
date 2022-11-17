@@ -1718,7 +1718,7 @@ def create_draft(request, casebook):
 @require_http_methods(["GET", "POST"])
 @requires_csrf_token
 @hydrate_params
-def edit_casebook(request, casebook: Casebook):
+def edit_casebook(request: HttpRequest, casebook: Casebook):
     """
     Given:
     >>> private, with_draft, for_verified_prof, client = [getfixture(f) for f in ['full_private_casebook', 'full_casebook_with_draft', 'full_private_casebook_for_verified_prof', 'client']]
@@ -1731,7 +1731,7 @@ def edit_casebook(request, casebook: Casebook):
     ...    content_includes=[private.title, "You are viewing a private casebook"],
     ... )
     >>> check_response(
-    ...     client.post(private.get_edit_url(), {'title': new_title}, as_user=private.testing_editor),
+    ...     client.post(private.get_edit_url(), {'title': new_title}, as_user=private.testing_editor, follow=True),
     ...     content_includes=new_title,
     ...     content_excludes=private.title
     ... )
@@ -1740,7 +1740,7 @@ def edit_casebook(request, casebook: Casebook):
     ...    content_includes=[draft.title, "This casebook is a draft"],
     ... )
     >>> check_response(
-    ...     client.post(draft.get_edit_url(), {'title': new_title}, as_user=draft.testing_editor),
+    ...     client.post(draft.get_edit_url(), {'title': new_title}, as_user=draft.testing_editor, follow=True),
     ...     content_includes=new_title,
     ...     content_excludes=draft.title
     ... )
@@ -1766,15 +1766,12 @@ def edit_casebook(request, casebook: Casebook):
     form = form_class(request.POST or None, request.FILES or None, instance=casebook)
     if request.method == "POST" and form.is_valid():
         form.save()
-        form = form_class(instance=casebook)
+        return redirect("edit_casebook", casebook)
 
     casebook.contents.prefetch_resources()
-    search_sources = LegalDocumentSource.objects.all()
-    if not (request.user and request.user.is_superuser):
-        search_sources = search_sources.filter(active=True)
-    doc_sources = list(search_sources.order_by("priority").all())
-    serialized_sources = LegalDocumentSourceSerializer(doc_sources, many=True).data
-    search_sources_json = json.dumps(serialized_sources)
+    serialized_sources = LegalDocumentSourceSerializer(
+        LegalDocumentSource.active_sources(request.user), many=True
+    ).data
 
     return render_with_actions(
         request,
@@ -1782,7 +1779,7 @@ def edit_casebook(request, casebook: Casebook):
         {
             "casebook": casebook,
             "editing": True,
-            "search_sources_json": search_sources_json,
+            "search_sources_json": json.dumps(serialized_sources),
             "tabs": casebook.tabs_for_user(request.user, current_tab="Edit"),
             "casebook_color_class": casebook.casebook_color_indicator,
             "form": form,
@@ -2274,19 +2271,17 @@ def edit_section(request, casebook, section):
         return redirect("edit_section", casebook, section)
 
     section.contents.prefetch_resources()
-    search_sources = LegalDocumentSource.objects
-    if not (request.user and request.user.is_superuser):
-        search_sources = search_sources.filter(active=True)
-    doc_sources = list(search_sources.order_by("priority").all())
-    serialized_sources = LegalDocumentSourceSerializer(doc_sources, many=True).data
-    search_sources_json = json.dumps(serialized_sources)
+    serialized_sources = LegalDocumentSourceSerializer(
+        LegalDocumentSource.active_sources(request.user), many=True
+    ).data
+
     return render_with_actions(
         request,
         "casebook_page.html",
         {
             "casebook": casebook,
             "section": section,
-            "search_sources_json": search_sources_json,
+            "search_sources_json": json.dumps(serialized_sources),
             "tabs": section.tabs_for_user(request.user, current_tab="Edit"),
             "casebook_color_class": casebook.casebook_color_indicator,
             "editing": True,
@@ -2583,12 +2578,9 @@ def annotate_resource(request, casebook, resource):
         # let's redirect instead.
         return redirect("edit_resource", resource.casebook, resource)
 
-    search_sources = LegalDocumentSource.objects
-    if not (request.user and request.user.is_superuser):
-        search_sources = search_sources.filter(active=True)
-    doc_sources = list(search_sources.order_by("priority").all())
-    serialized_sources = LegalDocumentSourceSerializer(doc_sources, many=True).data
-    search_sources_json = json.dumps(serialized_sources)
+    serialized_sources = LegalDocumentSourceSerializer(
+        LegalDocumentSource.active_sources(request.user), many=True
+    ).data
 
     body_json = resource.json
     return render_with_actions(
@@ -2598,7 +2590,7 @@ def annotate_resource(request, casebook, resource):
             "casebook": casebook,
             "resource": resource,
             "include_vuejs": resource.resource_type in ["LegalDocument", "TextBlock"],
-            "search_sources_json": search_sources_json,
+            "search_sources_json": json.dumps(serialized_sources),
             "editing": True,
             "edit_mode": True,
             "body_json": body_json,
