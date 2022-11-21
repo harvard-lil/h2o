@@ -753,7 +753,12 @@ form.edit_content_resource, form.edit_content_section, form.edit_content_caseboo
     section.credits {
         background-color:$white;
         border-top: 1px solid $light-gray;
-        padding: 2rem 2rem 4rem 2rem;
+        padding: 0 30px 4rem 30px;
+        h3 {
+            @include sans-serif($bold, 20px, 24px);
+            color: $dark-gray;
+
+        }
         .author-rider {
             margin-top: 1rem;
         }
@@ -781,7 +786,7 @@ form.edit_content_resource, form.edit_content_section, form.edit_content_caseboo
             }
 
             display: inline;
-            padding-left:4px;
+            padding-left: 0;
 
 
             ul {
@@ -798,7 +803,7 @@ form.edit_content_resource, form.edit_content_section, form.edit_content_caseboo
             list-style: none;
             display:flex;
             flex-direction: column;
-            padding: 8px;
+            padding: 0px 0 4rem 0;
             >li {
                 padding-bottom:3rem;
                 border-bottom: 1px solid black;
@@ -810,12 +815,12 @@ form.edit_content_resource, form.edit_content_section, form.edit_content_caseboo
                 }
             }
             .casebook-credit-header {
-                padding: 1rem 1rem 0 1rem;
+                padding: 1rem 0;
 
             }
             .cloned-content-list {
                 list-style:none;
-                padding-left:16px;
+                padding-left: 0;
                 display:flex;
                 flex-direction:column;
                 flex-wrap: wrap;
