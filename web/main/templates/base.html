@@ -10,7 +10,7 @@
     <script>
      {# frontend_urls is set by config.context_processors.frontend_urls #}
      const FRONTEND_URLS = {{ frontend_urls | safe}};
-     window.SUP = {% if super %}true{% else %}false{% endif %};
+     window.ENABLE_MEDIA_UPLOAD =  {% if request.user.is_superuser or request.user.verified_professor %}true{% else %}false{% endif %};
      window.VERIFIED = {% if request.user.verified_professor %}true{% else %}false{% endif %};
      window.sentry = {
        USE_SENTRY: {{ USE_SENTRY|lower }},
@@ -39,16 +39,16 @@
       <main>
         {% block custom_skip_target %}<p id="main" tabindex="-1" class="sr-only">Main Content</p>{% endblock %}
         {% if request.user.is_superuser %}
-          <section id="flash">
+          <section class="flash">
             <div class="content">
-              <div class="flash-error flash-message">
+              <div class="flash-admin flash-message">
                 Admin Mode
               </div>
             </div>
           </section>
         {% endif %}
         {% if messages %}
-          <section id="flash">
+          <section class="flash">
             <div class="content">
               {% for message in messages %}
                 <div class="flash-message flash-{% if message.tags %}{{ message.tags }}{% endif %}">{{ message }}</div>

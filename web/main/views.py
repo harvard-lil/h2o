@@ -2547,7 +2547,6 @@ def edit_resource(request, casebook, resource):
             "form": form,
             "embedded_resource_form": embedded_resource_form,
             "body_json": body_json,
-            "super": request.user.is_superuser,
             "publish_check": json.dumps(
                 {
                     "isVerifiedProfessor": request.user.is_authenticated

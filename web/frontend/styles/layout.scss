@@ -40,7 +40,7 @@ main > section, main > header {
   }
 }
 
-section#flash {
+section.flash {
   @include transition(height 0.25s linear);
   height: auto;
   overflow: hidden;
@@ -58,6 +58,9 @@ section#flash {
       @extend .alert-info;
     }
     &.flash-error {
+      @extend .alert-danger;
+    }
+    &.flash-admin {
       @extend .alert-danger;
     }
   }

@@ -12,7 +12,7 @@ import 'tinymce/plugins/media';
 import 'tinymce/plugins/noneditable';
 import {getInitConfig} from '../libs/tinymce_extensions';
 
-const ENHANCED = window.VERIFIED || window.SUP;
+const ENHANCED = window.ENABLE_MEDIA_UPLOAD;
 
 function initRichTextEditor(element, code=false) {
   // Vue rebuilds the whole dom in between the call to init and tinymce actually doing the init
