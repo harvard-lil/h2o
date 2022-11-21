@@ -7,32 +7,34 @@
             <li>
                 <div class="casebook-credit-header">
                     <a href="{{row.casebook.get_absolute_url}}"><h4> {{ row.casebook.title }} </h4></a>
-                    <div class="author-list">
-                        <span>Authors: </span>
-                        <ul class="immediate-author-list">
-                            {% for user in row.immediate_authors %}
-                            <li class="user {% if user.verified_professor %} verified{% endif %}">
-                                <a href="{% url 'dashboard' user.id %}">{{ user.display_name }}</a>
-                            </li>
-                            {% endfor %}
-                        </ul>
-                        {% if row.incidental_authors %}
-                        <span> with additional contributions by:</span>
-                        <ul class="incidental-author-list">
-                            {% for user in row.incidental_authors %}
-                            <li class="user {% if user.verified_professor %} verified{% endif %}">
-                                <a href="{% url 'dashboard' user.id %}">{{ user.display_name }}</a>
-                            </li>
-                            {% endfor %}
-                        </ul>
-                        {% endif %}
-                    </div>
+                    {% if row.immediate_authors or row.incidental_authors %}
+                        <div class="author-list">
+                            <span>Authors: </span>
+                            <ul class="immediate-author-list">
+                                {% for user in row.immediate_authors %}
+                                <li class="user {% if user.verified_professor %} verified{% endif %}">
+                                    <a href="{% url 'dashboard' user.id %}">{{ user.display_name }}</a>
+                                </li>
+                                {% endfor %}
+                            </ul>
+                            {% if row.incidental_authors %}
+                            <span> with additional contributions by:</span>
+                            <ul class="incidental-author-list">
+                                {% for user in row.incidental_authors %}
+                                <li class="user {% if user.verified_professor %} verified{% endif %}">
+                                    <a href="{% url 'dashboard' user.id %}">{{ user.display_name }}</a>
+                                </li>
+                                {% endfor %}
+                            </ul>
+                            {% endif %}
+                        </div>
+                    {% endif %}
                 </div>
                 <div class="casebook-credit-nodes">
                     <ul class="cloned-content-list">
                         {% for node,prior,nesting_depth in row.nodes %}
                         <li class="nesting-depth-{{nesting_depth}}">
-                            <span class="section-title">{{ node.ordinal_string }}: {{ node.title }} </span> <a class="og-node-link" href="{{ prior.get_absolute_url }}">original</a>
+                            <span class="section-title">{{ node.ordinal_string }}{% if node.ordinal_string %}:{% endif %} {{ node.title }} </span> <a class="og-node-link" href="{{ prior.get_absolute_url }}">original</a>
                         </li>
                         {% endfor %}
                     </ul>
