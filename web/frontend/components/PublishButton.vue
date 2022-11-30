@@ -1,21 +1,22 @@
 <template>
   <div id="publish-button">
-    <button type="button" 
-            class="action publish one-line" 
+    <button type="button"
+            class="action publish one-line"
             :disabled="disabled"
-            :title="disabled ? 'Some resources are incomplete. Finalize Entries below.' : 'Publish'"
+            :title="disabled ? 'Some resources are incomplete. Finalize entries below.' : 'Publish'"
             @click="attemptPublish">
             Publish
     </button>
     <Modal v-if="showModal" @close="showModal = false">
       <template slot="title">Confirm Publish</template>
       <template slot="body">
-        <p>Are you ready to publish your book?</p>
-        
+
         <div v-if=publishCheck.isVerifiedProfessor id="prof-prompt">
-          You're almost ready to publish your book! The following elements are
+          <p>
+            You're almost ready to publish your book! The following elements are
           optional, but can make your book more discoverable by students and
           colleagues:
+          </p>
           <ul class="fa-ul">
             <li v-if="this.publishCheck.coverImageFlag">
               <span v-if="this.publishCheck.coverImageExists" class="fa-li"><font-awesome-icon icon="fa-solid fa-check fa-fw" /></span>
@@ -25,21 +26,27 @@
             <li>
               <span v-if="this.publishCheck.descriptionExists" class="fa-li"><font-awesome-icon icon="fa-solid fa-check fa-fw" /></span>
               <span v-else class="fa-li"><font-awesome-icon icon="fa-solid fa-xmark fa-fw" /></span>
-              Description 
+              Description
             </li>
           </ul>
+          <p>
           We also encourage you to share your work with your colleagues or on
           social media! Your book is an important contribution to open education
           for law and we hope you'll help others find it and use it in their own
           classrooms. Because you are a verified professor, your book will
           automatically be surfaced on H2O's search page and will appear in web
           searches.
+          </p>
+        </div>
+        <div v-else>
+          <p>Are you ready to publish your book?</p>
         </div>
 
-        <div class="modal-footer">
+
+      </template>
+      <template slot="footer">
           <button class="modal-button cancel" @click="cancelPublish">Go Back</button>
           <button class="modal-button confirm" @click="confirmPublish">Publish</button>
-        </div>
       </template>
     </Modal>
   </div>
@@ -80,7 +87,7 @@ export default {
       {text: "Cover image added", val: this.publishCheck.coverImageExists},
       {text: "Description added", val: this.publishCheck.descriptionExists},
     ]
-      
+
   }},
   computed: {
       casebook: function() {
@@ -95,16 +102,16 @@ export default {
       this.showModal = false;
     },
     confirmPublish: function() {
-      const url = `/casebooks/${this.casebook}`;
-      const data = {content_casebook: {public: true}};
-      Axios.patch(url, data).then(
+      const url = `/casebooks/${this.casebook}/publish/`;
+
+      Axios.post(url, {}).then(
         this.handleSubmitResponse,
         this.handleSubmitErrors
       );
     },
     handleSubmitResponse: function handleSubmitResponse(response) {
-      let location = response.request.responseURL;
-      window.location.href = location;
+
+      window.location.href = response.request.responseURL;
       this.errors = {};
     },
     handleSubmitErrors: function handleSubmitErrors(error) {
@@ -123,7 +130,7 @@ export default {
 }
 
 .casebook-actions button.action.publish[disabled] {
-  filter: grayscale(1.0);    
+  filter: grayscale(1.0);
 }
 
 ul.clone-target-list {

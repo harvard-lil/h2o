@@ -178,6 +178,7 @@ urlpatterns = format_suffix_patterns(drf_urlpatterns) + [
         RedirectView.as_view(pattern_name="edit_casebook", permanent=True),
     ),
     path("casebooks/<idslug:casebook_param>/clone/", views.clone_casebook, name="clone"),
+    path("casebooks/<idslug:casebook_param>/publish/", views.publish_casebook, name="publish"),
     path(
         "casebooks/<idslug:from_casebook_dict>/sections/<ordslug:from_section_dict>/clone/to/<idslug:to_casebook_dict>/",
         views.clone_casebook_nodes,

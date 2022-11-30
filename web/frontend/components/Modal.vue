@@ -23,6 +23,9 @@
         <div class="modal-body">
           <slot name="body"></slot>
         </div>
+        <div class="modal-footer">
+          <slot name="footer"></slot>
+        </div>
       </div>
     </div>
   </div>

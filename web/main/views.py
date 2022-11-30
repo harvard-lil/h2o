@@ -1541,85 +1541,6 @@ class CasebookView(View):
             },
         )
 
-    @method_decorator(
-        perms_test(
-            {
-                "args": ["private_casebook"],
-                "results": {
-                    302: ["private_casebook.testing_editor"],
-                    "login": [None],
-                    403: ["other_user"],
-                },
-            },
-            {
-                "args": ["draft_casebook"],
-                "results": {
-                    302: ["draft_casebook.testing_editor"],
-                    "login": [None],
-                    403: ["other_user"],
-                },
-            },
-            {"args": ["casebook"], "results": {403: ["casebook.testing_editor"]}},
-        )
-    )
-    @method_decorator(hydrate_params)
-    @method_decorator(user_has_perm("casebook", "editable_by"))
-    def patch(self, request, casebook):
-        """
-        Publish a casebook.
-        https://github.com/harvard-lil/h2o/issues/1047
-
-        Given:
-        >>> casebook, casebook_factory, client, admin_user, user_factory = [getfixture(f) for f in ['casebook', 'casebook_factory', 'client', 'admin_user', 'user_factory']]
-        >>> user = casebook.collaborators.first()
-        >>> non_collaborating_user = user_factory()
-        >>> private_casebook = casebook_factory(contentcollaborator_set__user=user, state=Casebook.LifeCycle.PRIVATELY_EDITING.value)
-        >>> draft_casebook = casebook_factory(contentcollaborator_set__user=user, state=Casebook.LifeCycle.DRAFT.value, provenance=[casebook.id])
-        >>> casebook.draft = draft_casebook
-        >>> draft_casebook.save()
-        >>> casebook.save()
-
-        Newly-composed (private, never-published) casebooks, when published, become public.
-        >>> response = client.patch(private_casebook.get_absolute_url(), as_user=user, follow=True)
-        >>> check_response(
-        ...     response,
-        ...     content_includes=private_casebook.title,
-        ...     content_excludes="You are viewing a preview"
-        ... )
-        >>> private_casebook.refresh_from_db()
-        >>> assert_url_equal(response, private_casebook.get_absolute_url())
-        >>> assert private_casebook.is_public
-
-        Drafts of already-published casebooks, when published, replace their parent.
-        >>> response = client.patch(draft_casebook.get_absolute_url(), as_user=user, follow=True)
-        >>> check_response(
-        ...     response,
-        ...     content_includes=draft_casebook.title,
-        ...     content_excludes="You are viewing a preview"
-        ... )
-        >>> casebook.refresh_from_db()
-        >>> assert_url_equal(response, casebook.get_absolute_url())
-        >>> assert casebook.is_public
-        """
-        # check permissions
-        if casebook.is_public:
-            raise PermissionDenied("Only private casebooks may be published.")
-        if not casebook.can_publish:
-            return HttpResponseBadRequest("Casebook is not publishable")
-        if casebook.is_draft:
-            casebook = casebook.merge_draft()
-        else:
-            casebook.state = Casebook.LifeCycle.PUBLISHED.value
-            CasebookEditLog.objects.create(
-                casebook=casebook, change=CasebookEditLog.ChangeType.ORIGINAL_PUBLISH.value
-            )
-            casebook.save()
-
-        # The javascript that makes these PATCH requests expects a redirect
-        # to the published casebook.
-        # https://github.com/harvard-lil/h2o/issues/1050
-        return redirect("casebook", casebook)
-
 
 @perms_test(
     {
@@ -1794,6 +1715,56 @@ def edit_casebook(request: HttpRequest, casebook: Casebook):
             ),
         },
     )
+
+
+@perms_test(
+    {
+        "method": "post",
+        "args": ["private_casebook"],
+        "results": {
+            302: ["private_casebook.testing_editor"],
+            "login": [None],
+            403: ["other_user"],
+        },
+    },
+    {
+        "method": "post",
+        "args": ["draft_casebook"],
+        "results": {
+            302: ["draft_casebook.testing_editor"],
+            "login": [None],
+            403: ["other_user"],
+        },
+    },
+    {"method": "post", "args": ["casebook"], "results": {403: ["casebook.testing_editor"]}},
+)
+@require_http_methods(["POST"])
+@requires_csrf_token
+@hydrate_params
+@user_has_perm("casebook", "directly_editable_by")
+def publish_casebook(request: HttpRequest, casebook: Casebook):
+    """When a POST is received by a valid user, handles setting the casebook or its draft to the
+    published status. Returns a 302 to the root casebook when successful.
+
+    Tests: see tests/test_publishing.py
+    """
+    if not request.user.is_authenticated or not casebook.directly_editable_by(request.user):
+        return redirect("casebook", casebook)
+
+    if casebook.is_public:
+        raise PermissionDenied("Only private casebooks may be published.")
+    if not casebook.can_publish:
+        return HttpResponseBadRequest("Casebook is not publishable")
+    if casebook.is_draft:
+        casebook = casebook.merge_draft()
+    else:
+        casebook.state = Casebook.LifeCycle.PUBLISHED.value
+        CasebookEditLog.objects.create(
+            casebook=casebook, change=CasebookEditLog.ChangeType.ORIGINAL_PUBLISH.value
+        )
+        casebook.save()
+
+    return redirect("edit_casebook", casebook)
 
 
 @transaction.atomic
