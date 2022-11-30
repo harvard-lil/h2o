@@ -1748,8 +1748,6 @@ def publish_casebook(request: HttpRequest, casebook: Casebook):
 
     Tests: see tests/test_publishing.py
     """
-    if not request.user.is_authenticated or not casebook.directly_editable_by(request.user):
-        return redirect("casebook", casebook)
 
     if casebook.is_public:
         raise PermissionDenied("Only private casebooks may be published.")

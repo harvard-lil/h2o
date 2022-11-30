@@ -123,6 +123,7 @@ class CasebookFormWithCoverImage(CasebookForm):
                 raise ValidationError(str(e))
         return cover_image
 
+
 class SectionForm(ContentNodeForm):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
