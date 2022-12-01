@@ -17,7 +17,7 @@ class ReviseModal extends ModalComponent {
       <div class="modal-dialog" role="document">
         <div class="modal-content">
           <div class="spinner-group">
-            <p class="spinner-header">Building draft</p>
+            <h2 class="spinner-header">Building draft</h2>
             <p class="spinner-description">Your casebook will remain published and you can merge in any changes when you're ready.</p>
             <div class="spinner">
               <div class="bounce1"></div>

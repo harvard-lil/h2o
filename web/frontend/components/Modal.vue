@@ -103,6 +103,7 @@ export default {
 
     }
   }
+
 }
 .modal-dialog {
     margin-top: 90px;

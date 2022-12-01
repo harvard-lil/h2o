@@ -1762,8 +1762,7 @@ def publish_casebook(request: HttpRequest, casebook: Casebook) -> JsonResponse:
         )
         casebook.save()
 
-    canonical_url = reverse("edit_casebook", args=[casebook])
-    return JsonResponse({"url": canonical_url})
+    return JsonResponse({"url": casebook.get_absolute_url()})
 
 
 
