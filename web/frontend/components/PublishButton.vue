@@ -17,7 +17,7 @@
     <Modal v-if="showModal" @close="showModal = false">
       <template slot="title">
         <div class="publish-modal">
-          {{ publishSuccess ? "Your book is published!" : "Publishing your book..." }}
+          {{ publishSuccess ? "Your book is published!" : "Publishing your book" }}
         </div>
       </template>
       <template slot="body">
@@ -65,7 +65,7 @@
             {{ this.canonicalUrl }}
           </p>
           <p>
-            Because you are a verified professor, your book will automatically be
+            Because you are a verified professor, your book will be
             surfaced in H2O's search page and will appear in web searches. We
             also encourage you to share your book with your colleagues, however
             you prefer to reach them. There is a growing community around open
