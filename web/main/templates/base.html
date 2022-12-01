@@ -51,7 +51,7 @@
           <section class="flash">
             <div class="content">
               {% for message in messages %}
-                <div class="flash-message flash-{% if message.tags %}{{ message.tags }}{% endif %}">{{ message }}</div>
+                <div class="flash-message flash-{% if message.tags %}{{ message.tags }}{% endif %}">{{ message|safe }}</div>
               {% endfor %}
             </div>
           </section>

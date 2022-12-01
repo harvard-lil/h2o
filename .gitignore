@@ -51,3 +51,6 @@ python-shell.sh
 
 # Dev-only webpack stats
 web/webpack-stats-serve.json
+
+# Playwright output
+web/test-results

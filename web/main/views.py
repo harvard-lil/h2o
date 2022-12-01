@@ -1722,7 +1722,7 @@ def edit_casebook(request: HttpRequest, casebook: Casebook):
         "method": "post",
         "args": ["private_casebook"],
         "results": {
-            302: ["private_casebook.testing_editor"],
+            200: ["private_casebook.testing_editor"],
             "login": [None],
             403: ["other_user"],
         },
@@ -1731,7 +1731,7 @@ def edit_casebook(request: HttpRequest, casebook: Casebook):
         "method": "post",
         "args": ["draft_casebook"],
         "results": {
-            302: ["draft_casebook.testing_editor"],
+            200: ["draft_casebook.testing_editor"],
             "login": [None],
             403: ["other_user"],
         },
@@ -1742,7 +1742,7 @@ def edit_casebook(request: HttpRequest, casebook: Casebook):
 @requires_csrf_token
 @hydrate_params
 @user_has_perm("casebook", "directly_editable_by")
-def publish_casebook(request: HttpRequest, casebook: Casebook):
+def publish_casebook(request: HttpRequest, casebook: Casebook) -> JsonResponse:
     """When a POST is received by a valid user, handles setting the casebook or its draft to the
     published status. Returns a 302 to the root casebook when successful.
 
@@ -1762,7 +1762,9 @@ def publish_casebook(request: HttpRequest, casebook: Casebook):
         )
         casebook.save()
 
-    return redirect("edit_casebook", casebook)
+    canonical_url = reverse("edit_casebook", args=[casebook])
+    return JsonResponse({"url": canonical_url})
+
 
 
 @transaction.atomic

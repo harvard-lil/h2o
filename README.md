@@ -87,11 +87,24 @@ Or, you can clean up everything Docker-related, so you can start fresh, as with 
 
 ### Test Commands
 
+Run these from inside the container.
+
 1. `pytest` runs python tests
 1. `pytest -n auto --dist loadgroup` runs python tests with concurrency (faster, same config as CI)
 1. `flake8` runs python lints
-1. `npm run test` runs javascript tests using [Mocha](https://mochajs.org)
+1. `npm run test` runs javascript unit tests using [Mocha](https://mochajs.org)
 1. `npm run lint` runs javascript lints
+1. `pytest -k functional` runs the Playwright tests only.
+
+Playwright tests will spawn their own test runner. You will need to run `npm run build` manually for the test runner to pick up any changes to the JS.
+
+To debug failed Playwright runs, use:
+
+```
+pytest -k functional --video retain-on-failure
+```
+
+and look in `web/test-results` for video recordings of the failures.
 
 ### Coverage
 

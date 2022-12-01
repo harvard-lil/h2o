@@ -11,7 +11,7 @@ def test_publish_new_casebook(private_casebook, client):
         reverse("publish", args=[private_casebook]),
         as_user=private_casebook.contentcollaborator_set.first().user,
     )
-    assert response.status_code == 302
+    assert response.status_code == 200
     private_casebook.refresh_from_db()
     assert private_casebook.is_public
 
@@ -29,7 +29,7 @@ def test_publish_draft(casebook, client):
         reverse("publish", args=[draft]),
         as_user=casebook.contentcollaborator_set.first().user,
     )
-    assert response.status_code == 302
+    assert response.status_code == 200
     casebook.refresh_from_db()
     assert casebook.is_public
     assert casebook.title == draft.title

@@ -83,9 +83,25 @@ def test_view_casebook(static_live_server, page: Page, login):
 @pytest.mark.xdist_group("functional")
 def test_pdf_export(static_live_server, page: Page, tmp_path: Path):
     """The PDF helper function should generate a PDF for a public casebook"""
-    casebook = Casebook.objects.get(title="Public casebook")
-    assert casebook
+    casebook = Casebook.objects.filter(state=Casebook.LifeCycle.PUBLISHED.value).first()
     url = static_live_server.url + reverse("printable_all", args=[casebook])
     output_file = tmp_path / "example.pdf"
     generate_pdf(url, output_file, page)
     assert output_file.read_bytes()[:4] == b"%PDF"
+
+
+@pytest.mark.xdist_group("functional")
+def test_publish(static_live_server, page: Page, login):
+    """A user should be able to take an unpublished book and publish it in the UI"""
+    casebook = Casebook.objects.filter(state=Casebook.LifeCycle.PRIVATELY_EDITING.value).first()
+    page.goto(static_live_server.url + reverse("edit_casebook", args=[casebook]))
+    page.get_by_role("button", name="Publish").click()
+    expect(page.locator(".modal-body")).to_contain_text("Are you ready to publish your book?")
+    page.locator('.modal-footer').get_by_role("button", name="Publish").click()
+    expect(page.locator(".modal-body")).to_contain_text("Your book is published")
+    page.get_by_role("button", name="OK").click()
+
+    expect(page.locator("input[value=Revise]")).to_be_visible()
+    casebook.refresh_from_db()
+    assert casebook.state == Casebook.LifeCycle.PUBLISHED.value
+
