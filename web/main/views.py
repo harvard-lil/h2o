@@ -1765,7 +1765,6 @@ def publish_casebook(request: HttpRequest, casebook: Casebook) -> JsonResponse:
     return JsonResponse({"url": casebook.get_absolute_url()})
 
 
-
 @transaction.atomic
 def create_from_form(casebook, parent_section, form):
     fresh_body = form.save()
