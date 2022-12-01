@@ -102,7 +102,7 @@ def test_pdf_export(static_live_server, page: Page, tmp_path: Path):
         ["functional-test@example.edu", "Are you ready to publish your book?", False],
     ],
 )
-def test_publish(static_live_server, user, message, page: Page, post_publish_message):
+def test_publish(static_live_server, user, message, page, post_publish_message):
     """A user should be able to take an unpublished book and publish it in the UI"""
     login(static_live_server, page, user=user)
 
@@ -114,6 +114,8 @@ def test_publish(static_live_server, user, message, page: Page, post_publish_mes
     if post_publish_message:
         expect(page.locator(".modal-title")).to_contain_text("Your book is published")
         page.get_by_role("button", name="OK").click()
+
+    expect(page.locator(".modal-body")).not_to_be_visible()
 
     expect(page.locator("input[value=Revise]")).to_be_visible()
     casebook.refresh_from_db()

@@ -1742,9 +1742,9 @@ def edit_casebook(request: HttpRequest, casebook: Casebook):
 @requires_csrf_token
 @hydrate_params
 @user_has_perm("casebook", "directly_editable_by")
-def publish_casebook(request: HttpRequest, casebook: Casebook) -> JsonResponse:
+def publish_casebook(request: HttpRequest, casebook: Casebook):
     """When a POST is received by a valid user, handles setting the casebook or its draft to the
-    published status. Returns a 302 to the root casebook when successful.
+    published status.
 
     Tests: see tests/test_publishing.py
     """
