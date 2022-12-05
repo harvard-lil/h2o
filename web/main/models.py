@@ -1084,9 +1084,6 @@ class FullTextSearchIndex(models.Model):
         elif category == "textblock":
             query_class = TextBlock
             content_name = "content"
-        elif category == "section":
-            query_class = ContentNode
-            content_name = "name"
         elif category == "link":
             query_class = Link
             content_name = "description"
@@ -4926,4 +4923,4 @@ class LiveSettings(models.Model):
         verbose_name_plural = "Live settings"
 
 
-ResourceType = Union[Type[LegalDocument], Type[Link], Type[TextBlock], Type[ContentNode]]
+ResourceType = Union[Type[LegalDocument], Type[Link], Type[TextBlock]]
