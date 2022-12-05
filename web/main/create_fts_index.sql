@@ -43,7 +43,7 @@ UNION ALL
         INNER JOIN main_contentnode cn ON cn.resource_id = t.id AND cn.resource_type = 'TextBlock'
     GROUP BY t.id, cn.id
 UNION ALL
-    -- Sections effectively only have titles, so limit populating the index to that fields
+    -- Sections effectively only have titles, so limit populating the index to that field
     SELECT
            row_number() OVER (PARTITION BY true) AS id,
            cn.id AS result_id,
