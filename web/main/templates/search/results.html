@@ -25,7 +25,7 @@
             {% endif %}
           </div>
         </a>
-      {% elif category == 'textblock' %}
+      {% elif category == 'textblock' or category == 'section' %}
         <a href="{% url 'resource' casebook.id result.metadata.ordinals %}" class="wrapper" data-result-id="{{ result.result_id }}">
           <div class="fts-results-entry">
             <div class="title">
@@ -36,8 +36,9 @@
             <div class="ordinals">
                 {{ result.metadata.ordinals }}
             </div>
+
             {% if result.metadata.headlines|length > 1%}
-              <div class="description">
+            <div class="description">
                  {% autoescape off %}
                  {% for headline in result.metadata.headlines|slice:"0:4" %}
                    ...

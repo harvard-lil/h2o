@@ -34,15 +34,26 @@ def test_search_inside_resource(full_casebook, client, resource_type, resource_c
     titles = [d.name for d in resources]
     assert len(titles) > 0
 
-    # Search for all text blocks
+    # Search for all resources of the desired type
     search_result = client.get(url, {"type": resource_type.lower(), "q": ""})
-    assert len(titles) == len(search_result.context["results"])
+    assert len(titles) == len(
+        [t for t in search_result.context["results"] if t.category == resource_type.lower()]
+    )
     check_response(search_result, content_includes=titles)
 
-    # Search for a specific text block
+    # Search for a specific resource
     search_result = client.get(url, {"type": resource_type.lower(), "q": resources[0].name})
     assert 1 == len(search_result.context["results"])
     assert resources[0].name in [r.metadata["name"] for r in search_result.context["results"]]
+
+
+def test_search_inside_include_sections(full_casebook, client):
+    """Search inside textual resources should include sections"""
+    section = full_casebook.contents.filter(resource_type__isnull=True).first()
+    FullTextSearchIndex().create_search_index()
+    url = reverse("casebook_search", kwargs={"casebook_param": full_casebook})
+    search_result = client.get(url, {"type": "textblock", "q": section.title})
+    assert 1 == len(search_result.context["results"])
 
 
 @pytest.mark.parametrize(

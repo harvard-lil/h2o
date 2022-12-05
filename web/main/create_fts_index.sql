@@ -43,6 +43,24 @@ UNION ALL
         INNER JOIN main_contentnode cn ON cn.resource_id = t.id AND cn.resource_type = 'TextBlock'
     GROUP BY t.id, cn.id
 UNION ALL
+    -- Sections effectively only have titles, so limit populating the index to that fields
+    SELECT
+           row_number() OVER (PARTITION BY true) AS id,
+           cn.id AS result_id,
+           cn.is_instructional_material AS is_instructional_material,
+           (
+                setweight(to_tsvector('english', coalesce(cn.title, '')), 'A')
+            )  AS document,
+           jsonb_build_object(
+               'name', cn.title,
+               'ordinals', array_to_string(cn.ordinals, '.'),
+               'casebook_id', cn.casebook_id
+           ) AS metadata,
+           'section'::text AS category
+    FROM
+        main_contentnode cn
+        WHERE (cn.resource_type = 'Section' or cn.resource_type ='' or cn.resource_type is null )
+UNION ALL
     -- separate category for searching through links
     SELECT
            row_number() OVER (PARTITION BY true) AS id,
