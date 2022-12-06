@@ -41,7 +41,7 @@ from django.core.exceptions import ValidationError
 from django.core.paginator import Paginator
 from django.core.validators import MaxLengthValidator, validate_unicode_slug
 from django.db import ProgrammingError, connection, models, transaction
-from django.db.models import Count, F, JSONField, QuerySet
+from django.db.models import Count, F, JSONField, Q, QuerySet
 from django.template.defaultfilters import truncatechars
 from django.template.loader import render_to_string
 from django.urls import reverse
@@ -1049,40 +1049,45 @@ class FullTextSearchIndex(models.Model):
             textblock_ids = casebook.contents.filter(resource_type="TextBlock").values_list(
                 "resource_id", flat=True
             )
-            base_query = base_query.filter(category=category).filter(result_id__in=textblock_ids)
-        else:
-            textblock_ids = casebook.contents.filter(resource_type="Link").values_list(
+            section_ids = casebook.contents.filter(
+                Q(resource_type="Section") | Q(resource_type__isnull=True)
+            ).values_list("id", flat=True)
+
+            base_query = base_query.filter(
+                Q(category="textblock", result_id__in=textblock_ids)
+                | Q(category="section", result_id__in=section_ids),
+            )
+
+        elif category == "link":
+            link_ids = casebook.contents.filter(resource_type="Link").values_list(
                 "resource_id", flat=True
             )
-            base_query = base_query.filter(category=category).filter(result_id__in=textblock_ids)
+            base_query = base_query.filter(category=category).filter(result_id__in=link_ids)
 
-        query_vector: Union[SearchQuery, str]
-        if query_str:
-            query_vector = SearchQuery(query_str, config="english")
-        else:
-            query_vector = ""
+        # Filter the query with a search term if it was provided, otherwise return everything from the index
+        query_vector = SearchQuery(query_str, config="english")
+        base_query = base_query.filter(document=query_vector) if query_str else base_query
 
-        if query_vector:
-            base_query = base_query.filter(document=query_vector)
-
-        results = base_query.filter(category=category)
-        results = results.annotate(rank=SearchRank(F("document"), query_vector))
-        display_name = get_display_name_field(category)
-        results = results.order_by("-rank", display_name)
+        results = base_query.annotate(rank=SearchRank(F("document"), query_vector)).order_by(
+            "-rank", get_display_name_field(category)
+        )
 
         results_page = Paginator(results, page_size).get_page(page)
         ids = sorted([r.result_id for r in results_page])
 
         # Can replace w/ match statement when upgraded to 3.10
         query_class: ResourceType
+
         if category == "legal_doc_fulltext":
             query_class = LegalDocument
+            content_name = "content"
         elif category == "textblock":
             query_class = TextBlock
+            content_name = "content"
         elif category == "link":
             query_class = Link
+            content_name = "description"
 
-        content_name = "description" if category == "link" else "content"
         ids_headlines_query = (
             query_class.objects.filter(id__in=ids)
             .annotate(
@@ -1093,7 +1098,7 @@ class FullTextSearchIndex(models.Model):
             .values_list("id", "headlines")
         )
 
-        ids_headlines = {i: h for i, h in ids_headlines_query}
+        ids_headlines = {i: h or "" for i, h in ids_headlines_query}
 
         if category == "legal_doc_fulltext":
             ids_ordinals: dict[Optional[int], list[str]]
@@ -1106,25 +1111,14 @@ class FullTextSearchIndex(models.Model):
             ids_ordinals = {i: [str(n) for n in h] for i, h in ids_ordinals_nodes}
 
         for r in results_page:
-            try:
-                r.metadata["headlines"] = ids_headlines[r.result_id].split("...")
-            except AttributeError:
-                pass
+            r.metadata["headlines"] = ids_headlines.get(r.result_id, "").split("...")
 
             if category == "legal_doc_fulltext":
                 r.metadata["ordinals"] = ".".join(ids_ordinals[r.result_id])
-
-                if r.metadata["citations"]:
-                    r.metadata["citations"] = r.metadata["citations"].split(";;")
-                else:
-                    r.metadata["citations"] = ""
-
-                if r.metadata["effective_date_formatted"]:
-                    r.metadata["year"] = (
-                        r.metadata["effective_date_formatted"].split(",")[-1].strip()
-                    )
-                else:
-                    r.metadata["year"] = ""
+                r.metadata["citations"] = r.metadata.get("citations", "").split(";;")
+                r.metadata["year"] = (
+                    r.metadata.get("effective_date_formatted", "").split(",")[-1].strip()
+                )
 
         return results_page
 
@@ -3698,7 +3692,10 @@ class Casebook(EditTrackedModel, TimestampedModel, BigPkModel, TrackedCloneable)
 
     @property
     def sections(self) -> models.QuerySet[Section]:
-        return Section.objects.filter(casebook=self, resource_type__isnull=True)
+        return Section.objects.filter(
+            Q(resource_type__isnull=True) | Q(resource_type="Section"),
+            casebook=self,
+        )
 
     @property
     def resources(self) -> ContentNodeQuerySet:
