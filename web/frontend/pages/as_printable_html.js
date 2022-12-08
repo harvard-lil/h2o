@@ -170,6 +170,7 @@ annotationRanges.forEach((rg) => {
       // Wrap the specific text the author highlighted to allow for downstream styling
       ranges.forEach((range) => {
         const wrap = document.createElement("mark");
+        wrap.classList.add("note-mark");
         range.surroundContents(wrap);
         lastRange = wrap;
       });
@@ -230,7 +231,22 @@ if (tmpl.getAttribute("data-use-pagedjs") === "true") {
   link.setAttribute('type', 'text/css');
   link.setAttribute('media', 'all');
   link.setAttribute('href', css);
-  main.appendChild(link);
-  main.appendChild(tmpl.content.cloneNode(true));
+  document.body.append(link);
+
+  const left = document.createElement('div');
+  const right = document.createElement('div');
+  const center = document.createElement('article');
+
+  left.classList.add('left');
+  right.classList.add('right');
+  center.classList.add('center');
+
+  center.append(tmpl.content.cloneNode(true));
+
+  main.append(left);
+  main.append(center);
+  main.append(right);
+
   main.classList.add("preview-ready");
+
 }

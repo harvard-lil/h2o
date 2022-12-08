@@ -90,7 +90,7 @@ def test_pdf_export(static_live_server, page: Page, tmp_path: Path):
     casebook = Casebook.objects.filter(state=Casebook.LifeCycle.PUBLISHED.value).first()
     url = static_live_server.url + reverse("printable_all", args=[casebook])
     output_file = tmp_path / "example.pdf"
-    generate_pdf(url, output_file, page)
+    generate_pdf(url + "?print-preview=true", output_file, page)
     assert output_file.read_bytes()[:4] == b"%PDF"
 
 
