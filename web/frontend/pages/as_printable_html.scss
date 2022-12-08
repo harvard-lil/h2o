@@ -21,7 +21,7 @@
         z-index: 99;
         a {
           text-decoration: underline;
-
+          color: $white;
         }
     }
     nav span {
@@ -56,7 +56,7 @@
   --pagedjs-crop-stroke: 1px;
 }
 
-/* To define how the book look on the screen: */
+/* To define how the book looks on the screen: */
 @media screen, pagedjs-ignore {
   body {
     background-color: var(--color-background);
