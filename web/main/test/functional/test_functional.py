@@ -86,12 +86,21 @@ def test_view_casebook(static_live_server, page: Page, login_as_default):
 
 @pytest.mark.xdist_group("functional")
 def test_pdf_export(static_live_server, page: Page, tmp_path: Path):
-    """The PDF helper function should generate a PDF for a public casebook"""
+    """The print preview page should render some content in a readable layout"""
     casebook = Casebook.objects.filter(state=Casebook.LifeCycle.PUBLISHED.value).first()
     url = static_live_server.url + reverse("printable_all", args=[casebook])
     output_file = tmp_path / "example.pdf"
     generate_pdf(url + "?print-preview=true", output_file, page)
     assert output_file.read_bytes()[:4] == b"%PDF"
+
+
+@pytest.mark.xdist_group("functional")
+def test_print_preview_page(static_live_server, page: Page):
+    """The PDF helper function should generate a PDF for a public casebook"""
+    casebook = Casebook.objects.filter(state=Casebook.LifeCycle.PUBLISHED.value).first()
+    url = static_live_server.url + reverse("as_printable_html", args=[casebook])
+    page.goto(url)
+    expect(page.locator("main.preview-ready")).not_to_be_empty()
 
 
 @pytest.mark.xdist_group("functional")
