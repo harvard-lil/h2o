@@ -241,7 +241,7 @@
   main {
     margin: 5vh 10vw;
     background-color: white;
-    padding: 10vw;
+    padding: 5vh 10vw 10vh 10vw;
   }
   p, div {
     margin: 1rem 0;
