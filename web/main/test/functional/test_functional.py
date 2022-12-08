@@ -98,9 +98,21 @@ def test_pdf_export(static_live_server, page: Page, tmp_path: Path):
 def test_print_preview_page(static_live_server, page: Page):
     """The PDF helper function should generate a PDF for a public casebook"""
     casebook = Casebook.objects.filter(state=Casebook.LifeCycle.PUBLISHED.value).first()
-    url = static_live_server.url + reverse("as_printable_html", args=[casebook])
-    page.goto(url)
+
+    login(static_live_server, page, user="functional-staff@example.edu")
+
+    page.goto(static_live_server.url + reverse("casebook", args=[casebook]))
+    with page.expect_popup() as popup_info:
+        page.get_by_role("link", name="HTML preview staff only").click()
+    page = popup_info.value
+    expect(page).to_have_url(static_live_server.url + reverse("as_printable_html", args=[casebook]))
     expect(page.locator("main.preview-ready")).not_to_be_empty()
+    page.get_by_role("button", name="Print preview").click()
+    expect(page.locator("main.preview-ready")).not_to_be_empty()
+    page.get_by_role("button", name="Exit print preview").click()
+    expect(page.locator("main.preview-ready")).not_to_be_empty()
+    page.get_by_role("button", name="Exit reader mode").click()
+    expect(page).to_have_url(f"{static_live_server.url}/casebooks/2-public-casebook/")
 
 
 @pytest.mark.xdist_group("functional")
