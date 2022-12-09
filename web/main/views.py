@@ -2796,6 +2796,9 @@ def export(request: HttpRequest, node: Union[ContentNode, Casebook], file_type="
 def as_printable_html(request: HttpRequest, casebook: Casebook, page=1, whole_book=False):
     """Load the content of the casebook by top-level nodes, and pass it to an HTML template
     designed to render it in-place, without site chrome, suitable for printing"""
+
+    use_pagedjs = True if request.GET.get("print-preview") else False
+
     top_level_nodes: ContentNodeQuerySet = casebook.nodes_for_user(request.user).filter(
         ordinals__len=1
     )
@@ -2829,6 +2832,7 @@ def as_printable_html(request: HttpRequest, casebook: Casebook, page=1, whole_bo
             "toc": toc,
             "export_date": datetime.now().strftime("%Y-%m-%d"),
             "whole_book": whole_book,
+            "use_pagedjs": use_pagedjs,
         },
     )
 

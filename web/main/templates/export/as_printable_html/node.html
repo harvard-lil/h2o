@@ -11,7 +11,7 @@
       <div class="link-container">
         <div class="link-icon"></div>
 
-        <h1 class="resource ordinal {{ node.resource_type|lower }}" data-toc-idx="{{ index }}">{{ node.ordinal_string }}.
+        <h1 class="resource ordinal {{ node.resource_type|lower }}" data-toc-idx="{{ index }}">{{ node.ordinal_string }}{% if node.ordinal_string %}.{% endif %}
           Hyperlink to a web resource
         </h4>
       </div>

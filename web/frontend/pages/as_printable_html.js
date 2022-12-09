@@ -1,4 +1,6 @@
-import { Previewer } from "pagedjs";
+import {
+  Previewer
+} from "pagedjs";
 
 /**
  * Collect groups of ranges for each annotation offset start and end. Note that start/end offset may
@@ -93,7 +95,11 @@ function annotationsToRanges(annotations, content) {
 function hyperlinkFootnote(node, url, dateCreated) {
   const footnote = document.createElement("a");
   footnote.setAttribute("href", url)
-  const displayDate = dateCreated.toLocaleString('en-US', {day: 'numeric', month: 'short', year: 'numeric'})
+  const displayDate = dateCreated.toLocaleString('en-US', {
+    day: 'numeric',
+    month: 'short',
+    year: 'numeric'
+  })
   footnote.innerHTML = `${url}
     <span class="citation">(link created ${displayDate})</span>`
   // Ask PagedJS to render it as a footnote on the current page
@@ -102,8 +108,6 @@ function hyperlinkFootnote(node, url, dateCreated) {
 }
 
 const main = document.querySelector("main")
-
-
 const tmpl = document.querySelector("#casebook-content");
 const css = tmpl.getAttribute("data-stylesheet");
 const paged = new Previewer();
@@ -111,7 +115,7 @@ const paged = new Previewer();
 // For any existing URLs that aren't resources, turn them into footnotes
 tmpl.content.querySelectorAll('a[href^="http"]:not([data-type])').forEach((el) => {
   hyperlinkFootnote(el, el['href'],
-  new Date(tmpl.content.querySelector('section[data-datetime]').getAttribute('data-datetime')))
+    new Date(tmpl.content.querySelector('section[data-datetime]').getAttribute('data-datetime')))
 });
 
 const annotationRanges = annotationsToRanges(
@@ -166,6 +170,7 @@ annotationRanges.forEach((rg) => {
       // Wrap the specific text the author highlighted to allow for downstream styling
       ranges.forEach((range) => {
         const wrap = document.createElement("mark");
+        wrap.classList.add("note-mark");
         range.surroundContents(wrap);
         lastRange = wrap;
       });
@@ -210,8 +215,38 @@ annotationRanges.forEach((rg) => {
   }
 });
 
-paged.preview(tmpl.content, [css], main).then((flow) => {
-  console.log("Rendered", flow.total, "pages.");
-  main.classList.add("preview-ready")
+function renderAsPagedJS() {
+  paged.preview(tmpl.content, [css], main).then((flow) => {
+    console.log("Rendered", flow.total, "pages.");
+    main.classList.add("preview-ready");
+  });
 
-});
+}
+if (tmpl.getAttribute("data-use-pagedjs") === "true") {
+  renderAsPagedJS();
+
+} else {
+  const link = document.createElement('link');
+  link.setAttribute('rel', 'stylesheet');
+  link.setAttribute('type', 'text/css');
+  link.setAttribute('media', 'all');
+  link.setAttribute('href', css);
+  document.body.append(link);
+
+  const left = document.createElement('div');
+  const right = document.createElement('div');
+  const center = document.createElement('article');
+
+  left.classList.add('left');
+  right.classList.add('right');
+  center.classList.add('center');
+
+  center.append(tmpl.content.cloneNode(true));
+
+  main.append(left);
+  main.append(center);
+  main.append(right);
+
+  main.classList.add("preview-ready");
+
+}
