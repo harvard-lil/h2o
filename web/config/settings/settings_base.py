@@ -141,6 +141,7 @@ LOGOUT_REDIRECT_URL = "/"
 GUIDE_URL = "https://about.opencasebook.org/"
 BLOG_URL = "https://about.opencasebook.org/blog/"
 VIDEO_URL = "https://about.opencasebook.org/other-resources"
+FAQ_URL = "https://about.opencasebook.org/glossary/"
 TWITTER_URL = "https://twitter.com/opencasebook"
 SEARCH_URL = "https://opencasebook.org/search/"
 EDIT_URL = "https://opencasebook.org/accounts/edit/"
@@ -160,6 +161,7 @@ TEMPLATE_VISIBLE_SETTINGS = (
     "MATOMO_SITE_URL",
     "CONTACT_EMAIL",
     "GUIDE_URL",
+    "FAQ_URL",
     "BLOG_URL",
     "VIDEO_URL",
     "TWITTER_URL",

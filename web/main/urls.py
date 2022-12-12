@@ -250,25 +250,25 @@ urlpatterns = format_suffix_patterns(drf_urlpatterns) + [
         TemplateView.as_view(template_name="pages/terms-of-service.html"),
         name="terms-of-service",
     ),
-    path("pages/faq/", TemplateView.as_view(template_name="pages/faq.html"), name="faq"),
     path(
         "robots.txt",
         TemplateView.as_view(template_name="robots.txt", content_type="text/plain"),
         name="robots_txt",
     ),
-    # TODO: remove pages/ from the above URLs and use these redirects
-    # path('pages/about/', RedirectView.as_view(pattern_name='about', permanent=True)),
-    # path('pages/privacy-policy/', RedirectView.as_view(pattern_name='privacy-policy', permanent=True)),
-    # path('pages/terms-of-service/', RedirectView.as_view(pattern_name='terms-of-service', permanent=True)),
-    # path('pages/faq/', RedirectView.as_view(pattern_name='faq', permanent=True)),
     # redirects
     path(
         "subscribe",
         no_perms_test(
             lambda request: redirect(
-                "https://opencasebook.us1.list-manage.com/subscribe?u=894c9c0d9d7d7c5f8de8d76aa&id=89f2a23e12"
+                "https://opencasebook.us1.list-manage.com/subscribe?u=894c9c0d9d7d7c5f8de8d76aa&id=89f2a23e12",
+                permanent=True,
             )
         ),
+    ),
+    path(
+        "pages/faq/",
+        no_perms_test(lambda request: redirect(settings.FAQ_URL, permanent=True)),
+        name="faq",
     ),
 ]
 fix_after_rails("some routes don't have end slashes for rails compatibility")
