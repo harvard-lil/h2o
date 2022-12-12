@@ -239,6 +239,11 @@ urlpatterns = format_suffix_patterns(drf_urlpatterns) + [
     path("image/", no_perms_test(views.upload_image), name="upload_image"),
     path("image/<image_uuid>", no_perms_test(views.view_image), name="image_url"),
     # canonical paths for static pages
+    path(
+        "pages/featured/",
+        TemplateView.as_view(template_name="pages/featured_casebooks.html"),
+        name="featured",
+    ),
     path("pages/about/", TemplateView.as_view(template_name="pages/about.html"), name="about"),
     path(
         "pages/privacy-policy/",

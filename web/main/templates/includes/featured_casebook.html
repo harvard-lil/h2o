@@ -1,0 +1,26 @@
+{% if casebook %}
+<section class="featured-casebook">
+    <span class="title">
+        <a href="{% url 'casebook_info' casebook %}"
+           data-track-content
+           data-content-name="{{ title }} ({{ casebook.id }})"
+           data-content-piece="Featured casebooks"
+        >{{ title }}</a></span>
+    {% if authors %}
+        by
+        <span class="authors">
+            {% for author in authors %}
+            <span {% if author.verified_professor %}class="verified-prof" {% endif %}>
+                {% if authors|length > 1 and forloop.last %}
+                  and
+                {% endif %}
+                {{ author.display_name }}
+            </span>
+            {% endfor %}
+    </span>
+    {% endif %}
+</section>
+{% else %}
+    <!-- Error: {{ error }}-->
+{% endif %}
+
