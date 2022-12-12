@@ -272,7 +272,6 @@ urlpatterns = format_suffix_patterns(drf_urlpatterns) + [
     ),
 ]
 fix_after_rails("some routes don't have end slashes for rails compatibility")
-fix_after_rails("remove pages/ from static pages URLs")
 
 # debugging routes to see error pages
 # for example, http://localhost:8000/404 triggers an actual 404
