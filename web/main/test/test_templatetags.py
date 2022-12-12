@@ -7,6 +7,10 @@ def test_featured_casebook(full_casebook):
     """Featuring a casebook should return information about it, unless overridden"""
     assert featured_casebook(full_casebook.id)["title"] == full_casebook.title
     assert featured_casebook(full_casebook.id, title="Fake title")["title"] == "Fake title"
+    assert (
+        featured_casebook(full_casebook.id, authors="Fake authors")["authors"][0]["display_name"]
+        == "Fake authors"
+    )
     assert featured_casebook(full_casebook.id)["error"] is None
 
 
