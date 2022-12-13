@@ -278,7 +278,9 @@
     text-underline-offset: 5px;
     background: none;
   }
-
+  a.footnote-generated {
+    display: none;
+  }
 }
 
 /* Styling that only applies to the print preview, or when the screen preview is printed */
