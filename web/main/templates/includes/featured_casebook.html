@@ -1,7 +1,7 @@
 {% if casebook %}
 <section class="featured-casebook">
     <span class="title">
-        <a href="{% url 'casebook_info' casebook %}"
+        <a href="{{ casebook.get_absolute_url }}"
            data-track-content
            data-content-name="{{ title }} ({{ casebook.id }})"
            data-content-piece="Featured casebooks"
