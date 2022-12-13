@@ -244,21 +244,20 @@
     grid-template-areas: "left center right";
 
   }
-
   p, div {
     margin: 1rem 0;
   }
-  article {
+  main > article {
     background-color: white;
     padding: 5vh 10vw 10vh 10vw;
     grid-area: "center";
   }
-  .left {
+  main > .left {
     width: 15vw;
     height: auto;
     grid-area: "left";
   }
-  .right {
+  main > .right {
     width: 15vw;
     height: auto;
     grid-area: "right";
@@ -281,7 +280,18 @@
   a.footnote-generated {
     display: none;
   }
+  @media (max-width: 552px) {
+
+    main {
+      margin: 0;
+      grid-template-areas: "center";
+    }
+    footer nav button.print-preview {
+      display: none;
+    }
+  }
 }
+
 
 /* Styling that only applies to the print preview, or when the screen preview is printed */
 @media print {
