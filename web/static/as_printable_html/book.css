@@ -234,6 +234,10 @@
     text-indent: initial;
   }
 
+  /* Usually hidden node title that will be displayed in screen view */
+  .node-heading {
+    display: none;
+  }
 }
 /* Styling that applies only to the screen-based reader view */
 @media screen {
@@ -242,26 +246,23 @@
     margin: 5vh 0;
     display: grid;
     grid-template-areas: "left center right";
-
+    grid-template-columns: 15vw 65vw 15vw;
   }
-
-  p, div {
+  article p, article div {
     margin: 1rem 0;
   }
-  article {
+  main > article {
     background-color: white;
-    padding: 5vh 10vw 10vh 10vw;
-    grid-area: "center";
+    padding: 5vh 5vw 10vh 5vw;
+    grid-area: center;
   }
-  .left {
-    width: 15vw;
+  main > .left {
     height: auto;
-    grid-area: "left";
+    grid-area: left;
   }
-  .right {
-    width: 15vw;
+  main > .right {
     height: auto;
-    grid-area: "right";
+    grid-area: right;
   }
   aside.authors-note {
     position: absolute;
@@ -278,8 +279,43 @@
     text-underline-offset: 5px;
     background: none;
   }
+  a.footnote-generated {
+    display: none;
+  }
+  .node-heading {
+    display: block;
+    /* position: sticky; try this with IntersectionObserver */
+    float: left;
+    font-size: 10px;
+    width: 13vw;
+    margin-left: -20vw;
+    text-align: right;
+  }
+  .node-heading.depth-1 {
+    top: 5vh;
+  }
+  .node-heading.depth-2 {
+    top: 10vh;
+  }
+  .node-heading.depth-3 {
+    top: 15vh;
+  }
+  .node-heading.depth-4 {
+    top: 20vh;
+  }
+  @media (max-width: 552px) {
 
+    main {
+      margin: 0 auto;
+      grid-template-areas: center;
+      grid-template-columns: 1fr;
+    }
+    footer nav button.print-preview {
+      display: none;
+    }
+  }
 }
+
 
 /* Styling that only applies to the print preview, or when the screen preview is printed */
 @media print {

@@ -1,0 +1,8 @@
+<script>
+    window.sentry = {
+      USE_SENTRY: {{ USE_SENTRY|lower }},
+      DSN: "{{ SENTRY_DSN }}",
+      ENVIRONMENT: "{{ SENTRY_ENVIRONMENT }}",
+      TRACES_SAMPLE_RATE: {{ SENTRY_TRACES_SAMPLE_RATE }}
+    }
+</script>

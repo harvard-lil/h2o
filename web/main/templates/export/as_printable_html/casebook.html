@@ -15,6 +15,7 @@
         }
      }
     </style>
+    {% include "includes/sentry.html" %}
   </head>
 
 <body>
@@ -38,9 +39,9 @@
         {% endif %}
 
         {% if use_pagedjs %}
-          <button onclick="window.location.href='{% url "as_printable_html" casebook page.number %}'">Exit print preview</button>
+          <button class="print-preview" onclick="window.location.href='{% url "as_printable_html" casebook page.number %}'">Exit print preview</button>
         {% else %}
-          <button onclick="window.location.href='{% url "as_printable_html" casebook page.number %}?print-preview=true'">Print preview</button>
+          <button class="print-preview" onclick="window.location.href='{% url "as_printable_html" casebook page.number %}?print-preview=true'">Print preview</button>
         {% endif %}
         <span>{{ page.number }} of {{ paginator.num_pages }} section{{ paginator.num_pages|pluralize}} </span>
 
@@ -87,5 +88,6 @@
 
   <main id="as-printable-html"></main>
 
+  {% include "includes/analytics.html" %}
 </body>
 </html>
