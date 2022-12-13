@@ -1,5 +1,6 @@
 {% load call_method string_strip %}
 
+<span class="node-heading depth-{{ node.ordinals | length }}">{{ node.ordinal_string }} {{ node.title }}</span>
 
 <section
   data-datetime="{{ node.created_at|date:'c' }}"
