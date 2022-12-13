@@ -6,6 +6,7 @@
       /* tracker methods like "setCustomDimension" should be called before "trackPageView" */
       _paq.push(['trackPageView']);
       _paq.push(['enableLinkTracking']);
+      _paq.push(['trackVisibleContentImpressions']);
       (function() {
       var u="{{ MATOMO_SITE_URL }}";
       _paq.push(['setTrackerUrl', u+'piwik.php']);

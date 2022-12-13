@@ -1,10 +1,24 @@
 
 .pages-content {
-  padding: 20px 20px;
-  width: 80%;
+
+  padding: 5vh 15px 10vh 15px;
+
   margin: 0px auto;
   font-family: $font-family-sans-serif;
 
+  @media (min-width: 768px) {
+    width: 750px;
+  }
+  @media (min-width: 992px) {
+    width: 869px;
+  }
+  @media (min-width: 1200px) {
+      width: 1170px;
+  }
+
+  h1 {
+    margin: 0 0 4rem 0;
+  }
   h2 {
     @include sans-serif($bold, 24px, 36px);
   }
@@ -26,5 +40,32 @@
   }
   a {
     text-decoration: underline !important;
+  }
+  &.featured-casebooks {
+    h1 {
+      padding: 0 0 2rem 0;
+    }
+    h2 {
+      margin-top: 4rem;
+    }
+    h2:last-of-type {
+      margin-bottom: 4rem;
+    }
+    h3 {
+      padding: 0;
+    }
+    .verified-prof {
+      background: none;
+    }
+    @include sans-serif($regular, 18px, 24px);
+
+    .courses-grid {
+      display: grid;
+
+      gap: 2vw;
+      @media (min-width: 768px) {
+        grid-template-columns: repeat(2, 1fr);
+      }
+    }
   }
 }

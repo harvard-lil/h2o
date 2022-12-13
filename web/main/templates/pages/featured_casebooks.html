@@ -1,0 +1,125 @@
+{% extends 'base.html' %}
+{% load featured_casebook  %}
+{% block page_title %}Featured Casebooks{% endblock %}
+
+{% block mainContent %}
+<div class="pages-content featured-casebooks">
+
+    <h1>Featured Casebooks</h1>
+
+    <h2>1L Courses</h2>
+
+    <div class="courses-grid">
+
+        <section>
+            <h3 class="topic">Civil Procedure</h3>
+
+            {% featured_casebook 5196 title="Civil Procedure" authors="Glenn Cohen" %}
+            {% featured_casebook 1245 %}
+            {% featured_casebook 4444 title="U.S. Civil Procedure for International Students"%}
+        </section>
+
+        <section>
+
+            <h3 class="topic">Constitutional Law</h3>
+
+            {% featured_casebook 5182 %}
+            {% featured_casebook 531 %}
+            {% featured_casebook 6029 authors="Natalie Gomez-Velez" %}
+        </section>
+
+        <section>
+            <h3 class="topic">Contracts</h3>
+            {% featured_casebook 4201 title="Contracts" authors="John Coates" %}
+            {% featured_casebook 477 title="Contracts Casebook" %}
+            {% featured_casebook 3665 title="Contracts: Happiness and Heartbreak" authors="Randall Kennedy" %}
+        </section>
+
+        <section>
+        <h3 class="topic">Criminal Law</h3>
+            {% featured_casebook 3553 title="Crim Law" %}
+            {% featured_casebook 5587 title="Criminal Law" %}
+            {% featured_casebook 6083 title="Federal Criminal Law" %}
+            {% featured_casebook 5713 %}
+            {% featured_casebook 2459 title="Criminal Law" %}
+            {% featured_casebook 6003 %}
+        </section>
+
+        <section>
+            <h3 class="topic">Property</h3>
+            {% featured_casebook 2202 title="Property Law" %}
+        </section>
+
+        <section>
+            <h3 class="topic">Torts</h3>
+            {% featured_casebook 379 title="Torts" %}
+            {% featured_casebook 2566 %}
+            {% featured_casebook 187 %}
+        </section>
+    </div>
+
+    <h2>Upper Level Courses</h2>
+
+    <div class="courses-grid">
+        <section>
+            <h3 class="topic">Corporations</h3>
+            {% featured_casebook 237 title="An Introduction to the Law of Corporations" %}
+            {% featured_casebook 261 %}
+        </section>
+
+        <section>
+            <h3 class="topic">Employment Law</h3>
+            {% featured_casebook 3728 authors="Erin Buzuvis" %}
+            {% featured_casebook 5444 %}
+        </section>
+
+        <section>
+            <h3 class="topic">Evidence</h3>
+            {% featured_casebook 5959 title="Advanced Evidence" authors="Nina Chernoff" %}
+            {% featured_casebook 6094 title="Evidence" authors="Nina Chernoff" %}
+            {% featured_casebook 230 %}
+        </section>
+
+        <section>
+            <h3 class="topic">Lawyering</h3>
+            {% featured_casebook 762 %}
+            {% featured_casebook 6195 title="Lawyering Seminar" authors="Sarah Lamdan" %}
+        </section>
+
+        <section>
+            <h3 class="topic">Technology and the Law</h3>
+            {% featured_casebook 2554 %}
+            {% featured_casebook 4395 title="Music and Digital Media" %}
+            {% featured_casebook 6714 title="Technology, Human Rights, and Cybersecurity" authors="Vivek Krishnamurthy" %}
+        </section>
+
+        <section>
+            <h3 class="topic">Other Topics</h3>
+            {% featured_casebook 3648 title="Advanced Legislation" %}
+            {% featured_casebook 4746 title="Asian Americans and U.S. Law" %}
+            {% featured_casebook 2953 title="Cambio Climático, Protección del Medio Ambiente y Recursos Naturales" %}
+            {% featured_casebook 2806 %}
+            {% featured_casebook 588 title="Family Law" %}
+            {% featured_casebook 5386 %}
+            {% featured_casebook 5485 title="Immigration Law" %}
+            {% featured_casebook 1045 title="Public Institutions: Administrative Law Cases and Material"%}
+            {% featured_casebook 109 %}
+            {% featured_casebook 29 title="The Role of State Attorneys General" %}
+        </section>
+
+    </div>
+
+    <h2>Graduate and Undergraduate Courses</h2>
+
+    <div class="courses-grid">
+        <section>
+        {% featured_casebook 2175 authors="Mary Lou Coilfi" %}
+        {% featured_casebook 882 %}
+        {% featured_casebook 960 %}
+        {% featured_casebook 4082 %}
+        {% featured_casebook 4477 title="Law & Society" %}
+        </section>
+    </div>
+
+</div>
+{% endblock %}
