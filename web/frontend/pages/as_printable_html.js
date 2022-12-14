@@ -250,3 +250,59 @@ if (tmpl.getAttribute("data-use-pagedjs") === "true") {
   main.classList.add("preview-ready");
 
 }
+
+class TocControl extends HTMLElement {
+
+  static get observedAttributes() {
+    return ['open']
+  }
+  constructor() {
+    super();
+  }
+  connectedCallback() {
+
+    this.tocList = this.querySelector('ol');
+
+    this.querySelector('svg').addEventListener('click', () => {
+      if (!this.tocList.getAttribute('data-natural-height')) {
+        const height = parseInt(this.tocList.getBoundingClientRect().height, 10);
+        this.tocList.setAttribute('data-natural-height', height);
+        this.tocList.style.height = `${height}px`;
+      }
+      window.requestAnimationFrame(() => this.toggleAttribute('open'));
+    })
+
+    this.tocList.addEventListener('transitionstart', () => {
+      if (this.tocList.classList.contains('collapsing')) {
+        this.tocList.classList.add('invisible')
+      }
+    });
+    this.tocList.addEventListener('transitionend', () => {
+    if (!this.tocList.classList.contains('collapsing')) {
+        this.tocList.classList.remove('invisible')
+      }
+    });
+
+
+  }
+  attributeChangedCallback(name, previous, value) {
+    switch (name) {
+      case "open": {
+        console.log(value);
+        if (this.tocList) {
+          if (value === null) {
+            this.tocList.classList.add('collapsing');
+            this.tocList.style.height = 0;
+          } else {
+            this.tocList.classList.remove('collapsing');
+            this.tocList.style.height = `${this.tocList.getAttribute('data-natural-height')}.px`;
+
+          }
+        }
+        this.querySelector('svg').classList.toggle('open');
+      }
+    }
+  }
+
+}
+customElements.define('toc-control', TocControl)

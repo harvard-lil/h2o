@@ -1,21 +1,30 @@
 
 <nav class="toc">
-    <h2>Table of contents</h2>
-    <ol>
-    {% for top_level_node in toc %}
-        <li>
-            <span class="ordinals">{{ top_level_node.ordinal_string }}</span>
-            <h3><a href="{% url 'as_printable_html' casebook forloop.counter %}">{{ top_level_node.title }}</a></h3>
+    <toc-control open>
+        <h2>
+            <svg class="screen-only collapse-triangle open" height="25" width="25">
+            <polygon points="6,6 20,16 6,24" />
+        </svg>
+        Table of contents
+        </h2>
 
-            <ol>
-            {% for child in top_level_node.children %}
-                <li>
-                    <span class="ordinals">{{ child.ordinal_string }}</span>
-                    <span class="node-title">{{ child.title }}</span>
-                </li>
-            {% endfor %}
-            </ol>
-        </li>
-    {% endfor %}
-    </ol>
+
+        <ol class="toc-items">
+        {% for top_level_node in toc %}
+            <li>
+                <span class="ordinals">{{ top_level_node.ordinal_string }}</span>
+                <h3><a href="{% url 'as_printable_html' casebook forloop.counter %}">{{ top_level_node.title }}</a></h3>
+
+                <ol>
+                {% for child in top_level_node.children %}
+                    <li>
+                        <span class="ordinals">{{ child.ordinal_string }}</span>
+                        <span class="node-title">{{ child.title }}</span>
+                    </li>
+                {% endfor %}
+                </ol>
+            </li>
+        {% endfor %}
+        </ol>
+    </toc-control>
 </nav>

@@ -3,6 +3,7 @@
 {% load render_bundle from webpack_loader %}
 <html lang="en">
   <head>
+    <title>{{ casebook.title }} | H2O </title>
     <link href="{% static 'images/favicon.ico' %}" rel="shortcut icon" type="image/vnd.microsoft.icon" />
     <meta name="viewport" content="width=device-width">
     <meta content="width=device-width, initial-scale=1" name="viewport"/>
@@ -76,10 +77,12 @@
         </ul>
       </div>
       <section class="casebook headnote">{{ casebook.headnote|safe}}</section>
-      {% if page.number == 1%}
-      <div id="toc">
-        {% include "export/as_printable_html/toc.html" with toc=toc %}
-      </div>
+
+      {# Always show the TOC in screen mode; otherwise only show it on the first page in print preview #}
+      {% if not use_pagedjs or use_pagedjs and page.number == 1 %}
+        <div id="toc">
+          {% include "export/as_printable_html/toc.html" with toc=toc %}
+        </div>
       {% endif %}
     </div>
 

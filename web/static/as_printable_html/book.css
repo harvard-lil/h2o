@@ -156,10 +156,7 @@
   .node-container > p, section > p, article.opinion > p {
     text-indent: 2em;
   }
-  .title > .ordinal:not(:empty) {
-    float: left;
-    width: 10mm;
-  }
+
   .title > span:nth-of-type(2) {
     display: block;
   }
@@ -284,8 +281,6 @@
   }
   .node-heading {
     display: block;
-    /* position: sticky; try this with IntersectionObserver */
-    float: left;
     font-size: 10px;
     width: 13vw;
     margin-left: -20vw;
