@@ -162,7 +162,6 @@ function hyperlinkFootnote(node, url, dateCreated) {
 
 const main = document.querySelector("main")
 const tmpl = document.querySelector("#casebook-content");
-const css = tmpl.getAttribute("data-stylesheet");
 const paged = new Previewer();
 
 // For any existing URLs that aren't resources, turn them into footnotes
@@ -280,10 +279,15 @@ if (tmpl.getAttribute("data-use-pagedjs") === "true") {
 
 } else {
 
-
   const left = document.createElement('div');
   const right = document.createElement('div');
   const center = document.createElement('article');
+
+  const tocLink = document.createElement('a');
+  tocLink.innerText = '↑ Table of contents';
+  tocLink.href = "#toc";
+  tocLink.classList.add('toc-link');
+  left.append(tocLink);
 
   left.classList.add('left');
   right.classList.add('right');

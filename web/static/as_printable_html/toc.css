@@ -54,25 +54,20 @@ nav.toc .toc-opener h2 {
 }
 nav.toc .collapse-triangle {
     scale: 0.75;
+    transition: transform 0.25s;
+    transform: rotate(0deg);
+    transform-origin: 30% 50%;
 }
 nav.toc .collapse-triangle polygon {
     fill: lightgray;
     stroke: black;
     stroke-width: 1;
 }
-
 nav.toc .collapse-triangle polygon:hover {
     stroke-width: 2;
 }
-nav.toc .collapse-triangle.open {
-    transition: transform 0.25s;
-    transform: rotate(90deg);
-    transform-origin: 30% 50%;
-}
 nav.toc .collapse-triangle:not(.open) {
-    transition: transform 0.25s;
-    transform: rotate(0deg);
-    transform-origin: 30% 50%;
+    transform: rotate(90deg);
 }
 nav.toc ol {
     transition: height 0.25s;

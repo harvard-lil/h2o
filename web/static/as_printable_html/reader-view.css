@@ -1,6 +1,6 @@
 
 /* Styling that applies only to the screen-based reader view */
-@media screen {
+@media screen, pagedjs-ignore {
 
     main {
       margin: 5vh 0;
