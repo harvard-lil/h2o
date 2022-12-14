@@ -310,6 +310,12 @@
       grid-template-areas: center;
       grid-template-columns: 1fr;
     }
+    header.screen-only {
+      margin-bottom: 2rem;
+    }
+    header.screen-only p {
+      margin: 0 0 0 1rem;
+    }
     footer nav button.print-preview {
       display: none;
     }
