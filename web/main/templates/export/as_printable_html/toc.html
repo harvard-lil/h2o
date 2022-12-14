@@ -1,13 +1,16 @@
 
 <nav class="toc">
     <toc-control open>
-        <h2>
-            <svg class="screen-only collapse-triangle open" height="25" width="25">
-            <polygon points="6,6 20,16 6,24" />
-        </svg>
-        Table of contents
-        </h2>
-
+        {% if use_pagedjs %}
+            <h2>Table of contents</h2>
+        {% else %}
+            <button class="toc-opener" role="button">
+                <svg class="screen-only collapse-triangle open" height="25" width="25">
+                    <polygon points="6,6 20,16 6,24" />
+                </svg>
+                <h2>Table of contents</h2>
+            </button>
+        {% endif %}
 
         <ol class="toc-items">
         {% for top_level_node in toc %}

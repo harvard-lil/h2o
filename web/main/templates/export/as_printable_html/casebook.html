@@ -12,6 +12,12 @@
     {% render_bundle 'as_printable_html_styles' %}
     {% render_bundle 'as_printable_html' attrs="defer" %}
     {% render_bundle 'chunk-common' attrs="defer" %}
+
+    <link href="{% static 'as_printable_html/book.css' %}" type="text/css" rel="stylesheet">
+
+    {% if not use_pagedjs %}
+      <link href="{% static 'as_printable_html/reader-view.css' %}" type="text/css" rel="stylesheet">
+    {% endif %}
     <style>
       @media print {
         .screen-only {
@@ -37,7 +43,7 @@
 
       {% else %}
         {% if page.has_previous %}
-          <span><a href="{% url 'as_printable_html' casebook page.previous_page_number %}">Previous</a></span>
+          <span><a href="{% url 'as_printable_html' casebook page.previous_page_number %}{% if use_pagedjs %}?print-preview=true{% endif %}">Previous</a></span>
         {% else %}
           <span>Previous</span>
         {% endif %}
@@ -51,7 +57,7 @@
 
         <button onclick="window.location.href='{% url 'casebook' casebook %}'">Exit reader mode</button>
       {% if page.has_next %}
-        <span><a href="{% url 'as_printable_html' casebook page.next_page_number %}">Next</a></span>
+        <span><a href="{% url 'as_printable_html' casebook page.next_page_number %}{% if use_pagedjs %}?print-preview=true{% endif %}">Next</a></span>
       {% else %}
           <span>Next</span>
       {% endif %}
@@ -78,12 +84,10 @@
       </div>
       <section class="casebook headnote">{{ casebook.headnote|safe}}</section>
 
-      {# Always show the TOC in screen mode; otherwise only show it on the first page in print preview #}
-      {% if not use_pagedjs or use_pagedjs and page.number == 1 %}
-        <div id="toc">
-          {% include "export/as_printable_html/toc.html" with toc=toc %}
-        </div>
-      {% endif %}
+      <div id="toc">
+        {% include "export/as_printable_html/toc.html" with toc=toc %}
+      </div>
+
     </div>
 
     {% for child in children %}

@@ -2,6 +2,59 @@ import {
   Previewer
 } from "pagedjs";
 
+
+class TocControl extends HTMLElement {
+
+  static get observedAttributes() {
+    return ['open']
+  }
+
+  connectedCallback() {
+
+    this.tocList = this.querySelector('ol');
+
+    this.querySelector('.toc-opener').addEventListener('click', () => {
+      if (!this.tocList.getAttribute('data-natural-height')) {
+        const height = parseInt(this.tocList.getBoundingClientRect().height, 10);
+        this.tocList.setAttribute('data-natural-height', height);
+        this.tocList.style.height = `${height}px`;
+      }
+      window.requestAnimationFrame(() => this.toggleAttribute('open'));
+    })
+
+    this.tocList.addEventListener('transitionstart', () => {
+      if (this.tocList.classList.contains('collapsing')) {
+        this.tocList.classList.add('invisible')
+      }
+    });
+    this.tocList.addEventListener('transitionend', () => {
+      if (!this.tocList.classList.contains('collapsing')) {
+        this.tocList.classList.remove('invisible')
+      }
+    });
+
+
+  }
+  attributeChangedCallback(name, previous, value) {
+    switch (name) {
+      case "open": {
+        if (this.tocList) {
+          if (value === null) {
+            this.tocList.classList.add('collapsing');
+            this.tocList.style.height = 0;
+          } else {
+            this.tocList.classList.remove('collapsing');
+            this.tocList.style.height = `${this.tocList.getAttribute('data-natural-height')}.px`;
+          }
+        }
+        this.querySelector('svg').classList.toggle('open');
+      }
+    }
+  }
+}
+
+customElements.define('toc-control', TocControl);
+
 /**
  * Collect groups of ranges for each annotation offset start and end. Note that start/end offset may
  * cross multiple block-level node boundaries; this will construct one node range for each block-level element.
@@ -216,7 +269,7 @@ annotationRanges.forEach((rg) => {
 });
 
 function renderAsPagedJS() {
-  paged.preview(tmpl.content, [css], main).then((flow) => {
+  paged.preview(tmpl.content, [], main).then((flow) => {
     console.log("Rendered", flow.total, "pages.");
     main.classList.add("preview-ready");
   });
@@ -226,12 +279,7 @@ if (tmpl.getAttribute("data-use-pagedjs") === "true") {
   renderAsPagedJS();
 
 } else {
-  const link = document.createElement('link');
-  link.setAttribute('rel', 'stylesheet');
-  link.setAttribute('type', 'text/css');
-  link.setAttribute('media', 'all');
-  link.setAttribute('href', css);
-  document.body.append(link);
+
 
   const left = document.createElement('div');
   const right = document.createElement('div');
@@ -248,61 +296,4 @@ if (tmpl.getAttribute("data-use-pagedjs") === "true") {
   main.append(right);
 
   main.classList.add("preview-ready");
-
 }
-
-class TocControl extends HTMLElement {
-
-  static get observedAttributes() {
-    return ['open']
-  }
-  constructor() {
-    super();
-  }
-  connectedCallback() {
-
-    this.tocList = this.querySelector('ol');
-
-    this.querySelector('svg').addEventListener('click', () => {
-      if (!this.tocList.getAttribute('data-natural-height')) {
-        const height = parseInt(this.tocList.getBoundingClientRect().height, 10);
-        this.tocList.setAttribute('data-natural-height', height);
-        this.tocList.style.height = `${height}px`;
-      }
-      window.requestAnimationFrame(() => this.toggleAttribute('open'));
-    })
-
-    this.tocList.addEventListener('transitionstart', () => {
-      if (this.tocList.classList.contains('collapsing')) {
-        this.tocList.classList.add('invisible')
-      }
-    });
-    this.tocList.addEventListener('transitionend', () => {
-    if (!this.tocList.classList.contains('collapsing')) {
-        this.tocList.classList.remove('invisible')
-      }
-    });
-
-
-  }
-  attributeChangedCallback(name, previous, value) {
-    switch (name) {
-      case "open": {
-        console.log(value);
-        if (this.tocList) {
-          if (value === null) {
-            this.tocList.classList.add('collapsing');
-            this.tocList.style.height = 0;
-          } else {
-            this.tocList.classList.remove('collapsing');
-            this.tocList.style.height = `${this.tocList.getAttribute('data-natural-height')}.px`;
-
-          }
-        }
-        this.querySelector('svg').classList.toggle('open');
-      }
-    }
-  }
-
-}
-customElements.define('toc-control', TocControl)

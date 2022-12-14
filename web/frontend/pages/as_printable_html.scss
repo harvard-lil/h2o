@@ -2,6 +2,10 @@
 @import 'font-vars-and-mixins';
 @import 'font-faces';
 
+.preview-loading {
+  visibility: hidden;
+}
+
 /* Customized for navigation component at the top */
 @media screen, pagedjs-ignore {
   header.screen-only {
