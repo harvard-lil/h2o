@@ -207,6 +207,14 @@ div.dashboard-link {
   .content-page:hover{
     box-shadow: 0 3px 40px rgb(0 0 0 / 0.3);
   }
+  .verified {
+    @include square(13px);
+    display: inline-block;
+    vertical-align: middle;
+    content: '';
+    background: url('~static/images/ui/verified.png') no-repeat;
+    margin-left: 3px;
+  }
 }
 
 // casebook-sub info section when there is a cover
@@ -256,14 +264,7 @@ div.dashboard-link {
     @include line-clamp(2, 40px);
   }
 
-  .verified {
-    @include square(13px);
-    display: inline-block;
-    vertical-align: middle;
-    content: '';
-    background: url('~static/images/ui/verified.png') no-repeat;
-    margin-left: 3px;
-  }
+
 
   .root-attribution {
     font-size: 10px;
