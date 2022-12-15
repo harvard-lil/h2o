@@ -56,13 +56,5 @@
         <p class="author-rider">except where otherwise attributed.</p>
         {% endif %}
     </div>
-    <p class="casebook-copyright-notice">
-        This book, and all H2O books, are Creative Commons licensed for sharing and re-use:
-        <a href="https://creativecommons.org/licenses/by-nc-sa/3.0/ ">CC BY-NC-SA</a>.
-
-        {# TODO make this dynamic in response to this casebook's content #}
-        <span class="ali-license">
-            Material included from the American Legal Institute is reproduced with permission and is exempted from the open license.
-        </span>
-    </p>
+    {% include "includes/casebook_copyright_notice.html" %}
 </section>
