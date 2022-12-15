@@ -62,7 +62,7 @@ div.dashboard-link {
   display: flex;
   flex-wrap: wrap;
   padding-top: 5%;
-  
+
   .state{
     @include sans-serif($medium, 10px, 10px);
       margin-bottom: 5px;
@@ -75,7 +75,7 @@ div.dashboard-link {
     float: left;
     margin-right: 10px;
     margin-bottom: 15px;
-    box-shadow: 0 3px 10px rgb(0 0 0 / 0.2); 
+    box-shadow: 0 3px 10px rgb(0 0 0 / 0.2);
   }
 
   .wrapper {
@@ -88,7 +88,7 @@ div.dashboard-link {
       }
   }
 
-  .casebook-container{
+  .casebook-container {
     display: flex;
     flex-direction: column;
   }
@@ -101,9 +101,9 @@ div.dashboard-link {
     justify-content: space-between;
 
     .casebook-info, .unpublished-changes, .author-info, .root-attribution {
-      padding: 10px;
+      padding: 10px 10px 10px 15px;
     }
-    
+
     .author-info {
       .owner {
         display:block;
@@ -135,7 +135,6 @@ div.dashboard-link {
       @include sans-serif($medium, 20px, 20px);
       margin-bottom: 10px;
       margin-top: 10px;
-      margin-left: 5px;
       line-height: 1.5em;
       @include line-clamp(4, 100px);
     }
@@ -176,7 +175,7 @@ div.dashboard-link {
       margin-bottom: 5px;
       text-transform: uppercase;
       position:absolute;
-      top:-20px; 
+      top:-20px;
       left:-15px;
     }
     &.public {
@@ -209,7 +208,7 @@ div.dashboard-link {
     box-shadow: 0 3px 40px rgb(0 0 0 / 0.3);
   }
 }
-  
+
 // casebook-sub info section when there is a cover
   // .casebook-sub-info{
   //   max-width: 225px;
@@ -219,7 +218,7 @@ div.dashboard-link {
   //   border-radius: 15px;
   //   .info-title{
   //     font-weight: 600;
-  //     margin-bottom: 10px; 
+  //     margin-bottom: 10px;
   //     color: rgb(78, 78, 78);
   //   }
   //   .info-author-info{
