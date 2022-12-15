@@ -53,8 +53,6 @@
     margin: 0;
   }
 
-
-
   h1.casebook.title {
     font-size: 300%;
   }
@@ -156,10 +154,7 @@
   .node-container > p, section > p, article.opinion > p {
     text-indent: 2em;
   }
-  .title > .ordinal:not(:empty) {
-    float: left;
-    width: 10mm;
-  }
+
   .title > span:nth-of-type(2) {
     display: block;
   }
@@ -192,7 +187,8 @@
     string-set: casebook-title content(text);
   }
 
-  .casebook-metadata:not([data-paginator-page="1"]) {
+  /* Only in pagedjs mode, hide the TOC except from the first page */
+  .pagedjs_page .casebook-metadata:not([data-paginator-page="1"]) {
     display: none;
   }
 
@@ -238,84 +234,13 @@
   .node-heading {
     display: none;
   }
-}
-/* Styling that applies only to the screen-based reader view */
-@media screen {
 
-  main {
-    margin: 5vh 0;
-    display: grid;
-    grid-template-areas: "left center right";
-    grid-template-columns: 15vw 65vw 15vw;
-  }
-  article p, article div {
-    margin: 1rem 0;
-  }
-  main > article {
-    background-color: white;
-    padding: 5vh 5vw 10vh 5vw;
-    grid-area: center;
-  }
-  main > .left {
-    height: auto;
-    grid-area: left;
-  }
-  main > .right {
-    height: auto;
-    grid-area: right;
-  }
-  aside.authors-note {
-    position: absolute;
-    right: 2vw;
-    background: white;
-    border: 1px solid lightgray;
-    padding: 1rem;
-    width: 15vw;
-  }
-  mark.note-mark {
-    text-decoration: underline;
-    text-decoration-style: dotted;
-    text-decoration-color: lightgrey;
-    text-underline-offset: 5px;
-    background: none;
-  }
-  a.footnote-generated {
+  /* Collapse line breaks from cases that are adjacent to deletions/insertions */
+  ins + br {
     display: none;
   }
-  .node-heading {
-    display: block;
-    /* position: sticky; try this with IntersectionObserver */
-    float: left;
-    font-size: 10px;
-    width: 13vw;
-    margin-left: -20vw;
-    text-align: right;
-  }
-  .node-heading.depth-1 {
-    top: 5vh;
-  }
-  .node-heading.depth-2 {
-    top: 10vh;
-  }
-  .node-heading.depth-3 {
-    top: 15vh;
-  }
-  .node-heading.depth-4 {
-    top: 20vh;
-  }
-  @media (max-width: 552px) {
 
-    main {
-      margin: 0 auto;
-      grid-template-areas: center;
-      grid-template-columns: 1fr;
-    }
-    footer nav button.print-preview {
-      display: none;
-    }
-  }
 }
-
 
 /* Styling that only applies to the print preview, or when the screen preview is printed */
 @media print {

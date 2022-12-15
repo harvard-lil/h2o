@@ -7,6 +7,10 @@ nav.toc {
 nav.toc h2 {
     margin: calc(var(--toc-row-gap) * 2) 0;
 }
+nav.toc toc-control:not([open]) h2 {
+    margin-bottom: 0;
+}
+
 nav.toc h3 {
     display: inline;
     margin: 0;
@@ -39,4 +43,41 @@ nav.toc > ol > li > ol li span {
 
 nav.toc > ol > li > ol > li:last-child {
     margin: 0 0 calc(var(--toc-row-gap) * 1.5) 0;
+}
+nav.toc .toc-opener {
+    cursor: pointer;
+    background: none;
+    border: 0;
+}
+nav.toc .toc-opener h2 {
+    display: inline-block;
+}
+nav.toc .collapse-triangle {
+    scale: 0.75;
+    transition: transform 0.25s;
+    transform: rotate(0deg);
+    transform-origin: 30% 50%;
+}
+nav.toc .collapse-triangle polygon {
+    fill: lightgray;
+    stroke: black;
+    stroke-width: 1;
+}
+nav.toc .collapse-triangle polygon:hover {
+    stroke-width: 2;
+}
+nav.toc .collapse-triangle:not(.open) {
+    transform: rotate(90deg);
+}
+nav.toc ol {
+    transition: height 0.25s;
+    height: auto;
+    opacity: 1;
+}
+nav.toc toc-control:not([open]) h2::after {
+    content: " (click to expand)";
+    font-size: 12px;
+}
+nav.toc ol.invisible li {
+    display: none;
 }

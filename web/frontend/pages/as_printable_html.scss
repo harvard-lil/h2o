@@ -17,6 +17,25 @@
       max-height: 50px;
     }
   }
+  .left {
+    a.toc-link {
+      font-family: $preferred-sans-serif !important;
+      text-align: center;
+      bottom: 8vh;
+      display: block;
+      position: fixed;
+      left: 3vw;
+      text-decoration: none;
+      background: white;
+      border: lightgray 1px solid;
+      padding: 5px;
+    }
+  }
+  @media (max-width: 552px) {
+    .left a {
+      left: 40vw;
+    }
+  }
   .screen-only {
       nav {
         background-color: $light-blue;
