@@ -65,3 +65,15 @@
     max-height: $max-height;
   }
 }
+
+@mixin verified-professor($font-size: 13px, $padding-right: 3px) {
+
+  &.verified::before {
+    height: $font-size;
+    width: calc($font-size + $padding-right);
+    display: inline-block;
+    vertical-align: middle;
+    content: '';
+    background: url('~static/images/ui/verified.png') no-repeat;
+  }
+}
