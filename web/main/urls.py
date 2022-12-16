@@ -155,11 +155,6 @@ urlpatterns = format_suffix_patterns(drf_urlpatterns) + [
         views.show_credits,
         name="show_resource_credits",
     ),
-    path(
-        "casebooks/<idslug:casebook_param>/sections/<ordslug:section_param>/related/",
-        views.show_related,
-        name="show_section_related",
-    ),
     # reordering nodes
     path(
         "casebooks/<idslug:casebook_param>/sections/<ordslug:section_param>/reorder/<ordslug:node_param>",
@@ -188,7 +183,6 @@ urlpatterns = format_suffix_patterns(drf_urlpatterns) + [
         "casebooks/<idslug:casebook_param>/create_draft/", views.create_draft, name="create_draft"
     ),
     path("casebooks/<idslug:casebook_param>/credits/", views.show_credits, name="show_credits"),
-    path("casebooks/<idslug:casebook_param>/related/", views.show_related, name="show_related"),
     path(
         "casebooks/<idslug:casebook_param>/settings/",
         views.casebook_settings,
