@@ -4517,11 +4517,6 @@ class Casebook(EditTrackedModel, TimestampedModel, BigPkModel, TrackedCloneable)
             ),
             (read_tab, reverse("casebook", args=[self]), not self.is_archived),
             ("Credits", reverse("show_credits", args=[self]), not self.is_archived),
-            (
-                "Related",
-                reverse("show_related", args=[self]),
-                not self.is_archived and user.is_superuser,
-            ),
             ("History", reverse("casebook_history", args=[self]), self.viewable_by(user)),
             ("Search Inside", reverse("casebook_search", args=[self]), self.viewable_by(user)),
             ("Settings", reverse("casebook_settings", args=[self]), self.editable_by(user)),
