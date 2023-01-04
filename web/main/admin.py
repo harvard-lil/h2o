@@ -15,6 +15,8 @@ from simple_history.admin import SimpleHistoryAdmin
 
 from .models import (
     Casebook,
+    Tag,
+    CasebookTag,
     CommonTitle,
     ContentAnnotation,
     ContentCollaborator,
@@ -326,7 +328,12 @@ class CasebookAdmin(BaseAdmin, SimpleHistoryAdmin):
         "state",
         "export_fails",
     ]
-    readonly_fields = ["created_at", "updated_at", "provenance", "source"]
+    readonly_fields = [
+        "created_at",
+        "updated_at",
+        "provenance",
+        "source",
+    ]
     raw_id_fields = ["collaborators", "draft"]
     inlines = [CollaboratorInline]
 
@@ -570,6 +577,57 @@ class AnnotationsAdmin(BaseAdmin, SimpleHistoryAdmin):
 
     def resource(self, obj) -> ContentNode:
         return obj.resource
+
+
+class TagAdmin(BaseAdmin, SimpleHistoryAdmin):
+    list_display = [
+        "id",
+        "slug",
+        "display_text",
+        "created_at",
+        "updated_at",
+        "casebook_count",
+        "category",
+    ]
+    search_fields = ["display_text", "slug"]
+    fields = ["display_text", "slug", "category"]
+    prepopulated_fields = {"slug": ("display_text",)}
+
+    def has_add_permission(self, request):
+        return super(BaseAdmin, self).has_add_permission(request)
+
+    def get_queryset(self, request):
+        return super().get_queryset(request).annotate(casebook_count=Count("casebooks"))
+
+    @admin.display(
+        ordering="casebook_count",
+        description="Casebooks with this tag",
+    )
+    def casebook_count(self, obj):
+        return obj.casebook_count
+
+    class Meta:
+        model = Tag
+        fields = "__all__"
+
+
+class CasebookTagAdmin(BaseAdmin, SimpleHistoryAdmin):
+    list_display = [
+        "casebook",
+        "tag",
+        "created_by",
+        "created_at",
+        "updated_at",
+    ]
+    search_fields = ["casebook", "tag"]
+    fields = ["casebook", "tag"]
+
+    def has_add_permission(self, request):
+        return super(BaseAdmin, self).has_add_permission(request)
+
+    def save_model(self, request, obj, form, change):
+        obj.created_by = request.user
+        obj.save()
 
 
 ## Resources
@@ -969,3 +1027,5 @@ admin_site.register(LegalDocumentSource, LegalDocumentSourceAdmin)
 admin_site.register(LegalDocument, LegalDocumentAdmin)
 admin_site.register(CommonTitle, CommonTitleAdmin)
 admin_site.register(LiveSettings, LiveSettingsAdmin)
+admin_site.register(Tag, TagAdmin)
+admin_site.register(CasebookTag, CasebookTagAdmin)
