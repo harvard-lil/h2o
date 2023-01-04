@@ -3088,7 +3088,7 @@ def casebook_search(request: HttpRequest, casebook: Casebook):
             "results": results,
             "casebook": casebook,
             "category": category,
-            "tabs": casebook.tabs_for_user(request.user, current_tab="Search Inside"),
+            "tabs": casebook.tabs_for_user(request.user, current_tab="Find"),
             "casebook_color_class": casebook.casebook_color_indicator,
             "edit_mode": casebook.directly_editable_by(user),
         },
