@@ -9,7 +9,7 @@
       </div>
       <div class="search-bar-container">
         <div class="input-group">
-          <input type="search" name="q" id="q" class="form-control" placeholder="Search in {{ casebook.title }}" aria-label="Search legal documents and text from {{ casebook.title }}" value="{{ request.GET.q }}">
+          <input type="search" name="q" id="q" class="form-control" placeholder="Find in {{ casebook.title }}" aria-label="Search legal documents and text from {{ casebook.title }}" value="{{ request.GET.q }}">
           <span class="input-group-btn">
             <button class="form-control btn" type="submit" aria-label="Search" style="border: 1px solid black; background-color: #f5f4ec;"><i aria-hidden="true" class="fa fa-search"></i></button>
           </span>
@@ -23,17 +23,17 @@
         <div class="type-tabs">
           <div class="type-tab {% if category != 'legal_doc_fulltext' %}in{% endif %}active" {% if category == 'legal_doc_fulltext' %}aria-current="location"{% endif %}>
             <a href="?{% current_query_string type="legal_doc_fulltext" page=1 %}" class="wrapper">
-              Legal Documents 
+              Legal Documents
             </a>
           </div>
           <div class="type-tab {% if category != 'textblock' %}in{% endif %}active" {% if category == 'textblock' %}aria-current="location"{% endif %}>
             <a href="?{% current_query_string type="textblock" page=1 %}" class="wrapper">
-              Text Passages 
+              Text Passages
             </a>
           </div>
           <div class="type-tab {% if category != 'link' %}in{% endif %}active" {% if category == 'link' %}aria-current="location"{% endif %}>
             <a href="?{% current_query_string type="link" page=1 %}" class="wrapper">
-              Links 
+              Links
             </a>
           </div>
         </div>
