@@ -1429,6 +1429,45 @@ class CasebookFollow(TimestampedModel, BigPkModel):
         unique_together = (("user", "casebook"),)
 
 
+class CasebookTag(TimestampedModel):
+    casebook = models.ForeignKey(
+        "Casebook",
+        on_delete=models.CASCADE,
+    )
+    tag = models.ForeignKey(
+        "Tag",
+        on_delete=models.CASCADE,
+    )
+    created_by = models.ForeignKey(
+        "User",
+        on_delete=models.DO_NOTHING,
+        related_name="created_tags",
+    )
+
+    class Meta:
+        unique_together = (("tag", "casebook"),)
+
+
+class Tag(TimestampedModel):
+    slug = models.SlugField(max_length=100, unique=True)
+    display_text = models.CharField(max_length=100, unique=True)
+    casebooks = models.ManyToManyField("Casebook", through="CasebookTag", related_name="tags")
+
+    class Category(models.TextChoices):
+        INSTITUTION = "institution", "Institution"
+        RESOURCE_TYPE = "resource_type", "Resource Type"
+        INTEREST_AREA = "interest_area", "Interest Area"
+
+    category = models.CharField(
+        max_length=100,
+        choices=Category.choices,
+        blank=True,
+    )
+
+    def __str__(self):
+        return self.display_text
+
+
 class ContentCollaborator(TimestampedModel, BigPkModel):
     has_attribution = models.BooleanField(default=False)
     can_edit = models.BooleanField(default=False)
@@ -3663,7 +3702,7 @@ class Casebook(EditTrackedModel, TimestampedModel, BigPkModel, TrackedCloneable)
         >>> assert ContentNode.objects.exists()
         >>> assert ContentAnnotation.objects.exists()
         >>> assert CasebookEditLog.objects.exists()
-        >>> with assert_num_queries(delete=14, select=20, insert=36):
+        >>> with assert_num_queries(delete=16, select=20, insert=36):
         ...     deleted = casebook.delete()
         >>> assert not Casebook.objects.exists()
         >>> assert not ContentNode.objects.exists()
