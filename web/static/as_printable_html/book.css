@@ -132,9 +132,7 @@
     padding: 0 var(--headnote-padding);
 
   }
-  section.headnote {
-    margin: 0 0 var(--headnote-padding);
-  }
+
   /* Headnotes don't have indentation */
   section.headnote p {
     text-indent: initial;
