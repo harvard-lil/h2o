@@ -32,13 +32,13 @@
 }
 
 .legaldocument header.case-header .court {
-  font-size: 24px;
+  font-size: 24px !important;
 }
 
 .legaldocument header.case-header .citation,
 .legaldocument header.case-header .decisiondate,
 .legaldocument header.case-header .docketnumber {
-  font-size: 18px;
+  font-size: 18px !important;
 }
 
 .legaldocument header.case-header .title {
@@ -48,17 +48,16 @@
   padding: 20px 4px 10px 4px;
 }
 
-.legaldocument .parties,
-.legaldocument .decisiondate,
-.legaldocument .docketnumber,
-.legaldocument .citations,
-.legaldocument .syllabus,
-.legaldocument .synopsis,
-.legaldocument .court {
-  display: none;
-}
+/* Hide embedded metadata in case content */
 
-.legaldocument .page-label {
+.legaldocument section.resource .parties,
+.legaldocument section.resource .decisiondate,
+.legaldocument section.resource .docketnumber,
+.legaldocument section.resource .citations,
+.legaldocument section.resource .syllabus,
+.legaldocument section.resource .synopsis,
+.legaldocument section.resource .court,
+.legaldocument section.resource .page-label {
   display: none;
 }
 
