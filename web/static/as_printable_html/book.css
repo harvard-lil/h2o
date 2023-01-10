@@ -127,10 +127,8 @@
   }
 
   section.headnote {
-    border: 1px solid var(--highlight-background-greyscale);
     margin: 0 calc(-1 * (var(--headnote-padding)));
     padding: 0 var(--headnote-padding);
-
   }
 
   /* Headnotes don't have indentation */

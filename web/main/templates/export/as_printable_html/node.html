@@ -42,12 +42,13 @@
         {% endif %}
 
         {% if node.is_resource %}
-          {% if node.resource_type.lower == 'legaldocument' %}
 
-            <section class="legal_doc_header">
-              {% include "includes/legal_doc_sources/cap_header.html" with legal_doc=node.resource %}
-            </section>
+        <section class="{{ node.resource_type.lower }}-container">
+
+          {% if node.resource_type.lower == 'legaldocument' %}
+            {% include "includes/legal_doc_sources/cap_header.html" with legal_doc=node.resource %}
           {% endif %}
+
           {# Whitespace between the <section> element and the content must not be introduced to avoid throwing off the annotation offset values #}
           <section class="resource" data-node-id="{{ node.id }}" data-resource-id="{{ node.resource_id }}">{{ node.resource.content|safe }}</section>
 
@@ -60,6 +61,7 @@
               class="hidden">{{ annotation.content }}</li>
           {% endfor %}
         {% endif %}
+        </section>
     {% endif %}
 
   </div>

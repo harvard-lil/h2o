@@ -1,7 +1,11 @@
 /* Cap-specific style */
 
+:root {
+  --legal-doc-outset: 20px;
+}
+
 .legaldocument sup {
-  font-size: calc(var(--casebook-font-size) * .75);
+  font-size: calc(var(--casebook-font-size) * 0.75);
 }
 
 .legaldocument a[href^="#"] {
@@ -13,7 +17,6 @@
   font-size: calc(var(--casebook-font-size) / 2);
   vertical-align: super;
 }
-
 
 .legaldocument header.case-header .title,
 .legaldocument header.case-header .citation,
@@ -63,10 +66,23 @@
 
 .legaldocument aside.footnote > a {
   float: left;
+  padding-right: 1rem;
 }
 
 .legaldocument img {
   max-width: 100%;
   width: auto;
   height: auto;
+}
+
+section.legaldocument-container {
+
+  padding: calc(3 * var(--legal-doc-outset));
+  margin: calc(2 * var(--legal-doc-outset))
+          calc(-1 * var(--legal-doc-outset))
+          calc(10 * var(--legal-doc-outset))
+          calc(-1 * var(--legal-doc-outset)) ;
+  box-shadow: rgba(100, 100, 111, 0.1) 0px 10px 29px 0px;
+  ;
+  box-shadow: rgba(14, 30, 37, 0.12) 0px 2px 10px 0px, rgba(14, 30, 37, 0.2) 0px 2px 8px 0px;
 }
