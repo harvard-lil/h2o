@@ -44,7 +44,7 @@ class TocControl extends HTMLElement {
             this.tocList.style.height = 0;
           } else {
             this.tocList.classList.remove('collapsing');
-            this.tocList.style.height = `${this.tocList.getAttribute('data-natural-height')}.px`;
+            this.tocList.style.height = `${this.tocList.getAttribute('data-natural-height')}px`;
           }
         }
         this.querySelector('svg').classList.toggle('open');
