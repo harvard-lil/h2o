@@ -91,7 +91,7 @@ class OrdinalSlugConverter:
         return {"ordinals": [int(i) for i in ord_slug[0].split(".")], "slug": slug}
 
     @staticmethod
-    def to_url(value: any):
+    def to_url(value):
         """
         >>> assert OrdinalSlugConverter.to_url({"ordinals": [1, 2]}) == "1.2"
         >>> assert OrdinalSlugConverter.to_url({"ordinals": [1, 2], "slug": "foo"}) == "1.2-foo"
