@@ -8,6 +8,11 @@
       grid-template-areas: "left center right";
       grid-template-columns: 15vw 65vw 15vw;
     }
+    /* Lay out frontmatter based on whether this is the first chapter */
+    .casebook-metadata:not([data-paginator-page="1"]) .headnote {
+      display: none;
+    }
+
     article p, article div {
       margin: 1rem 0;
     }

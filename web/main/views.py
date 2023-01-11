@@ -2693,7 +2693,7 @@ def export(request: HttpRequest, node: Union[ContentNode, Casebook], file_type="
 )
 def as_printable_html(request: HttpRequest, casebook: Casebook, page=1, whole_book=False):
     """Load the content of the casebook by top-level nodes, and pass it to an HTML template
-    designed to render it in-place, without site chrome, suitable for printing"""
+    designed to render it in-place, without site chrome, suitable for printing or reading"""
 
     use_pagedjs = True if request.GET.get("print-preview") else False
 
@@ -2701,7 +2701,7 @@ def as_printable_html(request: HttpRequest, casebook: Casebook, page=1, whole_bo
         ordinals__len=1
     )
 
-    logger.info(f"Exporting Casebook {casebook.id}, starting from page {page}: serializing to HTML")
+    logger.info(f"Rendering Casebook {casebook.id}, starting from page {page}: serializing to HTML")
 
     paginator = Paginator(top_level_nodes, 1)
     page = paginator.page(page)
@@ -2723,11 +2723,11 @@ def as_printable_html(request: HttpRequest, casebook: Casebook, page=1, whole_bo
         "export/as_printable_html/casebook.html",
         {
             "casebook": casebook,
-            "section": section,
             "paginator": paginator,
             "page": page,
             "children": children,
             "toc": toc,
+            "toc_is_open": whole_book or page.number == 1,
             "export_date": datetime.now().strftime("%Y-%m-%d"),
             "whole_book": whole_book,
             "use_pagedjs": use_pagedjs,
