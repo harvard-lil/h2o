@@ -31,6 +31,7 @@
     --link-icon-margin: 5mm;
     --highlight-background-greyscale: #ededed;
     --highlight-background-color: #fff7b9;
+    --headnote-padding: 5mm;
   }
 
   /* Always start a top-level section on a new page, even if there's preface matter */
@@ -123,6 +124,11 @@
   h2.subtitle {
     font-size: 100%;
     font-style: italic;
+  }
+
+  section.headnote {
+    margin: 0 calc(-1 * (var(--headnote-padding)));
+    padding: 0 var(--headnote-padding);
   }
 
   /* Headnotes don't have indentation */
@@ -251,7 +257,9 @@
     text-decoration: none;
     color: inherit;
   }
-
+  section.headnote p {
+    margin: var(--casebook-font-size) 0;
+  }
   /* Style footnotes, allowing the URLs to break midway. PagedJS will put these in the bottom margin */
   .footnote-generated {
     float: footnote;

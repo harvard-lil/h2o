@@ -268,7 +268,8 @@ annotationRanges.forEach((rg) => {
 });
 
 function renderAsPagedJS() {
-  paged.preview(tmpl.content, [], main).then((flow) => {
+  const css = tmpl.getAttribute("data-stylesheet");
+  paged.preview(tmpl.content, [css], main).then((flow) => {
     console.log("Rendered", flow.total, "pages.");
     main.classList.add("preview-ready");
   });
