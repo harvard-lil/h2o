@@ -1251,10 +1251,6 @@ class LegalDocument(NullableTimestampedModel, AnnotatedModel):
         cleanse_html_field(self, "content")
         super().save(*args, **kwargs)
 
-    @property
-    def get_title(self):
-        return self.short_name or self.name
-
     def get_name(self):
         return self.short_name or self.name
 
@@ -2491,7 +2487,8 @@ class ContentNode(
         for cls, ids in to_delete.items():
             cls.objects.filter(id__in=ids).delete()
 
-    def get_slug(self):
+    @property
+    def slug(self):
         return slugify(self.title)
 
     def viewable_by(self, user: User) -> bool:
@@ -3595,7 +3592,8 @@ class Casebook(EditTrackedModel, TimestampedModel, BigPkModel, TrackedCloneable)
         cleanse_html_field(self, "headnote", True)
         super().save(*args, **kwargs)
 
-    def get_slug(self):
+    @property
+    def slug(self):
         return slugify(self.title)
 
     def viewable_by(self, user: Union[User, AnonymousUser]):

@@ -1482,7 +1482,7 @@ def clone_casebook_nodes(request, from_casebook_dict, from_section_dict, to_case
     to_casebook.clone_nodes(nodes_to_clone, append=True)
     to_casebook.refresh_from_db()
     new_add = to_casebook.children.order_by("-ordinals").first()
-    link_hash = new_add.ordinal_string() + "-" + new_add.get_slug()
+    link_hash = new_add.ordinal_string() + "-" + new_add.slug
     return redirect(to_casebook.get_edit_url() + "#" + link_hash)
 
 

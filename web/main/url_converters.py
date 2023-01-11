@@ -65,7 +65,7 @@ class IdSlugConverter:
         """
         if hasattr(value, "id"):
             id = value.id
-            slug = value.get_slug()
+            slug = value.slug
         elif isinstance(value, int):
             id = value
             slug = None
@@ -91,7 +91,7 @@ class OrdinalSlugConverter:
         return {"ordinals": [int(i) for i in ord_slug[0].split(".")], "slug": slug}
 
     @staticmethod
-    def to_url(value):
+    def to_url(value: any):
         """
         >>> assert OrdinalSlugConverter.to_url({"ordinals": [1, 2]}) == "1.2"
         >>> assert OrdinalSlugConverter.to_url({"ordinals": [1, 2], "slug": "foo"}) == "1.2-foo"
@@ -99,7 +99,7 @@ class OrdinalSlugConverter:
         """
         if hasattr(value, "ordinals"):
             ordinals = value.ordinals
-            slug = value.get_slug()
+            slug = value.slug
         elif isinstance(value, dict):
             ordinals = value["ordinals"]
             slug = value.get("slug")
