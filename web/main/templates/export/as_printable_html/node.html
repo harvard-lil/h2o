@@ -9,25 +9,25 @@
   <div class="node-container">
 
     {% if node.resource_type == 'Link' %}
-      <div class="link-container">
-        <div class="link-icon"></div>
 
-        <h1 class="resource ordinal {{ node.resource_type|lower }}" data-toc-idx="{{ index }}">{{ node.ordinal_string }}{% if node.ordinal_string %}.{% endif %}
-          Hyperlink to a web resource
-        </h4>
-      </div>
+      <h1 class="resource ordinal {{ node.resource_type|lower }}" data-toc-idx="{{ index }}">{{ node.ordinal_string }}{% if node.ordinal_string %}.{% endif %}
+        {{ node.title }}
+      </h1>
+
       <h2 class="subtitle">{{ node.subtitle|default_if_none:"" }}</h2>
 
       {% if node.headnote %}
         {% call_method node 'headnote_for_export' export_options=export_options as headnote %}
         <section class="headnote">{{ headnote }}</section>
       {% endif %}
-
-      <a href="{{ node.resource.url }}" target="_blank" data-type="resource link">{{ node.resource.url }}</a>
+      <div class="link-container">
+        <a href="{{ node.resource.url }}" target="_blank" data-type="resource link">{{ node.resource.url }}</a>
+        <span class="link-icon"></span>
+      </div>
 
     {% else %}
 
-        <h1 class="{{ node.type }} title">
+        <h1 class="{{ node.type }} title" id="{{ node.slug }}">
           <span class="{{ node.type }} ordinal" data-toc-idx="{{ index }}">{{ node.ordinal_string }}</span>
           <span>{{ node.title }}</span>
         </h1>

@@ -26,8 +26,8 @@
     --casebook-font-size: 3.5mm;
     --casebook-line-height: calc(var(--casebook-font-size) * 1.8);
     --casebook-font-family: "LibreCaslon";
-    --link-icon-height: 10mm;
-    --link-icon-width: 10mm;
+    --link-icon-height: calc(2 * var(--casebook-font-size));
+    --link-icon-width: calc(2 * var(--casebook-font-size));
     --link-icon-margin: 5mm;
     --highlight-background-greyscale: #ededed;
     --highlight-background-color: #fff7b9;
@@ -121,7 +121,7 @@
     font-size: 110%;
     font-weight: bold;
   }
-  h2.subtitle {
+  h2.subtitle * {
     font-size: 100%;
     font-style: italic;
   }
@@ -166,7 +166,9 @@
   }
   .link-container {
     min-height: var(--link-icon-height);
-    width: 100%;
+    display: flex;
+    align-items: center;
+    gap: var(--casebook-font-size);
   }
 
   a[data-type~="link"] {
@@ -176,10 +178,9 @@
   .link-icon {
     width: var(--link-icon-width);
     height: var(--link-icon-height);
-    margin-right: var(--link-icon-margin);
     background: url("../images/Link.svg");
     background-size: cover;
-    float: left;
+    display: inline-block;
   }
 
   .truncated-title {
