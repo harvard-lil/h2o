@@ -65,7 +65,7 @@ class IdSlugConverter:
         """
         if hasattr(value, "id"):
             id = value.id
-            slug = value.get_slug()
+            slug = value.slug
         elif isinstance(value, int):
             id = value
             slug = None
@@ -99,7 +99,7 @@ class OrdinalSlugConverter:
         """
         if hasattr(value, "ordinals"):
             ordinals = value.ordinals
-            slug = value.get_slug()
+            slug = value.slug
         elif isinstance(value, dict):
             ordinals = value["ordinals"]
             slug = value.get("slug")
