@@ -1,7 +1,7 @@
 nav.toc {
     --toc-column-gap: 2mm;
     --toc-row-gap: calc(var(--casebook-font-size) * 1);
-    --toc-left-width: 10mm;
+    --toc-left-width: 8mm;
     break-before: right;
 }
 nav.toc h2 {
@@ -17,28 +17,32 @@ nav.toc h3 {
     font-size: 1em;
     font-weight: bold;
 }
-nav.toc ol {
+
+nav.toc ol.toc-items {
     padding: 0;
 }
-nav.toc ol > li {
-    padding: var(--toc-row-gap) 0 0 0;
 
+nav.toc ol.toc-items > li {
+    padding: var(--toc-row-gap) 0 0 0;
 }
-nav.toc .ordinals {
-    width: calc(var(--toc-left-width) + var(--toc-column-gap));
-    float: left;
+nav.toc ol.toc-items > li li {
+    padding: calc(var(--toc-row-gap) / 2) 0 0 0;
+}
+nav.toc ol.toc-items > li > .ordinals {
+    display: inline-block;
 }
 
 nav.toc .node-title {
-    display: block;
-    margin-left: calc(var(--toc-left-width) + var(--toc-column-gap));
+    display: inline-block;
+    margin: 0 0 0 calc(var(--toc-left-width) / 2);
 }
 
 nav.toc > ol > li > ol li {
     line-height: calc(var(--casebook-line-height) * 0.8);
 }
-nav.toc > ol > li > ol li span {
+nav.toc ol.toc-items span.ordinals {
     display: inline-block;
+    width: var(--toc-left-width);
 }
 
 nav.toc > ol > li > ol > li:last-child {

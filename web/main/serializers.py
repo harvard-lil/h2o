@@ -102,6 +102,7 @@ class ContentNodeSerializer(serializers.ModelSerializer):
             "ordinal_string",
             "ordinals",
             "is_instructional_material",
+            "slug",
         )
 
 
@@ -439,6 +440,7 @@ def manually_serialize_content_query(content_query: ContentNodeQuerySet):
     ...         "ordinals",
     ...         "ordinal_string",
     ...         "children",
+    ...         "slug",
     ...     )
     ... ])
 
