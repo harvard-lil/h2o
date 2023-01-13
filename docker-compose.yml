@@ -10,7 +10,7 @@ services:
       - POSTGRES_PASSWORD=example
 
   web:
-    image: registry.lil.tools/harvardlil/h2o-python:0.87-8010b1ea3aa065626c801d079049527b
+    image: registry.lil.tools/harvardlil/h2o-python:0.88-22ec649509183434651c8ec80f1d80a1
     tty: true
     command: bash
     environment:
@@ -59,7 +59,7 @@ services:
           - 'opencasebook.minio.test'
 
   pandoc-lambda:
-    image: registry.lil.tools/harvardlil/h2o-pandoc-lambda:0.63-8b8bf8d090ea67d062b4628f310fb8fe
+    image: registry.lil.tools/harvardlil/h2o-pandoc-lambda:0.64-776ceab36509fa43d4c505e6e3c84252
     tty: true
     environment:
       - USE_S3_CREDENTIALS=True
