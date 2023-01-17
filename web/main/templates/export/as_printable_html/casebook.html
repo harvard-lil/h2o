@@ -13,9 +13,8 @@
     {% render_bundle 'as_printable_html' attrs="defer" %}
     {% render_bundle 'chunk-common' attrs="defer" %}
 
-    <link href="{% static 'as_printable_html/book.css' %}" type="text/css" rel="stylesheet">
-
     {% if not use_pagedjs %}
+      <link href="{% static 'as_printable_html/book.css' %}" type="text/css" rel="stylesheet">
       <link href="{% static 'as_printable_html/reader-view.css' %}" type="text/css" rel="stylesheet">
     {% endif %}
     <style>
@@ -65,7 +64,9 @@
     </nav>
   </footer>
 
-  <template id="casebook-content" data-stylesheet="{% static 'as_printable_html/book.css' %}" data-use-pagedjs="{{ use_pagedjs|yesno:'true,false' }}">
+  <template id="casebook-content"
+    data-stylesheet="{% static 'as_printable_html/book.css' %}"
+    data-use-pagedjs="{{ use_pagedjs|yesno:'true,false' }}">
     <div class="casebook-metadata" data-paginator-page="{{ page.number }}">
       <h1 class="casebook title">{{ casebook.title }}</h1>
       <h2 class="casebook subtitle">{{ casebook.subtitle|default_if_none:""}}</h2>
@@ -83,9 +84,8 @@
         </ul>
       </div>
       <section class="casebook headnote">{{ casebook.headnote|safe}}</section>
-
       <div id="toc">
-        {% include "export/as_printable_html/toc.html" with toc=toc %}
+        {% include "export/as_printable_html/toc.html" with toc=toc toc_is_open=toc_is_open %}
       </div>
 
     </div>

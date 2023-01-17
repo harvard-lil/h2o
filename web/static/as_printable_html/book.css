@@ -78,7 +78,7 @@
   }
 
   h2 {
-    font-size: 150%;
+    font-size: 130%;
   }
 
   h3 {
@@ -197,10 +197,6 @@
   /* Only in pagedjs mode, hide the TOC except from the first page */
   .pagedjs_page .casebook-metadata:not([data-paginator-page="1"]) {
     display: none;
-  }
-
-  .casebook-metadata div {
-    margin-bottom: 20mm;
   }
 
   .casebook-metadata li,
