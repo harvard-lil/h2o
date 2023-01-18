@@ -67,6 +67,12 @@
       display: inline-block;
       text-align: center;
       font-family: $preferred-sans-serif !important;
+      a {
+        text-decoration: none;
+      }
+      &.disabled {
+        color: lightgray !important;
+      }
     }
   }
   /* Show underlining for TOC hyperlinks in the web view only */
