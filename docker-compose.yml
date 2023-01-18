@@ -58,6 +58,11 @@ services:
         aliases:
           - 'opencasebook.minio.test'
 
+  redis:
+    image: registry.lil.tools/library/redis:7.0
+    volumes:
+      - redis_data:/data:delegated
+
   pandoc-lambda:
     image: registry.lil.tools/harvardlil/h2o-pandoc-lambda:0.64-776ceab36509fa43d4c505e6e3c84252
     tty: true
@@ -74,6 +79,7 @@ services:
 volumes:
   db_data_12:
   minio_data:
+  redis_data:
 
 networks:
   default:

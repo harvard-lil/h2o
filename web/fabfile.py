@@ -38,11 +38,25 @@ def setup_django(func):
 
 
 @task(alias="run")
+@setup_django
 def run_django(port=None, debug_toolbar="", live_js_assets=""):
+
+    from django.conf import settings  # noqa
+
+    celery_proc = None
+    if not settings.CELERY_TASK_ALWAYS_EAGER:
+        print("\nStarting background celery process.")
+        cmd = "watchmedo auto-restart -d ./ -p '*.py' -R -- celery -A config.celery.app worker --loglevel=info -Q celery,background -B -n w1@%h"
+        celery_proc = subprocess.Popen(cmd, shell=True, stdout=sys.stdout, stderr=sys.stderr)
+
     with shell_env(DEBUG_TOOLBAR=debug_toolbar, LIVE_JS_ASSETS=live_js_assets):
         if port is None:
             port = "0.0.0.0:8000" if os.environ.get("DOCKERIZED") else "127.0.0.1:8000"
-        local(f"python manage.py runserver {port}")
+        try:
+            local(f"python manage.py runserver {port}")
+        finally:
+            if celery_proc:
+                os.kill(celery_proc.pid, signal.SIGKILL)
 
 
 @task

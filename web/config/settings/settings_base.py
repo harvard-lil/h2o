@@ -235,6 +235,46 @@ WEBPACK_LOADER = {
     }
 }
 
+###
+### CELERY settings ###
+###
+
+CELERY_BROKER_URL = "redis://redis:6379/1"
+CELERY_ACCEPT_CONTENT = ["json"]
+CELERY_TASK_SERIALIZER = "json"
+CELERY_RESULT_SERIALIZER = "json"
+CELERY_TIMEZONE = "UTC"
+
+# These default time limits are useful in Perma, where capturing tasks
+# sometimes hang, for still-undiagnosed reasons, and where all tasks
+# are expected to be short-lived.
+#
+# It remains to be determined whether they will prove appropriate here.
+#
+# If a task is running longer than five minutes, ask it to shut down
+# CELERY_TASK_SOFT_TIME_LIMIT=300
+# If a task is running longer than seven minutes, kill it
+# CELERY_TASK_TIME_LIMIT = 420
+CELERY_TASK_TIME_LIMIT = 2
+
+# Control whether Celery tasks should be run asynchronously in a background worker
+# process or synchronously in the main thread of the calling script / Django request.
+# This should normally be False, but it's handy to not require the broker and a
+# celery worker daemon to be running sometimes... for instance, if you want to drop into pdb.
+CELERY_TASK_ALWAYS_EAGER = False
+CELERY_TASK_EAGER_PROPAGATES = True  # propagate exceptions when CELERY_TASK_ALWAYS_EAGER=True
+
+CELERY_TASK_ROUTES = {
+    "main.tasks.sample_scheduled_task": {"queue": "background"},
+}
+
+# from celery.schedules import crontab
+CELERY_BEAT_SCHEDULE = {}
+
+###
+### /END CELERY settings ###
+###
+
 CAPAPI_BASE_URL = "https://api.case.law/v1/"
 CAPAPI_API_KEY = ""
 

@@ -40,3 +40,14 @@ EMAIL_BACKEND = "django.core.mail.backends.console.EmailBackend"
 ADMINS = [("John", "john@example.com"), ("Mary", "mary@example.com")]
 
 LOGGING["loggers"]["main"] = {"level": "DEBUG", "handlers": ["console", "file"]}
+
+CELERY_TASK_ALWAYS_EAGER = True
+
+from celery.schedules import crontab
+
+CELERY_BEAT_SCHEDULE = {
+    "demo-scheduled-task": {
+        "task": "main.tasks.demo_scheduled_task",
+        "schedule": crontab(minute="*"),
+    },
+}
