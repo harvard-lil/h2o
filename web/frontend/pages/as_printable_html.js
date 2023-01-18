@@ -282,12 +282,6 @@ if (tmpl.getAttribute("data-use-pagedjs") === "true") {
   const right = document.createElement('div');
   const center = document.createElement('article');
 
-  const tocLink = document.createElement('a');
-  tocLink.innerText = '↑ Table of contents';
-  tocLink.href = "#toc";
-  tocLink.classList.add('toc-link');
-  left.append(tocLink);
-
   left.classList.add('left');
   right.classList.add('right');
   center.classList.add('center');

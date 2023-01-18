@@ -41,10 +41,12 @@
         <span><a href="{% url 'casebook' casebook %}">Exit preview</a></span>
 
       {% else %}
+        <a class="controls" href="#toc">↑ Table of contents</a>
+
         {% if page.has_previous %}
           <span><a href="{% url 'as_printable_html' casebook page.previous_page_number %}{% if use_pagedjs %}?print-preview=true{% endif %}">◀ Previous</a></span>
         {% else %}
-          <span class="disabled">Previous</span>
+          <span class="unlinked">Previous</span>
         {% endif %}
 
         <span>{{ page.number }} of {{ paginator.num_pages }} section{{ paginator.num_pages|pluralize}} </span>
@@ -53,8 +55,11 @@
       {% if page.has_next %}
         <span><a href="{% url 'as_printable_html' casebook page.next_page_number %}{% if use_pagedjs %}?print-preview=true{% endif %}">Next ▶</a></span>
       {% else %}
-          <span class="disabled">Next</span>
+          <span class="unlinked">Next</span>
       {% endif %}
+
+      <button class="controls" onclick="window.location.href='{% url 'casebook' casebook %}'">← Exit reading mode</button>
+
     {% endif %}
     </nav>
   </footer>

@@ -18,18 +18,7 @@
     }
   }
   .left {
-    a.toc-link {
-      font-family: $preferred-sans-serif !important;
-      text-align: center;
-      bottom: 8vh;
-      display: block;
-      position: fixed;
-      left: 3vw;
-      text-decoration: none;
-      background: white;
-      border: lightgray 1px solid;
-      padding: 5px;
-    }
+
   }
   @media (max-width: 552px) {
     .left a {
@@ -49,7 +38,7 @@
         transform: translateX(-50%);
         width: 100%;
         display: flex;
-        justify-content: space-evenly;
+        justify-content: space-between;
         align-items: center;
         z-index: 99;
         a {
@@ -60,6 +49,26 @@
           border: 0;
           padding: 10px;
         }
+        .controls {
+          font-family: $preferred-sans-serif !important;
+          text-align: center;
+          display: block;
+          background:$white;
+          color: $black;
+          margin: -120px 20px 0 20px;
+          border: lightgray 1px solid;
+          padding: 10px;
+          font-size: 16px;
+          cursor: pointer;
+          &:hover {
+            background: $light-blue;
+            color: $white;
+          }
+        }
+        a.controls {
+          text-decoration: none;
+        }
+
 
     }
 
@@ -70,7 +79,7 @@
       a {
         text-decoration: none;
       }
-      &.disabled {
+      &.unlinked {
         color: lightgray !important;
       }
     }
