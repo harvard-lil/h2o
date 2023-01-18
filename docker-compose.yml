@@ -1,7 +1,7 @@
 version: '3'
 services:
   db:
-    image: registry.lil.tools/library/postgres:12.8
+    image: registry.lil.tools/library/postgres:12.11
     volumes:
       - db_data_12:/var/lib/postgresql/data:delegated
     ports:
