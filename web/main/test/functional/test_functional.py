@@ -1,5 +1,7 @@
 # These tests are run through LiveServerTestCase and playwright
 from pathlib import Path
+import re
+
 import pytest
 from django.core.management import call_command
 from playwright.sync_api import Page, expect
@@ -102,7 +104,7 @@ def test_print_preview_page(static_live_server, page: Page, full_casebook):
     url = (
         static_live_server.url
         + reverse("printable_all", args=[full_casebook])
-        + "?print-preview-true"
+        + "?print-preview=true"
     )
     page.goto(url)
     expect(page.locator("main.preview-ready")).not_to_be_empty()
@@ -120,9 +122,7 @@ def test_reading_mode_nav(static_live_server, page: Page, full_casebook):
     page.get_by_role("option", name="1 of 2 sections")
     page.locator("#page-selector").select_option(label="2 of 2 sections")
     page.get_by_role("option", name="2 of 2 sections")
-    expect(page).to_have_url(
-        f"{static_live_server.url}/casebooks/3-some-title-0/as-printable-html/2/"
-    )
+    expect(page).to_have_url(re.compile("/as-printable-html/2/$"))
 
 
 @pytest.mark.xdist_group("functional")
