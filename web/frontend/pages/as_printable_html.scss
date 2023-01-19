@@ -1,8 +1,8 @@
-@import 'variables';
-@import 'font-vars-and-mixins';
-@import 'font-faces';
+@import "variables";
+@import "font-vars-and-mixins";
+@import "font-faces";
 
-/* Customized for navigation component at the top */
+/* Customized for navigation component */
 @media screen, pagedjs-ignore {
   header.screen-only {
     margin: 2rem auto 0 auto;
@@ -17,56 +17,73 @@
       max-height: 50px;
     }
   }
-  .left {
-    a.toc-link {
-      font-family: $preferred-sans-serif !important;
-      text-align: center;
-      bottom: 8vh;
-      display: block;
-      position: fixed;
-      left: 3vw;
-      text-decoration: none;
-      background: white;
-      border: lightgray 1px solid;
-      padding: 5px;
-    }
-  }
   @media (max-width: 552px) {
     .left a {
       left: 40vw;
     }
   }
   .screen-only {
-      nav {
-        background-color: $light-blue;
-        border: 1px solid $white;
-        color: $white;
-        padding: 10px;
-        position: fixed;
+    nav {
+      --nav-font-size: 16px;
 
-        left: 50%;
-        bottom: 0;
-        transform: translateX(-50%);
-        width: 100%;
-        display: flex;
-        justify-content: space-evenly;
-        align-items: center;
-        z-index: 99;
-        a {
-          text-decoration: underline;
+      background-color: $light-blue;
+      border: 1px solid $white;
+      color: $white;
+      padding: 10px;
+      position: fixed;
+
+      left: 50%;
+      bottom: 0;
+      transform: translateX(-50%);
+      width: 100%;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      z-index: 99;
+      a {
+        text-decoration: underline;
+        color: $white;
+      }
+      button {
+        border: 0;
+        padding: 10px;
+      }
+      .controls {
+        font-family: $preferred-sans-serif !important;
+        text-align: center;
+        display: block;
+        background: $white;
+        color: $black;
+        margin: -120px 20px 0 20px;
+        border: lightgray 1px solid;
+        padding: 10px;
+        font-size: var(--nav-font-size);
+        cursor: pointer;
+        &:hover {
+          background: $light-blue;
           color: $white;
         }
-        button {
-          border: 0;
-          padding: 10px;
+      }
+      a.controls {
+        text-decoration: none;
+      }
+      span {
+        display: inline-block;
+        text-align: center;
+        font-family: $preferred-sans-serif !important;
+        a {
+          text-decoration: none;
         }
-
-    }
-
-    nav span {
-      display: inline-block;
-      text-align: center;
-      font-family: $preferred-sans-serif !important;
+        &.unlinked {
+          color: lightgray !important;
+        }
+      }
+      #page-selector {
+        background: $light-blue;
+        color: $white;
+        font-size: var(--nav-font-size);
+        border: none;
+      }
     }
   }
   /* Show underlining for TOC hyperlinks in the web view only */
@@ -75,7 +92,6 @@
     text-decoration-style: dotted;
     text-underline-offset: 1mm;
     text-decoration-color: gray;
-
   }
 }
 
@@ -178,7 +194,7 @@
 
   /* uncomment this part for one-up layout: ------------------------------------ */
 
-/*
+  /*
       .pagedjs_pages {
           flex-direction: column;
           width: 100%;

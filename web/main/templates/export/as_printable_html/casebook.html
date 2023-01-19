@@ -36,30 +36,37 @@
   </header>
   <footer class="screen-only">
     <nav>
-      {% if whole_book %}
+      {% if whole_book or use_pagedjs %}
 
-        <span><a href="{% url 'casebook' casebook %}">Exit preview</a></span>
+        <button onclick="location.href='{% url 'casebook' casebook %}'">Exit preview</button>
 
       {% else %}
+        <a class="controls" href="#toc">↑ Table of contents</a>
+
         {% if page.has_previous %}
-          <span><a href="{% url 'as_printable_html' casebook page.previous_page_number %}{% if use_pagedjs %}?print-preview=true{% endif %}">Previous</a></span>
+          <span><a href="{% url 'as_printable_html' casebook page.previous_page_number %}{% if use_pagedjs %}?print-preview=true{% endif %}">◀ Previous</a></span>
         {% else %}
-          <span>Previous</span>
+          <span class="unlinked">Previous</span>
         {% endif %}
 
-        {% if use_pagedjs %}
-          <button class="print-preview" onclick="window.location.href='{% url "as_printable_html" casebook page.number %}'">Exit print preview</button>
-        {% else %}
-          <button class="print-preview" onclick="window.location.href='{% url "as_printable_html" casebook page.number %}?print-preview=true'">Print preview</button>
-        {% endif %}
-        <span>{{ page.number }} of {{ paginator.num_pages }} section{{ paginator.num_pages|pluralize}} </span>
+        <select id="page-selector">
+        {% for p in paginator %}
+          <option
+            value="{% url 'as_printable_html' casebook p.number %}"
+          {% if p.number == page.number %}selected{% endif %}>
+          {{ p.number }} of {{ paginator.num_pages }} section{{ paginator.num_pages|pluralize}} </span>
+          </option>
+        {% endfor %}
+        </select>
 
-        <button onclick="window.location.href='{% url 'casebook' casebook %}'">Exit reader mode</button>
       {% if page.has_next %}
-        <span><a href="{% url 'as_printable_html' casebook page.next_page_number %}{% if use_pagedjs %}?print-preview=true{% endif %}">Next</a></span>
+        <span><a href="{% url 'as_printable_html' casebook page.next_page_number %}{% if use_pagedjs %}?print-preview=true{% endif %}">Next ▶</a></span>
       {% else %}
-          <span>Next</span>
+          <span class="unlinked">Next</span>
       {% endif %}
+
+      <button class="controls" onclick="location.href='{% url 'casebook' casebook %}'">← Exit reading mode</button>
+
     {% endif %}
     </nav>
   </footer>
