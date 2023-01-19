@@ -292,6 +292,10 @@ if (tmpl.getAttribute("data-use-pagedjs") === "true") {
   main.append(center);
   main.append(right);
 
+  document.querySelector('#page-selector').addEventListener('change', (e) => {
+    location.href = e.target.value;
+  })
+
   main.classList.add("preview-ready");
 
   const toc = document.querySelector('toc-control')
@@ -308,7 +312,4 @@ if (tmpl.getAttribute("data-use-pagedjs") === "true") {
     toc.removeAttribute('open');
   }
 
-  document.querySelector('#page-selector').addEventListener('change', (e) => {
-    location.href = e.target.value;
-  })
 }

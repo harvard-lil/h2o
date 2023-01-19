@@ -86,33 +86,43 @@ def test_view_casebook(static_live_server, page: Page, login_as_default):
 
 @pytest.mark.xdist_group("functional")
 def test_pdf_export(static_live_server, page: Page, tmp_path: Path):
-    """The print preview page should render some content in a readable layout"""
-    casebook = Casebook.objects.filter(state=Casebook.LifeCycle.PUBLISHED.value).first()
-    url = static_live_server.url + reverse("printable_all", args=[casebook])
+    """The PDF helper function should generate a PDF for a public casebook"""
+    # Needs to be in the published state for the external process to work
+    full_casebook = Casebook.objects.filter(state=Casebook.LifeCycle.PUBLISHED.value).first()
+    url = static_live_server.url + reverse("printable_all", args=[full_casebook])
     output_file = tmp_path / "example.pdf"
     generate_pdf(url + "?print-preview=true", output_file, page)
     assert output_file.read_bytes()[:4] == b"%PDF"
 
 
 @pytest.mark.xdist_group("functional")
-def test_print_preview_page(static_live_server, page: Page):
-    """The PDF helper function should generate a PDF for a public casebook"""
-    casebook = Casebook.objects.filter(state=Casebook.LifeCycle.PUBLISHED.value).first()
+def test_print_preview_page(static_live_server, page: Page, full_casebook):
+    """The print previoew page should be renderable and closeable"""
+    login(static_live_server, page, user="functional-staff@example.edu")
+    url = (
+        static_live_server.url
+        + reverse("printable_all", args=[full_casebook])
+        + "?print-preview-true"
+    )
+    page.goto(url)
+    expect(page.locator("main.preview-ready")).not_to_be_empty()
+    page.get_by_role("button", name="Exit preview").click()
+    expect(page).to_have_url(f"{static_live_server.url}/casebooks/3-some-title-0/")
 
+
+@pytest.mark.xdist_group("functional")
+def test_reading_mode_nav(static_live_server, page: Page, full_casebook):
+    """Reading mode should allow users to visit the content and navigate between chapters"""
     login(static_live_server, page, user="functional-staff@example.edu")
 
-    page.goto(static_live_server.url + reverse("casebook", args=[casebook]))
-    with page.expect_popup() as popup_info:
-        page.get_by_role("link", name="HTML preview staff only").click()
-    page = popup_info.value
-    expect(page).to_have_url(static_live_server.url + reverse("as_printable_html", args=[casebook]))
+    page.goto(static_live_server.url + reverse("as_printable_html", args=[full_casebook]))
     expect(page.locator("main.preview-ready")).not_to_be_empty()
-    page.get_by_role("button", name="Print preview").click()
-    expect(page.locator("main.preview-ready")).not_to_be_empty()
-    page.get_by_role("button", name="Exit print preview").click()
-    expect(page.locator("main.preview-ready")).not_to_be_empty()
-    page.get_by_role("button", name="Exit reader mode").click()
-    expect(page).to_have_url(f"{static_live_server.url}/casebooks/2-public-casebook/")
+    page.get_by_role("option", name="1 of 2 sections")
+    page.locator("#page-selector").select_option(label="2 of 2 sections")
+    page.get_by_role("option", name="2 of 2 sections")
+    expect(page).to_have_url(
+        f"{static_live_server.url}/casebooks/3-some-title-0/as-printable-html/2/"
+    )
 
 
 @pytest.mark.xdist_group("functional")

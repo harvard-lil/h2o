@@ -36,9 +36,9 @@
   </header>
   <footer class="screen-only">
     <nav>
-      {% if whole_book %}
+      {% if whole_book or use_pagedjs %}
 
-        <span><a href="{% url 'casebook' casebook %}">Exit preview</a></span>
+        <button onclick="location.href='{% url 'casebook' casebook %}'">Exit preview</button>
 
       {% else %}
         <a class="controls" href="#toc">↑ Table of contents</a>
@@ -65,7 +65,7 @@
           <span class="unlinked">Next</span>
       {% endif %}
 
-      <button class="controls" onclick="window.location.href='{% url 'casebook' casebook %}'">← Exit reading mode</button>
+      <button class="controls" onclick="location.href='{% url 'casebook' casebook %}'">← Exit reading mode</button>
 
     {% endif %}
     </nav>
