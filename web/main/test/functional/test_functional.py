@@ -97,7 +97,7 @@ def test_pdf_export(static_live_server, page: Page, tmp_path: Path):
 
 @pytest.mark.xdist_group("functional")
 def test_print_preview_page(static_live_server, page: Page, full_casebook):
-    """The print previoew page should be renderable and closeable"""
+    """The print preview page should be renderable and closeable"""
     login(static_live_server, page, user="functional-staff@example.edu")
     url = (
         static_live_server.url
