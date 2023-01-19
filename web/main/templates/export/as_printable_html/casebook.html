@@ -49,9 +49,16 @@
           <span class="unlinked">Previous</span>
         {% endif %}
 
-        <span>{{ page.number }} of {{ paginator.num_pages }} section{{ paginator.num_pages|pluralize}} </span>
+        <select id="page-selector">
+        {% for p in paginator %}
+          <option
+            value="{% url 'as_printable_html' casebook p.number %}"
+          {% if p.number == page.number %}selected{% endif %}>
+          {{ p.number }} of {{ paginator.num_pages }} section{{ paginator.num_pages|pluralize}} </span>
+          </option>
+        {% endfor %}
+        </select>
 
-        <!-- <button onclick="window.location.href='{% url 'casebook' casebook %}'">Exit reader mode</button> -->
       {% if page.has_next %}
         <span><a href="{% url 'as_printable_html' casebook page.next_page_number %}{% if use_pagedjs %}?print-preview=true{% endif %}">Next ▶</a></span>
       {% else %}

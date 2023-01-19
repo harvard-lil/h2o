@@ -308,4 +308,7 @@ if (tmpl.getAttribute("data-use-pagedjs") === "true") {
     toc.removeAttribute('open');
   }
 
+  document.querySelector('#page-selector').addEventListener('change', (e) => {
+    location.href = e.target.value;
+  })
 }
