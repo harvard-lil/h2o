@@ -70,6 +70,72 @@ After making changes to frontend/, compile new assets if you want to see them fr
 `npm run build` will be automatically run by Github Actions as well, so it is unnecessary (but harmless) to build and
 commit the new assets locally, unless you want to use them immediately.
 
+### Asynchronous tasks with Celery
+
+We use [Celery](https://docs.celeryq.dev/en/stable/index.html) to run tasks
+asynchronously, which is to say, outside the usual request/response flow of the
+Django application.
+
+Tasks are defined in `main/tasks.py`.
+
+Tasks are put on a FIFO queue backed by redis/ElastiCache (configured by
+`CELERY_BROKER_URL`), and are taken off the queue and processed by
+Celery "workers": Linux processes that you spin up independently of the web
+server. Each running task is effectively its own, short-lived instance of your
+Django application: you can access Django settings, interact with models and
+the database, etc.
+
+To put a task on the queue, use the [`delay`]
+(https://docs.celeryq.dev/en/stable/reference/celery.app.task.html?highlight=delay#celery.app.task.Task.delay)
+or [`apply_async`]
+(https://docs.celeryq.dev/en/stable/reference/celery.app.task.html?highlight=delay#celery.app.task.Task.apply_async)
+methods. E.g.:
+
+    my_task.delay()
+
+To schedule a task to run regularly, configure `CELERY_BEAT_SCHEDULE` with the
+desired schedule, route the task to an appropriate queue using
+`CELERY_TASK_ROUTES` (or let it default to the main queue, which is
+called 'celery'), ensure that [celery beat is running]
+(https://docs.celeryq.dev/en/stable/userguide/periodic-tasks.html#starting-the-scheduler),
+and ensure that at least one worker is listening to the configured queue.
+
+#### Local development
+
+For developers' convenience, Celery tasks can be run synchronously locally by
+the Django development server or in the Django shell: if
+`CELERY_TASK_ALWAYS_EAGER = True`, when you call `my_task.delay()`, the task
+runs right there in the calling process, as though you had invoked a "normal"
+python function rather than a celery task.
+
+This not only reduces the amount of RAM/CPU utilized (because you don't need to
+be running redis, and don't need to have any worker processes running), but
+also makes it easy to drop into the debugger, and prints/logs to the console
+like Django does.
+
+`CELERY_TASK_ALWAYS_EAGER` is set to `True` by default in our development
+environment.
+
+To test the full asynchronous setup, quit the dev server, add
+`CELERY_TASK_ALWAYS_EAGER = False` to `settings.py` and re-run `fab run`:
+Fabric will spin up workers in a background process and start celery beat. You
+should see the workers restarting whenever you save a python file (just like
+the Django dev server does).
+
+Note that celery beat will not schedule or run any tasks if
+`CELERY_TASK_ALWAYS_EAGER = True`; celery beat only works with the full
+asynchronous setup.
+
+#### Testing
+
+The easiest way to test tasks is to call them directly in your test code:
+
+    def test_my_task():
+        my_task.apply()
+
+But, if you need to test with the full Celery apparatus (for instance, to check error handling and recovery, timeouts, etc.), a number of pytest fixtures are available. See the [Celery docs](https://docs.celeryq.dev/en/stable/userguide/testing.html) for further information.
+
+
 ### Stop
 
 When you are finished, spin down Docker containers by running:

@@ -2,3 +2,4 @@ __pycache__
 *.sqlite3
 .python-version
 settings.py
+celerybeat-schedule
