@@ -245,17 +245,10 @@ CELERY_TASK_SERIALIZER = "json"
 CELERY_RESULT_SERIALIZER = "json"
 CELERY_TIMEZONE = "UTC"
 
-# These default time limits are useful in Perma, where capturing tasks
-# sometimes hang, for still-undiagnosed reasons, and where all tasks
-# are expected to be short-lived.
-#
-# It remains to be determined whether they will prove appropriate here.
-#
-# If a task is running longer than five minutes, ask it to shut down
-# CELERY_TASK_SOFT_TIME_LIMIT=300
-# If a task is running longer than seven minutes, kill it
-# CELERY_TASK_TIME_LIMIT = 420
-CELERY_TASK_TIME_LIMIT = 2
+# If a task is running longer than twenty minutes, ask it to shut down
+CELERY_TASK_SOFT_TIME_LIMIT = 20 * 60
+# If a task continues for twenty two minutes, kill it
+CELERY_TASK_TIME_LIMIT = 22 * 60
 
 # Control whether Celery tasks should be run asynchronously in a background worker
 # process or synchronously in the main thread of the calling script / Django request.
@@ -268,7 +261,6 @@ CELERY_TASK_ROUTES = {
     "main.tasks.demo_scheduled_task": {"queue": "background"},
 }
 
-# from celery.schedules import crontab
 CELERY_BEAT_SCHEDULE = {}
 
 ###
