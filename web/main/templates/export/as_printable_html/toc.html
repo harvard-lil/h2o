@@ -1,11 +1,11 @@
 
 <nav class="toc">
-    <toc-control {{ toc_is_open|yesno:'start-open,,'}}>
+    <toc-control {{ toc_is_open|yesno:'open,,'}}>
         {% if use_pagedjs %}
             <h2>Table of contents</h2>
         {% else %}
             <button class="toc-opener" role="button">
-                <svg class="screen-only collapse-triangle {{ toc_is_open|yesno:'open,,'}}" height="25" width="25">
+                <svg class="screen-only collapse-triangle" height="25" width="25">
                     <polygon points="6,6 20,16 6,24" />
                 </svg>
                 <h2>Table of contents</h2>

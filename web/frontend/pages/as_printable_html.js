@@ -15,39 +15,10 @@ class TocControl extends HTMLElement {
     this.tocList = this.querySelector('ol');
     if (this.tocList) {
       this.querySelector('.toc-opener').addEventListener('click', () => {
-        window.requestAnimationFrame(() => this.toggleAttribute('open'));
+        this.toggleAttribute('open');
       })
-      this.tocList.addEventListener('transitionstart', () => {
-        if (this.tocList.classList.contains('collapsing')) {
-          this.tocList.classList.add('invisible')
-        }
-      });
-      this.tocList.addEventListener('transitionend', () => {
-        if (!this.tocList.classList.contains('collapsing')) {
-          this.tocList.classList.remove('invisible')
-        }
-      });
     }
 
-  }
-  attributeChangedCallback(name, previous, value) {
-    switch (name) {
-      case "open": {
-        if (this.tocList) {
-          if (value === null) {
-            this.tocList.classList.add('collapsing');
-            this.tocList.style.height = 0;
-            this.querySelector('svg').classList.remove('open');
-
-          } else {
-            this.tocList.classList.remove('collapsing');
-            this.tocList.style.height = `${this.tocList.getAttribute('data-natural-height')}px`;
-            this.querySelector('svg').classList.add('open');
-
-          }
-        }
-      }
-    }
   }
 }
 
@@ -297,19 +268,5 @@ if (tmpl.getAttribute("data-use-pagedjs") === "true") {
   })
 
   main.classList.add("preview-ready");
-
-  const toc = document.querySelector('toc-control')
-  const tocList = toc.querySelector('ol')
-  const height = parseInt(tocList.getBoundingClientRect().height, 10);
-  tocList.setAttribute('data-natural-height', height);
-
-  if (toc.hasAttribute('start-open')) {
-    toc.querySelector('.toc-opener').click();
-    tocList.style.height = `${height}px`;
-  } else {
-    tocList.style.height = `0px`;
-    tocList.classList.add('invisible');
-    toc.removeAttribute('open');
-  }
 
 }

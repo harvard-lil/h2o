@@ -74,20 +74,17 @@ nav.toc .collapse-triangle polygon {
 nav.toc .collapse-triangle polygon:hover {
     stroke-width: 2;
 }
-nav.toc .collapse-triangle.open {
+nav.toc toc-control[open] .collapse-triangle {
     transform: rotate(90deg);
 }
-nav.toc ol {
-    transition: height 0.25s;
-    height: auto;
-    opacity: 1;
-}
+
 nav.toc toc-control:not([open]) h2::after {
     content: " (click to expand)";
     font-size: 12px;
     display: block;
     text-align: left;
 }
-nav.toc ol.invisible li {
+nav.toc toc-control:not([open]) ol.toc-items {
     display: none;
 }
+
