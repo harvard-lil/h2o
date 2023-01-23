@@ -154,6 +154,7 @@ annotationRanges.forEach((rg) => {
     ranges,
     content
   } = rg;
+
   switch (type) {
     case "highlight": {
       ranges.forEach((range) => {
@@ -196,7 +197,7 @@ annotationRanges.forEach((rg) => {
       // Wrap the specific text the author highlighted to allow for downstream styling
       ranges.forEach((range) => {
         const wrap = document.createElement("mark");
-        wrap.id = `note-${id}`;
+        wrap.id = `mark-${id}`;
         wrap.classList.add("note-mark");
         range.surroundContents(wrap);
         lastRange = wrap;
@@ -204,12 +205,15 @@ annotationRanges.forEach((rg) => {
 
       // Add the note after the last range
       const note = document.createElement("aside");
+      note.id = `note-${id}`;
       note.classList.add("authors-note");
 
       // Ask PagedJS to render it as a footnote on the current page
       note.classList.add("footnote-generated");
       note.innerText = content
+
       lastRange.insertAdjacentElement("afterend", note);
+
       break;
     }
     case "replace":
@@ -267,6 +271,8 @@ if (tmpl.getAttribute("data-use-pagedjs") === "true") {
 
   center.append(tmpl.content.cloneNode(true));
 
+
+
   main.append(left);
   main.append(center);
   main.append(right);
@@ -276,5 +282,22 @@ if (tmpl.getAttribute("data-use-pagedjs") === "true") {
   })
 
   main.classList.add("preview-ready");
+  requestAnimationFrame(() => {
+    let count = 0;
+    let lastTop = undefined;
+    for (const aside of main.querySelectorAll('aside.authors-note')) {
+      if (lastTop != aside.getBoundingClientRect().top) {
+        count = 0;
+      }
+      else {
+        count++;
+      }
+      lastTop = aside.getBoundingClientRect().top
+      aside.style.marginTop = `${count * 10}px`;
+      aside.style.marginRight = `-${count * 4}px`;
 
+
+
+    }
+  })
 }
