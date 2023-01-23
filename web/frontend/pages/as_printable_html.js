@@ -99,6 +99,7 @@ function annotationsToRanges(annotations, content) {
     }
 
     return {
+      id: el.getAttribute("data-annotation-id"),
       type: el.getAttribute("data-annotation-type"),
       datetime: el.getAttribute("data-datetime"),
       content: el.textContent,
@@ -147,6 +148,7 @@ const annotationRanges = annotationsToRanges(
 // When all Ranges are ready, start updating the DOM
 annotationRanges.forEach((rg) => {
   const {
+    id,
     type,
     datetime,
     ranges,
@@ -156,6 +158,7 @@ annotationRanges.forEach((rg) => {
     case "highlight": {
       ranges.forEach((range) => {
         const wrap = document.createElement("mark");
+        wrap.id = `highlight-${id}`;
         wrap.classList.add("highlighted");
         range.surroundContents(wrap);
       });
@@ -164,10 +167,12 @@ annotationRanges.forEach((rg) => {
     case "elide": {
       ranges.forEach((range) => {
         const elision = document.createElement("del");
+        elision.id = `elision-${id}`;
         elision.classList.add("elided");
         elision.setAttribute("datetime", datetime);
 
         const marker = document.createElement("ins");
+        marker.id = `elision-marker-${id}`;
         marker.setAttribute("datetime", datetime);
         marker.classList.add("elision-marker");
         marker.innerText = " … ";
@@ -191,6 +196,7 @@ annotationRanges.forEach((rg) => {
       // Wrap the specific text the author highlighted to allow for downstream styling
       ranges.forEach((range) => {
         const wrap = document.createElement("mark");
+        wrap.id = `note-${id}`;
         wrap.classList.add("note-mark");
         range.surroundContents(wrap);
         lastRange = wrap;
@@ -211,10 +217,12 @@ annotationRanges.forEach((rg) => {
       // Transparently replace the content inside the node
       ranges.forEach((range) => {
         const deletion = document.createElement("del");
+        deletion.id = `correction-deletion-${id}`;
         deletion.classList.add(type);
         deletion.setAttribute("datetime", datetime);
 
         const replacement = document.createElement("ins");
+        replacement.id = `correction-insertion-${id}`;
         replacement.setAttribute("datetime", datetime);
         replacement.classList.add(type);
         replacement.innerText = content;

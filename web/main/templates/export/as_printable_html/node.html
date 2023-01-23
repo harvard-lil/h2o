@@ -54,6 +54,7 @@
 
           {% for annotation in node.annotations.valid %}
           <li data-annotation-type="{{ annotation.kind }}"
+              data-annotation-id="{{ annotation.id }}"
               data-node-id="{{ annotation.resource_id }}"
               data-start-offset="{{ annotation.global_start_offset }}"
               data-end-offset="{{ annotation.global_end_offset }}"
