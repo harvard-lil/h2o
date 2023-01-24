@@ -262,43 +262,14 @@ if (tmpl.getAttribute("data-use-pagedjs") === "true") {
 
 } else {
 
-  const left = document.createElement('div');
-  const right = document.createElement('div');
-  const center = document.createElement('article');
-
-  left.classList.add('left');
-  right.classList.add('right');
-  center.classList.add('center');
-
-  center.append(tmpl.content.cloneNode(true));
-
-
-
-  main.append(left);
-  main.append(center);
-  main.append(right);
+  const article = document.createElement('article');
+  article.append(tmpl.content.cloneNode(true));
+  main.append(article);
 
   document.querySelector('#page-selector').addEventListener('change', (e) => {
     location.href = e.target.value;
   })
 
   main.classList.add("preview-ready");
-  requestAnimationFrame(() => {
-    let count = 0;
-    let lastTop = undefined;
-    for (const aside of main.querySelectorAll('aside.authors-note')) {
-      if (lastTop != aside.getBoundingClientRect().top) {
-        count = 0;
-      }
-      else {
-        count++;
-      }
-      lastTop = aside.getBoundingClientRect().top
-      aside.style.marginTop = `${count * 10}px`;
-      aside.style.marginRight = `-${count * 5}px`;
 
-
-
-    }
-  })
 }

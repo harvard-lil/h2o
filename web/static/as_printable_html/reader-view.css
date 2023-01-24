@@ -2,9 +2,7 @@
 @media screen, pagedjs-ignore {
   main {
     margin: 5vh 0;
-    display: grid;
-    grid-template-areas: "left center right";
-    grid-template-columns: 15vw 65vw 15vw;
+    box-sizing: border-box;
   }
   /* Lay out frontmatter based on whether this is the first chapter */
   .casebook-metadata:not([data-paginator-page="1"]) .headnote {
@@ -18,27 +16,22 @@
   main > article {
     background-color: white;
     padding: 5vh 5vw 10vh 5vw;
-    grid-area: center;
+    margin: 0 15vw 10vw 15vw;
   }
-  main > .left {
-    height: auto;
-    grid-area: left;
-  }
-  main > .right {
-    height: auto;
-    grid-area: right;
-  }
+
   aside.authors-note {
-    position: absolute;
-    right: 2vw;
+    float: right;
+    clear: both;
+    border-radius: 5px;
+    margin-right: -20vw;
+    margin-bottom: 10px;
     background: white;
     border: 1px solid lightgray;
     padding: 1rem;
     width: 15vw;
+    transition: transform 0.1s ease-in;
   }
-  .right aside.authors-note {
-    position: inherit;
-  }
+
   mark.note-mark {
     text-decoration: underline;
     text-decoration-style: dotted;
@@ -53,11 +46,13 @@
     background: var(--highlight-background-color);
     z-index: 99;
     border: 1px solid black;
+    transform: translateX(-10px);
   }
   aside.authors-note:is(:hover, :focus) {
     background: var(--highlight-background-color);
     z-index: 99;
     border: 1px solid black;
+    transform: translateX(-10px);
   }
   mark.note-mark:has(+ aside:is(:hover, :focus)) {
     background: var(--highlight-background-color);
