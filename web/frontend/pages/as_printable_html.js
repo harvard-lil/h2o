@@ -198,6 +198,7 @@ annotationRanges.forEach((rg) => {
       ranges.forEach((range) => {
         const wrap = document.createElement("mark");
         wrap.id = `mark-${id}`;
+        wrap.setAttribute("tabindex", "0");
         wrap.classList.add("note-mark");
         range.surroundContents(wrap);
         lastRange = wrap;
@@ -294,7 +295,7 @@ if (tmpl.getAttribute("data-use-pagedjs") === "true") {
       }
       lastTop = aside.getBoundingClientRect().top
       aside.style.marginTop = `${count * 10}px`;
-      aside.style.marginRight = `-${count * 4}px`;
+      aside.style.marginRight = `-${count * 5}px`;
 
 
 

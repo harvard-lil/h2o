@@ -46,20 +46,20 @@
     text-underline-offset: 5px;
     background: none;
   }
-  mark.note-mark:hover {
+  mark.note-mark:is(:hover, :focus) {
     background: var(--highlight-background-color);
   }
-  mark.note-mark:hover + aside {
-    background: var(--highlight-background-color);
-    z-index: 99;
-    border: 1px solid black;
-  }
-  aside.authors-note:hover {
+  mark.note-mark:is(:hover, :focus) + aside {
     background: var(--highlight-background-color);
     z-index: 99;
     border: 1px solid black;
   }
-  mark.note-mark:has(+ aside:hover) {
+  aside.authors-note:is(:hover, :focus) {
+    background: var(--highlight-background-color);
+    z-index: 99;
+    border: 1px solid black;
+  }
+  mark.note-mark:has(+ aside:is(:hover, :focus)) {
     background: var(--highlight-background-color);
   }
   a.footnote-generated {
