@@ -99,6 +99,7 @@ function annotationsToRanges(annotations, content) {
     }
 
     return {
+      id: el.getAttribute("data-annotation-id"),
       type: el.getAttribute("data-annotation-type"),
       datetime: el.getAttribute("data-datetime"),
       content: el.textContent,
@@ -147,15 +148,18 @@ const annotationRanges = annotationsToRanges(
 // When all Ranges are ready, start updating the DOM
 annotationRanges.forEach((rg) => {
   const {
+    id,
     type,
     datetime,
     ranges,
     content
   } = rg;
+
   switch (type) {
     case "highlight": {
       ranges.forEach((range) => {
         const wrap = document.createElement("mark");
+        wrap.id = `highlight-${id}`;
         wrap.classList.add("highlighted");
         range.surroundContents(wrap);
       });
@@ -164,10 +168,12 @@ annotationRanges.forEach((rg) => {
     case "elide": {
       ranges.forEach((range) => {
         const elision = document.createElement("del");
+        elision.id = `elision-${id}`;
         elision.classList.add("elided");
         elision.setAttribute("datetime", datetime);
 
         const marker = document.createElement("ins");
+        marker.id = `elision-marker-${id}`;
         marker.setAttribute("datetime", datetime);
         marker.classList.add("elision-marker");
         marker.innerText = " … ";
@@ -191,6 +197,8 @@ annotationRanges.forEach((rg) => {
       // Wrap the specific text the author highlighted to allow for downstream styling
       ranges.forEach((range) => {
         const wrap = document.createElement("mark");
+        wrap.id = `mark-${id}`;
+        wrap.setAttribute("tabindex", "0");
         wrap.classList.add("note-mark");
         range.surroundContents(wrap);
         lastRange = wrap;
@@ -198,12 +206,15 @@ annotationRanges.forEach((rg) => {
 
       // Add the note after the last range
       const note = document.createElement("aside");
+      note.id = `note-${id}`;
       note.classList.add("authors-note");
 
       // Ask PagedJS to render it as a footnote on the current page
       note.classList.add("footnote-generated");
       note.innerText = content
+
       lastRange.insertAdjacentElement("afterend", note);
+
       break;
     }
     case "replace":
@@ -211,10 +222,12 @@ annotationRanges.forEach((rg) => {
       // Transparently replace the content inside the node
       ranges.forEach((range) => {
         const deletion = document.createElement("del");
+        deletion.id = `correction-deletion-${id}`;
         deletion.classList.add(type);
         deletion.setAttribute("datetime", datetime);
 
         const replacement = document.createElement("ins");
+        replacement.id = `correction-insertion-${id}`;
         replacement.setAttribute("datetime", datetime);
         replacement.classList.add(type);
         replacement.innerText = content;
@@ -249,19 +262,9 @@ if (tmpl.getAttribute("data-use-pagedjs") === "true") {
 
 } else {
 
-  const left = document.createElement('div');
-  const right = document.createElement('div');
-  const center = document.createElement('article');
-
-  left.classList.add('left');
-  right.classList.add('right');
-  center.classList.add('center');
-
-  center.append(tmpl.content.cloneNode(true));
-
-  main.append(left);
-  main.append(center);
-  main.append(right);
+  const article = document.createElement('article');
+  article.append(tmpl.content.cloneNode(true));
+  main.append(article);
 
   document.querySelector('#page-selector').addEventListener('change', (e) => {
     location.href = e.target.value;
