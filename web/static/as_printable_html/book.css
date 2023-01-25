@@ -212,7 +212,8 @@
   }
 
   .elided {
-    display: none;
+    /* display: none; */
+    background: rgb(218, 244, 252);
   }
   .elision-marker {
     text-decoration: none;

@@ -47,7 +47,12 @@ function annotationsToRanges(annotations, content) {
     const startOffset = +el.getAttribute("data-start-offset");
     const endOffset = +el.getAttribute("data-end-offset");
 
-    const iter = document.createNodeIterator(resource, NodeFilter.SHOW_TEXT);
+    const iter = document.createNodeIterator(resource, NodeFilter.SHOW_TEXT,
+    //   (text) => {
+
+    //   return text.parentNode.nodeName === "A" ? NodeFilter.FILTER_REJECT : NodeFilter.FILTER_ACCEPT
+    // }
+    );
 
     // Iterate through all the text nodes in the resource, keeping track of the current character offset.
     // Early exit when we've found the end of the annotation.
@@ -86,6 +91,7 @@ function annotationsToRanges(annotations, content) {
         const range = new Range();
         range.setStart(textNode, 0);
 
+        console.log(endOffset, currentOffset, currentOffset + chars, textNode.textContent)
         // and end either within this node, or in a following one
         if (endOffset < currentOffset + chars) {
           endNode = textNode;
