@@ -47,12 +47,7 @@ function annotationsToRanges(annotations, content) {
     const startOffset = +el.getAttribute("data-start-offset");
     const endOffset = +el.getAttribute("data-end-offset");
 
-    const iter = document.createNodeIterator(resource, NodeFilter.SHOW_TEXT,
-    //   (text) => {
-
-    //   return text.parentNode.nodeName === "A" ? NodeFilter.FILTER_REJECT : NodeFilter.FILTER_ACCEPT
-    // }
-    );
+    const iter = document.createNodeIterator(resource, NodeFilter.SHOW_TEXT);
 
     // Iterate through all the text nodes in the resource, keeping track of the current character offset.
     // Early exit when we've found the end of the annotation.
@@ -91,9 +86,8 @@ function annotationsToRanges(annotations, content) {
         const range = new Range();
         range.setStart(textNode, 0);
 
-        console.log(endOffset, currentOffset, currentOffset + chars, textNode.textContent)
         // and end either within this node, or in a following one
-        if (endOffset < currentOffset + chars) {
+        if (endOffset <= currentOffset + chars) {
           endNode = textNode;
           range.setEnd(endNode, endOffset - currentOffset);
         } else {
@@ -140,12 +134,6 @@ const main = document.querySelector("main")
 const tmpl = document.querySelector("#casebook-content");
 const paged = new Previewer();
 
-// For any existing URLs that aren't resources, turn them into footnotes
-tmpl.content.querySelectorAll('a[href^="http"]:not([data-type])').forEach((el) => {
-  hyperlinkFootnote(el, el['href'],
-    new Date(tmpl.content.querySelector('section[data-datetime]').getAttribute('data-datetime')))
-});
-
 const annotationRanges = annotationsToRanges(
   Array.from(tmpl.content.querySelectorAll("[data-annotation-type]")),
   tmpl.content
@@ -165,49 +153,42 @@ annotationRanges.forEach((rg) => {
     case "highlight": {
       ranges.forEach((range) => {
         const wrap = document.createElement("mark");
-        wrap.id = `highlight-${id}`;
+        wrap.setAttribute('highlight-id', id);
         wrap.classList.add("highlighted");
         range.surroundContents(wrap);
       });
       break;
     }
     case "elide": {
+      let lastNode;
       ranges.forEach((range) => {
         const elision = document.createElement("del");
-        elision.id = `elision-${id}`;
         elision.classList.add("elided");
         elision.setAttribute("datetime", datetime);
-
-        const marker = document.createElement("ins");
-        marker.id = `elision-marker-${id}`;
-        marker.setAttribute("datetime", datetime);
-        marker.classList.add("elision-marker");
-        marker.innerText = " … ";
+        elision.setAttribute('elision-id', id);
         range.surroundContents(elision);
-        elision.insertAdjacentElement("afterend", marker);
-
-        // If the previous sibling is another marker, or if it's an empty text node,
-        // hide the marker
-        if (
-          elision.previousSibling.classList?.contains("elision-marker") ||
-          elision.previousSibling.textContent.trim() === ""
-        ) {
-          marker.classList.add("hidden");
-        }
+        lastNode = elision;
       });
+      const marker = document.createElement("ins");
+      marker.setAttribute('elision-marker-id', id);
+      marker.setAttribute("datetime", datetime);
+      marker.classList.add("elision-marker");
+      marker.innerText = " […] ";
+      lastNode.insertAdjacentElement("afterend", marker);
+
       break;
     }
     case "note": {
-      let lastRange;
+      let lastNode;
 
       // Wrap the specific text the author highlighted to allow for downstream styling
       ranges.forEach((range) => {
         const wrap = document.createElement("mark");
-        wrap.id = `mark-${id}`;
+        wrap.setAttribute('mark-id', id);
         wrap.setAttribute("tabindex", "0");
         wrap.classList.add("note-mark");
         range.surroundContents(wrap);
-        lastRange = wrap;
+        lastNode = wrap;
       });
 
       // Add the note after the last range
@@ -218,8 +199,7 @@ annotationRanges.forEach((rg) => {
       // Ask PagedJS to render it as a footnote on the current page
       note.classList.add("footnote-generated");
       note.innerText = content
-
-      lastRange.insertAdjacentElement("afterend", note);
+      lastNode.insertAdjacentElement("afterend", note);
 
       break;
     }
@@ -228,12 +208,12 @@ annotationRanges.forEach((rg) => {
       // Transparently replace the content inside the node
       ranges.forEach((range) => {
         const deletion = document.createElement("del");
-        deletion.id = `correction-deletion-${id}`;
-        deletion.classList.add(type);
+        deletion.setAttribute('correction-deletion-id', id);
         deletion.setAttribute("datetime", datetime);
+        deletion.classList.add(type);
 
         const replacement = document.createElement("ins");
-        replacement.id = `correction-insertion-${id}`;
+        replacement.setAttribute('correction-insertion-id', id);
         replacement.setAttribute("datetime", datetime);
         replacement.classList.add(type);
         replacement.innerText = content;
@@ -256,6 +236,12 @@ annotationRanges.forEach((rg) => {
 });
 
 function renderAsPagedJS() {
+  // For any existing URLs that aren't resources, turn them into footnotes
+  tmpl.content.querySelectorAll('a[href^="http"]:not([data-type])').forEach((el) => {
+    hyperlinkFootnote(el, el['href'],
+      new Date(tmpl.content.querySelector('section[data-datetime]').getAttribute('data-datetime')))
+  });
+
   const css = tmpl.getAttribute("data-stylesheet");
   paged.preview(tmpl.content, [css], main).then((flow) => {
     console.log("Rendered", flow.total, "pages.");

@@ -212,17 +212,23 @@
   }
 
   .elided {
-    /* display: none; */
-    background: rgb(218, 244, 252);
+   display: none;
+
   }
   .elision-marker {
     text-decoration: none;
+    font-style: normal;
   }
-  del.replace, del.correction {
+  p:has(> ins:last-child):has(> del:first-child) {
+    text-indent: 0;
+  }
+
+  del:is(.replace, .correction) {
     display: none;
   }
-  ins.replace, ins.correction {
+  ins:is(.replace, .correction) {
     text-decoration: none;
+
   }
 
   /* Set up a new container that avoids inheriting styles from block parents */
