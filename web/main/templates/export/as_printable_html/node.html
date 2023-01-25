@@ -21,7 +21,8 @@
         <section class="headnote">{{ headnote }}</section>
       {% endif %}
       <div class="link-container">
-        <a href="{{ node.resource.url }}" target="_blank" data-type="resource link">{{ node.resource.url }}</a>
+        <a href="{{ node.resource.url }}" target="_blank" data-type="resource link">
+          {% if use_pagedjs %}{{ node.resource.url }}{% else %}{{ node.title }}{% endif %}</a>
         <span class="link-icon"></span>
       </div>
 
@@ -54,6 +55,7 @@
 
           {% for annotation in node.annotations.valid %}
           <li data-annotation-type="{{ annotation.kind }}"
+              data-annotation-id="{{ annotation.id }}"
               data-node-id="{{ annotation.resource_id }}"
               data-start-offset="{{ annotation.global_start_offset }}"
               data-end-offset="{{ annotation.global_end_offset }}"

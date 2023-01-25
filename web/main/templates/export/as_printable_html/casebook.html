@@ -34,6 +34,42 @@
     is licensed under a Creative Commons license. <a href="{% url 'terms-of-service' %}">Learn more</a>.
     </p>
   </header>
+
+
+  <template id="casebook-content"
+    data-stylesheet="{% static 'as_printable_html/book.css' %}"
+    data-use-pagedjs="{{ use_pagedjs|yesno:'true,false' }}">
+    <div class="casebook-metadata" data-paginator-page="{{ page.number }}">
+      <h1 class="casebook title">{{ casebook.title }}</h1>
+      <h2 class="casebook subtitle">{{ casebook.subtitle|default_if_none:""}}</h2>
+      <span class="truncated-title hidden">{{ casebook.title }}</span>
+      <div class="author-list">
+        <ul>
+        {% for user in casebook.primary_authors %}
+            <li class="user {% if user.verified_professor %} verified{% endif %}">
+                {{ user.display_name }}
+                {% if user.affiliation %}
+                  ({{ user.affiliation }})
+                {% endif %}
+            </li>
+            {% endfor %}
+        </ul>
+      </div>
+      <section class="casebook headnote">{{ casebook.headnote|safe}}</section>
+      <div id="toc">
+        {% include "export/as_printable_html/toc.html" with toc=toc toc_is_open=toc_is_open %}
+      </div>
+
+    </div>
+
+    {% for child in children %}
+      {% include "export/as_printable_html/node.html" with index=forloop.counter node=child %}
+    {% endfor %}
+
+  </template>
+
+  <main id="as-printable-html"></main>
+
   <footer class="screen-only">
     <nav>
       {% if whole_book or use_pagedjs %}
@@ -70,41 +106,6 @@
     {% endif %}
     </nav>
   </footer>
-
-  <template id="casebook-content"
-    data-stylesheet="{% static 'as_printable_html/book.css' %}"
-    data-use-pagedjs="{{ use_pagedjs|yesno:'true,false' }}">
-    <div class="casebook-metadata" data-paginator-page="{{ page.number }}">
-      <h1 class="casebook title">{{ casebook.title }}</h1>
-      <h2 class="casebook subtitle">{{ casebook.subtitle|default_if_none:""}}</h2>
-      <span class="truncated-title hidden">{{ casebook.title }}</span>
-      <div class="author-list">
-        <ul>
-        {% for user in casebook.primary_authors %}
-            <li class="user {% if user.verified_professor %} verified{% endif %}">
-                {{ user.display_name }}
-                {% if user.affiliation %}
-                  ({{ user.affiliation }})
-                {% endif %}
-            </li>
-            {% endfor %}
-        </ul>
-      </div>
-      <section class="casebook headnote">{{ casebook.headnote|safe}}</section>
-      <div id="toc">
-        {% include "export/as_printable_html/toc.html" with toc=toc toc_is_open=toc_is_open %}
-      </div>
-
-    </div>
-
-    {% for child in children %}
-      {% include "export/as_printable_html/node.html" with index=forloop.counter node=child %}
-    {% endfor %}
-
-  </template>
-
-  <main id="as-printable-html"></main>
-
   {% include "includes/analytics.html" %}
 </body>
 </html>
