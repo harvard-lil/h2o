@@ -254,9 +254,8 @@ if (tmpl.getAttribute("data-use-pagedjs") === "true") {
 
 } else {
 
-  const article = document.createElement('article');
-  article.append(tmpl.content.cloneNode(true));
-  main.append(article);
+
+  main.append(tmpl.content.cloneNode(true));
 
   document.querySelector('#page-selector').addEventListener('change', (e) => {
     location.href = e.target.value;

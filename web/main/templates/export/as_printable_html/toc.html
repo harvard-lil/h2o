@@ -17,7 +17,7 @@
             <li>
                 {% with chapter_num=forloop.counter %}
                     <span class="ordinals">{{ top_level_node.ordinal_string }}</span>
-                    <h3><a href="{% url 'as_printable_html' casebook chapter_num %}">{{ top_level_node.title }}</a></h3>
+                    <h3><a href="{% url 'as_printable_html' casebook chapter_num %}#{{ top_level_node.slug }}">{{ top_level_node.title }}</a></h3>
                     <ol>
                         {% for child in top_level_node.children %}
                             <li>
