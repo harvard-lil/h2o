@@ -3,12 +3,10 @@ nav.toc {
     --toc-row-gap: calc(var(--casebook-font-size) * 1);
     --toc-left-width: 8mm;
     break-before: right;
+    margin-top: 1rem;
 }
 nav.toc h2 {
-    margin: calc(var(--toc-row-gap) * 2) 0;
-}
-nav.toc toc-control:not([open]) h2 {
-    margin-bottom: 0;
+    margin: 0;
 }
 
 nav.toc h3 {
@@ -17,7 +15,6 @@ nav.toc h3 {
     font-size: 1em;
     font-weight: bold;
 }
-
 nav.toc ol.toc-items {
     padding: 0;
 }
@@ -58,7 +55,7 @@ nav.toc .toc-opener {
     background: none;
     border: 0;
     display: flex;
-    align-items: baseline;
+    align-items: stretch;
     padding: 0;
 }
 nav.toc .toc-opener h2 {
