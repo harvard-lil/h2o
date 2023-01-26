@@ -23,11 +23,12 @@ nav.toc ol.toc-items li {
     flex-wrap: wrap;
 }
 nav.toc ol.toc-items .ordinals {
-    flex-basis: 30px;
+    flex-basis: 5ch;
 }
 nav.toc ol.toc-items :is(h3, h4) {
     flex: 1;
     margin: 0;
+    line-height: 180%;
 }
 nav.toc ol.toc-items ol {
     flex-basis: 100%;
