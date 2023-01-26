@@ -1,10 +1,9 @@
 {% load call_method string_strip %}
 
-<span class="node-heading depth-{{ node.ordinals | length }}">{{ node.ordinal_string }} {{ node.title }}</span>
-
 <section
   data-datetime="{{ node.created_at|date:'c' }}"
   class="{{ node.type }} {{ node.resource_type|default:'' | lower }} depth-{{ node.ordinals | length }}">
+
 
   <div class="node-container">
 
@@ -29,8 +28,11 @@
     {% else %}
 
         <h1 class="{{ node.type }} title" id="{{ node.slug }}">
+          <span class="node-heading depth-{{ node.ordinals | length }}">{{ node.ordinal_string }} {{ node.title }}</span>
+
           <span class="{{ node.type }} ordinal" data-toc-idx="{{ index }}">{{ node.ordinal_string }}</span>
           <span>{{ node.title }}</span>
+
         </h1>
 
         {% if node.subtitle %}
@@ -49,6 +51,7 @@
           {% if node.resource_type.lower == 'legaldocument' %}
             {% include "includes/legal_doc_sources/cap_header.html" with legal_doc=node.resource %}
           {% endif %}
+
 
           {# Whitespace between the <section> element and the content must not be introduced to avoid throwing off the annotation offset values #}
           <section class="resource" data-node-id="{{ node.id }}" data-resource-id="{{ node.resource_id }}">{{ node.resource.content|safe }}</section>
