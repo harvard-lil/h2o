@@ -235,6 +235,11 @@ annotationRanges.forEach((rg) => {
   }
 });
 
+// Any existing URLs that are external and don't open in a new tab should
+tmpl.content.querySelectorAll('a[href^="http"]:not([target])').forEach((el) => {
+  el.setAttribute('target', '_blank');
+});
+
 function renderAsPagedJS() {
   // For any existing URLs that aren't resources, turn them into footnotes
   tmpl.content.querySelectorAll('a[href^="http"]:not([data-type])').forEach((el) => {
