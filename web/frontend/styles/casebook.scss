@@ -184,17 +184,6 @@ main > header.casebook {
     &.export.animating {
         background-image: url('~static/images/ui/casebook/export-anim.svg');
     }
-    &.export.fancy {
-        background-image: url('~static/images/ui/casebook/export-fancy.svg');
-        &::after{
-            position:absolute; width:0; height:0; overflow:hidden; z-index:-1;
-            content: url('~static/images/ui/casebook/export-anim-fancy.svg');
-        }
-    }
-    &.export.fancy.animating {
-        background-image: url('~static/images/ui/casebook/export-anim-fancy.svg');
-    }
-
     &.more, &.preview {
       background-image: url('~static/images/ui/casebook/preview.svg');
     }
