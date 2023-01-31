@@ -229,6 +229,9 @@ urlpatterns = format_suffix_patterns(drf_urlpatterns) + [
         {"whole_book": True},
         name="printable_all",
     ),
+    path(
+        "casebooks/<idslug:casebook_param>/export-pdf/", views.export_as_pdf, name="export_as_pdf"
+    ),
     # images
     path("image/", no_perms_test(views.upload_image), name="upload_image"),
     path("image/<image_uuid>", no_perms_test(views.view_image), name="image_url"),

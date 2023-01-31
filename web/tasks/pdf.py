@@ -1,10 +1,23 @@
 # Generate a PDF via playwright
 from pathlib import Path
-from playwright.sync_api import sync_playwright, expect, Page
 import logging
+import tempfile
+
+from celery import shared_task
+from playwright.sync_api import sync_playwright, expect, Page
 
 logger = logging.getLogger(__name__)
 logging.basicConfig(level=logging.INFO)
+
+
+@shared_task
+def pdf_from_user(url: str, slug: str):
+    output_file = tempfile.mkdtemp() / Path(f"{slug}.pdf")
+    with sync_playwright() as p:
+        logger.info("Launching browser")
+        browser = p.chromium.launch(headless=True)
+        page = browser.new_page()
+        return generate_pdf(url, output_file, page)
 
 
 def generate_pdf(
@@ -18,6 +31,7 @@ def generate_pdf(
     logger.info(f"Requesting {url}...")
 
     resp = page.goto(url)
+
     assert resp
     assert resp.ok
     assert "/accounts/login" not in resp.url
@@ -31,6 +45,7 @@ def generate_pdf(
     output_file.write_bytes(pdf)
 
     logger.info(f"Wrote output to {output_file}")
+    return output_file
 
 
 if __name__ == "__main__":
