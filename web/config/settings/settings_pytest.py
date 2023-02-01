@@ -18,3 +18,4 @@ CAPAPI_API_KEY = "12345"
 LOGGING["loggers"]["django"]["handlers"].append("mail_admins")
 
 COVER_IMAGES = True
+CELERY_TASK_ALWAYS_EAGER = False

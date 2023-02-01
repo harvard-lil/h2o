@@ -16,6 +16,8 @@ def demo_scheduled_task(pause_for_seconds=0):
     set CELERY_TASK_ALWAYS_EAGER = False in setting.py before running `fab run`.
 
     >>> caplog = getfixture('caplog')
+    >>> settings = getfixture('settings')
+    >>> settings.CELERY_TASK_ALWAYS_EAGER = True
     >>> with caplog.at_level(logging.DEBUG):
     ...     _ = demo_scheduled_task.apply_async(kwargs={'pause_for_seconds': 1})
     >>> assert 'Celerybeat is working!' in caplog.text

@@ -1,14 +1,15 @@
 # These tests are run through LiveServerTestCase and playwright
 from pathlib import Path
 import re
+from django.urls import reverse
+from django.core.management import call_command
 
 import pytest
-from django.core.management import call_command
 from playwright.sync_api import Page, expect
 from pytest_django.live_server_helper import LiveServer
+
 from main.tasks.pdf import generate_pdf
 from main.models import Casebook
-from django.urls import reverse
 
 
 @pytest.fixture(autouse=True, scope="function")
