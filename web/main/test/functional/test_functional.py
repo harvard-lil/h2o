@@ -6,7 +6,7 @@ import pytest
 from django.core.management import call_command
 from playwright.sync_api import Page, expect
 from pytest_django.live_server_helper import LiveServer
-from main.pdf import generate_pdf
+from main.tasks.pdf import generate_pdf
 from main.models import Casebook
 from django.urls import reverse
 

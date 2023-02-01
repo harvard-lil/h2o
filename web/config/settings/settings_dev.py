@@ -41,7 +41,7 @@ ADMINS = [("John", "john@example.com"), ("Mary", "mary@example.com")]
 
 LOGGING["loggers"]["main"] = {"level": "DEBUG", "handlers": ["console", "file"]}
 
-CELERY_TASK_ALWAYS_EAGER = False
+CELERY_TASK_ALWAYS_EAGER = True
 
 from celery.schedules import crontab
 

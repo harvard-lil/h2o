@@ -6,8 +6,7 @@ import tempfile
 from celery import shared_task
 from playwright.sync_api import sync_playwright, expect, Page
 
-logger = logging.getLogger(__name__)
-logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger("celery.django")
 
 
 @shared_task
