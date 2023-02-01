@@ -31,6 +31,10 @@ def generate_pdf(
 
     resp = page.goto(url)
 
+    assert resp
+    assert resp.ok
+    assert "/accounts/login" not in resp.url
+
     logger.info(
         f"Got status code {resp.status}, waiting for printable page and selector {selector}"
     )
