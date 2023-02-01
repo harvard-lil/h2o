@@ -8,7 +8,7 @@ import pytest
 from playwright.sync_api import Page, expect
 from pytest_django.live_server_helper import LiveServer
 
-from main.tasks.pdf import generate_pdf
+from main.tasks import generate_pdf
 from main.models import Casebook
 
 

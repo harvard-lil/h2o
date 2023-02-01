@@ -53,8 +53,8 @@
 
       <a class="action one-line export export-{{ section.is_annotated|yesno:"has,no" }}-annotations" role="button" rel="nofollow" href="#">Export</a>
       {% if user.is_staff %}
+      <a class="action export-pdf" rel="nofollow" target="_blank" href="{% url 'export_as_pdf' casebook %}">Export PDF<br/><small>BETA</small></a>
       <a class="action export-html" rel="nofollow" target="_blank" href="{% url 'as_printable_html' casebook %}">Reading mode<br/><small>BETA</small></a>
-      <a class="action export-pdf" rel="nofollow" target="_blank" href="{% url 'export_as_pdf' casebook %}">PDF<br/><small>BETA</small></a>
       {% endif %}
   {% endif %}
 
