@@ -16,7 +16,7 @@ def pdf_from_user(url: str, slug: str):
         logger.info("Launching browser")
         browser = p.chromium.launch(headless=True)
         page = browser.new_page()
-        return generate_pdf(url, output_file, page)
+        generate_pdf(url, output_file, page)
 
 
 def generate_pdf(
@@ -26,14 +26,10 @@ def generate_pdf(
     selector: str = "main.preview-ready",
     timeout=120_000,
 ):
-    """Generate a PDF from a given URL, return a Path object to the pdf on the filesystem"""
+    """Generate a PDF from a given URL"""
     logger.info(f"Requesting {url}...")
 
     resp = page.goto(url)
-
-    assert resp
-    assert resp.ok
-    assert "/accounts/login" not in resp.url
 
     logger.info(
         f"Got status code {resp.status}, waiting for printable page and selector {selector}"
@@ -44,7 +40,6 @@ def generate_pdf(
     output_file.write_bytes(pdf)
 
     logger.info(f"Wrote output to {output_file}")
-    return output_file
 
 
 @shared_task
