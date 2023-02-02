@@ -63,9 +63,6 @@ document.addEventListener("DOMContentLoaded", () => {
         Dashboard
     }
   });
-  window.sentry.USE_SENTRY = true;
-  window.sentry.DSN = "https://88ced66c02364e6fb2900f2dfc360b6b@o1297430.ingest.sentry.io/6568409";
-
   if (window.sentry.USE_SENTRY) {
     console.log('using sentry');
     Sentry.init({
