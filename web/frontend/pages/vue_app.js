@@ -2,6 +2,7 @@ import "../config/axios";
 import "../directives/selectionchange";
 
 import * as Sentry from "@sentry/vue";
+import { BrowserTracing } from "@sentry/tracing";
 
 import AddContent from "../components/AddContent";
 import AuditButton from "../components/AuditButton";
@@ -62,14 +63,18 @@ document.addEventListener("DOMContentLoaded", () => {
         Dashboard
     }
   });
-
   if (window.sentry.USE_SENTRY) {
     console.log('using sentry');
     Sentry.init({
       Vue,
       dsn: window.sentry.DSN,
       environment: window.sentry.ENVIRONMENT,
-
+      integrations: [
+        new BrowserTracing({
+          routingInstrumentation: Sentry.vueRouterInstrumentation(router),
+          tracePropagationTargets: ["opencasebook.org", "opencasebook.test", /^\//],
+        }),
+      ],
       // Set tracesSampleRate to 1.0 to capture 100%
       // of transactions for performance monitoring.
       // We recommend adjusting this value in production
