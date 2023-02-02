@@ -181,9 +181,17 @@ main > header.casebook {
         color: $orange;
       }
     }
+    &.export-pdf {
+      background-image: url('~static/images/ui/casebook/export-pdf.svg');
+      line-height: 1.2em;
+      small {
+        color: $orange;
+      }
+    }
     &.export.animating {
         background-image: url('~static/images/ui/casebook/export-anim.svg');
     }
+
     &.more, &.preview {
       background-image: url('~static/images/ui/casebook/preview.svg');
     }

@@ -5,6 +5,7 @@ import uuid
 from collections import OrderedDict
 from datetime import datetime
 from functools import wraps
+from main.tasks import pdf_from_user
 from test.test_helpers import assert_url_equal, check_response, dump_content_tree_children
 
 from django.conf import settings
@@ -2733,6 +2734,32 @@ def as_printable_html(request: HttpRequest, casebook: Casebook, page=1, whole_bo
             "use_pagedjs": use_pagedjs,
         },
     )
+
+
+@hydrate_params
+@user_has_perm("casebook", "viewable_by")
+@method_decorator(
+    perms_test(
+        {
+            "args": ["full_casebook"],
+            "results": {200: [None, "other_user", "full_casebook.testing_editor"]},
+        },
+        {
+            "args": ["full_private_casebook"],
+            "results": {
+                200: ["full_private_casebook.testing_editor"],
+                302: [None],
+                403: ["other_user"],
+            },
+        },
+    )
+)
+def export_as_pdf(request: HttpRequest, casebook: Casebook):
+    """Trigger an async job to request this casebook as a PDF."""
+    # TODO: This will fail for non-public casebooks until auth is solved.
+    url = reverse("printable_all", args=[casebook]) + "?print-preview=true"
+    pdf_from_user.delay(f"{request.scheme}://{request.get_host()}{url}", casebook.slug)
+    return HttpResponse("OK")
 
 
 def reset_password(request):
