@@ -23,6 +23,7 @@ diff-match-patch    # update annotations when underlying text changes
 django-json-widget  # fancy editor for Case JSON fields in the Django admin
 django-simple-history # history preservation for contents
 celery[redis, pytest] # task runner
+django-celery-results  # Store celery task results in the ORM
 watchdog            # restart celery in dev (via 'watchmedo' command)
 
 # Testing

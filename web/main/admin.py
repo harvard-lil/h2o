@@ -12,6 +12,8 @@ from django.utils.html import format_html
 from django.utils.safestring import mark_safe
 from django_json_widget.widgets import JSONEditorWidget
 from simple_history.admin import SimpleHistoryAdmin
+from django_celery_results.models import TaskResult
+from django_celery_results.admin import TaskResultAdmin
 
 from .models import (
     Casebook,
@@ -1029,3 +1031,4 @@ admin_site.register(CommonTitle, CommonTitleAdmin)
 admin_site.register(LiveSettings, LiveSettingsAdmin)
 admin_site.register(Tag, TagAdmin)
 admin_site.register(CasebookTag, CasebookTagAdmin)
+admin_site.register(TaskResult, TaskResultAdmin)
