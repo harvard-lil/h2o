@@ -22,7 +22,7 @@ export default {
     PublishButton
   },
   props: {
-    noSave: Boolean, 
+    noSave: Boolean,
     publishCheck: Object,
   },
   data: () => ({autoAudited: {}

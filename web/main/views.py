@@ -934,6 +934,55 @@ class CommonTitleView(APIView):
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
+class PDFExportView(APIView):
+    @method_decorator(hydrate_params)
+    @method_decorator(
+        perms_test(
+            {
+                "args": ["full_casebook"],
+                "results": {200: [None, "other_user", "full_casebook.testing_editor"]},
+            },
+            {
+                "args": ["full_private_casebook"],
+                "results": {
+                    200: ["full_private_casebook.testing_editor"],
+                    302: [None],
+                    403: ["other_user"],
+                },
+            },
+        )
+    )
+    @method_decorator(user_has_perm("casebook", "viewable_by"))
+    def get(self, request: HttpRequest, casebook: Casebook, **kwargs):
+        return HttpResponse("OK")
+
+    @method_decorator(hydrate_params)
+    @method_decorator(
+        perms_test(
+            {
+                "args": ["full_casebook"],
+                "results": {200: [None, "other_user", "full_casebook.testing_editor"]},
+            },
+            {
+                "args": ["full_private_casebook"],
+                "results": {
+                    200: ["full_private_casebook.testing_editor"],
+                    302: [None],
+                    403: ["other_user"],
+                },
+            },
+        )
+    )
+    @method_decorator(user_has_perm("casebook", "viewable_by"))
+    @method_decorator(requires_csrf_token)
+    def post(self, request: HttpRequest, casebook: Casebook, **kwargs):
+        url = reverse("printable_all", args=[casebook]) + "?print-preview=true"
+        task_id = pdf_from_user.delay(
+            f"{request.scheme}://{request.get_host()}{url}", casebook.slug
+        )
+        return HttpResponse(task_id)
+
+
 @perms_test({"results": {200: ["user", None]}})
 def index(request):
     if request.user.is_authenticated:
@@ -2758,7 +2807,7 @@ def export_as_pdf(request: HttpRequest, casebook: Casebook):
     """Trigger an async job to request this casebook as a PDF."""
     # TODO: This will fail for non-public casebooks until auth is solved.
     url = reverse("printable_all", args=[casebook]) + "?print-preview=true"
-    pdf_from_user.delay(f"{request.scheme}://{request.get_host()}{url}", casebook.slug)
+    task_id = pdf_from_user.delay(f"{request.scheme}://{request.get_host()}{url}", casebook.slug)
     return HttpResponse("OK")
 
 

@@ -56,6 +56,11 @@ drf_urlpatterns = [
         no_perms_test(views.CommonTitleView.as_view()),
         name="edit_title",
     ),
+    path(
+        "api/casebooks/<idslug:casebook_param>/export-pdf",
+        views.PDFExportView.as_view(),
+        name="export_as_pdf",
+    ),
 ]
 
 urlpatterns = format_suffix_patterns(drf_urlpatterns) + [
@@ -228,9 +233,6 @@ urlpatterns = format_suffix_patterns(drf_urlpatterns) + [
         views.as_printable_html,
         {"whole_book": True},
         name="printable_all",
-    ),
-    path(
-        "casebooks/<idslug:casebook_param>/export-pdf/", views.export_as_pdf, name="export_as_pdf"
     ),
     # images
     path("image/", no_perms_test(views.upload_image), name="upload_image"),

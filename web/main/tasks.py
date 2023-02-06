@@ -10,13 +10,14 @@ logger = logging.getLogger("celery.django")
 
 
 @shared_task
-def pdf_from_user(url: str, slug: str):
+def pdf_from_user(url: str, slug: str) -> str:
     output_file = tempfile.mkdtemp() / Path(f"{slug}.pdf")
     with sync_playwright() as p:
         logger.info("Launching browser")
         browser = p.chromium.launch(headless=True)
         page = browser.new_page()
-        generate_pdf(url, output_file, page)
+        output_file = generate_pdf(url, output_file, page)
+    return str(output_file)
 
 
 def generate_pdf(
@@ -25,7 +26,7 @@ def generate_pdf(
     page: Page,
     selector: str = "main.preview-ready",
     timeout=120_000,
-):
+) -> Path:
     """Generate a PDF from a given URL"""
     logger.info(f"Requesting {url}...")
 
@@ -44,6 +45,7 @@ def generate_pdf(
     output_file.write_bytes(pdf)
 
     logger.info(f"Wrote output to {output_file}")
+    return output_file
 
 
 @shared_task
