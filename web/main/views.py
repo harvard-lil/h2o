@@ -42,7 +42,7 @@ from rest_framework.exceptions import ValidationError
 from rest_framework.response import Response
 from rest_framework.views import APIView
 from simple_history.utils import bulk_create_with_history
-from django_celery_results.models import TaskResult, TASK_STATE_CHOICES
+from django_celery_results.models import TaskResult
 
 from .forms import (
     CasebookForm,
