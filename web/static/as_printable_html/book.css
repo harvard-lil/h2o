@@ -156,10 +156,6 @@
     margin: 0;
   }
 
-  /* Book content (but not metadata or other types) should be indented. */
-  .node-container > p, section > p, article.opinion > p {
-    text-indent: 2em;
-  }
 
   .title > span:nth-of-type(2) {
     display: block;
@@ -278,6 +274,11 @@
     border-top: 1px solid var(--highlight-background-greyscale);
     margin-top: 2mm;
   }
+  /* Book content (but not metadata or other types) should be indented. */
+    .node-container > p, section > p, article.opinion > p {
+      text-indent: 2em;
+  }
+
   /* Generate the corresponding footnote reference in the footer as e.g. "2. <footnote-text>"
    Don't allow long URLs to break on the space in this marker. */
   [data-footnote-marker]::marker {

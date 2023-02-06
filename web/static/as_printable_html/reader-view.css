@@ -12,8 +12,7 @@
   .casebook-metadata {
     padding: 5vh 5vw;
   }
-  article p,
-  article div {
+  article :is(p, div), .headnote :is(p, div) {
     margin: 1rem 0;
   }
   main > article {
