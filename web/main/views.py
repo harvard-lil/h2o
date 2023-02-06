@@ -42,6 +42,7 @@ from rest_framework.exceptions import ValidationError
 from rest_framework.response import Response
 from rest_framework.views import APIView
 from simple_history.utils import bulk_create_with_history
+from django_celery_results.models import TaskResult, TASK_STATE_CHOICES
 
 from .forms import (
     CasebookForm,
@@ -954,7 +955,11 @@ class PDFExportView(APIView):
     )
     @method_decorator(user_has_perm("casebook", "viewable_by"))
     def get(self, request: HttpRequest, casebook: Casebook, **kwargs):
-        return HttpResponse("OK")
+        try:
+            result = TaskResult.objects.get(task_id=request.GET.get("task_id"))
+            return HttpResponse(result.result)
+        except:
+            raise Http404
 
     @method_decorator(hydrate_params)
     @method_decorator(
