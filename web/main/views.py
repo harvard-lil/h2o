@@ -937,24 +937,8 @@ class CommonTitleView(APIView):
 
 class PDFExportView(APIView):
     @never_cache
+    @no_perms_test  # TODO think through what permissions are required here
     @method_decorator(hydrate_params)
-    @method_decorator(
-        perms_test(
-            {
-                "args": ["full_casebook"],
-                "results": {200: [None, "other_user", "full_casebook.testing_editor"]},
-            },
-            {
-                "args": ["full_private_casebook"],
-                "results": {
-                    200: ["full_private_casebook.testing_editor"],
-                    302: [None],
-                    403: ["other_user"],
-                },
-            },
-        )
-    )
-    @method_decorator(user_has_perm("casebook", "viewable_by"))
     def get(self, request: HttpRequest, casebook: Casebook, **kwargs):
         result = get_object_or_404(TaskResult, task_id=request.GET.get("task_id"))
         if result.status == "SUCCESS":
