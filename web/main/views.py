@@ -936,6 +936,7 @@ class CommonTitleView(APIView):
 
 
 class PDFExportView(APIView):
+    @never_cache
     @method_decorator(hydrate_params)
     @method_decorator(
         perms_test(
@@ -955,11 +956,15 @@ class PDFExportView(APIView):
     )
     @method_decorator(user_has_perm("casebook", "viewable_by"))
     def get(self, request: HttpRequest, casebook: Casebook, **kwargs):
-        try:
-            result = TaskResult.objects.get(task_id=request.GET.get("task_id"))
+        result = get_object_or_404(TaskResult, task_id=request.GET.get("task_id"))
+        if result.status == "SUCCESS":
             return HttpResponse(result.result)
-        except:
-            raise Http404
+        else:
+            if json.loads(result.result)["exc_type"] == "PermissionError":
+                return HttpResponseBadRequest(
+                    "The requested casebook is not public. Exporting private casebooks is not yet supported."
+                )
+            return HttpResponseBadRequest(result.result)
 
     @method_decorator(hydrate_params)
     @method_decorator(

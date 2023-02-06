@@ -34,7 +34,8 @@ def generate_pdf(
 
     assert resp
     assert resp.ok
-    assert "/accounts/login" not in resp.url
+    if "/accounts/login" in resp.url:
+        raise PermissionError()
 
     logger.info(
         f"Got status code {resp.status}, waiting for printable page and selector {selector}"
