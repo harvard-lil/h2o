@@ -35,7 +35,7 @@ import Axios from "../config/axios";
 import Modal from "./Modal";
 
 const RETRY_INTERVAL = 1_000;
-const MAX_RETRIES = 10;
+const MAX_RETRIES = 20;
 
 function init() {
     return {
