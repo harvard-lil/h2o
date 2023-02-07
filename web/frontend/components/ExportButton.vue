@@ -5,12 +5,12 @@
         </button>
         <Modal v-if="showModal" @close="close">
             <template slot="title">
-                <div>Exporting as PDF...</div>
+                <h2 class="export-modal">Exporting as PDF...</h2>
             </template>
             <template slot="body">
-                <div>
+                <div class="export-modal">
                     <div
-                        class="spinner"
+                        class="spinner export-spinner"
                         v-show="!this.response"
                     >
                         <div class="bounce1"></div>
@@ -19,10 +19,13 @@
                     </div>
                     <p>
                         {{ this.response }}
+
+                    </p>
+                    <p v-show="this.url">
+                      <a v-bind:href="this.url">⬇ Download PDF</a>
                     </p>
                 </div>
             </template>
-            <template slot="footer"> </template>
         </Modal>
     </div>
 </template>
@@ -32,7 +35,7 @@ import Axios from "../config/axios";
 import Modal from "./Modal";
 
 const RETRY_INTERVAL = 1_000;
-const MAX_RETRIES = 10;
+const MAX_RETRIES = 20;
 
 function init() {
     return {
@@ -40,6 +43,7 @@ function init() {
         taskId: null,
         retries: 0,
         result: null,
+        url: null,
     };
 }
 export default {
@@ -56,12 +60,12 @@ export default {
         response: function () {
             if (this.result) {
                 if (this.result.succeeded) {
-                    return `Success! PDF file is at ${this.result.succeeded}`;
+                    return `✅ Success! Your PDF file is available now.`;
                 }
                 if (this.result.timeout) {
-                    return `PDF export did not succeed—export did not finish in time.`;
+                    return `❌ PDF export did not succeed—export did not finish in time.`;
                 } else {
-                    return `PDF export did not succeed: ${this.result.error}`;
+                    return `❌ PDF export did not succeed: ${this.result.error}`;
                 }
             }
             return null;
@@ -87,6 +91,7 @@ export default {
             })
                 .then((res) => {
                     this.result = { succeeded: res.data };
+                    this.url = this.result.succeeded;
                 })
                 .catch((err) => {
                     if (err.response.status === 404) {
@@ -108,8 +113,16 @@ export default {
 </script>
 
 <style lang="scss">
-.spinner {
+.export-spinner {
   text-align: center;
   margin: auto;
+}
+.modal-body .export-modal {
+  padding: 5rem;
+  text-align: center;
+  font-size: 20px;
+}
+h2.export-modal {
+  font-size: 30px;
 }
 </style>

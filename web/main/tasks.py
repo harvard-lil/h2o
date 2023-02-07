@@ -1,32 +1,32 @@
 import logging
-from pathlib import Path
-import tempfile
+from datetime import datetime
 from time import sleep
 
 from celery import shared_task
-from playwright.sync_api import sync_playwright, expect, Page
+from django.conf import settings
+from main.storages import get_s3_storage
+from playwright.sync_api import Page, expect, sync_playwright
 
 logger = logging.getLogger("celery.django")
 
 
 @shared_task
 def pdf_from_user(url: str, slug: str) -> str:
-    output_file = tempfile.mkdtemp() / Path(f"{slug}.pdf")
     with sync_playwright() as p:
         logger.info("Launching browser")
         browser = p.chromium.launch(headless=True)
         page = browser.new_page()
-        output_file = generate_pdf(url, output_file, page)
-    return str(output_file)
+        url = generate_pdf(url, f"{slug}-{datetime.now().strftime('%Y%m%dT%H%M%S')}.pdf", page)
+    return url
 
 
 def generate_pdf(
     url: str,
-    output_file: Path,
+    output_filename: str,
     page: Page,
     selector: str = "main.preview-ready",
     timeout=120_000,
-) -> Path:
+) -> str:
     """Generate a PDF from a given URL"""
     logger.info(f"Requesting {url}...")
 
@@ -43,10 +43,12 @@ def generate_pdf(
     page.on("console", lambda msg: logger.warning(f"From browser console: {msg}"))
     expect(page.locator(selector)).to_be_visible(timeout=timeout)
     pdf = page.pdf()
-    output_file.write_bytes(pdf)
-
+    storage = get_s3_storage(bucket_name=settings.PDF_EXPORT_BUCKET)
+    output_file = storage.open(output_filename, "w")
+    output_file.write(pdf)
+    output_file.close()
     logger.info(f"Wrote output to {output_file}")
-    return output_file
+    return storage.url(output_file.name, expire=settings.PDF_AWS_QUERYSTRING_EXPIRE)
 
 
 @shared_task
@@ -65,22 +67,3 @@ def demo_scheduled_task(pause_for_seconds=0):
     if pause_for_seconds:
         sleep(pause_for_seconds)
     return "Celerybeat is working!"
-
-
-if __name__ == "__main__":
-    import argparse
-
-    parser = argparse.ArgumentParser()
-    parser.add_argument(
-        "url", help="The URL to the pdf endpoint. Must be a publicly-accessible URL"
-    )
-    parser.add_argument("pdf", help="Fully-qualified path including filename for the PDF output")
-    parser.add_argument("--headed", action="store_true", help="Run in headed mode")
-    args = parser.parse_args()
-    output_file = Path(args.pdf)
-
-    with sync_playwright() as p:
-        logger.info("Launching browser")
-        browser = p.chromium.launch(headless=not args.headed)
-        page = browser.new_page()
-        generate_pdf(args.url, output_file, page)
