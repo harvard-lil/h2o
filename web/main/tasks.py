@@ -1,5 +1,4 @@
 import logging
-import os
 from datetime import datetime
 from time import sleep
 
@@ -44,7 +43,7 @@ def generate_pdf(
     page.on("console", lambda msg: logger.warning(f"From browser console: {msg}"))
     expect(page.locator(selector)).to_be_visible(timeout=timeout)
     pdf = page.pdf()
-    storage = get_s3_storage(bucket_name=os.environ["PDF_EXPORT_BUCKET"])
+    storage = get_s3_storage(bucket_name=settings.PDF_EXPORT_BUCKET)
     output_file = storage.open(output_filename, "w")
     output_file.write(pdf)
     output_file.close()
