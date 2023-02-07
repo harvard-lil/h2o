@@ -1,8 +1,6 @@
 from datetime import datetime
 import logging
 import os
-from pathlib import Path
-import tempfile
 from time import sleep
 
 from celery import shared_task

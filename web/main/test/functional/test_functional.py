@@ -1,6 +1,5 @@
 # These tests are run through LiveServerTestCase and playwright
 import re
-from pathlib import Path
 from urllib.request import urlopen
 
 import pytest
