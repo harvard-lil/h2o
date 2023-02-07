@@ -281,9 +281,9 @@ django-simple-history==3.0.0 \
     --hash=sha256:66fe76c560054be393c52b1799661e104fbe372918d37d151e5d41c676158118 \
     --hash=sha256:a312adfe8fbec4c450b08e641b11249a8a589a7e7d1ba2404764b8b5bed53552
     # via -r requirements.in
-django-storages==1.12.3 \
-    --hash=sha256:204a99f218b747c46edbfeeb1310d357f83f90fa6a6024d8d0a3f422570cee84 \
-    --hash=sha256:a475edb2f0f04c4f7e548919a751ecd50117270833956ed5bd585c0575d2a5e7
+django-storages==1.13.2 \
+    --hash=sha256:31dc5a992520be571908c4c40d55d292660ece3a55b8141462b4e719aa38eab3 \
+    --hash=sha256:cbadd15c909ceb7247d4ffc503f12a9bec36999df8d0bef7c31e57177d512688
     # via -r requirements.in
 django-stubs[compatible-mypy]==1.12.0 \
     --hash=sha256:0dff8ec0ba3abe046450b3d8a29ce9e72629893d2c1ef679189cc2bfdb6d2f64 \
