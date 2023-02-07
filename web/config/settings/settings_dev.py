@@ -48,6 +48,6 @@ from celery.schedules import crontab
 CELERY_BEAT_SCHEDULE = {
     "demo-scheduled-task": {
         "task": "main.tasks.demo_scheduled_task",
-        "schedule": crontab(hour="*"),
+        "schedule": crontab(minute="1"),
     },
 }

@@ -7,6 +7,7 @@ import { BrowserTracing } from "@sentry/tracing";
 import AddContent from "../components/AddContent";
 import AuditButton from "../components/AuditButton";
 import Dashboard from "../components/Dashboard";
+import ExportButton from "../components/ExportButton";
 import Globals from "../components/Globals";
 import PortalVue from "portal-vue";
 import QuickAdd from "../components/QuickAdd";
@@ -60,7 +61,9 @@ document.addEventListener("DOMContentLoaded", () => {
         ResourceTypePicker,
         Globals,
         AuditButton,
-        Dashboard
+        Dashboard,
+        ExportButton
+
     }
   });
   if (window.sentry.USE_SENTRY) {

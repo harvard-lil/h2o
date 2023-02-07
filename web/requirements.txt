@@ -81,6 +81,7 @@ celery[pytest,redis]==5.2.7 \
     --hash=sha256:fafbd82934d30f8a004f81e8f7a062e31413a23d444be8ee3326553915958c6d
     # via
     #   -r requirements.in
+    #   django-celery-results
     #   pytest-celery
 certifi==2022.12.7 \
     --hash=sha256:35824b4c3a97115964b408844d64aa14db1cc518f6562e8d7261699d1350a9e3 \
@@ -257,6 +258,10 @@ django==3.2.17 \
     #   django-stubs
     #   django-stubs-ext
     #   djangorestframework
+django-celery-results==2.4.0 \
+    --hash=sha256:75aa51970db5691cbf242c6a0ff50c8cdf419e265cd0e9b772335d06436c4b99 \
+    --hash=sha256:be91307c02fbbf0dda21993c3001c60edb74595444ccd6ad696552fe3689e85b
+    # via -r requirements.in
 django-crispy-forms==1.12.0 \
     --hash=sha256:a3320356c84d0cdc631e1ec7b8908aa0117bc2a5f0ab1d053d33eba08f584808 \
     --hash=sha256:d196db62ee8b4fc32d1f9583d0e4be1bb17328b662682c1ecb9fb77bbc0fcf77

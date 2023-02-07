@@ -31,6 +31,7 @@ INSTALLED_APPS = [
     "webpack_loader",
     "django_json_widget",
     "simple_history",
+    "django_celery_results",
     # built-in
     "django.contrib.admin.apps.SimpleAdminConfig",
     "django.contrib.auth",
@@ -262,6 +263,9 @@ CELERY_TASK_ROUTES = {
 }
 
 CELERY_BEAT_SCHEDULE = {}
+CELERY_RESULT_BACKEND = "django-db"
+CELERY_CACHE_BACKEND = "django-cache"
+CELERY_RESULT_EXTENDED = True  # Include full metadata in TaskResult entries
 
 ###
 ### /END CELERY settings ###
