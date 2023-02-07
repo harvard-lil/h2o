@@ -1,12 +1,12 @@
-from datetime import datetime
 import logging
 import os
+from datetime import datetime
 from time import sleep
 
 from celery import shared_task
-from playwright.sync_api import sync_playwright, expect, Page
-
+from django.conf import settings
 from main.storages import get_s3_storage
+from playwright.sync_api import Page, expect, sync_playwright
 
 logger = logging.getLogger("celery.django")
 
@@ -49,7 +49,7 @@ def generate_pdf(
     output_file.write(pdf)
     output_file.close()
     logger.info(f"Wrote output to {output_file}")
-    return storage.url(output_file.name)
+    return storage.url(output_file.name, expire=settings.PDF_AWS_QUERYSTRING_EXPIRE)
 
 
 @shared_task
