@@ -1,15 +1,15 @@
 # These tests are run through LiveServerTestCase and playwright
-from pathlib import Path
 import re
-from django.urls import reverse
-from django.core.management import call_command
+from pathlib import Path
+from urllib.request import urlopen
 
 import pytest
+from django.core.management import call_command
+from django.urls import reverse
+from main.models import Casebook
+from main.tasks import generate_pdf
 from playwright.sync_api import Page, expect
 from pytest_django.live_server_helper import LiveServer
-
-from main.tasks import generate_pdf
-from main.models import Casebook
 
 
 @pytest.fixture(autouse=True, scope="function")
@@ -88,14 +88,16 @@ def test_view_casebook(static_live_server, page: Page, login_as_default):
 
 
 @pytest.mark.xdist_group("functional")
-def test_pdf_export(static_live_server, page: Page, tmp_path: Path):
+def test_pdf_export(static_live_server, page: Page):
     """The PDF helper function should generate a PDF for a public casebook"""
     # Needs to be in the published state for the external process to work
     full_casebook = Casebook.objects.filter(state=Casebook.LifeCycle.PUBLISHED.value).first()
     url = static_live_server.url + reverse("printable_all", args=[full_casebook])
-    output_file = tmp_path / "example.pdf"
-    generate_pdf(url + "?print-preview=true", output_file, page)
-    assert output_file.read_bytes()[:4] == b"%PDF"
+    output_filename = "example.pdf"
+    pdf_url = generate_pdf(url + "?print-preview=true", output_filename, page)
+    with urlopen(pdf_url) as result:
+        pdf = result.read()
+        assert pdf[:4] == b"%PDF"
 
 
 @pytest.mark.xdist_group("functional")

@@ -944,11 +944,14 @@ class PDFExportView(APIView):
         if result.status == "SUCCESS":
             return HttpResponse(result.result)
         else:
-            if json.loads(result.result)["exc_type"] == "PermissionError":
+            exception_type = json.loads(result.result)["exc_type"]
+            if exception_type == "PermissionError":
                 return HttpResponseBadRequest(
                     "The requested casebook is not public. Exporting private casebooks is not yet supported."
                 )
-            return HttpResponseBadRequest(result.result)
+            logger.error("Exception thrown from PDF task:")
+            logger.error(result.traceback)
+            return HttpResponseBadRequest("An unexpected error occurred.")
 
     @method_decorator(hydrate_params)
     @method_decorator(

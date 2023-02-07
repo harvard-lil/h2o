@@ -19,10 +19,13 @@
                     </div>
                     <p>
                         {{ this.response }}
+
+                    </p>
+                    <p v-show="this.url">
+                      <a v-bind:href="this.url">Download PDF</a>
                     </p>
                 </div>
             </template>
-            <template slot="footer"> </template>
         </Modal>
     </div>
 </template>
@@ -40,6 +43,7 @@ function init() {
         taskId: null,
         retries: 0,
         result: null,
+        url: null,
     };
 }
 export default {
@@ -56,7 +60,7 @@ export default {
         response: function () {
             if (this.result) {
                 if (this.result.succeeded) {
-                    return `Success! PDF file is at ${this.result.succeeded}`;
+                    return `Success! Your PDF file is available now.`;
                 }
                 if (this.result.timeout) {
                     return `PDF export did not succeed—export did not finish in time.`;
@@ -87,6 +91,7 @@ export default {
             })
                 .then((res) => {
                     this.result = { succeeded: res.data };
+                    this.url = this.result.succeeded;
                 })
                 .catch((err) => {
                     if (err.response.status === 404) {
