@@ -12,9 +12,7 @@
     {% render_bundle 'as_printable_html' attrs="defer" %}
     {% render_bundle 'chunk-common' attrs="defer" %}
 
-    {% if use_pagedjs %}
-
-    {% else %}
+    {% if not use_pagedjs %}
       <link href="{% static 'as_printable_html/screen.css' %}" type="text/css" rel="stylesheet">
     {% endif %}
 
@@ -24,7 +22,7 @@
 <body>
   <header class="screen-only">
     <img src="{% static 'images/logo-color-full-lockup.svg' %}" alt="H2O" height="50">
-    <p>This free and open legal casebook from <a href="{% url 'index' %}">H2O</a>
+  <p>This free and open legal casebook from <a href="{% url 'index' %}">H2O</a>
     is licensed under a Creative Commons license. <a href="{% url 'terms-of-service' %}">Learn more</a>.
     </p>
   </header>
