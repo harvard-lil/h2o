@@ -12,21 +12,12 @@
     {% render_bundle 'as_printable_html' attrs="defer" %}
     {% render_bundle 'chunk-common' attrs="defer" %}
 
-    <link href="{% static 'as_printable_html/book.css' %}" type="text/css" rel="stylesheet">
-
     {% if use_pagedjs %}
-    <link href="{% static 'as_printable_html/print.css' %}" type="text/css" rel="stylesheet">
 
     {% else %}
-      <link href="{% static 'as_printable_html/reader-view.css' %}" type="text/css" rel="stylesheet">
+      <link href="{% static 'as_printable_html/screen.css' %}" type="text/css" rel="stylesheet">
     {% endif %}
-    <style>
-      @media print {
-        .screen-only {
-            display: none;
-        }
-     }
-    </style>
+
     {% include "includes/sentry.html" %}
   </head>
 
@@ -39,7 +30,7 @@
   </header>
 
   <template id="casebook-content"
-    data-stylesheet="{% static 'as_printable_html/book.css' %}"
+    data-stylesheet="{% static 'as_printable_html/print.css' %}"
     data-use-pagedjs="{{ use_pagedjs|yesno:'true,false' }}">
 
     <header class="casebook-metadata" data-paginator-page="{{ page.number }}">

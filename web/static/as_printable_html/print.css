@@ -1,5 +1,18 @@
+@import "all.css";
+
 /* Styling that only applies to the print preview, or when the screen preview is printed */
 @media print {
+  :root {
+    --casebook-font-family: "LibreCaslon";
+    --highlight-background-greyscale: #ededed;
+    --highlight-background-color: #fff7b9;
+    --headnote-padding: 5mm;
+    --casebook-font-size: 3.5mm;
+    --casebook-line-height: calc(var(--casebook-font-size) * 1.8);
+    --link-icon-height: calc(2 * var(--casebook-font-size));
+    --link-icon-width: calc(2 * var(--casebook-font-size));
+    --link-icon-margin: 5mm;
+  }
   @page {
     size: letter;
   }
@@ -7,9 +20,11 @@
     text-decoration: none;
     color: inherit;
   }
+  .screen-only {
+    display: none;
+  }
 
-  /* Only in pagedjs mode, hide the TOC except from the first page */
-  .pagedjs_page .casebook-metadata:not([data-paginator-page="1"]) {
+  .casebook-metadata:not([data-paginator-page="1"]) {
     display: none;
   }
 
@@ -69,26 +84,46 @@
       background: var(--highlight-background-greyscale);
     }
   }
-
-  @page: right{
+  /* prettier-ignore */
+  @page:right{
     @top-center {
       content: string(title);
     }
     @bottom-right {
       content: counter(page);
     }
-  };
-  @page: left{
+  }
+  /* prettier-ignore */
+  @page:left{
     @top-center {
       content: string(casebook-title);
     }
     @bottom-left {
       content: counter(page);
     }
-  };
+  }
+
   @page {
+    /* prettier-ignore */
     @footnote {
       float: bottom;
     }
+  }
+  @font-face {
+    font-family: "LibreCaslon";
+    src: url("../fonts/LibreCaslonText-Regular.woff2") format("woff2");
+    font-weight: normal;
+  }
+
+  @font-face {
+    font-family: "LibreCaslon";
+    src: url("../fonts/LibreCaslonText-Italic.woff2") format("woff2");
+    font-style: italic;
+  }
+
+  @font-face {
+    font-family: "LibreCaslon";
+    src: url("../fonts/LibreCaslonText-Bold.woff2") format("woff2");
+    font-weight: bold;
   }
 }

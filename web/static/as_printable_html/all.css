@@ -3,15 +3,6 @@
 
 @media all {
   :root {
-    --casebook-font-size: 3.5mm;
-    --casebook-line-height: calc(var(--casebook-font-size) * 1.8);
-    --casebook-font-family: "LibreCaslon";
-    --link-icon-height: calc(2 * var(--casebook-font-size));
-    --link-icon-width: calc(2 * var(--casebook-font-size));
-    --link-icon-margin: 5mm;
-    --highlight-background-greyscale: #ededed;
-    --highlight-background-color: #fff7b9;
-    --headnote-padding: 5mm;
     --color-background: whitesmoke;
     --color-light-blue: #3e72d8;
     --color-white: white;
@@ -216,122 +207,10 @@
   ins + br {
     display: none;
   }
-  @font-face {
-    font-family: "LibreCaslon";
-    src: url("../fonts/LibreCaslonText-Regular.woff2") format("woff2");
-    font-weight: normal;
-  }
 
   @font-face {
-    font-family: "LibreCaslon";
-    src: url("../fonts/LibreCaslonText-Italic.woff2") format("woff2");
-    font-style: italic;
-  }
-
-  @font-face {
-    font-family: "LibreCaslon";
-    src: url("../fonts/LibreCaslonText-Bold.woff2") format("woff2");
-    font-weight: bold;
-  }
-
-  @font-face {
-    font-family: "Atlas Grotesk GroteskreCaslon";
+    font-family: "Atlas Grotesk";
     src: url("../fonts/AtlasGrotesk-Regular.woff2") format("woff2");
     font-weight: normal;
-  }
-}
-
-/* Customized for navigation component */
-@media screen {
-  body {
-    background-color: var(--color-background);
-  }
-
-  header.screen-only {
-    margin: 2rem auto 0 auto;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-  }
-  header.screen-only p {
-    font-family: var(--font-sans-serif) !important;
-    margin: 0 2rem;
-  }
-  header.screen-only img {
-    max-height: 50px;
-  }
-
-  footer nav {
-    --nav-font-size: 16px;
-
-    background-color: var(--color-light-blue);
-    border: 1px solid var(--color-white);
-    color: var(--color-white);
-    padding: 10px;
-    position: fixed;
-
-    left: 50%;
-    bottom: 0;
-    transform: translateX(-50%);
-    width: 100%;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    z-index: 99;
-  }
-  footer nav a {
-    text-decoration: none;
-    color: var(--color-white);
-  }
-  footer nav button {
-    border: 0;
-    padding: 10px;
-  }
-  footer nav .controls {
-    font-family: var(--font-sans-serif) !important;
-    text-align: center;
-    display: block;
-    background: var(--color-white);
-    color: var(--color-black);
-    margin: -120px 20px 0 20px;
-    border: var(--color-light-gray) 1px solid;
-    padding: 10px;
-    font-size: var(--nav-font-size);
-    cursor: pointer;
-  }
-  footer .controls:hover {
-    background: var(--color-light-blue);
-    color: var(--color-white);
-  }
-  footer span {
-    display: inline-block;
-    text-align: center;
-    font-family: var(--font-sans-serif) !important;
-  }
-  footer a {
-    text-decoration: none;
-  }
-
-  footer a.unlinked {
-    color: var(--color-light-gray) !important;
-  }
-  #page-selector {
-    background: var(--color-light-blue);
-    color: var(--color-white);
-    font-size: var(--nav-font-size);
-    border: none;
-  }
-
-  /* Show underlining for TOC hyperlinks in the web view only */
-  nav.toc a {
-    text-decoration: underline;
-    text-decoration-style: dotted;
-    text-underline-offset: 1mm;
-    text-decoration-color: var(--color-dark-gray);
-  }
-  @media (max-width: 552px) {
-    .left a {
-      left: 40vw;
-    }
   }
 }
