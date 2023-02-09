@@ -2,24 +2,6 @@
 @import "toc.css";
 
 @media all {
-  @font-face {
-    font-family: "LibreCaslon";
-    src: url("../fonts/LibreCaslonText-Regular.woff2") format("woff2");
-    font-weight: normal;
-  }
-
-  @font-face {
-    font-family: "LibreCaslon";
-    src: url("../fonts/LibreCaslonText-Italic.woff2") format("woff2");
-    font-style: italic;
-  }
-
-  @font-face {
-    font-family: "LibreCaslon";
-    src: url("../fonts/LibreCaslonText-Bold.woff2") format("woff2");
-    font-weight: bold;
-  }
-
   :root {
     --casebook-font-size: 3.5mm;
     --casebook-line-height: calc(var(--casebook-font-size) * 1.8);
@@ -30,6 +12,13 @@
     --highlight-background-greyscale: #ededed;
     --highlight-background-color: #fff7b9;
     --headnote-padding: 5mm;
+    --color-background: whitesmoke;
+    --color-light-blue: #3e72d8;
+    --color-white: white;
+    --color-light-gray: lightgray;
+    --color-dark-gray: gray;
+    --color-black: rgb(2, 2, 2);
+    --font-sans-serif: "Atlas Grotesk";
   }
 
   /* Always start a top-level section on a new page, even if there's preface matter */
@@ -174,20 +163,7 @@
     background-size: cover;
     display: inline-block;
   }
-
-  .truncated-title {
-    string-set: title content(text);
-  }
   .hidden {
-    display: none;
-  }
-
-  h1.casebook.title {
-    string-set: casebook-title content(text);
-  }
-
-  /* Only in pagedjs mode, hide the TOC except from the first page */
-  .pagedjs_page .casebook-metadata:not([data-paginator-page="1"]) {
     display: none;
   }
 
@@ -240,77 +216,122 @@
   ins + br {
     display: none;
   }
+  @font-face {
+    font-family: "LibreCaslon";
+    src: url("../fonts/LibreCaslonText-Regular.woff2") format("woff2");
+    font-weight: normal;
+  }
+
+  @font-face {
+    font-family: "LibreCaslon";
+    src: url("../fonts/LibreCaslonText-Italic.woff2") format("woff2");
+    font-style: italic;
+  }
+
+  @font-face {
+    font-family: "LibreCaslon";
+    src: url("../fonts/LibreCaslonText-Bold.woff2") format("woff2");
+    font-weight: bold;
+  }
+
+  @font-face {
+    font-family: "Atlas Grotesk GroteskreCaslon";
+    src: url("../fonts/AtlasGrotesk-Regular.woff2") format("woff2");
+    font-weight: normal;
+  }
 }
 
-/* Styling that only applies to the print preview, or when the screen preview is printed */
-@media print {
-  @page {
-    size: letter;
+/* Customized for navigation component */
+@media screen {
+  body {
+    background-color: var(--color-background);
   }
-  a {
+
+  header.screen-only {
+    margin: 2rem auto 0 auto;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  header.screen-only p {
+    font-family: var(--font-sans-serif) !important;
+    margin: 0 2rem;
+  }
+  header.screen-only img {
+    max-height: 50px;
+  }
+
+  footer nav {
+    --nav-font-size: 16px;
+
+    background-color: var(--color-light-blue);
+    border: 1px solid var(--color-white);
+    color: var(--color-white);
+    padding: 10px;
+    position: fixed;
+
+    left: 50%;
+    bottom: 0;
+    transform: translateX(-50%);
+    width: 100%;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    z-index: 99;
+  }
+  footer nav a {
     text-decoration: none;
-    color: inherit;
+    color: var(--color-white);
   }
-  section.headnote p {
-    margin: var(--casebook-font-size) 0;
+  footer nav button {
+    border: 0;
+    padding: 10px;
   }
-  /* Style footnotes, allowing the URLs to break midway. PagedJS will put these in the bottom margin */
-  .footnote-generated {
-    float: footnote;
-    word-wrap: break-word;
-    font-size: calc(var(--casebook-font-size) * 0.75);
+  footer nav .controls {
+    font-family: var(--font-sans-serif) !important;
+    text-align: center;
+    display: block;
+    background: var(--color-white);
+    color: var(--color-black);
+    margin: -120px 20px 0 20px;
+    border: var(--color-light-gray) 1px solid;
+    padding: 10px;
+    font-size: var(--nav-font-size);
+    cursor: pointer;
   }
-  /* Add some spacing to the superscript indicating a footnote. */
-  ::footnote-call {
-    margin-left: 0.5mm;
+  footer .controls:hover {
+    background: var(--color-light-blue);
+    color: var(--color-white);
   }
-  .pagedjs_page .pagedjs_footnote_content {
-    border-top: 1px solid var(--highlight-background-greyscale);
-    margin-top: 2mm;
+  footer span {
+    display: inline-block;
+    text-align: center;
+    font-family: var(--font-sans-serif) !important;
   }
-  /* Book content (but not metadata or other types) should be indented. */
-  .node-container > p,
-  section > p,
-  article.opinion > p {
-    text-indent: 2em;
-  }
-
-  /* Generate the corresponding footnote reference in the footer as e.g. "2. <footnote-text>"
-   Don't allow long URLs to break on the space in this marker. */
-  [data-footnote-marker]::marker {
-    content: counter(footnote-marker) ". ";
-    white-space: nowrap;
-  }
-  [data-footnote-marker]::after {
-    content: " ";
+  footer a {
+    text-decoration: none;
   }
 
-  /* Support for greyscale-only printing */
-  @media not color {
-    .highlighted {
-      background: var(--highlight-background-greyscale);
-    }
+  footer a.unlinked {
+    color: var(--color-light-gray) !important;
+  }
+  #page-selector {
+    background: var(--color-light-blue);
+    color: var(--color-white);
+    font-size: var(--nav-font-size);
+    border: none;
   }
 
-  @page: right{
-    @top-center {
-      content: string(title);
-    }
-    @bottom-right {
-      content: counter(page);
-    }
-  };
-  @page: left{
-    @top-center {
-      content: string(casebook-title);
-    }
-    @bottom-left {
-      content: counter(page);
-    }
-  };
-  @page {
-    @footnote {
-      float: bottom;
+  /* Show underlining for TOC hyperlinks in the web view only */
+  nav.toc a {
+    text-decoration: underline;
+    text-decoration-style: dotted;
+    text-underline-offset: 1mm;
+    text-decoration-color: var(--color-dark-gray);
+  }
+  @media (max-width: 552px) {
+    .left a {
+      left: 40vw;
     }
   }
 }
