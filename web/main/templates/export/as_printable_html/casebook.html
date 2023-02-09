@@ -9,12 +9,16 @@
     <meta content="width=device-width, initial-scale=1" name="viewport"/>
     <meta charset="utf-8"/>
 
-    {% render_bundle 'as_printable_html_styles' %}
     {% render_bundle 'as_printable_html' attrs="defer" %}
     {% render_bundle 'chunk-common' attrs="defer" %}
 
-    {% if not use_pagedjs %}
-      <link href="{% static 'as_printable_html/book.css' %}" type="text/css" rel="stylesheet">
+    <link href="{% static 'as_printable_html/as_printable_html.css' %}" type="text/css" rel="stylesheet">
+    <link href="{% static 'as_printable_html/book.css' %}" type="text/css" rel="stylesheet">
+
+    {% if use_pagedjs %}
+    <link href="{% static 'as_printable_html/print.css' %}" type="text/css" rel="stylesheet">
+
+    {% else %}
       <link href="{% static 'as_printable_html/reader-view.css' %}" type="text/css" rel="stylesheet">
     {% endif %}
     <style>

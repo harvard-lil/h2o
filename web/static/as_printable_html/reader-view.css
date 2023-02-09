@@ -12,13 +12,13 @@
   .casebook-metadata {
     padding: 5vh 5vw;
   }
-  article :is(p, div), .headnote :is(p, div) {
+  article :is(p, div),
+  .headnote :is(p, div) {
     margin: 1rem 0;
   }
   main > article {
     background-color: white;
     padding: 5vh 5vw;
-
   }
 
   aside.authors-note {
@@ -37,7 +37,7 @@
   mark.note-mark {
     text-decoration: underline;
     text-decoration-style: dotted;
-    text-decoration-color: var(--background-color);;
+    text-decoration-color: var(--background-color);
     text-underline-offset: 5px;
     background: none;
   }
