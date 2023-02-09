@@ -112,7 +112,6 @@ def test_print_preview_page(static_live_server, page: Page, full_casebook):
     expect(page.locator("main.preview-ready")).not_to_be_empty()
 
 
-
 @pytest.mark.xdist_group("functional")
 def test_reading_mode_nav(static_live_server, page: Page, full_casebook):
     """Reading mode should allow users to visit the content and navigate between chapters"""
