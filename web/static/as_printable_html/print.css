@@ -1,0 +1,129 @@
+@import "all.css";
+
+/* Styling that only applies to the print preview, or when the screen preview is printed */
+@media print {
+  :root {
+    --casebook-font-family: "LibreCaslon";
+    --highlight-background-greyscale: #ededed;
+    --highlight-background-color: #fff7b9;
+    --headnote-padding: 5mm;
+    --casebook-font-size: 3.5mm;
+    --casebook-line-height: calc(var(--casebook-font-size) * 1.8);
+    --link-icon-height: calc(2 * var(--casebook-font-size));
+    --link-icon-width: calc(2 * var(--casebook-font-size));
+    --link-icon-margin: 5mm;
+  }
+  @page {
+    size: letter;
+  }
+  a {
+    text-decoration: none;
+    color: inherit;
+  }
+  .screen-only {
+    display: none;
+  }
+
+  .casebook-metadata:not([data-paginator-page="1"]) {
+    display: none;
+  }
+
+  h1.casebook.title {
+    string-set: casebook-title content(text);
+  }
+
+  .truncated-title {
+    string-set: title content(text);
+  }
+
+  a[data-type~="link"] {
+    word-break: break-all;
+  }
+
+  /* Always start a top-level section on a new page, even if there's preface matter */
+  section.section.depth-1 {
+    break-before: right;
+  }
+  section.headnote p {
+    margin: var(--casebook-font-size) 0;
+  }
+  /* Style footnotes, allowing the URLs to break midway. PagedJS will put these in the bottom margin */
+  .footnote-generated {
+    float: footnote;
+    word-wrap: break-word;
+    font-size: calc(var(--casebook-font-size) * 0.75);
+  }
+  /* Add some spacing to the superscript indicating a footnote. */
+  ::footnote-call {
+    margin-left: 0.5mm;
+  }
+  .pagedjs_page .pagedjs_footnote_content {
+    border-top: 1px solid var(--highlight-background-greyscale);
+    margin-top: 2mm;
+  }
+  /* Book content (but not metadata or other types) should be indented. */
+  .node-container > p,
+  section > p,
+  article.opinion > p {
+    text-indent: 2em;
+  }
+
+  /* Generate the corresponding footnote reference in the footer as e.g. "2. <footnote-text>"
+     Don't allow long URLs to break on the space in this marker. */
+  [data-footnote-marker]::marker {
+    content: counter(footnote-marker) ". ";
+    white-space: nowrap;
+  }
+  [data-footnote-marker]::after {
+    content: " ";
+  }
+
+  /* Support for greyscale-only printing */
+  @media not color {
+    .highlighted {
+      background: var(--highlight-background-greyscale);
+    }
+  }
+  /* prettier-ignore */
+  @page:right{
+    @top-center {
+      content: string(title);
+    }
+    @bottom-right {
+      content: counter(page);
+    }
+  }
+  /* prettier-ignore */
+  @page:left{
+    @top-center {
+      content: string(casebook-title);
+    }
+    @bottom-left {
+      content: counter(page);
+    }
+  }
+
+  @page {
+    /* prettier-ignore */
+    @footnote {
+      float: bottom;
+    }
+  }
+  @font-face {
+    font-family: "LibreCaslon";
+    src: url("../fonts/LibreCaslonText-Regular.woff2") format("woff2");
+    font-weight: normal;
+  }
+
+  @font-face {
+    font-family: "LibreCaslon";
+    src: url("../fonts/LibreCaslonText-Italic.woff2") format("woff2");
+    font-style: italic;
+  }
+
+  @font-face {
+    font-family: "LibreCaslon";
+    src: url("../fonts/LibreCaslonText-Bold.woff2") format("woff2");
+    font-weight: bold;
+  }
+}

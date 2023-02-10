@@ -1,93 +1,94 @@
 nav.toc {
-    --toc-column-gap: 2mm;
-    --toc-row-gap: calc(var(--casebook-font-size) * 1);
-    --toc-left-width: 8mm;
-    break-before: right;
-    margin-top: 1rem;
+  --toc-column-gap: 2mm;
+  --toc-row-gap: calc(var(--casebook-font-size) * 1);
+  --toc-left-width: 8mm;
+  break-before: right;
+  break-after: always;
+
+  margin-top: 1rem;
 }
 nav.toc h2 {
-    margin: 0;
+  margin: 0;
 }
 
 nav.toc h3 {
-    /* display: inline; */
-    margin: 0;
-    font-size: 1em;
-    font-weight: bold;
+  /* display: inline; */
+  margin: 0;
+  font-size: 1em;
+  font-weight: bold;
 }
 nav.toc ol.toc-items {
-    padding: 0;
+  padding: 0;
 }
 nav.toc ol.toc-items li {
-    display: flex;
-    flex-wrap: wrap;
+  display: flex;
+  flex-wrap: wrap;
 }
 nav.toc ol.toc-items .ordinals {
-    flex-basis: 5ch;
+  flex-basis: 5ch;
 }
 nav.toc ol.toc-items :is(h3, h4) {
-    flex: 1;
-    margin: 0;
-    line-height: 180%;
+  flex: 1;
+  margin: 0;
+  line-height: 180%;
 }
 nav.toc ol.toc-items ol {
-    flex-basis: 100%;
+  flex-basis: 100%;
 }
 nav.toc ol.toc-items > li {
-    padding: var(--toc-row-gap) 0 0 0;
+  padding: var(--toc-row-gap) 0 0 0;
 }
 nav.toc ol.toc-items > li li {
-    padding: calc(var(--toc-row-gap) / 2) 0 0 0;
+  padding: calc(var(--toc-row-gap) / 2) 0 0 0;
 }
 nav.toc .node-title {
-    display: inline-block;
-    margin: 0 0 0 calc(var(--toc-left-width) / 2);
+  display: inline-block;
+  margin: 0 0 0 calc(var(--toc-left-width) / 2);
 }
 
 nav.toc > ol > li > ol li {
-    line-height: calc(var(--casebook-line-height) * 0.8);
+  line-height: calc(var(--casebook-line-height) * 0.8);
 }
 
-nav.toc  li:last-child {
-    margin: 0 0 calc(var(--toc-row-gap) * 1.5) 0;
+nav.toc li:last-child {
+  margin: 0 0 calc(var(--toc-row-gap) * 1.5) 0;
 }
 nav.toc .toc-opener {
-    cursor: pointer;
-    background: none;
-    border: 0;
-    display: flex;
-    align-items: stretch;
-    padding: 0;
+  cursor: pointer;
+  background: none;
+  border: 0;
+  display: flex;
+  align-items: stretch;
+  padding: 0;
 }
 nav.toc .toc-opener h2 {
-    display: inline-block;
+  display: inline-block;
 }
 nav.toc .collapse-triangle {
-    scale: 0.75;
-    transition: transform 0.25s;
-    transform-origin: 30% 50%;
-    transform: rotate(0deg);
-    margin-left: -25px;
+  scale: 0.75;
+  transition: transform 0.25s;
+  transform-origin: 30% 50%;
+  transform: rotate(0deg);
+  margin-left: -25px;
 }
 nav.toc .collapse-triangle polygon {
-    fill: lightgray;
-    stroke: black;
-    stroke-width: 1;
+  fill: lightgray;
+  stroke: black;
+  stroke-width: 1;
 }
 nav.toc .collapse-triangle polygon:hover {
-    stroke-width: 2;
+  stroke-width: 2;
 }
 nav.toc toc-control[open] .collapse-triangle {
-    transform: rotate(90deg);
+  transform: rotate(90deg);
 }
 
 nav.toc toc-control:not([open]) h2::after {
-    content: " (click to expand)";
-    font-size: 12px;
-    display: block;
-    text-align: left;
+  content: " (click to expand)";
+  font-size: 12px;
+  display: block;
+  text-align: left;
 }
 nav.toc toc-control:not([open]) ol.toc-items {
-    display: none;
+  display: none;
 }
-

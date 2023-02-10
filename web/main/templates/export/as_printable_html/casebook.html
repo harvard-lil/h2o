@@ -9,34 +9,26 @@
     <meta content="width=device-width, initial-scale=1" name="viewport"/>
     <meta charset="utf-8"/>
 
-    {% render_bundle 'as_printable_html_styles' %}
     {% render_bundle 'as_printable_html' attrs="defer" %}
     {% render_bundle 'chunk-common' attrs="defer" %}
 
     {% if not use_pagedjs %}
-      <link href="{% static 'as_printable_html/book.css' %}" type="text/css" rel="stylesheet">
-      <link href="{% static 'as_printable_html/reader-view.css' %}" type="text/css" rel="stylesheet">
+      <link href="{% static 'as_printable_html/screen.css' %}" type="text/css" rel="stylesheet">
     {% endif %}
-    <style>
-      @media print {
-        .screen-only {
-            display: none;
-        }
-     }
-    </style>
+
     {% include "includes/sentry.html" %}
   </head>
 
 <body>
   <header class="screen-only">
     <img src="{% static 'images/logo-color-full-lockup.svg' %}" alt="H2O" height="50">
-    <p>This free and open legal casebook from <a href="{% url 'index' %}">H2O</a>
+  <p>This free and open legal casebook from <a href="{% url 'index' %}">H2O</a>
     is licensed under a Creative Commons license. <a href="{% url 'terms-of-service' %}">Learn more</a>.
     </p>
   </header>
 
   <template id="casebook-content"
-    data-stylesheet="{% static 'as_printable_html/book.css' %}"
+    data-stylesheet="{% static 'as_printable_html/print.css' %}"
     data-use-pagedjs="{{ use_pagedjs|yesno:'true,false' }}">
 
     <header class="casebook-metadata" data-paginator-page="{{ page.number }}">

@@ -43,7 +43,6 @@ let vueConfig = {
     main: "frontend/pages/main.scss",
     test: "frontend/pages/test.js",
     vue_app: "frontend/pages/vue_app.js",
-    as_printable_html_styles: "frontend/pages/as_printable_html.scss",
     as_printable_html: "frontend/pages/as_printable_html.js",
   },
 

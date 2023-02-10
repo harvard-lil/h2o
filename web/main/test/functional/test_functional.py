@@ -101,7 +101,7 @@ def test_pdf_export(static_live_server, page: Page):
 
 @pytest.mark.xdist_group("functional")
 def test_print_preview_page(static_live_server, page: Page, full_casebook):
-    """The print preview page should be renderable and closeable"""
+    """The print preview page should be renderable"""
     login(static_live_server, page, user="functional-staff@example.edu")
     url = (
         static_live_server.url
@@ -110,8 +110,6 @@ def test_print_preview_page(static_live_server, page: Page, full_casebook):
     )
     page.goto(url)
     expect(page.locator("main.preview-ready")).not_to_be_empty()
-    page.get_by_role("button", name="Exit preview").click()
-    expect(page).to_have_url(re.compile(f"^{static_live_server.url}/casebooks/3-some-title"))
 
 
 @pytest.mark.xdist_group("functional")

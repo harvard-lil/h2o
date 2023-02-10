@@ -1,37 +1,15 @@
 @import "cap.css";
 @import "toc.css";
 
-
 @media all {
-
-  @font-face {
-    font-family: 'LibreCaslon';
-    src: url('../fonts/LibreCaslonText-Regular.woff2') format('woff2');
-    font-weight: normal;
-  }
-
-  @font-face {
-    font-family: 'LibreCaslon';
-    src: url('../fonts/LibreCaslonText-Italic.woff2') format('woff2');
-    font-style: italic;
-  }
-
-  @font-face {
-    font-family: 'LibreCaslon';
-    src: url('../fonts/LibreCaslonText-Bold.woff2') format('woff2');
-    font-weight: bold;
-  }
-
   :root {
-    --casebook-font-size: 3.5mm;
-    --casebook-line-height: calc(var(--casebook-font-size) * 1.8);
-    --casebook-font-family: "LibreCaslon";
-    --link-icon-height: calc(2 * var(--casebook-font-size));
-    --link-icon-width: calc(2 * var(--casebook-font-size));
-    --link-icon-margin: 5mm;
-    --highlight-background-greyscale: #ededed;
-    --highlight-background-color: #fff7b9;
-    --headnote-padding: 5mm;
+    --color-background: whitesmoke;
+    --color-light-blue: #3e72d8;
+    --color-white: white;
+    --color-light-gray: lightgray;
+    --color-dark-gray: gray;
+    --color-black: rgb(2, 2, 2);
+    --font-sans-serif: "Atlas Grotesk";
   }
 
   /* Always start a top-level section on a new page, even if there's preface matter */
@@ -64,10 +42,8 @@
   h4,
   h5,
   h6 {
-    margin: calc(var(--casebook-font-size) * 1.5)
-            0
-            calc(var(--casebook-font-size) * 1.8)
-            0;
+    margin: calc(var(--casebook-font-size) * 1.5) 0
+      calc(var(--casebook-font-size) * 1.8) 0;
     font-family: var(--casebook-font-family), serif;
     line-height: 140%;
     font-weight: normal;
@@ -145,7 +121,8 @@
   sup {
     font-size: calc(var(--casebook-font-size) / 2.5);
   }
-  ol, ul {
+  ol,
+  ul {
     margin: initial;
   }
   li {
@@ -155,7 +132,6 @@
   div.author-list {
     margin: 0;
   }
-
 
   .title > span:nth-of-type(2) {
     display: block;
@@ -178,20 +154,7 @@
     background-size: cover;
     display: inline-block;
   }
-
-  .truncated-title {
-    string-set: title content(text);
-  }
   .hidden {
-    display: none;
-  }
-
-  h1.casebook.title {
-    string-set: casebook-title content(text);
-  }
-
-  /* Only in pagedjs mode, hide the TOC except from the first page */
-  .pagedjs_page .casebook-metadata:not([data-paginator-page="1"]) {
     display: none;
   }
 
@@ -202,14 +165,14 @@
     padding: 0;
   }
 
-  .highlighted, mark {
+  .highlighted,
+  mark {
     background: var(--highlight-background-color);
-    padding: calc(var(--casebook-line-height) * .2) 0;
+    padding: calc(var(--casebook-line-height) * 0.2) 0;
   }
 
   .elided {
-   display: none;
-
+    display: none;
   }
   .elision-marker {
     text-decoration: none;
@@ -224,7 +187,6 @@
   }
   ins:is(.replace, .correction) {
     text-decoration: none;
-
   }
 
   /* Set up a new container that avoids inheriting styles from block parents */
@@ -246,76 +208,9 @@
     display: none;
   }
 
-}
-
-/* Styling that only applies to the print preview, or when the screen preview is printed */
-@media print {
-  @page {
-    size: letter;
-  }
-  a {
-    text-decoration: none;
-    color: inherit;
-  }
-  section.headnote p {
-    margin: var(--casebook-font-size) 0;
-  }
-  /* Style footnotes, allowing the URLs to break midway. PagedJS will put these in the bottom margin */
-  .footnote-generated {
-    float: footnote;
-    word-wrap: break-word;
-    font-size: calc(var(--casebook-font-size) * .75);
-  }
-  /* Add some spacing to the superscript indicating a footnote. */
-  ::footnote-call {
-    margin-left: .5mm;
-  }
-  .pagedjs_page .pagedjs_footnote_content {
-    border-top: 1px solid var(--highlight-background-greyscale);
-    margin-top: 2mm;
-  }
-  /* Book content (but not metadata or other types) should be indented. */
-    .node-container > p, section > p, article.opinion > p {
-      text-indent: 2em;
-  }
-
-  /* Generate the corresponding footnote reference in the footer as e.g. "2. <footnote-text>"
-   Don't allow long URLs to break on the space in this marker. */
-  [data-footnote-marker]::marker {
-    content: counter(footnote-marker) ". ";
-    white-space: nowrap;
-  }
-  [data-footnote-marker]::after {
-    content: " ";
-  }
-
-  /* Support for greyscale-only printing */
-  @media not color {
-    .highlighted {
-      background: var(--highlight-background-greyscale);
-    }
-  }
-
-
-  @page:right {
-    @top-center {
-      content: string(title);
-    }
-    @bottom-right {
-      content: counter(page);
-    }
-  }
-  @page:left {
-    @top-center {
-      content: string(casebook-title);
-    }
-    @bottom-left {
-      content: counter(page);
-    }
-  }
-  @page {
-    @footnote {
-      float: bottom;
-    }
+  @font-face {
+    font-family: "Atlas Grotesk";
+    src: url("../fonts/AtlasGrotesk-Regular.woff2") format("woff2");
+    font-weight: normal;
   }
 }
