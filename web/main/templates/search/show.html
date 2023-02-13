@@ -7,9 +7,9 @@
     <h1>H2O Casebook Collection</h1>
     {% if counts %}
     <p>
-      Search inside H2O's Collection of {{ full_counts.casebook|intcomma|default:"0" }} casebooks,
+      Search inside H2O's collection of {{ full_counts.casebook|intcomma|default:"0" }} casebooks,
       {{ full_counts.legal_doc|intcomma|default:"0" }} legal documents, and
-      {{ full_counts.user|intcomma|default:"0" }} authors.
+      {{ full_counts.user|intcomma|default:"0" }} authors, or <a href="{% url 'featured' %}">view our featured casebooks</a>.
     </p>
     {% endif %}
     <form novalidate="novalidate" class="simple_form search" accept-charset="UTF-8">
