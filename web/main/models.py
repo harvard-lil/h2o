@@ -19,7 +19,6 @@ from typing import (  # noqa: F401 workaround for django-stubs#1022 until the fi
     Union,
 )
 from urllib.parse import urlparse
-
 import lxml.etree
 import lxml.sax
 import requests
@@ -38,10 +37,12 @@ from django.contrib.postgres.search import (
     SearchVectorField,
 )
 from django.core.exceptions import ValidationError
-from django.core.paginator import Paginator
+from django.core.paginator import Paginator, Page
 from django.core.validators import MaxLengthValidator, validate_unicode_slug
 from django.db import ProgrammingError, connection, models, transaction
 from django.db.models import Count, F, JSONField, Q, QuerySet
+from django.db.models.expressions import RawSQL
+
 from django.template.defaultfilters import truncatechars
 from django.template.loader import render_to_string
 from django.urls import reverse
@@ -827,15 +828,6 @@ def get_display_name_field(category):
     return f"metadata__{display_name_fields[category]}"
 
 
-def dump_search_results(parts):
-    return (
-        [
-            {k: "..." if k == "created_at" else v for k, v in r.metadata.items()}
-            for r in parts[0].object_list
-        ],
-    ) + tuple(parts[1:])
-
-
 class SearchIndex(models.Model):
     result_id = models.IntegerField()
     document = SearchVectorField()
@@ -858,19 +850,8 @@ class SearchIndex(models.Model):
         with connection.cursor() as cursor:
             try:
                 cursor.execute("REFRESH MATERIALIZED VIEW CONCURRENTLY internal_search_view")
-            except ProgrammingError as e:
-                if e.args[0].startswith('relation "internal_search_view" does not exist'):
-                    cls.create_search_index()
-
-    @classmethod
-    def search(cls, *args, **kwargs):
-        try:
-            return cls._search(*args, **kwargs)
-        except ProgrammingError as e:
-            if e.args[0].startswith('relation "internalsearch_view" does not exist'):
+            except ProgrammingError:
                 cls.create_search_index()
-                return cls._search(*args, **kwargs)
-            raise
 
     @classmethod
     def counts(cls, query: QuerySet) -> dict:
@@ -881,7 +862,7 @@ class SearchIndex(models.Model):
         }
 
     @classmethod
-    def _search(
+    def search(
         cls,
         category: str,
         query: Optional[str] = None,
@@ -890,37 +871,9 @@ class SearchIndex(models.Model):
         filters: Optional[dict[str, str]] = None,
         facet_fields: Optional[list[str]] = None,
         order_by: str = None,
-    ):
+    ) -> tuple[Page, dict, dict]:
         """
-        Given:
-        >>> _, legal_document_factory, casebook_factory = [getfixture(i) for i in ['reset_sequences', 'legal_document_factory', 'casebook_factory']]
-        >>> casebooks = [casebook_factory() for i in range(3)]
-        >>> users = [cc.user for cb in casebooks for cc in cb.contentcollaborator_set.all() ]
-        >>> docs = [legal_document_factory() for i in range(3)]
-        >>> SearchIndex().create_search_index()
-
-        Get all casebooks:
-        >>> assert dump_search_results(SearchIndex().search('casebook')) == (
-        ...     [
-        ...         {'affiliation': 'Affiliation 0', 'created_at': '...', 'title': 'Some Title 0', 'attribution': 'Some User 0', 'description': None},
-        ...         {'affiliation': 'Affiliation 1', 'created_at': '...', 'title': 'Some Title 1', 'attribution': 'Some User 1', 'description': None},
-        ...         {'affiliation': 'Affiliation 2', 'created_at': '...', 'title': 'Some Title 2', 'attribution': 'Some User 2', 'description': None}
-        ...     ],
-        ...     {'user': 3, 'legal_doc': 3, 'casebook': 3},
-        ...     {}
-        ... )
-
-        Get casebooks by query string:
-        >>> assert len(dump_search_results(SearchIndex().search('casebook', 'Some Title 0'))[0]) == 1
-
-        Get casebooks by filter field:
-        >>> assert len(dump_search_results(SearchIndex().search('casebook', filters={'attribution': 'Some User 1'}))[0]) == 1
-
-        Get all users:
-        >>> assert len(dump_search_results(SearchIndex().search('user'))[0]) == 3
-
-        Get all cases:
-        >>> assert len(dump_search_results(SearchIndex().search('legal_doc'))[0]) == 3
+        See main/test/test_search.py
         """
         filters = filters or {}
         facet_fields = facet_fields or []
@@ -930,7 +883,12 @@ class SearchIndex(models.Model):
         if query_vector:
             base_query = base_query.filter(document=query_vector)
         for k, v in filters.items():
-            base_query = base_query.filter(**{f"metadata__{k}": v})
+            if k == "institution":
+                # Institutions are arrays, but the ORM won't know that by default.
+                # It does know that it's a JSONB blob, and a `contains` query does the right thing.
+                base_query = base_query.filter(**{f"metadata__institution__contains": v})
+            else:
+                base_query = base_query.filter(**{f"metadata__{k}": v})
 
         # get results
         results = base_query.filter(category=category).only("result_id", "metadata")
@@ -972,7 +930,6 @@ class SearchIndex(models.Model):
                 .values_list(facet_param, flat=True)
                 .distinct()
             )
-
         return paged_results, counts, facets
 
 

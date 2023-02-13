@@ -3045,7 +3045,7 @@ internal_search_categories = set(("legal_doc", "casebook", "user"))
 
 
 @no_perms_test
-def internal_search(request):
+def internal_search(request: HttpRequest):
     """
     Search page.
 
@@ -3065,7 +3065,7 @@ def internal_search(request):
     if category not in internal_search_categories:
         category = "casebook"
     try:
-        page = int(request.GET.get("page"))
+        page = int(request.GET.get("page", 1))
     except (TypeError, ValueError):
         page = 1
     query = request.GET.get("q")
@@ -3076,19 +3076,22 @@ def internal_search(request):
     if author:
         filters["attribution"] = author
     if school:
-        filters["affiliation"] = school
+        filters["institution"] = school
 
     results, counts, facets = SearchIndex.search(
         category,
         page=page,
         query=query,
         filters=filters,
-        facet_fields=["attribution", "affiliation"],
+        facet_fields=["attribution", "institution"],
         order_by=request.GET.get("sort"),
     )
     full_counts = SearchIndex.counts(query=SearchIndex.objects.all())
 
-    results.from_capapi = False
+    institutions: set[str] = set()
+    for result in facets["institution"]:
+        for value in result:
+            institutions.add(value)
 
     return render(
         request,
@@ -3098,6 +3101,7 @@ def internal_search(request):
             "counts": counts,
             "full_counts": full_counts,
             "facets": facets,
+            "institutions": sorted(institutions),
             "category": category,
         },
     )
@@ -3127,7 +3131,6 @@ def casebook_search(request: HttpRequest, casebook: Casebook):
     results = FullTextSearchIndex.casebook_fts(
         casebook.id, category, page=page, query_str=query, user=user
     )
-    results.from_capapi = False
     return render(
         request,
         "casebook_page_search.html",

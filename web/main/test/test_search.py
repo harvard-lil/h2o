@@ -1,9 +1,10 @@
 from test.test_helpers import check_response
 
 import pytest
-from conftest import UserFactory, VerifiedProfessorFactory
 from django.urls import reverse
-from main.models import ContentNode, FullTextSearchIndex, Link, TextBlock
+
+from conftest import CasebookFactory, LegalDocumentFactory, UserFactory, VerifiedProfessorFactory
+from main.models import ContentNode, FullTextSearchIndex, Institution, Link, SearchIndex, TextBlock
 
 
 def test_search_inside_default(full_casebook, client):
@@ -78,3 +79,70 @@ def test_search_inside_prof_only(
     url = reverse("casebook_search", kwargs={"casebook_param": full_casebook})
     search_result = client.get(url, {"type": "textblock", "q": prof_only.title}, as_user=user)
     assert results_count == len(search_result.context["results"])
+
+
+@pytest.mark.parametrize(
+    "type,factory_class,metadata_fields",
+    [
+        ["casebook", CasebookFactory, ("institution", "title", "attribution")],
+        ["legal_doc", LegalDocumentFactory, ("citations", "display_name", "effective_date")],
+        [
+            "user",
+            CasebookFactory,  # Creates an author as a side effect
+            ("attribution", "institution", "casebook_count"),
+        ],
+    ],
+)
+def test_site_search_metadata(type, factory_class, metadata_fields, db):
+    """The site search should return the expected metadata for a specific typed search"""
+    total_results = 3
+
+    for _ in range(total_results):
+        factory_class()
+
+    SearchIndex().create_search_index()
+
+    page, _, _ = SearchIndex().search(type)
+
+    for result in page:
+        assert all((result.metadata[field] for field in metadata_fields)) is not None
+    assert page.count == total_results
+
+
+def test_site_search_school_dropdown(
+    institution_factory, content_collaborator_factory, casebook_factory, client
+):
+    """The site search should return a sorted, unique list of institutions in the school dropdown"""
+
+    # Set up a single casebook with two collaborators from different institutions
+    casebook = casebook_factory()
+    user1 = casebook.collaborators.first()
+    user2 = content_collaborator_factory(casebook=casebook).user
+
+    Institution.objects.all().delete()
+    institution1 = institution_factory(name="University 1")
+    institution2 = institution_factory(name="University 2")
+    not_indexed = institution_factory(name="Institution not represented in the search index")
+
+    user1.institution = institution1
+    user1.save()
+    user2.institution = institution2
+    user2.save()
+
+    SearchIndex().create_search_index()
+
+    url = reverse("internal_search")
+    resp = client.get(url)
+
+    # We should get one institution item for each collaborator who contributed
+    assert set(resp.context["institutions"]) == set(["University 1", "University 2"])
+
+    # If we filter by any of those, we should get the same result
+    resp = client.get(url, {"school": institution1.name})
+    assert resp.context["results"].count == 1
+
+    resp = client.get(url, {"school": institution2.name})
+    assert resp.context["results"].count == 1
+
+    resp = client.get(url, {"school": not_indexed.name})
+    assert resp.context["results"].count == 0
