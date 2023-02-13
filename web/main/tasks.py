@@ -15,7 +15,8 @@ def pdf_from_user(url: str, slug: str) -> str:
     with sync_playwright() as p:
         logger.info("Launching browser")
         browser = p.chromium.launch(headless=True)
-        page = browser.new_page()
+        context = browser.new_context(user_agent=settings.PDF_USER_AGENT_OVERRIDE)
+        page = context.new_page()
         url = generate_pdf(url, f"{slug}-{datetime.now().strftime('%Y%m%dT%H%M%S')}.pdf", page)
     return url
 
@@ -32,8 +33,7 @@ def generate_pdf(
 
     resp = page.goto(url)
 
-    assert resp
-    assert resp.ok
+    assert resp and resp.ok
     if "/accounts/login" in resp.url:
         raise PermissionError()
 

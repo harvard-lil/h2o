@@ -306,6 +306,9 @@ EXPORT_RATE_FALLOFF = int(MAX_EXPORTS_PER_HOUR / 60)
 
 # PDF export settings
 PDF_EXPORT_BUCKET = os.environ.get("PDF_EXPORT_BUCKET", "")
+PDF_USER_AGENT_OVERRIDE = (
+    None  # If set, will override the user agent used by Playwright during PDF generation
+)
 
 PDF_AWS_QUERYSTRING_EXPIRE = 3_600  # 60 minutes
 AWS_S3_SIGNATURE_VERSION = "s3v4"
