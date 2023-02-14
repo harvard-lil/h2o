@@ -41,7 +41,6 @@ from django.core.paginator import Paginator, Page
 from django.core.validators import MaxLengthValidator, validate_unicode_slug
 from django.db import ProgrammingError, connection, models, transaction
 from django.db.models import Count, F, JSONField, Q, QuerySet
-from django.db.models.expressions import RawSQL
 
 from django.template.defaultfilters import truncatechars
 from django.template.loader import render_to_string
@@ -886,7 +885,7 @@ class SearchIndex(models.Model):
             if k == "institution":
                 # Institutions are arrays, but the ORM won't know that by default.
                 # It does know that it's a JSONB blob, and a `contains` query does the right thing.
-                base_query = base_query.filter(**{f"metadata__institution__contains": v})
+                base_query = base_query.filter(**{"metadata__institution__contains": v})
             else:
                 base_query = base_query.filter(**{f"metadata__{k}": v})
 
