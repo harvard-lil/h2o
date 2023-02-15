@@ -93,7 +93,7 @@ def test_search_inside_prof_only(
         ],
     ],
 )
-def test_site_search_metadata(type, factory_class, metadata_fields, db):
+def test_site_search_metadata(type, factory_class, metadata_fields, client, db):
     """The site search should return the expected metadata for a specific typed search"""
     total_results = 3
 
@@ -108,6 +108,10 @@ def test_site_search_metadata(type, factory_class, metadata_fields, db):
         assert all((result.metadata[field] for field in metadata_fields)) is not None
     assert page.count == total_results
 
+    url = reverse("internal_search")
+    resp = client.get(url, {type: type})
+    check_response(resp)
+
 
 def test_site_search_school_dropdown(
     institution_factory, content_collaborator_factory, casebook_factory, client
@@ -118,6 +122,7 @@ def test_site_search_school_dropdown(
     casebook = casebook_factory()
     user1 = casebook.collaborators.first()
     user2 = content_collaborator_factory(casebook=casebook).user
+    content_collaborator_factory(casebook=casebook).user
 
     Institution.objects.all().delete()
     institution1 = institution_factory(name="University 1")
@@ -146,3 +151,9 @@ def test_site_search_school_dropdown(
 
     resp = client.get(url, {"school": not_indexed.name})
     assert resp.context["results"].count == 0
+
+    resp = client.get(url, {"type": "user"})
+    assert resp.context["results"].count == 3
+
+    resp = client.get(url, {"type": "user", "school": institution1.name})
+    assert resp.context["results"].count == 1

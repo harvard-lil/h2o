@@ -925,6 +925,7 @@ class SearchIndex(models.Model):
             facets[facet] = (
                 base_query.filter(category=category)
                 .exclude(**{facet_param: ""})
+                .exclude(**{facet_param: None})
                 .order_by(facet_param)
                 .values_list(facet_param, flat=True)
                 .distinct()
