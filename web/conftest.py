@@ -23,6 +23,7 @@ from main.models import (
     ContentAnnotation,
     ContentCollaborator,
     ContentNode,
+    Institution,
     LegalDocument,
     LegalDocumentSource,
     Link,
@@ -105,6 +106,15 @@ def celery_config():
 
 
 @register_factory
+class InstitutionFactory(factory.DjangoModelFactory):
+    class Meta:
+        model = Institution
+
+    name = factory.Sequence(lambda n: f"{n} University")
+    url = factory.Sequence(lambda n: f"https://example.com/{n}")
+
+
+@register_factory
 class UserFactory(factory.DjangoModelFactory):
     class Meta:
         model = User
@@ -112,6 +122,7 @@ class UserFactory(factory.DjangoModelFactory):
     email_address = factory.Sequence(lambda n: f"user{n}@example.com")
     attribution = factory.Sequence(lambda n: f"Some User {n}")
     affiliation = factory.Sequence(lambda n: f"Affiliation {n}")
+    institution = factory.SubFactory(InstitutionFactory)
     is_active = True
 
 
@@ -193,7 +204,7 @@ class ContentCollaboratorFactory(factory.DjangoModelFactory):
     class Meta:
         model = ContentCollaborator
 
-    user = factory.SubFactory(UserFactory, verified_professor=True)
+    user = factory.SubFactory(VerifiedProfessorFactory)
     casebook = factory.SubFactory(CasebookFactory)
     has_attribution = True
     can_edit = True
