@@ -122,7 +122,7 @@ def test_site_search_school_dropdown(
     casebook = casebook_factory()
     user1 = casebook.collaborators.first()
     user2 = content_collaborator_factory(casebook=casebook).user
-    user3 = content_collaborator_factory(casebook=casebook).user
+    content_collaborator_factory(casebook=casebook).user
 
     Institution.objects.all().delete()
     institution1 = institution_factory(name="University 1")
