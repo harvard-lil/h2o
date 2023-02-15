@@ -3089,9 +3089,14 @@ def internal_search(request: HttpRequest):
     full_counts = SearchIndex.counts(query=SearchIndex.objects.all())
 
     institutions: set[str] = set()
+
+    # Institution from the authors index is a string; from casebooks it's a list
     for result in facets["institution"]:
-        for value in result:
-            institutions.add(value)
+        if isinstance(result, list):
+            for value in result:
+                institutions.add(value)
+        else:
+            institutions.add(result)
 
     return render(
         request,

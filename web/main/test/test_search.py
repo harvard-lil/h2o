@@ -93,7 +93,7 @@ def test_search_inside_prof_only(
         ],
     ],
 )
-def test_site_search_metadata(type, factory_class, metadata_fields, db):
+def test_site_search_metadata(type, factory_class, metadata_fields, client, db):
     """The site search should return the expected metadata for a specific typed search"""
     total_results = 3
 
@@ -107,6 +107,10 @@ def test_site_search_metadata(type, factory_class, metadata_fields, db):
     for result in page:
         assert all((result.metadata[field] for field in metadata_fields)) is not None
     assert page.count == total_results
+
+    url = reverse("internal_search")
+    resp = client.get(url, {type: type})
+    check_response(resp)
 
 
 def test_site_search_school_dropdown(
