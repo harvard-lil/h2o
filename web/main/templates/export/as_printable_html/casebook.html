@@ -1,18 +1,29 @@
 {% load call_method %}
 {% load static %}
 {% load render_bundle from webpack_loader %}
+<!DOCTYPE html>
 <html lang="en">
   <head>
     <title>{{ casebook.title }} | H2O </title>
-    <link href="{% static 'images/favicon.ico' %}" rel="shortcut icon" type="image/vnd.microsoft.icon" />
+    <link href="{% static 'images/favicon.ico' %}" rel="shortcut icon" type="image/vnd.microsoft.icon">
+    <link href="{% static 'fonts/AtlasGrotesk-Regular.woff2' %}" crossoriginrel="preload" as="font">
+    <link href="{% static 'fonts/ChronicleTextG3-Regular.woff2' %}" crossoriginrel="preload" as="font">
+    <link href="{% static 'fonts/ChronicleTextG3-Bold.woff2' %}" crossorigin rel="preload" as="font">
+    <link href="{% static 'fonts/ChronicleTextG3-Italic.woff2' %}" crossorigin rel="preload" as="font">
+   
+
     <meta name="viewport" content="width=device-width">
-    <meta content="width=device-width, initial-scale=1" name="viewport"/>
-    <meta charset="utf-8"/>
+    <meta content="width=device-width, initial-scale=1" name="viewport">
+    <meta charset="utf-8">
+    <meta name="description" 
+      content="{{ casebook.description|default_if_none:'The text from a free and open casebook from H2O Open Casebooks' }}">
+    <meta name="author" content="{% for author in casebook.primary_authors %}{{ author.attribution|safe }}{% if not forloop.last %}, {% endif %}{% endfor %}">
 
-    {% render_bundle 'as_printable_html' attrs="defer" %}
-    {% render_bundle 'chunk-common' attrs="defer" %}
+    <script defer src="{% static 'as_printable_html/as_printable_html.js' %}" type="module"></script>
 
-    {% if not use_pagedjs %}
+    {% if use_pagedjs %}
+      {% render_bundle 'chunk-common' attrs="defer" %}
+    {% else %}
       <link href="{% static 'as_printable_html/screen.css' %}" type="text/css" rel="stylesheet">
     {% endif %}
 
@@ -21,16 +32,13 @@
 
 <body>
   <header class="screen-only">
-    <img src="{% static 'images/logo-color-full-lockup.svg' %}" alt="H2O" height="50">
+    <img src="{% static 'images/logo-color-full-lockup.svg' %}" alt="H2O" height="50" width="50">
   <p>This free and open legal casebook from <a href="{% url 'index' %}">H2O</a>
     is licensed under a Creative Commons license. <a href="{% url 'terms-of-service' %}">Learn more</a>.
     </p>
   </header>
 
-  <template id="casebook-content"
-    data-stylesheet="{% static 'as_printable_html/print.css' %}"
-    data-use-pagedjs="{{ use_pagedjs|yesno:'true,false' }}">
-
+  <main>
     <header class="casebook-metadata" data-paginator-page="{{ page.number }}">
       <div>
         <h1 class="casebook title">{{ casebook.title }}</h1>
@@ -62,10 +70,9 @@
         {% include "export/as_printable_html/node.html" with index=forloop.counter node=child %}
       {% endfor %}
     </article>
+  </main>
 
-  </template>
-
-  <main id="as-printable-html"></main>
+    
 
   <footer class="screen-only">
     <nav>

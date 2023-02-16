@@ -4,8 +4,6 @@
 @media print {
   :root {
     --casebook-font-family: "LibreCaslon";
-    --highlight-background-greyscale: #ededed;
-    --highlight-background-color: #fff7b9;
     --headnote-padding: 5mm;
     --casebook-font-size: 3.5mm;
     --casebook-line-height: calc(var(--casebook-font-size) * 1.8);
@@ -46,7 +44,9 @@
   }
   section.headnote p {
     margin: var(--casebook-font-size) 0;
+    text-indent: initial;
   }
+
   /* Style footnotes, allowing the URLs to break midway. PagedJS will put these in the bottom margin */
   .footnote-generated {
     float: footnote;

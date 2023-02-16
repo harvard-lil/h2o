@@ -109,7 +109,7 @@ def test_print_preview_page(static_live_server, page: Page, full_casebook):
         + "?print-preview=true"
     )
     page.goto(url)
-    expect(page.locator("main.preview-ready")).not_to_be_empty()
+    expect(page.locator("main")).not_to_be_empty()
 
 
 @pytest.mark.xdist_group("functional")
@@ -118,7 +118,7 @@ def test_reading_mode_nav(static_live_server, page: Page, full_casebook):
     login(static_live_server, page, user="functional-staff@example.edu")
 
     page.goto(static_live_server.url + reverse("as_printable_html", args=[full_casebook]))
-    expect(page.locator("main.preview-ready")).not_to_be_empty()
+    expect(page.locator("main")).not_to_be_empty()
     page.get_by_role("option", name="1 of 2 sections")
     page.locator("#page-selector").select_option(label="2 of 2 sections")
     page.get_by_role("option", name="2 of 2 sections")

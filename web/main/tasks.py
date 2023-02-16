@@ -25,8 +25,8 @@ def generate_pdf(
     url: str,
     output_filename: str,
     page: Page,
-    selector: str = "main.preview-ready",
-    timeout=120_000,
+    selector: str = "main",
+    timeout=5_000,
 ) -> str:
     """Generate a PDF from a given URL"""
     logger.info(f"Requesting {url}...")

@@ -10,6 +10,8 @@
     --color-dark-gray: gray;
     --color-black: rgb(2, 2, 2);
     --font-sans-serif: "Atlas Grotesk";
+    --highlight-background-greyscale: #ededed;
+    --highlight-background-color: #fff7b9;
   }
 
   /* Always start a top-level section on a new page, even if there's preface matter */
@@ -107,11 +109,6 @@
     padding: 0 var(--headnote-padding);
   }
 
-  /* Headnotes don't have indentation */
-  section.headnote p {
-    text-indent: initial;
-  }
-
   section.link {
     margin-top: 10mm;
   }
@@ -171,31 +168,16 @@
     padding: calc(var(--casebook-line-height) * 0.2) 0;
   }
 
-  .elided {
-    display: none;
-  }
-  .elision-marker {
-    text-decoration: none;
-    font-style: normal;
-  }
   p:has(> ins:last-child):has(> del:first-child) {
     text-indent: 0;
   }
 
-  del:is(.replace, .correction) {
+  del:is(.replace, .correction, .elided) {
     display: none;
   }
-  ins:is(.replace, .correction) {
+  ins:is(.replace, .correction, .elision-marker) {
     text-decoration: none;
-  }
-
-  /* Set up a new container that avoids inheriting styles from block parents */
-  .authors-note {
-    break-inside: avoid;
-    font-weight: initial;
-    text-align: initial;
-    font-style: initial;
-    text-indent: initial;
+    font-size: normal;
   }
 
   /* Usually hidden node title that will be displayed in screen view */
@@ -212,5 +194,6 @@
     font-family: "Atlas Grotesk";
     src: url("../fonts/AtlasGrotesk-Regular.woff2") format("woff2");
     font-weight: normal;
+    font-display: swap;
   }
 }
