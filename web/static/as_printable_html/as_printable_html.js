@@ -1,28 +1,19 @@
-import {
-  Previewer
-} from "pagedjs";
-
-
 class TocControl extends HTMLElement {
-
   static get observedAttributes() {
-    return ['open']
+    return ["open"];
   }
 
-
   connectedCallback() {
-
-    this.tocList = this.querySelector('ol');
+    this.tocList = this.querySelector("ol");
     if (this.tocList) {
-      this.querySelector('.toc-opener').addEventListener('click', () => {
-        this.toggleAttribute('open');
-      })
+      this.querySelector(".toc-opener").addEventListener("click", () => {
+        this.toggleAttribute("open");
+      });
     }
-
   }
 }
 
-customElements.define('toc-control', TocControl);
+customElements.define("toc-control", TocControl);
 
 /**
  * Collect groups of ranges for each annotation offset start and end. Note that start/end offset may
@@ -44,6 +35,7 @@ function annotationsToRanges(annotations, content) {
     const resource = content.querySelector(
       `[data-node-id="${el.getAttribute("data-node-id")}"]`
     );
+
     const startOffset = +el.getAttribute("data-start-offset");
     const endOffset = +el.getAttribute("data-end-offset");
 
@@ -77,6 +69,7 @@ function annotationsToRanges(annotations, content) {
         else {
           range.setEnd(startNode, chars);
         }
+
         // Save off this range
         ranges.push(range);
       }
@@ -117,43 +110,33 @@ function annotationsToRanges(annotations, content) {
  */
 function hyperlinkFootnote(node, url, dateCreated) {
   const footnote = document.createElement("a");
-  footnote.setAttribute("href", url)
-  const displayDate = dateCreated.toLocaleString('en-US', {
-    day: 'numeric',
-    month: 'short',
-    year: 'numeric'
-  })
+  footnote.setAttribute("href", url);
+  const displayDate = dateCreated.toLocaleString("en-US", {
+    day: "numeric",
+    month: "short",
+    year: "numeric",
+  });
   footnote.innerHTML = `${url}
-    <span class="citation">(link created ${displayDate})</span>`
-  // Ask PagedJS to render it as a footnote on the current page
-  footnote.classList.add("footnote-generated");
+    <span class="citation">(link created ${displayDate})</span>`;
   node.insertAdjacentElement("afterend", footnote);
 }
 
-const main = document.querySelector("main")
-const tmpl = document.querySelector("#casebook-content");
-const paged = new Previewer();
+const main = document.querySelector("main");
 
 const annotationRanges = annotationsToRanges(
-  Array.from(tmpl.content.querySelectorAll("[data-annotation-type]")),
-  tmpl.content
+  Array.from(main.querySelectorAll("[data-annotation-type]")),
+  main
 );
 
 // When all Ranges are ready, start updating the DOM
-annotationRanges.forEach((rg) => {
-  const {
-    id,
-    type,
-    datetime,
-    ranges,
-    content
-  } = rg;
 
+annotationRanges.forEach((rg) => {
+  const { id, type, datetime, ranges, content } = rg;
   switch (type) {
     case "highlight": {
       ranges.forEach((range) => {
         const wrap = document.createElement("mark");
-        wrap.setAttribute('highlight-id', id);
+        wrap.setAttribute("highlight-id", id);
         wrap.classList.add("highlighted");
         range.surroundContents(wrap);
       });
@@ -161,21 +144,24 @@ annotationRanges.forEach((rg) => {
     }
     case "elide": {
       let lastNode;
-      ranges.forEach((range) => {
-        const elision = document.createElement("del");
-        elision.classList.add("elided");
-        elision.setAttribute("datetime", datetime);
-        elision.setAttribute('elision-id', id);
-        range.surroundContents(elision);
-        lastNode = elision;
-      });
-      const marker = document.createElement("ins");
-      marker.setAttribute('elision-marker-id', id);
-      marker.setAttribute("datetime", datetime);
-      marker.classList.add("elision-marker");
-      marker.innerText = " […] ";
-      lastNode.insertAdjacentElement("afterend", marker);
+      ranges
+        .filter((range) => range.endOffset > 0)
+        .forEach((range) => {
+          const elision = document.createElement("del");
 
+          elision.classList.add("elided");
+
+          elision.setAttribute("datetime", datetime);
+          elision.setAttribute("data-elision-id", id);
+          elision.setAttribute("data-range-start", range.startOffset);
+          elision.setAttribute("data-range-end", range.endOffset);
+          range.surroundContents(elision);
+          lastNode = elision;
+        });
+      if (lastNode) {
+        const marker = `<ins data-elision-marker-id="${id}" datetime="${datetime}" class="elision-marker">[…] </ins>`;
+        lastNode.insertAdjacentHTML("afterend", marker);
+      }
       break;
     }
     case "note": {
@@ -184,7 +170,7 @@ annotationRanges.forEach((rg) => {
       // Wrap the specific text the author highlighted to allow for downstream styling
       ranges.forEach((range) => {
         const wrap = document.createElement("mark");
-        wrap.setAttribute('mark-id', id);
+        wrap.setAttribute("mark-id", id);
         wrap.setAttribute("tabindex", "0");
         wrap.classList.add("note-mark");
         range.surroundContents(wrap);
@@ -192,14 +178,8 @@ annotationRanges.forEach((rg) => {
       });
 
       // Add the note after the last range
-      const note = document.createElement("aside");
-      note.id = `note-${id}`;
-      note.classList.add("authors-note");
-
-      // Ask PagedJS to render it as a footnote on the current page
-      note.classList.add("footnote-generated");
-      note.innerText = content
-      lastNode.insertAdjacentElement("afterend", note);
+      const note = `<aside note-id="${id}" class="authors-note">${content}</aside>`;
+      lastNode.insertAdjacentHTML("afterend", note);
 
       break;
     }
@@ -208,20 +188,15 @@ annotationRanges.forEach((rg) => {
       // Transparently replace the content inside the node
       ranges.forEach((range) => {
         const deletion = document.createElement("del");
-        deletion.setAttribute('correction-deletion-id', id);
+        deletion.setAttribute("correction-deletion-id", id);
         deletion.setAttribute("datetime", datetime);
         deletion.classList.add(type);
 
-        const replacement = document.createElement("ins");
-        replacement.setAttribute('correction-insertion-id', id);
-        replacement.setAttribute("datetime", datetime);
-        replacement.classList.add(type);
-        replacement.innerText = content;
+        const replacement = `<ins data-${type}-insertion-id="${id}" datetime="${datetime}" class="${type}">${content}</ins>`;
         range.surroundContents(deletion);
-        deletion.insertAdjacentElement("afterend", replacement);
+        deletion.insertAdjacentHTML("afterend", replacement);
       });
       break;
-
     }
     case "link":
       // Inject a hyperlink which in print will be styled as a footnote
@@ -229,43 +204,43 @@ annotationRanges.forEach((rg) => {
         const anchor = document.createElement("a");
         anchor.setAttribute("href", content);
         range.surroundContents(anchor);
-        hyperlinkFootnote(anchor, content, new Date(datetime))
+        hyperlinkFootnote(anchor, content, new Date(datetime));
       });
-      break
+      break;
   }
 });
 
 // Any existing URLs that are external and don't open in a new tab should
-tmpl.content.querySelectorAll('a[href^="http"]:not([target])').forEach((el) => {
-  el.setAttribute('target', '_blank');
+main.querySelectorAll('a[href^="http"]:not([target])').forEach((el) => {
+  requestIdleCallback(
+    () => {
+      el.setAttribute("target", "_blank");
+    },
+    { timeout: 500 }
+  );
 });
 
-function renderAsPagedJS() {
-  // For any existing URLs that aren't resources, turn them into footnotes
-  tmpl.content.querySelectorAll('a[href^="http"]:not([data-type])').forEach((el) => {
-    hyperlinkFootnote(el, el['href'],
-      new Date(tmpl.content.querySelector('section[data-datetime]').getAttribute('data-datetime')))
-  });
+// Uniquify id links within case content
+requestIdleCallback(
+  () => {
+    for (const casebody of main.querySelectorAll(".casebody")) {
+      const caseId = casebody.getAttribute("data-case-id");
+      for (const link of casebody.querySelectorAll('a[id^="ref"')) {
+        link.setAttribute("id", `${link.id}-${caseId}`);
+      }
+      for (const link of casebody.querySelectorAll('a[href^="#"')) {
+        const targetId = link.getAttribute("href").replace("#", "");
+        const newId = `${targetId}-${caseId}`;
+        casebody
+          .querySelector(`[id="${targetId}]"`)
+          ?.setAttribute("name", newId);
+        link.setAttribute("href", `#${newId}`);
+      }
+    }
+  },
+  { timeout: 600 }
+);
 
-  const css = tmpl.getAttribute("data-stylesheet");
-  paged.preview(tmpl.content, [css], main).then((flow) => {
-    console.log("Rendered", flow.total, "pages.");
-    main.classList.add("preview-ready");
-  });
-
-}
-if (tmpl.getAttribute("data-use-pagedjs") === "true") {
-  renderAsPagedJS();
-
-} else {
-
-
-  main.append(tmpl.content.cloneNode(true));
-
-  document.querySelector('#page-selector').addEventListener('change', (e) => {
-    location.href = e.target.value;
-  })
-
-  main.classList.add("preview-ready");
-
-}
+document.querySelector("#page-selector").addEventListener("change", (e) => {
+  location.href = e.target.value;
+});

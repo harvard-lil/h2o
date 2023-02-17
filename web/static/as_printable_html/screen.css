@@ -203,17 +203,20 @@
     font-family: "Chronicle Text G3";
     src: url("../fonts/ChronicleTextG3-Regular.woff2") format("woff2");
     font-weight: normal;
+    font-display: swap;
   }
 
   @font-face {
     font-family: "Chronicle Text G3";
     src: url("../fonts/ChronicleTextG3-Italic.woff2") format("woff2");
     font-style: italic;
+    font-display: swap;
   }
 
   @font-face {
     font-family: "Chronicle Text G3";
     src: url("../fonts/ChronicleTextG3-Bold.woff2") format("woff2");
     font-weight: bold;
+    font-display: swap;
   }
 }

@@ -64,7 +64,11 @@
 .legaldocument section.resource .page-label {
   display: none;
 }
-
+.legaldocument .page-number:not:has(> del) {
+  font-size: small;
+  vertical-align: super;
+  margin: 4px;
+}
 .legaldocument aside.footnote > a {
   float: left;
   padding-right: 1rem;
@@ -77,29 +81,26 @@
 }
 
 section.legaldocument-container {
-
   padding: calc(3 * var(--legal-doc-outset));
-  margin: calc(2 * var(--legal-doc-outset))
-          calc(-1 * var(--legal-doc-outset))
-          calc(10 * var(--legal-doc-outset))
-          calc(-1 * var(--legal-doc-outset)) ;
-  box-shadow: rgba(14, 30, 37, 0.12) 0px 2px 10px 0px, var(--legal-doc-shadow) 0px 2px 8px 0px;
+  margin: calc(2 * var(--legal-doc-outset)) calc(-1 * var(--legal-doc-outset))
+    calc(10 * var(--legal-doc-outset)) calc(-1 * var(--legal-doc-outset));
+  box-shadow: rgba(14, 30, 37, 0.12) 0px 2px 10px 0px,
+    var(--legal-doc-shadow) 0px 2px 8px 0px;
 }
 @media print {
   section.legaldocument-container {
     box-shadow: none;
-
   }
   section.legaldocument-container:before {
-    border-top: 1px solid var( --legal-doc-shadow);
+    border-top: 1px solid var(--legal-doc-shadow);
     height: 1rem;
     display: block;
-    content: '';
+    content: "";
   }
   section.legaldocument-container:after {
-    border-bottom: 1px solid var( --legal-doc-shadow);
+    border-bottom: 1px solid var(--legal-doc-shadow);
     height: 2rem;
     display: block;
-    content: '';
+    content: "";
   }
 }
