@@ -73,5 +73,30 @@
     "reading_length": 0,
     "is_instructional_material": false
   }
+},
+{
+  "model": "main.contentnode",
+  "pk": 4,
+  "fields": {
+    "created_at": "2023-02-21T15:36:18.704",
+    "updated_at": "2023-02-21T17:09:39.887",
+    "ordinals": "[\"1\"]",
+    "display_ordinals": "[\"1\"]",
+    "does_display_ordinals": true,
+    "provenance": "[]",
+    "title": "notes",
+    "subtitle": null,
+    "headnote": "",
+    "headnote_doc_class": "Text",
+    "copy_of": null,
+    "public": false,
+    "draft_mode_of_published_casebook": null,
+    "old_casebook": null,
+    "casebook": 3,
+    "resource_type": "TextBlock",
+    "resource_id": 4,
+    "reading_length": null,
+    "is_instructional_material": false
+  }
 }
 ]

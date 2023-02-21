@@ -36,5 +36,24 @@
     "common_title": null,
     "export_fails": 0
   }
+},
+{
+  "model": "main.casebook",
+  "pk": 3,
+  "fields": {
+    "created_at": "2023-02-21T15:35:50.234",
+    "updated_at": "2023-02-21T15:35:58.362",
+    "provenance": "[]",
+    "old_casebook": null,
+    "title": "Casebook with annotations",
+    "subtitle": null,
+    "headnote": "",
+    "description": "",
+    "cover_image": "",
+    "state": "Fresh",
+    "draft": null,
+    "common_title": null,
+    "export_fails": 0
+  }
 }
 ]

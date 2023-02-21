@@ -1,45 +1,12 @@
 # These tests are run through LiveServerTestCase and playwright
-import re
 from urllib.request import urlopen
 
 import pytest
-from django.core.management import call_command
 from django.urls import reverse
+from playwright.sync_api import Page, expect
+
 from main.models import Casebook
 from main.tasks import generate_pdf
-from playwright.sync_api import Page, expect
-from pytest_django.live_server_helper import LiveServer
-
-
-@pytest.fixture(autouse=True, scope="function")
-def load_fixtures(transactional_db, django_db_serialized_rollback):
-    call_command(
-        "loaddata",
-        [
-            "main/test/functional/fixtures/casebooks.json",
-            "main/test/functional/fixtures/contentcollaborators.json",
-            "main/test/functional/fixtures/contentnodes.json",
-            "main/test/functional/fixtures/textblocks.json",
-            "main/test/functional/fixtures/users.json",
-        ],
-    )
-
-
-# Ensure that staticfiles has been dropped from the app list before the live_server constructor runs.
-# Implementation of this fix: https://github.com/pytest-dev/pytest-django/issues/294#issuecomment-1269236192
-# This fixture be deleted when there's a better mechanism upstream to handle.
-@pytest.fixture
-def static_live_server(request, settings):
-    if "django.contrib.staticfiles" in settings.INSTALLED_APPS:
-        settings.INSTALLED_APPS.remove("django.contrib.staticfiles")
-    server = LiveServer("localhost")
-    request.addfinalizer(server.stop)
-    return server
-
-
-@pytest.fixture
-def login_as_default(static_live_server, page):
-    login(static_live_server, page)
 
 
 def login(static_live_server, page: Page, user="functional-test@example.edu", password="changeme"):
@@ -110,19 +77,6 @@ def test_print_preview_page(static_live_server, page: Page, full_casebook):
     )
     page.goto(url)
     expect(page.locator("main")).not_to_be_empty()
-
-
-@pytest.mark.xdist_group("functional")
-def test_reading_mode_nav(static_live_server, page: Page, full_casebook):
-    """Reading mode should allow users to visit the content and navigate between chapters"""
-    login(static_live_server, page, user="functional-staff@example.edu")
-
-    page.goto(static_live_server.url + reverse("as_printable_html", args=[full_casebook]))
-    expect(page.locator("main")).not_to_be_empty()
-    page.get_by_role("option", name="1 of 2 sections")
-    page.locator("#page-selector").select_option(label="2 of 2 sections")
-    page.get_by_role("option", name="2 of 2 sections")
-    expect(page).to_have_url(re.compile("/as-printable-html/2/$"))
 
 
 @pytest.mark.xdist_group("functional")
