@@ -1,0 +1,54 @@
+[
+{
+  "model": "main.contentannotation",
+  "pk": 31,
+  "fields": {
+    "created_at": "2023-02-21T15:37:41.293",
+    "updated_at": "2023-02-21T15:37:41.293",
+    "kind": "highlight",
+    "content": "",
+    "global_start_offset": 29,
+    "global_end_offset": 58,
+    "resource": 4
+  }
+},
+{
+  "model": "main.contentannotation",
+  "pk": 32,
+  "fields": {
+    "created_at": "2023-02-21T15:37:51.937",
+    "updated_at": "2023-02-21T15:37:51.937",
+    "kind": "correction",
+    "content": "corrected",
+    "global_start_offset": 105,
+    "global_end_offset": 113,
+    "resource": 4
+  }
+},
+{
+  "model": "main.contentannotation",
+  "pk": 33,
+  "fields": {
+    "created_at": "2023-02-21T15:37:56.829",
+    "updated_at": "2023-02-21T15:37:56.829",
+    "kind": "elide",
+    "content": "",
+    "global_start_offset": 114,
+    "global_end_offset": 217,
+    "resource": 4
+  }
+},
+{
+  "model": "main.contentannotation",
+  "pk": 34,
+  "fields": {
+    "created_at": "2023-02-21T17:09:39.895",
+    "updated_at": "2023-02-21T17:09:39.895",
+    "kind": "note",
+    "content": "Here is the note.",
+    "global_start_offset": 243,
+    "global_end_offset": 247,
+    "resource": 4
+  }
+}
+]
