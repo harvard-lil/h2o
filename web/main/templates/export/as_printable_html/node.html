@@ -49,7 +49,11 @@
         <section class="{{ node.resource_type.lower }}-container">
 
           {% if node.resource_type.lower == 'legaldocument' %}
-            {% include "includes/legal_doc_sources/cap_header.html" with legal_doc=node.resource %}
+            {% if node.resource.doc_class.lower == 'case' %}
+              {% include "includes/legal_doc_sources/cap_header.html" with legal_doc=node.resource %}
+            {% elif node.resource.doc_class.lower == 'code' %}
+              {% include "includes/legal_doc_sources/gpo_header.html" with legal_doc=node.resource %}
+            {% endif %}
           {% endif %}
 
 
