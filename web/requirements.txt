@@ -285,13 +285,13 @@ django-storages==1.13.2 \
     --hash=sha256:31dc5a992520be571908c4c40d55d292660ece3a55b8141462b4e719aa38eab3 \
     --hash=sha256:cbadd15c909ceb7247d4ffc503f12a9bec36999df8d0bef7c31e57177d512688
     # via -r requirements.in
-django-stubs[compatible-mypy]==1.12.0 \
-    --hash=sha256:0dff8ec0ba3abe046450b3d8a29ce9e72629893d2c1ef679189cc2bfdb6d2f64 \
-    --hash=sha256:ea8b35d0da49f7b2ee99a79125f1943e033431dd114726d6643cc35de619230e
+django-stubs[compatible-mypy]==1.14.0 \
+    --hash=sha256:b081d64d923171f79d4e57899b0980da847e4046b91166e3658a6151645a36c5 \
+    --hash=sha256:d53bcd4975a54ca5c9abbbd33b61f40d44191971018f2ea54f73b0a6a99e1a8b
     # via -r requirements.in
-django-stubs-ext==0.5.0 \
-    --hash=sha256:9bd7418376ab00b7f88d6d56be9fece85bfa0c7c348ac621155fa4d7a91146f2 \
-    --hash=sha256:c5d8db53d29c756e7e3d0820a5a079a43bc38d8fab0e1b8bd5df2f3366c54b5a
+django-stubs-ext==0.7.0 \
+    --hash=sha256:4fd8cdbc68d1a421f21bb7e0d9e76d50f6a4b504d350ba786405daf536e90c21 \
+    --hash=sha256:d729fbc7fe8970a7e26b35956c35b48502516f011d523c0577bdfb02ed956284
     # via django-stubs
 django-webpack-loader==0.7.0 \
     --hash=sha256:7a3c88201aa54481f9399465615cbe7b9aece8081496a6d0287b7cb8e232f447 \
