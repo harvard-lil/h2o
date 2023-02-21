@@ -50,5 +50,18 @@
     "global_end_offset": 247,
     "resource": 4
   }
+},
+{
+  "model": "main.contentannotation",
+  "pk": 35,
+  "fields": {
+    "created_at": "2023-02-21T19:24:08.079",
+    "updated_at": "2023-02-21T19:24:08.079",
+    "kind": "replace",
+    "content": "word replaced",
+    "global_start_offset": 286,
+    "global_end_offset": 297,
+    "resource": 4
+  }
 }
 ]
