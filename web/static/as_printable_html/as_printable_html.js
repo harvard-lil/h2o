@@ -44,7 +44,7 @@ function annotationsToRanges(annotations, content) {
     // Iterate through all the text nodes in the resource, keeping track of the current character offset.
     // Early exit when we've found the end of the annotation.
     while ((textNode = iter.nextNode()) && !endNode) {
-      const chars = textNode.textContent?.length;
+      const chars = textNode.textContent?.length || 0;
 
       // If the annotation's start offset lies within this node...
       if (currentOffset + chars > startOffset && !startNode) {
@@ -143,7 +143,7 @@ annotationRanges.forEach((rg) => {
       break;
     }
     case "elide": {
-      let lastNode;
+      let firstNode;
       ranges
         .filter((range) => range.endOffset > 0)
         .forEach((range) => {
@@ -156,11 +156,24 @@ annotationRanges.forEach((rg) => {
           elision.setAttribute("data-range-start", range.startOffset);
           elision.setAttribute("data-range-end", range.endOffset);
           range.surroundContents(elision);
-          lastNode = elision;
+          if (!firstNode) {
+            firstNode = elision;
+          }
         });
-      if (lastNode) {
-        const marker = `<ins data-elision-marker-id="${id}" datetime="${datetime}" class="elision-marker">[…] </ins>`;
-        lastNode.insertAdjacentHTML("afterend", marker);
+      if (firstNode) {
+        const marker = `<ins data-elision-marker-id="${id}" datetime="${datetime}" class="elision-marker"> […] </ins>`;
+        // Put the insertion marked outside the containing node if the elided content is the first real content of its parent;
+        // this avoids inheriting spurious markup from the elided parent.
+        if (firstNode.parentNode.firstChild === firstNode) {
+          firstNode.parentNode.insertAdjacentHTML("beforebegin", marker);
+        } else if (
+          firstNode.parentNode.firstElementChild == firstNode &&
+          firstNode.previousSibling.textContent.trim().length === 0
+        ) {
+          firstNode.parentNode.insertAdjacentHTML("beforebegin", marker);
+        } else {
+          firstNode.insertAdjacentHTML("beforebegin", marker);
+        }
       }
       break;
     }

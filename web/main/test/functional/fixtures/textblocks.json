@@ -46,5 +46,17 @@
     "content": "<p>This is the first paragraph. This sentence is highlighted.</p><p>This is the second paragraph. This sentence is corected.</p><p>This is the third paragraph. This and the following paragraph are elided.</p><p>This paragraph is also elided.</p><p>This paragraph has a note here. You can read it.</p><p>This paragraph has a replacement.</p><p>This is the last paragraph. It's normal.</p>",
     "doc_class": "Text"
   }
+},
+{
+  "model": "main.textblock",
+  "pk": 5,
+  "fields": {
+    "created_at": "2023-02-21T22:27:41.620",
+    "updated_at": "2023-02-21T22:28:47.954",
+    "name": "nest annotations",
+    "description": null,
+    "content": "<p>This content has an elision which spans multiple node boundaries: <strong>bold text</strong> and then <em>italic tex</em>t and then <strong><em>bold inside italic text</em></strong>.</p><p>This content starts an elision that will </p><p>continue into the next paragraph.</p>",
+    "doc_class": "Text"
+  }
 }
 ]

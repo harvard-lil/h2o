@@ -63,5 +63,31 @@
     "global_end_offset": 297,
     "resource": 4
   }
+},
+{
+  "model": "main.contentannotation",
+  "pk": 36,
+  "fields": {
+    "created_at": "2023-02-21T22:28:56.414",
+    "updated_at": "2023-02-21T22:28:56.414",
+    "kind": "elide",
+    "content": "",
+    "global_start_offset": 66,
+    "global_end_offset": 129,
+    "resource": 5
+  }
+},
+{
+  "model": "main.contentannotation",
+  "pk": 37,
+  "fields": {
+    "created_at": "2023-02-21T22:29:05.812",
+    "updated_at": "2023-02-21T22:29:05.812",
+    "kind": "elide",
+    "content": "",
+    "global_start_offset": 150,
+    "global_end_offset": 184,
+    "resource": 5
+  }
 }
 ]

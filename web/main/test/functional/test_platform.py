@@ -44,8 +44,7 @@ def test_auth(static_live_server, page: Page):
 def test_view_casebook(static_live_server, page: Page, login_as_default):
     """An authenticated user should be able to view their casebooks in edit mode"""
     page.goto(static_live_server.url)
-    expect(page.locator(".casebook-info .title")).to_have_text("Simple casebook")
-    page.locator(".casebook-info .title").click()
+    page.get_by_text("Simple casebook").click()
     page.get_by_role("link", name="First content").click()
 
     expect(page).to_have_url(
