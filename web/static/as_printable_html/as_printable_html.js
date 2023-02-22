@@ -198,17 +198,19 @@ annotationRanges.forEach((rg) => {
     }
     case "replace":
     case "correction": {
+      let lastNode;
       // Transparently replace the content inside the node
       ranges.forEach((range) => {
         const deletion = document.createElement("del");
         deletion.setAttribute("correction-deletion-id", id);
         deletion.setAttribute("datetime", datetime);
         deletion.classList.add(type);
-
-        const replacement = `<ins data-${type}-insertion-id="${id}" datetime="${datetime}" class="${type}">${content}</ins>`;
         range.surroundContents(deletion);
-        deletion.insertAdjacentHTML("afterend", replacement);
+        lastNode = deletion;
+
       });
+      const replacement = `<ins data-${type}-insertion-id="${id}" datetime="${datetime}" class="${type}">${content}</ins>`;
+      lastNode.insertAdjacentHTML("afterend", replacement);
       break;
     }
     case "link":
