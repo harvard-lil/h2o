@@ -1,0 +1,23 @@
+h4.subsection-head {
+  font-weight: bold;
+  font-size: 22px;
+}
+
+h4.notes-section {
+  margin-top: 6rem;
+  font-weight: bold;
+  font-size: 22px;
+}
+
+h4.paragraph-head {
+  padding-left: 1rem;
+}
+
+header.uscode-header {
+  text-align: center;
+  font-size: 18px;
+  font-weight: bold;
+}
+header.uscode-header .citation {
+  font-size: 18px;
+}

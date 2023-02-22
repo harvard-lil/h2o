@@ -5,7 +5,8 @@
   :root {
     --casebook-font-family: "Chronicle Text G3";
     --casebook-font-size: 18px;
-    --casebook-line-height: calc(var(--casebook-font-size) * 1.8);
+    --margin-font-size: 14px;
+    --casebook-line-height: 1.8em;
     --link-icon-height: calc(2 * var(--casebook-font-size));
     --link-icon-width: calc(2 * var(--casebook-font-size));
     --link-icon-margin: 1rem;
@@ -42,6 +43,9 @@
     padding: 1rem;
     width: 15vw;
     transition: transform 0.1s ease-in;
+    line-height: var(--casebook-line-height);
+    font-family: var(--font-sans-serif) !important;
+    font-size: var(--margin-font-size) !important;
   }
 
   mark.note-mark {
@@ -74,12 +78,13 @@
   }
   .node-heading {
     display: block;
-    font-size: 10px;
     width: 13vw;
     margin-left: -20vw;
     float: left;
     text-align: right;
-    line-height: initial;
+    font-family: var(--font-sans-serif) !important;
+    font-size: var(--margin-font-size) !important;
+    line-height: var(--casebook-line-height);
   }
   .node-heading.depth-1 {
     top: 5vh;
