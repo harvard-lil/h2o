@@ -55,7 +55,7 @@
     "updated_at": "2023-02-21T22:28:47.954",
     "name": "nest annotations",
     "description": null,
-    "content": "<p>This content has an elision which spans multiple node boundaries: <strong>bold text</strong> and then <em>italic tex</em>t and then <strong><em>bold inside italic text</em></strong>.</p><p>This content starts an elision that will </p><p>continue into the next paragraph.</p>",
+    "content": "<p>This content has an elision which spans multiple node boundaries: <strong>bold text</strong> and then <em>italic text</em> and then <strong><em>bold inside italic text</em></strong>.</p><p>This content starts an elision that will </p><p>continue into the next paragraph.</p>",
     "doc_class": "Text"
   }
 }
