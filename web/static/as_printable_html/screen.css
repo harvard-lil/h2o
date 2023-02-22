@@ -7,9 +7,8 @@
     --casebook-font-size: 18px;
     --margin-font-size: 14px;
     --casebook-line-height: 1.8em;
-    --link-icon-height: calc(2 * var(--casebook-font-size));
-    --link-icon-width: calc(2 * var(--casebook-font-size));
-    --link-icon-margin: 1rem;
+    --link-icon-height: 25px;
+    --link-icon-width: 25px;
   }
   main {
     box-sizing: border-box;

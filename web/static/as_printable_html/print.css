@@ -67,7 +67,9 @@
   article.opinion > p {
     text-indent: 2em;
   }
-
+  a[data-type~="link"] {
+    word-break: break-all;
+  }
   /* Generate the corresponding footnote reference in the footer as e.g. "2. <footnote-text>"
      Don't allow long URLs to break on the space in this marker. */
   [data-footnote-marker]::marker {

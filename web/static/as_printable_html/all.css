@@ -141,15 +141,13 @@
     gap: var(--casebook-font-size);
   }
 
-  a[data-type~="link"] {
-    word-break: break-all;
-  }
+
 
   .link-icon {
-    width: var(--link-icon-width);
-    height: var(--link-icon-height);
-    background: url("../images/Link.svg");
-    background-size: cover;
+    min-width: var(--link-icon-width);
+    min-height: var(--link-icon-height);
+    background: url("../images/Link.svg") no-repeat;
+    background-size: contain;
     display: inline-block;
   }
   .hidden {
@@ -178,7 +176,8 @@
   }
   ins:is(.replace, .correction, .elision-marker) {
     text-decoration: none;
-    font-size: normal;
+    font-weight: normal;
+    text-align: left;
   }
 
   /* Usually hidden node title that will be displayed in screen view */
