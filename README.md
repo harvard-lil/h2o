@@ -43,9 +43,11 @@ You should now have a working installation of H2O!
 
 Spin up the development server...
 
-    # fab run
-    or, with [Django Debug Toolbar](https://django-debug-toolbar.readthedocs.io/en/latest/index.html#) enabled,
-    # fab run:debug_toolbar=True
+    # invoke run
+
+or, with [Django Debug Toolbar](https://django-debug-toolbar.readthedocs.io/en/latest/index.html#) enabled,
+
+    # invoke run --debug-toolbar
 
 ...and visit http://opencasebook.test:8000
 
@@ -59,11 +61,13 @@ Install requirements:
 
 Run the development server with hot-reloading vue-cli pipeline:
 
-    # fab run_frontend
-    or, with [Django Debug Toolbar](https://django-debug-toolbar.readthedocs.io/en/latest/index.html#) enabled,
-    # fab run_frontend:debug_toolbar=True
+    # invoke run-frontend
 
-After making changes to frontend/, compile new assets if you want to see them from plain `fab run`:
+or, with [Django Debug Toolbar](https://django-debug-toolbar.readthedocs.io/en/latest/index.html#) enabled,
+
+    # invoke run-frontend --debug-toolbar
+
+After making changes to frontend/, compile new assets if you want to see them from plain `invoke run`:
 
     # npm run build
 
@@ -117,8 +121,8 @@ like Django does.
 environment.
 
 To test the full asynchronous setup, quit the dev server, add
-`CELERY_TASK_ALWAYS_EAGER = False` to `settings.py` and re-run `fab run`:
-Fabric will spin up workers in a background process and start celery beat. You
+`CELERY_TASK_ALWAYS_EAGER = False` to `settings.py` and re-run `invoke run`:
+Invoke will spin up workers in a background process and start celery beat. You
 should see the workers restarting whenever you save a python file (just like
 the Django dev server does).
 

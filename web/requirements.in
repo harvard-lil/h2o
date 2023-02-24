@@ -2,7 +2,7 @@
 # docker host to update requirements.txt.
 
 pip-tools
-fabric3
+invoke
 tqdm
 
 django~=3.2
