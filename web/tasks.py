@@ -5,9 +5,7 @@ import subprocess
 from functools import wraps
 import sys
 from tqdm import tqdm
-from fabric.context_managers import shell_env
-from fabric.decorators import task
-from fabric.operations import local
+from invoke import task
 import uuid
 from pyquery import PyQuery
 
@@ -37,9 +35,9 @@ def setup_django(func):
     return wrapper
 
 
-@task(alias="run")
+@task
 @setup_django
-def run_django(port=None, debug_toolbar="", live_js_assets=""):
+def run(ctx, port=None, debug_toolbar=False, live_js_assets=False):
 
     from django.conf import settings  # noqa
 
@@ -49,21 +47,23 @@ def run_django(port=None, debug_toolbar="", live_js_assets=""):
         cmd = "watchmedo auto-restart -d ./ -p '*.py' -R -- celery -A config.celery.app worker --loglevel=info -Q celery,background -B -n w1@%h"
         celery_proc = subprocess.Popen(cmd, shell=True, stdout=sys.stdout, stderr=sys.stderr)
 
-    with shell_env(DEBUG_TOOLBAR=debug_toolbar, LIVE_JS_ASSETS=live_js_assets):
+    with ctx.prefix(
+        f'export DEBUG_TOOLBAR={"1" if debug_toolbar else ""} && export LIVE_JS_ASSETS={"1" if live_js_assets else ""}'
+    ):
         if port is None:
             port = "0.0.0.0:8000" if os.environ.get("DOCKERIZED") else "127.0.0.1:8000"
         try:
-            local(f"python manage.py runserver {port}")
+            ctx.run(f"python manage.py runserver {port}")
         finally:
             if celery_proc:
                 os.kill(celery_proc.pid, signal.SIGKILL)
 
 
 @task
-def run_frontend(port=None, debug_toolbar=""):
+def run_frontend(ctx, port=None, debug_toolbar=False):
     node_proc = subprocess.Popen("npm run serve", shell=True, stdout=sys.stdout, stderr=sys.stderr)
     try:
-        run_django(port, debug_toolbar=debug_toolbar, live_js_assets="1")
+        run(ctx, port, debug_toolbar=debug_toolbar, live_js_assets=True)
     finally:
         os.kill(node_proc.pid, signal.SIGKILL)
 
@@ -73,7 +73,7 @@ def run_frontend(port=None, debug_toolbar=""):
 
 @task
 @setup_django
-def create_search_index():
+def create_search_index(ctx):
     """Create (or recreate) the search_view materialized view"""
     from main.models import SearchIndex
 
@@ -82,7 +82,7 @@ def create_search_index():
 
 @task
 @setup_django
-def refresh_search_index():
+def refresh_search_index(ctx):
     """Update an existing search_view materialized view; will create if create_search_index hasn't been run once"""
     from main.models import SearchIndex
 
@@ -91,7 +91,7 @@ def refresh_search_index():
 
 @task
 @setup_django
-def create_fts_index():
+def create_fts_index(ctx):
     """Create (or recreate) the search_view materialized view"""
     from main.models import FullTextSearchIndex
 
@@ -100,7 +100,7 @@ def create_fts_index():
 
 @task
 @setup_django
-def refresh_fts_index():
+def refresh_fts_index(ctx):
     """Update an existing search_view materialized view; will create if create_search_index hasn't been run once"""
     from main.models import FullTextSearchIndex
 
@@ -109,7 +109,7 @@ def refresh_fts_index():
 
 @task
 @setup_django
-def create_reporting_views():
+def create_reporting_views(ctx):
     """Create (or recreate) reporting views that aggregate usage."""
     from reporting.create_reporting_views import create
 
@@ -118,7 +118,7 @@ def create_reporting_views():
 
 @task
 @setup_django
-def refresh_reporting_views():
+def refresh_reporting_views(ctx):
     """Refresh reporting tables that aggregate usage. Typically called on a schedule."""
     from reporting.create_reporting_views import refresh
 
@@ -127,7 +127,7 @@ def refresh_reporting_views():
 
 @task
 @setup_django
-def report_tags():
+def report_tags(ctx):
     """Report all HTML tags, attributes, and styles used in ContentNode.headnote and TextBlock.content."""
     from main.models import TextBlock, ContentNode
     from main.utils import parse_html_fragment
@@ -172,7 +172,7 @@ def report_tags():
 
 @task
 @setup_django
-def compare_sanitized_html():
+def compare_sanitized_html(ctx):
     """
     Report all changes that result from applying sanitize() to ContentNode.headnote and TextBlock.content.
     """
@@ -200,7 +200,7 @@ def compare_sanitized_html():
 
 @task
 @setup_django
-def load_uscode_index(index="uscode_index.jsonl", effective_date=date(2018, 1, 1)):
+def load_uscode_index(ctx, index="uscode_index.jsonl", effective_date=date(2018, 1, 1)):
     """
     Import a jsonl file into the search index for US Code support
     """
@@ -228,16 +228,16 @@ def load_uscode_index(index="uscode_index.jsonl", effective_date=date(2018, 1, 1
 
 
 if __name__ == "__main__":
-    # allow tasks to be run as "python fabfile.py task"
-    # this is convenient for profiling, e.g. "kernprof -l fabfile.py refresh_search_index"
-    from fabric.main import main
+    # allow tasks to be run as "python tasks.py task"
+    # this is convenient for profiling, e.g. "kernprof -l tasks.py refresh_search_index"
+    from invoke import Program
 
-    main()
+    Program().run()
 
 
 @task
 @setup_django
-def prune_old_casebooks(older_than=90):
+def prune_old_casebooks(ctx, older_than=90):
     from tqdm import tqdm
     from main.models import Casebook
     from datetime import datetime, timedelta
@@ -274,14 +274,14 @@ def image_uuids(res):
 
 @task
 @setup_django
-def list_used_images(output="", in_db=False, in_html=True):
+def list_used_images(ctx, output="", in_db=False, in_html=True):
     if output == "":
         print("Must include output file (list_used_images:output=to_file.txt)")
     from tqdm import tqdm
     from main.models import SavedImage, LegalDocument, TextBlock
 
     used_images = set()
-    if in_html != "False":
+    if in_html:
         used_images = {
             src_uuid
             for tb in tqdm(TextBlock.objects.all(), desc="TextBlocks")
@@ -293,7 +293,7 @@ def list_used_images(output="", in_db=False, in_html=True):
                 for src_uuid in image_uuids(ld)
             }
         )
-    if in_db is not False:
+    if in_db:
         for si in SavedImage.objects.all():
             used_images.add(si.external_id)
     with open(output, "w") as f:
@@ -303,9 +303,7 @@ def list_used_images(output="", in_db=False, in_html=True):
 
 @task
 @setup_django
-def cleanup_images(keep_file=None, dry_run=True):
-    if dry_run == "False":
-        dry_run = False
+def cleanup_images(ctx, keep_file=None, dry_run=True):
     import re
     from datetime import timedelta
     from main.storages import get_s3_storage
@@ -373,7 +371,7 @@ def cleanup_images(keep_file=None, dry_run=True):
 
 @task
 @setup_django
-def list_exports():
+def list_exports(ctx):
     from main.models import Casebook
     from django.urls import reverse
 
@@ -384,13 +382,12 @@ def list_exports():
 
 @task
 @setup_django
-def casebook_garbage_collect(older_than_days=180, dry_run=False):
+def casebook_garbage_collect(ctx, older_than_days=180, dry_run=False):
     from main.models import ContentNode, Casebook
     from datetime import datetime, timedelta
     from tqdm import tqdm
 
     older_than_days = int(older_than_days)
-    dry_run = bool(dry_run)
     living_casebook_states = {
         Casebook.LifeCycle.PUBLISHED.value,
         Casebook.LifeCycle.REVISING.value,
@@ -432,6 +429,7 @@ def casebook_garbage_collect(older_than_days=180, dry_run=False):
 @task
 @setup_django
 def export_node(
+    ctx,
     node_id=None,
     casebook_id=None,
     ordinals=None,
@@ -460,16 +458,15 @@ def export_node(
             f"Couldn't find content node with node_id={node_id} or casebook_id={casebook_id} and ordinals={ordinals}"
         )
         return
-    include_annotations = annotations != "False"
-    if memory == "True":
+    if memory:
         tracemalloc.start()
     before = time()
 
     # Replace
-    file_contents = content_node.export(include_annotations)
+    file_contents = content_node.export(annotations)
 
     after = time()
-    if memory == "True":
+    if memory:
         current, peak = tracemalloc.get_traced_memory()
         print(f"Current memory usage is {current / 10**6}MB; Peak was {peak / 10**6}MB")
         tracemalloc.stop()

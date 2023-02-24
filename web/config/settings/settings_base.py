@@ -259,7 +259,7 @@ CELERY_TASK_ALWAYS_EAGER = False
 CELERY_TASK_EAGER_PROPAGATES = True  # propagate exceptions when CELERY_TASK_ALWAYS_EAGER=True
 
 CELERY_TASK_ROUTES = {
-    "main.tasks.demo_scheduled_task": {"queue": "background"},
+    "main.celery_tasks.demo_scheduled_task": {"queue": "background"},
 }
 
 CELERY_BEAT_SCHEDULE = {}

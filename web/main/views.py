@@ -5,7 +5,7 @@ import uuid
 from collections import OrderedDict
 from datetime import datetime
 from functools import wraps
-from main.tasks import pdf_from_user
+from main.celery_tasks import pdf_from_user
 from test.test_helpers import assert_url_equal, check_response, dump_content_tree_children
 
 from django.conf import settings
