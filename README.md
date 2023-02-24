@@ -80,7 +80,7 @@ We use [Celery](https://docs.celeryq.dev/en/stable/index.html) to run tasks
 asynchronously, which is to say, outside the usual request/response flow of the
 Django application.
 
-Tasks are defined in `main/tasks.py`.
+Tasks are defined in `main/celery_tasks.py`.
 
 Tasks are put on a FIFO queue backed by redis/ElastiCache (configured by
 `CELERY_BROKER_URL`), and are taken off the queue and processed by
