@@ -207,7 +207,6 @@ annotationRanges.forEach((rg) => {
         deletion.classList.add(type);
         range.surroundContents(deletion);
         lastNode = deletion;
-
       });
       const replacement = `<ins data-${type}-insertion-id="${id}" datetime="${datetime}" class="${type}">${content}</ins>`;
       lastNode.insertAdjacentHTML("afterend", replacement);
@@ -227,7 +226,7 @@ annotationRanges.forEach((rg) => {
 
 // Any existing URLs that are external and don't open in a new tab should
 main.querySelectorAll('a[href^="http"]:not([target])').forEach((el) => {
-  requestIdleCallback(
+  requestAnimationFrame(
     () => {
       el.setAttribute("target", "_blank");
     },
@@ -236,7 +235,7 @@ main.querySelectorAll('a[href^="http"]:not([target])').forEach((el) => {
 });
 
 // Uniquify id links within case content
-requestIdleCallback(
+requestAnimationFrame(
   () => {
     for (const casebody of main.querySelectorAll(".casebody")) {
       const caseId = casebody.getAttribute("data-case-id");
