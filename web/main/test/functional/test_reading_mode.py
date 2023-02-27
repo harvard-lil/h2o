@@ -22,7 +22,7 @@ def test_reading_mode_nav(static_live_server, page: Page, full_casebook):
 
 @pytest.mark.xdist_group("functional")
 def test_reading_mode_elisions(static_live_server, page: Page, login_as_default):
-    """Reading mode should render the correct text  for elisions"""
+    """Reading mode should render the correct text for elisions"""
     page.goto(static_live_server.url + reverse("as_printable_html", args=[3]))
     expect(page.get_by_text("[…]")).to_be_visible()
     expect(page.get_by_text("This paragraph is also elided")).to_be_hidden()

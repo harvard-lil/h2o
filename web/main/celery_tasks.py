@@ -17,7 +17,12 @@ def pdf_from_user(url: str, slug: str) -> str:
         browser = p.chromium.launch(headless=True)
         context = browser.new_context(user_agent=settings.PDF_USER_AGENT_OVERRIDE)
         page = context.new_page()
-        url = generate_pdf(url, f"{slug}-{datetime.now().strftime('%Y%m%dT%H%M%S')}.pdf", page)
+        url = generate_pdf(
+            url,
+            f"{slug}-{datetime.now().strftime('%Y%m%dT%H%M%S')}.pdf",
+            page,
+            selector="#pdf-output",
+        )
     return url
 
 
@@ -26,7 +31,7 @@ def generate_pdf(
     output_filename: str,
     page: Page,
     selector: str = "main",
-    timeout=5_000,
+    timeout=120_000,
 ) -> str:
     """Generate a PDF from a given URL"""
     logger.info(f"Requesting {url}...")
@@ -42,6 +47,7 @@ def generate_pdf(
     )
     page.on("console", lambda msg: logger.warning(f"From browser console: {msg}"))
     expect(page.locator(selector)).to_be_visible(timeout=timeout)
+
     pdf = page.pdf()
     storage = get_s3_storage(bucket_name=settings.PDF_EXPORT_BUCKET)
     output_file = storage.open(output_filename, "w")

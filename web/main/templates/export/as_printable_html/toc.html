@@ -1,7 +1,7 @@
 
 <nav class="toc">
     <toc-control {{ toc_is_open|yesno:'open,,'}}>
-        {% if use_pagedjs %}
+        {% if as_pdf %}
             <h2>Table of contents</h2>
         {% else %}
             <button class="toc-opener" role="button">

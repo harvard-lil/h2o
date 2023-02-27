@@ -6,12 +6,6 @@
   <head>
     <title>{{ casebook.title }} | H2O </title>
     <link href="{% static 'images/favicon.ico' %}" rel="shortcut icon" type="image/vnd.microsoft.icon">
-    <link href="{% static 'fonts/AtlasGrotesk-Regular.woff2' %}" crossoriginrel="preload" as="font">
-    <link href="{% static 'fonts/ChronicleTextG3-Regular.woff2' %}" crossoriginrel="preload" as="font">
-    <link href="{% static 'fonts/ChronicleTextG3-Bold.woff2' %}" crossorigin rel="preload" as="font">
-    <link href="{% static 'fonts/ChronicleTextG3-Italic.woff2' %}" crossorigin rel="preload" as="font">
-   
-
     <meta name="viewport" content="width=device-width">
     <meta content="width=device-width, initial-scale=1" name="viewport">
     <meta charset="utf-8">
@@ -19,12 +13,32 @@
       content="{{ casebook.description|default_if_none:'The text from a free and open casebook from H2O Open Casebooks' }}">
     <meta name="author" content="{% for author in casebook.primary_authors %}{{ author.attribution|safe }}{% if not forloop.last %}, {% endif %}{% endfor %}">
 
-    <script defer src="{% static 'as_printable_html/as_printable_html.js' %}" type="module"></script>
 
-    {% if use_pagedjs %}
-      {% render_bundle 'chunk-common' attrs="defer" %}
+    {% if as_pdf %}
+      <link href="{% static 'fonts/LibreCaslonText-Regular.woff2' %}" crossorigin rel="preload" as="font">
+      <link href="{% static 'fonts/LibreCaslonText-Bold.woff2' %}" crossorigin rel="preload" as="font">
+      <link href="{% static 'fonts/LibreCaslonText-Italic.woff2' %}" crossorigin rel="preload" as="font">
+
+      <script>
+        var css = "{% static 'as_printable_html/print.css' %}";
+      </script>
+
+      <style>
+        #pdf-output {
+          visibility: hidden;
+        }
+      </style>
+      
+      <script defer src="{% static 'as_printable_html/pagedjs.js' %}" type="module"></script>
+      <script defer src="{% static 'as_printable_html/print.js' %}" type="module"></script>
+
     {% else %}
+      <link href="{% static 'fonts/AtlasGrotesk-Regular.woff2' %}" crossorigin rel="preload" as="font">
+      <link href="{% static 'fonts/ChronicleTextG3-Regular.woff2' %}" crossorigin rel="preload" as="font">
+      <link href="{% static 'fonts/ChronicleTextG3-Bold.woff2' %}" crossorigin rel="preload" as="font">
+      <link href="{% static 'fonts/ChronicleTextG3-Italic.woff2' %}" crossorigin rel="preload" as="font">
       <link href="{% static 'as_printable_html/screen.css' %}" type="text/css" rel="stylesheet">
+      <script defer src="{% static 'as_printable_html/as_printable_html.js' %}" type="module"></script>     
     {% endif %}
 
     {% include "includes/sentry.html" %}
@@ -72,11 +86,12 @@
     </article>
   </main>
 
-    
+  <div id="pdf-output"></div>
+
 
   <footer class="screen-only">
     <nav>
-      {% if whole_book or use_pagedjs %}
+      {% if whole_book or as_pdf %}
 
         <button onclick="location.href='{% url 'casebook' casebook %}'">Exit preview</button>
 
@@ -84,7 +99,7 @@
         <a class="controls" href="#toc">↑ Table of contents</a>
 
         {% if page.has_previous %}
-          <span><a href="{% url 'as_printable_html' casebook page.previous_page_number %}{% if use_pagedjs %}?print-preview=true{% endif %}">◀ Previous</a></span>
+          <span><a href="{% url 'as_printable_html' casebook page.previous_page_number %}{% if as_pdf %}?print-preview=true{% endif %}">◀ Previous</a></span>
         {% else %}
           <span class="unlinked">Previous</span>
         {% endif %}
@@ -100,7 +115,7 @@
         </select>
 
       {% if page.has_next %}
-        <span><a href="{% url 'as_printable_html' casebook page.next_page_number %}{% if use_pagedjs %}?print-preview=true{% endif %}">Next ▶</a></span>
+        <span><a href="{% url 'as_printable_html' casebook page.next_page_number %}{% if as_pdf %}?print-preview=true{% endif %}">Next ▶</a></span>
       {% else %}
           <span class="unlinked">Next</span>
       {% endif %}

@@ -13,6 +13,7 @@
   }
   @page {
     size: letter;
+    margin: 25mm;
   }
   a {
     text-decoration: none;
@@ -115,17 +116,20 @@
     font-family: "LibreCaslon";
     src: url("../fonts/LibreCaslonText-Regular.woff2") format("woff2");
     font-weight: normal;
+    font-display: block;
   }
 
   @font-face {
     font-family: "LibreCaslon";
     src: url("../fonts/LibreCaslonText-Italic.woff2") format("woff2");
     font-style: italic;
+    font-display: block;
   }
 
   @font-face {
     font-family: "LibreCaslon";
     src: url("../fonts/LibreCaslonText-Bold.woff2") format("woff2");
     font-weight: bold;
+    font-display: block;
   }
 }

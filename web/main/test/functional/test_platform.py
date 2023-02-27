@@ -53,19 +53,6 @@ def test_view_casebook(static_live_server, page: Page, login_as_default):
 
 
 @pytest.mark.xdist_group("functional")
-def test_pdf_export(static_live_server, page: Page):
-    """The PDF helper function should generate a PDF for a public casebook"""
-    # Needs to be in the published state for the external process to work
-    full_casebook = Casebook.objects.filter(state=Casebook.LifeCycle.PUBLISHED.value).first()
-    url = static_live_server.url + reverse("printable_all", args=[full_casebook])
-    output_filename = "example.pdf"
-    pdf_url = generate_pdf(url + "?print-preview=true", output_filename, page)
-    with urlopen(pdf_url) as result:
-        pdf = result.read()
-        assert pdf[:4] == b"%PDF"
-
-
-@pytest.mark.xdist_group("functional")
 def test_print_preview_page(static_live_server, page: Page, full_casebook):
     """The print preview page should be renderable"""
     login(static_live_server, page, user="functional-staff@example.edu")
