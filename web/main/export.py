@@ -10,7 +10,7 @@ from main.models import ContentAnnotation, ContentNode
 from .utils import block_level_elements, remove_empty_tags, void_elements
 
 SortedAnnotation = tuple[int, bool, ContentAnnotation]
- 
+
 
 class AnnotationContentHandler(sax.ContentHandler):
     def __init__(self, annotations: list[SortedAnnotation], postfix_id: int, export_options: dict):
