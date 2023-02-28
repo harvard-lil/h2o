@@ -49,7 +49,6 @@ from django.utils import timezone
 from django.utils.html import format_html
 from django.utils.safestring import mark_safe
 from django.utils.text import slugify
-from lxml import html
 from pyquery import PyQuery
 from pytest import raises as assert_raises
 from simple_history.models import HistoricalRecords
@@ -60,9 +59,7 @@ from .sanitize import sanitize
 from .storages import get_s3_storage
 from .utils import (
     APICommunicationError,
-    block_level_elements,
     clone_model_instance,
-    elements_equal,
     export_via_aws_lambda,
     fix_after_rails,
     get_ip_address,
@@ -71,10 +68,8 @@ from .utils import (
     normalize_newlines,
     parse_html_fragment,
     prefix_ids_hrefs,
-    remove_empty_tags,
     rich_text_export,
     strip_trailing_block_level_whitespace,
-    void_elements,
 )
 
 logger = logging.getLogger(__name__)
@@ -2710,385 +2705,18 @@ class ContentNode(
         return self.reading_length / (chars_per_word * words_per_minute)
 
     def calculate_reading_length(self):
+        from main.export import annotated_content_for_export
+
         # Assuming ~200 wpm reading rate for dense text
         # 240 estimated as per:
         # http://crr.ugent.be/papers/Brysbaert_JML_2019_Reading_rate.pdf
         # get rendered html, without annotations in content
         try:
-            html_out = self.annotated_content_for_export()
+            html_out = annotated_content_for_export(self)
         except AttributeError:
             return None
         text = parse_html_fragment(html_out).text_content()
         return len(text)
-
-    def annotated_content_for_export(self, export_options=None):
-        r"""
-            Return content as html for export to Pandoc, with annotations.
-
-            Given:
-            >>> annotations_factory, *_ = [getfixture(f) for f in ['annotations_factory']]
-            >>> def assert_match(source_html, expected_html):
-            ...     annotated_html = annotations_factory('LegalDocument', source_html)[1].annotated_content_for_export()
-            ...     assert elements_equal(
-            ...         parse_html_fragment(annotated_html),
-            ...         parse_html_fragment(expected_html),
-            ...         ignore_trailing_whitespace=True
-            ...     ), f"Expected:\n{expected_html}\nGot:\n{annotated_html}"
-
-            Basic format of all annotations:
-            >>> input = '''<p>
-            ...     [note my note]Has a note[/note]
-            ...     [highlight]is highlighted[/highlight]
-            ...     [elide]is elided[/elide]
-            ...     [replace new content]is replaced[/replace]
-            ...     [correction replaced content]is replaced[/correction]
-            ...     [link http://example.com]is linked[/link]
-            ... </p>'''
-            >>> content_node = annotations_factory('LegalDocument', input)[1]
-            >>> output_html = content_node.annotated_content_for_export()
-            >>> expected = '''<header class="case-header">
-            ...     </header><p>
-            ...     <span class="annotate">Has a note</span><span data-custom-style="Footnote Reference">*</span>
-            ...     <span class="annotate highlighted" data-custom-style="Highlighted Text">is highlighted</span>
-            ...     <span data-custom-style="Elision">[ … ]</span>
-            ...     <span data-custom-style="Replacement Text">new content</span>
-            ...     replaced content
-            ...     <a class="annotate" href="http://example.com">is linked</a><span data-custom-style="Footnote Reference">**</span>
-            ... </p>'''
-            >>> assert elements_equal(parse_html_fragment(output_html), parse_html_fragment(expected),ignore_trailing_whitespace=True), f"Expected:\n{expected}\nGot:\n{output_html}"
-
-            Annotation spanning paragraphs:
-            >>> input = '''
-            ... <p>Some [highlight] text</p>
-            ... <p>Some <em>text</em></p>
-            ... <p>Some [/highlight] text</p>
-            ... '''
-            >>> expected = '''<header class="case-header">
-            ...     </header>
-            ... <div><p>Some <span class="annotate highlighted" data-custom-style="Highlighted Text"> text</span></p>
-            ... <p><span class="annotate highlighted" data-custom-style="Highlighted Text">Some </span><em><span class="annotate highlighted" data-custom-style="Highlighted Text">text</span></em></p>
-            ... <p><span class="annotate highlighted" data-custom-style="Highlighted Text">Some </span> text</p></div>
-            ... '''
-            >>> assert_match(input, expected)
-
-            Deletion spanning paragraphs:
-            >>> input = '''<p>Some [replace new content] text</p>
-            ... <p>Some <em>text</em> <br></p>
-            ... <p>Some [/replace] text</p>'''
-            >>> expected = '''<header class="case-header">
-            ...     </header>
-            ... <div><p>Some <span data-custom-style="Replacement Text">new content</span></p><p> text</p></div>
-            ... '''
-            >>> assert_match(input, expected)
-
-            Void elements:
-            >>> input = '''<p> [highlight] <br> [/highlight] </p>'''
-            >>> expected = '''<header class="case-header">
-            ...     </header><p> <span class="annotate highlighted" data-custom-style="Highlighted Text"> </span><br><span class="annotate highlighted" data-custom-style="Highlighted Text"> </span> </p>'''
-            >>> assert_match(input, expected)
-
-            Annotations with ambiguous placement:
-            >>> input = '<p>First</p><p>[highlight]Second[/highlight]</p><p>Third</p>'
-            >>> expected = '<header class="case-header">\
-            ...     </header><div><p>First</p><p><span class="annotate highlighted" data-custom-style="Highlighted Text">Second</span></p><p>Third</p></div>'
-            >>> assert_match(input, expected)
-            >>> input = '<p>First</p><p>[elide]Second[/elide]</p><p>Third</p>'
-            >>> expected = '<header class="case-header">\
-            ...     </header><div><p>First</p><p><span data-custom-style="Elision">[ … ]</span></p><p>Third</p></div>'
-            >>> assert_match(input, expected)
-            >>> input = '<p>[highlight]First[/highlight]</p><p>[highlight]Sec[/highlight][highlight]ond[/highlight]</p><p>[highlight]Third[/highlight]</p>'
-            >>> expected = '<header class="case-header">\
-            ...     </header><div><p><span class="annotate highlighted" data-custom-style="Highlighted Text">First</span></p>' \
-            ...     '<p><span class="annotate highlighted" data-custom-style="Highlighted Text">Sec</span><span class="annotate highlighted" data-custom-style="Highlighted Text">ond</span></p>' \
-            ...     '<p><span class="annotate highlighted" data-custom-style="Highlighted Text">Third</span></p></div>'
-            >>> assert_match(input, expected)
-
-            Overlapping annotations:
-            (Not sure if these can happen in practice, but they do work for export, at least in simple cases.)
-            >>> input = '<p>[highlight]One [note my note]two[/highlight] three[/note]</p>'
-            >>> content_node = annotations_factory('LegalDocument', input)[1]
-            >>> output_html = content_node.annotated_content_for_export()
-
-            >>> expected = '<header class="case-header">\n</header><p><span class="annotate highlighted" data-custom-style="Highlighted Text">One <span class="annotate">two</span></span>' \
-            ...     '<span class="annotate"> three</span><span data-custom-style="Footnote Reference">*</span></p>'
-            >>> assert elements_equal(parse_html_fragment(output_html), parse_html_fragment(expected),ignore_trailing_whitespace=True), f"Expected:\n{expected}\nGot:\n{output_html}"
-            >>> input = '<p>[highlight]One [elide]two[/highlight] three[/elide]</p>'
-            >>> expected = '<header class="case-header">\n</header><p><span class="annotate highlighted" data-custom-style="Highlighted Text">One <span data-custom-style="Elision">[ … ]</span></span></p>'
-            >>> assert_match(input, expected)
-
-            Annotations with invalid offsets are clamped:
-            >>> input = '<p>[highlight]F[/highlight]oo</p>'
-            >>> expected = '<header class="case-header">\n</header>\n<p><span class="annotate highlighted" data-custom-style="Highlighted Text">Foo</span></p>'
-            >>> resource = annotations_factory('LegalDocument', input)[1]
-            >>> _ = resource.annotations.update(global_end_offset=1000)  # move end offset past end of text
-            >>> assert resource.annotated_content_for_export() == expected
-        """
-        # Start with a sorted list of the start and end insertion points for each annotation.
-        # Each entry in the list is shaped like (annotation_offset, is_start_tag, annotation).
-        # Clamp offsets to the max valid value, as we may have legacy invalid values in the database that are too large.
-        doc = self.headerless_export_content(export_options and export_options.get("request"))
-        if not doc:
-            return doc
-        pq = PyQuery(doc)
-        source_tree = pq[0]
-        max_valid_offset = len("".join([x for x in pq[0].itertext()]))
-        annotations = []
-        for annotation in self.annotations.all():
-            # equivalent test to self.annotation.valid(),but using all() lets us use prefetched querysets
-            if annotation.global_start_offset < 0 or annotation.global_end_offset < 0:
-                continue
-            annotations.append(
-                (min(annotation.global_start_offset, max_valid_offset), True, annotation)
-            )
-            annotations.append(
-                (min(annotation.global_end_offset, max_valid_offset), False, annotation)
-            )
-        # sort by first two fields, so we're ordered by offset, then we get end tags and then start tags for a given offset
-        annotations.sort(key=lambda a: (a[0], not a[1]))
-        # This SAX ContentHandler does the heavy lifting of stepping through each HTML tag and text string in the
-        # source HTML and building a list of destination tags and text, inserting annotation tags or deleting text
-        # as appropriate:
-
-        postfix_id = self.id
-
-        class AnnotationContentHandler(lxml.sax.ContentHandler):
-            def __init__(self):
-                # internal state:
-                self.offset = 0  # current offset in the text stream
-                self.elide = 0  # Greater than 0 if characters are currently being elided
-                self.wrap_before_tags = []  # before emitting a tag, close these
-                self.wrap_after_tags = []  # after emitting a tag, re-open these
-                self.footnote_index = 0  # footnote count
-                self.prev_tag = None  # previous source tag emitted
-                self.skip_next_wrap_before = (
-                    False  # whether to apply wrap_before_tags to the next element emitted
-                )
-
-                # output state:
-                self.out_handler = (
-                    lxml.sax.ElementTreeContentHandler()
-                )  # the sax ContentHandler that will be used to generate the output
-                self.out_ops = []  # list of operations to apply to the out_handler
-
-            ## event handlers
-
-            def characters(self, data):
-                """
-                Called when the SAX parser encounters a text string in the source HTML. Handle each annotation
-                within the current string.
-                """
-                # calculate the range of annotations affected by this string:
-                start_offset = self.offset
-                self.offset = end_offset = start_offset + len(data)
-
-                # special case -- don't annotate empty whitespace that comes after a block tag, because annotating
-                # non-printing whitespace would insert empty paragraphs in the output:
-                if (
-                    # ... we have annotation spans open
-                    self.wrap_after_tags
-                    and
-                    # ... previous tag was closing a block-level element
-                    self.prev_tag
-                    and self.prev_tag[0] == self.out_handler.endElement
-                    and self.prev_tag[1] in block_level_elements
-                    and
-                    # ... text after tag is whitespace
-                    re.match(r"\s*$", data)
-                    and
-                    # ... the text is not annotated
-                    ((not annotations) or end_offset < annotations[0][0])
-                ):
-                    # remove the open spans added by the previous /tag
-                    self.out_ops = self.out_ops[: -len(self.wrap_after_tags)]
-                    # prevent spans from closing before the next tag
-                    self.skip_next_wrap_before = True
-
-                # Process each annotation within this character range.
-                # Include end annotations that come after the final character of the string, but NOT start annotations,
-                # so that annotations tend to go inside block tags -- start annotations go to the right of tags
-                # and end annotations go to the left.
-                while annotations and (
-                    end_offset > annotations[0][0]
-                    or (end_offset == annotations[0][0] and not annotations[0][1])
-                ):
-                    annotation_offset, is_start_tag, annotation = annotations.pop(0)
-
-                    # consume and emit the text that comes before this annotation:
-                    if annotation_offset > start_offset:
-                        split = annotation_offset - start_offset
-                        if not self.elide:
-                            self.addText(data[:split])
-                        data = data[split:]
-                        start_offset = annotation_offset
-
-                    # handle the annotation
-                    kind = annotation.kind
-                    if kind == "replace" or kind == "elide":
-                        # replace/elide tags are simpler because we don't need to do anything special for annotations
-                        # that span paragraphs. Just emit the elision text and increment elide when opening the tag,
-                        # and decrement when closing. Use a counter for elide instead of a boolean so we handle
-                        # overlapping elision ranges correctly (though those shouldn't happen in practice).
-                        if is_start_tag:
-                            self.out_ops.append(
-                                (
-                                    self.out_handler.startElement,
-                                    "span",
-                                    {
-                                        "data-custom-style": "Elision"
-                                        if kind == "elide"
-                                        else "Replacement Text"
-                                    },
-                                )
-                            )
-                            self.addText(annotation.content or "" if kind == "replace" else "[ … ]")
-                            self.out_ops.append((self.out_handler.endElement, "span"))
-                            self.elide += 1
-                        else:
-                            self.elide = max(self.elide - 1, 0)  # decrement, but no lower than zero
-                    elif kind == "correction":
-                        if is_start_tag:
-                            self.elide += 1
-                            self.addText(annotation.content or "")
-                        else:
-                            self.elide = max(self.elide - 1, 0)  # decrement, but no lower than zero
-                    else:  # kind == 'link' or 'note' or 'highlight'
-                        # link/note/highlight tags require wrapping all subsequent text in <span> tags.
-                        # In addition to emitting the open tags themselves, also add the open and close tags to
-                        # wrap_before_tags and wrap_after_tags so that every tag we encounter can be wrapped with
-                        # close and open tags for all open annotations.
-                        if is_start_tag:
-                            # get correct open and close tags for this annotation:
-                            if kind == "link":
-                                open_tag = (
-                                    self.out_handler.startElement,
-                                    "a",
-                                    {"href": annotation.content, "class": "annotate"},
-                                )
-                                close_tag = (self.out_handler.endElement, "a")
-                            elif kind == "note":
-                                open_tag = (
-                                    self.out_handler.startElement,
-                                    "span",
-                                    {"class": "annotate"},
-                                )
-                                close_tag = (self.out_handler.endElement, "span")
-                            elif kind == "highlight":
-                                open_tag = (
-                                    self.out_handler.startElement,
-                                    "span",
-                                    {
-                                        "class": "annotate highlighted",
-                                        "data-custom-style": "Highlighted Text",
-                                    },
-                                )
-                                close_tag = (self.out_handler.endElement, "span")
-                            else:
-                                raise ValueError(f"Unknown annotation kind '{kind}'")
-
-                            # emit the open tag itself:
-                            self.out_ops.append(open_tag)
-
-                            # track that the tag is currently open:
-                            self.wrap_after_tags.append(open_tag)
-                            self.wrap_before_tags.insert(0, close_tag)
-                            annotation.open_tag = open_tag
-                            annotation.close_tag = close_tag
-                        else:
-                            # close the annotation tag:
-                            # to handle overlapping annotations, close all tags including this one, and then re-open all tags except this one:
-                            self.wrap_after_tags.remove(annotation.open_tag)
-                            self.out_ops.extend(self.wrap_before_tags + self.wrap_after_tags)
-                            self.wrap_before_tags.remove(annotation.close_tag)
-
-                            # emit the footnote marker:
-                            if kind == "note" or kind == "link":
-                                self.footnote_index += 1
-                                footnote_ref = "Footnote Reference" + (
-                                    f"-{postfix_id}"
-                                    if export_options
-                                    and export_options.get("docx_footnotes", False)
-                                    else ""
-                                )
-                                self.out_ops.append(
-                                    (
-                                        self.out_handler.startElement,
-                                        "span",
-                                        {"data-custom-style": footnote_ref},
-                                    )
-                                )
-                                self.addText("*" * self.footnote_index)
-                                self.out_ops.append((self.out_handler.endElement, "span"))
-
-                # emit any text that comes after the final annotation in this text string:
-                if data and not self.elide:
-                    self.addText(data)
-
-            def startElementNS(self, name, qname, attributes):
-                """Handle opening elements from the source HTML."""
-                if self.omitTag(name[1]):
-                    return
-                if attributes and (None, "data-extra-export-offset") in attributes:
-                    extra_offset = int(attributes.getValueByQName("data-extra-export-offset"))
-                    self.offset -= extra_offset
-                self.addTag(
-                    (
-                        self.out_handler.startElement,
-                        name[1],
-                        {k[1]: v for k, v in attributes.items()},
-                    )
-                )
-
-            def endElementNS(self, name, qname):
-                """Handle closing elements from the source HTML."""
-                if self.omitTag(name[1]):
-                    return
-                self.addTag((self.out_handler.endElement, name[1]))
-
-            ## helpers
-
-            def addTag(self, tag):
-                """Add a tag from the source HTML, wrapped with the currently open annotation tags."""
-                if self.skip_next_wrap_before:
-                    self.out_ops.extend([tag] + self.wrap_after_tags)
-                    self.skip_next_wrap_before = False
-                else:
-                    self.out_ops.extend(self.wrap_before_tags + [tag] + self.wrap_after_tags)
-                self.prev_tag = tag
-
-            def addText(self, text):
-                self.out_ops.append((self.out_handler.characters, text))
-
-            def omitTag(self, tag):
-                """
-                True if a tag from the source HTML should be omitted. This is True if we are currently in an
-                elided section, and this is a void element like '<br>'. We can't omit matched elements like
-                '<p>' because the elided section may end before we reach the closing '</p>'. Instead it's fine
-                to emit '<p></p>', which will later be filtered out by remove_empty_tags().
-                """
-                return self.elide and tag in void_elements
-
-            def get_output_tree(self):
-                """Render and return the lxml content tree from out_handler."""
-                # each entry in out_ops will be a method on out_handler and a list of arguments, like
-                # (self.out_handler.startElement, 'span')
-                for method, *args in self.out_ops:
-                    method(*args)
-                return self.out_handler.etree.getroot()
-
-        # use AnnotationContentHandler to insert annotations in our content HTML:
-        handler = AnnotationContentHandler()
-        lxml.sax.saxify(source_tree, handler)
-        dest_tree = handler.get_output_tree()
-
-        # clean up the output tree:
-        remove_empty_tags(dest_tree)  # tree may contain empty tags from elide/replace annotations
-        # apply general rules that are the same for annotated or un-annotated trees
-        return mark_safe(
-            self.rendered_header()
-            + self.export_postprocess(
-                html.tostring(dest_tree).decode("utf-8"), export_options=export_options
-            )
-        )
 
     def footnote_annotations(self, export_options=None):
         postfix_id = self.id
