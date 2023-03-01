@@ -2706,7 +2706,6 @@ class ContentNode(
 
     def calculate_reading_length(self) -> Union[None, int]:
         from main.export import annotated_content_for_export
-        from lxml.sax import SaxError
 
         # Assuming ~200 wpm reading rate for dense text
         # 240 estimated as per:
@@ -2714,11 +2713,11 @@ class ContentNode(
         # get rendered html, without annotations in content
         try:
             html_out = annotated_content_for_export(self)
-        except (AttributeError, SaxError) as e:
+        except (Exception) as e:
             logger.warning(
                 f"Got error when serializing content for reading length calculation: {e}"
             )
-            return None
+            return 0
         text = parse_html_fragment(html_out).text_content()
         return len(text)
 
