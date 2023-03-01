@@ -1,3 +1,4 @@
+import logging
 import re
 from typing import Any
 
@@ -10,6 +11,8 @@ from main.models import ContentAnnotation, ContentNode
 from .utils import block_level_elements, remove_empty_tags, void_elements
 
 SortedAnnotation = tuple[int, bool, ContentAnnotation]
+
+logger = logging.getLogger(__name__)
 
 
 class AnnotationContentHandler(sax.ContentHandler):
@@ -236,7 +239,10 @@ class AnnotationContentHandler(sax.ContentHandler):
         # each entry in out_ops will be a method on out_handler and a list of arguments, like
         # (self.out_handler.startElement, 'span')
         for method, *args in self.out_ops:
-            method(*args)
+            try:
+                method(*args)
+            except sax.SaxError as e:
+                logger.warning(f"Got SAX error when reserializing: {e}")
         return self.out_handler.etree.getroot()
 
 
