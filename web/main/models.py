@@ -2704,7 +2704,7 @@ class ContentNode(
         words_per_minute = 200
         return self.reading_length / (chars_per_word * words_per_minute)
 
-    def calculate_reading_length(self) -> Union[None, int]:
+    def calculate_reading_length(self) -> int:
         from main.export import annotated_content_for_export
 
         # Assuming ~200 wpm reading rate for dense text
