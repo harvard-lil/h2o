@@ -2715,7 +2715,9 @@ class ContentNode(
         try:
             html_out = annotated_content_for_export(self)
         except (AttributeError, SaxError) as e:
-            logger.warning(f"Got error when serializing content for reading length calculation: {e}")
+            logger.warning(
+                f"Got error when serializing content for reading length calculation: {e}"
+            )
             return None
         text = parse_html_fragment(html_out).text_content()
         return len(text)
