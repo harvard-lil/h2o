@@ -6,6 +6,7 @@ import pytest
 from django.conf import settings
 from django.urls import reverse
 from lxml import etree
+from main.export import annotated_content_for_export
 from main.utils import elements_equal, parse_html_fragment
 
 
@@ -157,3 +158,211 @@ def test_printable_html_casebook(client, full_casebook):
         as_user=full_casebook.contentcollaborator_set.first().user,
     )
     assert full_casebook == resp.context["casebook"]
+
+
+def assert_html_matches(annotated_html: str, expected_html: str):
+    assert elements_equal(
+        parse_html_fragment(annotated_html),
+        parse_html_fragment(expected_html),
+        ignore_trailing_whitespace=True,
+    ), f"Expected:\n{expected_html}\nGot:\n{annotated_html}"
+
+
+@pytest.mark.parametrize(
+    "input,expected",
+    [
+        # Notes
+        [
+            "[note my note]Has a note[/note]",
+            '<p><span class="annotate">Has a note</span><span data-custom-style="Footnote Reference">*</span></p>',
+        ],
+        # Highlights
+        [
+            "[highlight]is highlighted[/highlight]",
+            '<p><span class="annotate highlighted" data-custom-style="Highlighted Text">is highlighted</span></p>',
+        ],
+        # Elisions
+        ["[elide]is elided[/elide]", '<p><span data-custom-style="Elision">[ … ]</span></p>'],
+        # Replacements
+        [
+            "[replace new content]is replaced[/replace]",
+            '<p><span data-custom-style="Replacement Text">new content</span></p>',
+        ],
+        # Corrections
+        ["[correction replaced content]is replaced[/correction]", "<p>replaced content</p>"],
+        # Links
+        [
+            "[link http://example.com]is linked[/link]",
+            '<p><a class="annotate" href="http://example.com">is linked</a><span data-custom-style="Footnote Reference">*</span></p>',
+        ],
+    ],
+)
+def test_annotated_export_simple_markup(input: str, expected: str, annotations_factory):
+    """Annotated text should be modified to support downstream exports in the expected format"""
+
+    assert_html_matches(
+        annotated_content_for_export(annotations_factory("LegalDocument", input)[1]),
+        '<header class="case-header"></header>' + expected,
+    )
+
+
+def test_annotated_export_multiple_footnotes(annotations_factory):
+    """Adding two items that can produce footnotes should produce distinct footnote references"""
+    output = annotated_content_for_export(
+        annotations_factory(
+            "LegalDocument",
+            """
+            [link http://example.com]Example 1[/link]
+            [note my note]Example 2[/note]
+            """,
+        )[1]
+    )
+
+    assert '<span data-custom-style="Footnote Reference">*</span>' in output
+    assert '<span data-custom-style="Footnote Reference">**</span>' in output
+
+
+@pytest.mark.parametrize(
+    "input,expected",
+    [
+        [  # Highlights spanning paragraphs
+            """<p>Some [highlight] text</p>
+    <p>Some <em>text</em></p>
+    <p>Some [/highlight] text</p>""",
+            """<header class="case-header"></header>
+    <div><p>Some <span class="annotate highlighted" data-custom-style="Highlighted Text"> text</span></p>
+    <p><span class="annotate highlighted" data-custom-style="Highlighted Text">Some </span><em><span class="annotate highlighted" data-custom-style="Highlighted Text">text</span></em></p>
+    <p><span class="annotate highlighted" data-custom-style="Highlighted Text">Some </span> text</p></div>
+    """,
+        ],
+        [  # Replacements spanning paragraphs
+            """<p>Some [replace new content] text</p>
+            <p>Some <em>text</em> <br></p>
+             <p>Some [/replace] text</p>""",
+            """<header class="case-header">
+                 </header>
+            <div><p>Some <span data-custom-style="Replacement Text">new content</span></p><p> text</p></div>
+            """,
+        ],
+    ],
+)
+def test_annotated_export_spanning_paragraphs(annotations_factory, input: str, expected: str):
+    """Annotations should be allowed to span block nodes"""
+    input = annotated_content_for_export(
+        annotations_factory(
+            "LegalDocument",
+            input,
+        )[1]
+    )
+
+    assert_html_matches(input, expected)
+
+
+def test_annotated_export_void_elements(annotations_factory):
+    """Serialization should understand void/self-closing elements"""
+    assert_html_matches(
+        annotated_content_for_export(
+            annotations_factory(
+                "LegalDocument",
+                """<p> [highlight] <br> [/highlight] </p>""",
+            )[1]
+        ),
+        """<header class="case-header"></header>
+            <p> <span class="annotate highlighted" data-custom-style="Highlighted Text"> </span>
+            <br>
+            <span class="annotate highlighted" data-custom-style="Highlighted Text"> </span> </p>""",
+    )
+
+
+@pytest.mark.parametrize(
+    "input,expected",
+    [
+        [
+            """<p>First</p>
+            <p>[highlight]Second[/highlight]</p>
+            <p>Third</p>""",
+            """
+        <div>
+            <p>First</p>
+            <p><span class="annotate highlighted" data-custom-style="Highlighted Text">Second</span></p>
+            <p>Third</p>
+        </div>""",
+        ],
+        [
+            """<p>First</p>
+            <p>[elide]Second[/elide]</p>
+            <p>Third</p>""",
+            """
+        <div>
+            <p>First</p>
+            <p><span data-custom-style="Elision">[ … ]</span></p>
+            <p>Third</p>
+        </div>""",
+        ],
+        [
+            """<p>[highlight]First[/highlight]</p>
+            <p>[highlight]Sec[/highlight][highlight]ond[/highlight]</p>
+            <p>[highlight]Third[/highlight]</p>""",
+            """
+        <div>
+            <p><span class="annotate highlighted" data-custom-style="Highlighted Text">First</span></p>
+            <p><span class="annotate highlighted" data-custom-style="Highlighted Text">Sec</span><span class="annotate highlighted" data-custom-style="Highlighted Text">ond</span></p>
+            <p><span class="annotate highlighted" data-custom-style="Highlighted Text">Third</span></p>
+        </div>""",
+        ],
+    ],
+)
+def test_annotated_export_ambiguous_placement(annotations_factory, input: str, expected: str):
+    input = annotated_content_for_export(
+        annotations_factory(
+            "LegalDocument",
+            input,
+        )[1]
+    )
+
+    assert_html_matches(input, '<header class="case-header"></header>' + expected)
+
+
+@pytest.mark.parametrize(
+    "input,expected",
+    [
+        [
+            "<p>[highlight]One [note my note]two[/highlight] three[/note]</p>",
+            """<p>
+                <span class="annotate highlighted" data-custom-style="Highlighted Text">One 
+                    <span class="annotate">two</span>
+                </span>
+                <span class="annotate"> three</span>
+                <span data-custom-style="Footnote Reference">*</span>
+            </p>""",
+        ],
+        [
+            "<p>[highlight]One [elide]two[/highlight] three[/elide]</p>",
+            """<p>
+                <span class="annotate highlighted" data-custom-style="Highlighted Text">One 
+                    <span data-custom-style="Elision">[ … ]</span>
+                </span>
+            </p>""",
+        ],
+    ],
+)
+def test_annotated_export_overlapping(annotations_factory, input: str, expected: str):
+    """The annotations export should handle overlapping annotations"""
+    input = annotated_content_for_export(
+        annotations_factory(
+            "LegalDocument",
+            input,
+        )[1]
+    )
+
+    assert_html_matches(input, '<header class="case-header"></header>' + expected)
+
+
+def test_annotated_export_invalid_clamped(annotations_factory):
+    """Annotations with invalid offsets are clamped"""
+
+    input = "<p>[highlight]F[/highlight]oo</p>"
+    expected = '<header class="case-header">\n</header>\n<p><span class="annotate highlighted" data-custom-style="Highlighted Text">Foo</span></p>'
+    resource = annotations_factory("LegalDocument", input)[1]
+    resource.annotations.update(global_end_offset=1000)  # move end offset past end of text
+    assert annotated_content_for_export(resource) == expected
