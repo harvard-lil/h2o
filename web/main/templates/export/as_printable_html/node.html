@@ -9,7 +9,7 @@
 
     {% if node.resource_type == 'Link' %}
 
-      <h1 class="resource ordinal {{ node.resource_type|lower }}" data-toc-idx="{{ index }}">{{ node.ordinal_string }}{% if node.ordinal_string %}.{% endif %}
+      <h1 class="resource ordinal {{ node.resource_type|lower }}" data-toc-idx="{{ index }}" id="{{ node.slug }}">{{ node.ordinal_string }}{% if node.ordinal_string %}.{% endif %}
         {{ node.title }}
       </h1>
 
