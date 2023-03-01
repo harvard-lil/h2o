@@ -4,20 +4,22 @@ from django.conf import settings
 from django.contrib import admin, messages
 from django.contrib.auth.admin import UserAdmin as DjangoUserAdmin
 from django.core.mail import send_mail
+from django.core.paginator import Paginator
 from django.db.models import Count, JSONField
 from django.forms.models import BaseInlineFormSet
 from django.http import HttpResponseRedirect
 from django.urls import path, reverse
 from django.utils.html import format_html
 from django.utils.safestring import mark_safe
+from django_celery_results.admin import TaskResultAdmin
+from django_celery_results.models import TaskResult
 from django_json_widget.widgets import JSONEditorWidget
 from simple_history.admin import SimpleHistoryAdmin
-from django_celery_results.models import TaskResult
-from django_celery_results.admin import TaskResultAdmin
+from django.utils.functional import cached_property
+from django.db import connection
 
 from .models import (
     Casebook,
-    Tag,
     CasebookTag,
     CommonTitle,
     ContentAnnotation,
@@ -31,6 +33,7 @@ from .models import (
     LiveSettings,
     Resource,
     Section,
+    Tag,
     TextBlock,
     User,
 )
@@ -39,6 +42,27 @@ from .utils import clone_model_instance, fix_after_rails
 #
 # Helpers
 #
+
+
+class FasterAdminPaginator(Paginator):
+    @cached_property
+    def count(self) -> int:
+        cursor = connection.cursor()
+        cursor.execute(
+            f"SELECT reltuples AS estimate FROM pg_class WHERE relname = '{self.object_list.query.model._meta.db_table}';"
+        )
+        estimate = int(cursor.fetchone()[0])
+        if estimate > 10000:
+            self.estimated_count = True
+            self.estimated_count_ignores_filter = bool(self.object_list.query.where)
+            return estimate
+        try:
+            return self.object_list.count()
+        except (AttributeError, TypeError):
+            # AttributeError if object_list has no count() method.
+            # TypeError if object_list.count() requires arguments
+            # (i.e. is of type list).
+            return len(self.object_list)
 
 
 def edit_link(obj, as_str=False):
@@ -433,7 +457,6 @@ class ContentNodeAdmin(BaseAdmin, SimpleHistoryAdmin):
         "display_ordinals",
         "resource_type",
         "resource_id",
-        "annotation_count",
         "created_at",
         "updated_at",
     ]
@@ -443,6 +466,8 @@ class ContentNodeAdmin(BaseAdmin, SimpleHistoryAdmin):
         "casebook",
         "ordinals",
         "display_ordinals",
+        "resource_id",
+        "resource_type",
         "title",
         "subtitle",
         "provenance",
@@ -461,7 +486,6 @@ class ContentNodeAdmin(BaseAdmin, SimpleHistoryAdmin):
             .get_queryset(request)
             .select_related("casebook")
             .prefetch_related("casebook__contentcollaborator_set__user")
-            .annotate(annotations_count=Count("annotations"))
         )
 
     def formfield_for_dbfield(self, db_field, **kwargs):
@@ -471,9 +495,6 @@ class ContentNodeAdmin(BaseAdmin, SimpleHistoryAdmin):
         return edit_link(obj.casebook, True)
 
     casebook_link.short_description = "casebook"
-
-    def annotation_count(self, obj):
-        return "n/a" if obj.is_annotated == "Link" else obj.annotations_count
 
     def save_model(self, request, obj, form, *args, **kwargs):
         """If either of the node-numbering options have been toggled this session, update the
@@ -485,6 +506,8 @@ class ContentNodeAdmin(BaseAdmin, SimpleHistoryAdmin):
             or "does_display_ordinals" in form.cleaned_data
         ):
             obj.casebook.content_tree__repair()
+
+    paginator = FasterAdminPaginator
 
 
 class ResourceAdmin(BaseAdmin, SimpleHistoryAdmin):
