@@ -973,7 +973,7 @@ class PDFExportView(APIView):
     @method_decorator(user_has_perm("casebook", "viewable_by"))
     @method_decorator(requires_csrf_token)
     def post(self, request: HttpRequest, casebook: Casebook, **kwargs):
-        url = reverse("printable_all", args=[casebook]) + "?print-preview=true"
+        url = reverse("printable_pdf", args=[casebook])
         task_id = pdf_from_user.delay(
             f"{request.scheme}://{request.get_host()}{url}", casebook.slug
         )
@@ -2738,11 +2738,11 @@ def export(request: HttpRequest, node: Union[ContentNode, Casebook], file_type="
         },
     )
 )
-def as_printable_html(request: HttpRequest, casebook: Casebook, page=1, whole_book=False):
+def as_printable_html(
+    request: HttpRequest, casebook: Casebook, page=1, whole_book=False, as_pdf=False
+):
     """Load the content of the casebook by top-level nodes, and pass it to an HTML template
     designed to render it in-place, without site chrome, suitable for printing or reading"""
-
-    use_pagedjs = True if request.GET.get("print-preview") else False
 
     top_level_nodes: ContentNodeQuerySet = casebook.nodes_for_user(request.user).filter(
         ordinals__len=1
@@ -2777,7 +2777,8 @@ def as_printable_html(request: HttpRequest, casebook: Casebook, page=1, whole_bo
             "toc_is_open": whole_book or page.number == 1,
             "export_date": datetime.now().strftime("%Y-%m-%d"),
             "whole_book": whole_book,
-            "use_pagedjs": use_pagedjs,
+            "as_pdf": as_pdf,
+            "export_options": {"inline_annotation_references": True},
         },
     )
 

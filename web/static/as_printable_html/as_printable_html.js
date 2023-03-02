@@ -102,24 +102,6 @@ function annotationsToRanges(annotations, content) {
   return annotationRanges;
 }
 
-/**
- * Create a footnote element in PagedJS containing the provided URL.
- * @param {Node} node
- * @param {string} url
- * @param {Date} dateCreated
- */
-function hyperlinkFootnote(node, url, dateCreated) {
-  const footnote = document.createElement("a");
-  footnote.setAttribute("href", url);
-  const displayDate = dateCreated.toLocaleString("en-US", {
-    day: "numeric",
-    month: "short",
-    year: "numeric",
-  });
-  footnote.innerHTML = `${url}
-    <span class="citation">(link created ${displayDate})</span>`;
-  node.insertAdjacentElement("afterend", footnote);
-}
 
 const main = document.querySelector("main");
 
@@ -213,12 +195,11 @@ annotationRanges.forEach((rg) => {
       break;
     }
     case "link":
-      // Inject a hyperlink which in print will be styled as a footnote
       ranges.forEach((range) => {
         const anchor = document.createElement("a");
         anchor.setAttribute("href", content);
+        anchor.setAttribute("target", "_blank");
         range.surroundContents(anchor);
-        hyperlinkFootnote(anchor, content, new Date(datetime));
       });
       break;
   }

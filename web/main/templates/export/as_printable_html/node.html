@@ -1,4 +1,4 @@
-{% load call_method string_strip %}
+{% load call_method string_strip export_node_html %}
 
 <section
   data-datetime="{{ node.created_at|date:'c' }}"
@@ -21,7 +21,7 @@
       {% endif %}
       <div class="link-container">
         <a href="{{ node.resource.url }}" target="_blank" data-type="resource link">
-          {% if use_pagedjs %}{{ node.resource.url }}{% else %}{{ node.title }}{% endif %}</a>
+          {% if as_pdf %}{{ node.resource.url }}{% else %}{{ node.title }}{% endif %}</a>
         <span class="link-icon"></span>
       </div>
 
@@ -48,17 +48,24 @@
 
         <section class="{{ node.resource_type.lower }}-container">
 
-          {% if node.resource_type.lower == 'legaldocument' %}
-            {% if node.resource.doc_class.lower == 'case' %}
-              {% include "includes/legal_doc_sources/cap_header.html" with legal_doc=node.resource %}
-            {% elif node.resource.doc_class.lower == 'code' %}
-              {% include "includes/legal_doc_sources/gpo_header.html" with legal_doc=node.resource %}
+
+          {% if as_pdf %}
+            {% export_node_html node export_options=export_options as contents %}
+            {{ contents }}
+
+          {% else %}
+
+            {% if node.resource_type.lower == 'legaldocument' %}
+              {% if node.resource.doc_class.lower == 'case' %}
+                {% include "includes/legal_doc_sources/cap_header.html" with legal_doc=node.resource %}
+              {% elif node.resource.doc_class.lower == 'code' %}
+                {% include "includes/legal_doc_sources/gpo_header.html" with legal_doc=node.resource %}
+              {% endif %}
             {% endif %}
+
+            {# Whitespace between the <section> element and the content must not be introduced to avoid throwing off the annotation offset values #}
+            <section class="resource" data-node-id="{{ node.id }}" data-resource-id="{{ node.resource_id }}">{{ node.resource.content|safe }}</section>
           {% endif %}
-
-
-          {# Whitespace between the <section> element and the content must not be introduced to avoid throwing off the annotation offset values #}
-          <section class="resource" data-node-id="{{ node.id }}" data-resource-id="{{ node.resource_id }}">{{ node.resource.content|safe }}</section>
 
           {% for annotation in node.annotations.valid %}
           <li data-annotation-type="{{ annotation.kind }}"

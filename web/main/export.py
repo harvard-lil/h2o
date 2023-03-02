@@ -167,24 +167,36 @@ class AnnotationContentHandler(sax.ContentHandler):
                     self.out_ops.extend(self.wrap_before_tags + self.wrap_after_tags)
                     self.wrap_before_tags.remove(annotation.close_tag)
 
-                    # emit the footnote marker:
+                    # emit the footnote marker or footnote itself
                     if kind == "note" or kind == "link":
-                        self.footnote_index += 1
-                        footnote_ref = "Footnote Reference" + (
-                            f"-{self.postfix_id}"
-                            if self.export_options
-                            and self.export_options.get("docx_footnotes", False)
-                            else ""
-                        )
-                        self.out_ops.append(
-                            (
-                                self.out_handler.startElement,
-                                "span",
-                                {"data-custom-style": footnote_ref},
+                        if self.export_options.get("inline_annotation_references"):
+                            self.out_ops.append(
+                                (
+                                    self.out_handler.startElement,
+                                    "span",
+                                    {"class": "footnote-generated"},
+                                )
                             )
-                        )
-                        self.addText("*" * self.footnote_index)
-                        self.out_ops.append((self.out_handler.endElement, "span"))
+                            if annotation.content:
+                                self.addText(annotation.content)
+                            self.out_ops.append((self.out_handler.endElement, "span"))
+
+                        else:
+                            self.footnote_index += 1
+                            footnote_ref = "Footnote Reference" + (
+                                f"-{self.postfix_id}"
+                                if self.export_options.get("docx_footnotes", False)
+                                else ""
+                            )
+                            self.out_ops.append(
+                                (
+                                    self.out_handler.startElement,
+                                    "span",
+                                    {"data-custom-style": footnote_ref},
+                                )
+                            )
+                            self.addText("*" * self.footnote_index)
+                            self.out_ops.append((self.out_handler.endElement, "span"))
 
         # emit any text that comes after the final annotation in this text string:
         if data and not self.elide:
