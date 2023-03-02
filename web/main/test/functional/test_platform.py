@@ -1,12 +1,10 @@
 # These tests are run through LiveServerTestCase and playwright
-from urllib.request import urlopen
 
 import pytest
 from django.urls import reverse
 from playwright.sync_api import Page, expect
 
 from main.models import Casebook
-from main.celery_tasks import generate_pdf
 
 
 def login(static_live_server, page: Page, user="functional-test@example.edu", password="changeme"):
