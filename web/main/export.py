@@ -175,12 +175,11 @@ class AnnotationContentHandler(sax.ContentHandler):
                                     self.out_handler.startElement,
                                     "span",
                                     {"class": "footnote-generated"},
-                                ),
+                                )
                             )
-                            self.addText(annotation.content)
-                            self.out_ops.append(
-                                (self.out_handler.endElement, "span"),
-                            )
+                            if annotation.content:
+                                self.addText(annotation.content)
+                            self.out_ops.append((self.out_handler.endElement, "span"))
 
                         else:
                             self.footnote_index += 1
