@@ -17,6 +17,7 @@ nav.toc h3 {
   font-size: 1em;
   font-weight: bold;
 }
+
 nav.toc ol.toc-items {
   padding: 0;
 }
@@ -27,10 +28,11 @@ nav.toc ol.toc-items li {
 nav.toc ol.toc-items .ordinals {
   flex-basis: 5ch;
 }
+
 nav.toc ol.toc-items :is(h3, h4) {
   flex: 1;
   margin: 0;
-  line-height: 180%;
+  line-height: inherit;
 }
 nav.toc ol.toc-items ol {
   flex-basis: 100%;
