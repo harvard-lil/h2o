@@ -29,12 +29,8 @@ from .models import (
     Institution,
     LegalDocument,
     LegalDocumentSource,
-    Link,
     LiveSettings,
-    Resource,
-    Section,
     Tag,
-    TextBlock,
     User,
 )
 from .utils import clone_model_instance, fix_after_rails
@@ -182,7 +178,7 @@ class InputFilter(admin.SimpleListFilter):
     https://hakibenita.com/how-to-add-a-text-filter-to-django-admin
     """
 
-    template = "admin/input_filter.html"
+    template = "admin/input_filter.html" 
 
     def lookups(self, request, model_admin):
         # Dummy, required to show the filter.
@@ -402,41 +398,6 @@ class CasebookAdmin(BaseAdmin, SimpleHistoryAdmin):
     source.short_description = "source"
 
 
-class SectionAdmin(BaseAdmin, SimpleHistoryAdmin):
-    readonly_fields = ["created_at", "updated_at", "casebook_link", "provenance", "ordinals"]
-    list_select_related = ["casebook"]
-    list_display = ["id", "casebook_link", "title", "ordinals", "created_at", "updated_at"]
-    list_filter = [CasebookIdFilter]
-    search_fields = ["title", "casebook__title"]
-    fields = [
-        "casebook",
-        "ordinals",
-        "title",
-        "subtitle",
-        "provenance",
-        "headnote",
-        "created_at",
-        "updated_at",
-    ]
-    raw_id_fields = ["casebook"]
-
-    def get_queryset(self, request):
-        return (
-            super()
-            .get_queryset(request)
-            .select_related("casebook")
-            .prefetch_related("casebook__contentcollaborator_set__user")
-        )
-
-    def formfield_for_dbfield(self, db_field, **kwargs):
-        return self.enable_richeditor_for_field("headnote", db_field, **kwargs)
-
-    def casebook_link(self, obj):
-        return edit_link(obj.casebook, True)
-
-    casebook_link.short_description = "casebook"
-
-
 class ContentNodeAdmin(BaseAdmin, SimpleHistoryAdmin):
     readonly_fields = [
         "created_at",
@@ -510,63 +471,6 @@ class ContentNodeAdmin(BaseAdmin, SimpleHistoryAdmin):
     paginator = FasterAdminPaginator
 
 
-class ResourceAdmin(BaseAdmin, SimpleHistoryAdmin):
-    readonly_fields = [
-        "created_at",
-        "updated_at",
-        "casebook_link",
-        "provenance",
-        "resource_type",
-        "ordinals",
-    ]
-    list_select_related = ["casebook"]
-    list_display = [
-        "id",
-        "casebook_link",
-        "title",
-        "ordinals",
-        "resource_type",
-        "resource_id",
-        "annotation_count",
-        "created_at",
-        "updated_at",
-    ]
-    list_filter = [CasebookIdFilter, "resource_type", ResourceIdFilter]
-    search_fields = ["title", "casebook__title"]
-    fields = [
-        "casebook",
-        "ordinals",
-        "title",
-        "subtitle",
-        "provenance",
-        "headnote",
-        "created_at",
-        "updated_at",
-        "resource_id",
-    ]
-    raw_id_fields = ["casebook"]
-    inlines = [AnnotationInline]
-
-    def get_queryset(self, request):
-        return (
-            super()
-            .get_queryset(request)
-            .select_related("casebook")
-            .prefetch_related("casebook__contentcollaborator_set__user")
-            .annotate(annotations_count=Count("annotations"))
-        )
-
-    def formfield_for_dbfield(self, db_field, **kwargs):
-        return self.enable_richeditor_for_field("headnote", db_field, **kwargs)
-
-    def casebook_link(self, obj):
-        return edit_link(obj.casebook, True)
-
-    casebook_link.short_description = "casebook"
-
-    def annotation_count(self, obj):
-        return "n/a" if obj.resource_type == "Link" else obj.annotations_count
-
 
 class AnnotationsAdmin(BaseAdmin, SimpleHistoryAdmin):
     readonly_fields = ["created_at", "updated_at", "kind", "resource", "casebook"]
@@ -603,6 +507,7 @@ class AnnotationsAdmin(BaseAdmin, SimpleHistoryAdmin):
     def resource(self, obj) -> ContentNode:
         return obj.resource
 
+    paginator = FasterAdminPaginator    
 
 class TagAdmin(BaseAdmin, SimpleHistoryAdmin):
     list_display = [
@@ -655,58 +560,6 @@ class CasebookTagAdmin(BaseAdmin, SimpleHistoryAdmin):
         obj.save()
 
 
-## Resources
-class LinkAdmin(BaseAdmin, SimpleHistoryAdmin):
-    readonly_fields = ["created_at", "updated_at"]
-    list_display = [
-        "id",
-        "name",
-        "url",
-        "public",
-        "related_resources",
-        "created_at",
-        "updated_at",
-    ]
-    list_filter = ["public"]
-    search_fields = ["name", "url"]
-    fields = ["name", "url", "description", "public", "created_at", "updated_at"]
-
-    def related_resources(self, obj):
-        return format_html(
-            '<a href="{}?resource_type=Link&resource-id={}">{}</a>',
-            reverse("admin:main_resource_changelist"),
-            obj.id,
-            obj.related_resources().count(),
-        )
-
-
-class TextBlockAdmin(BaseAdmin):
-    readonly_fields = ["created_at", "updated_at"]
-    list_display = [
-        "id",
-        "name",
-        "related_resources",
-        "live_annotations_count",
-        "created_at",
-        "updated_at",
-    ]
-    fields = ["name", "description", "content", "created_at", "updated_at"]
-
-    def formfield_for_dbfield(self, db_field, **kwargs):
-        return self.enable_richeditor_for_field("content", db_field, **kwargs)
-
-    def related_resources(self, obj):
-        return format_html(
-            '<a href="{}?resource_type=TextBlock&resource-id={}">{}</a>',
-            reverse("admin:main_resource_changelist"),
-            obj.id,
-            obj.related_resources().count(),
-        )
-
-    def live_annotations_count(self, obj):
-        return obj.related_annotations().count()
-
-    live_annotations_count.short_description = "Annotations"
 
 
 ## Users
@@ -1038,11 +891,7 @@ class LiveSettingsAdmin(BaseAdmin):
 
 # Register models on our CustomAdmin instance.
 admin_site.register(Casebook, CasebookAdmin)
-admin_site.register(Section, SectionAdmin)
-admin_site.register(Resource, ResourceAdmin)
 admin_site.register(ContentAnnotation, AnnotationsAdmin)
-admin_site.register(Link, LinkAdmin)
-admin_site.register(TextBlock, TextBlockAdmin)
 admin_site.register(User, UserAdmin)
 admin_site.register(ContentCollaborator, CollaboratorsAdmin)
 admin_site.register(Institution, InstitutionAdmin)
