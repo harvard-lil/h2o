@@ -9,36 +9,76 @@
     --casebook-line-height: 1.8em;
     --link-icon-height: 25px;
     --link-icon-width: 25px;
+    --toc-column-gap: 10px;
+    --toc-row-gap: calc(var(--casebook-font-size) * 1);
   }
   body {
     height: 100vh;
     background-color: var(--color-background);
+    box-sizing: border-box;
   }
 
   main {
-    box-sizing: border-box;
     display: grid;
     grid-template-columns: 25vw 1fr;
     position: relative;
   }
   main > div {
+    max-height: 120vh; /* Try to ensure that the content area is effectively longer than the side nav */
+    overflow-y: scroll;
+  }
+  nav.left {
+    border-right: 1px solid var(--color-light-gray);
     max-height: 100vh;
     overflow-y: scroll;
   }
-  main > toc.left {
-    position: relative;
+  nav.left .metadata-block {
+    margin: 0;
+    padding: var(--toc-row-gap) 0 var(--toc-row-gap) var(--toc-column-gap);
+    display: flex;
+    gap: calc(var(--toc-column-gap) * 2);
+    box-shadow: 0 1px 10px rgba(0,0,0,0.15);
+    clip-path: inset(0px 0px -10px 0px); 
+    background: rgb(240, 240, 240, 240);
+    align-items: center;
   }
+
+  nav.left .metadata-block * {
+    color: var(--color-black) !important;
+    font-weight: normal;
+  }
+  nav.left .metadata-block h1 {
+    font-size: 120%;
+    padding: 0;
+    margin: 0;
+  }
+  nav.left * {
+    font-family: var(--font-sans-serif) !important;
+  }
+
   main > div > article {
     margin-right: 10vw;
+    height: auto;
   }
+
   /* Lay out frontmatter based on whether this is the first chapter */
   .casebook-metadata:not([data-paginator-page="1"]) .headnote {
     display: none;
   }
-
-  .casebook-metadata {
-    padding: 5vh 5vw;
+  main > div > header.site-header {
+    padding: 0 10vw 0 5vw;
   }
+  main > div > header {
+    padding: 5vh 10vw 5vh 5vw;
+
+  }
+  /* Suppress some overly creative headnote styles */
+  .casebook-metadata .headnote * {
+    background: inherit !important;
+    margin-left: inherit !important;
+    padding-left: inherit !important;
+  }
+
   article :is(p, div),
   .headnote :is(p, div) {
     margin: 1rem 0;
@@ -92,18 +132,18 @@
     background: var(--highlight-background-color);
   }
 
-  header.screen-only {
+  header.site-header {
     margin: 2rem auto 0 auto;
     display: flex;
     align-items: center;
     justify-content: center;
   }
-  header.screen-only p {
+  header.site-header p {
     font-family: var(--font-sans-serif) !important;
     margin: 0 2rem;
   }
 
-  header.screen-only button {
+  header.site-header button {
     padding: 10px;
     margin-left: auto;
   }
@@ -161,61 +201,14 @@
   footer a.unlinked {
     color: var(--color-light-gray) !important;
   }
-  #age-selector {
+  #page-selector {
     background: var(--color-light-blue);
     color: var(--color-white);
     font-size: var(--nav-font-size);
     border: none;
   }
 
-  /* Show underlining for TOC hyperlinks in the web view only */
-  nav.toc a {
-    text-decoration: underline;
-    text-decoration-style: dotted;
-    text-underline-offset: 1mm;
-    text-decoration-color: var(--color-dark-gray);
-  }
-
-  /* Floating TOC */
-
-  nav.left .toc-items {
-    max-width: 25vw;
-    position: absolute;
-    top: 80px;
-    left: 0;
-    overflow-x: hidden;
-    color: grey !important;
-    overflow-y: scroll;
-    height: 100vh;
-  }
-  nav.left .toc-items li {
-    padding-right: 1em !important;
-  }
-  nav.left button {
-
-    display: block;
-    padding: 10px;
-    margin: auto;
-  }
-  nav.left * {
-    font-family: var(--font-sans-serif) !important;
-  }
-  nav.left a {
-    color: grey !important;
-    text-decoration: none !important;
-  }
-  nav.toc ol.toc-items > li li {
-    padding: calc(var(--toc-row-gap) / 3) 0 0 0;
-  }
-  nav.toc ol.toc-items > li > :is(h3, h4) {
-    margin: 0 0 calc(.25 * var(--casebook-line-height)) 0;
-  }
-  nav.left ol.toc-items > li {
-    padding: 0;
-  }
-  nav.left ol.toc-items ol {
-    padding: 0;
-  }
+  
   @media (max-width: 552px) {
     .left a {
       left: 40vw;

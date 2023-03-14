@@ -1,10 +1,11 @@
 {% load call_method %}
 {% load static %}
 {% load render_bundle from webpack_loader %}
+{% load reading_mode_toc_item %}
 <!DOCTYPE html>
 <html lang="en">
   <head>
-    <title>{{ casebook.title }} | H2O </title>
+    <title>{{ casebook.title }}: {{ children.0.title }} </title>
     <link href="{% static 'images/favicon.ico' %}" rel="shortcut icon" type="image/vnd.microsoft.icon">
     <meta name="viewport" content="width=device-width">
     <meta content="width=device-width, initial-scale=1" name="viewport">
@@ -45,42 +46,39 @@
   </head>
 
 <body>
-  <header class="screen-only">
-    <img src="{% static 'images/logo-color-full-lockup.svg' %}" alt="H2O" height="50" width="50">
 
-      <p >
-        This free and open legal casebook from <a href="{% url 'index' %}">H2O</a>
-      is licensed under a Creative Commons license. <a href="{% url 'terms-of-service' %}">Learn more</a>.
-      </p>
-  </header>
 
   <main>
-    <nav class="left toc">
-      <button class="controls" onclick="location.href='{% url 'casebook' casebook %}'">← Exit reading mode</button>
+    <nav class="left">
+      <div class="metadata-block">
 
-      <ol class="toc-items">
+          <a href="{% url 'casebook' casebook %}">
+            <img src="{% static 'images/ui/casebook/prev_page.svg' %}" alt="Back to site"  width="32">
 
-        {% for top_level_node in toc %}
-            <li>
-                {% with chapter_num=forloop.counter %}
-                    <span class="ordinals">{{ top_level_node.ordinal_string }}</span>
-                    <h3><a href="{% url 'as_printable_html' casebook chapter_num %}#{{ top_level_node.slug }}">{{ top_level_node.title }}</a></h3>
-                    <ol>
-                        {% for child in top_level_node.children %}
-                            <li>
-                                <span class="ordinals">{{ child.ordinal_string|default:"—" }}</span>
-                                <h4 class="node-title">
-                                    <a href="{% url 'as_printable_html' casebook chapter_num %}#{{ child.slug }}">{{ child.title }}</a>
-                                </h4>
-                            </li>
-                        {% endfor %}
-                        </ol>
-                {% endwith %}
-            </li>
-        {% endfor %}
-        </ol>
+          </a>
+          <a href="{% url 'casebook' casebook %}">
+            <img src="{% static 'images/logo-color-full-lockup.svg' %}" alt="H2O"  width="50">
+            <h1 class="casebook-title">{{ casebook.title }}</h1>
+            <span class="authors">
+            {% for user in casebook.primary_authors %}
+              {{ user.display_name }}
+            {% endfor %}
+            </span>
+          </a>
+      </div>
+
+      {% reading_mode_toc_item toc casebook children.0 %}
+
     </nav>
     <div>
+      <header class="site-header">
+        
+    
+          <p >
+            This free and open legal casebook from <a href="{% url 'index' %}">H2O</a>
+          is licensed under a Creative Commons license. <a href="{% url 'terms-of-service' %}">Learn more</a>.
+          </p>
+      </header>
       <header class="casebook-metadata" data-paginator-page="{{ page.number }}">
         <div>
           <h1 class="casebook title">{{ casebook.title }}</h1>
@@ -99,11 +97,6 @@
               {% endfor %}
           </ul>
         </div>
-
-        <div id="toc">
-          {% include "export/as_printable_html/toc.html" with toc=toc toc_is_open=toc_is_open %}
-        </div>
-
       </header>
 
 
