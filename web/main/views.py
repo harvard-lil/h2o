@@ -2754,11 +2754,8 @@ def as_printable_html(
     page = paginator.page(page)
     section = page[0]
 
-    node_filter = {} if whole_book else {"ordinals__0": section.ordinals[0]}
-
     children: ContentNodeQuerySet = (
         casebook.nodes_for_user(request.user)
-        .filter(**node_filter)
         .prefetch_resources()
         .prefetch_related("annotations")
         .order_by("ordinals")
