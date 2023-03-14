@@ -114,6 +114,7 @@ const annotationRanges = annotationsToRanges(
 
 annotationRanges.forEach((rg) => {
   const { id, type, datetime, ranges, content } = rg;
+  
   switch (type) {
     case "highlight": {
       ranges.forEach((range) => {
@@ -161,6 +162,9 @@ annotationRanges.forEach((rg) => {
     }
     case "note": {
       let lastNode;
+      // Replace any annotations that look like URLs with hyperlinks
+      const urlRegex = /(\b(https?|ftp|file):\/\/[-A-Z0-9+&@#/%?=~_|!:,.;]*[-A-Z0-9+&@#/%=~_|])/ig;
+      const noteContent = content.replace(urlRegex, (url) => `<a target="_blank" href="${url}">${url}</a>`);
 
       // Wrap the specific text the author highlighted to allow for downstream styling
       ranges.forEach((range) => {
@@ -173,7 +177,7 @@ annotationRanges.forEach((rg) => {
       });
 
       // Add the note after the last range
-      const note = `<aside note-id="${id}" class="authors-note">${content}</aside>`;
+      const note = `<aside note-id="${id}" class="authors-note">${noteContent}</aside>`;
       lastNode.insertAdjacentHTML("afterend", note);
 
       break;

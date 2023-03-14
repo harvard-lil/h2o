@@ -145,7 +145,7 @@ a:active {
     padding: 10px 15px;
     width: fit-content;
   }
-
+ 
   .button {
     margin-top: 1em;
   }
@@ -166,6 +166,7 @@ a:active {
   padding: 10px;
   background-color: $white;
   color: $black;
+  overflow: scroll; 
 }
 .top {
   z-index: 10;

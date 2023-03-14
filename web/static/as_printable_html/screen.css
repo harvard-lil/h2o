@@ -47,6 +47,7 @@
     line-height: var(--casebook-line-height);
     font-family: var(--font-sans-serif) !important;
     font-size: var(--margin-font-size) !important;
+    overflow: scroll;
   }
 
   mark.note-mark {
