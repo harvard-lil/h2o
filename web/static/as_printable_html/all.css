@@ -9,12 +9,16 @@
     --color-white: white;
     --color-light-gray: lightgray;
     --color-dark-gray: gray;
+    --color-medium-gray: darkgray;
     --color-black: rgb(2, 2, 2);
+    --color-canvas: #f5f4ec; /* The background color from the main site */
     --font-sans-serif: "Atlas Grotesk";
     --highlight-background-greyscale: #ededed;
     --highlight-background-color: #fff7b9;
   }
-
+  html, body {
+    margin: 0;
+  }
   /* Always start a top-level section on a new page, even if there's preface matter */
   section.section.depth-1 {
     break-before: right;
@@ -54,6 +58,7 @@
 
   h1 {
     font-size: 200%;
+    line-height: 110%;
   }
 
   h2 {
@@ -83,6 +88,8 @@
   :is(.depth-3, .depth-4, .depth-5) h1 {
     font-size: 100%;
     font-weight: bold;
+    line-height: 140%;
+
   }
 
   :is(.depth-3, .depth-4, .depth-5) h2 {
@@ -141,8 +148,6 @@
     gap: var(--casebook-font-size);
   }
 
-
-
   .link-icon {
     min-width: var(--link-icon-width);
     min-height: var(--link-icon-height);
@@ -194,6 +199,12 @@
     font-family: "Atlas Grotesk";
     src: url("../fonts/AtlasGrotesk-Regular.woff2") format("woff2");
     font-weight: normal;
+    font-display: swap;
+  }
+  @font-face {
+    font-family: "Atlas Grotesk";
+    src: url("../fonts/AtlasGrotesk-Bold.woff2") format("woff2");
+    font-weight: bold;
     font-display: swap;
   }
 }

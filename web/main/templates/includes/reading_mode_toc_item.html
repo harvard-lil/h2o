@@ -1,0 +1,19 @@
+{% load reading_mode_toc_item %}
+
+
+<ol>
+{% for child in toc %}
+    <li class="{% if child.id == top_level_node.id %}current-chapter{% endif %}">
+     {% with chapter_num=forloop.counter %}
+        <span class="ordinals">{{ child.ordinal_string|default:"—" }}</span>
+        
+        <h{{ child.ordinals|length }} class="node-title">
+            <a href="{% url 'as_printable_html' casebook chapter_num %}#{{ child.slug }}">{{ child.title }}</a>
+        </h{{ child.ordinals|length }}>
+        {% if child.children and child.id == top_level_node.id %}
+          {% reading_mode_toc_item child.children casebook top_level_node %}
+        {% endif %}
+    {% endwith %}
+    </li>
+{% endfor %}
+</ol>

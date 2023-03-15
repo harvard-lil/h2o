@@ -9,24 +9,81 @@
     --casebook-line-height: 1.8em;
     --link-icon-height: 25px;
     --link-icon-width: 25px;
+    --toc-column-gap: 10px;
+    --toc-row-gap: calc(var(--casebook-font-size) * 1);
   }
-  main {
+  body {
+    height: 100vh;
+    background-color: var(--color-background);
     box-sizing: border-box;
-    margin: 0 15vw 10vw 15vw;
   }
+
+  main {
+    display: grid;
+    grid-template-columns: 25vw 1fr;
+    position: relative;
+  }
+  main > div {
+    max-height: 120vh; /* Try to ensure that the content area is effectively longer than the side nav */
+    overflow-y: scroll;
+  }
+  nav.left {
+    border-right: 1px solid var(--color-light-gray);
+    max-height: 100vh;
+    overflow-y: scroll;
+  }
+  nav.left .metadata-block {
+    margin: 0;
+    padding: var(--toc-row-gap) 0 var(--toc-row-gap) var(--toc-column-gap);
+    display: flex;
+    gap: calc(var(--toc-column-gap) * 2);
+    box-shadow: 0 1px 10px rgba(0,0,0,0.15);
+    clip-path: inset(0px 0px -10px 0px); 
+    background: rgb(240, 240, 240, 240);
+    align-items: center;
+  }
+
+  nav.left .metadata-block * {
+    color: var(--color-black) !important;
+    font-weight: normal;
+  }
+  nav.left .metadata-block h1 {
+    font-size: 120%;
+    padding: 0;
+    margin: 0;
+  }
+  nav.left * {
+    font-family: var(--font-sans-serif) !important;
+  }
+
+  main > div > article {
+    margin-right: 10vw;
+    height: auto;
+  }
+
   /* Lay out frontmatter based on whether this is the first chapter */
   .casebook-metadata:not([data-paginator-page="1"]) .headnote {
     display: none;
   }
-
-  .casebook-metadata {
-    padding: 5vh 5vw;
+  main > div > header.site-header {
+    padding: 0 10vw 0 5vw;
   }
+  main > div > header {
+    padding: 5vh 10vw 5vh 5vw;
+
+  }
+  /* Suppress some overly creative headnote styles */
+  .casebook-metadata .headnote * {
+    background: inherit !important;
+    margin-left: inherit !important;
+    padding-left: inherit !important;
+  }
+
   article :is(p, div),
   .headnote :is(p, div) {
     margin: 1rem 0;
   }
-  main > article {
+  main > div > article {
     background-color: white;
     padding: 5vh 5vw;
   }
@@ -75,50 +132,22 @@
   mark.note-mark:has(+ aside:is(:hover, :focus)) {
     background: var(--highlight-background-color);
   }
-  a.footnote-generated {
-    display: none;
-  }
-  .node-heading {
-    display: block;
-    width: 13vw;
-    margin-left: -20vw;
-    float: left;
-    text-align: right;
-    font-family: var(--font-sans-serif) !important;
-    font-size: var(--margin-font-size) !important;
-    line-height: var(--casebook-line-height);
-  }
-  .node-heading.depth-1 {
-    top: 5vh;
-  }
-  .node-heading.depth-2 {
-    top: 10vh;
-  }
-  .node-heading.depth-3 {
-    top: 15vh;
-  }
-  .node-heading.depth-4 {
-    top: 20vh;
-  }
 
-  body {
-    background-color: var(--color-background);
-  }
-
-  header.screen-only {
+  header.site-header {
     margin: 2rem auto 0 auto;
     display: flex;
     align-items: center;
     justify-content: center;
   }
-  header.screen-only p {
+  header.site-header p {
     font-family: var(--font-sans-serif) !important;
     margin: 0 2rem;
   }
-  header.screen-only img {
-    max-height: 50px;
-  }
 
+  header.site-header button {
+    padding: 10px;
+    margin-left: auto;
+  }
   footer nav {
     --nav-font-size: 16px;
 
@@ -133,7 +162,7 @@
     transform: translateX(-50%);
     width: 100%;
     display: flex;
-    justify-content: space-between;
+    justify-content: space-evenly;
     align-items: center;
     z-index: 99;
   }
@@ -180,13 +209,7 @@
     border: none;
   }
 
-  /* Show underlining for TOC hyperlinks in the web view only */
-  nav.toc a {
-    text-decoration: underline;
-    text-decoration-style: dotted;
-    text-underline-offset: 1mm;
-    text-decoration-color: var(--color-dark-gray);
-  }
+  
   @media (max-width: 552px) {
     .left a {
       left: 40vw;
@@ -202,9 +225,7 @@
     header.screen-only p {
       margin: 0 0 0 1rem;
     }
-    footer nav button.print-preview {
-      display: none;
-    }
+
   }
   @font-face {
     font-family: "Chronicle Text G3";

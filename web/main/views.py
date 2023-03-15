@@ -2764,7 +2764,6 @@ def as_printable_html(
         .order_by("ordinals")
     )
     toc = manually_serialize_content_query(casebook.nodes_for_user(request.user))
-
     return render(
         request,
         "export/as_printable_html/casebook.html",
