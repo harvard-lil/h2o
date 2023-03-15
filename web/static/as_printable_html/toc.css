@@ -16,7 +16,6 @@ nav.left > ol {
   position: absolute;
   overflow-x: hidden;
   color: grey !important;
-  overflow-y: scroll;
   height: 100vh;
 }
 nav.left > ol li {
