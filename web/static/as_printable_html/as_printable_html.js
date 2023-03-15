@@ -243,3 +243,20 @@ requestAnimationFrame(
 document.querySelector("#page-selector").addEventListener("change", (e) => {
   location.href = e.target.value;
 });
+
+document.querySelectorAll(".toc-opener").forEach(button => {
+  button.addEventListener("click", () => {
+    if (button.getAttribute("data-state") === "open") {
+      document.querySelector("nav.left").style.marginLeft = "-20vw";
+      button.setAttribute("data-state", "closed")
+      button.innerText = "Show"
+    }
+    else {
+      document.querySelector("nav.left").style.marginLeft = "0";   
+      button.setAttribute("data-state", "open")
+      button.innerText = "Hide"
+    }
+    document.querySelector("nav.left").classList.toggle("closed");
+
+  })
+})
