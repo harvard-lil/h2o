@@ -19,22 +19,26 @@
   }
 
   main {
-    display: grid;
-    grid-template-columns: 25vw 1fr;
+    display: flex;
     position: relative;
   }
   main > div {
     max-height: 120vh; /* Try to ensure that the content area is effectively longer than the side nav */
-    overflow-y: scroll;
+    overflow-y: auto;
+    scrollbar-width: none;
   }
+  main > div::-webkit-scrollbar {
+    display: none;
+  } 
   nav.left {
-    border-right: 1px solid var(--color-light-gray);
+    
     max-height: 100vh;
-    overflow-y: scroll;
+    scrollbar-width: none;
+    min-width: 25vw;
   }
   nav.left .metadata-block {
     margin: 0;
-    padding: var(--toc-row-gap) 0 var(--toc-row-gap) var(--toc-column-gap);
+    padding: var(--toc-row-gap) var(--toc-column-gap);
     display: flex;
     gap: calc(var(--toc-column-gap) * 2);
     box-shadow: 0 1px 10px rgba(0,0,0,0.15);
@@ -42,7 +46,9 @@
     background: rgb(240, 240, 240, 240);
     align-items: center;
   }
-
+  nav.left .metadata-block button {
+    margin-left: auto;
+  }
   nav.left .metadata-block * {
     color: var(--color-black) !important;
     font-weight: normal;
@@ -55,7 +61,17 @@
   nav.left * {
     font-family: var(--font-sans-serif) !important;
   }
+  nav.left.closed .metadata-block  * {
+    opacity: 0;
+  }
+  nav.left.closed ol {
+    opacity: 0;
+  }
+  
 
+  nav.left.closed .metadata-block button {
+    opacity: 1;
+  }
   main > div > article {
     margin-right: 10vw;
     height: auto;
@@ -65,10 +81,7 @@
   .casebook-metadata:not([data-paginator-page="1"]) .headnote {
     display: none;
   }
-  main > div > header.site-header {
-    padding: 0 10vw 0 5vw;
-  }
-  main > div > header {
+  div > header.casebook-metadata {
     padding: 5vh 10vw 5vh 5vw;
 
   }
@@ -104,7 +117,8 @@
     line-height: var(--casebook-line-height);
     font-family: var(--font-sans-serif) !important;
     font-size: var(--margin-font-size) !important;
-    overflow: scroll;
+    word-break: break-all;
+
   }
 
   mark.note-mark {
@@ -133,15 +147,12 @@
     background: var(--highlight-background-color);
   }
 
-  header.site-header {
-    margin: 2rem auto 0 auto;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-  }
+
   header.site-header p {
     font-family: var(--font-sans-serif) !important;
-    margin: 0 2rem;
+    font-size: smaller !important;
+    text-align: center;
+    margin: 2em auto 0 auto;
   }
 
   header.site-header button {

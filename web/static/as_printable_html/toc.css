@@ -16,9 +16,14 @@ nav.left > ol {
   position: absolute;
   overflow-x: hidden;
   color: grey !important;
-  overflow-y: scroll;
   height: 100vh;
+  scrollbar-width: none;
+
 }
+nav.left > ol::-webkit-scrollbar {
+  display: none;
+} 
+
 nav.left > ol li {
   display: flex;
   flex-wrap: wrap;
@@ -58,14 +63,21 @@ nav.left .node-title {
 nav.left > ol > li > ol li {
   line-height: calc(var(--casebook-line-height) * 0.8);
 }
+nav.left {
+  outline-offset: -1px;
+  outline: 1px solid var(--color-light-gray);
+}
+nav.left .metadata-block {
+  border-right: 1px solid var(--color-light-gray);
 
-
+}
 nav.left .current-chapter {
   background: white;
   border-top: 1px solid var(--color-light-gray);
   border-bottom: 1px solid var(--color-light-gray);
   padding-top: var(--toc-row-gap);
   padding-bottom: var(--toc-row-gap);
+  border-right: 1px solid white;
   
 }
 
