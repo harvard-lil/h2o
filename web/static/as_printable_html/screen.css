@@ -57,9 +57,13 @@
   nav.toc .metadata-block a.back {
     display: inline-flex;
   }
+  nav.toc .metadata-block a.metadata {
+    flex-basis: 100%;
+  }
   nav.toc .metadata-block p {
     font-size: 14px !important;
     line-height: 1.4em !important;
+    flex-basis: 100%;
   }
   nav.toc .metadata-block p a {
     text-decoration: underline;
