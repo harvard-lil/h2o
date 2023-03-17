@@ -51,9 +51,18 @@
     clip-path: inset(0px 0px -10px 0px); 
     background: rgb(240, 240, 240, 240);
     align-items: center;
+    flex-wrap: wrap;
+    justify-content: space-between;
   }
-  nav.toc .metadata-block button {
-    margin-left: auto;
+  nav.toc .metadata-block a.back {
+    display: inline-flex;
+  }
+  nav.toc .metadata-block p {
+    font-size: 14px !important;
+    line-height: 1.4em !important;
+  }
+  nav.toc .metadata-block p a {
+    text-decoration: underline;
   }
   nav.toc .metadata-block * {
     color: var(--color-black) !important;
@@ -92,6 +101,10 @@
 
   nav.toc.closed .metadata-block button {
     display: block;
+    margin: 0;
+  }
+  nav.toc.closed .metadata-block {
+    padding: 0;
   }
   main > div > article {
     margin-right: 10vw;
