@@ -1,77 +1,69 @@
 
-nav.left h2 {
+nav.toc h2 {
   margin: 0;
 }
 
-nav.left h3 {
+nav.toc h3 {
   margin: 0;
   font-size: 1em;
   font-weight: bold;
 }
 
-nav.left > ol {
-  padding: 0;
-  margin-top: calc(var(--toc-row-gap) * 2);
-  max-width: 25vw;
-  position: absolute;
-  overflow-x: hidden;
-  color: grey !important;
-  height: 100vh;
-  scrollbar-width: none;
-
+nav.toc > h1 {
+  font-size: 100%;
+  line-height: 1em;
+  padding-left: calc(var(--toc-column-gap) * 2);
 }
-nav.left > ol::-webkit-scrollbar {
-  display: none;
-} 
 
-nav.left > ol li {
+
+nav.toc > ol li {
   display: flex;
   flex-wrap: wrap;
   padding: 0 calc(var(--toc-column-gap) * 4) 0 calc(var(--toc-column-gap) * 2); 
 }
 
-nav.left > ol .ordinals {
+nav.toc > ol .ordinals {
   flex-basis: 4ch;
 }
 
-nav.left > ol :is(h1, h2, h3, h4, h5, h6) {
+nav.toc > ol :is(h1, h2, h3, h4, h5, h6) {
   flex: 1;
   margin: 0;
   font-size: 100%;
   line-height: 1.6em;
 }
-nav.left > ol ol {
+nav.toc > ol ol {
   flex-basis: 100%;
   padding: var(--toc-row-gap) 0 0  var(--toc-column-gap);
   
 }
-nav.left > ol ol li .ordinals {
+nav.toc > ol ol li .ordinals {
   flex-basis: 4ch;
 }
 
-nav.left > ol > * {
+nav.toc > ol > * {
   margin-bottom: var(--toc-row-gap);
 }
-nav.left > ol > li li {
+nav.toc > ol > li li {
   padding: 0 0 0 0;
 }
-nav.left .node-title {
+nav.toc .node-title {
   display: inline-block;
   margin: 0 0 0 calc(var(--toc-left-width) / 2);
 }
 
-nav.left > ol > li > ol li {
+nav.toc > ol > li > ol li {
   line-height: calc(var(--casebook-line-height) * 0.8);
 }
-nav.left {
+nav.toc {
   outline-offset: -1px;
   outline: 1px solid var(--color-light-gray);
 }
-nav.left .metadata-block {
+nav.toc .metadata-block {
   border-right: 1px solid var(--color-light-gray);
 
 }
-nav.left .current-chapter {
+nav.toc .current-chapter {
   background: white;
   border-top: 1px solid var(--color-light-gray);
   border-bottom: 1px solid var(--color-light-gray);
@@ -81,15 +73,15 @@ nav.left .current-chapter {
   
 }
 
-nav.left .current-chapter h1 {
+nav.toc .current-chapter h1 {
   font-weight: bold;
 }
 
-nav.left a {
+nav.toc a {
   text-decoration: none;
   color: var(--color-dark-gray) !important;
 }
-nav.left a:hover {
+nav.toc a:hover {
   text-decoration: underline;
   text-underline-offset: 3px;
   text-decoration-color: var(--color-medium-gray);

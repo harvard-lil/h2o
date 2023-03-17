@@ -245,18 +245,17 @@ document.querySelector("#page-selector").addEventListener("change", (e) => {
 });
 
 document.querySelectorAll(".toc-opener").forEach(button => {
+  const toc = document.querySelector("nav.toc")
   button.addEventListener("click", () => {
     if (button.getAttribute("data-state") === "open") {
-      document.querySelector("nav.left").style.marginLeft = "-20vw";
       button.setAttribute("data-state", "closed")
       button.innerText = "Show"
     }
     else {
-      document.querySelector("nav.left").style.marginLeft = "0";   
       button.setAttribute("data-state", "open")
       button.innerText = "Hide"
     }
-    document.querySelector("nav.left").classList.toggle("closed");
+    toc.classList.toggle("closed");
 
   })
 })
