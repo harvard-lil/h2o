@@ -10,7 +10,7 @@
           class="form-control"
           name="q"
           type="text"
-          placeholder="Search for a case to import"
+          placeholder="Search for a case or section of federal code"
           v-model="passThrough"
           />
       </label>
@@ -21,57 +21,62 @@
         value="Search"
         v-on:click.stop.prevent="runCaseSearch"
         />
-    </div>
-    <div v-if="!showingLimits">
-      <a v-on:click.stop.prevent="showLimits">Advanced search options</a>
-    </div>
-    <div v-else>
-      <div class="toggle-line">
-        <a v-on:click.stop.prevent="hideLimits">Basic search</a>
+
+    <div class="form-block">
+      <div v-if="!showingLimits">
+        <button class="advanced-search-toggle" v-on:click.stop.prevent="showLimits">Advanced search options</button>
       </div>
-      <div class="source-row">
-      <label>
-        Source:
-          <select class="form-control" v-model="searchLimit">
-            <option :value="null">All Sources</option>
-            <option :value="source" v-for="source in getSources" :key="source.id">{{source.name}}</option>
-          </select>
-      </label>
-      <div class="about-source">
-        {{searchLimit ? searchLimit.long_description : 'Search all sources'}}
-      </div>
-      </div>
-      <div class="jurisdiction-row">
+      <div v-else>
+        <button class="advanced-search-toggle" v-on:click.stop.prevent="hideLimits">Basic search</button>
+
+        <div class="advanced-search">
+          <div>
+            <label>
+              Source:
+                <select class="form-control" v-model="searchLimit">
+                  <option :value="null">All sources</option>
+                  <option :value="source" v-for="source in getSources" :key="source.id">{{source.name}}</option>
+                </select>
+            </label>
+
+          </div>
+        <div>
+          <label>
+            Jurisdiction:
+            <select class="form-control" v-model="jurisdiction" name="jurisdiction">
+              <option :value="j.val" v-for="j in jurisdictions" :key="j.val">{{j.name}}</option>
+            </select>
+          </label>
+        </div>
         <label>
-          Jurisdiction:
-          <select class="form-control" v-model="jurisdiction" name="jurisdiction">
-            <option :value="j.val" v-for="j in jurisdictions" :key="j.val">{{j.name}}</option>
-          </select>
+            Decision Date
+            <div class="date-row form-control-inline">
+                <input
+                  name="after_date"
+                  type="date"
+                  class="form-control"
+                  placeholder="YYYY-MM-DD"
+                  v-model="after_date"
+                  @blur="reformatDates"
+                  />
+              <span> - </span>
+              <input
+                  name="before_date"
+                  type="date"
+                  class="form-control"
+                  placeholder="YYYY-MM-DD"
+                  v-model="before_date"
+                  @blur="reformatDates"
+                  />
+            </div>
         </label>
+        <p>
+          {{searchLimit ? searchLimit.long_description : ''}}
+        </p>
       </div>
-      <label>
-          Decision Date
-      <div class="date-row form-control-inline">
-          <input
-            name="after_date"
-            type="date"
-            class="form-control"
-            placeholder="YYYY-MM-DD"
-            v-model="after_date"
-            @blur="reformatDates"
-            />
-        <span> - </span>
-        <input
-            name="before_date"
-            type="date"
-            class="form-control"
-            placeholder="YYYY-MM-DD"
-            v-model="before_date"
-            @blur="reformatDates"
-            />
-      </div>
-        </label>
     </div>
+    </div>
+  </div>
   </form>
 </div>
 </template>
@@ -84,7 +89,7 @@ const { mapActions, mapGetters } = createNamespacedHelpers("case_search");
 
 
 const jurisdictions = [
-  { val: "", name: "All Jurisdictions" },
+  { val: "", name: "All jurisdictions" },
   { val: "ala", name: "Alabama" },
   { val: "alaska", name: "Alaska" },
   { val: "am-samoa", name: "American Samoa" },
@@ -136,7 +141,7 @@ const jurisdictions = [
   { val: "sd", name: "South Dakota" },
   { val: "tenn", name: "Tennessee" },
   { val: "tex", name: "Texas" },
-  { val: "tribal", name: "Tribal Jurisdictions" },
+  { val: "tribal", name: "Tribal jurisdictions" },
   { val: "uk", name: "United Kingdom" },
   { val: "us", name: "United States" },
   { val: "utah", name: "Utah" },
@@ -173,7 +178,7 @@ export default {
       this.updateValue(this.value);
     },
     reformatDates: function() {
-      function completeDates(v, k) {
+      function completeDates(v, k) { // FIXME this should really use a date library
         const dateRex = /(?<year>[0-9]{4})-?(?<month>[0-9]{1,2})?-?(?<day>[0-9]{1,2})?/;
         if (k === "after_date") {
           let [_, year, month, day] = dateRex.exec(v);
@@ -195,7 +200,7 @@ export default {
           }
           month = month.length == 1 ? "0" + month : month;
           if (!day) {
-            const monthDays = [31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31];
+            const monthDays = [31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31]; 
             let iMonth = parseInt(month) - 1;
             iMonth = iMonth > 11 ? 11 : iMonth;
             return `${year}-${month}-${monthDays[iMonth]}`;
@@ -312,20 +317,73 @@ export default {
 </script>
 
 <style lang="scss" scoped>
+.search-results {
+  margin: auto;
+}
 .search-button {
     margin-left: 2rem;
 }
 .date-row {
     display: grid;
     grid-template-columns: auto 24px auto;
-    align-items: baseline;
+    align-items: center;
     span {
         text-align: center;
-        padding-top: 2rem;
-        padding-bottom: 1rem;
+    }
+    input {
+      padding-bottom: 4px;
+      padding-top: 3px;
     }
 }
-.about-source {
-    margin: 6px 0px;
+
+.form-control-group {
+  display: flex;
+  flex-wrap: wrap;
+  margin: auto;
+  justify-content: space-between;
+  align-items: center;
+  gap: 1em;
+
+  .form-block {
+    flex-basis: 100%;
+  }
+  button.advanced-search-toggle {
+    background: none;
+    border: none;
+    text-decoration: underline;
+    text-underline-offset: 4px;
+    padding: 0;
+  }
+  .advanced-search {
+    display: flex;
+    gap: 1em;
+    flex-wrap: wrap;
+    margin: 1em 0;
+
+    label {
+      width: 100%;
+      line-height: 2em;
+      
+      & * {
+        font-weight: normal;
+      }
+      select {
+        padding-left: .5em;
+      }
+    }
+    & > div {
+      flex-basis: 24%;
+    }
+    & > label {
+      flex-basis: 48%;
+    }
+    .form-control {
+      font-size: 16px;
+      height: initial;
+    }
+    p {
+      flex-basis: 100%;
+    }
+  }
 }
 </style>

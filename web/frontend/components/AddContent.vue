@@ -1,5 +1,5 @@
 <template>
-  <div>
+  <div class="add-content">
     <button
       class="action one-line add-resource"
       v-on:click.stop.prevent="displayModal()"
@@ -223,6 +223,11 @@ export default {
 <style lang="scss">
 @use "sass:color";
 @import "variables";
+
+.add-resource-body {
+  width: 95%;
+  margin: auto;
+}
 label.textarea {
   width: 100%;
 }

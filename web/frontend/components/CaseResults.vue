@@ -11,11 +11,7 @@
       <span>No legal documents found matching your search</span>
     </div>
   </div>
-  <div class="search-results-wrapper" v-else-if="searchResults.unRun">
-    <div class="search-alert">
-      <span>Click Search to run your search</span>
-    </div>
-  </div>
+
   <div class="search-results-wrapper" v-else>
     <div class="search-results-entry" v-for="c in searchResults.results" :key="c.id">
       <div class="name-column">
@@ -92,14 +88,6 @@ export default {
     padding-right: 1rem;
 }
 .search-results-wrapper {
-  overflow-y: unset;
-  overflow-x: unset;
-  display: table;
-  width: 100%;
-  border-top: 2px solid black;
-  border-bottom: 2px solid black;
-  margin: 8px 0;
-  padding: 2px 0;
   .search-results-entry {
     display: table-row;
     div {
