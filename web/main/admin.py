@@ -29,12 +29,8 @@ from .models import (
     Institution,
     LegalDocument,
     LegalDocumentSource,
-    Link,
     LiveSettings,
-    Resource,
-    Section,
     Tag,
-    TextBlock,
     User,
 )
 from .utils import clone_model_instance, fix_after_rails
@@ -43,8 +39,13 @@ from .utils import clone_model_instance, fix_after_rails
 # Helpers
 #
 
+# These models should never use count() queries because of their high row count or the cost of most filtered queries
+ALWAYS_FAST_PAGINATE_MODELS = (ContentAnnotation,)
+
 
 class FasterAdminPaginator(Paginator):
+    """Does pagination estimation only if the total number of rows is high and there are no filters applied"""
+
     @cached_property
     def count(self) -> int:
         cursor = connection.cursor()
@@ -52,9 +53,12 @@ class FasterAdminPaginator(Paginator):
             f"SELECT reltuples AS estimate FROM pg_class WHERE relname = '{self.object_list.query.model._meta.db_table}';"
         )
         estimate = int(cursor.fetchone()[0])
-        if estimate > 10000:
+        if estimate > 10_000 and (
+            not bool(self.object_list.query.where)
+            or self.object_list.model in (ALWAYS_FAST_PAGINATE_MODELS)
+        ):
             self.estimated_count = True
-            self.estimated_count_ignores_filter = bool(self.object_list.query.where)
+            self.estimated_count_ignores_filter = True
             return estimate
         try:
             return self.object_list.count()
@@ -285,6 +289,39 @@ class LegalDocumentSourceFilter(InputFilter):
             return queryset.filter(source_id=value)
 
 
+class ResourceTypeFilter(admin.SimpleListFilter):
+    title = "Resource type"
+    parameter_name = "resource_type"
+
+    def lookups(self, request, model_admin):
+        return [
+            ("LegalDocument", "Legal document"),
+            ("Link", "Link"),
+            ("Section", "Section"),
+            ("Temp", "Temp"),
+            ("TextBlock", "Text block"),
+        ]
+
+    def queryset(self, request, queryset):
+        if self.value():
+            return queryset.filter(resource_type=self.value())
+        return queryset
+
+
+class ContentAnnotationResourceTypeFilter(ResourceTypeFilter):
+    # Only these types can be meaningfully annotated
+    def lookups(self, request, model_admin):
+        return [
+            ("LegalDocument", "Legal document"),
+            ("TextBlock", "Text block"),
+        ]
+
+    def queryset(self, request, queryset):
+        if self.value():
+            return queryset.filter(resource__resource_type=self.value())
+        return queryset
+
+
 #
 # Inlines
 #
@@ -402,41 +439,6 @@ class CasebookAdmin(BaseAdmin, SimpleHistoryAdmin):
     source.short_description = "source"
 
 
-class SectionAdmin(BaseAdmin, SimpleHistoryAdmin):
-    readonly_fields = ["created_at", "updated_at", "casebook_link", "provenance", "ordinals"]
-    list_select_related = ["casebook"]
-    list_display = ["id", "casebook_link", "title", "ordinals", "created_at", "updated_at"]
-    list_filter = [CasebookIdFilter]
-    search_fields = ["title", "casebook__title"]
-    fields = [
-        "casebook",
-        "ordinals",
-        "title",
-        "subtitle",
-        "provenance",
-        "headnote",
-        "created_at",
-        "updated_at",
-    ]
-    raw_id_fields = ["casebook"]
-
-    def get_queryset(self, request):
-        return (
-            super()
-            .get_queryset(request)
-            .select_related("casebook")
-            .prefetch_related("casebook__contentcollaborator_set__user")
-        )
-
-    def formfield_for_dbfield(self, db_field, **kwargs):
-        return self.enable_richeditor_for_field("headnote", db_field, **kwargs)
-
-    def casebook_link(self, obj):
-        return edit_link(obj.casebook, True)
-
-    casebook_link.short_description = "casebook"
-
-
 class ContentNodeAdmin(BaseAdmin, SimpleHistoryAdmin):
     readonly_fields = [
         "created_at",
@@ -460,7 +462,7 @@ class ContentNodeAdmin(BaseAdmin, SimpleHistoryAdmin):
         "created_at",
         "updated_at",
     ]
-    list_filter = [CasebookIdFilter, "resource_type", ResourceIdFilter]
+    list_filter = [CasebookIdFilter, ResourceTypeFilter, ResourceIdFilter]
     search_fields = ["title", "casebook__title"]
     fields = [
         "casebook",
@@ -479,14 +481,6 @@ class ContentNodeAdmin(BaseAdmin, SimpleHistoryAdmin):
     ]
     raw_id_fields = ["casebook"]
     inlines = [AnnotationInline]
-
-    def get_queryset(self, request):
-        return (
-            super()
-            .get_queryset(request)
-            .select_related("casebook")
-            .prefetch_related("casebook__contentcollaborator_set__user")
-        )
 
     def formfield_for_dbfield(self, db_field, **kwargs):
         return self.enable_richeditor_for_field("headnote", db_field, **kwargs)
@@ -507,65 +501,9 @@ class ContentNodeAdmin(BaseAdmin, SimpleHistoryAdmin):
         ):
             obj.casebook.content_tree__repair()
 
+    ordering = ("-id",)
     paginator = FasterAdminPaginator
-
-
-class ResourceAdmin(BaseAdmin, SimpleHistoryAdmin):
-    readonly_fields = [
-        "created_at",
-        "updated_at",
-        "casebook_link",
-        "provenance",
-        "resource_type",
-        "ordinals",
-    ]
-    list_select_related = ["casebook"]
-    list_display = [
-        "id",
-        "casebook_link",
-        "title",
-        "ordinals",
-        "resource_type",
-        "resource_id",
-        "annotation_count",
-        "created_at",
-        "updated_at",
-    ]
-    list_filter = [CasebookIdFilter, "resource_type", ResourceIdFilter]
-    search_fields = ["title", "casebook__title"]
-    fields = [
-        "casebook",
-        "ordinals",
-        "title",
-        "subtitle",
-        "provenance",
-        "headnote",
-        "created_at",
-        "updated_at",
-        "resource_id",
-    ]
-    raw_id_fields = ["casebook"]
-    inlines = [AnnotationInline]
-
-    def get_queryset(self, request):
-        return (
-            super()
-            .get_queryset(request)
-            .select_related("casebook")
-            .prefetch_related("casebook__contentcollaborator_set__user")
-            .annotate(annotations_count=Count("annotations"))
-        )
-
-    def formfield_for_dbfield(self, db_field, **kwargs):
-        return self.enable_richeditor_for_field("headnote", db_field, **kwargs)
-
-    def casebook_link(self, obj):
-        return edit_link(obj.casebook, True)
-
-    casebook_link.short_description = "casebook"
-
-    def annotation_count(self, obj):
-        return "n/a" if obj.resource_type == "Link" else obj.annotations_count
+    show_full_result_count = False
 
 
 class AnnotationsAdmin(BaseAdmin, SimpleHistoryAdmin):
@@ -589,7 +527,7 @@ class AnnotationsAdmin(BaseAdmin, SimpleHistoryAdmin):
         "created_at",
         "updated_at",
     ]
-    list_filter = ["kind", "resource__resource_type"]
+    list_filter = ["kind", ContentAnnotationResourceTypeFilter]
 
     # This table isn't ordered on an index by default; use this as a proxy for recency
     ordering = ("-id",)
@@ -602,6 +540,9 @@ class AnnotationsAdmin(BaseAdmin, SimpleHistoryAdmin):
 
     def resource(self, obj) -> ContentNode:
         return obj.resource
+
+    paginator = FasterAdminPaginator
+    show_full_result_count = False
 
 
 class TagAdmin(BaseAdmin, SimpleHistoryAdmin):
@@ -653,60 +594,6 @@ class CasebookTagAdmin(BaseAdmin, SimpleHistoryAdmin):
     def save_model(self, request, obj, form, change):
         obj.created_by = request.user
         obj.save()
-
-
-## Resources
-class LinkAdmin(BaseAdmin, SimpleHistoryAdmin):
-    readonly_fields = ["created_at", "updated_at"]
-    list_display = [
-        "id",
-        "name",
-        "url",
-        "public",
-        "related_resources",
-        "created_at",
-        "updated_at",
-    ]
-    list_filter = ["public"]
-    search_fields = ["name", "url"]
-    fields = ["name", "url", "description", "public", "created_at", "updated_at"]
-
-    def related_resources(self, obj):
-        return format_html(
-            '<a href="{}?resource_type=Link&resource-id={}">{}</a>',
-            reverse("admin:main_resource_changelist"),
-            obj.id,
-            obj.related_resources().count(),
-        )
-
-
-class TextBlockAdmin(BaseAdmin):
-    readonly_fields = ["created_at", "updated_at"]
-    list_display = [
-        "id",
-        "name",
-        "related_resources",
-        "live_annotations_count",
-        "created_at",
-        "updated_at",
-    ]
-    fields = ["name", "description", "content", "created_at", "updated_at"]
-
-    def formfield_for_dbfield(self, db_field, **kwargs):
-        return self.enable_richeditor_for_field("content", db_field, **kwargs)
-
-    def related_resources(self, obj):
-        return format_html(
-            '<a href="{}?resource_type=TextBlock&resource-id={}">{}</a>',
-            reverse("admin:main_resource_changelist"),
-            obj.id,
-            obj.related_resources().count(),
-        )
-
-    def live_annotations_count(self, obj):
-        return obj.related_annotations().count()
-
-    live_annotations_count.short_description = "Annotations"
 
 
 ## Users
@@ -1038,11 +925,7 @@ class LiveSettingsAdmin(BaseAdmin):
 
 # Register models on our CustomAdmin instance.
 admin_site.register(Casebook, CasebookAdmin)
-admin_site.register(Section, SectionAdmin)
-admin_site.register(Resource, ResourceAdmin)
 admin_site.register(ContentAnnotation, AnnotationsAdmin)
-admin_site.register(Link, LinkAdmin)
-admin_site.register(TextBlock, TextBlockAdmin)
 admin_site.register(User, UserAdmin)
 admin_site.register(ContentCollaborator, CollaboratorsAdmin)
 admin_site.register(Institution, InstitutionAdmin)
