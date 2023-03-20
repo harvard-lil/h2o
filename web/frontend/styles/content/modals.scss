@@ -72,8 +72,8 @@
     padding-right: 20px;
   }
   .search-tabs {
-    @include make-row();
-
+    display: flex;
+    justify-content: space-evenly;
     margin-bottom: 15px;
 
     .search-tab {
@@ -84,7 +84,7 @@
 
       text-align: center;
       cursor: pointer;
-      border-bottom: 2px solid black;
+      border-bottom: 1px solid $black;
 
       &.active {
         border-bottom-color: $light-blue;
