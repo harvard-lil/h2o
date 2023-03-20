@@ -49,53 +49,32 @@
 
 
   <main>
-    <nav class="left">
-      <div class="metadata-block">
 
-          <a href="{% url 'casebook' casebook %}">
-            <img src="{% static 'images/ui/casebook/prev_page.svg' %}" alt="Back to site"  width="32">
-
-          </a>
-          <a href="{% url 'casebook' casebook %}">
-            <img src="{% static 'images/logo-color-full-lockup.svg' %}" alt="H2O"  width="50">
-            <h1 class="casebook-title">{{ casebook.title }}</h1>
-            <span class="authors">
-            {% for user in casebook.primary_authors %}
-              {{ user.display_name }}
-            {% endfor %}
-            </span>
-          </a>
-          <button class="toc-opener" data-state="open">Hide</button>
-      </div>
-      
-      {% reading_mode_toc_item toc casebook children.0 %}
-    
-    </nav>
     <div>
       <header class="site-header">
-          <p>
-            This free and open legal casebook from <a href="{% url 'index' %}">H2O</a>
-          is licensed under a Creative Commons license. <a href="{% url 'terms-of-service' %}">Learn more</a>.
-          </p>
+
       </header>
       <header class="casebook-metadata" data-paginator-page="{{ page.number }}">
         <div>
           <h1 class="casebook title">{{ casebook.title }}</h1>
           {% if casebook.subtitle %}<h2 class="casebook subtitle">{{ casebook.subtitle}}</h2>{% endif %}
+
+          <div class="author-list">
+            <ul>
+            {% for user in casebook.primary_authors %}
+                <li class="user {% if user.verified_professor %} verified{% endif %}">
+                    {{ user.display_name }}
+                    {% if user.affiliation %}
+                      ({{ user.affiliation }})
+                    {% endif %}
+                </li>
+                {% endfor %}
+            </ul>
+          </div>
+
           <section class="casebook headnote">{{ casebook.headnote|safe}}</section>
         </div>
-        <div class="author-list">
-          <ul>
-          {% for user in casebook.primary_authors %}
-              <li class="user {% if user.verified_professor %} verified{% endif %}">
-                  {{ user.display_name }}
-                  {% if user.affiliation %}
-                    ({{ user.affiliation }})
-                  {% endif %}
-              </li>
-              {% endfor %}
-          </ul>
-        </div>
+        
       </header>
 
 
@@ -106,6 +85,34 @@
       </article>
 
     </div>
+    <nav class="toc">
+      <div class="metadata-block">
+
+          <a href="{% url 'casebook' casebook %}" class="back">
+            <img src="{% static 'images/ui/casebook/cancel-icon.svg' %}" alt="Back to site"  width="32">
+
+          </a>
+          <button class="toc-opener" data-state="open">Hide</button>
+
+          <a href="{% url 'casebook' casebook %}" class="metadata">
+            <img src="{% static 'images/logo-color-wordmark.svg' %}" alt="H2O"  width="50">
+            <h1 class="casebook-title">{{ casebook.title }}</h1>
+            <span class="authors">
+            {% for user in casebook.primary_authors %}
+              {{ user.display_name }}
+            {% endfor %}
+            </span>
+          </a>
+          <p>
+            This free and open casebook
+          is Creative Commons licensed. <a href="https://about.opencasebook.org/making-casebooks/#copyright">Learn more</a> 
+          </p>
+      </div>
+
+      <h1>Table of contents</h1>
+      {% reading_mode_toc_item toc casebook children.0 %}
+    
+    </nav>
 
   </main>
 
