@@ -39,6 +39,9 @@ from .utils import clone_model_instance, fix_after_rails
 # Helpers
 #
 
+# These models should never use count() queries because of their high row count or the cost of most filtered queries
+ALWAYS_FAST_PAGINATE_MODELS = (ContentAnnotation,)
+
 
 class FasterAdminPaginator(Paginator):
     """Does pagination estimation only if the total number of rows is high and there are no filters applied"""
@@ -50,7 +53,10 @@ class FasterAdminPaginator(Paginator):
             f"SELECT reltuples AS estimate FROM pg_class WHERE relname = '{self.object_list.query.model._meta.db_table}';"
         )
         estimate = int(cursor.fetchone()[0])
-        if estimate > 10_000 and not bool(self.object_list.query.where):
+        if estimate > 10_000 and (
+            not bool(self.object_list.query.where)
+            or self.object_list.model in (ALWAYS_FAST_PAGINATE_MODELS)
+        ):
             self.estimated_count = True
             self.estimated_count_ignores_filter = True
             return estimate
