@@ -44,7 +44,7 @@
   
   nav.toc .metadata-block {
     margin: 0;
-    padding: var(--toc-row-gap) var(--toc-column-gap);
+    padding: var(--toc-row-gap) calc(var(--toc-column-gap) * 2);
     display: flex;
     gap: calc(var(--toc-column-gap) * 2);
     box-shadow: 0 1px 10px rgba(0,0,0,0.15);
