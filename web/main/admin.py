@@ -495,7 +495,7 @@ class ContentNodeAdmin(BaseAdmin, SimpleHistoryAdmin):
         ):
             obj.casebook.content_tree__repair()
 
-    ordering = ("id",)
+    ordering = ("-id",)
     paginator = FasterAdminPaginator
     show_full_result_count = False
 
