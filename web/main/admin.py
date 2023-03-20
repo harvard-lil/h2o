@@ -41,6 +41,8 @@ from .utils import clone_model_instance, fix_after_rails
 
 
 class FasterAdminPaginator(Paginator):
+    """Does pagination estimation only if the total number of rows is high and there are no filters applied"""
+
     @cached_property
     def count(self) -> int:
         cursor = connection.cursor()
@@ -48,9 +50,9 @@ class FasterAdminPaginator(Paginator):
             f"SELECT reltuples AS estimate FROM pg_class WHERE relname = '{self.object_list.query.model._meta.db_table}';"
         )
         estimate = int(cursor.fetchone()[0])
-        if estimate > 10000:
+        if estimate > 10_000 and not bool(self.object_list.query.where):
             self.estimated_count = True
-            self.estimated_count_ignores_filter = bool(self.object_list.query.where)
+            self.estimated_count_ignores_filter = True
             return estimate
         try:
             return self.object_list.count()
@@ -178,7 +180,7 @@ class InputFilter(admin.SimpleListFilter):
     https://hakibenita.com/how-to-add-a-text-filter-to-django-admin
     """
 
-    template = "admin/input_filter.html" 
+    template = "admin/input_filter.html"
 
     def lookups(self, request, model_admin):
         # Dummy, required to show the filter.
@@ -279,6 +281,39 @@ class LegalDocumentSourceFilter(InputFilter):
         value = self.value()
         if value:
             return queryset.filter(source_id=value)
+
+
+class ResourceTypeFilter(admin.SimpleListFilter):
+    title = "Resource type"
+    parameter_name = "resource_type"
+
+    def lookups(self, request, model_admin):
+        return [
+            ("LegalDocument", "Legal document"),
+            ("Link", "Link"),
+            ("Section", "Section"),
+            ("Temp", "Temp"),
+            ("TextBlock", "Text block"),
+        ]
+
+    def queryset(self, request, queryset):
+        if self.value():
+            return queryset.filter(resource_type=self.value())
+        return queryset
+
+
+class ContentAnnotationResourceTypeFilter(ResourceTypeFilter):
+    # Only these types can be meaningfully annotated
+    def lookups(self, request, model_admin):
+        return [
+            ("LegalDocument", "Legal document"),
+            ("TextBlock", "Text block"),
+        ]
+
+    def queryset(self, request, queryset):
+        if self.value():
+            return queryset.filter(resource__resource_type=self.value())
+        return queryset
 
 
 #
@@ -421,7 +456,7 @@ class ContentNodeAdmin(BaseAdmin, SimpleHistoryAdmin):
         "created_at",
         "updated_at",
     ]
-    list_filter = [CasebookIdFilter, "resource_type", ResourceIdFilter]
+    list_filter = [CasebookIdFilter, ResourceTypeFilter, ResourceIdFilter]
     search_fields = ["title", "casebook__title"]
     fields = [
         "casebook",
@@ -440,14 +475,6 @@ class ContentNodeAdmin(BaseAdmin, SimpleHistoryAdmin):
     ]
     raw_id_fields = ["casebook"]
     inlines = [AnnotationInline]
-
-    def get_queryset(self, request):
-        return (
-            super()
-            .get_queryset(request)
-            .select_related("casebook")
-            .prefetch_related("casebook__contentcollaborator_set__user")
-        )
 
     def formfield_for_dbfield(self, db_field, **kwargs):
         return self.enable_richeditor_for_field("headnote", db_field, **kwargs)
@@ -468,8 +495,9 @@ class ContentNodeAdmin(BaseAdmin, SimpleHistoryAdmin):
         ):
             obj.casebook.content_tree__repair()
 
+    ordering = ("id",)
     paginator = FasterAdminPaginator
-
+    show_full_result_count = False
 
 
 class AnnotationsAdmin(BaseAdmin, SimpleHistoryAdmin):
@@ -493,7 +521,7 @@ class AnnotationsAdmin(BaseAdmin, SimpleHistoryAdmin):
         "created_at",
         "updated_at",
     ]
-    list_filter = ["kind", "resource__resource_type"]
+    list_filter = ["kind", ContentAnnotationResourceTypeFilter]
 
     # This table isn't ordered on an index by default; use this as a proxy for recency
     ordering = ("-id",)
@@ -507,7 +535,9 @@ class AnnotationsAdmin(BaseAdmin, SimpleHistoryAdmin):
     def resource(self, obj) -> ContentNode:
         return obj.resource
 
-    paginator = FasterAdminPaginator    
+    paginator = FasterAdminPaginator
+    show_full_result_count = False
+
 
 class TagAdmin(BaseAdmin, SimpleHistoryAdmin):
     list_display = [
@@ -558,8 +588,6 @@ class CasebookTagAdmin(BaseAdmin, SimpleHistoryAdmin):
     def save_model(self, request, obj, form, change):
         obj.created_by = request.user
         obj.save()
-
-
 
 
 ## Users
