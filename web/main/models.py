@@ -1110,12 +1110,9 @@ class LegalDocumentSource(models.Model):
             cls.source_apis[api.details["name"]] = api
 
     @classmethod
-    def active_sources(cls, user: Union[AnonymousUser, User]) -> QuerySet[LegalDocumentSource]:
-        """Return the queryset of active sources based on the user's current permissions"""
-        search_sources = LegalDocumentSource.objects.order_by("priority")
-        if user.is_anonymous or not user.is_superuser:
-            search_sources = search_sources.filter(active=True)
-        return search_sources
+    def active_sources(cls) -> QuerySet[LegalDocumentSource]:
+        """Return the queryset of active sources"""
+        return LegalDocumentSource.objects.order_by("priority").filter(active=True)
 
     def api_model(self):
         # short_description, long_description, bulk_process, search(long_citation_json), import(id)
