@@ -7,6 +7,7 @@ from playwright.sync_api import Page, expect
 from main.celery_tasks import generate_pdf
 from main.models import Casebook
 
+
 @pytest.mark.skip("PDF functionality needs more work to be performant")
 @pytest.mark.xdist_group("functional")
 def test_pdf_export_file(static_live_server, page: Page):
@@ -19,6 +20,7 @@ def test_pdf_export_file(static_live_server, page: Page):
     with urlopen(pdf_url) as result:
         pdf = result.read()
         assert pdf[:4] == b"%PDF"
+
 
 @pytest.mark.skip("PDF functionality needs more work to be performant")
 @pytest.mark.xdist_group("functional")
