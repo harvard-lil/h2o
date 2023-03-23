@@ -1636,7 +1636,7 @@ def edit_casebook(request: HttpRequest, casebook: Casebook):
 
     casebook.contents.prefetch_resources()
     serialized_sources = LegalDocumentSourceSerializer(
-        LegalDocumentSource.active_sources(request.user), many=True
+        LegalDocumentSource.active_sources(), many=True
     ).data
 
     return render_with_actions(
@@ -2186,7 +2186,7 @@ def edit_section(request, casebook, section):
 
     section.contents.prefetch_resources()
     serialized_sources = LegalDocumentSourceSerializer(
-        LegalDocumentSource.active_sources(request.user), many=True
+        LegalDocumentSource.active_sources(), many=True
     ).data
 
     return render_with_actions(
@@ -2492,7 +2492,7 @@ def annotate_resource(request, casebook, resource):
         return redirect("edit_resource", resource.casebook, resource)
 
     serialized_sources = LegalDocumentSourceSerializer(
-        LegalDocumentSource.active_sources(request.user), many=True
+        LegalDocumentSource.active_sources(), many=True
     ).data
 
     body_json = resource.json
