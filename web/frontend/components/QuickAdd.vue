@@ -1,8 +1,11 @@
 <template>
   <div id="quick-add">
+    <p class="instructions"> Add an individual resource or a list of items by pasting them into the field below.</p>
+
     <div class="form-control-group">
       <form @submit.stop.prevent="handleSubmit">
         <div class="form">
+
           <div class="form-control-group inline-search">
             <input
               type="text"
@@ -10,7 +13,7 @@
               v-model="title"
               name="addcontent"
               @paste.prevent.stop="handlePaste"
-              placeholder="Enter title here"
+              placeholder="Enter case, heading, link, or outline here"
             />
             <select v-model="resource_info" class="resource-type form-control">
               <option :value="option.value" v-for="option in resource_info_options" v-bind:key="option.k">{{option.name}}</option>
@@ -29,9 +32,7 @@
         <loading-spinner></loading-spinner>
       </div>
     </div>
-    <div class="advice">
-      <span>Enter a single title or citation, or paste in a list or outline. To learn more, review our <a href="https://about.opencasebook.org/making-casebooks/#quick-add">quick add documentation.</a>  </span>
-    </div>
+    <p>To learn more, review our <a href="https://about.opencasebook.org/making-casebooks/#quick-add">quick add documentation.</a>  </p>
   </div>
 </template>
 
@@ -188,11 +189,18 @@ export default {
 #quick-add {
     border: 1px dashed black;
     padding: 4rem;
+    p {
+      margin: 14px 0;
+    }
+    .instructions {
+      font-size: 18px;
+      margin-top: 0;
+    }
+    p:last-of-type {
+      margin-bottom: 0;
+    }
     .form {
         line-height: 36px;
-        background-color: white;
-        border: 1px solid black;
-        padding: 8px;
     }
     
     .inline-search.form-control-group {
@@ -218,12 +226,7 @@ export default {
         float: left;
         margin-right: 1.5rem;
     }
-    .advice {
-        margin-top: 2rem;
-    ul {
-      margin-top: 1rem;
-    }
-  }
+
   .stats {
     margin-top: 0.5rem;
     margin-left: 1rem;
