@@ -24,8 +24,6 @@
 
         <div class="add-resource-body" v-if="caseTab">
           <case-searcher
-            :search-on-top="false"
-            :can-cancel="true"
             v-model="caseQueryObj"
             @choose="selectCase"
           />

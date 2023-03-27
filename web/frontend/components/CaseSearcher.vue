@@ -155,7 +155,7 @@ const jurisdictions = [
 ];
 
 export default {
-  props: ["searchOnTop", "canCancel", "value", "searchLabel"],
+  props: ["value", "searchLabel"],
   data: () => ({
     jurisdictions,
     showingLimits: false,
