@@ -1157,7 +1157,7 @@ class LegalDocument(NullableTimestampedModel, AnnotatedModel):
     # When the DB 'published'
     publication_date = models.DateTimeField(blank=True, null=True, db_index=True)
     # When this copy was pulled from the external source
-    updated_date = models.DateTimeField(blank=True, null=True)
+    updated_date = models.DateTimeField(blank=True, null=True, db_index=True)
     source_ref = models.CharField(max_length=10000, db_index=True)
     content = models.CharField(max_length=5242880)
     metadata = JSONField(blank=True, null=True)
