@@ -1147,18 +1147,18 @@ class LegalDocument(NullableTimestampedModel, AnnotatedModel):
     short_name = models.CharField(max_length=150, blank=True, null=True)
     name = models.CharField(max_length=10000, blank=True, null=True)
     # The type of document: Case, Regulation, Code, Bill, etc.
-    doc_class = models.CharField(max_length=100, blank=True, null=True)
+    doc_class = models.CharField(max_length=100, blank=True, null=True, db_index=True)
     citations = ArrayField(models.CharField(max_length=500, blank=True, null=True))
     # list of jurisdictions is currently in CaseSearcher.vue (room for improvement)
     jurisdiction = models.CharField(max_length=20, blank=True, null=True)
     # I think a tritemporal model is as simple as I can deal make this
     # When the document was made effective (may be before or after other dates)
-    effective_date = models.DateTimeField(blank=True, null=True)
+    effective_date = models.DateTimeField(blank=True, null=True, db_index=True)
     # When the DB 'published'
-    publication_date = models.DateTimeField(blank=True, null=True)
+    publication_date = models.DateTimeField(blank=True, null=True, db_index=True)
     # When this copy was pulled from the external source
     updated_date = models.DateTimeField(blank=True, null=True)
-    source_ref = models.CharField(max_length=10000)
+    source_ref = models.CharField(max_length=10000, db_index=True)
     content = models.CharField(max_length=5242880)
     metadata = JSONField(blank=True, null=True)
     history = HistoricalRecords()
