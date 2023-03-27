@@ -10,14 +10,4 @@
   </div>
 {% endblock %}
 
-{% block after_related_objects %}
-  {{ block.super }}
-  <div class="module aligned">
-    <h2>Related Resources</h2>
-    <div class="form-row">
-      <a href="{% url 'admin:main_resource_changelist' %}?resource_type=TextBlock&resource-id={{ original.id }}">
-        View related resources ({{ original.related_resources.count }})
-      </a>
-    </div>
-  </div>
-{% endblock %}
+
