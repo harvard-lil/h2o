@@ -1,7 +1,7 @@
 <template>
-  <div>
-    <case-results :queryObj="searchOptions" @choose="selectCase"></case-results>
+  <div class="entry-auditor">
     <case-searcher v-model="searchOptions"></case-searcher>
+    <case-results :queryObj="searchOptions" @choose="selectCase"></case-results>
   </div>
 </template>
 
@@ -75,4 +75,12 @@ export default {
 .listing.resource.temporary {
   outline: 2px solid red;
 }
+.entry-auditor {
+  margin-top: 1em;
+  
+  & > div {
+    margin-top: 1em;
+  }
+}
+
 </style>
