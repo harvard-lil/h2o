@@ -822,27 +822,19 @@ class LegalDocumentAdmin(BaseAdmin, SimpleHistoryAdmin):
         "id",
         "short_name",
         "source_name",
+        "source_ref",
         "doc_class",
-        "related_resources",
         "live_annotations_count",
         "created_at",
         "updated_at",
     ]
     list_filter = ["doc_class", LegalDocumentSourceFilter]
-    search_fields = ["short_name", "name"]
+    search_fields = ["short_name", "name", "source_ref"]
     raw_id_fields = []
     exclude = ("annotations_count", "source")
 
     def has_add_permission(self, request):
         return super(BaseAdmin, self).has_add_permission(request)
-
-    def related_resources(self, obj):
-        return format_html(
-            '<a href="{}?resource_type=LegalDocument&resource-id={}">{}</a>',
-            reverse("admin:main_resource_changelist"),
-            obj.id,
-            obj.related_resources().count(),
-        )
 
     def formfield_for_dbfield(self, db_field, **kwargs):
         return self.enable_richeditor_for_field("content", db_field, **kwargs)
