@@ -16,7 +16,11 @@
             <div class="resource-date">{{ item.decision_date }}</div>
           </div>
         </div>
-
+        <div v-else-if="item.resource_type === 'Temp'">
+          <button class="specify-case-title"
+            @click="auditThisCase"
+          >{{ item.title }}</button>
+        </div>
         <div class="resource-container" v-else>
           <a :href="url" class="section-title">{{ item.title }}</a>
         </div>
@@ -289,5 +293,9 @@ export default {
 }
 .specify-case-button {
     margin-right: 1rem;
+}
+.specify-case-title {
+  border: none;
+  background: none;
 }
 </style>
