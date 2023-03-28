@@ -61,6 +61,11 @@ drf_urlpatterns = [
         views.PDFExportView.as_view(),
         name="export_as_pdf",
     ),
+    path(
+        "casebooks/<idslug:casebook_param>/resources/from_source/",
+        views.LegalDocumentResourceView.as_view(),
+        name="legal_document_resource_view",
+    ),
 ]
 
 urlpatterns = format_suffix_patterns(drf_urlpatterns) + [
@@ -217,7 +222,7 @@ urlpatterns = format_suffix_patterns(drf_urlpatterns) + [
     path("casebooks/<casebook:node>/export.<file_type>", views.export, name="export_casebook"),
     path("sections/<section:node>/export.<file_type>", views.export, name="export_section"),
     path("resources/<resource:node>/export.<file_type>", views.export, name="export_resource"),
-    # Printable HTML view
+    # Reading mode
     path(
         "casebooks/<idslug:casebook_param>/as-printable-html/",
         views.as_printable_html,

@@ -3,7 +3,7 @@ import logging
 from typing import Union
 import uuid
 from collections import OrderedDict
-from datetime import datetime
+from datetime import datetime, timedelta
 from functools import wraps
 from main.celery_tasks import pdf_from_user
 from test.test_helpers import assert_url_equal, check_response, dump_content_tree_children
@@ -40,6 +40,7 @@ from pytest import raises as assert_raises
 from rest_framework import status
 from rest_framework.exceptions import ValidationError
 from rest_framework.response import Response
+from rest_framework.request import Request
 from rest_framework.views import APIView
 from simple_history.utils import bulk_create_with_history
 from django_celery_results.models import TaskResult
@@ -980,6 +981,62 @@ class PDFExportView(APIView):
         return HttpResponse(task_id)
 
 
+class LegalDocumentResourceView(APIView):
+    @method_decorator(hydrate_params)
+    @method_decorator(no_perms_test)
+    @method_decorator(user_has_perm("casebook", "directly_editable_by"))
+    @method_decorator(requires_csrf_token)
+    def post(self, request: Request, casebook: Casebook):
+        """Given a legal document source ref, attempt to import the document if it doesn't exist or is too old, then
+        create a corresponding resource in the given casebook"""
+        source_id = request.data.get("source_id")
+        source_ref = request.data.get("source_ref")
+        section_id = request.data.get("section_id")
+        source = get_object_or_404(LegalDocumentSource, id=source_id)
+
+        MAX_AGE_BEFORE_REFRESH = timedelta(days=365)
+
+        legal_doc = (
+            LegalDocument.objects.filter(
+                source_ref=source_ref,
+                source=source,
+                updated_date__gte=(datetime.now() - MAX_AGE_BEFORE_REFRESH),
+            )
+            .order_by("-updated_date")
+            .first()
+        )
+        # If we don't have a recent-enough copy of this (or any copy at all), get one from upstream, then try the query again
+        if not legal_doc:
+            if legal_doc := source.pull(id=source_ref):
+                legal_doc.save()
+            else:
+                # If we still don't have one, the source ref probably couldn't be found from upstream
+                raise Http404
+
+        parent: Union[ContentNode, Casebook]
+        if section_id := request.data.get("section_id"):
+            parent = ContentNode.objects.get(id=section_id)
+        else:
+            parent = casebook
+        ordinals, display_ordinals = parent.content_tree__get_next_available_child_ordinals()
+
+        resource = ContentNode.objects.create(
+            title=legal_doc.get_name(),
+            casebook=casebook,
+            ordinals=ordinals,
+            display_ordinals=display_ordinals,
+            resource_id=legal_doc.id,
+            resource_type="LegalDocument",
+        )
+        return Response(
+            data={
+                "resource_id": resource.id,
+                "redirect_url": reverse("annotate_resource", args=[casebook, resource]),
+            },
+            status=status.HTTP_201_CREATED,
+        )
+
+
 @perms_test({"results": {200: ["user", None]}})
 def index(request):
     if request.user.is_authenticated:
@@ -1914,7 +1971,8 @@ def new_link(request, casebook):
 @user_has_perm("casebook", "directly_editable_by")
 def new_legal_doc(request, casebook):
     """
-    Creates a new LegalDoc as the last child of a casebook or section
+    Creates a new LegalDocument Resource from an existing LegalDocument as the
+    last child of a casebook or section
     """
 
     if "resource_id" not in request.POST:

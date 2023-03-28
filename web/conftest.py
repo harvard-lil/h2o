@@ -327,7 +327,7 @@ class LegalDocumentFactory(factory.DjangoModelFactory):
     effective_date = datetime(1900, 1, 1)
     publication_date = datetime(1901, 1, 1)
     updated_date = datetime(1902, 1, 1)
-    source_ref = factory.Sequence(lambda n: {"id": n})
+    source_ref = factory.Sequence(lambda n: n)
     content = factory.Sequence(lambda n: f"Dubious legal claim {n}")
     metadata = {}
 
