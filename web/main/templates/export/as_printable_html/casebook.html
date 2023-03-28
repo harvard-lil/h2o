@@ -88,18 +88,15 @@
     <nav class="toc">
       <div class="metadata-block">
 
-          <a href="{% url 'casebook' casebook %}" class="back">
-            <img src="{% static 'images/ui/casebook/cancel-icon.svg' %}" alt="Back to site"  width="32">
-
-          </a>
           <button class="toc-opener" data-state="open">Hide</button>
+          <button class="reading-mode-exit" data-exit-url='{% url 'casebook' casebook %}'">Exit</button>
 
           <a href="{% url 'casebook' casebook %}" class="metadata">
             <img src="{% static 'images/logo-blue-wordmark.svg' %}" alt="H2O"  width="50">
             <h1 class="casebook-title">{{ casebook.title }}</h1>
             <span class="authors">
             {% for user in casebook.primary_authors %}
-              {{ user.display_name }}
+              <span class="author">{{ user.display_name }}</span>
             {% endfor %}
             </span>
           </a>
@@ -127,13 +124,13 @@
         {% else %}
           <span class="unlinked">Previous</span>
         {% endif %}
-
+        
         <select id="page-selector">
-        {% for p in paginator %}
+        {% for p in paginator.object_list %}
           <option
-            value="{% url 'as_printable_html' casebook p.number %}"
-          {% if p.number == page.number %}selected{% endif %}>
-          {{ p.number }} of {{ paginator.num_pages }} section{{ paginator.num_pages|pluralize}} </span>
+            value="{% url 'as_printable_html' casebook forloop.counter %}#{{ p.slug }}"
+          {% if forloop.counter == page.number %}selected{% endif %}>
+          {{ forloop.counter }} of {{ paginator.num_pages }} section{{ paginator.num_pages|pluralize}} </span>
           </option>
         {% endfor %}
         </select>

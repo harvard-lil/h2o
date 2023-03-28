@@ -259,3 +259,13 @@ document.querySelectorAll(".toc-opener").forEach(button => {
 
   })
 })
+
+document.querySelectorAll('.reading-mode-exit').forEach(button => 
+  button.addEventListener('click', () => {
+    location.href = button.getAttribute('data-exit-url')
+  })
+)
+
+document.querySelector(`li.current-chapter`).scrollIntoView({
+  block: "center",
+})
