@@ -11,7 +11,6 @@ import ExportButton from "../components/ExportButton";
 import Globals from "../components/Globals";
 import PortalVue from "portal-vue";
 import QuickAdd from "../components/QuickAdd";
-import ResourceTypePicker from "../components/ResourceTypePicker";
 import SectionCloner from "../components/SectionCloner";
 import TakeNotesCloner from "../components/TakeNotesCloner";
 import TheResource from "../components/TheResource";
@@ -58,7 +57,6 @@ document.addEventListener("DOMContentLoaded", () => {
         TheTableOfContents,
         PortalVue,
         QuickAdd,
-        ResourceTypePicker,
         Globals,
         AuditButton,
         Dashboard,
