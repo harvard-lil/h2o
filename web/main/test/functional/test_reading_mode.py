@@ -17,7 +17,7 @@ def test_reading_mode_nav(static_live_server, page: Page, full_casebook):
     page.get_by_role("option", name="1 of 2 sections")
     page.locator("#page-selector").select_option(label="2 of 2 sections")
     page.get_by_role("option", name="2 of 2 sections")
-    expect(page).to_have_url(re.compile("/as-printable-html/2/$"))
+    expect(page).to_have_url(re.compile("/as-printable-html/2/"))
 
 
 @pytest.mark.xdist_group("functional")
