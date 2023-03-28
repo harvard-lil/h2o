@@ -983,7 +983,7 @@ class PDFExportView(APIView):
 
 class LegalDocumentResourceView(APIView):
     @method_decorator(hydrate_params)
-    @method_decorator(no_perms_test)  
+    @method_decorator(no_perms_test)
     @method_decorator(user_has_perm("casebook", "directly_editable_by"))
     @method_decorator(requires_csrf_token)
     def post(self, request: Request, casebook: Casebook):
