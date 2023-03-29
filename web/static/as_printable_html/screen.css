@@ -54,9 +54,7 @@
     flex-wrap: wrap;
     justify-content: space-between;
   }
-  nav.toc .metadata-block a.back {
-    display: inline-flex;
-  }
+
   nav.toc .metadata-block a.metadata {
     flex-basis: 100%;
   }
@@ -76,6 +74,15 @@
     font-size: 120%;
     padding: 0;
     margin: 0;
+  }
+  nav.toc .metadata-block .authors {
+    margin-top: 1em;
+    display: block;
+  }
+  nav.toc .metadata-block .author {
+    font-size: 14px;
+    display: block;
+    line-height: 1.4em;
   }
   nav.toc > ol {
     padding: 0;
@@ -101,8 +108,6 @@
   nav.toc.closed :is(ol, h1) {
     display: none;  
   }
-  
-
   nav.toc.closed .metadata-block button {
     display: block;
     margin: 0;
