@@ -658,9 +658,9 @@ pytz==2022.7.1 \
     # via
     #   celery
     #   django
-redis==4.4.2 \
-    --hash=sha256:a010f6cb7378065040a02839c3f75c7e0fb37a87116fb4a95be82a95552776c7 \
-    --hash=sha256:e6206448e2f8a432871d07d432c13ed6c2abcf6b74edb436c99752b1371be387
+redis==4.5.4 \
+    --hash=sha256:2c19e6767c474f2e85167909061d525ed65bea9301c0770bb151e041b7ac89a2 \
+    --hash=sha256:73ec35da4da267d6847e47f68730fdd5f62e2ca69e3ef5885c6a78a9374c3893
     # via celery
 requests==2.25.1 \
     --hash=sha256:27973dd4a904a4f13b263a19c866c13b92a39ed1c964655f025f3f8d3d75b804 \
