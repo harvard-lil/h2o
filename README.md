@@ -163,6 +163,7 @@ Run these from inside the container.
 1. `pytest -n auto --dist loadgroup` runs python tests with concurrency (faster, same config as CI)
 1. `flake8` runs python lints
 1. `npm run test` runs javascript unit tests using [Mocha](https://mochajs.org)
+1. `npm run test-watch` runs javascript unit tests with the `--watch` option to auto-rerun on test changes
 1. `npm run lint` runs javascript lints
 1. `pytest -k functional` runs the Playwright tests only.
 

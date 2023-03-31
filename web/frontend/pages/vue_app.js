@@ -9,6 +9,7 @@ import AuditButton from "../components/AuditButton";
 import Dashboard from "../components/Dashboard";
 import ExportButton from "../components/ExportButton";
 import Globals from "../components/Globals";
+import LegalDocumentSearch from "../components/LegalDocumentSearch/LegalDocumentSearch";
 import PortalVue from "portal-vue";
 import QuickAdd from "../components/QuickAdd";
 import SectionCloner from "../components/SectionCloner";
@@ -50,18 +51,18 @@ document.addEventListener("DOMContentLoaded", () => {
     store,
     router,
     components: {
-        TheResource,
-        SectionCloner,
-        TakeNotesCloner,
         AddContent,
-        TheTableOfContents,
-        PortalVue,
-        QuickAdd,
-        Globals,
         AuditButton,
         Dashboard,
-        ExportButton
-
+        ExportButton,
+        Globals,
+        LegalDocumentSearch,
+        PortalVue,
+        QuickAdd,
+        SectionCloner,
+        TakeNotesCloner,
+        TheResource,
+        TheTableOfContents,
     }
   });
   if (window.sentry.USE_SENTRY) {

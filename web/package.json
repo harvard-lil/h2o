@@ -6,6 +6,7 @@
     "serve": "vue-cli-service serve",
     "build": "vue-cli-service build",
     "test": "vue-cli-service test:unit --require frontend/test/mocha_setup.js frontend/test/**/*.test.js",
+    "test-watch": "vue-cli-service test:unit --require frontend/test/mocha_setup.js frontend/test/**/*.test.js --watch",
     "lint": "vue-cli-service lint frontend/"
   },
   "dependencies": {
@@ -76,7 +77,7 @@
     "null-loader": "^3.0.0",
     "sass": "^1.23.7",
     "sass-loader": "^8.0.0",
-    "sinon": "^7.3.2",
+    "sinon": "^15.0.3",
     "tinymce": "^5.10.2",
     "vue-loader": "^15.6.2",
     "vue-template-compiler": "^2.6.10",
