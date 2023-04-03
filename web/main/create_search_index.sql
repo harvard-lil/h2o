@@ -19,6 +19,7 @@ CREATE MATERIALIZED VIEW internal_search_view AS
     FROM
         main_legaldocument c
     GROUP BY c.id
+
 UNION ALL
     SELECT
         row_number() OVER (PARTITION BY true) AS id,
@@ -46,8 +47,17 @@ UNION ALL
         LEFT JOIN main_institution inst ON u.institution_id = inst.id
     WHERE
         state IN ('Public','Revising') AND
-        u.verified_professor = true
+        u.verified_professor = true AND
+        c.id NOT IN (
+            -- Exclude older editions of casebooks in series
+            SELECT
+                ci.id
+                FROM main_casebook ci
+                JOIN main_commontitle ct ON ci.common_title_id = ct.id
+                WHERE ct.current_id != ci.id
+            )
     GROUP BY c.id
+
 UNION ALL
     SELECT
            row_number() OVER (PARTITION BY true) AS id,
@@ -66,7 +76,7 @@ UNION ALL
         INNER JOIN main_contentcollaborator cc ON cc.user_id = u.id
         INNER JOIN main_casebook cb ON cc.casebook_id = cb.id AND cb.state='Public'
         LEFT JOIN main_institution inst on u.institution_id = inst.id
-
+        
     WHERE
           u.verified_professor = true AND
           u.attribution != ''
