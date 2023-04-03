@@ -986,7 +986,7 @@ class LegalDocumentResourceView(APIView):
     @method_decorator(no_perms_test)
     @method_decorator(user_has_perm("casebook", "directly_editable_by"))
     @method_decorator(requires_csrf_token)
-    def post(self, request: Request, casebook: Casebook):
+    def post(self, request: Request, casebook: Casebook, **kwargs):
         """Given a legal document source ref, attempt to import the document if it doesn't exist or is too old, then
         create a corresponding resource in the given casebook"""
         source_id = request.data.get("source_id")

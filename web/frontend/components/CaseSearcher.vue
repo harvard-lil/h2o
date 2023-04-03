@@ -2,8 +2,8 @@
 <div class="search-results">
   <form class="case-search">
     <div class="form-control-group">
-      <label style="width:66%;">
-        {{searchLabel}}
+
+      <label class="case-search-input">
         <input
           id="case_search"
           ref="case_search"
@@ -15,10 +15,10 @@
           />
       </label>
       <input
-        style="margin-top:-4px;"
-        class="search-button btn btn-primary"
         type="submit"
-        value="Search"
+        class="search-button btn btn-primary"
+
+        :value="pendingSearch ? 'Searching...' : 'Search'" :disabled="pendingSearch"
         v-on:click.stop.prevent="runCaseSearch"
         />
 
@@ -87,7 +87,6 @@ import pp from "libs/text_outline_parser";
 import { createNamespacedHelpers } from "vuex";
 const { mapActions, mapGetters } = createNamespacedHelpers("case_search");
 
-
 const jurisdictions = [
   { val: "", name: "All jurisdictions" },
   { val: "ala", name: "Alabama" },
@@ -155,9 +154,10 @@ const jurisdictions = [
 ];
 
 export default {
-  props: ["value", "searchLabel"],
+  props: ["value"],
   data: () => ({
     jurisdictions,
+    pendingSearch: false,
     showingLimits: false,
     chosenSource: null,
     overrideSource: false
@@ -258,9 +258,7 @@ export default {
   },
   computed: {
     ...mapGetters(['getSources']),
-    displayedSearchLabel: function() {
-      return this.searchLabel || "";
-    },
+
     cleanQuery: function() {
       const data = this.cleaned(this.value);
       if (data.query) {
@@ -343,6 +341,14 @@ export default {
   justify-content: space-between;
   align-items: center;
   gap: 1em;
+    
+  .case-search-input {
+    flex-basis: 66%;
+    margin: 0;
+  }
+  input[type="submit"] {
+      margin: 0;
+  }
 
   .form-block {
     flex-basis: 100%;
