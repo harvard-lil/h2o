@@ -13,6 +13,7 @@
       @keyup.enter="(e) => add(e.target.closest('li'), r.id, r.sourceId)"
       :data-result-selected="r.id === selectedResult"
       :data-result-added="added && r.id === added.sourceRef"
+      :data-result-id="r.id"
       :key="r.id"
       class="results-entry"
       role="button"
