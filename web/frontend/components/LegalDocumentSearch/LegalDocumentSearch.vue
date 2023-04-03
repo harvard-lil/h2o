@@ -17,8 +17,10 @@ import SearchForm from "./SearchForm";
 import ResultsForm from "./ResultsForm";
 import url from "../../libs/urls";
 import { get_csrf_token } from "../../legacy/lib/helpers";
+import { createNamespacedHelpers } from "vuex";
 
 const api = url.url("legal_document_resource_view");
+const { mapActions } = createNamespacedHelpers("table_of_contents");
 
 export default {
   props: {
@@ -35,6 +37,8 @@ export default {
     selectedResult: undefined,
   }),
   methods: {
+    ...mapActions(["fetch"]),
+
     resetSearch: function () {
       this.results = undefined;
       this.added = undefined;
@@ -65,6 +69,7 @@ export default {
         redirectUrl: body.redirect_url,
         sourceRef,
       };
+      this.fetch({ casebook: this.casebook, subsection: this.section });
     },
   },
 };
