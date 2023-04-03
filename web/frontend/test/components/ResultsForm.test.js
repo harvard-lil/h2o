@@ -83,7 +83,7 @@ describe("ResultsForm", () => {
           propsData: {
             searchResults,
           },
-        })
+        }).text()
       ).not.toContain("No legal documents were found");
     });
 });
