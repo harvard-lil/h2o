@@ -63,7 +63,7 @@ export default {
       location.href = this.added.redirectUrl;
     },
     add: function (row, id, sourceId) {
-      if (row.getAttribute("disabled")) {
+      if (this.selectedResult) {
         return;
       }
       row.classList.toggle("adding");
