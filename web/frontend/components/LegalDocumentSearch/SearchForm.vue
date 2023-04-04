@@ -1,5 +1,5 @@
 <template>
-  <form class="form-group case-search" @submit.prevent="search">
+  <form class="form-group case-search" ref="form" @submit.prevent="search">
     <input
       type="text"
       class="form-control"
@@ -81,6 +81,9 @@ const { mapGetters } = createNamespacedHelpers("case_search");
 const api = url.url("search_using");
 
 export default {
+  props: {
+    toggleReset: Boolean
+  },
   data: () => ({
     pending: false,
     query: "",
@@ -159,6 +162,11 @@ export default {
   },
   mounted() {
     this.$refs.queryText.focus();
+  },
+  watch: {
+    toggleReset: function() {
+      this.$refs.form.reset()
+    }
   },
   methods: {
     search: async function () {

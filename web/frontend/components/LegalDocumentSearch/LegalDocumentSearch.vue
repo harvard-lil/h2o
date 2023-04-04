@@ -1,6 +1,6 @@
 <template>
   <section>
-    <search-form @search-results="onSearchResults" />
+    <search-form @search-results="onSearchResults" :toggle-reset="toggleReset" />
     <results-form
       @add-doc="onAddDoc"
       @reset-search="resetSearch"
@@ -35,6 +35,7 @@ export default {
     results: undefined,
     added: undefined,
     selectedResult: undefined,
+    toggleReset: false
   }),
   methods: {
     ...mapActions(["fetch"]),
@@ -43,6 +44,7 @@ export default {
       this.results = undefined;
       this.added = undefined;
       this.selectedResult = undefined;
+      this.toggleReset = !this.toggleReset;
     },
     onSearchResults: function (res) {
       this.resetSearch();
