@@ -1,136 +1,179 @@
 <template>
-  <div id="quick-add">
-    <p class="instructions"> Add an individual resource or a list of items by pasting them into the field below.</p>
+  <div>
+    <h3>
+      Add an individual resource or a list of items by pasting them into the
+      field below.
+    </h3>
 
-    <div class="form-control-group">
-      <form @submit.stop.prevent="handleSubmit">
-        <div class="form">
+    <form
+      @submit.stop.prevent="handleSubmit"
+      class="form-control-group"
+    >
+      <input
+        @paste.prevent.stop="handlePaste"
+        v-model="title"
+        type="text"
+        class="form-control"
+        placeholder="Enter case, heading, link, or outline here"
+      />
+      <select v-model="resource_info" class="resource-type form-control">
+        <option
+          v-for="option in resource_info_options"
+          :key="option.k"
+          :value="option.value"
+        >
+          {{ option.name }}
+        </option>
+      </select>
+      <input
+        @submit="handleSubmit"
+        :value="mode"
+        type="submit"
+        class="form-control btn btn-primary create-button"
+      />
+    </form>
+    <results-form
+      @add-doc="onAddDoc"
+      :search-results="results"
+      :selected-result="selectedResult"
+    ></results-form>
+    
+    <p>{{ waitingFor }}</p>
 
-          <div class="form-control-group inline-search">
-            <input
-              type="text"
-              class="form-control"
-              v-model="title"
-              name="addcontent"
-              @paste.prevent.stop="handlePaste"
-              placeholder="Enter case, heading, link, or outline here"
-            />
-            <select v-model="resource_info" class="resource-type form-control">
-              <option :value="option.value" v-for="option in resource_info_options" v-bind:key="option.k">{{option.name}}</option>
-            </select>
-            <input
-              type="submit"
-              class="form-control btn btn-primary create-button"
-              value="Add"
-              @submit="handleSubmit"
-            />
-          </div>
-        </div>
-      </form>
-      <div class="stats" v-if="waitingFor">
-        <span>{{waitingFor}}</span>
-        <loading-spinner></loading-spinner>
-      </div>
-    </div>
-    <p>To learn more, review our <a href="https://about.opencasebook.org/making-casebooks/#quick-add">quick add documentation.</a>  </p>
+    <p>
+      To learn more, review our
+      <a href="https://about.opencasebook.org/making-casebooks/#quick-add"
+        >quick add documentation.</a
+      >
+    </p>
   </div>
 </template>
 
 <script>
 import _ from "lodash";
-import LoadingSpinner from "./LoadingSpinner";
+import { createNamespacedHelpers } from "vuex";
+
+import ResultsForm from "./LegalDocumentSearch/ResultsForm";
+
 import Axios from "../config/axios";
 import pp from "libs/text_outline_parser";
 import urls from "libs/urls";
-import { createNamespacedHelpers } from "vuex";
+import { search, add } from "libs/legal_document_search";
 
 const globals = createNamespacedHelpers("globals");
-const search = createNamespacedHelpers("case_search");
+const caseSearch = createNamespacedHelpers("case_search");
+const { mapActions } = createNamespacedHelpers("table_of_contents");
 
-const optionsWithoutCloning = [{name: 'Section',        value: {resource_type: 'Section'}, k: 0},
-                               {name: 'Search',         value: {resource_type: 'LegalDocument'}, k: 1},
-                               {name: 'Custom Content', value: {resource_type: 'TextBlock'}, k: 2},
-                               {name: 'Link',           value: {resource_type: 'Link'}, k: 3}];
+const optionsWithoutCloning = [
+  { name: "Section", value: { resource_type: "Section" }, k: 0 },
+  { name: "Legal Document", value: { resource_type: "LegalDocument" }, k: 1 },
+  { name: "Custom Content", value: { resource_type: "TextBlock" }, k: 2 },
+  { name: "Link", value: { resource_type: "Link" }, k: 3 },
+];
 
-const data = function() {
+const data = function () {
   return {
     title: "",
     resource_info: optionsWithoutCloning[0].value,
-    resource_info_options: optionsWithoutCloning}
+    resource_info_options: optionsWithoutCloning,
+  };
 };
-const caseSearchDelay = 1000;
+const ADD = "add";
+const SEARCH = "search";
 
 export default {
   components: {
-    LoadingSpinner // eslint-disable-line vue/no-unused-components
+    ResultsForm,
   },
   props: [],
-  data: function() {
-    return { ...data(), stats: {}, waitingFor: false, unWait: () => {} };
+  data: function () {
+    return {
+      ...data(),
+      stats: {},
+      waitingFor: undefined,
+      results: undefined,
+      selectedResult: undefined,
+    };
   },
   directives: {},
   computed: {
-    ...globals.mapGetters(['casebook', 'section']),
-    ...search.mapGetters(['getSources']),
-    totalIdentified: function() {
+    ...globals.mapGetters(["casebook", "section"]),
+    ...caseSearch.mapGetters(["getSources"]),
+    totalIdentified: function () {
       return _.values(this.stats).reduce((a, b) => a + b, 0);
     },
-    lineInfo: function() {
+    lineInfo: function () {
       return pp.guessLineType(this.title, this.getSources);
     },
-    desiredOrdinal: function() {
-      const startOrdinal = /^[0-9]+(\.[0-9])* /;
-      const ordinalGuess = this.title.match(startOrdinal);
+    desiredOrdinal: function () {
+      const ordinalGuess = this.title.match(/^[0-9]+(\.[0-9])* /);
       if (ordinalGuess) {
         return ordinalGuess[0];
       }
       return undefined;
-    }
+    },
+    mode: function () {
+      return this.resource_info.resource_type === "LegalDocument"
+        ? SEARCH
+        : ADD;
+    },
   },
   watch: {
-    lineInfo: function() {
-      if (this.lineInfo.resource_type !== "Unknown") {
-        if (this.lineInfo.resource_type === 'Temp') {
-          let k = 5;
-          let newOptions = _.chain(this.lineInfo.guesses)
-              .map(guess => ({name: guess.display_type, value: guess}))
-              .uniqBy(x => x.name)
-              .map(option => ({...option, k:k++}))
-              .value();
-          this.resource_info_options = _.concat(newOptions, optionsWithoutCloning);
-          this.resource_info = this.lineInfo.guesses[0];
-        } else if (this.lineInfo.resource_type === 'Clone') {
-          let options = _.concat([{name: this.lineInfo.display_type, value: this.lineInfo, k:5}],_.cloneDeep(optionsWithoutCloning));
-          this.resource_info = options[0].value;
-          this.resource_info_options = options;
-        } else {
-          let options = _.concat([{name: this.lineInfo.display_type, value: {resource_type: this.lineInfo.resource_type}, k:5}],_.cloneDeep(optionsWithoutCloning));
-          this.resource_info = options[0].value;
-          this.resource_info_options = options;
-        }
+    lineInfo: function () {
+      if (this.lineInfo.resource_type === "Temp") {
+        this.resource_info = { resource_type: "LegalDocument" };
       }
-    }
+    },
   },
   methods: {
-    bulkAddUrl: urls.url('new_from_outline'),
-    resetForm: function() {
+    ...mapActions(["fetch"]),
+
+    bulkAddUrl: urls.url("new_from_outline"),
+    resetForm: function () {
       let resets = data();
-      _.keys(resets).forEach(k => {
+      _.keys(resets).forEach((k) => {
         this[k] = resets[k];
       });
-      this.waitingFor = false;
-      this.unWait();
-      this.unWait = () => {};
+      this.waitingFor = undefined;
       this.manualResourceType = false;
+      this.selectedResult = undefined;
+      this.results = undefined;
     },
-    handleSubmit: function() {
-      let desiredSubset = _.pick(this.resource_info, ['resource_type', 'url', 'casebookId', 'resource_id', 'sectionId', 'sectionOrd', 'userSlug','titleSlug', 'ordSlug'])
-      let nodeData = {...desiredSubset, title:this.title}
+    handleSearch: async function () {
+      const searchResults = await search(this.title, this.getSources);
+      this.results = searchResults.flat();
+      this.title = "";
+    },
+    onAddDoc: async function (sourceRef, sourceId) {
+      this.added = undefined;
+      this.selectedResult = sourceRef.toString();
+      this.added = await add(
+        this.casebook(),
+        this.section(),
+        sourceRef,
+        sourceId
+      );
+      this.resetForm();
+      this.fetch({ casebook: this.casebook(), subsection: this.section() });
+    },
+    handleAdd: function () {
+      let desiredSubset = _.pick(this.resource_info, [
+        "resource_type",
+        "url",
+        "casebookId",
+        "resource_id",
+        "sectionId",
+        "sectionOrd",
+        "userSlug",
+        "titleSlug",
+        "ordSlug",
+      ]);
+      let nodeData = { ...desiredSubset, title: this.title };
 
-      if (nodeData.resource_type === 'Unknown') {
-        nodeData.resource_type = 'Temp';
+      if (nodeData.resource_type === "Unknown") {
+        nodeData.resource_type = "Temp";
       }
-      if (nodeData.resource_type === 'Link') {
+      if (nodeData.resource_type === "Link") {
         if (!nodeData.url) {
           nodeData.url = nodeData.title;
         }
@@ -138,99 +181,88 @@ export default {
       }
       const data = {
         section: this.section(),
-        data: [nodeData]
+        data: [nodeData],
       };
       this.postData(data);
     },
-    postData: function(data) {
-      return Axios.post(this.bulkAddUrl({casebookId:this.casebook()}), data).then(this.handleSuccess, this.handleFailure);
+    handleSubmit: function () {
+      if (this.mode === SEARCH) {
+        return this.handleSearch();
+      }
+      return this.handleAdd();
     },
-    handleSuccess: function(resp) {
+    postData: function (data) {
+      return Axios.post(
+        this.bulkAddUrl({ casebookId: this.casebook() }),
+        data
+      ).then(this.handleSuccess, this.handleFailure);
+    },
+    handleSuccess: function (resp) {
       this.$store.dispatch("table_of_contents/slowMerge", {
         casebook: this.casebook(),
-        newToc: resp.data
+        newToc: resp.data,
       });
       this.resetForm();
     },
-    handleFailure: function(resp) {
+    handleFailure: function (resp) {
       console.error(resp);
     },
-    handlePaste: function(event) {
-      let pasted = (event.clipboardData || window.clipboardData).getData(
+    handlePaste: function (event) {
+      const pasted = (event.clipboardData || window.clipboardData).getData(
         "text"
       );
-      if ( pasted.indexOf("\n") >= 0) {
+      if (pasted.indexOf("\n") >= 0) {
         this.waitingFor = "Parsing pasted text";
-        let parsed = pp.cleanDocLines(pasted);
-        let [parsedJson, stats] = pp.structureOutline(parsed, this.getSources);
-        _.keys(stats).map(k => {
+        const parsed = pp.cleanDocLines(pasted);
+        const [parsedJson, stats] = pp.structureOutline(parsed, this.getSources);
+        _.keys(stats).map((k) => {
           this.stats[k] = _.get(this.stats, k, 0) + stats[k];
         });
-        this.postData({ section: this.section(),
-                        data: parsedJson.children });
+        this.postData({ section: this.section(), data: parsedJson.children });
         this.title = "";
       } else {
         this.title += pasted;
       }
     },
-    searchForCase: _.debounce(function searchForCase() {
-      let query = this.title;
-      if (query) {
-        this.$store.dispatch("case_search/fetchForAllSources", { query });
-      }
-    }, caseSearchDelay)
-  }
+  },
 };
 </script>
 
 <style lang="scss" scoped>
-@import "../styles/vars-and-mixins";
 
-#quick-add {
-    border: 1px dashed black;
-    padding: 4rem;
-    p {
-      margin: 14px 0;
-    }
-    .instructions {
-      font-size: 18px;
-      margin-top: 0;
-    }
-    p:last-of-type {
-      margin-bottom: 0;
-    }
-    .form {
-        line-height: 36px;
-    }
-    
-    .inline-search.form-control-group {
-        display: flex;
-        flex-direction: row;
-        
-        *:not(:first-child) {
-            margin-left: 1rem;
-        }
-        .resource-type {
-            width: 20rem;
-        }
-        .create-button {
-            width: 12rem;
-            font-size: 18px;
-        }
-    }
-    .large-drop-down {
-        line-height: 5rem;
-        height: 46px;
-        padding: 1rem 2rem;
-        margin: 0rem;
-        float: left;
-        margin-right: 1.5rem;
-    }
-
-  .stats {
-    margin-top: 0.5rem;
-    margin-left: 1rem;
+div {
+  * {
+    margin: .5em 0;
   }
+  border: 1px dashed black;
+  padding: 4rem;
+
+  h3 {
+    margin-top: 0;
+    font-size: 130%;
+  }
+
+  p:last-of-type {
+    margin-bottom: 0;
+  }
+
+  form {
+    display: flex;
+    flex-direction: row;
+    margin-bottom: 1em;
+    *:not(:first-child) {
+      margin-left: 1rem;
+    }
+    select {
+      flex-basis: 50%;
+    }
+    [type="submit"] {
+      text-transform: capitalize;
+      flex-basis: 20%;      
+      font-size: 18px;
+    }
+  }
+
 }
 </style>
 

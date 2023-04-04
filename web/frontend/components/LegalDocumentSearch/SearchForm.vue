@@ -1,23 +1,23 @@
 <template>
   <form class="form-group case-search" ref="form" @submit.prevent="search">
     <input
+      v-model="query"
       type="text"
       class="form-control"
       placeholder="Search for a case or section of federal code"
       ref="queryText"
-      v-model="query"
     />
     <input
-      type="submit"
-      class="save-button"
       :value="pending ? 'Searching...' : 'Search'"
       :disabled="pending"
+      type="submit"
+      class="save-button"
     />
 
     <button
+      @click.prevent="toggleAdvanced"    
       class="advanced-search-toggle"
       type="button"
-      @click.prevent="toggleAdvanced"
     >
       <span v-if="showAdvanced">Basic search</span>
       <span v-else>Advanced search</span>
@@ -50,23 +50,28 @@
         Decision Date
         <fieldset>
           <input
+            v-model="after_date"
             name="after_date"
             type="date"
             class="form-control"
             placeholder="YYYY-MM-DD"
-            v-model="after_date"
           />
           <span> - </span>
           <input
+            v-model="before_date"          
             name="before_date"
             type="date"
             class="form-control"
             placeholder="YYYY-MM-DD"
-            v-model="before_date"
           />
         </fieldset>
       </label>
-      <p v-for="s in getSources" :key="s.id" class="source-description" :data-source-selected="source === s.id">
+      <p
+        v-for="s in getSources"
+        :key="s.id"
+        :data-source-selected="source === s.id"
+        class="source-description"
+      >
         {{ s.long_description }}
       </p>
     </fieldset>
@@ -74,11 +79,10 @@
 </template>
 
 <script>
-import url from "../../libs/urls";
 import { createNamespacedHelpers } from "vuex";
+import { search, jurisdictions } from "../../libs/legal_document_search";
 
 const { mapGetters } = createNamespacedHelpers("case_search");
-const api = url.url("search_using");
 
 export default {
   props: {
@@ -87,70 +91,7 @@ export default {
   data: () => ({
     pending: false,
     query: "",
-    jurisdictions: [
-      { val: "ala", name: "Alabama" },
-      { val: "alaska", name: "Alaska" },
-      { val: "am-samoa", name: "American Samoa" },
-      { val: "ariz", name: "Arizona" },
-      { val: "ark", name: "Arkansas" },
-      { val: "cal", name: "California" },
-      { val: "colo", name: "Colorado" },
-      { val: "conn", name: "Connecticut" },
-      { val: "dakota-territory", name: "Dakota Territory" },
-      { val: "dc", name: "District of Columbia" },
-      { val: "del", name: "Delaware" },
-      { val: "fla", name: "Florida" },
-      { val: "ga", name: "Georgia" },
-      { val: "guam", name: "Guam" },
-      { val: "haw", name: "Hawaii" },
-      { val: "idaho", name: "Idaho" },
-      { val: "ill", name: "Illinois" },
-      { val: "ind", name: "Indiana" },
-      { val: "iowa", name: "Iowa" },
-      { val: "kan", name: "Kansas" },
-      { val: "ky", name: "Kentucky" },
-      { val: "la", name: "Louisiana" },
-      { val: "mass", name: "Massachusetts" },
-      { val: "md", name: "Maryland" },
-      { val: "me", name: "Maine" },
-      { val: "mich", name: "Michigan" },
-      { val: "minn", name: "Minnesota" },
-      { val: "miss", name: "Mississippi" },
-      { val: "mo", name: "Missouri" },
-      { val: "mont", name: "Montana" },
-      { val: "native-american", name: "Native American" },
-      { val: "navajo-nation", name: "Navajo Nation" },
-      { val: "nc", name: "North Carolina" },
-      { val: "nd", name: "North Dakota" },
-      { val: "neb", name: "Nebraska" },
-      { val: "nev", name: "Nevada" },
-      { val: "nh", name: "New Hampshire" },
-      { val: "nj", name: "New Jersey" },
-      { val: "nm", name: "New Mexico" },
-      { val: "n-mar-i", name: "Northern Mariana Islands" },
-      { val: "ny", name: "New York" },
-      { val: "ohio", name: "Ohio" },
-      { val: "okla", name: "Oklahoma" },
-      { val: "or", name: "Oregon" },
-      { val: "pa", name: "Pennsylvania" },
-      { val: "pr", name: "Puerto Rico" },
-      { val: "ri", name: "Rhode Island" },
-      { val: "sc", name: "South Carolina" },
-      { val: "sd", name: "South Dakota" },
-      { val: "tenn", name: "Tennessee" },
-      { val: "tex", name: "Texas" },
-      { val: "tribal", name: "Tribal jurisdictions" },
-      { val: "uk", name: "United Kingdom" },
-      { val: "us", name: "United States" },
-      { val: "utah", name: "Utah" },
-      { val: "va", name: "Virginia" },
-      { val: "vi", name: "Virgin Islands" },
-      { val: "vt", name: "Vermont" },
-      { val: "wash", name: "Washington" },
-      { val: "wis", name: "Wisconsin" },
-      { val: "w-va", name: "West Virginia" },
-      { val: "wyo", name: "Wyoming" },
-    ],
+    jurisdictions,
     showAdvanced: false,
     jurisdiction: undefined,
     before_date: undefined,
@@ -164,56 +105,28 @@ export default {
     this.$refs.queryText.focus();
   },
   watch: {
-    toggleReset: function() {
-      this.$refs.form.reset()
-    }
+    toggleReset: function () {
+      this.$refs.form.reset();
+    },
   },
   methods: {
     search: async function () {
       if (!this.query) {
         return;
       }
-
       this.pending = true;
-      const sources = [];
-      const sourceDetail = this.getSources.filter((s) =>
-        this.source ? s.id === this.source : true
+
+      const searchResults = await search(
+        this.query,
+        this.getSources,
+        this.source,
+        this.jurisdiction,
+        this.before_date,
+        this.after_date
       );
 
-      let order = 0; // Sources will come back ordered in "priority order", which we want to retain
-      for (const { id, name } of sourceDetail) {
-        const url =
-          api({ sourceId: id }) +
-          "?" +
-          new URLSearchParams({
-            q: this.query,
-            jurisdiction: this.jurisdiction || "",
-            before_date: this.before_date || "",
-            after_date: this.after_date || "",
-          });
-        sources.push({ url, id, name, order });
-        order += 1;
-      }
-      const searchResults = await Promise.all(
-        sources.map(async (source) => {
-          const { url, id, name, order } = source;
-          return fetch(url)
-            .then((r) => r.json())
-            .then((r) => {
-              const { results } = r;
-              return results.map((row) => {
-                row.id = row.id.toString(); // normalize IDs from the API to strings
-                return {
-                  name,
-                  sourceId: id,
-                  sourceOrder: order,
-                  ...row,
-                };
-              });
-            });
-        })
-      );
       this.pending = false;
+      
       this.$emit("search-results", searchResults.flat());
     },
     toggleAdvanced: function () {
