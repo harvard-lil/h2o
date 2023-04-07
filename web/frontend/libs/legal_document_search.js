@@ -128,7 +128,18 @@ export const search = async (
     })
   );
 };
-
+/**
+ * Given a casebook and optional section ID, add a legal document
+ * from the identified source to the casebook and return the location of the 
+ * resource in the book.
+ * 
+ * @param {string} casebookId the ID of the casebook
+ * @param {?string} sectionId the optional ID of the section in which to nest it
+ * @param {string} sourceRef the foreign identifier of the legal document
+ * @param {number} sourceId the local identifier of the source (e.g. CAP)
+ * 
+ * @returns {Object}
+ */
 export const add = async (casebookId, sectionId, sourceRef, sourceId) => {
   const api = url.url("legal_document_resource_view");
 

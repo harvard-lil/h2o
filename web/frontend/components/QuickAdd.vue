@@ -91,8 +91,6 @@ const data = function () {
     resource_info_options: optionsWithoutCloning,
   };
 };
-const ADD = "add";
-const SEARCH = "search";
 
 export default {
   components: {
@@ -106,8 +104,8 @@ export default {
     waitingFor: undefined,
     results: undefined,
     selectedResult: undefined,
-    ADD,
-    SEARCH,
+    ADD: "add",
+    SEARCH: "search",
     showAdvanced: false,
     advancedSearch: {
       jurisdiction: undefined,
@@ -120,9 +118,6 @@ export default {
   computed: {
     ...globals.mapGetters(["casebook", "section"]),
     ...caseSearch.mapGetters(["getSources"]),
-    totalIdentified: function () {
-      return _.values(this.stats).reduce((a, b) => a + b, 0);
-    },
     lineInfo: function () {
       return pp.guessLineType(this.title, this.getSources);
     },
@@ -135,14 +130,21 @@ export default {
     },
     mode: function () {
       return this.resource_info.resource_type === "LegalDocument"
-        ? SEARCH
-        : ADD;
+        ? this.SEARCH
+        : this.ADD;
     },
   },
   watch: {
     lineInfo: function () {
-      if (this.lineInfo.resource_type === "Temp") {
-        this.resource_info = { resource_type: "LegalDocument" };
+      switch (this.lineInfo.resource_type)  {
+        case "Temp": {
+          this.resource_info = { resource_type: "LegalDocument" };
+          break;
+        }
+        case "Link": {
+          this.resource_info = { resource_type: "Link" };
+          break;
+        }
       }
     },
   },
@@ -170,7 +172,6 @@ export default {
         this.advancedSearch.afterDate
       );
       this.results = searchResults.flat();
-      this.title = "";
     },
     onAddDoc: async function (sourceRef, sourceId) {
       this.added = undefined;
@@ -181,8 +182,8 @@ export default {
         sourceRef,
         sourceId
       );
-      this.resetForm();
       this.fetch({ casebook: this.casebook(), subsection: this.section() });
+      this.resetForm();
     },
     handleAdd: function () {
       let desiredSubset = _.pick(this.resource_info, [
@@ -214,7 +215,7 @@ export default {
       this.postData(data);
     },
     handleSubmit: function () {
-      if (this.mode === SEARCH) {
+      if (this.mode === this.SEARCH) {
         return this.handleSearch();
       }
       return this.handleAdd();
@@ -223,7 +224,7 @@ export default {
       return Axios.post(
         this.bulkAddUrl({ casebookId: this.casebook() }),
         data
-      ).then(this.handleSuccess, this.handleFailure);
+      ).then(this.handleSuccess, (resp) => console.error(resp));
     },
     handleSuccess: function (resp) {
       this.$store.dispatch("table_of_contents/slowMerge", {
@@ -232,9 +233,7 @@ export default {
       });
       this.resetForm();
     },
-    handleFailure: function (resp) {
-      console.error(resp);
-    },
+
     handlePaste: function (event) {
       const pasted = (event.clipboardData || window.clipboardData).getData(
         "text"
