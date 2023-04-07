@@ -1,11 +1,14 @@
 <template>
   <div>
     <h3>
-      Add an individual resource or a list of items by pasting them into the
-      field below.
+      {{ resource_info.description }}, or select a different option from the
+      dropdown for other types of content to add.
     </h3>
 
-    <form @submit.stop.prevent="handleSubmit" class="form-control-group">
+    <form
+      @submit.stop.prevent="handleSubmit"
+      class="form-control-group"
+    >
       <input
         @paste.prevent.stop="handlePaste"
         v-model="title"
@@ -22,6 +25,7 @@
           {{ option.name }}
         </option>
       </select>
+
       <input
         @submit="handleSubmit"
         :value="mode"
@@ -30,7 +34,11 @@
       />
       <button
         v-if="mode === SEARCH"
-        @click.prevent="() => { showAdvanced = !showAdvanced} "
+        @click.prevent="
+          () => {
+            showAdvanced = !showAdvanced;
+          }
+        "
         class="advanced-search-toggle"
         type="button"
       >
@@ -62,12 +70,11 @@
 </template>
 
 <script>
-import _ from "lodash";
 import { createNamespacedHelpers } from "vuex";
 
 import ResultsForm from "./LegalDocumentSearch/ResultsForm";
 
-import Axios from "../config/axios";
+import { get_csrf_token } from "../legacy/lib/helpers";
 import pp from "libs/text_outline_parser";
 import urls from "libs/urls";
 import { search, add } from "libs/legal_document_search";
@@ -77,30 +84,74 @@ const globals = createNamespacedHelpers("globals");
 const caseSearch = createNamespacedHelpers("case_search");
 const { mapActions } = createNamespacedHelpers("table_of_contents");
 
+const optionTypes = {
+  SECTION: {
+    resource_type: "Section",
+    description:
+      "Group your casebook into discrete sections to organize the materal",
+  },
+  LEGAL_DOCUMENT: {
+    description:
+      "Search our library of US case law and code for documents to automatically import",
+    resource_type: "LegalDocument",
+  },
+  CUSTOM_CONTENT: {
+    description: "Add your own written commentary or chapters",
+    resource_type: "TextBlock",
+  },
+  LINK: {
+    description: "Paste a link to an external resource or article",
+    resource_type: "Link",
+  },
+  CLONE: {
+    description:
+      "Paste a link to a resource in another casebook to automatically import it into your own",
+    resource_type: "Clone",
+  },
+  OUTLINE: {
+    description:
+      "Paste an outline of your table of contents and H2O will automatically create a draft casebook based on it",
+    resource_type: "Outline",
+  },
+};
 const optionsWithoutCloning = [
-  { name: "Section", value: { resource_type: "Section" }, k: 0 },
-  { name: "Legal Document", value: { resource_type: "LegalDocument" }, k: 1 },
-  { name: "Custom Content", value: { resource_type: "TextBlock" }, k: 2 },
-  { name: "Link", value: { resource_type: "Link" }, k: 3 },
+  {
+    name: "Section",
+    value: optionTypes.SECTION,
+    k: 0,
+  },
+  {
+    name: "Legal Document",
+    value: optionTypes.LEGAL_DOCUMENT,
+    k: 1,
+  },
+  {
+    name: "Custom Content",
+    value: optionTypes.CUSTOM_CONTENT,
+    k: 2,
+  },
+  {
+    name: "Link",
+    value: optionTypes.LINK,
+    k: 3,
+  },
+  {
+    name: "Clone",
+    value: optionTypes.CLONE,
+    k: 4,
+  },
+  {
+    name: "Outline",
+    value: optionTypes.OUTLINE,
+    k: 5,
+  },
 ];
 
-const data = function () {
+const initial = function () {
   return {
     title: "",
     resource_info: optionsWithoutCloning[0].value,
     resource_info_options: optionsWithoutCloning,
-  };
-};
-
-export default {
-  components: {
-    ResultsForm,
-    AdvancedSearch,
-  },
-  props: [],
-  data: () => ({
-    ...data(),
-    stats: {},
     waitingFor: undefined,
     results: undefined,
     selectedResult: undefined,
@@ -113,20 +164,22 @@ export default {
       afterDate: undefined,
       source: undefined,
     },
+  };
+};
+
+export default {
+  components: {
+    ResultsForm,
+    AdvancedSearch,
+  },
+  data: () => ({
+    ...initial(),
   }),
-  directives: {},
   computed: {
     ...globals.mapGetters(["casebook", "section"]),
     ...caseSearch.mapGetters(["getSources"]),
     lineInfo: function () {
       return pp.guessLineType(this.title, this.getSources);
-    },
-    desiredOrdinal: function () {
-      const ordinalGuess = this.title.match(/^[0-9]+(\.[0-9])* /);
-      if (ordinalGuess) {
-        return ordinalGuess[0];
-      }
-      return undefined;
     },
     mode: function () {
       return this.resource_info.resource_type === "LegalDocument"
@@ -136,13 +189,17 @@ export default {
   },
   watch: {
     lineInfo: function () {
-      switch (this.lineInfo.resource_type)  {
+      switch (this.lineInfo.resource_type) {
         case "Temp": {
-          this.resource_info = { resource_type: "LegalDocument" };
+          this.resource_info = optionTypes.LEGAL_DOCUMENT;
           break;
         }
         case "Link": {
-          this.resource_info = { resource_type: "Link" };
+          this.resource_info = optionTypes.LINK;
+          break;
+        }
+        case "Clone": {
+          this.resource_info = optionTypes.CLONE;
           break;
         }
       }
@@ -153,12 +210,8 @@ export default {
 
     bulkAddUrl: urls.url("new_from_outline"),
     resetForm: function () {
-      let resets = data();
-      _.keys(resets).forEach((k) => {
-        this[k] = resets[k];
-      });
+      Object.keys(initial()).forEach(k => this[k] = initial()[k])
       this.waitingFor = undefined;
-      this.manualResourceType = false;
       this.selectedResult = undefined;
       this.results = undefined;
     },
@@ -186,31 +239,9 @@ export default {
       this.resetForm();
     },
     handleAdd: function () {
-      let desiredSubset = _.pick(this.resource_info, [
-        "resource_type",
-        "url",
-        "casebookId",
-        "resource_id",
-        "sectionId",
-        "sectionOrd",
-        "userSlug",
-        "titleSlug",
-        "ordSlug",
-      ]);
-      let nodeData = { ...desiredSubset, title: this.title };
-
-      if (nodeData.resource_type === "Unknown") {
-        nodeData.resource_type = "Temp";
-      }
-      if (nodeData.resource_type === "Link") {
-        if (!nodeData.url) {
-          nodeData.url = nodeData.title;
-        }
-        nodeData.title = undefined;
-      }
       const data = {
         section: this.section(),
-        data: [nodeData],
+        data: [this.lineInfo],
       };
       this.postData(data);
     },
@@ -220,16 +251,25 @@ export default {
       }
       return this.handleAdd();
     },
-    postData: function (data) {
-      return Axios.post(
+    postData: async function (data) {
+      console.log(this.bulkAddUrl({ casebookId: this.casebook() }));
+      const resp = await fetch(
         this.bulkAddUrl({ casebookId: this.casebook() }),
-        data
-      ).then(this.handleSuccess, (resp) => console.error(resp));
-    },
-    handleSuccess: function (resp) {
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            "X-CSRF-Token": get_csrf_token(),
+          },
+          body: JSON.stringify(data),
+        }
+      );
+
+      const body = await resp.json();
+
       this.$store.dispatch("table_of_contents/slowMerge", {
         casebook: this.casebook(),
-        newToc: resp.data,
+        newToc: body,
       });
       this.resetForm();
     },
@@ -241,13 +281,8 @@ export default {
       if (pasted.indexOf("\n") >= 0) {
         this.waitingFor = "Parsing pasted text";
         const parsed = pp.cleanDocLines(pasted);
-        const [parsedJson, stats] = pp.structureOutline(
-          parsed,
-          this.getSources
-        );
-        _.keys(stats).map((k) => {
-          this.stats[k] = _.get(this.stats, k, 0) + stats[k];
-        });
+        const [parsedJson] = pp.structureOutline(parsed, this.getSources);
+
         this.postData({ section: this.section(), data: parsedJson.children });
         this.title = "";
       } else {
@@ -269,6 +304,7 @@ div {
   h3 {
     margin-top: 0;
     font-size: 130%;
+    line-height: 1.6em;
   }
 
   p:last-of-type {
