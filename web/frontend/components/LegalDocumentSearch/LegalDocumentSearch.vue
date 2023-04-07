@@ -45,7 +45,6 @@ export default {
       this.toggleReset = !this.toggleReset;
     },
     onSearchResults: function (res) {
-      this.resetSearch();
       this.results = res;
     },
     onAddDoc: async function (sourceRef, sourceId) {

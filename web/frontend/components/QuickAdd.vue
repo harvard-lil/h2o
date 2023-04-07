@@ -5,10 +5,7 @@
       field below.
     </h3>
 
-    <form
-      @submit.stop.prevent="handleSubmit"
-      class="form-control-group"
-    >
+    <form @submit.stop.prevent="handleSubmit" class="form-control-group">
       <input
         @paste.prevent.stop="handlePaste"
         v-model="title"
@@ -31,13 +28,28 @@
         type="submit"
         class="form-control btn btn-primary create-button"
       />
+      <button
+        v-if="mode === SEARCH"
+        @click.prevent="() => { showAdvanced = !showAdvanced} "
+        class="advanced-search-toggle"
+        type="button"
+      >
+        <span v-if="showAdvanced">Basic search</span>
+        <span v-else>Advanced search</span>
+      </button>
+      <advanced-search
+        v-if="mode === SEARCH && showAdvanced"
+        @update="(searchData) => (advancedSearch = searchData)"
+        :sources="getSources"
+        :form-data="advancedSearch"
+      ></advanced-search>
     </form>
     <results-form
       @add-doc="onAddDoc"
       :search-results="results"
       :selected-result="selectedResult"
     ></results-form>
-    
+
     <p>{{ waitingFor }}</p>
 
     <p>
@@ -59,6 +71,7 @@ import Axios from "../config/axios";
 import pp from "libs/text_outline_parser";
 import urls from "libs/urls";
 import { search, add } from "libs/legal_document_search";
+import AdvancedSearch from "./LegalDocumentSearch/AdvancedSearch.vue";
 
 const globals = createNamespacedHelpers("globals");
 const caseSearch = createNamespacedHelpers("case_search");
@@ -84,17 +97,25 @@ const SEARCH = "search";
 export default {
   components: {
     ResultsForm,
+    AdvancedSearch,
   },
   props: [],
-  data: function () {
-    return {
-      ...data(),
-      stats: {},
-      waitingFor: undefined,
-      results: undefined,
-      selectedResult: undefined,
-    };
-  },
+  data: () => ({
+    ...data(),
+    stats: {},
+    waitingFor: undefined,
+    results: undefined,
+    selectedResult: undefined,
+    ADD,
+    SEARCH,
+    showAdvanced: false,
+    advancedSearch: {
+      jurisdiction: undefined,
+      beforeDate: undefined,
+      afterDate: undefined,
+      source: undefined,
+    },
+  }),
   directives: {},
   computed: {
     ...globals.mapGetters(["casebook", "section"]),
@@ -140,7 +161,14 @@ export default {
       this.results = undefined;
     },
     handleSearch: async function () {
-      const searchResults = await search(this.title, this.getSources);
+      const searchResults = await search(
+        this.title,
+        this.getSources,
+        this.advancedSearch.source,
+        this.advancedSearch.jurisdiction,
+        this.advancedSearch.beforeDate,
+        this.advancedSearch.afterDate
+      );
       this.results = searchResults.flat();
       this.title = "";
     },
@@ -214,7 +242,10 @@ export default {
       if (pasted.indexOf("\n") >= 0) {
         this.waitingFor = "Parsing pasted text";
         const parsed = pp.cleanDocLines(pasted);
-        const [parsedJson, stats] = pp.structureOutline(parsed, this.getSources);
+        const [parsedJson, stats] = pp.structureOutline(
+          parsed,
+          this.getSources
+        );
         _.keys(stats).map((k) => {
           this.stats[k] = _.get(this.stats, k, 0) + stats[k];
         });
@@ -229,10 +260,9 @@ export default {
 </script>
 
 <style lang="scss" scoped>
-
 div {
   * {
-    margin: .5em 0;
+    margin: 0.5em 0;
   }
   border: 1px dashed black;
   padding: 4rem;
@@ -248,21 +278,32 @@ div {
 
   form {
     display: flex;
+    flex-wrap: wrap;
     flex-direction: row;
     margin-bottom: 1em;
-    *:not(:first-child) {
-      margin-left: 1rem;
+    justify-content: space-between;
+
+    [type="text"] {
+      flex-basis: 45%;
     }
     select {
-      flex-basis: 50%;
+      flex-basis: 30%;
     }
     [type="submit"] {
       text-transform: capitalize;
-      flex-basis: 20%;      
+      flex-basis: 20%;
       font-size: 18px;
     }
+    button.advanced-search-toggle {
+      background: none;
+      border: none;
+      text-decoration: underline;
+      text-underline-offset: 4px;
+      padding: 0;
+      flex-basis: 100%;
+      text-align: left;
+    }
   }
-
 }
 </style>
 
