@@ -39,23 +39,22 @@ describe("QuickAdd", () => {
 
   it("loads the quick add form with expected defaults", () => {
     const wrapper = mount(QuickAdd, { store, localVue });
-    expect(wrapper.find("input[type='radio']:checked").element.id).toBe("Section")
-    expect(wrapper.find(".resource-type-description").text()).toContain("section");
+    expect(wrapper.find(".resource-type option:checked").element.textContent).toContain("Section")
+    expect(wrapper.find("[type='text']").element.placeholder).toContain("Week One")
   });
 
   it("updates the resource type dropdown if the user inputs an external link", () => {
     const wrapper = mount(QuickAdd, { store, localVue });
     wrapper.find('[type="text"]').setValue("http://example.com")
-    expect(wrapper.find("input[type='radio']:checked").element.id).toBe("Link")
-    expect(wrapper.find(".resource-type-description").text()).toContain("link");
+    expect(wrapper.find(".resource-type option:checked").element.textContent).toContain("Link")
+    expect(wrapper.find("[type='text']").element.placeholder).toContain("example.com")
   });
 
   it("updates the resource type dropdown if the user inputs text that seems case-like", () => {
     const wrapper = mount(QuickAdd, { store, localVue });
     wrapper.find('[type="text"]').setValue("https://cite.case.law/example");
-    expect(wrapper.find("input[type='radio']:checked").element.id).toBe("LegalDocument")
-    expect(wrapper.find(".resource-type-description").text()).toContain("Search");
-
+    expect(wrapper.find(".resource-type option:checked").element.textContent).toContain("Legal Document")
+    expect(wrapper.find("[type='text']").element.placeholder).toContain(" v. ")
   });
 
   it("submits a search request if the inputted item is thought to be a legal document", async () => {

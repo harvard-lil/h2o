@@ -1,50 +1,34 @@
 <template>
   <div>
+
+    <h2>Build your outline.</h2>
     <form @submit.stop.prevent="handleSubmit" class="form-control-group">
-      <h3>
-        Add an individual resource or a list of items by pasting them into the
-        field below.
-      </h3>
 
       <input
         @paste.prevent.stop="handlePaste"
         v-model="title"
         type="text"
         class="form-control"
-        placeholder="'Chapter 1' or 'http://example.com' or 'John v. Smith'"
+        :placeholder="resourceInfo.description"
       />
 
+      <select v-model="resourceInfo" class="resource-type form-control">
+        <option
+          v-for="option in resourceInfoOptions"
+          :key="option.name"
+          :value="option.value"
+        >
+          {{ option.name }}
+        </option>
+      </select>
+      
       <input
         @submit="handleSubmit"
         :value="mode"
         type="submit"
         class="form-control btn btn-primary create-button"
       />
-
-      <section>
-        <p class="resource-type-description">{{ resourceInfo.description }}</p>
-
-        <p>
-          To learn more, review our
-          <a href="https://about.opencasebook.org/making-casebooks/#quick-add"
-            >quick add documentation.</a
-          >
-        </p>
-      </section>
-
-      <fieldset class="resource-type-group">
-        <fieldset v-for="option in resourceInfoOptions" :key="option.name">
-          <input
-            v-model="resourceInfo"
-            :value="option.value"
-            :id="option.value.resource_type"
-            type="radio"
-          />
-          <label :for="option.value">{{ option.name }}</label>
-        </fieldset>
-      </fieldset>
-
-
+      
       <button
         v-if="mode === SEARCH"
         @click.prevent="
@@ -72,6 +56,13 @@
     ></results-form>
 
     <p>{{ waitingFor }}</p>
+
+    <p>
+      Use the field above to add section headings, titles for interstitial material, case names, or links to quickly build the outline of your book.
+    </p>
+    <p>
+      You can also paste an outline, or import content from another H2O casebook by pasting a link.
+    </p>
   </div>
 </template>
 
@@ -94,29 +85,29 @@ const optionTypes = {
   SECTION: {
     resource_type: "Section",
     description:
-      "Group your casebook into discrete sections to organize the material.",
+      "Week One: Introduction to Criminal Law",
   },
   LEGAL_DOCUMENT: {
     description:
-      "Search our library of US case law and code for documents to automatically import.",
+      "John v. Smith",
     resource_type: "LegalDocument",
   },
   CUSTOM_CONTENT: {
-    description: "Add your own written commentary or chapters.",
+    description: "Chapter 1",
     resource_type: "TextBlock",
   },
   LINK: {
-    description: "Paste a link to an external resource or article.",
+    description: "http://example.com",
     resource_type: "Link",
   },
   CLONE: {
     description:
-      "Paste a link to a resource in another casebook to automatically import it into your own.",
+      "https://opencasebook.org/casebooks/1/example",
     resource_type: "Clone",
   },
   OUTLINE: {
     description:
-      "Paste an outline of your table of contents and H2O will automatically create a draft casebook based on it.",
+      "1. Week One: Introduction to Criminal Law",
     resource_type: "Outline",
   },
 };
@@ -217,7 +208,7 @@ export default {
       this.results = undefined;
     },
     handleSearch: async function () {
-      console.log("hi");
+      console.log('hi')
       const searchResults = await search(
         this.title,
         this.getSources,
@@ -319,17 +310,20 @@ export default {
 
 <style lang="scss" scoped>
 div {
+  * {
+    margin: 0.5em 0;
+  }
   border: 1px dashed black;
   padding: 4rem;
 
   p:last-of-type {
     margin-bottom: 0;
   }
-  h3 {
-    margin: 0;
-    font-size: 130%;
-    line-height: 1.6em;
-  }
+  h2 {
+      margin-top: 0;
+      font-size: 130%;
+      line-height: 1.6em;
+   }
 
   form {
     display: flex;
@@ -337,31 +331,16 @@ div {
     flex-direction: row;
     margin-bottom: 1em;
     justify-content: space-between;
-    gap: 2em;
-
+    gap: 1em;
+    
     [type="text"] {
-      flex-basis: 75%;
+      flex: 1;
     }
-    label {
-      padding: 0 0 0 1rem;
-      font-size: 14px;
-      font-weight: normal;
+    select {
+      flex-basis: 30%;
     }
-
-    fieldset {
-      margin: 0;
-    }
-    .resource-type-group {
-      columns: 2;
-    }
-    section {
-      flex: 2;
-    }
-    h4 {
-      width: 100%;
-      font-size: 14px;
-
-      text-align: center;
+    h3 {
+      flex-basis: 65%;
     }
     [type="submit"] {
       text-transform: capitalize;
