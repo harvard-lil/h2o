@@ -1,27 +1,18 @@
 <template>
   <div>
-    <h3>
-      {{ resourceInfo.description }}, or select a different option from the
-      dropdown for other types of content to add.
-    </h3>
-
     <form @submit.stop.prevent="handleSubmit" class="form-control-group">
+      <h3>
+        Add an individual resource or a list of items by pasting them into the
+        field below.
+      </h3>
+
       <input
         @paste.prevent.stop="handlePaste"
         v-model="title"
         type="text"
         class="form-control"
-        placeholder="Enter case, heading, link, or outline here"
+        placeholder="'Chapter 1' or 'http://example.com' or 'John v. Smith'"
       />
-      <select v-model="resourceInfo" class="resource-type form-control">
-        <option
-          v-for="option in resourceInfoOptions"
-          :key="option.name"
-          :value="option.value"
-        >
-          {{ option.name }}
-        </option>
-      </select>
 
       <input
         @submit="handleSubmit"
@@ -29,6 +20,31 @@
         type="submit"
         class="form-control btn btn-primary create-button"
       />
+
+      <section>
+        <p class="resource-type-description">{{ resourceInfo.description }}</p>
+
+        <p>
+          To learn more, review our
+          <a href="https://about.opencasebook.org/making-casebooks/#quick-add"
+            >quick add documentation.</a
+          >
+        </p>
+      </section>
+
+      <fieldset class="resource-type-group">
+        <fieldset v-for="option in resourceInfoOptions" :key="option.name">
+          <input
+            v-model="resourceInfo"
+            :value="option.value"
+            :id="option.value.resource_type"
+            type="radio"
+          />
+          <label :for="option.value">{{ option.name }}</label>
+        </fieldset>
+      </fieldset>
+
+
       <button
         v-if="mode === SEARCH"
         @click.prevent="
@@ -56,13 +72,6 @@
     ></results-form>
 
     <p>{{ waitingFor }}</p>
-
-    <p>
-      To learn more, review our
-      <a href="https://about.opencasebook.org/making-casebooks/#quick-add"
-        >quick add documentation.</a
-      >
-    </p>
   </div>
 </template>
 
@@ -85,29 +94,29 @@ const optionTypes = {
   SECTION: {
     resource_type: "Section",
     description:
-      "Group your casebook into discrete sections to organize the material",
+      "Group your casebook into discrete sections to organize the material.",
   },
   LEGAL_DOCUMENT: {
     description:
-      "Search our library of US case law and code for documents to automatically import",
+      "Search our library of US case law and code for documents to automatically import.",
     resource_type: "LegalDocument",
   },
   CUSTOM_CONTENT: {
-    description: "Add your own written commentary or chapters",
+    description: "Add your own written commentary or chapters.",
     resource_type: "TextBlock",
   },
   LINK: {
-    description: "Paste a link to an external resource or article",
+    description: "Paste a link to an external resource or article.",
     resource_type: "Link",
   },
   CLONE: {
     description:
-      "Paste a link to a resource in another casebook to automatically import it into your own",
+      "Paste a link to a resource in another casebook to automatically import it into your own.",
     resource_type: "Clone",
   },
   OUTLINE: {
     description:
-      "Paste an outline of your table of contents and H2O will automatically create a draft casebook based on it",
+      "Paste an outline of your table of contents and H2O will automatically create a draft casebook based on it.",
     resource_type: "Outline",
   },
 };
@@ -208,6 +217,7 @@ export default {
       this.results = undefined;
     },
     handleSearch: async function () {
+      console.log("hi");
       const searchResults = await search(
         this.title,
         this.getSources,
@@ -230,11 +240,33 @@ export default {
       this.fetch({ casebook: this.casebook(), subsection: this.section() });
       this.resetForm();
     },
-    
     handleAdd: function () {
+      const {
+        casebookId,
+        ordSlug,
+        sectionId,
+        sectionOrd,
+        titleSlug,
+        url,
+        userSlug,
+      } = this.lineInfo;
+      const { title } = this;
+      const { resource_type } = this.resourceInfo;
       const data = {
         section: this.section(),
-        data: [this.lineInfo],
+        data: [
+          {
+            casebookId,
+            ordSlug,
+            resource_type,
+            sectionId,
+            sectionOrd,
+            title,
+            titleSlug,
+            url,
+            userSlug,
+          },
+        ],
       };
       this.postData(data);
     },
@@ -287,20 +319,16 @@ export default {
 
 <style lang="scss" scoped>
 div {
-  * {
-    margin: 0.5em 0;
-  }
   border: 1px dashed black;
   padding: 4rem;
 
-  h3 {
-    margin-top: 0;
-    font-size: 130%;
-    line-height: 1.6em;
-  }
-
   p:last-of-type {
     margin-bottom: 0;
+  }
+  h3 {
+    margin: 0;
+    font-size: 130%;
+    line-height: 1.6em;
   }
 
   form {
@@ -309,12 +337,31 @@ div {
     flex-direction: row;
     margin-bottom: 1em;
     justify-content: space-between;
+    gap: 2em;
 
     [type="text"] {
-      flex-basis: 45%;
+      flex-basis: 75%;
     }
-    select {
-      flex-basis: 30%;
+    label {
+      padding: 0 0 0 1rem;
+      font-size: 14px;
+      font-weight: normal;
+    }
+
+    fieldset {
+      margin: 0;
+    }
+    .resource-type-group {
+      columns: 2;
+    }
+    section {
+      flex: 2;
+    }
+    h4 {
+      width: 100%;
+      font-size: 14px;
+
+      text-align: center;
     }
     [type="submit"] {
       text-transform: capitalize;
