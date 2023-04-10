@@ -29,4 +29,4 @@ describe("QuickAdd", () => {
     const wrapper = mount(QuickAdd, { store, localVue });
     expect(wrapper.find(".resource-type option:checked").element.textContent).toContain("Section")
   })
-}); 
+});  

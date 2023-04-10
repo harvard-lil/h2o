@@ -1,14 +1,11 @@
 <template>
   <div>
     <h3>
-      {{ resource_info.description }}, or select a different option from the
+      {{ resourceInfo.description }}, or select a different option from the
       dropdown for other types of content to add.
     </h3>
 
-    <form
-      @submit.stop.prevent="handleSubmit"
-      class="form-control-group"
-    >
+    <form @submit.stop.prevent="handleSubmit" class="form-control-group">
       <input
         @paste.prevent.stop="handlePaste"
         v-model="title"
@@ -16,10 +13,10 @@
         class="form-control"
         placeholder="Enter case, heading, link, or outline here"
       />
-      <select v-model="resource_info" class="resource-type form-control">
+      <select v-model="resourceInfo" class="resource-type form-control">
         <option
-          v-for="option in resource_info_options"
-          :key="option.k"
+          v-for="option in resourceInfoOptions"
+          :key="option.name"
           :value="option.value"
         >
           {{ option.name }}
@@ -72,12 +69,12 @@
 <script>
 import { createNamespacedHelpers } from "vuex";
 
-import ResultsForm from "./LegalDocumentSearch/ResultsForm";
-
 import { get_csrf_token } from "../legacy/lib/helpers";
 import pp from "libs/text_outline_parser";
 import urls from "libs/urls";
 import { search, add } from "libs/legal_document_search";
+
+import ResultsForm from "./LegalDocumentSearch/ResultsForm";
 import AdvancedSearch from "./LegalDocumentSearch/AdvancedSearch.vue";
 
 const globals = createNamespacedHelpers("globals");
@@ -88,7 +85,7 @@ const optionTypes = {
   SECTION: {
     resource_type: "Section",
     description:
-      "Group your casebook into discrete sections to organize the materal",
+      "Group your casebook into discrete sections to organize the material",
   },
   LEGAL_DOCUMENT: {
     description:
@@ -114,44 +111,38 @@ const optionTypes = {
     resource_type: "Outline",
   },
 };
-const optionsWithoutCloning = [
+const options = [
   {
     name: "Section",
     value: optionTypes.SECTION,
-    k: 0,
   },
   {
     name: "Legal Document",
     value: optionTypes.LEGAL_DOCUMENT,
-    k: 1,
   },
   {
     name: "Custom Content",
     value: optionTypes.CUSTOM_CONTENT,
-    k: 2,
   },
   {
     name: "Link",
     value: optionTypes.LINK,
-    k: 3,
   },
   {
     name: "Clone",
     value: optionTypes.CLONE,
-    k: 4,
   },
   {
     name: "Outline",
     value: optionTypes.OUTLINE,
-    k: 5,
   },
 ];
 
 const initial = function () {
   return {
     title: "",
-    resource_info: optionsWithoutCloning[0].value,
-    resource_info_options: optionsWithoutCloning,
+    resourceInfo: options[0].value,
+    resourceInfoOptions: options,
     waitingFor: undefined,
     results: undefined,
     selectedResult: undefined,
@@ -182,7 +173,7 @@ export default {
       return pp.guessLineType(this.title, this.getSources);
     },
     mode: function () {
-      return this.resource_info.resource_type === "LegalDocument"
+      return this.resourceInfo.resource_type === "LegalDocument"
         ? this.SEARCH
         : this.ADD;
     },
@@ -191,15 +182,15 @@ export default {
     lineInfo: function () {
       switch (this.lineInfo.resource_type) {
         case "Temp": {
-          this.resource_info = optionTypes.LEGAL_DOCUMENT;
+          this.resourceInfo = optionTypes.LEGAL_DOCUMENT;
           break;
         }
         case "Link": {
-          this.resource_info = optionTypes.LINK;
+          this.resourceInfo = optionTypes.LINK;
           break;
         }
         case "Clone": {
-          this.resource_info = optionTypes.CLONE;
+          this.resourceInfo = optionTypes.CLONE;
           break;
         }
       }
@@ -209,8 +200,9 @@ export default {
     ...mapActions(["fetch"]),
 
     bulkAddUrl: urls.url("new_from_outline"),
+
     resetForm: function () {
-      Object.keys(initial()).forEach(k => this[k] = initial()[k])
+      Object.keys(initial()).forEach((k) => (this[k] = initial()[k]));
       this.waitingFor = undefined;
       this.selectedResult = undefined;
       this.results = undefined;
@@ -238,6 +230,7 @@ export default {
       this.fetch({ casebook: this.casebook(), subsection: this.section() });
       this.resetForm();
     },
+    
     handleAdd: function () {
       const data = {
         section: this.section(),
@@ -252,7 +245,6 @@ export default {
       return this.handleAdd();
     },
     postData: async function (data) {
-      console.log(this.bulkAddUrl({ casebookId: this.casebook() }));
       const resp = await fetch(
         this.bulkAddUrl({ casebookId: this.casebook() }),
         {
