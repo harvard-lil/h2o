@@ -7,6 +7,7 @@
       <input
         @paste.prevent.stop="handlePaste"
         v-model="title"
+        required
         :placeholder="resourceInfo.description"
         :type="resourceInfo.resource_type === 'Clone' || resourceInfo.resource_type === 'Link' ? 'url' : 'text'"
         :pattern="resourceInfo.resource_type === 'Clone' ? `${origin}.*`: undefined"
