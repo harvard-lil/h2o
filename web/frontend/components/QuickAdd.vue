@@ -85,7 +85,7 @@ const optionTypes = {
   SECTION: {
     resource_type: "Section",
     description:
-      "Week One: Introduction to Criminal Law",
+      "e.g. 'John v. Smith' or 'Week 1: Introduction'",
   },
   LEGAL_DOCUMENT: {
     description:
@@ -93,7 +93,7 @@ const optionTypes = {
     resource_type: "LegalDocument",
   },
   CUSTOM_CONTENT: {
-    description: "Chapter 1",
+    description: "Questions about John v. Smith",
     resource_type: "TextBlock",
   },
   LINK: {
@@ -322,7 +322,7 @@ div {
     margin: 0.5em 0;
   }
   border: 1px dashed black;
-  padding: 4rem;
+  padding: 3rem 2rem;
 
   p:last-of-type {
     margin-bottom: 0;
@@ -345,19 +345,20 @@ div {
     margin-bottom: 1em;
     justify-content: space-between;
     gap: 1em;
-    
+
+    h3 {
+      flex-basis: 65%;
+    }
     [type="text"] {
       flex: 1;
     }
     select {
-      flex-basis: 30%;
+      flex-basis: 27%;
     }
-    h3 {
-      flex-basis: 65%;
-    }
+
     [type="submit"] {
       text-transform: capitalize;
-      flex-basis: 20%;
+      flex-basis: 13%;
       font-size: 18px;
     }
     button.advanced-search-toggle {
