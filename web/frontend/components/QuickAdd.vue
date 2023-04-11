@@ -110,7 +110,7 @@ const optionTypes = {
   OUTLINE: {
     description:
       "1. Week One: Introduction to Criminal Law",
-    resource_type: "Outline",
+    resource_type: "TextBlock",
   },
 };
 const options = [
