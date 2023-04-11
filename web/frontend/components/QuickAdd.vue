@@ -55,7 +55,7 @@
       :selected-result="selectedResult"
     ></results-form>
 
-    <p>{{ waitingFor }}</p>
+    <p class="message" v-if="message">{{ message }}</p>
 
     <p>
       Use the field above to add section headings, titles for interstitial material, case names, or links to quickly build the outline of your book.
@@ -143,7 +143,7 @@ const initial = function () {
     title: "",
     resourceInfo: options[0].value,
     resourceInfoOptions: options,
-    waitingFor: undefined,
+    message: undefined,
     results: undefined,
     selectedResult: undefined,
     ADD: "add",
@@ -203,12 +203,11 @@ export default {
 
     resetForm: function () {
       Object.keys(initial()).forEach((k) => (this[k] = initial()[k]));
-      this.waitingFor = undefined;
+      this.message = undefined;
       this.selectedResult = undefined;
       this.results = undefined;
     },
     handleSearch: async function () {
-      console.log('hi')
       const searchResults = await search(
         this.title,
         this.getSources,
@@ -228,8 +227,12 @@ export default {
         sourceRef,
         sourceId
       );
+
       this.fetch({ casebook: this.casebook(), subsection: this.section() });
       this.resetForm();
+      if (Object.keys(this.added).includes('error')) {
+        this.message = this.added.error;
+      }
     },
     handleAdd: function () {
       const {
@@ -279,14 +282,19 @@ export default {
           body: JSON.stringify(data),
         }
       );
+      if (resp.ok) {
+        const body = await resp.json();
 
-      const body = await resp.json();
-
-      this.$store.dispatch("table_of_contents/slowMerge", {
-        casebook: this.casebook(),
-        newToc: body,
-      });
-      this.resetForm();
+        this.$store.dispatch("table_of_contents/slowMerge", {
+          casebook: this.casebook(),
+          newToc: body,
+        });
+        this.resetForm();
+      }
+      else {
+        console.error(resp.status);
+        this.message = 'The items could not be added to your casebook because of an error. Our team has been notified. Please retry later.';
+      }
     },
 
     handlePaste: function (event) {
@@ -294,7 +302,7 @@ export default {
         "text"
       );
       if (pasted.indexOf("\n") >= 0) {
-        this.waitingFor = "Parsing pasted text";
+        this.message = "Parsing pasted text";
         const parsed = pp.cleanDocLines(pasted);
         const [parsedJson] = pp.structureOutline(parsed, this.getSources);
 
@@ -324,7 +332,12 @@ div {
       font-size: 130%;
       line-height: 1.6em;
    }
-
+  .message {
+    padding: 1em;
+    margin: 2em 0;
+    background: lightyellow;
+    font-weight: bold;
+  }
   form {
     display: flex;
     flex-wrap: wrap;
