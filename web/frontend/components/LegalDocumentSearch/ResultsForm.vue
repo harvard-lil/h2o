@@ -37,9 +37,12 @@
         <button class="btn btn-default btn-close" @click="$emit('close')">Close</button>
       </span>
     </li>
-  </ol>
+  </ol>  
   <p v-if="Array.isArray(searchResults) && searchResults.length === 0">
     No legal documents were found matching your search.
+  </p>
+  <p v-if="Array.isArray(searchResults) && searchResults.length > 1 && Object.keys(searchResults[0]).includes('error')" class="warning">
+    {{ searchResults[0].error }}
   </p>
   </section>
 </template>

@@ -24,12 +24,16 @@ describe("QuickAdd", () => {
         },
       },
     });
+
     const resp = {
-        json: sinon.fake.resolves({
-          results: [{ id: "fake-id1" }, { id: "fake-id2" }],
-        }),
-      };
-      global.fetch = sinon.fake.resolves(resp);
+      json: sinon.fake.resolves({
+        results: [{ id: "fake-id1" }, { id: "fake-id2" }],
+      }),
+      ok: true,
+      status: 200
+    };
+    
+    global.fetch = sinon.fake.resolves(resp);
 
   });
 
@@ -65,6 +69,24 @@ describe("QuickAdd", () => {
 
     expect(wrapper.vm.mode).toBe("search");
     expect(wrapper.vm.results.length).toBe(2);
-
   });
+
+  it.only("adds an error message if the search fails", async () => {
+    const wrapper = mount(QuickAdd, { store, localVue });
+    wrapper.find('[type="text"]').setValue("https://cite.case.law/example");
+    
+    global.fetch = sinon.fake.resolves({
+      json: sinon.fake.resolves({
+    
+      }),
+      ok: false,
+      status: 500
+    });
+
+    await wrapper.find("form").trigger('submit');
+    await new Promise((resolve) => setTimeout(resolve));
+
+    expect(wrapper.vm.mode).toBe("search");
+    expect(wrapper.vm.results[0].error).toBeTruthy();
+  })
 });  

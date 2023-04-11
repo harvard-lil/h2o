@@ -9,6 +9,7 @@
       :added="added"
       :selected-result="selectedResult"
     />
+    <p class="message" v-if="message">{{ message }}</p>
   </section>
 </template>
 
@@ -33,7 +34,8 @@ export default {
     results: undefined,
     added: undefined,
     selectedResult: undefined,
-    toggleReset: false
+    toggleReset: false,
+    message: undefined,
   }),
   methods: {
     ...mapActions(["fetch"]),
@@ -51,8 +53,19 @@ export default {
       this.added = undefined;
       this.selectedResult = sourceRef.toString();
       this.added = await add(this.casebook, this.section, sourceRef, sourceId)
+      if (Object.keys(this.added).includes('error')) {
+        this.message = this.added.error;
+      }
       this.fetch({ casebook: this.casebook, subsection: this.section });
     },
   },
 };
 </script>
+<style lang="scss" scoped>
+  .message {
+    padding: 1em;
+    margin: 2em 0;
+    background: lightyellow;
+    font-weight: bold;
+  }
+</style>

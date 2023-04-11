@@ -1019,7 +1019,7 @@ class LegalDocumentResourceView(APIView):
         else:
             parent = casebook
         ordinals, display_ordinals = parent.content_tree__get_next_available_child_ordinals()
-
+    
         resource = ContentNode.objects.create(
             title=legal_doc.get_name(),
             casebook=casebook,
@@ -1027,7 +1027,8 @@ class LegalDocumentResourceView(APIView):
             display_ordinals=display_ordinals,
             resource_id=legal_doc.id,
             resource_type="LegalDocument",
-        )
+        )        
+
         return Response(
             data={
                 "resource_id": resource.id,
@@ -3093,8 +3094,9 @@ def search_sources(request):
 def search_using(request, source):
     src = get_object_or_404(LegalDocumentSource.objects.filter(id=source))
     params = LegalDocumentSearchParamsSerializer(data=request.GET)
+
     if not params.is_valid():
-        return JsonResponse(params.errors, status=500)
+        return JsonResponse(params.errors, status=400)
     results = src.api_model().search(params.save())
     return JsonResponse({"results": results}, status=200)
 

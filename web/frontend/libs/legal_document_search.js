@@ -111,10 +111,10 @@ export const search = async (
   return await Promise.all(
     sources.map(async (source) => {
       const { url, id, name, order } = source;
-      return fetch(url)
-        .then((r) => r.json())
-        .then((r) => {
-          const { results } = r;
+      const resp = await fetch(url);
+      if (resp.ok) {
+        const json = await resp.json()
+        const { results } = json;
           return results.map((row) => {
             row.id = row.id.toString(); // normalize IDs from the API to strings
             return {
@@ -123,8 +123,12 @@ export const search = async (
               sourceOrder: order,
               ...row,
             };
-          });
         });
+      }
+      else {
+        console.error(resp.status)
+        return [{error: "The search is not currently working, but our team has been notified. Please retry later."}];
+      }
     })
   );
 };
@@ -155,10 +159,18 @@ export const add = async (casebookId, sectionId, sourceRef, sourceId) => {
       section_id: sectionId,
     }),
   });
-  const body = await resp.json();
-  return {
-    resourceId: body.resource_id,
-    redirectUrl: body.redirect_url,
-    sourceRef,
-  };
+  if (resp.ok) {
+    const body = await resp.json();
+    return {
+      resourceId: body.resource_id,
+      redirectUrl: body.redirect_url,
+      sourceRef,
+    };
+  }
+  else {
+    console.error(resp.status);
+    return {
+      error: "The legal document could not be added because of an error. Our team has been notified. Please retry later."
+    }
+  }
 };
