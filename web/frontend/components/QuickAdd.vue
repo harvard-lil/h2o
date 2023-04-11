@@ -7,11 +7,13 @@
       <input
         @paste.prevent.stop="handlePaste"
         v-model="title"
-        type="text"
-        class="form-control"
+        required
         :placeholder="resourceInfo.description"
+        :type="resourceInfo.resource_type === 'Clone' || resourceInfo.resource_type === 'Link' ? 'url' : 'text'"
+        :pattern="resourceInfo.resource_type === 'Clone' ? `${origin}.*`: undefined"
+        :title="resourceInfo.resource_type === 'Clone' ? origin : undefined"
+        class="form-control"
       />
-
       <select v-model="resourceInfo" class="resource-type form-control">
         <option
           v-for="option in resourceInfoOptions"
@@ -177,6 +179,7 @@ export default {
         ? this.SEARCH
         : this.ADD;
     },
+    origin: () => window.location.origin,
   },
   watch: {
     lineInfo: function () {
@@ -186,7 +189,9 @@ export default {
           break;
         }
         case "Link": {
-          this.resourceInfo = optionTypes.LINK;
+          if (this.resourceInfo != optionTypes.CLONE) {
+            this.resourceInfo = optionTypes.LINK;
+          }
           break;
         }
         case "Clone": {
@@ -349,7 +354,7 @@ div {
     h3 {
       flex-basis: 65%;
     }
-    [type="text"] {
+    [type="text"], [type="url"] {
       flex: 1;
     }
     select {

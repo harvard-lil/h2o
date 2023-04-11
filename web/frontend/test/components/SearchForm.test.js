@@ -14,6 +14,7 @@ describe("SearchForm", () => {
       json: sinon.fake.resolves({
         results: [{ id: "fake-id1" }, { id: "fake-id2" }],
       }),
+      ok: true,
     };
     global.fetch = sinon.fake.resolves(resp);
 
