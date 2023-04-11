@@ -44,14 +44,14 @@ describe("QuickAdd", () => {
   it("loads the quick add form with expected defaults", () => {
     const wrapper = mount(QuickAdd, { store, localVue });
     expect(wrapper.find(".resource-type option:checked").element.textContent).toContain("Section")
-    expect(wrapper.find("[type='text']").element.placeholder).toContain("Week One")
+    expect(wrapper.find("[type='text']").element.placeholder).toContain("e.g. 'John v. Smith' or 'Week 1: Introduction'")
   });
 
   it("updates the resource type dropdown if the user inputs an external link", () => {
     const wrapper = mount(QuickAdd, { store, localVue });
     wrapper.find('[type="text"]').setValue("http://example.com")
     expect(wrapper.find(".resource-type option:checked").element.textContent).toContain("Link")
-    expect(wrapper.find("[type='text']").element.placeholder).toContain("example.com")
+    expect(wrapper.find("[type='url']").element.placeholder).toContain("example.com")
   });
 
   it("updates the resource type dropdown if the user inputs text that seems case-like", () => {
@@ -71,7 +71,7 @@ describe("QuickAdd", () => {
     expect(wrapper.vm.results.length).toBe(2);
   });
 
-  it.only("adds an error message if the search fails", async () => {
+  it("adds an error message if the search fails", async () => {
     const wrapper = mount(QuickAdd, { store, localVue });
     wrapper.find('[type="text"]').setValue("https://cite.case.law/example");
     
