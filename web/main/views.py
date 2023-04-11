@@ -1019,7 +1019,7 @@ class LegalDocumentResourceView(APIView):
         else:
             parent = casebook
         ordinals, display_ordinals = parent.content_tree__get_next_available_child_ordinals()
-    
+
         resource = ContentNode.objects.create(
             title=legal_doc.get_name(),
             casebook=casebook,
@@ -1027,7 +1027,7 @@ class LegalDocumentResourceView(APIView):
             display_ordinals=display_ordinals,
             resource_id=legal_doc.id,
             resource_type="LegalDocument",
-        )        
+        )
 
         return Response(
             data={
