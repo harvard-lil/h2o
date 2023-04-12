@@ -12,6 +12,7 @@ SECRET_KEY = "k2#@_q=1$(__n7#(zax6#46fu)x=3&^lz&bwb8ol-_097k_rj5"
 # Set these values in your local shell environment to make them available in the container
 CAPAPI_API_KEY = os.environ.get("CAPAPI_API_KEY", "")
 GPO_API_KEY = os.environ.get("GPO_API_KEY", "")
+COURTLISTENER_API_KEY = os.environ.get("COURTLISTENER_API_KEY", "")
 MATOMO_API_KEY = os.environ.get("MATOMO_API_KEY", "")
 MATOMO_SITE_URL = os.environ.get("MATOMO_SITE_URL", "")
 
