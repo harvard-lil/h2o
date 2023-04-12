@@ -77,7 +77,7 @@ export default {
 };
 </script>
 
-<style lang="scss" scope>
+<style lang="scss" scoped>
 .advanced-search {
   display: flex;
   gap: 1em;
