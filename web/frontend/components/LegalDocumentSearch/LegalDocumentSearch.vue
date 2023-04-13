@@ -47,6 +47,8 @@ export default {
       this.toggleReset = !this.toggleReset;
     },
     onSearchResults: function (res) {
+      this.selectedResult = undefined;
+      this.added = undefined;
       this.results = res;
     },
     onAddDoc: async function (sourceRef, sourceId) {
@@ -57,6 +59,7 @@ export default {
         this.message = this.added.error;
       }
       this.fetch({ casebook: this.casebook, subsection: this.section });
+      this.toggleReset = !this.toggleReset;
     },
   },
 };
