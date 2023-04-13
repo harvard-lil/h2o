@@ -14,6 +14,7 @@ from test.test_helpers import (
 from typing import (  # noqa: F401 workaround for django-stubs#1022 until the fix in django-stubs#1028 is released
     Optional,
     Type,
+    Sequence,
     Union,
 )
 from urllib.parse import urlparse
