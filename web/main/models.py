@@ -615,6 +615,7 @@ LegalDocumentSource.register_api(CAP)
 LegalDocumentSource.register_api(LegacyNoSearch)
 LegalDocumentSource.register_api(CourtListener)
 
+
 class LegalDocument(NullableTimestampedModel, AnnotatedModel):
     source = models.ForeignKey(
         "LegalDocumentSource", on_delete=models.DO_NOTHING, related_name="documents"
