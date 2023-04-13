@@ -8,6 +8,7 @@ from main.test.test_permissions_helpers import no_perms_test
 
 from .admin.usage_dashboard import DateForm
 
+
 @no_perms_test
 @staff_member_required
 def matomo_stats(request: HttpRequest):
