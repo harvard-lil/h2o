@@ -21,7 +21,18 @@ logger = logging.getLogger(__name__)
 class CasebookResult:
     slug: str
     visits: int
-    instance: Optional[Casebook] = None
+    title: Optional[str] = None
+    url: Optional[str] = None
+    is_public: Optional[bool] = None
+    authors: Optional[list] = None
+
+
+@dataclass
+class Author:
+    name: str
+    url: str
+    affiliation: str
+    verified_professor: bool
 
 
 @dataclass
@@ -106,8 +117,8 @@ def api(
 
     if len(data) == 0:
         web_usage.status = "The Matomo API did not report any data for this period"
-        logger.error(web_usage.status)
-        logger.error(params)
+        logger.warn(web_usage.status)
+        logger.warn(params)
         return web_usage
 
     if "message" in data:
@@ -133,7 +144,21 @@ def api(
                 id=casebook_id,
                 state__in=PUBLISHED_CASEBOOKS if published_casebooks_only else ALL_STATES,
             )
-            cr.instance = instance
+            cr.title = instance.title
+            cr.url = instance.get_absolute_url()
+            cr.is_public = instance.is_public
+            cr.authors = []
+            for author in instance.primary_authors:
+                institution = author.institution.name if author.institution else ""
+                cr.authors.append(
+                    Author(
+                        name=author.attribution,
+                        affiliation=institution,
+                        verified_professor=author.verified_professor,
+                        url=f"/django-admin/main/user/{author.id}/change/",
+                    )
+                )
+
         except Casebook.DoesNotExist:
             logger.warning(f"Could not find casebook instance matching slug {cr.slug}")
             continue

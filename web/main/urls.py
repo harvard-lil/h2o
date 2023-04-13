@@ -285,6 +285,7 @@ urlpatterns = format_suffix_patterns(drf_urlpatterns) + [
         no_perms_test(lambda request: redirect(settings.FAQ_URL, permanent=True)),
         name="faq",
     ),
+    path("reporting/", include("reporting.urls")),
 ]
 fix_after_rails("some routes don't have end slashes for rails compatibility")
 
