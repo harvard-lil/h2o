@@ -15,8 +15,8 @@ def test_matomo_api(casebook_factory, mock_successful_matomo_response):
     c1 = casebook_factory()
     c2 = casebook_factory()
     res = api("http://example.com", "", "", date.today(), date.today())
-    assert res.items[0].instance.id == c1.id
-    assert res.items[1].instance.id == c2.id
+    assert res.items[0].title == c1.title
+    assert res.items[1].title == c2.title
 
 
 @pytest.mark.django_db(transaction=True, reset_sequences=True)
@@ -29,8 +29,8 @@ def test_matomo_api_filter(casebook_factory, mock_successful_matomo_response):
     res = api(
         "http://example.com", "", "", date.today(), date.today(), published_casebooks_only=True
     )
-    assert res.items[0].instance.id == c1.id
-    assert res.items[1].instance is None
+    assert res.items[0].title == c1.title
+    assert res.items[1].title is None
 
 
 @pytest.mark.django_db(transaction=True, reset_sequences=True)
@@ -39,7 +39,7 @@ def test_matomo_api_no_match(mock_successful_matomo_response):
 
     res = api("http://example.com", "", "", date.today(), date.today())
     assert res.items[0].slug == "1-some-title"
-    assert res.items[0].instance is None
+    assert res.items[0].title is None
 
 
 def test_matomo_api_error(requests_mock):
