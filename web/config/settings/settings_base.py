@@ -277,7 +277,7 @@ CAPAPI_API_KEY = ""
 GPO_BASE_URL = "https://api.govinfo.gov/"
 GPO_API_KEY = ""
 
-COURTLISTENER_BASE_URL = "https://www.courtlistener.com/api/rest/v3/search/"
+COURTLISTENER_BASE_URL = "https://www.courtlistener.com"
 COURTLISTENER_API_KEY = ""
 
 CRISPY_TEMPLATE_PACK = "bootstrap3"

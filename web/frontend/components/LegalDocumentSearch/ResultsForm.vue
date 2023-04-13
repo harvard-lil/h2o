@@ -127,7 +127,7 @@ ol {
       background: hsl(43, 94%, 80%);
     }
     .name {
-      flex-basis: 40%;
+      flex-basis: 35%;
     }
 
     .cite {

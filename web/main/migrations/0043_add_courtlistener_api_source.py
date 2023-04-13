@@ -12,7 +12,7 @@ def add_courtlistener(apps, schema_editor):
             name="CourtListener",
             date_added=date.today(),
             last_updated=date.today(),
-            active=True,
+            active=False,
             priority=3,
             search_class="CourtListener",
             short_description="CourtListener searches millions of opinions across hundreds of jurisdictions.",

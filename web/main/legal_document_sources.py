@@ -2,7 +2,8 @@
 # Legal Doc Source Types
 #
 
-import datetime
+from datetime import datetime
+
 import re
 
 import lxml
@@ -194,7 +195,7 @@ class CAP:
 
     @staticmethod
     def pull(legal_doc_source, id):
-        """Get the document frmo the upstream provider"""
+        """Get the document from the upstream provider"""
         from main.models import LegalDocument
 
         if not settings.CAPAPI_API_KEY:
@@ -512,11 +513,12 @@ class USCodeGPO:
     def header_template(legal_document):
         return "gpo_header.html"
 
+
 class CourtListener:
     details = {
         "name": "CourtListener",
         "short_description": "hello",
-        "long_description": "i'm courtlistener",
+        "long_description": "CourtListener searches millions of opinions across hundreds of jurisdictions",
         "link": settings.COURTLISTENER_BASE_URL,
         "search_regexes": [],
         "footnote_regexes": [],
@@ -524,30 +526,87 @@ class CourtListener:
 
     @staticmethod
     def search(search_params):
+
         if not settings.COURTLISTENER_API_KEY:
             raise APICommunicationError("A CourtListener API key is required")
-        resp = requests.get(settings.COURTLISTENER_BASE_URL, {"q": search_params.q})
+        try:
+            params = (
+                {"citation": search_params.q}
+                if looks_like_citation(search_params.q)
+                else {"q": search_params.q}
+            )
+            resp = requests.get(
+                f"{settings.COURTLISTENER_BASE_URL}/api/rest/v3/search",
+                params,
+                headers={"Authorization": f"Token {settings.COURTLISTENER_API_KEY}"},
+            )
+            resp.raise_for_status()
+        except (requests.exceptions.HTTPError) as e:
+            msg = f"Communication with CourtListener failed: {str(e), resp.status_code, resp.request.url}"
+            raise APICommunicationError(msg)
         results = []
+
         for r in resp.json()["results"]:
-            results.append({
-            "fullName": r["caseName"],
-            "shortName": r["caseName"],
-            "fullCitations": ", ".join(r["citation"]),
-            "shortCitations":", ".join(r["citation"]),
-            "effectiveDate": parser.isoparse(r["dateFiled"]).strftime("%Y-%m-%d"),
-            "url": f"https://courtlistener.com/{r['absolute_url']}",
-            "id": r["id"],
-        })
+            results.append(
+                {
+                    "fullName": r["caseName"],
+                    "shortName": r["caseName"],
+                    "fullCitations": ", ".join(r["citation"]),
+                    "shortCitations": ", ".join(r["citation"][:3])
+                    + ("..." if len(r["citation"]) > 3 else ""),
+                    "effectiveDate": parser.isoparse(r["dateFiled"]).strftime("%Y-%m-%d"),
+                    "url": f"{settings.COURTLISTENER_BASE_URL}{r['absolute_url']}",
+                    "id": r["id"],
+                }
+            )
         return results
-    
+
     @staticmethod
     def pull(legal_doc_source, id):
-        return None
+        from main.models import LegalDocument
+
+        if not settings.COURTLISTENER_API_KEY:
+            raise APICommunicationError("A CourtListener API key is required")
+        try:
+            resp = requests.get(
+                f"{settings.COURTLISTENER_BASE_URL}/api/rest/v3/clusters/{id}/",
+                headers={"Authorization": f"Token {settings.COURTLISTENER_API_KEY}"},
+            )
+            resp.raise_for_status()
+            cluster = resp.json()
+            resp = requests.get(
+                f"{settings.COURTLISTENER_BASE_URL}/api/rest/v3/opinions/{id}/",
+                headers={"Authorization": f"Token {settings.COURTLISTENER_API_KEY}"},
+            )
+            resp.raise_for_status()
+
+            opinion = resp.json()
+
+        except (requests.exceptions.HTTPError) as e:
+            msg = f"Failed call to {resp.request.url}: {e}\n{resp.content}"
+            raise APICommunicationError(msg)
+
+        body = opinion["html"]
+        case = LegalDocument(
+            source=legal_doc_source,
+            short_name=cluster["case_name"],
+            name=cluster["case_name"],
+            doc_class="Case",
+            citations=cluster["citations"],
+            jurisdiction="",
+            effective_date=cluster["date_filed"],
+            publication_date=cluster["date_filed"],
+            updated_date=datetime.now(),
+            source_ref=str(id),
+            content=body,
+            metadata=None,
+        )
+        return case
 
     @staticmethod
     def header_template(legal_document):
         return "empty_header.html"
-    
+
 
 class LegacyNoSearch:
     details = {

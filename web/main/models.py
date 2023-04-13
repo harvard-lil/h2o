@@ -6,7 +6,6 @@ from datetime import datetime
 from enum import Enum
 from os.path import commonprefix
 from pathlib import Path
-from main.legal_document_sources import CAP, LegacyNoSearch, USCodeGPO
 from test.test_helpers import (
     dump_annotated_text,
     dump_content_tree,
@@ -50,7 +49,7 @@ from simple_history.models import HistoricalRecords
 from simple_history.utils import bulk_create_with_history, bulk_update_with_history
 
 from .differ import AnnotationUpdater
-from .legal_document_sources import CourtListener, USCodeGPO, CAP
+from .legal_document_sources import CourtListener, USCodeGPO, CAP, LegacyNoSearch
 from .sanitize import sanitize
 from .storages import get_s3_storage
 from .utils import (
