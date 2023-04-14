@@ -11,14 +11,64 @@
 
     {{ date_form.media }}
 
-    <link rel="stylesheet" type="text/css" href="{% static 'admin/css/base.css' %}" />
-    <link rel="stylesheet" type="text/css" href="{% static 'admin/css/forms.css' %}" />
-    <link rel="stylesheet" type="text/css" href="{% static 'admin/css/widgets.css' %}" />
+    <link rel="stylesheet" type="text/css" href="{% static 'admin/css/base.css' %}">
+    <link rel="stylesheet" type="text/css" href="{% static 'admin/css/forms.css' %}">
+    <link rel="stylesheet" type="text/css" href="{% static 'admin/css/widgets.css' %}">
 
     <script>
         function updateDate (start_date, end_date) {
-            document.getElementById('id_start_date').value=start_date;
-            document.getElementById('id_end_date').value=end_date;
+            document.querySelector('#id_start_date').value = start_date;
+            document.querySelector('#id_end_date').value = end_date;
+        }
+        addEventListener('load', async () => {
+            const start_date = document.querySelector('input[name="start_date"]').value;
+            const end_date = document.querySelector('input[name="end_date"]').value;
+            const published = document.querySelector('input[name="published"]').checked;
+            const statsEndpoint = '{% url "matomo-stats" %}'; // Django-generated URL to the Matomo API collection endpoint
+            const resp = await fetch(`${statsEndpoint}?` + 
+                new URLSearchParams({
+                start_date, end_date, published
+                }));
+            if (resp.ok) {
+                const stats = await resp.json();
+                renderStats(stats)
+            }
+        })
+        function renderStats(stats) {
+            const div = document.querySelector("#casebooks-by-usage");
+            div.innerHTML = `
+            <h2>Top casebooks by usage</h2>
+            <p>Results between ${stats.start_date} and ${stats.end_date}</p>
+            <ol></ol>
+            `;
+            const ol = div.querySelector('ol');
+            for (const cb of stats.items) {
+                const li = document.createElement('li');
+                if (cb.title) {
+                    const authors = document.createElement('p');
+                    for (const [i, author] of cb.authors.entries()) {
+                        authors.innerHTML = authors.innerHTML + `
+                            <a href="${author.url}">${author.name}</a> ${author.verified_professor ? '(prof)' : ''}
+                            ${author.affiliation ? 'at' : ''} ${author.affiliation}${i < cb.authors.length - 1? ',': ''}
+                        `;
+                    }
+                    li.innerHTML = `
+                    <h3><a href="${cb.url}">${cb.title}</a></h3>
+                    <span class="is-public">
+                        ${cb.is_public ? '✅ published' : '❌ not published'}
+                    </span>
+                    ` + authors.outerHTML + `
+                    <p>
+                        ${cb.visits.toLocaleString()} visit${cb.visits !== 1 ? 's': ''}
+                    </p>
+                    `    
+                }
+                else {
+                    li.innerHTML = cb.slug;
+                }
+                ol.append(li);
+            }
+
         }
     </script>
 {% endblock extrahead %}
@@ -268,45 +318,12 @@
         </aside>
     </div>
 
+
     <div id="casebooks-by-usage">
-        <h2>Top casebooks by usage</h2
-        <p>Results between {{ web_usage.start_date }} and {{ web_usage.end_date }}</p>
+        <h2>Loading stats...</h2>
 
-        {% if web_usage.status %}
-           <p><strong>{{ web_usage.status }}</strong></p>
-        {% endif %}
-
-        <ol>
-        {% for result in web_usage.items %}
-            {% with result.instance as casebook %}
-           <li>{% if casebook %}
-                <h3><a href="{{ casebook.get_absolute_url }}">{{ casebook.title }}</a></h3>
-                <span class="is-public">{% if casebook.is_public %}
-                    ✅ published
-                {% else %}
-                    ❌ not published
-                {% endif %}
-                </span>
-                <p>
-                    {% for author in casebook.primary_authors %}
-                        <a href="{% url "admin:main_user_change" author.id %}">{{ author }}</a> {% if author.verified_professor %}(prof){% endif %}
-                        {% if author.affiliation %} at {{ author.affiliation }} {% endif %}
-                        {% if not forloop.last%}, {% endif %}
-                    {% endfor %}
-
-                </p>
-                <p>
-                    {{ result.visits | intcomma }} visit{{ result.visits| pluralize }}
-                </p>
-            {% else %}
-                {{ result.slug }}
-            {% endif %}
-            {% endwith %}
-        </li>
-        {% endfor %}
-        </ol>
     </div>
-    </div>
+
 </div>
 
 {% endblock %}

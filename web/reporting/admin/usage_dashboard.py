@@ -16,7 +16,6 @@ from reporting.create_reporting_views import (
     PUBLISHED_CASEBOOKS,
 )
 from main.models import Casebook
-from reporting.matomo import usage
 
 
 class DateForm(forms.Form):
@@ -56,9 +55,6 @@ def view(request: HttpRequest):
         )
 
     state = PUBLISHED_CASEBOOKS if published_casebooks_only else ALL_STATES
-
-    # Get the usage data from Matomo:
-    web_usage = usage(start_date, end_date, published_casebooks_only)
 
     with connection.cursor() as cursor:
 
@@ -263,7 +259,6 @@ def view(request: HttpRequest):
         "admin/reporting/index.html",
         {
             "stats": stats,
-            "web_usage": web_usage,
             "date_form": form,
             "query": urlencode(
                 {

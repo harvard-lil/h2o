@@ -35,6 +35,10 @@ def get_permissions_tests():
 
         view_func = path.callback
 
+        # don't run tests on anything that's not a pattern (like an include)
+        if not hasattr(view_func, "__name__"):
+            continue
+
         # don't run tests on built-in views:
         if view_func.__name__ in ["RedirectView", "TemplateView"]:
             continue
