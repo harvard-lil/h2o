@@ -27,6 +27,7 @@ where is_active is true
 create materialized view if not exists reporting_professors as
 select
     user_id,
+    attribution,
     created_at,
     last_login_at
 from reporting_users
@@ -81,8 +82,8 @@ select
     c.created_at,
     c.updated_at
 from main_contentcollaborator
-inner join reporting_professors
-    on main_contentcollaborator.user_id = reporting_professors.user_id
+inner join reporting_professors p
+    on main_contentcollaborator.user_id = p.user_id
 inner join
     reporting_casebooks c on main_contentcollaborator.casebook_id = c.casebook_id
 group by main_contentcollaborator.casebook_id, c.state, c.created_at, c.updated_at;
@@ -161,4 +162,21 @@ select
     c.updated_at
 from main_commontitle
     inner join reporting_casebooks_from_professors c on c.casebook_id = main_commontitle.current_id;
+
+-- Casebooks by verified professors over time
+
+create materialized view if not exists reporting_professors_with_casebooks_over_time as
+select 
+    p.user_id, 
+    p.attribution,
+    p.created_at,
+    p.last_login_at,
+    extract(year from c.created_at) as created_year,
+    count(*) as num_casebooks
+from reporting_casebooks c 
+    inner join main_contentcollaborator cc on cc.casebook_id = c.casebook_id 
+    inner join reporting_professors p on p.user_id = cc.user_id
+where c.state in ('Public', 'Revising')
+group by p.user_id, p.attribution, p.created_at, p.last_login_at, extract(year from c.created_at);
+
 

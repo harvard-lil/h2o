@@ -1,5 +1,8 @@
-from . import views
-
 from django.urls import path
 
-urlpatterns = [path("stats/", views.matomo_stats, name="matomo-stats")]
+from . import views
+
+urlpatterns = [
+    path("stats/", views.matomo_stats, name="matomo-stats"),
+    path("time-series/casebooks", views.casebook_timeseries, name="reporting-casebook-timeseries"),
+]
