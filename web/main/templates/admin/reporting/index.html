@@ -24,7 +24,8 @@
             const start_date = document.querySelector('input[name="start_date"]').value;
             const end_date = document.querySelector('input[name="end_date"]').value;
             const published = document.querySelector('input[name="published"]').checked;
-            const resp = await fetch('{% url "matomo-stats" %}?' + 
+            const statsEndpoint = '{% url "matomo-stats" %}'; // Django-generated URL to the Matomo API collection endpoint
+            const resp = await fetch(`${statsEndpoint}?` + 
                 new URLSearchParams({
                 start_date, end_date, published
                 }));
