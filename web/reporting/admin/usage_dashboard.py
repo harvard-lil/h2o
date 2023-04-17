@@ -250,7 +250,6 @@ def view(request: HttpRequest):
         )
         stats["series_by_prof"] = cursor.fetchone()[0]
 
-        # Time series queries
 
     return render(
         request,
