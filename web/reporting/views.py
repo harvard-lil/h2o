@@ -7,12 +7,9 @@ from dateutil.relativedelta import relativedelta
 from dateutil.rrule import *
 from django.contrib.admin.views.decorators import staff_member_required
 from django.db import connection
-from django.db.models import Count
-from django.db.models.functions import ExtractYear
 from django.http import HttpRequest, HttpResponse, JsonResponse
 
 from main.test.test_permissions_helpers import no_perms_test
-from reporting.create_reporting_views import PUBLISHED_CASEBOOKS
 from reporting.matomo import usage
 
 from .admin.usage_dashboard import DateForm
@@ -40,7 +37,7 @@ def sql_to_csv_response(sql: str, filename: str) -> HttpResponse:
 
 @no_perms_test
 @staff_member_required
-def matomo_stats(request: HttpRequest):
+def matomo_stats(request: HttpRequest) -> JsonResponse:
     """When requested as on page load, retrieve Matomo analytics for the given time period"""
     form = DateForm(request.GET)
     if form.is_valid():
@@ -55,8 +52,23 @@ def matomo_stats(request: HttpRequest):
 
 @no_perms_test
 @staff_member_required
+def professor_cumulative_publication_timeseries(request: HttpRequest) -> HttpResponse:
+    """Cumulative casebooks published by verified professors"""
+
+    sql = """--sql
+        select 
+            published_year::text as "Year", 
+            sum(count(user_id)) over (order by published_year) as "Casebooks by professors"
+        from reporting_professors_with_casebooks_over_time 
+        group by published_year
+        """
+    return sql_to_csv_response(sql, "professor-casebooks-published-over-time")
+
+
+@no_perms_test
+@staff_member_required
 def professor_casebook_timeseries(request: HttpRequest) -> HttpResponse:
-    """Return the output of the casebook timeseries query, as a csv"""
+    """Cumulative casebooks published by verified professors"""
 
     # These do not respect date filters because they're cumulative over all time
     year_qs = []
@@ -75,7 +87,7 @@ def professor_casebook_timeseries(request: HttpRequest) -> HttpResponse:
 @no_perms_test
 @staff_member_required
 def casebook_timeseries(request: HttpRequest) -> HttpResponse:
-    """Return the number of casebooks created in a given year and currently in the published state or have ever been published"""
+    """Casebooks by verified professors that were published in the given year"""
     sql = """--sql
 
     with ever_published as (
@@ -84,13 +96,13 @@ def casebook_timeseries(request: HttpRequest) -> HttpResponse:
     ) -- edit log was backfilled 
 
     select 
-        count(c.casebook_id) as "Casebook count", 
-        extract(year from log.entry_date)::text as Year 
+        extract(year from log.entry_date)::text as Year, 
+        count(c.casebook_id) as "Casebook count"
     from reporting_casebooks_from_professors c
-    join ever_published log 
+    inner join ever_published log 
         on log.casebook_id = c.casebook_id
-    group by 
-        extract(year from log.entry_date)
+    group by extract(year from log.entry_date)
     order by year
     """
+
     return sql_to_csv_response(sql, "casebooks-published-over-time")

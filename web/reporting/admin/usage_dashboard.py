@@ -11,8 +11,7 @@ from django.http import HttpRequest
 from django.shortcuts import render
 
 from main.models import Casebook
-from reporting.create_reporting_views import (ALL_STATES, OLDEST_YEAR,
-                                              PUBLISHED_CASEBOOKS)
+from reporting.create_reporting_views import ALL_STATES, OLDEST_YEAR, PUBLISHED_CASEBOOKS
 
 
 class DateForm(forms.Form):
@@ -21,6 +20,7 @@ class DateForm(forms.Form):
     published = forms.BooleanField(
         required=False, initial=True, help_text="Published casebooks only"
     )
+
 
 @staff_member_required
 def view(request: HttpRequest):
@@ -251,9 +251,6 @@ def view(request: HttpRequest):
         stats["series_by_prof"] = cursor.fetchone()[0]
 
         # Time series queries
-
-        
-
 
     return render(
         request,

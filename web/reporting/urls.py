@@ -14,4 +14,9 @@ urlpatterns = [
         views.casebook_timeseries,
         name="reporting-casebook-timeseries",
     ),
+    path(
+        "time-series/professors-published",
+        views.professor_cumulative_publication_timeseries,
+        name="reporting-professors-published-timeseries",
+    ),
 ]

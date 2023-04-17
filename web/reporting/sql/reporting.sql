@@ -9,7 +9,7 @@ drop materialized view if exists reporting_casebooks_including_source_cap;
 drop materialized view if exists reporting_casebooks_including_source_gpo;
 drop materialized view if exists reporting_casebooks_series;
 drop materialized view if exists reporting_casebooks_series_from_professors;
-
+drop materialized view if exists reporting_professors_with_casebooks_over_time;
 
 -- Active users who aren't superusers (admins)
 create materialized view if not exists reporting_users as
@@ -163,8 +163,7 @@ select
 from main_commontitle
     inner join reporting_casebooks_from_professors c on c.casebook_id = main_commontitle.current_id;
 
--- Casebooks by verified professors over time
-
+-- Professors who have published casebooks over time
 create materialized view if not exists reporting_professors_with_casebooks_over_time as
 select 
     p.user_id, 
@@ -172,11 +171,18 @@ select
     p.created_at,
     p.last_login_at,
     extract(year from c.created_at) as created_year,
+    extract(year from log.entry_date) as published_year,
     count(*) as num_casebooks
 from reporting_casebooks c 
     inner join main_contentcollaborator cc on cc.casebook_id = c.casebook_id 
     inner join reporting_professors p on p.user_id = cc.user_id
-where c.state in ('Public', 'Revising')
-group by p.user_id, p.attribution, p.created_at, p.last_login_at, extract(year from c.created_at);
-
+    inner join main_casebookeditlog log on c.casebook_id = log.casebook_id
+        where log.change = 'First'
+group by 
+    p.user_id, 
+    p.attribution, 
+    p.created_at, 
+    p.last_login_at, 
+    extract(year from c.created_at), 
+    extract(year from log.entry_date);
 

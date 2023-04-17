@@ -173,8 +173,10 @@
             <small>
                 <a href='{% url "admin:reporting_professorwithcasebooks_changelist" %}?{{ query }}''>View as list »</a>
                 <a href='{% url "admin:reporting_professorwithcasebooks_changelist" %}?{{ query }}&_csv=True'>Export as csv »</a>
-                <a href='{% url "reporting-professor-casebook-timeseries" %}'>Casebooks by professor and year csv »</a>
-
+                <br>
+                <a href='{% url "reporting-professor-casebook-timeseries" %}'>Casebooks by professor and year as csv »</a>
+                <br>
+                <a href='{% url "reporting-professors-published-timeseries" %}'>Cumulative count of published professors as csv »</a>                
             </small>
 
 
@@ -199,7 +201,8 @@
             <small>
                 <a href='{% url "admin:reporting_casebookprofessors_changelist" %}?{{ query }}'>View as list »</a>
                 <a href='{% url "admin:reporting_casebookprofessors_changelist" %}?{{ query }}&_csv=True'>Export as csv »</a>
-                <a href='{% url "reporting-professor-casebook-timeseries" %}'>Published casebooks by year csv »</a>                
+                <br>
+                <a href='{% url "reporting-casebook-timeseries" %}'>Published casebooks by year as csv »</a>                
             </small>
         </th>
         <td>{{ stats.casebooks_prof | intcomma }}</td>
