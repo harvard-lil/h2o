@@ -2,6 +2,10 @@ from datetime import date, datetime
 from typing import Optional
 from main.models import Casebook, User
 
+# Proxy models for generating changelist pages in the reporting admin. While these superficially match
+# the reporting views, they are Django mdoels based on the real models in main and so 
+# have all the same fields as their `main` equivalents, rather than the columns synthesized
+# in the reporting views.
 
 class Professor(User):
     @property
