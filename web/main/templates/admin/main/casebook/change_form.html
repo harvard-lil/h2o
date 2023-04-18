@@ -1,14 +1,1 @@
 {% extends "admin/change_form_with_richeditor.html" %}
-
-{% block after_related_objects %}
-  {{ block.super }}
-  <div class="module aligned">
-    <h2>Sections</h2>
-    <div class="form-row">
-      <a href="{% url 'admin:main_section_changelist' %}?casebook={{ original.id }}&o=5">
-        View Casebook's Sections
-      </a>
-    </div>
-    
-  </div>
-{% endblock %}
