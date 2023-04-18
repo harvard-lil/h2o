@@ -48,6 +48,7 @@ UNION ALL
     WHERE
         state IN ('Public','Revising') AND
         u.verified_professor = true AND
+        c.listed_publicly = true AND 
         c.id NOT IN (
             -- Exclude older editions of casebooks in series
             SELECT

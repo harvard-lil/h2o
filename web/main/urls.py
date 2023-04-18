@@ -267,7 +267,13 @@ urlpatterns = format_suffix_patterns(drf_urlpatterns) + [
     ),
     path(
         "robots.txt",
-        TemplateView.as_view(template_name="robots.txt", content_type="text/plain"),
+        TemplateView.as_view(
+            template_name="robots.txt",
+            content_type="text/plain",
+            extra_context={
+                "excluded_casebooks": lambda: Casebook.objects.filter(listed_publicly=False),
+            },
+        ),
         name="robots_txt",
     ),
     # redirects

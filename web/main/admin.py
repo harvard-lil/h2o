@@ -390,6 +390,7 @@ class CasebookAdmin(BaseAdmin, SimpleHistoryAdmin):
         "draft",
         "state",
         "export_fails",
+        "listed_publicly",
     ]
     readonly_fields = [
         "created_at",
