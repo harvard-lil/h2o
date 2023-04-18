@@ -312,6 +312,7 @@ def truncate_name(case_name):
 
 
 class CAP:
+
     details = {
         "name": "CAP",
         "short_description": "CAP provides US Case law up to 2018",
@@ -1330,6 +1331,7 @@ class ContentAnnotation(TimestampedModel, BigPkModel):
         # process all annotations after first edited text
         annotation_query = queryset.filter(global_end_offset__gte=updater.get_first_delta_offset())
         for annotation in annotation_query:
+
             # get new annotation location
             new_start = updater.adjust_offset(annotation.global_start_offset)
             new_end = updater.adjust_offset(annotation.global_end_offset)
@@ -2032,6 +2034,7 @@ class ContentNode(
         queryset: Optional[ContentNodeQuerySet] = None,
         **kwargs,
     ) -> ContentNodeQuerySet:
+
         queryset = queryset or ContentNode.objects.all()
         if User.user_can_view_instructional_material(user):
             return queryset.filter(casebook=casebook, **kwargs)
@@ -2707,7 +2710,7 @@ class ContentNode(
         # get rendered html, without annotations in content
         try:
             html_out = annotated_content_for_export(self)
-        except Exception as e:
+        except (Exception) as e:
             logger.warning(
                 f"Got error when serializing content for reading length calculation: {e}"
             )
@@ -2819,6 +2822,7 @@ class ContentNode(
 
     @property
     def is_private(self):
+
         return not self.is_public
 
     @property
@@ -3147,11 +3151,7 @@ class Casebook(EditTrackedModel, TimestampedModel, BigPkModel, TrackedCloneable)
         "CommonTitle", on_delete=models.SET_NULL, blank=True, null=True, related_name="casebooks"
     )
     export_fails = models.IntegerField(default=0)
-    listed_publicly = models.BooleanField(
-        default=True,
-        db_index=True,
-        help_text="Whether the casebook, when published, is available in public listings such as H2O search or search engine indexes.",
-    )
+
     tracked_fields = ["headnote"]
 
     class Meta:
@@ -4324,7 +4324,6 @@ def validate_unused_prefix(value):
 
 
 class User(NullableTimestampedModel, PermissionsMixin, AbstractBaseUser):
-
     email_address = models.CharField(max_length=255, unique=True)
     attribution = models.CharField(max_length=255, default="Anonymous", verbose_name="Display name")
     affiliation = models.CharField(max_length=255, blank=True, null=True)
@@ -4454,16 +4453,6 @@ def update_user_login_fields(sender, request, user, **kwargs):
 
 
 user_logged_in.connect(update_user_login_fields)
-
-
-class UserType(TimestampedModel):
-    class UserTypes(models.TextChoices):
-        PROFESSOR = "Professor"
-        STUDENT = "Student"
-        LIBRARIAN = "Librarian"
-        OTHER = "Other"
-
-    type = models.CharField(max_length=100, choices=UserTypes.choices, default=UserTypes.PROFESSOR)
 
 
 class Institution(TimestampedModel):
