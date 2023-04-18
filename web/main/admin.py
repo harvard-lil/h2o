@@ -2,7 +2,7 @@
 from django import forms
 from django.conf import settings
 from django.contrib import admin, messages
-from django.contrib.auth.admin import UserAdmin as DjangoUserAdmin
+from django.contrib.auth.admin import UserAdmin as DjangoUserAdmin, GroupAdmin
 from django.core.mail import send_mail
 from django.core.paginator import Paginator
 from django.db.models import Count, JSONField
@@ -17,6 +17,7 @@ from django_json_widget.widgets import JSONEditorWidget
 from simple_history.admin import SimpleHistoryAdmin
 from django.utils.functional import cached_property
 from django.db import connection
+from django.contrib.auth.models import Group
 
 from .models import (
     Casebook,
@@ -635,27 +636,26 @@ class UserAdmin(BaseAdmin, DjangoUserAdmin):
     ]
     list_display = [
         "id",
-        "casebook_count",
-        "display_name",
         "email_address",
-        "is_active",
+        "display_name",
+        "casebook_count",
         "institution",
         "professor_verification_requested",
         "verified_professor",
-        "is_staff",
-        "is_superuser",
-        "last_request_at",
+        "user_groups",
+        "is_active",
         "last_login_at",
         "login_count",
         "created_at",
         "updated_at",
     ]
     list_filter = [
-        "is_active",
+        "groups",
         "verified_professor",
         "professor_verification_requested",
-        "is_staff",
+        "is_active",
         "is_superuser",
+        "is_staff",
     ]
     search_fields = ["attribution", "email_address"]
     fieldsets = (
@@ -670,6 +670,7 @@ class UserAdmin(BaseAdmin, DjangoUserAdmin):
                     "verified_professor",
                     "is_staff",
                     "is_superuser",
+                    "groups",
                 ),
             },
         ),
@@ -702,6 +703,9 @@ class UserAdmin(BaseAdmin, DjangoUserAdmin):
 
     def casebook_count(self, obj):
         return obj.casebook_count
+
+    def user_groups(self, obj):
+        return ", ".join([g.name for g in obj.groups.all()])
 
     casebook_count.admin_order_field = "casebook_count"
 
@@ -931,3 +935,4 @@ admin_site.register(LiveSettings, LiveSettingsAdmin)
 admin_site.register(Tag, TagAdmin)
 admin_site.register(CasebookTag, CasebookTagAdmin)
 admin_site.register(TaskResult, TaskResultAdmin)
+admin_site.register(Group, GroupAdmin)

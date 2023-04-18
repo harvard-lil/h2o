@@ -1,36 +1,35 @@
 from typing import Optional
-from crispy_forms.helper import FormHelper
-from crispy_forms.layout import Layout, Field, Div, HTML, Submit
 
 import django.contrib.auth.forms as auth_forms
-from django.conf import settings
-
-from django.core.exceptions import ValidationError
-from django.core.validators import URLValidator
-from django.core.mail import send_mail
-from django.forms import ModelForm, Textarea
+from crispy_forms.helper import FormHelper
+from crispy_forms.layout import HTML, Div, Field, Layout, Submit
 from django import forms
+from django.conf import settings
+from django.contrib.auth.models import Group
+from django.core.exceptions import ValidationError
+from django.core.mail import send_mail
+from django.core.validators import URLValidator
+from django.forms import ModelForm, Textarea
 from django.urls import reverse
 
 from main.models import (
+    Casebook,
+    ContentCollaborator,
     ContentNode,
+    EmailWhitelist,
     Link,
     TextBlock,
     User,
-    EmailWhitelist,
-    ContentCollaborator,
-    Casebook,
 )
 from main.utils import (
+    BadFiletypeError,
     fix_after_rails,
+    send_collaboration_email,
+    send_invitation_email,
     send_template_email,
     send_verification_email,
-    send_invitation_email,
-    send_collaboration_email,
     validate_image,
-    BadFiletypeError,
 )
-
 
 # Monkeypatch FormHelper to *not* include the <form> tag in {% crispy form %} by default.
 # Forms can opt back in with self.helper.form_tag = True. This is a more useful default
@@ -402,17 +401,43 @@ class UserProfileForm(ModelForm):
 
 
 class SignupForm(ModelForm):
+
+    user_groups = forms.MultipleChoiceField(
+        choices=(
+            ("Professor", "Professor"),
+            (
+                "Student",
+                "Student",
+            ),
+            (
+                "Librarian",
+                "Librarian",
+            ),
+            ("Other", "Other"),
+        ),
+        required=False,
+        widget=forms.widgets.CheckboxSelectMultiple(),
+    )
+
     class Meta:
         model = User
-        fields = ["email_address"]
+        fields = ["email_address", "user_groups"]
+        widgets = {
+            "email_address": forms.EmailInput(),
+        }
 
     def __init__(self, *args, **kwargs):
         self.request = kwargs.pop("request", None)
         super().__init__(*args, **kwargs)
         self.helper = FormHelper()
         self.helper.form_tag = True
+        self.fields["user_groups"].label = False
         self.helper.layout = Layout(
             "email_address",
+            Div(
+                HTML("I am a..."),
+                "user_groups",
+            ),
             Submit("submit", "Sign up"),
             HTML(
                 f'<p class="help-block">By signing up for an account, you agree to our <a href="{reverse("terms-of-service")}">Terms of Service</a>.</p>'
@@ -420,7 +445,10 @@ class SignupForm(ModelForm):
         )
         self.fields[
             "email_address"
-        ].help_text = '<p class="help-block">Registration is restricted to email addresses belonging to an educational or government institution. If your email address doesn\'t work and you believe it should, please <a href="mailto:info@opencasebook.org?subject=Whitelist%20University%20Email&body=Hello%20H2O,%A0Please%20whitelist%20my%20email%20domain.">Let us know</a></p>'
+        ].help_text = """<p class="help-block">Registration is restricted to email addresses belonging to an educational or government institution. 
+        If your email address doesn't work and you believe it should, please 
+        <a href="mailto:info@opencasebook.org?subject=Whitelist%20University%20Email&body=Hello%20H2O,%A0Please%20whitelist%20my%20email%20domain.">let us know</a>.</p>
+        """
 
     def clean_email_address(self):
         email = self.cleaned_data["email_address"]
@@ -430,13 +458,18 @@ class SignupForm(ModelForm):
             domain = email.split("@")[-1]
             valid_domains = set([e.email_domain for e in EmailWhitelist.objects.all()])
             if domain not in valid_domains:
-                raise ValidationError("Email address is not .edu or .gov.")
+                raise ValidationError(
+                    "Email address is not a known educational domain. Please contact us."
+                )
         return email
 
     def save(self, commit=True):
-        # save user
         self.instance.set_password(User.objects.make_random_password(length=20))
         user = ModelForm.save(self, True)
+        for user_group in self.cleaned_data["user_groups"]:
+            if group := Group.objects.filter(name=user_group).first():
+                user.groups.add(group)
+
         send_verification_email(self.request, user)
         return user
 

@@ -4324,6 +4324,7 @@ def validate_unused_prefix(value):
 
 
 class User(NullableTimestampedModel, PermissionsMixin, AbstractBaseUser):
+
     email_address = models.CharField(max_length=255, unique=True)
     attribution = models.CharField(max_length=255, default="Anonymous", verbose_name="Display name")
     affiliation = models.CharField(max_length=255, blank=True, null=True)
@@ -4453,6 +4454,16 @@ def update_user_login_fields(sender, request, user, **kwargs):
 
 
 user_logged_in.connect(update_user_login_fields)
+
+
+class UserType(TimestampedModel):
+    class UserTypes(models.TextChoices):
+        PROFESSOR = "Professor"
+        STUDENT = "Student"
+        LIBRARIAN = "Librarian"
+        OTHER = "Other"
+
+    type = models.CharField(max_length=100, choices=UserTypes.choices, default=UserTypes.PROFESSOR)
 
 
 class Institution(TimestampedModel):
