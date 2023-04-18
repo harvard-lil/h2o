@@ -171,9 +171,12 @@
     <tr>
         <th>Professors with published casebooks
             <small>
-                <a href="{% url "admin:reporting_professorwithcasebooks_changelist" %}?{{ query }}">View as list »</a>
-                <a href="{% url "admin:reporting_professorwithcasebooks_changelist" %}?{{ query }}&_csv=True">Export as csv »</a>
-
+                <a href='{% url "admin:reporting_professorwithcasebooks_changelist" %}?{{ query }}''>View as list »</a>
+                <a href='{% url "admin:reporting_professorwithcasebooks_changelist" %}?{{ query }}&_csv=True'>Export as csv »</a>
+                <br>
+                <a href='{% url "reporting-professor-casebook-timeseries" %}'>Casebooks by professor and year as csv »</a>
+                <br>
+                <a href='{% url "reporting-professors-published-timeseries" %}'>Cumulative count of published professors as csv »</a>                
             </small>
 
 
@@ -196,18 +199,18 @@
     <tr>
         <th>Casebooks from verified professors
             <small>
-                <a href="{% url "admin:reporting_casebookprofessors_changelist" %}?{{ query }}">View as list »</a>
-
-                <a href="{% url "admin:reporting_casebookprofessors_changelist" %}?{{ query }}&_csv=True">Export as csv »</a>
+                <a href='{% url "admin:reporting_casebookprofessors_changelist" %}?{{ query }}'>View as list »</a>
+                <a href='{% url "admin:reporting_casebookprofessors_changelist" %}?{{ query }}&_csv=True'>Export as csv »</a>
+                <br>
+                <a href='{% url "reporting-casebook-timeseries" %}'>Published casebooks by year as csv »</a>                
             </small>
         </th>
         <td>{{ stats.casebooks_prof | intcomma }}</td>
     </tr>
     <tr>
-        <th>Casebooks including content from Capstone
+        <th>Casebooks including content from CAP
             <small>
                 <a href="{% url "admin:reporting_casebookcap_changelist" %}?{{ query }}">View as list »</a>
-
                 <a href="{% url "admin:reporting_casebookcap_changelist" %}?{{ query }}&_csv=True">Export as csv »</a>
 
             </small>
@@ -225,7 +228,7 @@
         <td> {{ stats.casebooks_gpo | intcomma }}</td>
     </tr>
     <tr>
-        <th>Casebooks including content from Capstone with at least one professor as contributor
+        <th>Casebooks including content from CAP with at least one professor as contributor
 
             <small>
                 <a href="{% url "admin:reporting_casebookcapprof_changelist" %}?{{ query }}">View as list »</a>
@@ -316,6 +319,7 @@
                 may be omitted.
             </p>
         </aside>
+
     </div>
 
 

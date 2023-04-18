@@ -1,21 +1,17 @@
 from datetime import date
-
 from typing import Dict
 from urllib.parse import urlencode
+
+from dateutil.relativedelta import relativedelta
 from django import forms
+from django.contrib.admin.views.decorators import staff_member_required
+from django.contrib.admin.widgets import AdminDateWidget
+from django.db import connection
 from django.http import HttpRequest
 from django.shortcuts import render
-from django.db import connection
-from django.contrib.admin.widgets import AdminDateWidget
-from dateutil.relativedelta import relativedelta
-from django.contrib.admin.views.decorators import staff_member_required
 
-from reporting.create_reporting_views import (
-    ALL_STATES,
-    OLDEST_YEAR,
-    PUBLISHED_CASEBOOKS,
-)
 from main.models import Casebook
+from reporting.create_reporting_views import ALL_STATES, OLDEST_YEAR, PUBLISHED_CASEBOOKS
 
 
 class DateForm(forms.Form):
@@ -124,7 +120,7 @@ def view(request: HttpRequest):
         )
         stats["casebooks_prof"] = cursor.fetchone()[0]
 
-        # Casebooks including content from Capstone
+        # Casebooks including content from CAP
         cursor.execute(
             """--sql
             select count(*) from reporting_casebooks_including_source_cap
