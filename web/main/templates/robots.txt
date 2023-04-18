@@ -1,2 +1,6 @@
 User-Agent: *
 Disallow: /*/export
+
+{% for casebook in excluded_casebooks %}
+Disallow: {{ casebook.get_absolute_url }}*
+{% endfor %}

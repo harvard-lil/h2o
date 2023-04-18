@@ -157,3 +157,23 @@ def test_site_search_school_dropdown(
 
     resp = client.get(url, {"type": "user", "school": institution1.name})
     assert resp.context["results"].count == 1
+
+
+def test_site_search_omit_delisted(casebook_factory):
+    """The site search should omit casebooks which have been marked as not publicly listed"""
+
+    casebook_factory(listed_publicly=True)
+    delisted = casebook_factory(listed_publicly=True)
+
+    SearchIndex().create_search_index()
+    page, _, _ = SearchIndex().search("casebook")
+
+    assert page.count == 2
+
+    delisted.listed_publicly = False
+    delisted.save()
+
+    SearchIndex().create_search_index()
+    page, _, _ = SearchIndex().search("casebook")
+
+    assert page.count == 1
