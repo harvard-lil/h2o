@@ -15,10 +15,10 @@ def test_casebook_series_deletes_only_membership(
     # casebook is a direct foreign key, but other casebooks in the series,
     # including the `current` casebook itself, must be given the inbound
     # relationship independently, normally handled by the serializer.
-    series: CommonTitle = common_title_factory()
+    series = common_title_factory()
 
-    casebook1_in_series: Casebook = casebook_factory(common_title=series)
-    casebook2_in_series: Casebook = casebook_factory(common_title=series)
+    casebook1_in_series = casebook_factory(common_title=series)
+    casebook2_in_series = casebook_factory(common_title=series)
 
     assert 2 == Casebook.objects.exclude(common_title=None).count()
 
@@ -35,7 +35,7 @@ def test_casebook_series_deletes_only_membership(
         "casebooks-TOTAL_FORMS": 2,  # Fields required for formset validation
         "casebooks-INITIAL_FORMS": 2,
     }
-    formset: CasebookInSeriesFormset = FormSet(data, instance=series)
+    formset = FormSet(data, instance=series)
     assert formset.is_valid()
     formset.save()
 

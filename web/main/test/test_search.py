@@ -63,7 +63,7 @@ def test_search_inside_include_sections(full_casebook, client):
 )
 def test_search_inside_prof_only(
     full_casebook, resource_factory, client, user_factory_class, results_count
-):
+) -> None:
     """Full-text search should show results with professor-only content only if the user is a professor"""
 
     user = user_factory_class()

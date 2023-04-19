@@ -104,7 +104,7 @@ def test_dashboard_casebook_date_fields(
         assert 1 == resp.context["stats"]["casebooks"]
 
 
-def test_greatest_mod_date(casebook_edit_log_factory, casebook_factory, cursor):
+def test_greatest_mod_date(casebook_edit_log_factory, casebook_factory, cursor) -> None:
     """The `updated_at` date in the reporting view for a casebook should be the most recent
     date of any edit log value regardless of the casebook modification date"""
     with freeze_time("1970-01-01"):
@@ -116,9 +116,11 @@ def test_greatest_mod_date(casebook_edit_log_factory, casebook_factory, cursor):
                 casebook_edit_log_factory(casebook=casebook)
 
     assert 10 == CasebookEditLog.objects.count()
-    max_date: datetime.datetime = (
-        CasebookEditLog.objects.all().order_by("-entry_date").first().entry_date
-    )
+    first = CasebookEditLog.objects.all().order_by("-entry_date").first()
+    if not first:
+        raise Exception()
+
+    max_date: datetime.datetime = first.entry_date
     refresh()
 
     cursor.execute(
@@ -142,13 +144,13 @@ def test_greatest_mod_date(casebook_edit_log_factory, casebook_factory, cursor):
             "select updated_at from reporting_casebooks where casebook_id = %s",
             [casebook.id],
         )
-        row: datetime.datetime = cursor.fetchone()
+        row = cursor.fetchone()
 
         # We still want to use the edit log value in this case
         assert max_date == row[0]
 
 
-def test_no_edit_log_mod_date(casebook_factory, cursor):
+def test_no_edit_log_mod_date(casebook_factory, cursor) -> None:
     """In the absence of any edit log info, the `updated_at` date for the casebook reporting
     view should be the casebook's modification timestamp"""
     check_date = datetime.date(2020, 1, 1)
@@ -159,7 +161,7 @@ def test_no_edit_log_mod_date(casebook_factory, cursor):
             "select updated_at from reporting_casebooks where casebook_id = %s",
             [casebook.id],
         )
-        row: datetime.datetime = cursor.fetchone()
+        row = cursor.fetchone()
         assert check_date == row[0].date()
 
 
@@ -172,7 +174,7 @@ def test_reporting_view_pages(client, model, admin_user_factory):
 
 
 @pytest.mark.parametrize("model", apps.all_models["reporting"])
-def test_reporting_csv_export(client, admin_user_factory, model):
+def test_reporting_csv_export(client, admin_user_factory, model) -> None:
     """All reporting views should allow exporting via CSV"""
     admin = admin_user_factory()
 
@@ -191,7 +193,7 @@ def test_reporting_csv_export(client, admin_user_factory, model):
 
 def test_reporting_csv_export_casebook(
     client, admin_user_factory, casebook_factory, casebook_edit_log_factory
-):
+) -> None:
     """The casebook export view should export some expected fields including recency info"""
     admin = admin_user_factory()
 
@@ -216,7 +218,7 @@ def test_reporting_csv_export_casebook(
     with freeze_time("2022-01-02"):
         log = casebook_edit_log_factory(casebook=c)
         refresh()
-        resp: HttpResponse = client.get(
+        resp = client.get(
             reverse(
                 "admin:reporting_reportingcasebook_changelist",
             ),
@@ -232,7 +234,9 @@ def test_reporting_csv_export_casebook(
         )
 
 
-def test_reporting_csv_export_professor(client, admin_user_factory, verified_professor_factory):
+def test_reporting_csv_export_professor(
+    client, admin_user_factory, verified_professor_factory
+) -> None:
     """The professor export view should export some expected fields"""
 
     with freeze_time("2020-01-02"):

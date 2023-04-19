@@ -1,5 +1,3 @@
-from typing import Optional
-
 import django.contrib.auth.forms as auth_forms
 from crispy_forms.helper import FormHelper
 from crispy_forms.layout import HTML, Div, Field, Layout, Submit
@@ -163,7 +161,7 @@ class ResourceForm(ContentNodeForm):
 
     def __init__(self, *args, **kwargs):
         request = kwargs.pop("request", None)
-        self.user: Optional[User] = request.user if request else None
+        self.user = request.user if request else None
 
         super().__init__(*args, **kwargs)
 

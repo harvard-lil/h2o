@@ -598,7 +598,7 @@ def full_private_casebook_for_verified_prof(full_casebook_parts_factory):
 
 
 @pytest.fixture
-def full_casebook_parts_with_prof_only_resource(full_casebook_parts_factory):
+def full_casebook_parts_with_prof_only_resource(full_casebook_parts_factory) -> list[ContentNode]:
     """
     The same as full_casebook, except its author is a verified professor and the second
     resource is professor-only.
