@@ -1217,40 +1217,62 @@ def new_casebook(request):
         "args": ["draft_casebook"],
         "results": {200: ["draft_casebook.testing_editor"], "login": [None], 403: ["other_user"]},
     },
-    *viewable_resource,
-    *viewable_section,
 )
-@requires_csrf_token
 @hydrate_params
 @user_has_perm("casebook", "viewable_by")
-def show_credits(request, casebook, section=None):
-    if section:
-        contents = [x for x in section.contents.all()] + [section]
-    else:
-        contents = [x for x in casebook.contents.all()]
+def show_credits(request: HttpRequest, casebook: Casebook):
+    """Show attribution details for this casebook, including those of relevant ancestor casebooks and resources.
 
+    Tests in test/test_credits.py
+    """
+
+    # Limit the credits display based on the visible property of the nodes
+    contents: list[ContentNode] = list(casebook.nodes_for_user(user=request.user))
     contents.sort(key=lambda x: x.ordinals)
-    originating_node = set(
+
+    originating_nodes = set(
         [cloned_node for child_content in contents for cloned_node in child_content.provenance]
     )
-    prior_art = {
+    # Get detailed nodes for all items in the provenance list
+    prior_art: dict[int, ContentNode] = {
         x.id: x
-        for x in ContentNode.objects.filter(id__in=originating_node)
+        for x in ContentNode.objects.filter(id__in=originating_nodes)
         .select_related("casebook")
         .prefetch_related("casebook__contentcollaborator_set__user")
-        .all()
     }
-    casebook_mapping = {}
-    cloned_sections = {}
+
+    casebook_mapping: dict[int, dict] = {}
+    cloned_sections: dict[int, set] = {}
+
+    # Generate a de-duplicated hierarchy of ancestor credits
     for node in contents:
         if not node.provenance:
             continue
         known_priors = [prior_art[p] for p in node.provenance if p in prior_art]
-        known_clones = [p.casebook for p in known_priors]
+        possible_clones: list[Casebook] = [p.casebook for p in known_priors]  # type: ignore
+        known_clones: list[Casebook] = []
+
+        # Canonicalize these if they were just drafts
+        for cb in possible_clones:
+            if cb.is_previous_save:
+                known_clones.append(cb.version_tree__parent())
+            else:
+                known_clones.append(cb)
+
         if not known_clones:
             continue
-        immediate_clone = known_clones[-1]
-        incidental_clones = known_clones[:-1]
+
+        # For the parent, find the most-recent ancestor that is currently published
+        immediate_clone: Casebook
+
+        for index in range(len(known_clones)):
+            immediate_clone = known_clones[index - 1]
+            if immediate_clone.state in Casebook.LifeCycle.PUBLISHED.value:
+                break
+
+        # For incidental nodes, find any that were ever published
+        incidental_clones = [clone for clone in known_clones[:-1] if clone.casebook.first_published]
+
         cs_set = cloned_sections.get(immediate_clone.id, set())
         cs_set.add(".".join(map(str, node.ordinals)))
         cloned_sections[immediate_clone.id] = cs_set
@@ -1266,37 +1288,33 @@ def show_credits(request, casebook, section=None):
                 "immediate_authors": {
                     c.user
                     for c in immediate_clone.contentcollaborator_set.all()
-                    if c.has_attribution and c.user.display_name != "Anonymous"
+                    if c.has_attribution and c.user.is_attributable
                 },
                 "incidental_authors": set(),
                 "nodes": [],
             }
         casebook_mapping[immediate_clone.id]["incidental_authors"] |= {
-            c.user
+            (c.user, clone)
             for clone in incidental_clones
             for c in clone.contentcollaborator_set.all()
             if c.has_attribution
-            and c.user.display_name != "Anonymous"
+            and c.user.is_attributable
             and c.user not in casebook_mapping[immediate_clone.id]["immediate_authors"]
         }
-        casebook_mapping[immediate_clone.id]["nodes"].append(
-            (node, known_priors[-1], nesting_depth)
-        )
 
-    node_type = "casebook"
-    if section:
-        if section.resource_type == "Section" or not section.resource_type:
-            node_type = "section"
-        else:
-            node_type = "resource"
+        # In the resource list, also upgrade any references to draft casebooks that should point to their published ancestor
+        prior_node = known_priors[-1]
+
+        if prior_node.casebook.is_previous_save:  # type: ignore
+            prior_casebook = prior_node.casebook.version_tree__parent()  # type: ignore
+            prior_node = prior_casebook.contents.filter(ordinals=prior_node.ordinals).first()
+
+        casebook_mapping[immediate_clone.id]["nodes"].append((node, prior_node, nesting_depth))
+
     params = {
         "contributing_casebooks": [v for v in casebook_mapping.values()],
         "casebook": casebook,
-        "section": section,
-        "type": node_type,
-        "tabs": (section if section else casebook).tabs_for_user(
-            request.user, current_tab="Credits"
-        ),
+        "tabs": casebook.tabs_for_user(request.user, current_tab="Credits"),
         "casebook_color_class": casebook.casebook_color_indicator,
         "edit_mode": casebook.directly_editable_by(request.user),
     }
@@ -3141,7 +3159,7 @@ def internal_search(request: HttpRequest):
         query=query,
         filters=filters,
         facet_fields=["attribution", "institution"],
-        order_by=request.GET.get("sort"),
+        order_by=request.GET.get("sort", ""),
     )
     full_counts = SearchIndex.counts(query=SearchIndex.objects.all())
 

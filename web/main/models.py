@@ -2941,7 +2941,7 @@ class ContentNode(
                 self.in_edit_state and self.editable_by(user) and self.annotatable,
             ),
             (read_tab, reverse("section", args=[self.casebook, self]), True),
-            ("Credits", reverse("show_resource_credits", args=[self.casebook, self]), True),
+            ("Credits", reverse("show_credits", args=[self.casebook]), True),
         ]
         return [(n, l, n == current_tab) for n, l, c in tabs if c]
 
@@ -4426,6 +4426,11 @@ class User(NullableTimestampedModel, PermissionsMixin, AbstractBaseUser):
             )
             followed_casebooks.append(cb)
         return followed_casebooks
+
+    @property
+    def is_attributable(self) -> bool:
+        """An author will be displayed in a credits list if they pass this test"""
+        return self.attribution != "Anonymous"
 
     @staticmethod
     def user_can_view_instructional_material(user: Union[AnonymousUser, User]) -> bool:

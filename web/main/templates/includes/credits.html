@@ -1,15 +1,26 @@
 <section class="credits">
     <div>
         {% if contributing_casebooks %}
-        <h3>Content from the following sources has been used in the creation of this {{type}}:</h3>
+        <h3>Content from the following sources has been used in the creation of this casebook</h3>
+
+        </p>
         <ul class="casebook-list">
             {% for row in contributing_casebooks %}
             <li>
                 <div class="casebook-credit-header">
-                    <a href="{{row.casebook.get_absolute_url}}"><h4> {{ row.casebook.title }} </h4></a>
+                    <header>
+                        <h3><a href="{{ row.casebook.get_absolute_url }}">{{ row.casebook.title }}</a></h3>
+                        {% if row.casebook.first_published  %}
+                            <span>(First published {{ row.casebook.first_published.entry_date | date:"M Y" }})</span>
+                        {% else %}
+                            <span>(First created {{ row.casebook.created_at | date:"M Y"}})</span>
+                        {% endif %}
+                    </header>
+
+
                     {% if row.immediate_authors or row.incidental_authors %}
                         <div class="author-list">
-                            <span>Authors: </span>
+                            <h4>Authors:</h4>
                             <ul class="immediate-author-list">
                                 {% for user in row.immediate_authors %}
                                 <li class="user {% if user.verified_professor %} verified{% endif %}">
@@ -17,27 +28,43 @@
                                 </li>
                                 {% endfor %}
                             </ul>
+                            <br>
+                            <p>Including material from the following sections:</p>
+
+                            <div class="casebook-credit-nodes">
+                                <ul class="cloned-content-list">
+                                    {% for node, prior, nesting_depth in row.nodes %}
+                                        {% if nesting_depth == 0 %}
+                                            <li class="nesting-depth-{{ nesting_depth }}">
+                                                <span class="section-title"><a href="{{ prior.get_absolute_url }}">{{ node.ordinal_string }}{% if node.ordinal_string %}:{% endif %} {{ node.title }}</a></span>
+                                            </li>
+                                        {% endif %}
+                                    {% endfor %}
+                                </ul>
+                            </div>
+
                             {% if row.incidental_authors %}
-                            <span> with additional contributions by:</span>
+                            <br>
+                            <h4>Incorporating additional material from:</h4>
                             <ul class="incidental-author-list">
-                                {% for user in row.incidental_authors %}
-                                <li class="user {% if user.verified_professor %} verified{% endif %}">
-                                    <a href="{% url 'dashboard' user.id %}">{{ user.display_name }}</a>
+                                {% for user, clone in row.incidental_authors %}
+                                <li class="{% if user.verified_professor %} verified{% endif %}">
+                                    <a class="user" href="{% url 'dashboard' user.id %}">{{ user.display_name }}</a>
+                                    from 
+                                    {% if clone.is_public %}
+                                        <a href="{{ clone.get_absolute_url }}">{{ clone.title }}</a> 
+                                    {% else %}
+                                        {{ clone.title }}
+                                    {% endif %}
+                                    {% if clone.first_published.entry_date %}
+                                      (first published {{ clone.first_published.entry_date | date:"M Y" }}) 
+                                    {% endif %}
                                 </li>
                                 {% endfor %}
                             </ul>
                             {% endif %}
                         </div>
                     {% endif %}
-                </div>
-                <div class="casebook-credit-nodes">
-                    <ul class="cloned-content-list">
-                        {% for node,prior,nesting_depth in row.nodes %}
-                        <li class="nesting-depth-{{nesting_depth}}">
-                            <span class="section-title">{{ node.ordinal_string }}{% if node.ordinal_string %}:{% endif %} {{ node.title }} </span> <a class="og-node-link" href="{{ prior.get_absolute_url }}">original</a>
-                        </li>
-                        {% endfor %}
-                    </ul>
                 </div>
             </li>
             {% endfor %}

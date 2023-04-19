@@ -29,11 +29,7 @@
                 {% else %}
                     <a class="tab" href="{{ resource.get_absolute_url }}">Preview</a>
                 {% endif %}
-                {% if credits_tab %}
-                    <span class="tab disabled active">Credits</span>
-                {% else %}
-                    <a class="tab" href="{% url 'show_resource_credits' resource.casebook resource %}">Credits</a>
-                {% endif %}
+                <a class="tab" href="{% url 'show_credits' resource.casebook %}">Credits</a>
             </div>
         </div>
     </div>

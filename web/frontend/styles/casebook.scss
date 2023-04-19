@@ -1,6 +1,7 @@
 @import 'content/dragging';
 @import 'content/annotations';
 @import 'content/modals';
+@import 'credits';
 
 main > .casebook .casebook-inner {
   @include centered-md-column(9);
@@ -740,100 +741,6 @@ form.edit_content_resource, form.edit_content_section, form.edit_content_caseboo
   .search-bar-container {
     width: 100%;
   }
-}
-
-#credits {
-    section.credits {
-        background-color:$white;
-        border-top: 1px solid $light-gray;
-        padding: 0 30px 4rem 30px;
-        h3 {
-            @include sans-serif($bold, 20px, 24px);
-            color: $dark-gray;
-
-        }
-        .author-rider {
-            margin-top: 1rem;
-        }
-        .author-list {
-            display:inline;
-            list-style: none;
-            padding-left: 2rem;
-
-            li {
-                display:inline;
-                white-space: nowrap;
-                &:after {
-                    content: ","
-                }
-                &:last-child:after {
-                    content: ""
-                }
-                @include verified-professor();
-            }
-
-            display: inline;
-            padding-left: 0;
-
-
-            ul {
-                display:inline;
-                list-style:none;
-                padding:0;
-            }
-            .immediate-author-list {
-                padding-right: 0.5rem;
-            }
-        }
-
-        ul.casebook-list {
-            list-style: none;
-            display:flex;
-            flex-direction: column;
-            padding: 0px 0 4rem 0;
-            >li {
-                padding-bottom:3rem;
-                border-bottom: 1px solid black;
-                margin-bottom:3rem;
-                &:last-child {
-                    border-bottom:none;
-                    padding-bottom:0rem;
-                    margin-bottom: 0;
-                }
-            }
-            .casebook-credit-header {
-                padding: 1rem 0;
-
-            }
-            .cloned-content-list {
-                list-style:none;
-                padding-left: 0;
-                display:flex;
-                flex-direction:column;
-                flex-wrap: wrap;
-                li {
-                    padding-top:6px;
-                    @for $depth from 1 to 16 {
-                        &.nesting-depth-#{$depth} {
-                            padding-left: #{(2*$depth)}rem
-                        }
-                    }
-                    .section-title {
-                        padding-right:0.5rem;
-                    }
-                    .og-node-link {
-                        &:before {
-                            content: "(";
-                        }
-                        &:after {
-                            content: ")"
-                        }
-                    }
-                }
-            }
-
-        }
-    }
 }
 
 ul.settings-section {

@@ -9,7 +9,7 @@ def test_publish_new_casebook(private_casebook, client):
 
     response = client.post(
         reverse("publish", args=[private_casebook]),
-        as_user=private_casebook.contentcollaborator_set.first().user,
+        as_user=private_casebook.testing_editor,
     )
     assert response.status_code == 200
     private_casebook.refresh_from_db()
@@ -27,7 +27,7 @@ def test_publish_draft(casebook, client):
 
     response = client.post(
         reverse("publish", args=[draft]),
-        as_user=casebook.contentcollaborator_set.first().user,
+        as_user=casebook.testing_editor,
     )
     assert response.status_code == 200
     casebook.refresh_from_db()
