@@ -1,4 +1,3 @@
-
 import django.contrib.auth.forms as auth_forms
 from crispy_forms.helper import FormHelper
 from crispy_forms.layout import HTML, Div, Field, Layout, Submit
