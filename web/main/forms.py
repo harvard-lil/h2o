@@ -402,7 +402,7 @@ class SignupForm(ModelForm):
 
     user_groups = forms.MultipleChoiceField(
         choices=(
-            ("Professor", "Professor"),
+            ("Professor", "Professor or Lecturer"),
             (
                 "Student",
                 "Student",
