@@ -163,7 +163,7 @@ class ResourceForm(ContentNodeForm):
 
     def __init__(self, *args, **kwargs):
         request = kwargs.pop("request", None)
-        self.user: Optional[User] = request.user if request else None
+        self.user = request.user if request else None
 
         super().__init__(*args, **kwargs)
 

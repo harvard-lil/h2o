@@ -3869,7 +3869,7 @@ class Casebook(EditTrackedModel, TimestampedModel, BigPkModel, TrackedCloneable)
 
     # Collaborators
     @property
-    def primary_authors(self):
+    def primary_authors(self) -> list[User]:
         uniq = set()
         authors: list[User] = []
         for collab in self.contentcollaborator_set.order_by("id").all():
@@ -3966,17 +3966,19 @@ class Casebook(EditTrackedModel, TimestampedModel, BigPkModel, TrackedCloneable)
         logger.info(f"Exporting Casebook {self.id}: serializing to HTML")
         template_name = "export/casebook.html"
 
-        html = render_to_string(
-            template_name,
-            {
-                "is_export": True,
-                "node": self,
-                "children": children,
-                "export_options": export_options,
-                "export_date": datetime.now().strftime("%Y-%m-%d"),
-                "include_annotations": include_annotations,
-                "cloned_from": cloned_from,
-            },
+        html = str(
+            render_to_string(
+                template_name,
+                {
+                    "is_export": True,
+                    "node": self,
+                    "children": children,
+                    "export_options": export_options,
+                    "export_date": datetime.now().strftime("%Y-%m-%d"),
+                    "include_annotations": include_annotations,
+                    "cloned_from": cloned_from,
+                },
+            )
         )
         if file_type == "html":
             return html

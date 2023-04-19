@@ -46,7 +46,7 @@ django-debug-toolbar
 black==22.6.0
 
 # static type checking
-mypy
+mypy<1.2
 django-stubs[compatible-mypy]
 types-bleach
 types-python-dateutil
