@@ -1,4 +1,3 @@
-from typing import Optional
 
 import django.contrib.auth.forms as auth_forms
 from crispy_forms.helper import FormHelper
