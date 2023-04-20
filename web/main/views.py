@@ -2,7 +2,7 @@ import json
 import logging
 import uuid
 from collections import OrderedDict
-from datetime import datetime, timedelta
+from datetime import datetime
 from functools import wraps
 from test.test_helpers import assert_url_equal, check_response, dump_content_tree_children
 from typing import Union
@@ -29,7 +29,6 @@ from django.http import (
 )
 from django.shortcuts import get_object_or_404, redirect, render
 from django.urls import reverse
-from django.utils import timezone
 from django.utils.decorators import method_decorator
 from django.utils.text import Truncator
 from django.views import View
@@ -996,10 +995,7 @@ class LegalDocumentResourceView(APIView):
         section_id = request.data.get("section_id")
         source = get_object_or_404(LegalDocumentSource, id=source_id)
 
-        MAX_AGE_BEFORE_REFRESH = timedelta(days=365)
-
-        final_legal_doc: LegalDocument
-        local_legal_doc = (
+        legal_doc = (
             LegalDocument.objects.filter(
                 source_ref=source_ref,
                 source=source,
@@ -1007,30 +1003,12 @@ class LegalDocumentResourceView(APIView):
             .order_by("-updated_date")
             .first()
         )
-        if not local_legal_doc:
-            upstream_doc = source.pull(id=source_ref)
-            if not upstream_doc:  # the source ref probably couldn't be found from upstream
+        if not legal_doc:
+            legal_doc = source.pull(id=source_ref)
+            if not legal_doc:  # the source ref probably couldn't be found from upstream
                 raise Http404
-            final_legal_doc = upstream_doc
-        else:
-            if (
-                local_legal_doc.updated_date
-                and local_legal_doc.updated_date <= datetime.now() - MAX_AGE_BEFORE_REFRESH
-            ):
-                # If the copy is potentially stale, check upstream for a more recent copy
-                upstream_doc = source.pull(id=source_ref)
-                if not upstream_doc:
-                    raise Http404
-                final_legal_doc = (
-                    upstream_doc
-                    if upstream_doc.publication_date
-                    > timezone.utc.localize(local_legal_doc.publication_date)
-                    else local_legal_doc
-                )
-            else:
-                final_legal_doc = local_legal_doc
 
-        final_legal_doc.save()
+        legal_doc.save()
 
         parent: Union[ContentNode, Casebook]
         if section_id := request.data.get("section_id"):
@@ -1040,11 +1018,11 @@ class LegalDocumentResourceView(APIView):
         ordinals, display_ordinals = parent.content_tree__get_next_available_child_ordinals()
 
         resource = ContentNode.objects.create(
-            title=final_legal_doc.get_name(),
+            title=legal_doc.get_name(),
             casebook=casebook,
             ordinals=ordinals,
             display_ordinals=display_ordinals,
-            resource_id=final_legal_doc.id,
+            resource_id=legal_doc.id,
             resource_type="LegalDocument",
         )
 
