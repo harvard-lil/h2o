@@ -1,12 +1,11 @@
 import json
 import logging
-from typing import Union
 import uuid
 from collections import OrderedDict
-from datetime import datetime, timedelta
+from datetime import datetime
 from functools import wraps
-from main.celery_tasks import pdf_from_user
 from test.test_helpers import assert_url_equal, check_response, dump_content_tree_children
+from typing import Union
 
 from django.conf import settings
 from django.contrib import messages
@@ -36,14 +35,16 @@ from django.views import View
 from django.views.decorators.cache import never_cache
 from django.views.decorators.csrf import requires_csrf_token
 from django.views.decorators.http import require_http_methods, require_POST
+from django_celery_results.models import TaskResult
 from pytest import raises as assert_raises
 from rest_framework import status
 from rest_framework.exceptions import ValidationError
-from rest_framework.response import Response
 from rest_framework.request import Request
+from rest_framework.response import Response
 from rest_framework.views import APIView
 from simple_history.utils import bulk_create_with_history
-from django_celery_results.models import TaskResult
+
+from main.celery_tasks import pdf_from_user
 
 from .forms import (
     CasebookForm,
@@ -994,24 +995,20 @@ class LegalDocumentResourceView(APIView):
         section_id = request.data.get("section_id")
         source = get_object_or_404(LegalDocumentSource, id=source_id)
 
-        MAX_AGE_BEFORE_REFRESH = timedelta(days=365)
-
         legal_doc = (
             LegalDocument.objects.filter(
                 source_ref=source_ref,
                 source=source,
-                updated_date__gte=(datetime.now() - MAX_AGE_BEFORE_REFRESH),
             )
             .order_by("-updated_date")
             .first()
         )
-        # If we don't have a recent-enough copy of this (or any copy at all), get one from upstream, then try the query again
         if not legal_doc:
-            if legal_doc := source.pull(id=source_ref):
-                legal_doc.save()
-            else:
-                # If we still don't have one, the source ref probably couldn't be found from upstream
+            legal_doc = source.pull(id=source_ref)
+            if not legal_doc:  # the source ref probably couldn't be found from upstream
                 raise Http404
+
+        legal_doc.save()
 
         parent: Union[ContentNode, Casebook]
         if section_id := request.data.get("section_id"):
