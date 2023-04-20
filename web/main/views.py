@@ -1013,7 +1013,7 @@ class LegalDocumentResourceView(APIView):
             final_legal_doc = potential_legal_doc
         else:
             if legal_doc.updated_date and legal_doc.updated_date >= datetime.now() - MAX_AGE_BEFORE_REFRESH:
-                # If the copy is potentially stale, check CAP for a more recent copy
+                # If the copy is potentially stale, check upstream for a more recent copy
                 updated_legal_doc = source.pull(id=source_ref)
                 if not updated_legal_doc:
                     raise Http404 
