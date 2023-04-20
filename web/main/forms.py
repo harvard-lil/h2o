@@ -457,7 +457,7 @@ class SignupForm(ModelForm):
             valid_domains = set([e.email_domain for e in EmailWhitelist.objects.all()])
             if domain not in valid_domains:
                 raise ValidationError(
-                    "Email address is not a known educational domain. Please contact us."
+                    "Email address doesn't belong to a known educational or government institution. Please contact us."
                 )
         return email
 
