@@ -140,6 +140,45 @@ def test_add_net_new_resource(full_private_casebook, client, legal_doc_source, m
 
     assert full_private_casebook.contents.get(id=node.id)
 
+@pytest.mark.parametrize(
+    "local_date,upstream_date,count",
+    [
+        [datetime(1901, 1, 1), datetime.now(), 2], # Local doc is older, upstream is recent
+        [datetime.now(), datetime(1900, 1, 1), 1],  # Local doc is recent, upstream is older
+        [datetime(1901, 1, 1), datetime(1901, 1, 1), 1],  # Dates are identical        
+    ],
+)
+def test_only_add_updated_resource(
+    local_date, upstream_date, count, full_private_casebook, client, legal_doc_source, legal_document_factory, mocker
+):
+    """Only add a new copy of a legal document if it is more recent than the existing copy"""
+    ref = "test-ref"
+    pull = mocker.patch("main.views.LegalDocumentSource.pull")
+    pull.return_value = LegalDocument(
+        source=legal_doc_source,
+        name="",
+        citations=[""],
+        doc_class="Code",
+        publication_date=upstream_date,
+        source_ref=ref,
+    )
+    existing_doc = legal_document_factory(
+        source=legal_doc_source, source_ref=ref, updated_date=local_date
+    )
+
+    assert LegalDocument.objects.filter(source_ref=ref, source=legal_doc_source).count() == 1
+
+    resp = client.post(
+        reverse("legal_document_resource_view", args=[full_private_casebook]),
+        {
+            "source_id": legal_doc_source.id,
+            "source_ref": ref,
+        },
+        as_user=full_private_casebook.testing_editor,
+    )
+
+    assert LegalDocument.objects.filter(source_ref=ref, source=legal_doc_source).count() == count
+
 
 def test_new_resource_unknown_source_ref(client, legal_document, full_private_casebook):
     """The legal document add endpoint should return a 404 if a non-existent source id is passed"""
@@ -182,8 +221,8 @@ def test_add_new_resource_fails_safely(
 @pytest.mark.parametrize(
     "updated_date,call_count",
     [
-        [datetime.now(), 0],  # Recent, don't create a new resource
-        [datetime(1901, 1, 1), 1],  # Old, get a fresh resource
+        [datetime.now(), 0],  # Recent, don't check for a new resource
+        [datetime(1901, 1, 1), 1],  # Old, check for a fresh resource
     ],
 )
 def test_add_new_resource_recency_check(
