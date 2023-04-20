@@ -996,22 +996,33 @@ class LegalDocumentResourceView(APIView):
 
         MAX_AGE_BEFORE_REFRESH = timedelta(days=365)
 
+        final_legal_doc: LegalDocument 
         legal_doc = (
             LegalDocument.objects.filter(
                 source_ref=source_ref,
                 source=source,
-                updated_date__gte=(datetime.now() - MAX_AGE_BEFORE_REFRESH),
+                
             )
             .order_by("-updated_date")
             .first()
         )
-        # If we don't have a recent-enough copy of this (or any copy at all), get one from upstream, then try the query again
         if not legal_doc:
-            if legal_doc := source.pull(id=source_ref):
-                legal_doc.save()
+            potential_legal_doc = source.pull(id=source_ref)
+            if not legal_doc: # the source ref probably couldn't be found from upstream
+                raise Http404 
+            final_legal_doc = potential_legal_doc
+        else:
+            if legal_doc.updated_date and legal_doc.updated_date >= datetime.now() - MAX_AGE_BEFORE_REFRESH:
+                # If the copy is potentially stale, check CAP for a more recent copy
+                updated_legal_doc = source.pull(id=source_ref)
+                if not updated_legal_doc:
+                    raise Http404 
+                elif updated_legal_doc.updated_date > legal_doc.updated_date:
+                    final_legal_doc = updated_legal_doc
             else:
-                # If we still don't have one, the source ref probably couldn't be found from upstream
-                raise Http404
+                final_legal_doc = legal_doc
+
+        final_legal_doc.save()
 
         parent: Union[ContentNode, Casebook]
         if section_id := request.data.get("section_id"):
@@ -1021,7 +1032,7 @@ class LegalDocumentResourceView(APIView):
         ordinals, display_ordinals = parent.content_tree__get_next_available_child_ordinals()
 
         resource = ContentNode.objects.create(
-            title=legal_doc.get_name(),
+            title=final_legal_doc.get_name(),
             casebook=casebook,
             ordinals=ordinals,
             display_ordinals=display_ordinals,
