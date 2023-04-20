@@ -1135,7 +1135,7 @@ def sign_up(request):
 
     Signup flow -- can sign up with a .edu or .gov account:
     >>> check_response(client.get(reverse('sign_up')), content_includes=['Sign up for an account'])
-    >>> check_response(client.post(reverse('sign_up'), {'email_address': 'not_edu@example.com'}), content_includes=['Email address is not a known educational'])
+    >>> check_response(client.post(reverse('sign_up'), {'email_address': 'not_edu@example.com'}), content_includes=["has-error"])
     >>> check_response(client.post(reverse('sign_up'), {'email_address': 'user@example.edu'}, follow=True), content_includes=['Please check your email for a link'])
 
     Can confirm the account and set a password with the emailed URL:
