@@ -593,7 +593,7 @@ Harvard Law School Library"""
     )
 
 
-def get_link_title(url):
+def get_link_title(url) -> str:
     file_name_re = re.compile("/([^/]*)(?:[.].{1,4})$")
     last_slug_re = re.compile("/([^/]*)/$")
     file_name = file_name_re.search(url)
@@ -614,10 +614,9 @@ def get_link_title(url):
     if not body:
         return default_title
     title = body.find("title")
-    if not title:
+    if not title or not title[0].text:
         return default_title
     return title[0].text
-
 
 class LambdaExportTooLarge(RuntimeError):
     pass
