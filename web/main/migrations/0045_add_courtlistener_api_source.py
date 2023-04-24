@@ -22,7 +22,7 @@ def add_courtlistener(apps, schema_editor):
 class Migration(migrations.Migration):
 
     dependencies = [
-        ("main", "0042_legaldocument_indexes"),
+        ("main", "0044_add_user_groups"),
     ]
 
     operations = [
