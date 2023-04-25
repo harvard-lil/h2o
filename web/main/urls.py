@@ -160,11 +160,6 @@ urlpatterns = format_suffix_patterns(drf_urlpatterns) + [
         views.new_from_outline,
         name="new_from_outline",
     ),
-    path(
-        "casebooks/<idslug:casebook_param>/sections/<ordslug:section_param>/credits/",
-        views.show_credits,
-        name="show_resource_credits",
-    ),
     # reordering nodes
     path(
         "casebooks/<idslug:casebook_param>/sections/<ordslug:section_param>/reorder/<ordslug:node_param>",

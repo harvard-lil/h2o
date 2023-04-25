@@ -24,11 +24,7 @@
                         <a class="tab" href="{{ section.get_edit_url }}">Edit</a>
                     {% endif %}
                 {% endif %}
-                {% if credits_tab %}
-                    <span class="tab disabled active">Credits</span>
-                {% else %}
-                    <a class="tab" href="{% url 'show_resource_credits' casebook.id section %}">Credits</a>
-                {% endif %}
+                <a class="tab" href="{% url 'show_credits' casebook.id %}">Credits</a>
             </div>
       </div>
     </div>
