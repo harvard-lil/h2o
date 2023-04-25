@@ -29,5 +29,6 @@ services:
     environment:
       - CAPAPI_API_KEY
       - GPO_API_KEY
+      - COURTLISTENER_API_KEY      
       - MATOMO_API_KEY
       - MATOMO_SITE_URL
