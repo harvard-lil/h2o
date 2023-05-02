@@ -1311,6 +1311,16 @@ def show_credits(request: HttpRequest, casebook: Casebook):
 
         casebook_mapping[immediate_clone.id]["nodes"].append((node, prior_node, nesting_depth))
 
+    # Loop back and group by casebook in the incidental authors section
+    for c in casebook_mapping.keys():
+        authors = casebook_mapping[c]["incidental_authors"]
+        grouped: dict[Casebook, list] = {}
+        for author, clone in authors:
+            if clone not in grouped:
+                grouped[clone] = []
+            grouped[clone].append(author)
+        casebook_mapping[c]["grouped_incidental_authors"] = grouped
+
     params = {
         "contributing_casebooks": [v for v in casebook_mapping.values()],
         "casebook": casebook,
