@@ -61,11 +61,13 @@
                                             (first published {{ clone.first_published.entry_date | date:"M Y" }}) 
                                         {% endif %}
                                         with contributions from: 
+                                        <ul>
                                         {% for user in authors %}
                                             <li class="user {% if user.verified_professor %} verified{% endif %}">
                                                 <a href="{% url 'dashboard' user.id %}">{{ user.display_name }}</a>
                                             </li>
                                         {% endfor %}
+                                        </ul>
                                     </li>
                                 </ul>
 
