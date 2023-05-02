@@ -11,28 +11,29 @@
   }
 
   .author-list {
-    display: inline;
     list-style: none;
-    padding-left: 2rem;
-    display: inline;
-    padding-left: 0;
-    
-    .user {
-      font-weight: bold;
-    }
+    padding: 1rem 0 0 0;
+    clear: both;
+
     ul {
       list-style: none;
       padding: 0;
       line-height: 1.8em;
       li {
         @include verified-professor();
-
       }
     }
     .immediate-author-list {
       padding-right: 0.5rem;
       columns: 2;
     }
+    .incidental-author-list {
+      margin-top: 1em;
+      li.user {
+        margin-left: 2em;
+      }
+    }
+
   }
 
   ul.casebook-list {
@@ -40,6 +41,23 @@
     display: flex;
     flex-direction: column;
     padding: 0px 0 4rem 0;
+    
+
+    .cover-outline {
+      height: 60px;
+      width: 50px;
+      border-left: 5px solid $light-blue;
+      box-shadow: 0 3px 10px rgba(0, 0, 0, 0.2);
+      float: left;
+      margin: 0 2rem 1rem 0;
+      background: url('~static/images/logo-icon-white-on-blue.svg') no-repeat center;
+      background-size: 50%;
+    }
+
+    & > li + li {
+      border-top: 1px solid gray;
+      margin-top: 1rem;
+    }
 
     .casebook-credit-header {
       padding: 1rem 0;

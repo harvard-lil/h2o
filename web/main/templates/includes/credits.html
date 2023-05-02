@@ -9,6 +9,7 @@
             <li>
                 <div class="casebook-credit-header">
                     <header>
+                        <div class="cover-outline"></div>
                         <h3><a href="{{ row.casebook.get_absolute_url }}">{{ row.casebook.title }}</a></h3>
                         {% if row.casebook.first_published  %}
                             <span>(First published {{ row.casebook.first_published.entry_date | date:"M Y" }})</span>
@@ -45,23 +46,32 @@
 
                             {% if row.incidental_authors %}
                             <br>
-                            <h4>Incorporating additional material from:</h4>
-                            <ul class="incidental-author-list">
-                                {% for user, clone in row.incidental_authors %}
-                                <li class="{% if user.verified_professor %} verified{% endif %}">
-                                    <a class="user" href="{% url 'dashboard' user.id %}">{{ user.display_name }}</a>
-                                    from 
-                                    {% if clone.is_public %}
-                                        <a href="{{ clone.get_absolute_url }}">{{ clone.title }}</a> 
-                                    {% else %}
-                                        {{ clone.title }}
-                                    {% endif %}
-                                    {% if clone.first_published.entry_date %}
-                                      (first published {{ clone.first_published.entry_date | date:"M Y" }}) 
-                                    {% endif %}
-                                </li>
+                            <h4 class="incidental-author-title"><em>{{ row.casebook.title }}</em> incorporates additional material from:</h4>
+
+                                {% for clone, authors in row.grouped_incidental_authors.items %}
+                                <ul class="incidental-author-list">
+                                    <li>
+
+                                        {% if clone.is_public %}
+                                            <a href="{{ clone.get_absolute_url }}">{{ clone.title }}</a> 
+                                        {% else %}
+                                            {{ clone.title }}
+                                        {% endif %}
+                                        {% if clone.first_published.entry_date %}
+                                            (first published {{ clone.first_published.entry_date | date:"M Y" }}) 
+                                        {% endif %}
+                                        with contributions from: 
+                                        <ul>
+                                        {% for user in authors %}
+                                            <li class="user {% if user.verified_professor %} verified{% endif %}">
+                                                <a href="{% url 'dashboard' user.id %}">{{ user.display_name }}</a>
+                                            </li>
+                                        {% endfor %}
+                                        </ul>
+                                    </li>
+                                </ul>
+
                                 {% endfor %}
-                            </ul>
                             {% endif %}
                         </div>
                     {% endif %}
