@@ -10,9 +10,10 @@
     <script>
      {# frontend_urls is set by config.context_processors.frontend_urls #}
      const FRONTEND_URLS = {{ frontend_urls | safe}};
-     window.ENABLE_MEDIA_UPLOAD =  {% if request.user.is_superuser or request.user.verified_professor %}true{% else %}false{% endif %};
+     window.ENABLE_MEDIA_UPLOAD =  {% if request.user.is_superuser or request.user.verified_professor or request.user.groups.all.0.name == "Research Assistant" %}true{% else %}false{% endif %};
      window.VERIFIED = {% if request.user.verified_professor %}true{% else %}false{% endif %};
     </script>
+    
     {% include "includes/sentry.html" %}
     {% render_bundle 'main' %}
     <link rel="stylesheet" type="text/css" href="//fonts.googleapis.com/css?family=Lora|Sorts+Mill+Goudy"/>
