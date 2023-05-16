@@ -21,14 +21,14 @@ class Professor(User):
         return ""
 
     @property
-    def most_recently_created_casebook_creation_date(self) -> Optional[datetime]:
+    def most_recently_created_casebook_creation_date(self) -> Optional[str]:
         if casebook := self.most_recently_created_casebook:
             return casebook.created_at.strftime("%Y-%m-%d")
         return None
 
     @property
     def most_recently_modified_casebook(self) -> tuple[Casebook, datetime]:
-        most_recent_casebook = None
+        most_recent_casebook: Casebook
         most_recent_modification_date = datetime(1900, 1, 1)
         for casebook in self.casebooks.all():
             try:
@@ -42,7 +42,7 @@ class Professor(User):
                 pass
         # Compare against the modification date of the casebook itself too; it may be newer than its contents
         try:
-            most_recently_modified_casebook_obj = self.casebooks.latest("updated_at")
+            most_recently_modified_casebook_obj: Casebook = self.casebooks.latest("updated_at")
             if most_recently_modified_casebook_obj.updated_at > most_recent_modification_date:
                 most_recent_modification_date = most_recently_modified_casebook_obj.updated_at
                 most_recent_casebook = most_recently_modified_casebook_obj
@@ -58,7 +58,7 @@ class Professor(User):
         return ""
 
     @property
-    def most_recently_modified_casebook_modification_date(self) -> Optional[datetime]:
+    def most_recently_modified_casebook_modification_date(self) -> Optional[str]:
         if self.most_recently_modified_casebook[0]:
             if date := self.most_recently_modified_casebook[1]:
                 return date.strftime("%Y-%m-%d")
