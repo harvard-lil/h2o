@@ -1,6 +1,7 @@
 from datetime import date, datetime
 from typing import Optional
-from main.models import Casebook, User
+
+from main.models import Casebook, User, ContentNode
 
 # Proxy models for generating changelist pages in the reporting admin. While these superficially match
 # the reporting views, they are Django mdoels based on the real models in main and so
@@ -10,19 +11,57 @@ from main.models import Casebook, User
 
 class Professor(User):
     @property
-    def most_recent_casebook(self) -> Optional[Casebook]:
+    def most_recently_created_casebook(self) -> Optional[Casebook]:
         return self.casebooks.all().order_by("-created_at").first()
 
     @property
-    def most_recent_casebook_title(self) -> str:
-        if casebook := self.most_recent_casebook:
-            return casebook.title
+    def most_recently_created_casebook_title(self) -> str:
+        if casebook := self.most_recently_created_casebook:
+            return f"{casebook.title} ({casebook.id})"
         return ""
 
     @property
-    def most_recent_casebook_modified(self) -> Optional[datetime]:
-        if casebook := self.most_recent_casebook:
-            return casebook.updated_at
+    def most_recently_created_casebook_creation_date(self) -> Optional[datetime]:
+        if casebook := self.most_recently_created_casebook:
+            return casebook.created_at.strftime("%Y-%m-%d")
+        return None
+
+    @property
+    def most_recently_modified_casebook(self) -> tuple[Casebook, datetime]:
+        most_recent_casebook = None
+        most_recent_modification_date = datetime(1900, 1, 1)
+        for casebook in self.casebooks.all():
+            try:
+                most_recent_node = casebook.contents.filter(updated_at__isnull=False).latest(
+                    "updated_at"
+                )
+                if most_recent_node.updated_at > most_recent_modification_date:
+                    most_recent_casebook = most_recent_node.casebook
+                    most_recent_modification_date = most_recent_node.updated_at
+            except ContentNode.DoesNotExist:
+                pass
+        # Compare against the modification date of the casebook itself too; it may be newer than its contents
+        try:
+            most_recently_modified_casebook_obj = self.casebooks.latest("updated_at")
+            if most_recently_modified_casebook_obj.updated_at > most_recent_modification_date:
+                most_recent_modification_date = most_recently_modified_casebook_obj.updated_at
+                most_recent_casebook = most_recently_modified_casebook_obj
+        except Casebook.DoesNotExist:
+            pass
+        return most_recent_casebook, most_recent_modification_date
+
+    @property
+    def most_recently_modified_casebook_title(self) -> str:
+        if self.most_recently_modified_casebook[0]:
+            if casebook := self.most_recently_modified_casebook[0]:
+                return f"{casebook.title} ({casebook.id})"
+        return ""
+
+    @property
+    def most_recently_modified_casebook_modification_date(self) -> Optional[datetime]:
+        if self.most_recently_modified_casebook[0]:
+            if date := self.most_recently_modified_casebook[1]:
+                return date.strftime("%Y-%m-%d")
         return None
 
     class Meta:
