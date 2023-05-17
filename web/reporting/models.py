@@ -27,8 +27,8 @@ class Professor(User):
         return None
 
     @property
-    def most_recently_modified_casebook(self) -> tuple[Casebook, datetime]:
-        most_recent_casebook: Casebook
+    def most_recently_modified_casebook(self) -> tuple[Optional[Casebook], datetime]:
+        most_recent_casebook: Optional[Casebook] = None
         most_recent_modification_date = datetime(1900, 1, 1)
         for casebook in self.casebooks.all():
             try:
