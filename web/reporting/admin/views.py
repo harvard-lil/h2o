@@ -103,8 +103,10 @@ class ProfessorExportMixin(CsvResponseMixin):
             "attribution",
             "email_address",
             "affiliation",
-            "most_recent_casebook_title",
-            "most_recent_casebook_modified",
+            "most_recently_created_casebook_title",
+            "most_recently_created_casebook_creation_date",
+            "most_recently_modified_casebook_title",
+            "most_recently_modified_casebook_modification_date",
             "last_login_at",
         )
 
