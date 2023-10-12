@@ -4,8 +4,9 @@
   v-bind:class="['listing-wrapper', showDelete ? 'delete-confirm' : '', animated, dimmed]"
   v-click-outside.stop.prevent="dismissAudit"
   >
-  <component :is="editing ? 'vue-nestable-handle' : 'div'" v-bind:item="item">
+  <div v-bind:item="item">
     <div v-bind:class="{'listing':true, 'resource':true, 'temporary': item.resource_type == 'Temp', 'editing': 'editing'}" v-if="isResource">
+      <vue-nestable-handle v-if="editing" class="drag-target" :item="item"><i class="fa fa-th" aria-hidden="true"></i></vue-nestable-handle>
       <div class="list-left">
         <div :class="{'section-number': true, 'is-instructional-material': item.is_instructional_material}">{{ item.ordinal_string }}</div>
 
@@ -64,6 +65,7 @@
     </div>
 
     <div class="listing section" v-bind:class="['listing', 'section' ,item.children.length > 0 ? 'child-present' : 'child-free', editing ? 'editing' : '' ]" v-else>
+      <vue-nestable-handle v-if="editing" class="drag-target" :item="item"><i class="fa fa-th" aria-hidden="true"></i></vue-nestable-handle>
       <div class="list-left">
         <button
           aria-role="heading"
@@ -110,7 +112,7 @@
 
       </div>
     </div>
-  </component>
+  </div>
   <div class="audit-drawer" v-if="item.audit && item.resource_type === 'Temp'">
     <entry-auditor :item="item"></entry-auditor>
     </div>
@@ -297,5 +299,23 @@ export default {
 .specify-case-title {
   border: none;
   background: none;
+}
+
+.drag-target {
+  position: absolute;
+  height: 100%;
+  width: 2em;
+  right: -2.25em;
+  display: flex;
+  justify-content: center;
+  align-content: center;
+  flex-direction: column;
+  text-align: center;
+  color: #777;
+  background: lightgray;
+
+  &:hover {
+    cursor: grab;
+  }
 }
 </style>
