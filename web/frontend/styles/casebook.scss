@@ -528,7 +528,6 @@ form.edit_content_resource, form.edit_content_section, form.edit_content_caseboo
 
       .actions {
           margin-left: 1rem;
-          margin-top: -8px;
         > form > input[type=submit], button {
           // @include square(50px);
             display: block;
@@ -540,8 +539,9 @@ form.edit_content_resource, form.edit_content_section, form.edit_content_caseboo
           background-size: auto;
           &.action-delete {
             background-image: url('~static/images/ui/edit/elide.png');
-            height: 36px;
-            width: 36px;
+            height: 20px;
+            width: 20px;
+            margin: 0;
             border-width: 0px;
             background-color: transparent;
           }

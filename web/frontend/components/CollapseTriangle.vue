@@ -1,6 +1,6 @@
 <template>
-  <svg height="32" width="32" v-bind:class="{open: !collapsed, collapsed:collapsed}">
-    <polygon points="6,6 20,16 6,24" />
+  <svg height="20" width="32" v-bind:class="{open: !collapsed, collapsed:collapsed}">
+    <polygon points="6,0 20,10 6,18" />
   </svg>
 </template>
 

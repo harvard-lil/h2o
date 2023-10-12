@@ -253,7 +253,6 @@ export default {
     button.action-expand {
         border: 0 solid transparent;
         background: transparent;
-        margin: -8px;
     }
     button.toc-expand {
         display: flex;
@@ -347,7 +346,7 @@ export default {
     .listing {
         display: flex;
         justify-content:space-between;
-        align-items: baseline;
+        align-items: center;
         width: 100%;
         padding: 12px 16px;
         /* padding-right: 42px; */
@@ -359,7 +358,7 @@ export default {
             display: flex;
             flex-direction:row;
             div {
-                align-self:baseline;
+                align-self:center;
             }
             .is-instructional-material {
                 background-image:url('~static/images/ui/casebook/lock.svg') ;
@@ -375,13 +374,9 @@ export default {
         }
         .actions {
             position: relative;
-            top: 12px;
+            top: 0;
         }
         &.section {
-            .actions {
-                min-height:44px;
-            }
-
             align-items: left;
             background-color: $black;
 
@@ -541,7 +536,7 @@ export default {
         @media (min-width: $screen-xs) {
             &.section {
                 flex-direction: row;
-                align-items: baseline;
+                align-items: center;
             }
         }
         .section-number,
@@ -587,13 +582,11 @@ export default {
         .nestable-list {
             border-left: 8px solid $light-blue;
             padding-left: 16px;
-            margin-left: 30px;
         }
     }
     div.editable .nestable-list .nestable-list {
         border-left: 8px solid $yellow;
         padding-left: 16px;
-        margin-left: 30px;
     }
     .nestable-drag-layer {
         opacity: 0.7;
