@@ -267,43 +267,74 @@ def actions(request, context):
     # These pages allow the same actions regardless of node types
     ##
 
-    When a logged out user visits casebooks, sections, and resources:
-    >>> for o in [published, published_section, published_resource]:
+    When a logged out user visits casebooks:
+    >>> for o in [published]:
     ...     check_response(
     ...         client.get(o.get_absolute_url()),
-    ...         content_includes='actions="exportable"'
+    ...         content_includes='data-actions="exportable"'
     ...     )
 
-    When a collaborator views a published casebook WITHOUT a draft, or
-    any of that casebook's sections or resources:
-    >>> for o in [published, published_section, published_resource]:
+    When a logged out user visits sections and resources:
+    >>> for o in [published_section, published_resource]:
+    ...     check_response(
+    ...         client.get(o.get_absolute_url()),
+    ...         content_includes='data-actions=""'
+    ...     )
+
+    When a collaborator views a published casebook WITHOUT a draft
+    >>> for o in [published]:
     ...     check_response(
     ...         client.get(o.get_absolute_url(), as_user=published.testing_editor),
-    ...         content_includes='actions="exportable,cloneable,can_create_draft"'
+    ...         content_includes='data-actions="exportable,cloneable,can_create_draft"'
     ...     )
 
-    When a collaborator views a published casebook WITH a draft, or
-    any of that casebook's sections or resources:
-    >>> for o in [with_draft, with_draft_section, with_draft_resource]:
+    When a collaborator views the sections or resources of a published casebook WITHOUT a draft:
+    >>> for o in [published_section, published_resource]:
+    ...     check_response(
+    ...         client.get(o.get_absolute_url(), as_user=published.testing_editor),
+    ...         content_includes='data-actions="cloneable,can_create_draft"'
+    ...     )
+
+    When a collaborator views a published casebook WITH a draft:
+    >>> for o in [with_draft]:
     ...     check_response(
     ...         client.get(o.get_absolute_url(), as_user=with_draft.testing_editor),
     ...         content_includes='actions="exportable,cloneable,publishable,can_view_existing_draft"'
     ...     )
 
-    When a collaborator views the "preview" page of a private, never published casebook, or
-    the preview pages of any of that casebook's sections or resources:
-    >>> for o in [private, private_section, private_resource]:
+    When a collaborator views the sections or resources of a published casebook WITH a draft:
+    >>> for o in [with_draft_section, with_draft_resource]:
+    ...     check_response(
+    ...         client.get(o.get_absolute_url(), as_user=with_draft.testing_editor),
+    ...         content_includes='actions="cloneable,publishable,can_view_existing_draft"'
+    ...     )
+
+    When a collaborator views the "preview" page of a private, never published casebook:
+    >>> for o in [private]:
     ...     check_response(
     ...         client.get(o.get_absolute_url(), as_user=private.testing_editor),
     ...         content_includes='actions="exportable,cloneable,publishable,can_be_directly_edited"'
     ...     )
 
-    When a collaborator views the "preview" page of a draft of an already-published casebook, or
-    the preview pages of any of that casebook's sections or resources:
-    >>> for o in [draft, draft_section, draft_resource]:
+    When a collaborator views the "preview" page of the sections or resources of a private, never published casebook:
+    >>> for o in [private_section, private_resource]:
+    ...     check_response(
+    ...         client.get(o.get_absolute_url(), as_user=private.testing_editor),
+    ...         content_includes='actions="cloneable,publishable,can_be_directly_edited"'
+    ...     )
+
+    When a collaborator views the "preview" page of a draft of an already-published casebook:
+    >>> for o in [draft]:
     ...     check_response(
     ...         client.get(o.get_absolute_url(), as_user=draft.testing_editor),
     ...         content_includes='actions="exportable,publishable,can_be_directly_edited"'
+    ...     )
+
+    When a collaborator views the "preview" page of the sections or resources of a draft of an already-published casebook:
+    >>> for o in [draft_section, draft_resource]:
+    ...     check_response(
+    ...         client.get(o.get_absolute_url(), as_user=draft.testing_editor),
+    ...         content_includes='actions="publishable,can_be_directly_edited"'
     ...     )
 
     ##
@@ -329,13 +360,13 @@ def actions(request, context):
     When a collaborator views the "edit" page of a section in a private, never-published casebook
     >>> check_response(
     ...     client.get(private_section.get_edit_url(), as_user=private.testing_editor),
-    ...     content_includes='actions="exportable,previewable,can_save_nodes,can_add_nodes"'
+    ...     content_includes='actions="previewable,can_save_nodes,can_add_nodes"'
     ... )
 
     When a collaborator views the "edit" page of a section in draft of an already-published casebook
     >>> check_response(
     ...     client.get(draft_section.get_edit_url(), as_user=draft.testing_editor),
-    ...     content_includes='actions="exportable,previewable,publishable,can_save_nodes,can_add_nodes"'
+    ...     content_includes='actions="previewable,publishable,can_save_nodes,can_add_nodes"'
     ... )
 
     # Resource
@@ -343,25 +374,25 @@ def actions(request, context):
     When a collaborator views the "edit" page of a resource in a private, never-published casebook
     >>> check_response(
     ...     client.get(private_resource.get_edit_url(), as_user=private.testing_editor),
-    ...     content_includes='actions="exportable,previewable,can_save_nodes"'
+    ...     content_includes='actions="previewable,can_save_nodes"'
     ... )
 
     When a collaborator views the "edit" page of a resource in draft of an already-published casebook
     >>> check_response(
     ...     client.get(draft_resource.get_edit_url(), as_user=draft.testing_editor),
-    ...     content_includes='actions="exportable,previewable,publishable,can_save_nodes"'
+    ...     content_includes='actions="previewable,publishable,can_save_nodes"'
     ... )
 
     When a collaborator views the "annotate" page of a resource in a private, never-published casebook
     >>> check_response(
     ...     client.get(private_resource.get_annotate_url(), as_user=private.testing_editor),
-    ...     content_includes='actions="exportable,previewable"'
+    ...     content_includes='actions="previewable"'
     ... )
 
     When a collaborator views the "annotate" page of a resource in draft of an already-published casebook
     >>> check_response(
     ...     client.get(draft_resource.get_annotate_url(), as_user=draft.testing_editor),
-    ...     content_includes='actions="exportable,previewable,publishable"'
+    ...     content_includes='actions="previewable,publishable"'
     ... )
 
     """
