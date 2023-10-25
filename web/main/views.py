@@ -393,7 +393,7 @@ def actions(request, context):
 
     actions = OrderedDict(
         [
-            ("exportable", True),
+            ("exportable", view in ["edit_casebook", "casebook"]),
             ("cloneable", cloneable),
             ("previewable", context.get("editing", False)),
             ("publishable", publishable),
