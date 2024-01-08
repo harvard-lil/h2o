@@ -63,6 +63,7 @@ from .utils import (
     prefix_ids_hrefs,
     rich_text_export,
     strip_trailing_block_level_whitespace,
+    send_mail
 )
 
 
@@ -3470,7 +3471,17 @@ class Casebook(EditTrackedModel, TimestampedModel, BigPkModel, TrackedCloneable)
 
     def inc_export_fails(self):
         # This function is used to avoid making a copy of the casebook via CasebookHistory
+        orig = self.export_fails
         Casebook.objects.filter(id=self.id).update(export_fails=F("export_fails") + 1)
+        self.refresh_from_db()
+        if orig < settings.MAX_EXPORT_ATTEMPTS and self.export_fails >= settings.MAX_EXPORT_ATTEMPTS:
+            message = f"Export of casebook {self.id} ({self.title}) has failed the maximum allowed times.\n\nPlease investigate, and reset to zero if the failures were spurious."
+            send_mail(
+                f"Export of H2O Casebook {self.id} is frozen.",
+                message,
+                settings.DEFAULT_FROM_EMAIL,
+                settings.ADMINS,
+            )
 
     def reset_export_fails(self):
         # This function is used to avoid making a copy of the casebook via CasebookHistory
