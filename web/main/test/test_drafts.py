@@ -1,6 +1,10 @@
+from concurrent.futures import ThreadPoolExecutor
 from main.models import User, Section, Resource
+from django.db import connections
 
 from test.test_helpers import dump_casebook_outline
+
+import pytest
 
 
 def test_merge_drafts(reset_sequences, full_casebook, assert_num_queries, legal_document_factory):
@@ -59,3 +63,26 @@ def test_merge_drafts(reset_sequences, full_casebook, assert_num_queries, legal_
 
     # Clones of the original casebook have proper attribution
     assert elena in second_casebook.attributed_authors
+
+
+@pytest.mark.django_db(transaction=True)
+def test_duplicative_merge_prevented(full_casebook_with_draft):
+    """ Fetch two jobs at the same time in threads and make sure same job isn't returned to both. """
+    draft = full_casebook_with_draft.draft
+
+    def attempt_merge(i):
+        try:
+            draft.merge_draft()
+            return True
+        except Exception as e:
+            return e
+        finally:
+            for connection in connections.all():
+                connection.close()
+
+    with ThreadPoolExecutor(max_workers=2) as e:
+        results = e.map(attempt_merge, range(2))
+
+    first, second = list(results)
+    assert (first is True and "already being merged" in str(second)) or \
+           (second is True and "already being merged" in str(first))
