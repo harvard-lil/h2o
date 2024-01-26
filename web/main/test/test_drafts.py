@@ -67,7 +67,6 @@ def test_merge_drafts(reset_sequences, full_casebook, assert_num_queries, legal_
 
 @pytest.mark.django_db(transaction=True)
 def test_duplicative_merge_prevented(full_casebook_with_draft):
-    """ Fetch two jobs at the same time in threads and make sure same job isn't returned to both. """
     draft = full_casebook_with_draft.draft
 
     def attempt_merge(i):
@@ -84,5 +83,6 @@ def test_duplicative_merge_prevented(full_casebook_with_draft):
         results = e.map(attempt_merge, range(2))
 
     first, second = list(results)
-    assert (first is True and "already being merged" in str(second)) or \
-           (second is True and "already being merged" in str(first))
+    assert (first is True and "already being merged" in str(second)) or (
+        second is True and "already being merged" in str(first)
+    )
