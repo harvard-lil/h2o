@@ -34,7 +34,7 @@ from django.contrib.postgres.search import (
 from django.core.exceptions import ValidationError
 from django.core.paginator import Paginator, Page
 from django.core.validators import MaxLengthValidator, validate_unicode_slug
-from django.db import ProgrammingError, connection, models, transaction
+from django.db import DatabaseError, ProgrammingError, connection, models, transaction
 from django.db.models import Count, F, JSONField, Q, QuerySet
 
 from django.template.defaultfilters import truncatechars
@@ -2964,10 +2964,17 @@ class Casebook(EditTrackedModel, TimestampedModel, BigPkModel, TrackedCloneable)
         See main/test/test_drafts.py
         """
         # set up variables
-        draft = self
-        if not self.is_draft:
-            raise ValueError("Only draft casebooks may be merged")
-        parent = self.draft_of
+        try:
+            # Technique from https://github.com/harvard-lil/capstone/blob/0f7fb80f26e753e36e0c7a6a199b8fdccdd318be/capstone/capapi/serializers.py#L121
+            #
+            # Fetch casebooks here inside a transaction, using select_for_update
+            # to lock the rows so we don't collide with any simultaneous requests
+            draft = Casebook.objects.select_for_update(nowait=True).get(pk=self.pk)
+            if not draft.is_draft:
+                raise ValueError("Only draft casebooks may be merged")
+            parent = Casebook.objects.select_for_update(nowait=True).get(draft=draft.id)
+        except DatabaseError:
+            raise ValueError("This casebook's draft is already being merged.")
 
         # swap all attributes
 
