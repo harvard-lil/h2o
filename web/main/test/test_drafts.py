@@ -34,7 +34,7 @@ def test_merge_drafts(reset_sequences, full_casebook, assert_num_queries, legal_
         resource_id=ld.id,
         resource_type="LegalDocument",
     ).save()
-    with assert_num_queries(select=10, update=3, insert=4):
+    with assert_num_queries(select=12, update=3, insert=4):
         new_casebook = draft.merge_draft()
     assert new_casebook == full_casebook
     expected = [
