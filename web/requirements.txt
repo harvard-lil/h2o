@@ -237,9 +237,9 @@ diff-match-patch==20200713 \
     --hash=sha256:8bf9d9c4e059d917b5c6312bac0c137971a32815ddbda9c682b949f2986b4d34 \
     --hash=sha256:da6f5a01aa586df23dfc89f3827e1cafbb5420be9d87769eeb079ddfd9477a18
     # via -r requirements.in
-django==3.2.24 \
-    --hash=sha256:5dd5b787c3ba39637610fe700f54bf158e33560ea0dba600c19921e7ff926ec5 \
-    --hash=sha256:aaee9fb0fb4ebd4311520887ad2e33313d368846607f82a9a0ed461cd4c35b18
+django==3.2.25 \
+    --hash=sha256:7ca38a78654aee72378594d63e51636c04b8e28574f5505dff630895b5472777 \
+    --hash=sha256:a52ea7fcf280b16f7b739cec38fa6d3f8953a5456986944c3ca97e79882b4e38
     # via
     #   -r requirements.in
     #   django-debug-toolbar
