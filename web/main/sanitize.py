@@ -193,8 +193,11 @@ def sanitize(html):
     allowed_tags, allowed_attributes, allowed_styles = get_allow_lists()
     css_sanitizer = CSSSanitizer(allowed_css_properties=list(allowed_styles))
     out = bleach.clean(
-        html, tags=allowed_tags, attributes=allowed_attributes,
-        css_sanitizer=css_sanitizer, strip=True
+        html,
+        tags=allowed_tags,
+        attributes=allowed_attributes,
+        css_sanitizer=css_sanitizer,
+        strip=True,
     )
     # bleach currently doubles '<wbr>' into '<wbr></wbr>'. work around that edge case until we drop support for <wbr>
     # or bleach is fixed. see https://github.com/mozilla/bleach/issues/488
