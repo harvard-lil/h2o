@@ -10,7 +10,7 @@ jobs:
       - uses: actions/checkout@v3
       - uses: actions/setup-python@v4
         with:
-          python-version: '3.9'
+          python-version: '3.11'
       - name: flake8
         run: |
           pip install `egrep -o 'flake8==\S+' web/requirements.txt`  # install our version of flake8
