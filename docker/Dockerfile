@@ -1,4 +1,4 @@
-FROM registry.lil.tools/library/python:3.9-bullseye
+FROM registry.lil.tools/library/python:3.11-bookworm
 ENV LANG=C.UTF-8 \
     LC_ALL=C.UTF-8 \
     PYTHONUNBUFFERED=1 \
