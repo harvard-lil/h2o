@@ -778,9 +778,9 @@ types-html5lib==1.1.11.20240228 \
     --hash=sha256:22736b7299e605ec4ba539d48691e905fd0c61c3ea610acc59922232dc84cede \
     --hash=sha256:af5de0125cb0fe5667543b158db83849b22e25c0e36c9149836b095548bf1020
     # via types-bleach
-types-python-dateutil==2.8.19 \
-    --hash=sha256:6284df1e4783d8fc6e587f0317a81333856b872a6669a282f8a325342bce7fa8 \
-    --hash=sha256:bfd3eb39c7253aea4ba23b10f69b017d30b013662bb4be4ab48b20bbd763f309
+types-python-dateutil==2.8.19.20240106 \
+    --hash=sha256:1f8db221c3b98e6ca02ea83a58371b22c374f42ae5bbdf186db9c9a76581459f \
+    --hash=sha256:efbbdc54590d0f16152fa103c9879c7d4a00e82078f6e2cf01769042165acaa2
     # via -r requirements.in
 types-pytz==2022.1.2 \
     --hash=sha256:1a8b25c225c5e6bd8468aa9eb45ddd3b337f6716d4072ad0aa4ef1e41478eebc \
