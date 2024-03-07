@@ -27,6 +27,7 @@ INSTALLED_APPS = [
     # third party
     "django_extensions",
     "crispy_forms",
+    "crispy_bootstrap3",
     "rest_framework",
     "webpack_loader",
     "django_json_widget",
