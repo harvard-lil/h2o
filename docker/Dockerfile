@@ -1,4 +1,4 @@
-FROM registry.lil.tools/library/python:3.9-bullseye
+FROM registry.lil.tools/library/python:3.11-bookworm
 ENV LANG=C.UTF-8 \
     LC_ALL=C.UTF-8 \
     PYTHONUNBUFFERED=1 \
@@ -22,7 +22,7 @@ WORKDIR /app/web
 
 # pip
 COPY web/requirements.txt /app/web
-RUN pip install pip==21.3.1 \
+RUN pip install pip==24.0 \
     && pip install -r requirements.txt \
     && rm requirements.txt
 
