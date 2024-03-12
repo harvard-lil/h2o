@@ -42,6 +42,9 @@ RUN  apt-get update && apt install -y --no-install-recommends libdbus-glib-1-2 \
     libgbm1 \
     libasound2 \
     libatspi2.0-0 \
-    libwayland-client0
+    libwayland-client0 \
+    libx11-xcb1 \
+    libxcursor1 \
+    libgtk-3-0
 
 RUN playwright install chromium firefox
