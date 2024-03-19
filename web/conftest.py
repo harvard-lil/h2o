@@ -92,16 +92,6 @@ def register_factory(cls):
     return cls
 
 
-@pytest.fixture(scope="session")
-def celery_config():
-    # NOTE: when the `celery_worker` fixture is included, peculiar
-    # (and seemingly spurious) DB-related warnings are sometimes
-    # printed when tests fail... Very confusing when debugging!
-    # Be sure to read all the way up, for the original assertion
-    # failure, before wasting time investigating fixtures' DB access.
-    return {"broker_url": settings.CELERY_BROKER_URL}
-
-
 ### model factories ###
 
 

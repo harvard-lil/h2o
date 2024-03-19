@@ -23,9 +23,6 @@ bleach[css]         # html sanitization
 diff-match-patch    # update annotations when underlying text changes
 django-json-widget  # fancy editor for Case JSON fields in the Django admin
 django-simple-history # history preservation for contents
-celery[redis, pytest] # task runner
-django-celery-results  # Store celery task results in the ORM
-watchdog            # restart celery in dev (via 'watchmedo' command)
 
 # Testing
 pytest>=7.1.3
@@ -38,8 +35,6 @@ requests-mock       # mock the requests library
 pytest-mock
 py-spy
 freezegun
-playwright>=1.27
-pytest-playwright
 
 # Dev convenience
 django-debug-toolbar

@@ -11,8 +11,6 @@ from django.http import HttpResponseRedirect
 from django.urls import path, reverse
 from django.utils.html import format_html
 from django.utils.safestring import mark_safe
-from django_celery_results.admin import TaskResultAdmin
-from django_celery_results.models import TaskResult
 from django_json_widget.widgets import JSONEditorWidget
 from simple_history.admin import SimpleHistoryAdmin
 from django.utils.functional import cached_property
@@ -934,5 +932,4 @@ admin_site.register(CommonTitle, CommonTitleAdmin)
 admin_site.register(LiveSettings, LiveSettingsAdmin)
 admin_site.register(Tag, TagAdmin)
 admin_site.register(CasebookTag, CasebookTagAdmin)
-admin_site.register(TaskResult, TaskResultAdmin)
 admin_site.register(Group, GroupAdmin)

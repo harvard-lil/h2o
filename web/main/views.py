@@ -35,7 +35,6 @@ from django.views import View
 from django.views.decorators.cache import never_cache
 from django.views.decorators.csrf import requires_csrf_token
 from django.views.decorators.http import require_http_methods, require_POST
-from django_celery_results.models import TaskResult
 from pytest import raises as assert_raises
 from rest_framework import status
 from rest_framework.exceptions import ValidationError
@@ -43,8 +42,6 @@ from rest_framework.request import Request
 from rest_framework.response import Response
 from rest_framework.views import APIView
 from simple_history.utils import bulk_create_with_history
-
-from main.celery_tasks import pdf_from_user
 
 from .forms import (
     CasebookForm,
@@ -966,51 +963,6 @@ class CommonTitleView(APIView):
             data = CommonTitleSerializer(val, context={"request": request}).data
             return Response(data)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-
-
-class PDFExportView(APIView):
-    @never_cache
-    @no_perms_test  # TODO think through what permissions are required here
-    @method_decorator(hydrate_params)
-    def get(self, request: HttpRequest, casebook: Casebook, **kwargs):
-        result = get_object_or_404(TaskResult, task_id=request.GET.get("task_id"))
-        if result.status == "SUCCESS":
-            return HttpResponse(result.result)
-        else:
-            exception_type = json.loads(result.result)["exc_type"]
-            if exception_type == "PermissionError":
-                return HttpResponseBadRequest(
-                    "The requested casebook is not public. Exporting private casebooks is not yet supported."
-                )
-            logger.error("Exception thrown from PDF task:")
-            logger.error(result.traceback)
-            return HttpResponseBadRequest("An unexpected error occurred.")
-
-    @method_decorator(hydrate_params)
-    @method_decorator(
-        perms_test(
-            {
-                "args": ["full_casebook"],
-                "results": {200: [None, "other_user", "full_casebook.testing_editor"]},
-            },
-            {
-                "args": ["full_private_casebook"],
-                "results": {
-                    200: ["full_private_casebook.testing_editor"],
-                    302: [None],
-                    403: ["other_user"],
-                },
-            },
-        )
-    )
-    @method_decorator(user_has_perm("casebook", "viewable_by"))
-    @method_decorator(requires_csrf_token)
-    def post(self, request: HttpRequest, casebook: Casebook, **kwargs):
-        url = reverse("printable_pdf", args=[casebook])
-        task_id = pdf_from_user.delay(
-            f"{request.scheme}://{request.get_host()}{url}", casebook.slug
-        )
-        return HttpResponse(task_id)
 
 
 class LegalDocumentResourceView(APIView):

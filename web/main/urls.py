@@ -57,11 +57,6 @@ drf_urlpatterns = [
         name="edit_title",
     ),
     path(
-        "api/casebooks/<idslug:casebook_param>/export-pdf",
-        views.PDFExportView.as_view(),
-        name="export_as_pdf",
-    ),
-    path(
         "casebooks/<idslug:casebook_param>/resources/from_source/",
         views.LegalDocumentResourceView.as_view(),
         name="legal_document_resource_view",

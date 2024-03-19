@@ -7,7 +7,6 @@ import { BrowserTracing } from "@sentry/tracing";
 import AddContent from "../components/AddContent";
 import AuditButton from "../components/AuditButton";
 import Dashboard from "../components/Dashboard";
-import ExportButton from "../components/ExportButton";
 import Globals from "../components/Globals";
 import LegalDocumentSearch from "../components/LegalDocumentSearch/LegalDocumentSearch";
 import PortalVue from "portal-vue";
@@ -54,7 +53,6 @@ document.addEventListener("DOMContentLoaded", () => {
         AddContent,
         AuditButton,
         Dashboard,
-        ExportButton,
         Globals,
         LegalDocumentSearch,
         PortalVue,

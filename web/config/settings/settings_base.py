@@ -32,7 +32,6 @@ INSTALLED_APPS = [
     "webpack_loader",
     "django_json_widget",
     "simple_history",
-    "django_celery_results",
     # built-in
     "django.contrib.admin.apps.SimpleAdminConfig",
     "django.contrib.auth",
@@ -237,41 +236,6 @@ WEBPACK_LOADER = {
     }
 }
 
-###
-### CELERY settings ###
-###
-
-CELERY_BROKER_URL = "redis://redis:6379/0"
-CELERY_ACCEPT_CONTENT = ["json"]
-CELERY_TASK_SERIALIZER = "json"
-CELERY_RESULT_SERIALIZER = "json"
-CELERY_TIMEZONE = "UTC"
-
-# If a task is running longer than twenty minutes, ask it to shut down
-CELERY_TASK_SOFT_TIME_LIMIT = 20 * 60
-# If a task continues for twenty two minutes, kill it
-CELERY_TASK_TIME_LIMIT = 22 * 60
-
-# Control whether Celery tasks should be run asynchronously in a background worker
-# process or synchronously in the main thread of the calling script / Django request.
-# This should normally be False, but it's handy to not require the broker and a
-# celery worker daemon to be running sometimes... for instance, if you want to drop into pdb.
-CELERY_TASK_ALWAYS_EAGER = False
-CELERY_TASK_EAGER_PROPAGATES = True  # propagate exceptions when CELERY_TASK_ALWAYS_EAGER=True
-
-CELERY_TASK_ROUTES = {
-    "main.celery_tasks.demo_scheduled_task": {"queue": "background"},
-}
-
-CELERY_BEAT_SCHEDULE = {}
-CELERY_RESULT_BACKEND = "django-db"
-CELERY_CACHE_BACKEND = "django-cache"
-CELERY_RESULT_EXTENDED = True  # Include full metadata in TaskResult entries
-
-###
-### /END CELERY settings ###
-###
-
 CAPAPI_BASE_URL = "https://api.case.law/v1/"
 CAPAPI_API_KEY = ""
 
@@ -304,15 +268,6 @@ S3_STORAGE = {
 MAX_EXPORT_ATTEMPTS = 5
 MAX_EXPORTS_PER_HOUR = 600
 EXPORT_RATE_FALLOFF = int(MAX_EXPORTS_PER_HOUR / 60)
-
-# PDF export settings
-PDF_EXPORT_BUCKET = os.environ.get("PDF_EXPORT_BUCKET", "")
-PDF_USER_AGENT_OVERRIDE = (
-    None  # If set, will override the user agent used by Playwright during PDF generation
-)
-
-PDF_AWS_QUERYSTRING_EXPIRE = 3_600  # 60 minutes
-AWS_S3_SIGNATURE_VERSION = "s3v4"
 
 AWS_LAMBDA_EXPORT_TIMEOUT = 60 * 4
 AWS_LAMBDA_EXPORT_SETTINGS = {
