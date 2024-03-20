@@ -3280,5 +3280,10 @@ def view_image(request, image_uuid):
     Redirect to S3 with temp creds.
 
     """
-    saved_image = get_object_or_404(SavedImage.objects.filter(external_id=image_uuid))
-    return redirect(saved_image.image.url)
+    try:
+        assert uuid.UUID(image_uuid)
+        saved_image = get_object_or_404(SavedImage.objects.filter(external_id=image_uuid))
+        return redirect(saved_image.image.url)
+    except ValueError:
+        # image_uuid is not a UUID
+        raise Http404
