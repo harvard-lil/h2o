@@ -13,7 +13,7 @@ from django.contrib.auth.decorators import login_required
 from django.contrib.auth.models import AnonymousUser
 from django.contrib.auth.views import PasswordResetView, redirect_to_login
 from django.core.exceptions import PermissionDenied
-from django.core.paginator import Paginator
+from django.core.paginator import Paginator, EmptyPage
 from django.core.validators import URLValidator
 from django.db import transaction
 from django.db.models import Q
@@ -2818,7 +2818,10 @@ def as_printable_html(
     logger.info(f"Rendering Casebook {casebook.id}, starting from page {page}: serializing to HTML")
 
     paginator = Paginator(top_level_nodes, 1)
-    page = paginator.page(page)
+    try:
+        page = paginator.page(page)
+    except EmptyPage:
+        raise Http404
     section = page[0]
 
     node_filter = {} if whole_book else {"ordinals__0": section.ordinals[0]}
