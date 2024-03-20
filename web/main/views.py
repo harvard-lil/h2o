@@ -2821,6 +2821,7 @@ def as_printable_html(
     try:
         page = paginator.page(page)
     except EmptyPage:
+        logger.info(f"Page {page} of Casebook {casebook.id} not found")
         raise Http404
     section = page[0]
 
