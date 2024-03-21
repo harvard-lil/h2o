@@ -390,9 +390,11 @@ class USCodeGPO:
             notes = get_field("notes", full_body, notes_start)
             return {
                 "header": header_lines,
-                "body": strip_comments(strip_brs(statute_body["content"]))
-                if statute_body["content"]
-                else "",
+                "body": (
+                    strip_comments(strip_brs(statute_body["content"]))
+                    if statute_body["content"]
+                    else ""
+                ),
                 "notes": strip_comments(strip_brs(notes["content"])) if notes["content"] else "",
             }
 
@@ -541,7 +543,7 @@ class CourtListener:
                 headers={"Authorization": f"Token {settings.COURTLISTENER_API_KEY}"},
             )
             resp.raise_for_status()
-        except (requests.exceptions.HTTPError) as e:
+        except requests.exceptions.HTTPError as e:
             msg = f"Communication with CourtListener failed: {str(e), resp.status_code, resp.request.url}"
             raise APICommunicationError(msg)
         results = []
@@ -582,7 +584,7 @@ class CourtListener:
 
             opinion = resp.json()
 
-        except (requests.exceptions.HTTPError) as e:
+        except requests.exceptions.HTTPError as e:
             msg = f"Failed call to {resp.request.url}: {e}\n{resp.content}"
             raise APICommunicationError(msg)
 

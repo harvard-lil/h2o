@@ -47,7 +47,8 @@ class AbstractReportingChangeList(ABC, ChangeList):
 
 class AbstractProfessorChangeList(AbstractReportingChangeList):
     """Implement materializing a User-derived queryset that is filtered on the custom dashboard fields
-    and has expected annotations for the parent queryset, here the count of casebooks by this author."""
+    and has expected annotations for the parent queryset, here the count of casebooks by this author.
+    """
 
     def get_state(self, request: HttpRequest) -> Optional[Iterable[str]]:
         return None
@@ -176,7 +177,8 @@ class AbstractCasebookChangeList(AbstractReportingChangeList):
 
 class AbstractCasebooksAdmin(CasebookExportMixin, CasebookAdmin):
     """Return a Casebook list where subclasses can specify the database view to select from,
-    and indicate whether to join on the professor view to restrict results to casebooks by professors."""
+    and indicate whether to join on the professor view to restrict results to casebooks by professors.
+    """
 
     @property
     @abstractmethod

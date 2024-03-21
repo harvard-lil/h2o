@@ -35,11 +35,13 @@ requests-mock       # mock the requests library
 pytest-mock
 py-spy
 freezegun
+playwright
+pytest-playwright
 
 # Dev convenience
 django-debug-toolbar
 # code formatting
-black==22.6.0
+black
 
 # static type checking
 mypy<1.2

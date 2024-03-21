@@ -350,9 +350,11 @@ class UserProfileForm(ModelForm):
                     '<div class="verified-professor">Verified Professor<span class="verified"></span></div>'
                 )
                 if self.instance.verified_professor
-                else HTML('<div class="verified-professor">Professor Verification Requested</div>')
-                if self.instance.professor_verification_requested
-                else "professor_verification_requested"
+                else (
+                    HTML('<div class="verified-professor">Professor Verification Requested</div>')
+                    if self.instance.professor_verification_requested
+                    else "professor_verification_requested"
+                )
             ),
             Submit("submit", "Save changes"),
             HTML(
