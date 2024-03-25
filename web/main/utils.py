@@ -31,7 +31,7 @@ from .storages import get_s3_storage
 
 import logging
 
-logger = logging.getLogger(__name__)
+logger = logging.getLogger("django")
 
 
 class APICommunicationError(Exception):
