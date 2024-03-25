@@ -317,7 +317,13 @@ def rich_text_export(html_str, request=None, id_prefix=""):
         original_html = el.parent().html(method="html")
         src = el.outer_html()
         replacement = f"</p><div data-custom-style='{style}'>{el.outer_html()}</div><p>"
-        el.parent().html(original_html.replace(src, replacement))
+        try:
+            el.parent().html(original_html.replace(src, replacement))
+        except AttributeError:
+            # 'NoneType' object has no attribute 'replace'
+            logger.info(
+                f"original_html.replace failed; src is '{src}', replacement is '{replacement}', parent is '{el.parent()}'"
+            )
 
     def attach_id_to_style(el):
         el.attrib["data-custom-style"] += f"-{id_prefix}"
