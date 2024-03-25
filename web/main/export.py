@@ -101,9 +101,9 @@ class AnnotationContentHandler(sax.ContentHandler):
                             self.out_handler.startElement,
                             "span",
                             {
-                                "data-custom-style": "Elision"
-                                if kind == "elide"
-                                else "Replacement Text"
+                                "data-custom-style": (
+                                    "Elision" if kind == "elide" else "Replacement Text"
+                                )
                             },
                         )
                     )

@@ -1451,9 +1451,9 @@ def casebook_outline(request, casebook):
     params = {
         "casebook": casebook,
         "tabs": casebook.tabs_for_user(request.user, current_tab="Settings"),
-        "casebook_color_class": "casebook-archived"
-        if casebook.is_archived
-        else "casebook-preview casebook-public",
+        "casebook_color_class": (
+            "casebook-archived" if casebook.is_archived else "casebook-preview casebook-public"
+        ),
         "edit_mode": casebook.directly_editable_by(request.user),
     }
     return render(request, "casebook_outline_edit.html", params)

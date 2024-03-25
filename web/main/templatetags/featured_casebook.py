@@ -26,9 +26,11 @@ def featured_casebook(
     return {
         "casebook": casebook,
         "title": title or casebook.title,
-        "authors": [{"display_name": authors}]
-        if authors
-        else [author for author in casebook.primary_authors if author.verified_professor],
+        "authors": (
+            [{"display_name": authors}]
+            if authors
+            else [author for author in casebook.primary_authors if author.verified_professor]
+        ),
         "cover_image": cover_image,
         "error": None,
     }
