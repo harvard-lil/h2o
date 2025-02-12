@@ -4,12 +4,12 @@ on: [push, pull_request]
 
 jobs:
   build:
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-latest
     # don't run on pushes to forks
     if: github.event_name == 'pull_request' || github.repository == 'harvard-lil/h2o'
 
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
 
       ### build docker images locally ###
 
@@ -52,7 +52,9 @@ jobs:
       ### codecov ###
       # https://github.com/codecov/codecov-action
       - name: Codecov
-        uses: codecov/codecov-action@v1
+        uses: codecov/codecov-action@v5
+        with:
+          token: ${{ secrets.CODECOV_TOKEN }}
 
       # build, push, and deploy pandoc-lambda image to stage if necessary
       # this requires that AWS_ACCESS_KEY_ID, AWS_SECRET_ACCESS_KEY, AWS_DEFAULT_REGION,
