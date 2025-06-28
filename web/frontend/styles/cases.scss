@@ -61,3 +61,25 @@
         height: auto;
     }
 }
+
+// Improve readability on large screens by limiting line length
+// Targets reading mode content specifically
+main {
+    max-width: 90rem; // ~1440px at default font size
+    margin: 0 auto;
+}
+
+// Constrain reading content width for better readability
+section.resource,
+.case-text,
+.headnote {
+    max-width: 60rem; // ~960px at default font size, optimal for reading
+    margin-left: auto;
+    margin-right: auto;
+    
+    // Add some padding for breathing room
+    @media (min-width: $screen-md) {
+        padding-left: 2rem;
+        padding-right: 2rem;
+    }
+}
