@@ -14,9 +14,12 @@ import os
 from typing import Any, TypedDict
 import json
 
+config = json.loads(os.environ.get("APP_CONFIG", "{}"))
+
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
-ALLOWED_HOSTS: list[str] = []
 TESTING = False
+ALLOWED_HOSTS: list[str] = config.get("ALLOWED_HOSTS","0.0.0.0").split(",")
+SECRET_KEY = config.get("SECRET_KEY", "k2#@_q=1$(__n7#(zax6#46fu)x=3&^lz&bwb8ol-_097k_rj5")
 
 # Application definition
 
@@ -44,6 +47,7 @@ INSTALLED_APPS = [
 ]
 
 MIDDLEWARE = [
+    "config.middleware.HealthCheckMiddleware",
     "main.middleware.method_override_middleware",
     "django.middleware.security.SecurityMiddleware",
     "whitenoise.middleware.WhiteNoiseMiddleware",
@@ -83,15 +87,15 @@ WSGI_APPLICATION = "config.wsgi.application"
 # https://docs.djangoproject.com/en/2.2/ref/settings/#databases
 
 DATABASES = {
-    "default": {
-        "ENGINE": "django.db.backends.postgresql",
-        "NAME": "postgres",
-        "USER": "postgres",
-        "PASSWORD": "example",
-        "HOST": "db",
-        "PORT": 5432,
-    }
-}
+     'default': {
+        'ENGINE': 'django.db.backends.postgresql',
+        'NAME': config.get('DATABASE_NAME', 'postgres'),
+        'USER': config.get('DATABASE_USERNAME', 'postgres'),
+        'PASSWORD': config.get('DATABASE_PASSWORD', 'password'),
+        'HOST': config.get('DATABASE_HOST', '127.0.0.1'),
+        'PORT': config.get('DATABASE_PORT', 5432),
+     }
+ }
 
 DEFAULT_AUTO_FIELD = "django.db.models.AutoField"
 
@@ -129,9 +133,9 @@ USE_L10N = True
 
 # LIL's analytics JS
 USE_ANALYTICS = False
-MATOMO_SITE_URL = ""
-MATOMO_API_KEY = ""
-MATOMO_SITE_ID = "3"
+MATOMO_SITE_URL = config.get("MATOMO_SITE_URL", "")
+MATOMO_API_KEY = config.get("MATOMO_API_KEY", "")
+MATOMO_SITE_ID = config.get("MATOMO_SITE_ID", "3")
 
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/2.2/howto/static-files/
@@ -232,7 +236,7 @@ WEBPACK_LOADER = {
             BASE_DIR,
             (
                 "webpack-stats-serve.json"
-                if os.environ.get("LIVE_JS_ASSETS")
+                if config.get("LIVE_JS_ASSETS")
                 else "webpack-stats.json"
             ),
         ),
@@ -240,21 +244,19 @@ WEBPACK_LOADER = {
 }
 
 CAPAPI_BASE_URL = "https://api.case.law/v1/"
-CAPAPI_API_KEY = ""
+CAPAPI_API_KEY = config.get("CAPAPI_API_KEY", "")
 
 GPO_BASE_URL = "https://api.govinfo.gov/"
-GPO_API_KEY = ""
-
+GPO_API_KEY = config.get("GPO_API_KEY", "")
 COURTLISTENER_BASE_URL = "https://www.courtlistener.com"
 COURTLISTENER_API_BASE_URL = "https://www.courtlistener.com/api/rest/v4/"
-COURTLISTENER_API_KEY = ""
-
+COURTLISTENER_API_KEY = config.get("COURTLISTENER_API_KEY", "")
 CRISPY_TEMPLATE_PACK = "bootstrap3"
 CRISPY_FAIL_SILENTLY = False
 
 # Temporary: this is the name of the CSRF header used by the Rails app's AJAX requests
 CSRF_HEADER_NAME = "HTTP_X_CSRF_TOKEN"
-CSRF_FAILURE_VIEW = "main.views.csrf_failure"
+# CSRF_FAILURE_VIEW = "main.views.csrf_failure"
 REST_FRAMEWORK = {
     "DEFAULT_AUTHENTICATION_CLASSES": (
         "rest_framework.authentication.SessionAuthentication",  # authenticate with Django login

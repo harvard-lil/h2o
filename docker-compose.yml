@@ -1,43 +1,36 @@
 services:
   db:
-    image: registry.lil.tools/library/postgres:16.6
-    volumes:
-      - db_data_16:/var/lib/postgresql/data:delegated
-    ports:
-      - "127.0.0.1:54320:5432"
+    image: postgres:16
     environment:
-      - POSTGRES_PASSWORD=example
-
-  web:
-    image: registry.lil.tools/harvardlil/h2o-python:0.117-13caa7e3bb2533fd5a1859b3854d9612
-    tty: true
-    command: bash
-    environment:
-    - DOCKERIZED=true
-    - PDF_EXPORT_BUCKET=h2o.pdf_exports
-
-    volumes:
-      - .:/app:delegated
+        POSTGRES_DB: ${DATABASE_NAME}
+        POSTGRES_USER: ${DATABASE_USERNAME}
+        POSTGRES_PASSWORD: ${DATABASE_PASSWORD}
     ports:
-      - "127.0.0.1:8000:8000"
-      - "127.0.0.1:8080:8080"
-    extra_hosts:
-      - "opencasebook.test:127.0.0.1"
+        - "54320:5432"
+    volumes:
+        - h2o:/var/lib/postgresql/data
     networks:
-      default:
-        aliases:
-          - 'opencasebook.test'
+        - h2o
+    restart: unless-stopped
+ 
+  web:
+    build: .
+    container_name: h2o
+    ports:
+        - "8000:8000"
     depends_on:
-      - db
-    # allow profiling with py-spy
-    # https://github.com/benfred/py-spy#how-do-i-run-py-spy-in-docker
-    cap_add:
-        - SYS_PTRACE
+        - db
+    environment:
+        APP_CONFIG: ${APP_CONFIG}
+    volumes:
+      - ./web:/app
+    networks:
+        - h2o
+    restart: unless-stopped
 
   minio:
     image: registry.lil.tools/minio/minio:RELEASE.2021-02-19T04-38-02Z
-    entrypoint:
-      - "/entrypoint.sh"
+    container_name: minio
     command:
       - "server"
       - "/data"
@@ -50,15 +43,16 @@ services:
       - PDF_EXPORT_BUCKET=h2o.pdf_exports
     volumes:
       - ./docker/minio/entrypoint.sh:/entrypoint.sh
-      - minio_data:/data:delegated
+      - h2o-minio:/data:delegated
     ports:
-      - "127.0.0.1:9000:9000"
+      - "9000:9000"
     extra_hosts:
       - "opencasebook.minio.test:127.0.0.1"
     networks:
-      default:
+      h2o:
         aliases:
           - 'opencasebook.minio.test'
+    restart: unless-stopped
 
   pandoc-lambda:
     image: registry.lil.tools/harvardlil/h2o-pandoc-lambda:0.66-f4ef497565cd325e6161cb6b0dafe814
@@ -69,13 +63,21 @@ services:
       - AWS_SECRET_ACCESS_KEY=secretkey
       - S3_ENDPOINT_URL=http://minio:9000
       - EXPORT_BUCKET=h2o.exports
-    # volumes: is set for local dev in docker-compose.override.yml
-    # Uncomment to disable entrypoint if changes to requirements mean container can't start:
-    # command: bash
+    networks:
+        - h2o
+    restart: unless-stopped
+
 
 volumes:
-  db_data_16:
-  minio_data:
+  h2o:
+    name: h2o
+    driver: local
+
+  h2o-minio:
+    name: h2o-minio
+    driver: local
 
 networks:
-  default:
+  h2o:
+    name: h2o
+    driver: bridge

@@ -45,5 +45,5 @@ fi
 
 echo "Loading data from $FILE ..."
 docker cp "$FILE" "$(docker compose ps -q db)":/tmp/data.dump
-docker compose exec db pg_restore --username=postgres --verbose --no-owner -h localhost -d postgres /tmp/data.dump
+docker compose exec -it db psql -U postgres -d h2o -f /tmp/data.dump
 docker compose exec db rm -f /tmp/data.dump
