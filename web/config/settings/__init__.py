@@ -3,7 +3,7 @@ import json
 
 config = json.loads(os.environ.get("APP_CONFIG", "{}"))
 
-ENVIRONMENT = config.get('ENVIRONMENT', 'dev')
+ENVIRONMENT = config.get("ENVIRONMENT", "dev")
 
 if ENVIRONMENT == "dev":
     from .settings_dev import *

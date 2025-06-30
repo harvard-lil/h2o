@@ -4,5 +4,5 @@ from django.utils.deprecation import MiddlewareMixin
 
 class HealthCheckMiddleware(MiddlewareMixin):
     def process_request(self, request):
-        if request.META['PATH_INFO'] == '/healthcheck/':
-            return HttpResponse('Running ✅!')
+        if request.META["PATH_INFO"] == "/healthcheck/":
+            return HttpResponse("Running ✅!")

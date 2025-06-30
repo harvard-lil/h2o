@@ -18,7 +18,7 @@ config = json.loads(os.environ.get("APP_CONFIG", "{}"))
 
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 TESTING = False
-ALLOWED_HOSTS: list[str] = config.get("ALLOWED_HOSTS","0.0.0.0").split(",")
+ALLOWED_HOSTS: list[str] = config.get("ALLOWED_HOSTS", "0.0.0.0").split(",")
 SECRET_KEY = config.get("SECRET_KEY", "k2#@_q=1$(__n7#(zax6#46fu)x=3&^lz&bwb8ol-_097k_rj5")
 
 # Application definition
@@ -87,15 +87,15 @@ WSGI_APPLICATION = "config.wsgi.application"
 # https://docs.djangoproject.com/en/2.2/ref/settings/#databases
 
 DATABASES = {
-     'default': {
-        'ENGINE': 'django.db.backends.postgresql',
-        'NAME': config.get('DATABASE_NAME', 'postgres'),
-        'USER': config.get('DATABASE_USERNAME', 'postgres'),
-        'PASSWORD': config.get('DATABASE_PASSWORD', 'password'),
-        'HOST': config.get('DATABASE_HOST', '127.0.0.1'),
-        'PORT': config.get('DATABASE_PORT', 5432),
-     }
- }
+    "default": {
+        "ENGINE": "django.db.backends.postgresql",
+        "NAME": config.get("DATABASE_NAME", "postgres"),
+        "USER": config.get("DATABASE_USERNAME", "postgres"),
+        "PASSWORD": config.get("DATABASE_PASSWORD", "password"),
+        "HOST": config.get("DATABASE_HOST", "127.0.0.1"),
+        "PORT": config.get("DATABASE_PORT", 5432),
+    }
+}
 
 DEFAULT_AUTO_FIELD = "django.db.models.AutoField"
 
@@ -234,11 +234,7 @@ WEBPACK_LOADER = {
         "BUNDLE_DIR_NAME": "dist/",
         "STATS_FILE": os.path.join(
             BASE_DIR,
-            (
-                "webpack-stats-serve.json"
-                if config.get("LIVE_JS_ASSETS")
-                else "webpack-stats.json"
-            ),
+            ("webpack-stats-serve.json" if config.get("LIVE_JS_ASSETS") else "webpack-stats.json"),
         ),
     }
 }
