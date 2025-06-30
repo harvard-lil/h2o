@@ -17,7 +17,7 @@ boto3
 pillow
 
 # database
-psycopg2            # postgres connector
+psycopg2-binary            # postgres connector
 
 bleach[css]         # html sanitization
 diff-match-patch    # update annotations when underlying text changes
@@ -57,3 +57,6 @@ pyquery
 
 # instrumentation
 sentry-sdk
+
+# web server
+gunicorn
