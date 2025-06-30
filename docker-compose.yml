@@ -6,9 +6,9 @@ services:
     ports:
       - "127.0.0.1:54320:5432"
     environment:
-      POSTGRES_DB: ${DATABASE_NAME}
-      POSTGRES_USER: ${DATABASE_USERNAME}
-      POSTGRES_PASSWORD: ${DATABASE_PASSWORD}
+      POSTGRES_DB: h2o
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
 
 
   web:
@@ -16,7 +16,7 @@ services:
     tty: true
     command: bash
     environment:
-      APP_CONFIG: ${APP_CONFIG}
+      APP_CONFIG: '{"SECRET_KEY":"0DrNYJ1vbBNX4ImoLHHRV4CxdcO4pPPrsb6CrPzMKUyVtoVSrh7Y5r4iG2ibmy82JWaPFf","ALLOWED_HOSTS":"127.0.0.1,localhost,opencasebook.test","DATABASE_NAME":"h2o","DATABASE_USERNAME":"postgres","DATABASE_PASSWORD":"postgres","DATABASE_HOST":"db","DATABASE_PORT":"5432"}'
       DOCKERIZED: true
       PDF_EXPORT_BUCKET: h2o.pdf_exports
 
