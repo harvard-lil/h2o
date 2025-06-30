@@ -1,6 +1,8 @@
 # h2o
 
-> h2o is open-source software designed to replace bulky and expensive law textbooks with an easy-to-use web interface where instructors and students alike can author, organize, view and print public-domain course material.
+> h2o is open-source software designed to replace bulky and expensive law textbooks with an easy-to-use web interface
+>where instructors and students alike can author, organize, view and print public-domain course material.
+
 
 [![test status](https://github.com/harvard-lil/h2o/actions/workflows/tests.yml/badge.svg)](https://github.com/harvard-lil/h2o/actions)
 [![codecov](https://codecov.io/gh/harvard-lil/h2o/branch/develop/graph/badge.svg)](https://codecov.io/gh/harvard-lil/h2o)
@@ -15,47 +17,59 @@ Add the following to `/etc/hosts`:
 
     127.0.0.1 opencasebook.test opencasebook.minio.test
 
-### Spin up docker containers
-
-Rename environment variable file:
-
-    mv .env.example .env
+### Spin up some containers
 
 Start up the Docker containers in the background:
 
-    docker compose up -d
+    $ docker compose up -d
 
-The first time this runs it will build the Docker images, which may take several minutes. (After the first time, it should only take 1-3 seconds.)
+The first time this runs it will build the Docker images, which
+may take several minutes. (After the first time, it should only take
+1-3 seconds.)
 
 If the H2O team has provided you with a pg_dump file, seed the database with data:
 
-    bash docker/init.sh -f ~/database.dump
+    $ bash docker/init.sh -f ~/database.dump
 
-visit <http://opencasebook.test:8000> or visit <http://localhost:8000>
+Then log into the main Docker container:
+
+    $ docker compose exec web bash
+
+(Commands from here on out that start with `#` are being run in Docker.)
+
+### Run Django
+
+You should now have a working installation of H2O!
+
+Spin up the development server...
+
+    # invoke run
+
+or, with [Django Debug Toolbar](https://django-debug-toolbar.readthedocs.io/en/latest/index.html#) enabled,
+
+    # invoke run --debug-toolbar
+
+...and visit http://opencasebook.test:8000
 
 ### Frontend assets
 
 Frontend assets live in `frontend/` and are compiled with vue-cli. If you want to run frontend assets:
 
-Connect to running container:
-
-    docker compose exec web bash
-
 Install requirements:
 
-    npm install
+    # npm install
 
 Run the development server with hot-reloading vue-cli pipeline:
 
-    invoke run-frontend
+    # invoke run-frontend
 
 or, with [Django Debug Toolbar](https://django-debug-toolbar.readthedocs.io/en/latest/index.html#) enabled,
 
-    invoke run-frontend --debug-toolbar
+    # invoke run-frontend --debug-toolbar
 
 After making changes to frontend/, compile new assets if you want to see them from plain `invoke run`:
 
-    npm run build
+    # npm run build
 
 `npm run build` will be automatically run by Github Actions as well, so it is unnecessary (but harmless) to build and
 commit the new assets locally, unless you want to use them immediately.
@@ -64,13 +78,14 @@ commit the new assets locally, unless you want to use them immediately.
 
 When you are finished, spin down Docker containers by running:
 
-    docker compose down
+    $ docker compose down
 
 Your database will persist and will load automatically the next time you run `docker compose up -d`.
 
 Or, you can clean up everything Docker-related, so you can start fresh, as with a new installation:
 
-    bash docker/clean.sh
+    $ bash docker/clean.sh
+
 
 ## Testing
 
@@ -90,7 +105,9 @@ Playwright tests will spawn their own test runner. You will need to run `npm run
 
 To debug failed Playwright runs, use:
 
-    pytest -k functional --video retain-on-failure
+```
+pytest -k functional --video retain-on-failure
+```
 
 and look in `web/test-results` for video recordings of the failures.
 
