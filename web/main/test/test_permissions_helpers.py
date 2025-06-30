@@ -1,7 +1,7 @@
 """
-    This file contains helpers for the permissions tests in test_permissions.py. These can't go in test_permissions.py
-    without causing a circular import, as they need to be imported from views.py and urls.py and that file needs to
-    inspect urls.py during test setup.
+This file contains helpers for the permissions tests in test_permissions.py. These can't go in test_permissions.py
+without causing a circular import, as they need to be imported from views.py and urls.py and that file needs to
+inspect urls.py during test setup.
 """
 
 # test configs for use in @perms_test
