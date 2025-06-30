@@ -1,5 +1,5 @@
 # Stage 1: Base build stage
-FROM python:3.11-slim AS builder
+FROM python:3.11-bookworm AS builder
  
 # Create the app directory
 RUN mkdir /app
@@ -21,7 +21,7 @@ COPY web/requirements.txt /app/
 RUN pip install --no-cache-dir -r requirements.txt
  
 # Stage 2: Production stage
-FROM python:3.11-slim
+FROM python:3.11-bookworm
  
 RUN useradd -m -r h2o && \
    mkdir /app && \
@@ -33,6 +33,9 @@ COPY --from=builder /usr/local/bin/ /usr/local/bin/
  
 # Set the working directory
 WORKDIR /app
+
+# Set appropriate permissions on the mounted web directory
+RUN chown -R h2o:h2o /app
  
 # Copy application code
 COPY --chown=h2o:h2o web/ .
@@ -48,4 +51,4 @@ USER h2o
 EXPOSE 8000 
  
 # Start the application using Gunicorn
-CMD ["gunicorn", "config.wsgi:application", "--bind", "0.0.0.0:8000", "--workers=2", "--threads=4", "--worker-class=gthread", "--timeout=120", "--reload"]
+CMD ["gunicorn", "config.wsgi:application", "--bind", "0.0.0.0:8000", "--workers=2", "--threads=4", "--worker-class=gthread", "--timeout=120"]
