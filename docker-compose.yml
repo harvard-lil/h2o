@@ -6,19 +6,15 @@ services:
     ports:
       - "127.0.0.1:54320:5432"
     environment:
-      POSTGRES_DB: h2o
-      POSTGRES_USER: postgres
-      POSTGRES_PASSWORD: postgres
-
+      - POSTGRES_PASSWORD=example
 
   web:
     image: registry.lil.tools/harvardlil/h2o-python:0.117-13caa7e3bb2533fd5a1859b3854d9612
     tty: true
     command: bash
     environment:
-      APP_CONFIG: '{"SECRET_KEY":"0DrNYJ1vbBNX4ImoLHHRV4CxdcO4pPPrsb6CrPzMKUyVtoVSrh7Y5r4iG2ibmy82JWaPFf","ALLOWED_HOSTS":"127.0.0.1,localhost,opencasebook.test","DATABASE_NAME":"h2o","DATABASE_USERNAME":"postgres","DATABASE_PASSWORD":"postgres","DATABASE_HOST":"db","DATABASE_PORT":"5432"}'
-      DOCKERIZED: true
-      PDF_EXPORT_BUCKET: h2o.pdf_exports
+    - DOCKERIZED=true
+    - PDF_EXPORT_BUCKET=h2o.pdf_exports
 
     volumes:
       - .:/app:delegated
