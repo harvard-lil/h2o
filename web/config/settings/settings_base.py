@@ -44,7 +44,7 @@ INSTALLED_APPS = [
 ]
 
 MIDDLEWARE = [
-    "config.middleware.HealthCheckMiddleware", # health check middleware
+    "config.middleware.HealthCheckMiddleware",  # health check middleware
     "main.middleware.method_override_middleware",
     "django.middleware.security.SecurityMiddleware",
     "whitenoise.middleware.WhiteNoiseMiddleware",

@@ -26,13 +26,13 @@ LOGGING["loggers"] = {
 ALLOWED_HOSTS: list[str] = config.get("ALLOWED_HOSTS").split(",")
 SECRET_KEY = config.get("SECRET_KEY")
 DATABASES = {
-     'default': {
-        'ENGINE': 'django.db.backends.postgresql',
-        'NAME': config.get('DATABASE_NAME', 'postgres'),
-        'USER': config.get('DATABASE_USERNAME', 'postgres'),
-        'PASSWORD': config.get('DATABASE_PASSWORD', 'password'),
-        'HOST': config.get('DATABASE_HOST', '127.0.0.1'),
-        'PORT': config.get('DATABASE_PORT', 5432),
+    "default": {
+        "ENGINE": "django.db.backends.postgresql",
+        "NAME": config.get("DATABASE_NAME", "postgres"),
+        "USER": config.get("DATABASE_USERNAME", "postgres"),
+        "PASSWORD": config.get("DATABASE_PASSWORD", "password"),
+        "HOST": config.get("DATABASE_HOST", "127.0.0.1"),
+        "PORT": config.get("DATABASE_PORT", 5432),
     }
 }
 CAPAPI_API_KEY = config.get("CAPAPI_API_KEY")
