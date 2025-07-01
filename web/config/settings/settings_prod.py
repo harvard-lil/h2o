@@ -1,7 +1,8 @@
 import os
+import json
 from .settings_base import *  # noqa
 
-config = os.environ.get("APP_CONFIG")
+config = json.loads(os.environ["APP_CONFIG"])
 
 DEBUG = False
 
