@@ -1,5 +1,4 @@
 import os
-import json
 from .settings_base import *  # noqa
 
 config = os.environ.get("APP_CONFIG")
