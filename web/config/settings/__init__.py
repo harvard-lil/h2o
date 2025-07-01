@@ -1,16 +1,14 @@
-import os
-import json
+# This is the base module that will be imported by Django.
 
-config = json.loads(os.environ.get("APP_CONFIG", "{}"))
-
-ENVIRONMENT = config.get("ENVIRONMENT", "dev")
-
-if ENVIRONMENT == "dev":
-    from .settings_dev import *
-elif ENVIRONMENT == "staging":
-    from .setting_staging import *
-else:
-    from .settings_prod import *
+# Try to import the custom settings.py file, which will in turn import one of the deployment targets.
+# If it doesn't exist we assume this is a vanilla development environment and import .deployments.settings_dev.
+try:
+    from .settings import *  # noqa
+except ImportError as e:
+    if e.msg == "No module named 'config.settings.settings'":
+        from .settings_dev import *  # noqa
+    else:
+        raise
 
 
 # Set up Sentry instrumentation
