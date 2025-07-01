@@ -39,6 +39,10 @@ RUN chown -R h2o:h2o /app
  
 # Copy application code
 COPY --chown=h2o:h2o web/ .
+
+# Add settings.pyAdd commentMore actions
+RUN echo "from .settings_prod import *\n" > /app/config/settings/settings.py && \
+   chown h2o:h2o /app/config/settings/settings.py
  
 # Set environment variables to optimize Python
 ENV PYTHONDONTWRITEBYTECODE=1
