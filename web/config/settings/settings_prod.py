@@ -23,7 +23,7 @@ LOGGING["loggers"] = {
     },
 }
 
-ALLOWED_HOSTS: list[str] = config.get("ALLOWED_HOSTS").split(",")
+ALLOWED_HOSTS = config.get("ALLOWED_HOSTS").split(",")
 SECRET_KEY = config.get("SECRET_KEY")
 DATABASES = {
     "default": {
