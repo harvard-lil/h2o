@@ -77,7 +77,7 @@ def dump_casebook_outline(casebook):
     ...     '   ContentNode<8> -> Link<2>: Some Link Name 1',
     ...     ' Section<9>: Some Section 8']
     """
-    out = [f"Casebook<{casebook.id}>: {casebook.title}"]
+    out = [(f"Casebook<{casebook.id}>: {casebook.title}")]
     for node in casebook.contents.prefetch_resources().prefetch_related("annotations"):
         node_type = node.type
         indent = " " * len(node.ordinals)
