@@ -46,8 +46,8 @@ WORKDIR /app
 COPY --chown=h2o:h2o web/ .
 
 # Add settings.py
-RUN echo "from .settings_prod import *\n" > /app/config/settings/settings.py && \
-   chown h2o:h2o /app/config/settings/settings.py
+RUN cp /app/config/settings/settings_aws_ecs.py /app/config/settings/settings.py && \
+    chown h2o:h2o /app/config/settings/settings.py
 
 # Set environment variables to optimize Python
 ENV PYTHONDONTWRITEBYTECODE=1
