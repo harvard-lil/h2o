@@ -3879,7 +3879,7 @@ class User(NullableTimestampedModel, PermissionsMixin, AbstractBaseUser):
     is_staff = models.BooleanField(default=False)
     is_active = models.BooleanField(default=False)
 
-    pronouns = models.CharField(max_length=63, blank=True)
+    pronouns = models.CharField(max_length=20, blank=True)
     short_bio = models.CharField(max_length=511, blank=True)
     personal_site = models.CharField(max_length=255, blank=True)
 
