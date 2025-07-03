@@ -45,7 +45,7 @@ WORKDIR /app
 # Copy the application code
 COPY --chown=h2o:h2o web/ .
 
-# Add settings.pyAdd commentMore actions
+# Add settings.py
 RUN echo "from .settings_prod import *\n" > /app/config/settings/settings.py && \
    chown h2o:h2o /app/config/settings/settings.py
 
