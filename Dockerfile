@@ -60,4 +60,4 @@ USER h2o
 EXPOSE 8000
 
 # Start the application with uwsgi
-CMD ["uwsgi", "--http", "0.0.0.0:8000", "--master", "--processes", "20", "--threads", "1", "--plugins", "python311,logfile", "--buffer-size", "32768", "--module", "config.wsgi"]
+CMD ["uwsgi", "--http", "0.0.0.0:8000", "--master", "--processes", "20", "--threads", "1", "--buffer-size", "32768", "--module", "config.wsgi"]
