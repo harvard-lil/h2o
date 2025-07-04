@@ -1,5 +1,6 @@
 import os
 import json
+import ast
 from .settings_base import *  # noqa
 
 config = json.loads(os.environ["APP_CONFIG"])
@@ -48,7 +49,7 @@ EMAIL_USE_TLS = True
 EMAIL_HOST = config["EMAIL_HOST"]
 EMAIL_HOST_USER = config["EMAIL_HOST_USER"]
 EMAIL_HOST_PASSWORD = config["EMAIL_HOST_PASSWORD"]
-ADMINS = config["ADMINS"]
+ADMINS = ast.literal_eval(config["ADMINS"])
 SERVER_EMAIL = config["SERVER_EMAIL"]
 USE_ANALYTICS = True
 S3_STORAGE = {
