@@ -20,10 +20,12 @@ jobs:
       CONTAINER_NAME: ${{ secrets.STAGING_CONTAINER_NAME }}
       ECS_CLUSTER: ${{ secrets.STAGING_ECS_CLUSTER }}
       ECS_SERVICE: ${{ secrets.STAGING_ECS_SERVICE }}
+      EVENT_RULES: ${{ secrets.STAGING_EVENT_RULES }}
 
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
+
 
       - name: Configure AWS credentials
         uses: aws-actions/configure-aws-credentials@v2
@@ -75,7 +77,7 @@ jobs:
             --task-definition $NEW_TASK_DEF_ARN \
             --force-new-deployment \
             > /dev/null 2>&1
-
+      
 
       - name: Wait for new deployment to start
         run: |
@@ -115,14 +117,38 @@ jobs:
             --cluster $ECS_CLUSTER \
             --tasks $NEW_TASK_ARN          
 
-          # Execute django migration & refresh indexes command on the new task
+          # Execute django migration, create search index & create reporting views
           aws ecs execute-command \
             --cluster $ECS_CLUSTER \
             --task $NEW_TASK_ARN \
             --container $CONTAINER_NAME \
             --interactive \
-            --command "python manage.py migrate && invoke refresh-search-index && invoke refresh-fts-index" \
+            --command "python manage.py migrate && invoke create-search-index && invoke create-reporting-views" \
             > /dev/null 2>&1
+
+      
+      - name: Update scheduled tasks with new task definition
+        run: |
+          # Split the EVENT_RULES environment variable into an array of event rule names
+          IFS=',' read -r -a EVENT_RULES_ARRAY <<< "$EVENT_RULES"
+
+          for EVENT_RULE in "${EVENT_RULES_ARRAY[@]}"; do            
+            
+            # Get the current target configuration for the rule
+            TARGET_JSON=$(aws events list-targets-by-rule --rule $EVENT_RULE)
+            
+            # Update the TaskDefinitionArn in the EcsParameters section
+            UPDATED_TARGET_JSON=$(echo $TARGET_JSON | jq --arg NEW_TASK_DEF_ARN "$NEW_TASK_DEF_ARN" \
+              '.Targets[0].EcsParameters.TaskDefinitionArn = $NEW_TASK_DEF_ARN')
+
+            # Prepare the updated target JSON with the necessary fields
+            FINAL_TARGET_JSON=$(echo $UPDATED_TARGET_JSON | jq -r '[.Targets[0] | {Id, Arn, RoleArn, Input, EcsParameters}]')
+
+            # Update target configuration
+            aws events put-targets --rule $EVENT_RULE \
+              --targets "$FINAL_TARGET_JSON" \
+              > /dev/null 2>&1
+          done
 
 
       - name: Turn off Maintenance mode
