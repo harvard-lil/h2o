@@ -26,7 +26,6 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
 
-
       - name: Configure AWS credentials
         uses: aws-actions/configure-aws-credentials@v2
         with:
@@ -119,12 +118,27 @@ jobs:
 
           # Execute django migration, create search index & create reporting views
           aws ecs execute-command \
-            --cluster $ECS_CLUSTER \
-            --task $NEW_TASK_ARN \
-            --container $CONTAINER_NAME \
-            --interactive \
-            --command "python manage.py migrate && invoke create-search-index && invoke create-reporting-views" \
-            > /dev/null 2>&1
+              --cluster staging-h2o \
+              --task $(aws ecs list-tasks --cluster staging-h2o --service-name staging-h2o --desired-status RUNNING --query "taskArns[0]" --output text) \
+              --container staging-h2o \
+              --interactive \
+              --command "python manage.py migrate"
+          
+          # Execute create search index
+          aws ecs execute-command \
+              --cluster staging-h2o \
+              --task $(aws ecs list-tasks --cluster staging-h2o --service-name staging-h2o --desired-status RUNNING --query "taskArns[0]" --output text) \
+              --container staging-h2o \
+              --interactive \
+              --command "invoke create-search-index"
+              
+          # Execute create reporting views
+          aws ecs execute-command \
+              --cluster staging-h2o \
+              --task $(aws ecs list-tasks --cluster staging-h2o --service-name staging-h2o --desired-status RUNNING --query "taskArns[0]" --output text) \
+              --container staging-h2o \
+              --interactive \
+              --command "invoke create-reporting-views"
 
       
       - name: Update scheduled tasks with new task definition
