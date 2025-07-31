@@ -17,7 +17,7 @@ jobs:
   deploy:
     name: Build & deploy prod H2O to AWS ECS with maintenance mode
     runs-on: ubuntu-latest
-    if: ${{ github.event_name == 'push' || (github.event_name == 'workflow_run' && github.event.workflow_run.conclusion == 'success') }}
+    if: ${{ github.event_name == 'workflow_run' && github.event.workflow_run.conclusion == 'success' }}
     env:
       LOAD_BALANCER: ${{ secrets.PROD_LOAD_BALANCER }}
       TARGET_GROUP: ${{ secrets.PROD_TARGET_GROUP }}
