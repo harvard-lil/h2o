@@ -1,0 +1,173 @@
+name: Deploy staging H2O to AWS ECS
+
+on:
+  push:
+    branches:
+      - staging
+
+jobs:
+  deploy:
+    name: Build & deploy staging H2O to AWS ECS with maintenance mode
+    runs-on: ubuntu-latest
+
+    env:
+      LOAD_BALANCER: ${{ secrets.STAGING_LOAD_BALANCER }}
+      TARGET_GROUP: ${{ secrets.STAGING_TARGET_GROUP }}
+      MAINTENANCE_TARGET_GROUP: ${{ secrets.STAGING_MAINTENANCE_TARGET_GROUP }}
+      ECR_REPOSITORY: ${{ secrets.STAGING_ECR_REPOSITORY }}
+      IMAGE_TAG: latest
+      TASK_DEFINITION_FAMILY: ${{ secrets.STAGING_TASK_DEFINITION_FAMILY }}
+      CONTAINER_NAME: ${{ secrets.STAGING_CONTAINER_NAME }}
+      ECS_CLUSTER: ${{ secrets.STAGING_ECS_CLUSTER }}
+      ECS_SERVICE: ${{ secrets.STAGING_ECS_SERVICE }}
+      EVENT_RULES: ${{ secrets.STAGING_EVENT_RULES }}
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v2
+        with:
+          aws-access-key-id: ${{ secrets.STAGING_AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.STAGING_AWS_SECRET_ACCESS_KEY }}
+          aws-region: ${{ secrets.STAGING_AWS_REGION }}
+
+
+      - name: Login to AWS ECR
+        id: login-ecr
+        uses: aws-actions/amazon-ecr-login@v2
+
+
+      - name: Build and push docker image to AWS ECR
+        run: |
+          docker build -t $ECR_REPOSITORY:$IMAGE_TAG .
+          docker tag $ECR_REPOSITORY:$IMAGE_TAG ${{ steps.login-ecr.outputs.registry }}/$ECR_REPOSITORY:$IMAGE_TAG
+          docker push ${{ steps.login-ecr.outputs.registry }}/$ECR_REPOSITORY:$IMAGE_TAG
+
+
+      - name: Create new ECS task definition
+        run: |
+          # Get the existing task definition
+          aws ecs describe-task-definition --task-definition $TASK_DEFINITION_FAMILY --query "taskDefinition" > task-definition.json
+
+          # Clean up the JSON by removing invalid fields
+          jq 'del(.taskDefinitionArn, .revision, .status, .registeredAt, .registeredBy, .compatibilities, .requiresAttributes)' task-definition.json > new-task-def.json
+
+          # Update the image and container name, and write output to updated-task-def.json
+          jq --arg IMAGE "${{ steps.login-ecr.outputs.registry }}/${ECR_REPOSITORY}:$IMAGE_TAG" --arg CONTAINER_NAME "$CONTAINER_NAME" \
+            '.containerDefinitions[].image = $IMAGE | .containerDefinitions[].name = $CONTAINER_NAME' new-task-def.json > updated-task-def.json
+
+
+      - name: Register new ECS task definition
+        run: |
+          NEW_TASK_DEF_ARN=$(aws ecs register-task-definition \
+            --cli-input-json file://updated-task-def.json \
+            --query "taskDefinition.taskDefinitionArn" --output text)
+
+          echo "NEW_TASK_DEF_ARN=$NEW_TASK_DEF_ARN" >> $GITHUB_ENV
+
+
+      - name: Update ECS service
+        run: |
+          aws ecs update-service \
+            --cluster $ECS_CLUSTER \
+            --service $ECS_SERVICE \
+            --task-definition $NEW_TASK_DEF_ARN \
+            --force-new-deployment \
+            > /dev/null 2>&1
+      
+
+      - name: Wait for new deployment to start
+        run: |
+          sleep 10
+
+
+      - name: Put site into maintenance mode
+        run: |
+          aws elbv2 modify-listener \
+            --listener-arn $(aws elbv2 describe-listeners --load-balancer-arn $(aws elbv2 describe-load-balancers --names $LOAD_BALANCER --query "LoadBalancers[0].LoadBalancerArn" --output text) --query "Listeners[?Protocol=='HTTPS'].ListenerArn" --output text) \
+            --default-actions "Type=forward,ForwardConfig={TargetGroups=[{TargetGroupArn=$(aws elbv2 describe-target-groups --names $TARGET_GROUP --query 'TargetGroups[0].TargetGroupArn' --output text),Weight=0},{TargetGroupArn=$(aws elbv2 describe-target-groups --names $MAINTENANCE_TARGET_GROUP --query 'TargetGroups[0].TargetGroupArn' --output text),Weight=100}]}" \
+            > /dev/null 2>&1
+            
+
+      - name: Wait for new deployment to complete
+        run: |
+          aws ecs wait services-stable \
+            --cluster $ECS_CLUSTER \
+            --services $ECS_SERVICE
+
+
+      - name: Run django migration and refresh indexes
+        run: |
+          # Fetch the tasks associated with the updated ECS service
+          NEW_TASKS=$(aws ecs list-tasks \
+            --cluster $ECS_CLUSTER \
+            --service-name $ECS_SERVICE \
+            --desired-status RUNNING \
+            --query "taskArns" \
+            --output text)
+
+          # Get the first task ARN from the list
+          NEW_TASK_ARN=$(echo $NEW_TASKS | awk '{print $1}')
+
+          # Wait for the new task to be running
+          aws ecs wait tasks-running \
+            --cluster $ECS_CLUSTER \
+            --tasks $NEW_TASK_ARN          
+
+          # Execute django migration, create search index & create reporting views
+          aws ecs execute-command \
+              --cluster $ECS_CLUSTER \
+              --task $(aws ecs list-tasks --cluster $ECS_CLUSTER --service-name $ECS_SERVICE --desired-status RUNNING --query "taskArns[0]" --output text) \
+              --container $CONTAINER_NAME \
+              --interactive \
+              --command "python manage.py migrate"
+          
+          # Execute create search index
+          aws ecs execute-command \
+              --cluster $ECS_CLUSTER \
+              --task $(aws ecs list-tasks --cluster $ECS_CLUSTER --service-name $ECS_SERVICE --desired-status RUNNING --query "taskArns[0]" --output text) \
+              --container $CONTAINER_NAME \
+              --interactive \
+              --command "invoke create-search-index"
+              
+          # Execute create reporting views
+          aws ecs execute-command \
+              --cluster $ECS_CLUSTER \
+              --task $(aws ecs list-tasks --cluster $ECS_CLUSTER --service-name $ECS_SERVICE --desired-status RUNNING --query "taskArns[0]" --output text) \
+              --container $CONTAINER_NAME \
+              --interactive \
+              --command "invoke create-reporting-views"
+
+      
+      - name: Update scheduled tasks with new task definition
+        run: |
+          # Split the EVENT_RULES environment variable into an array of event rule names
+          IFS=',' read -r -a EVENT_RULES_ARRAY <<< "$EVENT_RULES"
+
+          for EVENT_RULE in "${EVENT_RULES_ARRAY[@]}"; do            
+            
+            # Get the current target configuration for the rule
+            TARGET_JSON=$(aws events list-targets-by-rule --rule $EVENT_RULE)
+            
+            # Update the TaskDefinitionArn in the EcsParameters section
+            UPDATED_TARGET_JSON=$(echo $TARGET_JSON | jq --arg NEW_TASK_DEF_ARN "$NEW_TASK_DEF_ARN" \
+              '.Targets[0].EcsParameters.TaskDefinitionArn = $NEW_TASK_DEF_ARN')
+
+            # Prepare the updated target JSON with the necessary fields
+            FINAL_TARGET_JSON=$(echo $UPDATED_TARGET_JSON | jq -r '[.Targets[0] | {Id, Arn, RoleArn, Input, EcsParameters}]')
+
+            # Update target configuration
+            aws events put-targets --rule $EVENT_RULE \
+              --targets "$FINAL_TARGET_JSON" \
+              > /dev/null 2>&1
+          done
+
+
+      - name: Turn off Maintenance mode
+        run: |
+          aws elbv2 modify-listener \
+            --listener-arn $(aws elbv2 describe-listeners --load-balancer-arn $(aws elbv2 describe-load-balancers --names $LOAD_BALANCER --query "LoadBalancers[0].LoadBalancerArn" --output text) --query "Listeners[?Protocol=='HTTPS'].ListenerArn" --output text) \
+            --default-actions "Type=forward,ForwardConfig={TargetGroups=[{TargetGroupArn=$(aws elbv2 describe-target-groups --names $TARGET_GROUP --query 'TargetGroups[0].TargetGroupArn' --output text),Weight=100},{TargetGroupArn=$(aws elbv2 describe-target-groups --names $MAINTENANCE_TARGET_GROUP --query 'TargetGroups[0].TargetGroupArn' --output text),Weight=0}]}" \
+            > /dev/null 2>&1
