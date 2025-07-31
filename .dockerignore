@@ -1,3 +1,39 @@
-**
-!Dockerfile
-!web/requirements.txt
+# Ignore Python bytecode files
+**/__pycache__
+**/*.pyc
+**/*.pyo
+**/*.pyd
+
+# Ignore virtual environment
+venv/
+env/
+*.env
+*.venv
+
+# Ignore node_modules (for Vue.js dependencies)
+node_modules/
+
+# Ignore build artifacts from Vue.js
+dist/
+build/
+
+# Ignore log files
+*.log
+
+# Ignore any IDE files (VS Code, PyCharm, etc.)
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# Ignore test and coverage folders
+tests/
+coverage/
+
+# Ignore local config files
+.local/
+.DS_Store
+
+# Ignore Dockerfile and docker-compose if you don’t want them in the container
+Dockerfile
+docker-compose.yml
