@@ -1077,6 +1077,7 @@ def dashboard(request, user_id=None, user_slug=None):
         for x in user.casebooks.exclude(state=Casebook.LifeCycle.ARCHIVED.value)
         .exclude(state=Casebook.LifeCycle.DRAFT.value)
         .exclude(state=Casebook.LifeCycle.PREVIOUS_SAVE.value)
+        .order_by("-updated_at")
         .all()
         if x.viewable_by(request.user)
     ]
