@@ -4,6 +4,13 @@ on:
   push:
     branches:
       - staging
+  workflow_run:
+    workflows:
+      - "Lints"
+      - "Tests"
+    types:
+      - completed
+    if: ${{ github.event.workflow_run.conclusion == 'success' }}
 
 jobs:
   deploy:
