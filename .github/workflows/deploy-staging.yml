@@ -10,13 +10,14 @@ on:
       - "Tests"
     types:
       - completed
-    if: ${{ github.event.workflow_run.conclusion == 'success' }}
+    branches:
+      - staging
 
 jobs:
   deploy:
     name: Build & deploy staging H2O to AWS ECS with maintenance mode
     runs-on: ubuntu-latest
-
+    if: ${{ github.event_name == 'push' || (github.event_name == 'workflow_run' && github.event.workflow_run.conclusion == 'success') }}
     env:
       LOAD_BALANCER: ${{ secrets.STAGING_LOAD_BALANCER }}
       TARGET_GROUP: ${{ secrets.STAGING_TARGET_GROUP }}
