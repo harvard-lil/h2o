@@ -1,0 +1,302 @@
+name: Lint, Test, and Deploy Staging H2O to AWS ECS
+
+on:
+  push:
+    branches: [staging]
+
+
+jobs:
+  lint:
+    name: Lint
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      
+      - name: flake8
+        run: |
+          pip install `egrep -o 'flake8==\S+' web/requirements.txt`  # install our version of flake8
+          flake8 web/ --config web/setup.cfg
+          flake8 docker/pandoc-lambda/function/ --config web/setup.cfg
+
+      - name: black
+        run: |
+          pip install `egrep -o 'black==\S+' web/requirements.txt`  # install our version of black
+          black --check --diff . # Uses pyproject.toml
+
+      - name: mypy
+        run: |
+          cd web
+          pip install -r requirements.txt  # install a full environment for mypy
+          PYTHONPATH=. mypy
+
+  test:
+    name: Test
+    runs-on: ubuntu-latest
+    needs: lint
+    steps:
+      - uses: actions/checkout@v4
+
+      ### build docker images locally ###
+      - name: Rebuild docker images
+        id: rebuild
+        uses: harvard-lil/docker-compose-update-action@main
+
+      ### run tests ###
+      - name: docker compose up
+        run: |
+          # separate pull so downloads run in parallel, with
+          # --ignore-pull-failures for PRs with new images that haven't been pushed yet:
+          docker compose -f docker-compose.yml pull --ignore-pull-failures || true
+          docker compose -f docker-compose.yml up -d        # use -f to suppress docker-compose.override.yml
+          docker ps -a                                      # show running containers
+          docker compose logs                               # show logs
+
+      - name: Collect static files
+        shell: 'script -q -e -c "bash --noprofile --norc -eo pipefail {0}"'  # avoid docker-compose "the input device is not a TTY" -- see https://github.com/actions/runner/issues/241#issuecomment-842566950
+        run: docker compose exec web ./manage.py collectstatic --noinput   # collect static files
+
+      - name: Python tests
+        shell: 'script -q -e -c "bash --noprofile --norc -eo pipefail {0}"'  # avoid docker-compose "the input device is not a TTY" -- see https://github.com/actions/runner/issues/241#issuecomment-842566950
+        run: |
+          set -x
+          docker compose exec web pytest \
+            --cov --cov-config=setup.cfg --cov-report xml  `# write coverage data to .coverage for upload by codecov` \
+            -vv -n auto --dist loadgroup
+
+      - name: Javascript tests
+        shell: 'script -q -e -c "bash --noprofile --norc -eo pipefail {0}"'  # avoid docker-compose "the input device is not a TTY" -- see https://github.com/actions/runner/issues/241#issuecomment-842566950
+        run: |
+          set -x
+          docker compose exec web bash -c "umask 0 && mkdir /app/web/.npmcache && npm config set cache /app/web/.npmcache && npm install"
+          docker compose exec web npm run lint
+          docker compose exec web npm run build
+          docker compose exec web npm run test
+
+      ### codecov ###
+      # https://github.com/codecov/codecov-action
+      - name: Codecov
+        uses: codecov/codecov-action@v5
+        with:
+          token: ${{ secrets.CODECOV_TOKEN }}
+
+      # build, push, and deploy pandoc-lambda image to stage if necessary
+      # this requires that AWS_ACCESS_KEY_ID, AWS_SECRET_ACCESS_KEY, AWS_DEFAULT_REGION,
+      # and AWS_ACCOUNT_ID be set.
+      # TODO: this could potentially use existing built image
+      - name: Publish pandoc-lambda image
+        if: github.event_name == 'push' && github.ref == 'refs/heads/develop' && contains(steps.rebuild.outputs.services-rebuilt, 'pandoc-lambda')
+        env:
+          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          AWS_ACCOUNT_ID: ${{ secrets.AWS_ACCOUNT_ID }}
+          AWS_DEFAULT_REGION: ${{ secrets.AWS_DEFAULT_REGION }}
+        run: |
+          aws --version
+          cd docker/pandoc-lambda/
+          IMG=pandoc-lambda
+          TAG=`git rev-parse --short HEAD`
+          ACCT=${AWS_ACCOUNT_ID}
+          REGION=${AWS_DEFAULT_REGION}
+          ARN=arn:aws:lambda:${REGION}:${ACCT}:function:h2o-export-stage
+          aws ecr get-login-password --region ${REGION} | docker login --username AWS --password-stdin ${ACCT}.dkr.ecr.${REGION}.amazonaws.com
+          docker buildx build --push --provenance=false --platform linux/amd64 --tag ${ACCT}.dkr.ecr.${REGION}.amazonaws.com/${IMG}:${TAG} .
+          aws lambda update-function-code --function-name ${ARN} --image-uri ${ACCT}.dkr.ecr.${REGION}.amazonaws.com/${IMG}:${TAG} --region ${REGION}
+
+      # Commit built assets if necessary
+      - name: Commit Assets
+        if: github.event_name == 'push' && github.ref == 'refs/heads/develop'
+        shell: 'script -q -e -c "bash --noprofile --norc -eo pipefail {0}"'  # avoid docker-compose "the input device is not a TTY" -- https://github.com/actions/runner/issues/241#issuecomment-842566950
+        run: |
+          set -x
+          git config user.email "lil@law.harvard.edu"
+          git config user.name "Github Actions"
+          if [[ `git status docker-compose.yml docker-compose.override.yml --porcelain` ]] ; then
+            git add docker-compose.yml docker-compose.override.yml
+            git commit -m "Bump image version [skip ci]"
+            git push origin develop || exit 1
+          fi
+          if [[ `git status web/static/dist/ web/webpack-stats.json --porcelain` ]] ; then
+              git add web/static/dist/ web/webpack-stats.json
+              git commit -m "Add built JS [skip ci]"
+              git push origin develop || exit 1
+          fi
+
+      ### push docker images to registry, from main branch, once tests pass ###
+      - name: Push docker images
+        if: github.event_name == 'push' && github.ref == 'refs/heads/develop'
+        uses: harvard-lil/docker-compose-update-action@main
+        with:
+          registry: "registry.lil.tools"
+          registry-user: ${{ secrets.REPOSITORY_USER }}
+          registry-pass: ${{ secrets.REPOSITORY_TOKEN }}
+          bake-action: "push"
+
+  deploy:
+    name: Build & deploy staging H2O to AWS ECS with maintenance mode
+    runs-on: ubuntu-latest
+    needs: test
+    env:
+      LOAD_BALANCER: ${{ secrets.STAGING_LOAD_BALANCER }}
+      TARGET_GROUP: ${{ secrets.STAGING_TARGET_GROUP }}
+      MAINTENANCE_TARGET_GROUP: ${{ secrets.STAGING_MAINTENANCE_TARGET_GROUP }}
+      ECR_REPOSITORY: ${{ secrets.STAGING_ECR_REPOSITORY }}
+      IMAGE_TAG: latest
+      TASK_DEFINITION_FAMILY: ${{ secrets.STAGING_TASK_DEFINITION_FAMILY }}
+      CONTAINER_NAME: ${{ secrets.STAGING_CONTAINER_NAME }}
+      ECS_CLUSTER: ${{ secrets.STAGING_ECS_CLUSTER }}
+      ECS_SERVICE: ${{ secrets.STAGING_ECS_SERVICE }}
+      EVENT_RULES: ${{ secrets.STAGING_EVENT_RULES }}
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v2
+        with:
+          aws-access-key-id: ${{ secrets.STAGING_AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.STAGING_AWS_SECRET_ACCESS_KEY }}
+          aws-region: ${{ secrets.STAGING_AWS_REGION }}
+
+
+      - name: Login to AWS ECR
+        id: login-ecr
+        uses: aws-actions/amazon-ecr-login@v2
+
+
+      - name: Build and push docker image to AWS ECR
+        run: |
+          docker build -t $ECR_REPOSITORY:$IMAGE_TAG .
+          docker tag $ECR_REPOSITORY:$IMAGE_TAG ${{ steps.login-ecr.outputs.registry }}/$ECR_REPOSITORY:$IMAGE_TAG
+          docker push ${{ steps.login-ecr.outputs.registry }}/$ECR_REPOSITORY:$IMAGE_TAG
+
+
+      - name: Create new ECS task definition
+        run: |
+          # Get the existing task definition
+          aws ecs describe-task-definition --task-definition $TASK_DEFINITION_FAMILY --query "taskDefinition" > task-definition.json
+
+          # Clean up the JSON by removing invalid fields
+          jq 'del(.taskDefinitionArn, .revision, .status, .registeredAt, .registeredBy, .compatibilities, .requiresAttributes)' task-definition.json > new-task-def.json
+
+          # Update the image and container name, and write output to updated-task-def.json
+          jq --arg IMAGE "${{ steps.login-ecr.outputs.registry }}/${ECR_REPOSITORY}:$IMAGE_TAG" --arg CONTAINER_NAME "$CONTAINER_NAME" \
+            '.containerDefinitions[].image = $IMAGE | .containerDefinitions[].name = $CONTAINER_NAME' new-task-def.json > updated-task-def.json
+
+
+      - name: Register new ECS task definition
+        run: |
+          NEW_TASK_DEF_ARN=$(aws ecs register-task-definition \
+            --cli-input-json file://updated-task-def.json \
+            --query "taskDefinition.taskDefinitionArn" --output text)
+
+          echo "NEW_TASK_DEF_ARN=$NEW_TASK_DEF_ARN" >> $GITHUB_ENV
+
+
+      - name: Update ECS service
+        run: |
+          aws ecs update-service \
+            --cluster $ECS_CLUSTER \
+            --service $ECS_SERVICE \
+            --task-definition $NEW_TASK_DEF_ARN \
+            --force-new-deployment \
+            > /dev/null 2>&1
+      
+
+      - name: Wait for new deployment to start
+        run: |
+          sleep 10
+
+
+      - name: Put site into maintenance mode
+        run: |
+          aws elbv2 modify-listener \
+            --listener-arn $(aws elbv2 describe-listeners --load-balancer-arn $(aws elbv2 describe-load-balancers --names $LOAD_BALANCER --query "LoadBalancers[0].LoadBalancerArn" --output text) --query "Listeners[?Protocol=='HTTPS'].ListenerArn" --output text) \
+            --default-actions "Type=forward,ForwardConfig={TargetGroups=[{TargetGroupArn=$(aws elbv2 describe-target-groups --names $TARGET_GROUP --query 'TargetGroups[0].TargetGroupArn' --output text),Weight=0},{TargetGroupArn=$(aws elbv2 describe-target-groups --names $MAINTENANCE_TARGET_GROUP --query 'TargetGroups[0].TargetGroupArn' --output text),Weight=100}]}" \
+            > /dev/null 2>&1
+            
+
+      - name: Wait for new deployment to complete
+        run: |
+          aws ecs wait services-stable \
+            --cluster $ECS_CLUSTER \
+            --services $ECS_SERVICE
+
+
+      - name: Run django migration and refresh indexes
+        run: |
+          # Fetch the tasks associated with the updated ECS service
+          NEW_TASKS=$(aws ecs list-tasks \
+            --cluster $ECS_CLUSTER \
+            --service-name $ECS_SERVICE \
+            --desired-status RUNNING \
+            --query "taskArns" \
+            --output text)
+
+          # Get the first task ARN from the list
+          NEW_TASK_ARN=$(echo $NEW_TASKS | awk '{print $1}')
+
+          # Wait for the new task to be running
+          aws ecs wait tasks-running \
+            --cluster $ECS_CLUSTER \
+            --tasks $NEW_TASK_ARN          
+
+          # Execute django migration, create search index & create reporting views
+          aws ecs execute-command \
+              --cluster $ECS_CLUSTER \
+              --task $(aws ecs list-tasks --cluster $ECS_CLUSTER --service-name $ECS_SERVICE --desired-status RUNNING --query "taskArns[0]" --output text) \
+              --container $CONTAINER_NAME \
+              --interactive \
+              --command "python manage.py migrate"
+          
+          # Execute create search index
+          aws ecs execute-command \
+              --cluster $ECS_CLUSTER \
+              --task $(aws ecs list-tasks --cluster $ECS_CLUSTER --service-name $ECS_SERVICE --desired-status RUNNING --query "taskArns[0]" --output text) \
+              --container $CONTAINER_NAME \
+              --interactive \
+              --command "invoke create-search-index"
+              
+          # Execute create reporting views
+          aws ecs execute-command \
+              --cluster $ECS_CLUSTER \
+              --task $(aws ecs list-tasks --cluster $ECS_CLUSTER --service-name $ECS_SERVICE --desired-status RUNNING --query "taskArns[0]" --output text) \
+              --container $CONTAINER_NAME \
+              --interactive \
+              --command "invoke create-reporting-views"
+
+      
+      - name: Update scheduled tasks with new task definition
+        run: |
+          # Split the EVENT_RULES environment variable into an array of event rule names
+          IFS=',' read -r -a EVENT_RULES_ARRAY <<< "$EVENT_RULES"
+
+          for EVENT_RULE in "${EVENT_RULES_ARRAY[@]}"; do            
+            
+            # Get the current target configuration for the rule
+            TARGET_JSON=$(aws events list-targets-by-rule --rule $EVENT_RULE)
+            
+            # Update the TaskDefinitionArn in the EcsParameters section
+            UPDATED_TARGET_JSON=$(echo $TARGET_JSON | jq --arg NEW_TASK_DEF_ARN "$NEW_TASK_DEF_ARN" \
+              '.Targets[0].EcsParameters.TaskDefinitionArn = $NEW_TASK_DEF_ARN')
+
+            # Prepare the updated target JSON with the necessary fields
+            FINAL_TARGET_JSON=$(echo $UPDATED_TARGET_JSON | jq -r '[.Targets[0] | {Id, Arn, RoleArn, Input, EcsParameters}]')
+
+            # Update target configuration
+            aws events put-targets --rule $EVENT_RULE \
+              --targets "$FINAL_TARGET_JSON" \
+              > /dev/null 2>&1
+          done
+
+
+      - name: Turn off Maintenance mode
+        run: |
+          aws elbv2 modify-listener \
+            --listener-arn $(aws elbv2 describe-listeners --load-balancer-arn $(aws elbv2 describe-load-balancers --names $LOAD_BALANCER --query "LoadBalancers[0].LoadBalancerArn" --output text) --query "Listeners[?Protocol=='HTTPS'].ListenerArn" --output text) \
+            --default-actions "Type=forward,ForwardConfig={TargetGroups=[{TargetGroupArn=$(aws elbv2 describe-target-groups --names $TARGET_GROUP --query 'TargetGroups[0].TargetGroupArn' --output text),Weight=100},{TargetGroupArn=$(aws elbv2 describe-target-groups --names $MAINTENANCE_TARGET_GROUP --query 'TargetGroups[0].TargetGroupArn' --output text),Weight=0}]}" \
+            > /dev/null 2>&1
