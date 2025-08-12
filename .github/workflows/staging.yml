@@ -1,22 +1,38 @@
-name: Deploy staging H2O to AWS ECS
+name: Staging - Deploy to AWS
 
 on:
   push:
-    branches:
-      - staging
-  workflow_run:
-    workflows:
-      - "Tests"
-    types:
-      - completed
-    branches:
-      - staging
+    branches: [staging]
+  pull_request:
+    branches: [staging]
+
 
 jobs:
-  deploy:
-    name: Build & deploy staging H2O to AWS ECS with maintenance mode
+  # Only allow merges from develop
+  check-source-branch:
+    name: Check Source Branch
     runs-on: ubuntu-latest
-    if: github.event.workflow_run.conclusion == 'success'
+    if: github.event_name == 'pull_request'
+    steps:
+      - name: Verify source branch is develop
+        run: |
+          if [ "${{ github.head_ref }}" != "develop" ]; then
+            echo "❌ Error: Pull requests to staging must come from develop branch"
+            exit 1
+          fi
+          echo "✅ Source branch verification passed"
+
+  lint-and-test:
+    uses: ./.github/workflows/lint_test.yml
+    needs: check-source-branch
+    if: always() && (github.event_name == 'push' || needs.check-source-branch.result == 'success')
+
+  deploy:
+    name: Deploy to Staging
+    runs-on: ubuntu-latest
+    needs: lint-and-test
+    if: always() && github.event_name == 'push' && needs.lint-and-test.result == 'success'
+    
     env:
       LOAD_BALANCER: ${{ secrets.STAGING_LOAD_BALANCER }}
       TARGET_GROUP: ${{ secrets.STAGING_TARGET_GROUP }}
@@ -32,6 +48,7 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
+
 
       - name: Configure AWS credentials
         uses: aws-actions/configure-aws-credentials@v2
