@@ -195,3 +195,41 @@ jobs:
             --listener-arn $(aws elbv2 describe-listeners --load-balancer-arn $(aws elbv2 describe-load-balancers --names $LOAD_BALANCER --query "LoadBalancers[0].LoadBalancerArn" --output text) --query "Listeners[?Protocol=='HTTPS'].ListenerArn" --output text) \
             --default-actions "Type=forward,ForwardConfig={TargetGroups=[{TargetGroupArn=$(aws elbv2 describe-target-groups --names $TARGET_GROUP --query 'TargetGroups[0].TargetGroupArn' --output text),Weight=100},{TargetGroupArn=$(aws elbv2 describe-target-groups --names $MAINTENANCE_TARGET_GROUP --query 'TargetGroups[0].TargetGroupArn' --output text),Weight=0}]}" \
             > /dev/null 2>&1
+
+
+      - name: Wait for turn off maintenance mode
+        run: |
+          sleep 10
+
+      
+      - name: Notify Slack
+        uses: slackapi/slack-github-action@v2.1.1
+        with:
+            webhook: ${{ secrets.SLACK_WEBHOOK_URL }}
+            webhook-type: incoming-webhook
+            payload: |
+              {
+                "blocks": [
+                    {
+                      "type": "section",
+                      "text": {
+                          "type": "mrkdwn",
+                          "text": "*Prod H2O deployed successfully!*"
+                      }
+                    },
+                    {
+                    "type": "section",
+                      "text": {
+                          "type": "mrkdwn",
+                          "text": "*Repo:*\n<https://github.com/${{ github.repository }}|`${{ github.repository }}`>\n*Branch:*\n<https://github.com/${{ github.repository }}/tree/${{ github.ref_name }}|`${{ github.ref_name }}`>\n*Commit:*\n<https://github.com/${{ github.repository }}/commit/${{ github.sha }}|`${{ github.sha }}`>"
+                      } 
+                    },
+                    {
+                    "type": "section",
+                      "text": {
+                          "type": "mrkdwn",
+                          "text": "*View the site:* <https://opencasebook.org|https://opencasebook.org>"
+                      }
+                    }
+                ]
+              }
