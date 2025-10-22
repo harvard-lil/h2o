@@ -200,8 +200,15 @@ jobs:
       - name: Wait for turn off maintenance mode
         run: |
           sleep 10
-          
 
+
+      - name: Purge Cloudflare cache
+        uses: jakejarvis/cloudflare-purge-action@master
+        env:
+          CLOUDFLARE_ZONE: ${{ secrets.CLOUDFLARE_ZONE_ID }}
+          CLOUDFLARE_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          
+          
       - name: Notify Slack
         uses: slackapi/slack-github-action@v2.1.1
         with:
