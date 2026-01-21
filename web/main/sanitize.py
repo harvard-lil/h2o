@@ -171,6 +171,8 @@ def iframe_attributes(tag, name, value):
         return True
     if name == "src":
         return youtube_src.match(value) or vimeo_src.match(value)
+    if name == "referrerpolicy":
+        return value.lower() == "strict-origin-when-cross-origin"
     return False
 
 
