@@ -6,6 +6,9 @@ on:
   pull_request:
     branches: [prod]
 
+permissions:
+    id-token: write
+    contents: read
 
 jobs:
   # Only allow merges from staging
@@ -47,28 +50,24 @@ jobs:
 
     steps:
       - name: Checkout code
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6.0.2
 
 
       - name: Configure AWS credentials
-        uses: aws-actions/configure-aws-credentials@v2
+        uses: aws-actions/configure-aws-credentials@v6.1.1
         with:
-          aws-access-key-id: ${{ secrets.PROD_AWS_ACCESS_KEY_ID }}
-          aws-secret-access-key: ${{ secrets.PROD_AWS_SECRET_ACCESS_KEY }}
+          role-to-assume: ${{ secrets.PROD_AWS_ROLE_TO_ASSUME }}
           aws-region: ${{ secrets.PROD_AWS_REGION }}
 
 
       - name: Login to AWS ECR
         id: login-ecr
-        uses: aws-actions/amazon-ecr-login@v2
+        uses: aws-actions/amazon-ecr-login@v2.1.4
 
 
       - name: Build and push docker image to AWS ECR
         run: |
-          docker build -t $ECR_REPOSITORY:$IMAGE_TAG .
-          docker tag $ECR_REPOSITORY:$IMAGE_TAG ${{ steps.login-ecr.outputs.registry }}/$ECR_REPOSITORY:$IMAGE_TAG
-          docker push ${{ steps.login-ecr.outputs.registry }}/$ECR_REPOSITORY:$IMAGE_TAG
-
+          docker buildx build --platform linux/amd64 -t "${{ steps.login-ecr.outputs.registry }}/${ECR_REPOSITORY}:${IMAGE_TAG}" -f ./Dockerfile.ecs --push .
 
       - name: Create new ECS task definition
         run: |
@@ -78,15 +77,10 @@ jobs:
           # Clean up the JSON by removing invalid fields
           jq 'del(.taskDefinitionArn, .revision, .status, .registeredAt, .registeredBy, .compatibilities, .requiresAttributes)' task-definition.json > new-task-def.json
 
-          # Update the image and container name, and write output to updated-task-def.json
-          jq --arg IMAGE "${{ steps.login-ecr.outputs.registry }}/${ECR_REPOSITORY}:$IMAGE_TAG" --arg CONTAINER_NAME "$CONTAINER_NAME" \
-            '.containerDefinitions[].image = $IMAGE | .containerDefinitions[].name = $CONTAINER_NAME' new-task-def.json > updated-task-def.json
-
-
       - name: Register new ECS task definition
         run: |
           NEW_TASK_DEF_ARN=$(aws ecs register-task-definition \
-            --cli-input-json file://updated-task-def.json \
+            --cli-input-json file://new-task-def.json \
             --query "taskDefinition.taskDefinitionArn" --output text)
 
           echo "NEW_TASK_DEF_ARN=$NEW_TASK_DEF_ARN" >> $GITHUB_ENV
