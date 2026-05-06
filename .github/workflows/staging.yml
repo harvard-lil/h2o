@@ -67,7 +67,7 @@ jobs:
 
       - name: Build and push docker image to AWS ECR
         run: |
-          docker buildx build --platform linux/amd64 -t "${{ steps.login-ecr.outputs.registry }}/${ECR_REPOSITORY}:${IMAGE_TAG}" -f ./Dockerfile.ecs --push .
+          docker buildx build --platform linux/amd64 -t "${{ steps.login-ecr.outputs.registry }}/${ECR_REPOSITORY}:${IMAGE_TAG}" -f ./Dockerfile --push .
 
 
       - name: Create new ECS task definition
