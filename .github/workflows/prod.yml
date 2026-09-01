@@ -81,18 +81,38 @@ jobs:
         id: resolve
         env:
           REGISTRY: ${{ steps.login-ecr.outputs.registry }}
-          STAGING_TASK_DEFINITION_FAMILY: ${{ secrets.STAGING_TASK_DEFINITION_FAMILY }}
+          STAGING_ECS_CLUSTER: ${{ secrets.STAGING_ECS_CLUSTER }}
+          STAGING_ECS_SERVICE: ${{ secrets.STAGING_ECS_SERVICE }}
           STAGING_CONTAINER_NAME: ${{ secrets.STAGING_CONTAINER_NAME }}
         run: |
           set -euo pipefail
+
+          # Ask the staging SERVICE which revision it is running, then read that
+          # exact revision. Querying the family instead returns its latest ACTIVE
+          # revision, which is not necessarily the deployed one -- a failed
+          # deploy, a Terraform apply, or a half-finished rollout all register
+          # revisions the service never adopted.
+          STAGING_TASK_DEF=$(aws ecs describe-services \
+            --cluster "$STAGING_ECS_CLUSTER" \
+            --services "$STAGING_ECS_SERVICE" \
+            --query "services[0].taskDefinition" \
+            --output text)
+
+          if [ -z "$STAGING_TASK_DEF" ] || [ "$STAGING_TASK_DEF" = "None" ]; then
+            echo "::error::Could not read the running task definition for service"
+            echo "::error::'$STAGING_ECS_SERVICE' in cluster '$STAGING_ECS_CLUSTER'."
+            exit 1
+          fi
+          echo "Staging is running $STAGING_TASK_DEF"
+
           STAGING_IMAGE=$(aws ecs describe-task-definition \
-            --task-definition "$STAGING_TASK_DEFINITION_FAMILY" \
+            --task-definition "$STAGING_TASK_DEF" \
             --query "taskDefinition.containerDefinitions[?name=='${STAGING_CONTAINER_NAME}'].image | [0]" \
             --output text)
 
           if [ -z "$STAGING_IMAGE" ] || [ "$STAGING_IMAGE" = "None" ]; then
             echo "::error::Could not read an image for container '$STAGING_CONTAINER_NAME'"
-            echo "::error::from task definition '$STAGING_TASK_DEFINITION_FAMILY'."
+            echo "::error::from task definition '$STAGING_TASK_DEF'."
             exit 1
           fi
 

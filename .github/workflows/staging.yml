@@ -80,20 +80,33 @@ jobs:
           REGISTRY: ${{ steps.login-ecr.outputs.registry }}
         run: |
           set -euo pipefail
-          # For a merge commit, HEAD^2 is the main tip that was merged in.
-          # For a fast-forward or direct push, HEAD is already that commit.
-          SOURCE_SHA=$(git rev-parse HEAD^2 2>/dev/null || git rev-parse HEAD)
-          echo "Looking for an image built from $SOURCE_SHA"
+          # Which commit on main produced the image we should deploy? That
+          # depends on how the merge was made, and the repo permits all three
+          # methods, so try the candidates rather than assuming one:
+          #   HEAD^2  -- merge commit; the main tip that was merged in
+          #   HEAD    -- fast-forward, squash, or direct push
+          # Publishing tags the image with main's tip *after* its own
+          # version-bump commit, so one of these matches whatever main pointed
+          # at when the image was built.
+          digest=""
+          SOURCE_SHA=""
+          for candidate in $(git rev-parse HEAD^2 2>/dev/null) $(git rev-parse HEAD); do
+            echo "Looking for an image built from $candidate"
+            # Resolve to a digest, not a tag: tags can be moved, digests cannot.
+            found="$(aws ecr describe-images \
+              --repository-name "$ECR_REPOSITORY" \
+              --image-ids "imageTag=$candidate" \
+              --query 'imageDetails[0].imageDigest' \
+              --output text 2>/dev/null || true)"
+            if [ -n "$found" ] && [ "$found" != "None" ]; then
+              digest="$found"
+              SOURCE_SHA="$candidate"
+              break
+            fi
+          done
 
-          # Resolve to a digest, not a tag: tags can be moved, digests cannot.
-          digest="$(aws ecr describe-images \
-            --repository-name "$ECR_REPOSITORY" \
-            --image-ids "imageTag=$SOURCE_SHA" \
-            --query 'imageDetails[0].imageDigest' \
-            --output text 2>/dev/null || true)"
-
-          if [ -z "$digest" ] || [ "$digest" = "None" ]; then
-            echo "::error::No image tagged $SOURCE_SHA in $ECR_REPOSITORY."
+          if [ -z "$digest" ]; then
+            echo "::error::No image found for any candidate commit in $ECR_REPOSITORY."
             echo "::error::That means this commit was never built and tested on main."
             echo "Recent tags in $ECR_REPOSITORY:"
             aws ecr describe-images --repository-name "$ECR_REPOSITORY" \

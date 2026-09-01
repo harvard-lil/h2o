@@ -6,12 +6,25 @@ on:
   pull_request:
     branches: [main]
 
-permissions:
-  id-token: write   # assume the staging AWS role to publish the prod-target image
-  contents: write   # lint_test.yml commits built assets back to main
-  packages: write   # push images to ghcr.io/harvard-lil
-
 jobs:
-  lint-and-test:
+  # Pull requests only ever test. No publishing, so no publishing credentials:
+  # a read-only token and one named secret, rather than `secrets: inherit`
+  # handing the whole repository's secrets to a branch build.
+  test:
+    if: github.event_name == 'pull_request'
+    permissions:
+      contents: read
+    uses: ./.github/workflows/lint_test.yml
+    secrets:
+      CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
+
+  # Pushes to main run the same suite and then publish, so they need write
+  # scopes and the AWS/registry secrets.
+  test-and-publish:
+    if: github.event_name == 'push'
+    permissions:
+      id-token: write   # assume the staging AWS role
+      contents: write   # commit image version bumps back to main
+      packages: write   # push images to ghcr.io/harvard-lil
     uses: ./.github/workflows/lint_test.yml
     secrets: inherit
