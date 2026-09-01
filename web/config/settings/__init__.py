@@ -28,9 +28,7 @@ if _h2o_settings_module:
             "'settings_aws_ecs' or 'settings_prod'."
         )
     try:
-        _settings_module = importlib.import_module(
-            f".{_h2o_settings_module}", package=__name__
-        )
+        _settings_module = importlib.import_module(f".{_h2o_settings_module}", package=__name__)
     except ModuleNotFoundError as e:
         # Only intercept "the module itself doesn't exist" -- an ImportError raised from
         # *inside* a module that does exist (e.g. a required env var missing) should
