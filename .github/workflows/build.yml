@@ -10,6 +10,13 @@ jobs:
   build:
     runs-on: ubuntu-latest
     steps:
+      # The composite action reads docker-compose.yml from the workspace, so the
+      # repo has to be here. Without this the dispatch fails on a missing file --
+      # previously masked, because the action never actually pushed on a
+      # workflow_dispatch event.
+      - name: Checkout code
+        uses: actions/checkout@v4
+
       - name: Push docker images
         uses: harvard-lil/lil-actions/docker-compose-update@main
         with:

@@ -49,6 +49,12 @@ python-shell.sh
 .vscode
 .mypy_cache
 
+# Compiled frontend bundles. Build output, produced by `npm run build` (or
+# automatically by `invoke run` / pytest). Not committed: a checked-in build
+# goes stale against its sources and conflicts unmergeably between branches.
+web/static/dist/
+web/webpack-stats.json
+
 # Dev-only webpack stats
 web/webpack-stats-serve.json
 
