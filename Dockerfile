@@ -14,8 +14,13 @@ WORKDIR /app/web
 # and shared by every target below, independent of app-code changes.
 COPY web/requirements.txt .
 
-RUN pip install pip==24.0 \
-    && pip install --no-cache-dir -r requirements.txt
+# CPUCOUNT=1 makes uwsgi compile single-threaded. Its build spawns one thread
+# per CPU, each shelling out to gcc, and on a loaded runner one of those forks
+# intermittently dies with "OSError: [Errno 14] Bad address: '/bin/sh'", failing
+# the whole image build. Serialising it trades a little time for a build that
+# does not fail at random.
+RUN CPUCOUNT=1 pip install pip==24.0 \
+    && CPUCOUNT=1 pip install --no-cache-dir -r requirements.txt
 
 # =====================================================================
 # assets -- the compiled JS/CSS bundles. Built here rather than by running
