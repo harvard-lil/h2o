@@ -2,14 +2,18 @@ name: Build images
 
 on: workflow_dispatch
 
+permissions:
+  contents: read
+  packages: write
+
 jobs:
   build:
     runs-on: ubuntu-latest
     steps:
       - name: Push docker images
-        uses: harvard-lil/docker-compose-update-action@main
+        uses: harvard-lil/lil-actions/docker-compose-update@main
         with:
-          registry: "registry.lil.tools"
-          registry-user: ${{ secrets.REPOSITORY_USER }}
-          registry-pass: ${{ secrets.REPOSITORY_TOKEN }}
+          registry: "ghcr.io"
+          registry-user: ${{ github.actor }}
+          registry-pass: ${{ secrets.GITHUB_TOKEN }}
           bake-action: "push"

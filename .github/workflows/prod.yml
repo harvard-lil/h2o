@@ -8,7 +8,8 @@ on:
 
 permissions:
     id-token: write
-    contents: read
+    contents: write   # lint_test.yml commits built assets
+    packages: write   # push images to ghcr.io/harvard-lil
 
 jobs:
   # Only allow merges from staging
@@ -18,8 +19,10 @@ jobs:
     if: github.event_name == 'pull_request'
     steps:
       - name: Verify source branch is staging
+        env:
+          HEAD_REF: ${{ github.head_ref }}
         run: |
-          if [ "${{ github.head_ref }}" != "staging" ]; then
+          if [ "$HEAD_REF" != "staging" ]; then
             echo "❌ Error: Pull requests to prod must come from staging branch"
             exit 1
           fi
@@ -27,6 +30,7 @@ jobs:
 
   lint-and-test:
     uses: ./.github/workflows/lint_test.yml
+    secrets: inherit
     needs: check-source-branch
     if: always() && (github.event_name == 'push' || needs.check-source-branch.result == 'success')
 
@@ -64,138 +68,131 @@ jobs:
         id: login-ecr
         uses: aws-actions/amazon-ecr-login@v2.1.4
 
-
-      - name: Build and push docker image to AWS ECR
+      # Production never builds. It ships the exact image staging is running.
+      #
+      # We read that image out of staging's ECS task definition rather than
+      # resolving a git SHA, because the SHA chain does not survive two merges:
+      # on staging, HEAD^2 is the main tip the image was tagged with, but on prod
+      # HEAD^2 is the staging *merge commit*, which no image carries. Reading the
+      # running definition is also independent of whether merges were merge
+      # commits, squashes, or rebases -- staging pins a digest there, so that
+      # definition IS the record of what was validated.
+      - name: Resolve the image staging validated
+        id: resolve
+        env:
+          REGISTRY: ${{ steps.login-ecr.outputs.registry }}
+          STAGING_TASK_DEFINITION_FAMILY: ${{ secrets.STAGING_TASK_DEFINITION_FAMILY }}
+          STAGING_CONTAINER_NAME: ${{ secrets.STAGING_CONTAINER_NAME }}
         run: |
-          docker buildx build --platform linux/amd64 -t "${{ steps.login-ecr.outputs.registry }}/${ECR_REPOSITORY}:${IMAGE_TAG}" -f ./Dockerfile --push .
-
-      - name: Create new ECS task definition
-        run: |
-          # Get the existing task definition
-          aws ecs describe-task-definition --task-definition $TASK_DEFINITION_FAMILY --query "taskDefinition" > task-definition.json
-
-          # Clean up the JSON by removing invalid fields
-          jq 'del(.taskDefinitionArn, .revision, .status, .registeredAt, .registeredBy, .compatibilities, .requiresAttributes)' task-definition.json > new-task-def.json
-
-      - name: Register new ECS task definition
-        run: |
-          NEW_TASK_DEF_ARN=$(aws ecs register-task-definition \
-            --cli-input-json file://new-task-def.json \
-            --query "taskDefinition.taskDefinitionArn" --output text)
-
-          echo "NEW_TASK_DEF_ARN=$NEW_TASK_DEF_ARN" >> $GITHUB_ENV
-
-
-      - name: Update ECS service
-        run: |
-          aws ecs update-service \
-            --cluster $ECS_CLUSTER \
-            --service $ECS_SERVICE \
-            --task-definition $NEW_TASK_DEF_ARN \
-            --force-new-deployment \
-            > /dev/null 2>&1
-      
-
-      - name: Wait for new deployment to start
-        run: |
-          sleep 10
-
-
-      - name: Put site into maintenance mode
-        run: |
-          aws elbv2 modify-listener \
-            --listener-arn $(aws elbv2 describe-listeners --load-balancer-arn $(aws elbv2 describe-load-balancers --names $LOAD_BALANCER --query "LoadBalancers[0].LoadBalancerArn" --output text) --query "Listeners[?Protocol=='HTTPS'].ListenerArn" --output text) \
-            --default-actions "Type=forward,ForwardConfig={TargetGroups=[{TargetGroupArn=$(aws elbv2 describe-target-groups --names $TARGET_GROUP --query 'TargetGroups[0].TargetGroupArn' --output text),Weight=0},{TargetGroupArn=$(aws elbv2 describe-target-groups --names $MAINTENANCE_TARGET_GROUP --query 'TargetGroups[0].TargetGroupArn' --output text),Weight=100}]}" \
-            > /dev/null 2>&1
-            
-
-      - name: Wait for new deployment to complete
-        run: |
-          aws ecs wait services-stable \
-            --cluster $ECS_CLUSTER \
-            --services $ECS_SERVICE
-
-
-      - name: Run django migration and refresh indexes
-        run: |
-          # Fetch the tasks associated with the updated ECS service
-          NEW_TASKS=$(aws ecs list-tasks \
-            --cluster $ECS_CLUSTER \
-            --service-name $ECS_SERVICE \
-            --desired-status RUNNING \
-            --query "taskArns" \
+          set -euo pipefail
+          STAGING_IMAGE=$(aws ecs describe-task-definition \
+            --task-definition "$STAGING_TASK_DEFINITION_FAMILY" \
+            --query "taskDefinition.containerDefinitions[?name=='${STAGING_CONTAINER_NAME}'].image | [0]" \
             --output text)
 
-          # Get the first task ARN from the list
-          NEW_TASK_ARN=$(echo $NEW_TASKS | awk '{print $1}')
+          if [ -z "$STAGING_IMAGE" ] || [ "$STAGING_IMAGE" = "None" ]; then
+            echo "::error::Could not read an image for container '$STAGING_CONTAINER_NAME'"
+            echo "::error::from task definition '$STAGING_TASK_DEFINITION_FAMILY'."
+            exit 1
+          fi
 
-          # Wait for the new task to be running
-          aws ecs wait tasks-running \
-            --cluster $ECS_CLUSTER \
-            --tasks $NEW_TASK_ARN          
+          # Require a digest. Staging pins one; a floating tag here means staging
+          # was deployed by something older and we cannot prove what it is running.
+          case "$STAGING_IMAGE" in
+            *@sha256:*) ;;
+            *)
+              echo "::error::Staging is running '$STAGING_IMAGE', which is not digest-pinned."
+              echo "::error::Refusing to promote an artifact we cannot identify."
+              echo "::error::Re-run the staging deploy first."
+              exit 1
+              ;;
+          esac
 
-          # Execute django migration, create search index & create reporting views
-          aws ecs execute-command \
-              --cluster $ECS_CLUSTER \
-              --task $(aws ecs list-tasks --cluster $ECS_CLUSTER --service-name $ECS_SERVICE --desired-status RUNNING --query "taskArns[0]" --output text) \
-              --container $CONTAINER_NAME \
-              --interactive \
-              --command "python manage.py migrate"
-          
-          # Execute create search index
-          aws ecs execute-command \
-              --cluster $ECS_CLUSTER \
-              --task $(aws ecs list-tasks --cluster $ECS_CLUSTER --service-name $ECS_SERVICE --desired-status RUNNING --query "taskArns[0]" --output text) \
-              --container $CONTAINER_NAME \
-              --interactive \
-              --command "invoke create-search-index"
-              
-          # Execute create reporting views
-          aws ecs execute-command \
-              --cluster $ECS_CLUSTER \
-              --task $(aws ecs list-tasks --cluster $ECS_CLUSTER --service-name $ECS_SERVICE --desired-status RUNNING --query "taskArns[0]" --output text) \
-              --container $CONTAINER_NAME \
-              --interactive \
-              --command "invoke create-reporting-views"
+          DIGEST="${STAGING_IMAGE#*@}"
+          echo "Promoting $STAGING_IMAGE"
+          echo "staging-image=$STAGING_IMAGE" >> "$GITHUB_OUTPUT"
+          echo "image-uri=${REGISTRY}/${ECR_REPOSITORY}@${DIGEST}" >> "$GITHUB_OUTPUT"
 
-      
-      - name: Update scheduled tasks with new task definition
+      - name: Copy that image into the production repository
+        env:
+          REGISTRY: ${{ steps.login-ecr.outputs.registry }}
+          STAGING_IMAGE: ${{ steps.resolve.outputs.staging-image }}
         run: |
-          # Split the EVENT_RULES environment variable into an array of event rule names
-          IFS=',' read -r -a EVENT_RULES_ARRAY <<< "$EVENT_RULES"
+          set -euxo pipefail
+          # Manifest-only copy between repositories in the same registry: no
+          # layers move and the digest is preserved, so production runs the same
+          # bytes staging did.
+          docker buildx imagetools create \
+            --tag "${REGISTRY}/${ECR_REPOSITORY}:${IMAGE_TAG}" \
+            "$STAGING_IMAGE"
 
-          for EVENT_RULE in "${EVENT_RULES_ARRAY[@]}"; do            
-            
-            # Get the current target configuration for the rule
-            TARGET_JSON=$(aws events list-targets-by-rule --rule $EVENT_RULE)
-            
-            # Update the TaskDefinitionArn in the EcsParameters section
-            UPDATED_TARGET_JSON=$(echo $TARGET_JSON | jq --arg NEW_TASK_DEF_ARN "$NEW_TASK_DEF_ARN" \
-              '.Targets[0].EcsParameters.TaskDefinitionArn = $NEW_TASK_DEF_ARN')
+      - name: Pin the web container to the promoted digest
+        id: task-def
+        uses: harvard-lil/lil-actions/ecs-register-task-def@main
+        with:
+          task-definition-family: ${{ env.TASK_DEFINITION_FAMILY }}
+          container-name: ${{ env.CONTAINER_NAME }}
+          image-uri: ${{ steps.resolve.outputs.image-uri }}
 
-            # Prepare the updated target JSON with the necessary fields
-            FINAL_TARGET_JSON=$(echo $UPDATED_TARGET_JSON | jq -r '[.Targets[0] | {Id, Arn, RoleArn, Input, EcsParameters}]')
+      - name: Deploy the digest-pinned task definition
+        uses: harvard-lil/lil-actions/ecs-deploy@main
+        with:
+          cluster: ${{ env.ECS_CLUSTER }}
+          service: ${{ env.ECS_SERVICE }}
+          task-definition: ${{ steps.task-def.outputs.task-definition-arn }}
 
-            # Update target configuration
-            aws events put-targets --rule $EVENT_RULE \
-              --targets "$FINAL_TARGET_JSON" \
-              > /dev/null 2>&1
-          done
+      - name: Put site into maintenance mode
+        uses: harvard-lil/lil-actions/ecs-maintenance@main
+        with:
+          mode: 'on'
+          load-balancer: ${{ env.LOAD_BALANCER }}
+          target-group: ${{ env.TARGET_GROUP }}
+          maintenance-target-group: ${{ env.MAINTENANCE_TARGET_GROUP }}
 
+      - name: Wait for the new deployment to become stable
+        uses: harvard-lil/lil-actions/ecs-wait-for-deployment@main
+        with:
+          cluster: ${{ env.ECS_CLUSTER }}
+          service: ${{ env.ECS_SERVICE }}
+
+      - name: Run Django migrations
+        uses: harvard-lil/lil-actions/ecs-django-migrations@main
+        with:
+          cluster: ${{ env.ECS_CLUSTER }}
+          service: ${{ env.ECS_SERVICE }}
+          container: ${{ env.CONTAINER_NAME }}
+          migrate-command: 'python manage.py migrate'
+
+      - name: Create search index
+        uses: harvard-lil/lil-actions/ecs-exec-command@main
+        with:
+          cluster: ${{ env.ECS_CLUSTER }}
+          service: ${{ env.ECS_SERVICE }}
+          container: ${{ env.CONTAINER_NAME }}
+          command: 'invoke create-search-index'
+
+      - name: Create reporting views
+        uses: harvard-lil/lil-actions/ecs-exec-command@main
+        with:
+          cluster: ${{ env.ECS_CLUSTER }}
+          service: ${{ env.ECS_SERVICE }}
+          container: ${{ env.CONTAINER_NAME }}
+          command: 'invoke create-reporting-views'
+
+      - name: Update scheduled tasks with new task definition
+        uses: harvard-lil/lil-actions/ecs-update-eventbridge@main
+        with:
+          event-rules: ${{ env.EVENT_RULES }}
+          task-definition-arn: ${{ steps.task-def.outputs.task-definition-arn }}
 
       - name: Turn off Maintenance mode
-        run: |
-          aws elbv2 modify-listener \
-            --listener-arn $(aws elbv2 describe-listeners --load-balancer-arn $(aws elbv2 describe-load-balancers --names $LOAD_BALANCER --query "LoadBalancers[0].LoadBalancerArn" --output text) --query "Listeners[?Protocol=='HTTPS'].ListenerArn" --output text) \
-            --default-actions "Type=forward,ForwardConfig={TargetGroups=[{TargetGroupArn=$(aws elbv2 describe-target-groups --names $TARGET_GROUP --query 'TargetGroups[0].TargetGroupArn' --output text),Weight=100},{TargetGroupArn=$(aws elbv2 describe-target-groups --names $MAINTENANCE_TARGET_GROUP --query 'TargetGroups[0].TargetGroupArn' --output text),Weight=0}]}" \
-            > /dev/null 2>&1
+        uses: harvard-lil/lil-actions/ecs-maintenance@main
+        with:
+          mode: 'off'
+          load-balancer: ${{ env.LOAD_BALANCER }}
+          target-group: ${{ env.TARGET_GROUP }}
+          maintenance-target-group: ${{ env.MAINTENANCE_TARGET_GROUP }}
 
-
-      - name: Wait for turn off maintenance mode
-        run: |
-          sleep 10
-      
-          
       - name: Purge Cloudflare cache
         uses: jakejarvis/cloudflare-purge-action@master
         env:

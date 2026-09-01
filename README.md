@@ -5,7 +5,7 @@
 
 
 [![test status](https://github.com/harvard-lil/h2o/actions/workflows/tests.yml/badge.svg)](https://github.com/harvard-lil/h2o/actions)
-[![codecov](https://codecov.io/gh/harvard-lil/h2o/branch/develop/graph/badge.svg)](https://codecov.io/gh/harvard-lil/h2o)
+[![codecov](https://codecov.io/gh/harvard-lil/h2o/branch/main/graph/badge.svg)](https://codecov.io/gh/harvard-lil/h2o)
 
 ## Development
 
@@ -127,7 +127,7 @@ Contributions to this project should be made in individual forks and then merged
 1. Make a branch for your feature: `git branch feature-1`
 1. Commit your changes with `git add` and `git commit`. (`git diff  --staged` is handy here!)
 1. Push your branch to your fork: `git push origin feature-1`
-1. Submit a pull request to the upstream develop through GitHub.
+1. Submit a pull request to the upstream main through GitHub.
 
 ## License
 
