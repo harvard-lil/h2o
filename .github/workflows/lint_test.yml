@@ -44,7 +44,13 @@ jobs:
       - name: Run mypy
         run: |
           cd web
-          pip install -r requirements.txt
+          # CPUCOUNT=1 for the same reason the Dockerfile sets it: uwsgi's build
+          # spawns one compiler thread per CPU, and on a multi-core runner they
+          # intermittently collide with `OSError: [Errno 14] Bad address:
+          # '/bin/sh'`. Nothing here needs uwsgi -- it arrives through
+          # requirements.txt -- so the cost of serialising its build is a few
+          # seconds against an occasional red build on an unrelated commit.
+          CPUCOUNT=1 pip install -r requirements.txt
           PYTHONPATH=. mypy
 
   test:
