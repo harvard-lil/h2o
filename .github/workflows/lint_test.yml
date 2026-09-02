@@ -69,6 +69,30 @@ jobs:
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
 
+      # `type=gha` talks to the Actions cache service, which needs a runtime
+      # token and endpoint that the runner injects into JavaScript actions only
+      # -- never into `run:` steps. `docker/build-push-action` gets them for
+      # free by being a JS action; the plain `docker buildx build` calls below
+      # do not, and buildx responds by skipping the cache silently rather than
+      # failing. That is why setting up this builder alone still produced no
+      # cache at all.
+      #
+      # crazy-max/ghaction-github-runtime is the usual way to do this. Using
+      # actions/github-script instead keeps a job-scoped credential out of a
+      # third party's hands, and that action is already used elsewhere here.
+      - name: Expose the Actions cache credentials to buildx
+        uses: actions/github-script@v7
+        with:
+          script: |
+            for (const name of ['ACTIONS_RUNTIME_TOKEN', 'ACTIONS_RESULTS_URL', 'ACTIONS_CACHE_URL']) {
+              const value = process.env[name]
+              if (value) {
+                core.exportVariable(name, value)
+              } else {
+                core.warning(`${name} is not set; the build cache will be skipped.`)
+              }
+            }
+
       # Cached with type=gha, which inherits GitHub's cache scoping: a pull
       # request can read main's cache but writes only to its own, so a fork
       # cannot feed layers into a published image. This matters more now that
