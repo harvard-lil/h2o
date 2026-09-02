@@ -23,10 +23,10 @@ jobs:
     
     steps:
       - name: Checkout code
-        uses: actions/checkout@v4
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
       
       - name: Set up Python
-        uses: actions/setup-python@v5
+        uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97 # v7.0.0
         with:
           python-version: '3.11'
       
@@ -60,14 +60,51 @@ jobs:
     if: github.event_name == 'pull_request' || github.repository == 'harvard-lil/h2o'
     
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
 
       # Required for the cache flags below to do anything at all. buildx's
       # default `docker` driver silently supports neither --cache-from nor
       # --cache-to, so before this step every run rebuilt the image from
       # scratch and the repository's Actions cache sat at zero bytes.
       - name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@v3
+        uses: docker/setup-buildx-action@37fe631027851001ddb9b187196cc803df7f5f0e # v4.3.0
+
+      # `type=gha` talks to the Actions cache service, which needs a runtime
+      # token and endpoint that the runner injects into JavaScript actions only
+      # -- never into `run:` steps. `docker/build-push-action` gets them for
+      # free by being a JS action; the plain `docker buildx build` calls below
+      # do not, and buildx responds by skipping the cache silently rather than
+      # failing. That is why setting up this builder alone still produced no
+      # cache at all.
+      #
+      # crazy-max/ghaction-github-runtime is the usual way to do this. Using
+      # actions/github-script instead keeps a job-scoped credential out of a
+      # third party's hands, and that action is already used elsewhere here.
+      #
+      # ACTIONS_CACHE_SERVICE_V2 is not decoration. buildx picks the cache API
+      # version from that flag alone -- not from which URL happens to be set --
+      # and defaults to v1, whose endpoint now answers with an HTML error page.
+      # Exporting the URLs without it produces a confusing
+      # "failed to parse error response 400" rather than anything cache-shaped.
+      - name: Expose the Actions cache credentials to buildx
+        uses: actions/github-script@ed597411d8f924073f98dfc5c65a23a2325f34cd # v8.0.0
+        with:
+          script: |
+            const required = ['ACTIONS_RUNTIME_TOKEN', 'ACTIONS_RESULTS_URL']
+            for (const name of required) {
+              const value = process.env[name]
+              if (value) {
+                core.exportVariable(name, value)
+              } else {
+                core.warning(`${name} is not set; the build cache will be skipped.`)
+              }
+            }
+            // Follow the runner's own view when it offers one, but never fall
+            // back to v1: ACTIONS_CACHE_URL is deliberately not exported.
+            core.exportVariable(
+              'ACTIONS_CACHE_SERVICE_V2',
+              process.env.ACTIONS_CACHE_SERVICE_V2 ?? 'true'
+            )
 
       # Cached with type=gha, which inherits GitHub's cache scoping: a pull
       # request can read main's cache but writes only to its own, so a fork
@@ -142,7 +179,7 @@ jobs:
       ### codecov ###
       # https://github.com/codecov/codecov-action
       - name: Codecov
-        uses: codecov/codecov-action@v5
+        uses: codecov/codecov-action@5a1091511ad55cbe89839c7260b706298ca349f7 # v5.5.1
         with:
           token: ${{ secrets.CODECOV_TOKEN }}
 
@@ -151,7 +188,7 @@ jobs:
       # to carry for the pandoc-lambda publish.
       - name: Configure AWS credentials
         if: github.event_name == 'push' && github.ref == 'refs/heads/main'
-        uses: aws-actions/configure-aws-credentials@v6.1.1
+        uses: aws-actions/configure-aws-credentials@cbe3b392738ccf3f987d68400dafcf4b0624a56c # v6.2.4
         with:
           role-to-assume: ${{ secrets.STAGING_AWS_ROLE_TO_ASSUME }}
           aws-region: ${{ secrets.STAGING_AWS_REGION }}
@@ -159,7 +196,7 @@ jobs:
       - name: Login to AWS ECR
         id: publish-ecr-login
         if: github.event_name == 'push' && github.ref == 'refs/heads/main'
-        uses: aws-actions/amazon-ecr-login@v2.1.4
+        uses: aws-actions/amazon-ecr-login@03f1aad4c6c7ffd436567f42f9384779290529bd # v2.1.7
 
       # Push the image built at the top of this job -- not a rebuild. Tagged with
       # the commit main actually points at, so staging can find it.
