@@ -115,7 +115,26 @@ jobs:
           fi
 
           echo "source-sha=$SOURCE_SHA" >> "$GITHUB_OUTPUT"
+          echo "image-digest=$digest" >> "$GITHUB_OUTPUT"
           echo "image-uri=${REGISTRY}/${ECR_REPOSITORY}@${digest}" >> "$GITHUB_OUTPUT"
+
+      # Mark both promoted artifacts before deploying them. ECR retention keeps
+      # `deployed-` images far longer than the build candidates that churn past
+      # them every merge to main -- without this tag, the image the service is
+      # running is just another candidate and ages out on the same schedule.
+      - name: Mark the promoted web image as deployed
+        uses: harvard-lil/lil-actions/ecr-tag-image@main
+        with:
+          repository: ${{ env.ECR_REPOSITORY }}
+          source: ${{ steps.resolve.outputs.image-digest }}
+          tag: deployed-${{ steps.resolve.outputs.source-sha }}
+
+      - name: Mark the promoted pandoc-lambda image as deployed
+        uses: harvard-lil/lil-actions/ecr-tag-image@main
+        with:
+          repository: pandoc-lambda
+          source: ${{ steps.resolve.outputs.source-sha }}
+          tag: deployed-${{ steps.resolve.outputs.source-sha }}
 
       # Keep the moving :latest tag pointing at what we deploy, so a Terraform
       # apply (whose task definition references :latest) cannot quietly revert
@@ -144,6 +163,19 @@ jobs:
           cluster: ${{ env.ECS_CLUSTER }}
           service: ${{ env.ECS_SERVICE }}
           task-definition: ${{ steps.task-def.outputs.task-definition-arn }}
+
+      # The export Lambda is part of this application and ships with it. It used
+      # to be updated by lint_test.yml on every merge to main, which left it
+      # running main's tip while the web service ran the last promoted commit.
+      - name: Point the staging export Lambda at the promoted image
+        env:
+          REGISTRY: ${{ steps.login-ecr.outputs.registry }}
+          SOURCE_SHA: ${{ steps.resolve.outputs.source-sha }}
+        run: |
+          set -euxo pipefail
+          aws lambda update-function-code \
+            --function-name h2o-export-stage \
+            --image-uri "${REGISTRY}/pandoc-lambda:${SOURCE_SHA}" >/dev/null
 
       - name: Put site into maintenance mode
         uses: harvard-lil/lil-actions/ecs-maintenance@main

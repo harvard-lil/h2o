@@ -83,6 +83,7 @@ jobs:
           STAGING_ECS_CLUSTER: ${{ secrets.STAGING_ECS_CLUSTER }}
           STAGING_ECS_SERVICE: ${{ secrets.STAGING_ECS_SERVICE }}
           STAGING_CONTAINER_NAME: ${{ secrets.STAGING_CONTAINER_NAME }}
+          STAGING_ECR_REPOSITORY: ${{ secrets.STAGING_ECR_REPOSITORY }}
         run: |
           set -euo pipefail
 
@@ -128,8 +129,28 @@ jobs:
           esac
 
           DIGEST="${STAGING_IMAGE#*@}"
-          echo "Promoting $STAGING_IMAGE"
+
+          # Recover which commit built this artifact, by reading the other tags
+          # on the same digest. The web image and its matching pandoc-lambda
+          # image are both tagged with the commit SHA, so this is what lets the
+          # export Lambda be promoted from the same commit as the web service
+          # rather than from whatever main happens to point at now.
+          SOURCE_SHA=$(aws ecr describe-images \
+            --repository-name "$STAGING_ECR_REPOSITORY" \
+            --image-ids "imageDigest=$DIGEST" \
+            --query 'imageDetails[0].imageTags' --output text \
+            | tr '\t' '\n' | { grep -E '^[0-9a-f]{40}$' || true; } | head -n1)
+
+          if [ -z "$SOURCE_SHA" ]; then
+            echo "::error::No commit-SHA tag on $DIGEST in $STAGING_ECR_REPOSITORY,"
+            echo "::error::so the matching pandoc-lambda image cannot be identified."
+            exit 1
+          fi
+
+          echo "Promoting $STAGING_IMAGE, built from $SOURCE_SHA"
           echo "staging-image=$STAGING_IMAGE" >> "$GITHUB_OUTPUT"
+          echo "source-sha=$SOURCE_SHA" >> "$GITHUB_OUTPUT"
+          echo "image-digest=$DIGEST" >> "$GITHUB_OUTPUT"
           echo "image-uri=${REGISTRY}/${ECR_REPOSITORY}@${DIGEST}" >> "$GITHUB_OUTPUT"
 
       - name: Copy that image into the production repository
@@ -145,6 +166,16 @@ jobs:
             --tag "${REGISTRY}/${ECR_REPOSITORY}:${IMAGE_TAG}" \
             "$STAGING_IMAGE"
 
+      # Retention keeps `deployed-` images long past the build candidates that
+      # churn by every merge to main. The production task definition is pinned to
+      # this digest, so it has to outlive them.
+      - name: Mark the promoted web image as deployed
+        uses: harvard-lil/lil-actions/ecr-tag-image@main
+        with:
+          repository: ${{ env.ECR_REPOSITORY }}
+          source: ${{ steps.resolve.outputs.image-digest }}
+          tag: deployed-${{ steps.resolve.outputs.source-sha }}
+
       - name: Pin the web container to the promoted digest
         id: task-def
         uses: harvard-lil/lil-actions/ecs-register-task-def@main
@@ -159,6 +190,18 @@ jobs:
           cluster: ${{ env.ECS_CLUSTER }}
           service: ${{ env.ECS_SERVICE }}
           task-definition: ${{ steps.task-def.outputs.task-definition-arn }}
+
+      # Production's export Lambda had no deploy path at all before this, which
+      # is how it came to sit on an image built in August 2024.
+      - name: Point the production export Lambda at the promoted image
+        env:
+          REGISTRY: ${{ steps.login-ecr.outputs.registry }}
+          SOURCE_SHA: ${{ steps.resolve.outputs.source-sha }}
+        run: |
+          set -euxo pipefail
+          aws lambda update-function-code \
+            --function-name h2o-export \
+            --image-uri "${REGISTRY}/pandoc-lambda:${SOURCE_SHA}" >/dev/null
 
       - name: Put site into maintenance mode
         uses: harvard-lil/lil-actions/ecs-maintenance@main
