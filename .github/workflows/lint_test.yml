@@ -80,11 +80,18 @@ jobs:
       # crazy-max/ghaction-github-runtime is the usual way to do this. Using
       # actions/github-script instead keeps a job-scoped credential out of a
       # third party's hands, and that action is already used elsewhere here.
+      #
+      # ACTIONS_CACHE_SERVICE_V2 is not decoration. buildx picks the cache API
+      # version from that flag alone -- not from which URL happens to be set --
+      # and defaults to v1, whose endpoint now answers with an HTML error page.
+      # Exporting the URLs without it produces a confusing
+      # "failed to parse error response 400" rather than anything cache-shaped.
       - name: Expose the Actions cache credentials to buildx
         uses: actions/github-script@v7
         with:
           script: |
-            for (const name of ['ACTIONS_RUNTIME_TOKEN', 'ACTIONS_RESULTS_URL', 'ACTIONS_CACHE_URL']) {
+            const required = ['ACTIONS_RUNTIME_TOKEN', 'ACTIONS_RESULTS_URL']
+            for (const name of required) {
               const value = process.env[name]
               if (value) {
                 core.exportVariable(name, value)
@@ -92,6 +99,12 @@ jobs:
                 core.warning(`${name} is not set; the build cache will be skipped.`)
               }
             }
+            // Follow the runner's own view when it offers one, but never fall
+            // back to v1: ACTIONS_CACHE_URL is deliberately not exported.
+            core.exportVariable(
+              'ACTIONS_CACHE_SERVICE_V2',
+              process.env.ACTIONS_CACHE_SERVICE_V2 ?? 'true'
+            )
 
       # Cached with type=gha, which inherits GitHub's cache scoping: a pull
       # request can read main's cache but writes only to its own, so a fork
