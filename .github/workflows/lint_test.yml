@@ -63,12 +63,11 @@ jobs:
     
     steps:
       - uses: actions/checkout@v4
-      ### build docker images locally ###
-      - name: Rebuild docker images
-        id: rebuild
-        uses: harvard-lil/lil-actions/docker-compose-update@main
-
-      ### run tests ###
+      # Cached with type=gha, which inherits GitHub's cache scoping: a pull
+      # request can read main's cache but writes only to its own, so a fork
+      # cannot feed layers into a published image. This matters more now that
+      # nothing is pulled -- CI builds these every run.
+      #
       # Build the deployable image and the image the suite runs against in one
       # go. `test` is FROM `prod`, so this produces prod's layers once and tests
       # against exactly them -- the two cannot drift the way they did when the
@@ -130,39 +129,6 @@ jobs:
         with:
           token: ${{ secrets.CODECOV_TOKEN }}
 
-      # Only the compose image-version bumps are committed now; the compiled
-      # bundles are build output and are neither committed nor extracted.
-      #
-      # This commit is why the prod image is tagged from HEAD *after* it runs
-      # rather than from github.sha: the push moves main forward, and staging
-      # resolves the image for main's tip. Tagging the triggering commit would
-      # leave that tip with no image and fail every staging deploy.
-      - name: Commit image version bumps
-        id: commit
-        if: github.event_name == 'push' && github.ref == 'refs/heads/main'
-        shell: 'script -q -e -c "bash --noprofile --norc -eo pipefail {0}"'
-        run: |
-          set -x
-          git config user.email "lil@law.harvard.edu"
-          git config user.name "Github Actions"
-          if [[ `git status docker-compose.yml docker-compose.override.yml --porcelain` ]] ; then
-            git add docker-compose.yml docker-compose.override.yml
-            git commit -m "Bump image version [skip ci]"
-            git push origin main || exit 1
-          fi
-          echo "sha=$(git rev-parse HEAD)" >> "$GITHUB_OUTPUT"
-
-      ### publish, now that the suite is green ###
-
-      - name: Push docker images
-        if: github.event_name == 'push' && github.ref == 'refs/heads/main'
-        uses: harvard-lil/lil-actions/docker-compose-update@main
-        with:
-          registry: "ghcr.io"
-          registry-user: ${{ github.actor }}
-          registry-pass: ${{ secrets.GITHUB_TOKEN }}
-          bake-action: "push"
-
       # One OIDC session for everything below that touches AWS. Replaces the
       # long-lived AWS_ACCESS_KEY_ID / AWS_SECRET_ACCESS_KEY this workflow used
       # to carry for the pandoc-lambda publish.
@@ -185,11 +151,13 @@ jobs:
         env:
           REGISTRY: ${{ steps.publish-ecr-login.outputs.registry }}
           ECR_REPOSITORY: ${{ secrets.STAGING_ECR_REPOSITORY }}
-          HEAD_SHA: ${{ steps.commit.outputs.sha }}
         run: |
           set -euxo pipefail
-          docker tag "h2o-prod:${{ github.sha }}" "${REGISTRY}/${ECR_REPOSITORY}:${HEAD_SHA}"
-          docker push "${REGISTRY}/${ECR_REPOSITORY}:${HEAD_SHA}"
+          # Nothing commits to main any more, so github.sha *is* main's tip and
+          # staging can resolve it directly. This is what the post-commit SHA
+          # dance was working around.
+          docker tag "h2o-prod:${{ github.sha }}" "${REGISTRY}/${ECR_REPOSITORY}:${{ github.sha }}"
+          docker push "${REGISTRY}/${ECR_REPOSITORY}:${{ github.sha }}"
 
       # build, push, and deploy pandoc-lambda image to stage if necessary
       # Authenticated by the OIDC session configured above.
@@ -200,7 +168,7 @@ jobs:
       # TODO: this could potentially use existing built image
       - name: Build and publish pandoc-lambda image
         id: pandoc-lambda
-        if: github.event_name == 'push' && github.ref == 'refs/heads/main' && contains(steps.rebuild.outputs.services-rebuilt, 'pandoc-lambda')
+        if: github.event_name == 'push' && github.ref == 'refs/heads/main'
         uses: harvard-lil/lil-actions/ecs-build@main
         with:
           ecr-repository: pandoc-lambda
@@ -209,7 +177,7 @@ jobs:
           provenance: "false"
 
       - name: Point the staging Lambda at the new image
-        if: github.event_name == 'push' && github.ref == 'refs/heads/main' && contains(steps.rebuild.outputs.services-rebuilt, 'pandoc-lambda')
+        if: github.event_name == 'push' && github.ref == 'refs/heads/main'
         env:
           IMAGE_URI: ${{ steps.pandoc-lambda.outputs.sha-image-uri }}
           AWS_ACCOUNT_ID: ${{ secrets.AWS_ACCOUNT_ID }}

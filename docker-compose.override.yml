@@ -1,34 +1,15 @@
-# overrides for local development, not used in CI
+# Overrides for local development, not used in CI.
+#
+# The build configuration lives in docker-compose.yml so that CI and developers
+# build the same way. What is left here is genuinely dev-only.
 services:
   pandoc-lambda:
     volumes:
       - ./docker/pandoc-lambda/function/:/function
-    build:
-      context: ./docker/pandoc-lambda
-      x-bake:
-        tags:
-          - ghcr.io/harvard-lil/h2o-pandoc-lambda:0.66-f4ef497565cd325e6161cb6b0dafe814
-        platforms:
-          - linux/amd64
-          - linux/arm64
-      x-hash-paths:
-        - .
   web:
-    build:
-      context: .
-      dockerfile: ./Dockerfile
-      target: dev
-      x-bake:
-        tags:
-          - ghcr.io/harvard-lil/h2o-python:0.118-d0309c2c0ef0b3f6cb2783cca2f363c1
-        platforms:
-          - linux/amd64
-          - linux/arm64
-      x-hash-paths:
-        - web/requirements.txt
     environment:
       - CAPAPI_API_KEY
       - GPO_API_KEY
-      - COURTLISTENER_API_KEY      
+      - COURTLISTENER_API_KEY
       - MATOMO_API_KEY
       - MATOMO_SITE_URL

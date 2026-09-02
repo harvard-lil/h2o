@@ -24,7 +24,6 @@ jobs:
     if: github.event_name == 'push'
     permissions:
       id-token: write   # assume the staging AWS role
-      contents: write   # commit image version bumps back to main
-      packages: write   # push images to ghcr.io/harvard-lil
+      contents: read    # nothing commits back to main any more
     uses: ./.github/workflows/lint_test.yml
     secrets: inherit

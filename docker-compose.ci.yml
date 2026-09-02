@@ -20,6 +20,11 @@ services:
       dockerfile: ./Dockerfile
       target: test
     image: h2o-test:ci
+    # CI builds prod and test together in one graph before this runs, so that
+    # the suite exercises the layers that ship. Rebuilding here would defeat
+    # that; `never` uses what was already built and fails loudly if it is
+    # missing, rather than quietly producing a second image.
+    pull_policy: never
     # The image inherits H2O_SETTINGS_MODULE=settings_aws_ecs from the prod stage,
     # and those settings require APP_CONFIG -- a production secret CI has no business
     # holding. Override it here rather than weakening the image: the artifact stays
@@ -32,12 +37,5 @@ services:
     # source instead of the image.
     volumes: !reset []
 
-  # Build this rather than pulling it. docker-compose.yml names a published
-  # image and only docker-compose.override.yml carries a build section, which
-  # CI does not load -- so without this, CI can only pull, and a tag that does
-  # not exist yet (a new registry, a bumped version) fails the whole run before
-  # a single test executes. Building also means CI exercises the pandoc-lambda
-  # source in the branch under test, rather than whatever was last published.
-  pandoc-lambda:
-    build:
-      context: ./docker/pandoc-lambda
+  # pandoc-lambda builds from docker-compose.yml in CI as well as locally, so
+  # CI exercises the source in the branch under test.

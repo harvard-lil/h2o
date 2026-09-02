@@ -9,7 +9,16 @@ services:
       - POSTGRES_PASSWORD=example
 
   web:
-    image: ghcr.io/harvard-lil/h2o-python:0.118-d0309c2c0ef0b3f6cb2783cca2f363c1
+    # Built locally, not pulled. pull_policy: build means a plain
+    # `docker compose up` rebuilds when a build input changes and is a ~0.6s
+    # no-op when nothing has -- so there is no flag to remember and no way to
+    # end up running a stale image after pulling someone else's dependency
+    # change. docker's layer cache is the staleness check.
+    build:
+      context: .
+      dockerfile: ./Dockerfile
+      target: dev
+    pull_policy: build
     tty: true
     command: bash
     environment:
@@ -61,7 +70,9 @@ services:
           - 'opencasebook.minio.test'
 
   pandoc-lambda:
-    image: ghcr.io/harvard-lil/h2o-pandoc-lambda:0.66-f4ef497565cd325e6161cb6b0dafe814
+    build:
+      context: ./docker/pandoc-lambda
+    pull_policy: build
     tty: true
     environment:
       - USE_S3_CREDENTIALS=True
