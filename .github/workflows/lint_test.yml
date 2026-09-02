@@ -62,54 +62,14 @@ jobs:
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
 
-      # Required for the cache flags below to do anything at all. buildx's
-      # default `docker` driver silently supports neither --cache-from nor
-      # --cache-to, so before this step every run rebuilt the image from
-      # scratch and the repository's Actions cache sat at zero bytes.
-      - name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@37fe631027851001ddb9b187196cc803df7f5f0e # v4.3.0
-
-      # `type=gha` talks to the Actions cache service, which needs a runtime
-      # token and endpoint that the runner injects into JavaScript actions only
-      # -- never into `run:` steps. `docker/build-push-action` gets them for
-      # free by being a JS action; the plain `docker buildx build` calls below
-      # do not, and buildx responds by skipping the cache silently rather than
-      # failing. That is why setting up this builder alone still produced no
-      # cache at all.
-      #
-      # crazy-max/ghaction-github-runtime is the usual way to do this. Using
-      # actions/github-script instead keeps a job-scoped credential out of a
-      # third party's hands, and that action is already used elsewhere here.
-      #
-      # ACTIONS_CACHE_SERVICE_V2 is not decoration. buildx picks the cache API
-      # version from that flag alone -- not from which URL happens to be set --
-      # and defaults to v1, whose endpoint now answers with an HTML error page.
-      # Exporting the URLs without it produces a confusing
-      # "failed to parse error response 400" rather than anything cache-shaped.
-      - name: Expose the Actions cache credentials to buildx
-        uses: actions/github-script@3a2844b7e9c422d3c10d287c895573f7108da1b3 # v9.0.0
-        with:
-          script: |
-            const required = ['ACTIONS_RUNTIME_TOKEN', 'ACTIONS_RESULTS_URL']
-            for (const name of required) {
-              const value = process.env[name]
-              if (value) {
-                core.exportVariable(name, value)
-              } else {
-                core.warning(`${name} is not set; the build cache will be skipped.`)
-              }
-            }
-            // Follow the runner's own view when it offers one, but never fall
-            // back to v1: ACTIONS_CACHE_URL is deliberately not exported.
-            core.exportVariable(
-              'ACTIONS_CACHE_SERVICE_V2',
-              process.env.ACTIONS_CACHE_SERVICE_V2 ?? 'true'
-            )
-
-      # Cached with type=gha, which inherits GitHub's cache scoping: a pull
-      # request can read main's cache but writes only to its own, so a fork
-      # cannot feed layers into a published image. This matters more now that
-      # nothing is pulled -- CI builds these every run.
+      # Deliberately uncached. A remote layer cache was measured here and did
+      # not pay for itself: this image's expensive steps -- npm ci, pip install,
+      # npm run build -- come to roughly 170s of compute, and their outputs are
+      # large enough that fetching and storing them costs about as much as doing
+      # the work. A warm run saved on the order of ten seconds against building
+      # from scratch, in exchange for a container-driver builder, exported cache
+      # credentials, an API-version flag, and 4 GB of the repository's 10 GB
+      # cache budget squatting on every other branch's entries.
       #
       # Build the deployable image and the image the suite runs against in one
       # go. `test` is FROM `prod`, so this produces prod's layers once and tests
@@ -124,9 +84,6 @@ jobs:
           docker buildx build \
             --target prod \
             --load \
-            --provenance=false \
-            --cache-from type=gha,scope=h2o \
-            --cache-to type=gha,mode=max,scope=h2o \
             -t h2o-prod:${{ github.sha }} \
             -f ./Dockerfile .
 
@@ -134,8 +91,6 @@ jobs:
           docker buildx build \
             --target test \
             --load \
-            --provenance=false \
-            --cache-from type=gha,scope=h2o \
             -t h2o-test:ci \
             -f ./Dockerfile .
 
