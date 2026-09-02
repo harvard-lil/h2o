@@ -122,6 +122,15 @@ jobs:
           docker compose exec web npm run lint
           docker compose exec web npm run test
 
+      # pytest writes coverage.xml inside the container. CI mounts nothing, so
+      # without this codecov finds no report -- it fails soft, so this was
+      # passing silently rather than erroring.
+      - name: Extract coverage report
+        run: |
+          set -euxo pipefail
+          docker compose cp web:/app/web/coverage.xml web/coverage.xml
+          test -s web/coverage.xml
+
       ### codecov ###
       # https://github.com/codecov/codecov-action
       - name: Codecov
@@ -175,6 +184,10 @@ jobs:
           context: docker/pandoc-lambda
           dockerfile: docker/pandoc-lambda/Dockerfile
           provenance: "false"
+          # This repository has immutable tags and nothing reads `latest` in it
+          # -- the Lambda is deployed from the SHA tag below. Pushing a moving
+          # tag would fail the second time it ran.
+          image-tag: ""
 
       - name: Point the staging Lambda at the new image
         if: github.event_name == 'push' && github.ref == 'refs/heads/main'
