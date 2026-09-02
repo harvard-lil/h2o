@@ -191,8 +191,9 @@ jobs:
           service: ${{ env.ECS_SERVICE }}
           task-definition: ${{ steps.task-def.outputs.task-definition-arn }}
 
-      # Production's export Lambda had no deploy path at all before this, which
-      # is how it came to sit on an image built in August 2024.
+      # The export Lambda ships with the web service, from the same commit. It is
+      # deployed independently of the ECS service, so a rollback of one does not
+      # roll back the other.
       - name: Point the production export Lambda at the promoted image
         env:
           REGISTRY: ${{ steps.login-ecr.outputs.registry }}
@@ -218,6 +219,7 @@ jobs:
           service: ${{ env.ECS_SERVICE }}
 
       - name: Run Django migrations
+        id: migrate
         uses: harvard-lil/lil-actions/ecs-django-migrations@main
         with:
           cluster: ${{ env.ECS_CLUSTER }}
@@ -247,13 +249,37 @@ jobs:
           event-rules: ${{ env.EVENT_RULES }}
           task-definition-arn: ${{ steps.task-def.outputs.task-definition-arn }}
 
+      # Lifted whenever migrations either succeeded or never ran, which covers
+      # every failure above this point. Those all leave a working site
+      # underneath: the service runs at minimumHealthyPercent 100, so ECS keeps
+      # the previous tasks serving until replacements pass health checks, and
+      # the only thing making the site unreachable is this page.
+      #
+      # A migration that failed partway is the exception, since it can leave the
+      # schema in a state neither the old nor the new code is safe against. That
+      # case stays behind the maintenance page for a human. `cancelled` counts
+      # the same: interrupting a migration is no safer than one failing.
       - name: Turn off Maintenance mode
+        if: always() && (steps.migrate.outcome == 'success' || steps.migrate.outcome == 'skipped')
         uses: harvard-lil/lil-actions/ecs-maintenance@main
         with:
           mode: 'off'
           load-balancer: ${{ env.LOAD_BALANCER }}
           target-group: ${{ env.TARGET_GROUP }}
           maintenance-target-group: ${{ env.MAINTENANCE_TARGET_GROUP }}
+
+      # Complement of the condition above, so the site is never left behind the
+      # maintenance page without this saying so.
+      - name: Report that the site was left in maintenance
+        if: always() && steps.migrate.outcome != 'success' && steps.migrate.outcome != 'skipped'
+        run: |
+          echo "::error::Django migrations did not complete (outcome: ${{ steps.migrate.outcome }})."
+          echo "::error::MAINTENANCE MODE IS STILL ON and was left on deliberately --"
+          echo "::error::https://opencasebook.org is serving the maintenance page, not the application."
+          echo "::error::The database may be partially migrated. Check its state before"
+          echo "::error::lifting maintenance; re-running this workflow will not lift it"
+          echo "::error::either, because it will fail at the same step."
+          exit 1
 
       - name: Purge Cloudflare cache
         uses: harvard-lil/lil-actions/cloudflare-purge@main
@@ -262,6 +288,35 @@ jobs:
           token: ${{ secrets.CLOUDFLARE_API_TOKEN }}
 
       
+      # The success notification below does not run on failure, so this is the
+      # only thing that reports a failed deploy -- including the one case where
+      # the site is deliberately left serving the maintenance page.
+      - name: Notify Slack on failure
+        if: failure()
+        uses: slackapi/slack-github-action@91efab103c0de0a537f72a35f6b8cda0ee76bf0a # v2.1.1
+        with:
+            webhook: ${{ secrets.SLACK_WEBHOOK_URL }}
+            webhook-type: incoming-webhook
+            payload: |
+              {
+                "blocks": [
+                    {
+                      "type": "section",
+                      "text": {
+                          "type": "mrkdwn",
+                          "text": "*Prod H2O deploy FAILED*"
+                      }
+                    },
+                    {
+                      "type": "section",
+                      "text": {
+                          "type": "mrkdwn",
+                          "text": "*Maintenance mode:*\n${{ (steps.migrate.outcome != 'success' && steps.migrate.outcome != 'skipped') && 'STILL ON - the site is serving the maintenance page' || 'lifted - the site is serving the previous version' }}\n*Run:*\n<https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}|${{ github.run_id }}>"
+                      }
+                    }
+                ]
+              }
+
       - name: Notify Slack
         uses: slackapi/slack-github-action@91efab103c0de0a537f72a35f6b8cda0ee76bf0a # v2.1.1
         with:
