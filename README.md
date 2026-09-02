@@ -41,6 +41,12 @@ Then log into the main Docker container:
 
 You should now have a working installation of H2O!
 
+The images are built locally rather than pulled, so the first
+`docker compose up -d` takes a few minutes. After that it is a fraction of a
+second: Compose rebuilds only when something a build depends on has changed, so
+pulling a colleague's dependency change is picked up automatically and there is
+no flag to remember.
+
 Spin up the development server (this also starts the frontend build, so run
 `npm install` first if you have not already)...
 

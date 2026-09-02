@@ -7,9 +7,8 @@ on:
     branches: [staging]
 
 permissions:
-    id-token: write
-    contents: write   # lint_test.yml commits built assets
-    packages: write   # push images to ghcr.io/harvard-lil
+    id-token: write   # assume the deploy role via OIDC
+    contents: read
 
 jobs:
   # Only allow merges from main
