@@ -192,6 +192,7 @@ jobs:
           service: ${{ env.ECS_SERVICE }}
 
       - name: Run Django migrations
+        id: migrate
         uses: harvard-lil/lil-actions/ecs-django-migrations@main
         with:
           cluster: ${{ env.ECS_CLUSTER }}
@@ -221,13 +222,40 @@ jobs:
           event-rules: ${{ env.EVENT_RULES }}
           task-definition-arn: ${{ steps.task-def.outputs.task-definition-arn }}
 
+      # Maintenance goes on before the rollout is confirmed, and until now no
+      # step in this job had an `if:`. So any failure in between -- a bad image,
+      # a slow rollout, a broken index rebuild -- aborted the workflow with the
+      # maintenance page still up, and it stayed up until someone flipped the
+      # load balancer by hand. ECS runs at minimumHealthyPercent 100, so the old
+      # tasks are still serving throughout: the site was only ever down because
+      # the maintenance page was covering a working site.
+      #
+      # Migrations are the one exception. A migration that fails partway can
+      # leave the schema in a state neither the old nor the new code is safe
+      # against, so that case deliberately stays dark for a human. `cancelled`
+      # is treated the same way, since interrupting a migration is no safer than
+      # having one fail.
       - name: Turn off Maintenance mode
+        if: always() && (steps.migrate.outcome == 'success' || steps.migrate.outcome == 'skipped')
         uses: harvard-lil/lil-actions/ecs-maintenance@main
         with:
           mode: 'off'
           load-balancer: ${{ env.LOAD_BALANCER }}
           target-group: ${{ env.TARGET_GROUP }}
           maintenance-target-group: ${{ env.MAINTENANCE_TARGET_GROUP }}
+
+      # The condition here is the exact complement of the step above, so the
+      # site is never left behind the maintenance page without this firing.
+      - name: Report that the site was left in maintenance
+        if: always() && steps.migrate.outcome != 'success' && steps.migrate.outcome != 'skipped'
+        run: |
+          echo "::error::Django migrations did not complete (outcome: ${{ steps.migrate.outcome }})."
+          echo "::error::MAINTENANCE MODE IS STILL ON and was left on deliberately --"
+          echo "::error::https://staging.opencasebook.org is serving the maintenance page, not the application."
+          echo "::error::The database may be partially migrated. Check its state before"
+          echo "::error::lifting maintenance; re-running this workflow will not lift it"
+          echo "::error::either, because it will fail at the same step."
+          exit 1
 
       - name: Purge Cloudflare cache
         uses: harvard-lil/lil-actions/cloudflare-purge@main
@@ -236,6 +264,35 @@ jobs:
           token: ${{ secrets.CLOUDFLARE_API_TOKEN }}
           
           
+      # Without this a failed deploy sends nothing at all, since the success
+      # notification below does not run. The case that matters is the one where
+      # the site is deliberately dark and nobody has been told.
+      - name: Notify Slack on failure
+        if: failure()
+        uses: slackapi/slack-github-action@91efab103c0de0a537f72a35f6b8cda0ee76bf0a # v2.1.1
+        with:
+            webhook: ${{ secrets.SLACK_WEBHOOK_URL }}
+            webhook-type: incoming-webhook
+            payload: |
+              {
+                "blocks": [
+                    {
+                      "type": "section",
+                      "text": {
+                          "type": "mrkdwn",
+                          "text": "*Staging H2O deploy FAILED*"
+                      }
+                    },
+                    {
+                      "type": "section",
+                      "text": {
+                          "type": "mrkdwn",
+                          "text": "*Maintenance mode:*\n${{ (steps.migrate.outcome != 'success' && steps.migrate.outcome != 'skipped') && 'STILL ON - the site is serving the maintenance page' || 'lifted - the site is serving the previous version' }}\n*Run:*\n<https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}|${{ github.run_id }}>"
+                      }
+                    }
+                ]
+              }
+
       - name: Notify Slack
         uses: slackapi/slack-github-action@91efab103c0de0a537f72a35f6b8cda0ee76bf0a # v2.1.1
         with:
