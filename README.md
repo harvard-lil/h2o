@@ -5,7 +5,7 @@
 
 
 [![test status](https://github.com/harvard-lil/h2o/actions/workflows/tests.yml/badge.svg)](https://github.com/harvard-lil/h2o/actions)
-[![codecov](https://codecov.io/gh/harvard-lil/h2o/branch/develop/graph/badge.svg)](https://codecov.io/gh/harvard-lil/h2o)
+[![codecov](https://codecov.io/gh/harvard-lil/h2o/branch/main/graph/badge.svg)](https://codecov.io/gh/harvard-lil/h2o)
 
 ## Development
 
@@ -41,7 +41,14 @@ Then log into the main Docker container:
 
 You should now have a working installation of H2O!
 
-Spin up the development server...
+The images are built locally rather than pulled, so the first
+`docker compose up -d` takes a few minutes. After that it is a fraction of a
+second: Compose rebuilds only when something a build depends on has changed, so
+pulling a colleague's dependency change is picked up automatically and there is
+no flag to remember.
+
+Spin up the development server (this also starts the frontend build, so run
+`npm install` first if you have not already)...
 
     # invoke run
 
@@ -53,26 +60,23 @@ or, with [Django Debug Toolbar](https://django-debug-toolbar.readthedocs.io/en/l
 
 ### Frontend assets
 
-Frontend assets live in `frontend/` and are compiled with vue-cli. If you want to run frontend assets:
+Frontend assets live in `frontend/` and are compiled with vue-cli.
 
-Install requirements:
+`invoke run` starts the vue-cli dev server alongside Django, so edits under
+`frontend/` are picked up without a restart. There is no separate
+`invoke run-frontend` any more -- it is what `invoke run` does.
 
-    # npm install
+The compiled bundles (`static/dist/` and `webpack-stats.json`) are build output
+and are **not** committed. You do not normally need to think about them: both
+`invoke run` and `pytest` compile them when they are missing or out of date. To
+build them by hand:
 
-Run the development server with hot-reloading vue-cli pipeline:
+    # invoke build-frontend
 
-    # invoke run-frontend
-
-or, with [Django Debug Toolbar](https://django-debug-toolbar.readthedocs.io/en/latest/index.html#) enabled,
-
-    # invoke run-frontend --debug-toolbar
-
-After making changes to frontend/, compile new assets if you want to see them from plain `invoke run`:
-
-    # npm run build
-
-`npm run build` will be automatically run by Github Actions as well, so it is unnecessary (but harmless) to build and
-commit the new assets locally, unless you want to use them immediately.
+Staleness is decided by hashing the build's inputs -- `frontend/`,
+`static/images/`, and the npm and vue configs -- against the hash recorded when
+the bundles were last built, so pulling someone else's frontend change triggers
+a rebuild on your next run or test.
 
 ### Stop
 
@@ -101,7 +105,9 @@ Run these from inside the container.
 1. `npm run lint` runs javascript lints
 1. `pytest -k functional` runs the Playwright tests only.
 
-Playwright tests will spawn their own test runner. You will need to run `npm run build` manually for the test runner to pick up any changes to the JS.
+Playwright tests spawn their own test runner against the compiled bundles. Those
+are rebuilt automatically when your frontend changes, so a JS edit is reflected
+in the next test run without any manual step.
 
 To debug failed Playwright runs, use:
 
@@ -127,7 +133,7 @@ Contributions to this project should be made in individual forks and then merged
 1. Make a branch for your feature: `git branch feature-1`
 1. Commit your changes with `git add` and `git commit`. (`git diff  --staged` is handy here!)
 1. Push your branch to your fork: `git push origin feature-1`
-1. Submit a pull request to the upstream develop through GitHub.
+1. Submit a pull request to the upstream main through GitHub.
 
 ## License
 

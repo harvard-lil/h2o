@@ -1,6 +1,6 @@
 services:
   db:
-    image: registry.lil.tools/library/postgres:16.6
+    image: postgres:16.6
     volumes:
       - db_data_16:/var/lib/postgresql/data:delegated
     ports:
@@ -9,7 +9,16 @@ services:
       - POSTGRES_PASSWORD=example
 
   web:
-    image: registry.lil.tools/harvardlil/h2o-python:0.118-d0309c2c0ef0b3f6cb2783cca2f363c1
+    # Built locally, not pulled. pull_policy: build means a plain
+    # `docker compose up` rebuilds when a build input changes and is a ~0.6s
+    # no-op when nothing has -- so there is no flag to remember and no way to
+    # end up running a stale image after pulling someone else's dependency
+    # change. docker's layer cache is the staleness check.
+    build:
+      context: .
+      dockerfile: ./Dockerfile
+      target: dev
+    pull_policy: build
     tty: true
     command: bash
     environment:
@@ -35,7 +44,7 @@ services:
         - SYS_PTRACE
 
   minio:
-    image: registry.lil.tools/minio/minio:RELEASE.2021-02-19T04-38-02Z
+    image: minio/minio:RELEASE.2021-02-19T04-38-02Z
     entrypoint:
       - "/entrypoint.sh"
     command:
@@ -61,7 +70,9 @@ services:
           - 'opencasebook.minio.test'
 
   pandoc-lambda:
-    image: registry.lil.tools/harvardlil/h2o-pandoc-lambda:0.66-f4ef497565cd325e6161cb6b0dafe814
+    build:
+      context: ./docker/pandoc-lambda
+    pull_policy: build
     tty: true
     environment:
       - USE_S3_CREDENTIALS=True

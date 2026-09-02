@@ -8,6 +8,8 @@ from distutils.sysconfig import get_python_lib
 
 import factory
 import pytest
+
+import frontend_assets
 from django.conf import settings
 from django.db import connections
 from django.db.backends import utils as django_db_utils
@@ -15,6 +17,22 @@ from django.db.backends.base.base import BaseDatabaseWrapper
 from django.test.utils import CaptureQueriesContext
 from django.utils import timezone
 from requests_mock import ANY
+
+
+@pytest.fixture(scope="session", autouse=True)
+def current_frontend_assets():
+    """Compile the frontend bundles before any test renders a page.
+
+    base.html calls {% render_bundle %}, so every test that renders a page --
+    not just the Playwright ones -- reads webpack-stats.json. Without this a
+    fresh checkout fails with a bare FileNotFoundError, and a checkout whose
+    frontend has moved on silently tests the previous build.
+
+    No-ops when the bundles already match their sources, which is the common
+    case, so this costs nothing on a normal run.
+    """
+    frontend_assets.ensure_current()
+
 
 from main.models import (
     Casebook,

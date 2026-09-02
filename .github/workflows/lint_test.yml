@@ -2,6 +2,21 @@ name: Lint and Test
 
 on:
   workflow_call:
+    secrets:
+      # Declared so a caller can pass exactly what a given event needs. A
+      # pull_request run gets only CODECOV_TOKEN; publishing secrets are
+      # required=false and simply absent there, which is what keeps the
+      # publish steps unable to run even if their `if:` guards were wrong.
+      CODECOV_TOKEN:
+        required: false
+      STAGING_AWS_ROLE_TO_ASSUME:
+        required: false
+      STAGING_AWS_REGION:
+        required: false
+      STAGING_ECR_REPOSITORY:
+        required: false
+      AWS_ACCOUNT_ID:
+        required: false
 
 jobs:
   lint:
@@ -19,13 +34,13 @@ jobs:
       
       - name: Run flake8
         run: |
-          pip install `egrep -o 'flake8==\S+' web/requirements.txt`
+          pip install "$(grep -Eo 'flake8==\S+' web/requirements.txt)"
           flake8 web/ --config web/setup.cfg
           flake8 docker/pandoc-lambda/function/ --config web/setup.cfg
       
       - name: Run black
         run: |
-          pip install `egrep -o 'black==\S+' web/requirements.txt`
+          pip install "$(grep -Eo 'black==\S+' web/requirements.txt)"
           black --check --diff .
       
       - name: Run mypy
@@ -38,25 +53,53 @@ jobs:
     name: Test
     runs-on: ubuntu-latest
     needs: lint
+    env:
+      # Compose reads this itself, so every `docker compose` call below picks up
+      # both files with no flags. Setting it also stops compose auto-loading
+      # docker-compose.override.yml, which is developer-only.
+      COMPOSE_FILE: docker-compose.yml:docker-compose.ci.yml
     # don't run on pushes to forks
     if: github.event_name == 'pull_request' || github.repository == 'harvard-lil/h2o'
     
     steps:
       - uses: actions/checkout@v4
-      ### build docker images locally ###
-      - name: Rebuild docker images
-        id: rebuild
-        uses: harvard-lil/docker-compose-update-action@main
+      # Cached with type=gha, which inherits GitHub's cache scoping: a pull
+      # request can read main's cache but writes only to its own, so a fork
+      # cannot feed layers into a published image. This matters more now that
+      # nothing is pulled -- CI builds these every run.
+      #
+      # Build the deployable image and the image the suite runs against in one
+      # go. `test` is FROM `prod`, so this produces prod's layers once and tests
+      # against exactly them -- the two cannot drift the way they did when the
+      # prod image was rebuilt separately after the tests had already passed.
+      #
+      # Nothing is pushed here. The prod image is held locally and published
+      # further down, only if the suite is green.
+      - name: Build the prod and test images
+        run: |
+          set -euxo pipefail
+          docker buildx build \
+            --target prod \
+            --load \
+            --cache-from type=gha,scope=h2o \
+            --cache-to type=gha,mode=max,scope=h2o \
+            -t h2o-prod:${{ github.sha }} \
+            -f ./Dockerfile .
 
-      ### run tests ###
+          # `test` reuses the prod layers just built, so this is nearly free.
+          docker buildx build \
+            --target test \
+            --load \
+            --cache-from type=gha,scope=h2o \
+            -t h2o-test:ci \
+            -f ./Dockerfile .
+
       - name: docker compose up
         run: |
-          # separate pull so downloads run in parallel, with
-          # --ignore-pull-failures for PRs with new images that haven't been pushed yet:
-          docker compose -f docker-compose.yml pull --ignore-pull-failures || true
-          docker compose -f docker-compose.yml up -d        # use -f to suppress docker-compose.override.yml
-          docker ps -a                                      # show running containers
-          docker compose logs                               # show logs
+          docker compose pull --ignore-pull-failures || true
+          docker compose up -d
+          docker ps -a
+          docker compose logs
 
       - name: Collect static files
         shell: 'script -q -e -c "bash --noprofile --norc -eo pipefail {0}"'  # avoid docker-compose "the input device is not a TTY" -- see https://github.com/actions/runner/issues/241#issuecomment-842566950
@@ -74,10 +117,19 @@ jobs:
         shell: 'script -q -e -c "bash --noprofile --norc -eo pipefail {0}"'  # avoid docker-compose "the input device is not a TTY" -- see https://github.com/actions/runner/issues/241#issuecomment-842566950
         run: |
           set -x
-          docker compose exec web bash -c "umask 0 && mkdir /app/web/.npmcache && npm config set cache /app/web/.npmcache && npm install"
+          # No npm install or npm run build: node_modules and the compiled
+          # bundles both come from the assets stage, inside the image.
           docker compose exec web npm run lint
-          docker compose exec web npm run build
           docker compose exec web npm run test
+
+      # pytest writes coverage.xml inside the container. CI mounts nothing, so
+      # without this codecov finds no report -- it fails soft, so this was
+      # passing silently rather than erroring.
+      - name: Extract coverage report
+        run: |
+          set -euxo pipefail
+          docker compose cp web:/app/web/coverage.xml web/coverage.xml
+          test -s web/coverage.xml
 
       ### codecov ###
       # https://github.com/codecov/codecov-action
@@ -86,55 +138,67 @@ jobs:
         with:
           token: ${{ secrets.CODECOV_TOKEN }}
 
-      # build, push, and deploy pandoc-lambda image to stage if necessary
-      # this requires that AWS_ACCESS_KEY_ID, AWS_SECRET_ACCESS_KEY, AWS_DEFAULT_REGION,
-      # and AWS_ACCOUNT_ID be set.
-      # TODO: this could potentially use existing built image
-      - name: Publish pandoc-lambda image
-        if: github.event_name == 'push' && github.ref == 'refs/heads/develop' && contains(steps.rebuild.outputs.services-rebuilt, 'pandoc-lambda')
-        env:
-          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
-          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-          AWS_ACCOUNT_ID: ${{ secrets.AWS_ACCOUNT_ID }}
-          AWS_DEFAULT_REGION: ${{ secrets.AWS_DEFAULT_REGION }}
-        run: |
-          aws --version
-          cd docker/pandoc-lambda/
-          IMG=pandoc-lambda
-          TAG=`git rev-parse --short HEAD`
-          ACCT=${AWS_ACCOUNT_ID}
-          REGION=${AWS_DEFAULT_REGION}
-          ARN=arn:aws:lambda:${REGION}:${ACCT}:function:h2o-export-stage
-          aws ecr get-login-password --region ${REGION} | docker login --username AWS --password-stdin ${ACCT}.dkr.ecr.${REGION}.amazonaws.com
-          docker buildx build --push --provenance=false --platform linux/amd64 --tag ${ACCT}.dkr.ecr.${REGION}.amazonaws.com/${IMG}:${TAG} .
-          aws lambda update-function-code --function-name ${ARN} --image-uri ${ACCT}.dkr.ecr.${REGION}.amazonaws.com/${IMG}:${TAG} --region ${REGION}
-
-      # Commit built assets if necessary
-      - name: Commit Assets
-        if: github.event_name == 'push' && github.ref == 'refs/heads/develop'
-        shell: 'script -q -e -c "bash --noprofile --norc -eo pipefail {0}"'  # avoid docker-compose "the input device is not a TTY" -- https://github.com/actions/runner/issues/241#issuecomment-842566950
-        run: |
-          set -x
-          git config user.email "lil@law.harvard.edu"
-          git config user.name "Github Actions"
-          if [[ `git status docker-compose.yml docker-compose.override.yml --porcelain` ]] ; then
-            git add docker-compose.yml docker-compose.override.yml
-            git commit -m "Bump image version [skip ci]"
-            git push origin develop || exit 1
-          fi
-          if [[ `git status web/static/dist/ web/webpack-stats.json --porcelain` ]] ; then
-              git add web/static/dist/ web/webpack-stats.json
-              git commit -m "Add built JS [skip ci]"
-              git push origin develop || exit 1
-          fi
-
-      ### push docker images to registry, from main branch, once tests pass ###
-
-      - name: Push docker images
-        if: github.event_name == 'push' && github.ref == 'refs/heads/develop'
-        uses: harvard-lil/docker-compose-update-action@main
+      # One OIDC session for everything below that touches AWS. Replaces the
+      # long-lived AWS_ACCESS_KEY_ID / AWS_SECRET_ACCESS_KEY this workflow used
+      # to carry for the pandoc-lambda publish.
+      - name: Configure AWS credentials
+        if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+        uses: aws-actions/configure-aws-credentials@v6.1.1
         with:
-          registry: "registry.lil.tools"
-          registry-user: ${{ secrets.REPOSITORY_USER }}
-          registry-pass: ${{ secrets.REPOSITORY_TOKEN }}
-          bake-action: "push"
+          role-to-assume: ${{ secrets.STAGING_AWS_ROLE_TO_ASSUME }}
+          aws-region: ${{ secrets.STAGING_AWS_REGION }}
+
+      - name: Login to AWS ECR
+        id: publish-ecr-login
+        if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+        uses: aws-actions/amazon-ecr-login@v2.1.4
+
+      # Push the image built at the top of this job -- not a rebuild. Tagged with
+      # the commit main actually points at, so staging can find it.
+      - name: Publish the prod image to ECR
+        if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+        env:
+          REGISTRY: ${{ steps.publish-ecr-login.outputs.registry }}
+          ECR_REPOSITORY: ${{ secrets.STAGING_ECR_REPOSITORY }}
+        run: |
+          set -euxo pipefail
+          # Nothing commits to main any more, so github.sha *is* main's tip and
+          # staging can resolve it directly. This is what the post-commit SHA
+          # dance was working around.
+          docker tag "h2o-prod:${{ github.sha }}" "${REGISTRY}/${ECR_REPOSITORY}:${{ github.sha }}"
+          docker push "${REGISTRY}/${ECR_REPOSITORY}:${{ github.sha }}"
+
+      # build, push, and deploy pandoc-lambda image to stage if necessary
+      # Authenticated by the OIDC session configured above.
+      # provenance: false because buildx's container driver otherwise attaches a
+      # provenance attestation, making the push an image index -- which Lambda
+      # rejects. ecs-build also tags the full commit SHA, where this previously
+      # used a short SHA.
+      # TODO: this could potentially use existing built image
+      - name: Build and publish pandoc-lambda image
+        id: pandoc-lambda
+        if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+        uses: harvard-lil/lil-actions/ecs-build@main
+        with:
+          ecr-repository: pandoc-lambda
+          context: docker/pandoc-lambda
+          dockerfile: docker/pandoc-lambda/Dockerfile
+          provenance: "false"
+          # This repository has immutable tags and nothing reads `latest` in it
+          # -- the Lambda is deployed from the SHA tag below. Pushing a moving
+          # tag would fail the second time it ran.
+          image-tag: ""
+
+      - name: Point the staging Lambda at the new image
+        if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+        env:
+          IMAGE_URI: ${{ steps.pandoc-lambda.outputs.sha-image-uri }}
+          AWS_ACCOUNT_ID: ${{ secrets.AWS_ACCOUNT_ID }}
+          AWS_DEFAULT_REGION: ${{ secrets.STAGING_AWS_REGION }}
+        run: |
+          set -euxo pipefail
+          aws lambda update-function-code \
+            --function-name "arn:aws:lambda:${AWS_DEFAULT_REGION}:${AWS_ACCOUNT_ID}:function:h2o-export-stage" \
+            --image-uri "$IMAGE_URI" \
+            --region "$AWS_DEFAULT_REGION"
+

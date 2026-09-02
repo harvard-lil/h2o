@@ -37,23 +37,34 @@ def setup_django(func):
 
 @task
 @setup_django
-def run(ctx, port=None, debug_toolbar=False, live_js_assets=False):
+def run(ctx, port=None, debug_toolbar=False):
+    """Run the app with a live-reloading frontend build alongside it.
 
-    with ctx.prefix(
-        f'export DEBUG_TOOLBAR={"1" if debug_toolbar else ""} && export LIVE_JS_ASSETS={"1" if live_js_assets else ""}'
-    ):
-        if port is None:
-            port = "0.0.0.0:8000" if os.environ.get("DOCKERIZED") else "127.0.0.1:8000"
-        ctx.run(f"python manage.py runserver {port}")
+    The vue-cli dev server owns the bundles while this is running, so editing
+    anything under frontend/ is reflected without a restart and without a
+    committed build to go stale. This used to be `run-frontend`; plain `run`
+    served whatever bundles happened to be on disk, which is how you ended up
+    looking at last week's frontend without noticing.
+    """
+    node_proc = subprocess.Popen("npm run serve", shell=True, stdout=sys.stdout, stderr=sys.stderr)
+    try:
+        with ctx.prefix(
+            f'export DEBUG_TOOLBAR={"1" if debug_toolbar else ""} && export LIVE_JS_ASSETS=1'
+        ):
+            if port is None:
+                port = "0.0.0.0:8000" if os.environ.get("DOCKERIZED") else "127.0.0.1:8000"
+            ctx.run(f"python manage.py runserver {port}")
+    finally:
+        os.kill(node_proc.pid, signal.SIGKILL)
 
 
 @task
-def run_frontend(ctx, port=None, debug_toolbar=False):
-    node_proc = subprocess.Popen("npm run serve", shell=True, stdout=sys.stdout, stderr=sys.stderr)
-    try:
-        run(ctx, port, debug_toolbar=debug_toolbar, live_js_assets=True)
-    finally:
-        os.kill(node_proc.pid, signal.SIGKILL)
+def build_frontend(ctx):
+    """Compile the frontend bundles, if they are missing or out of date."""
+    import frontend_assets
+
+    if not frontend_assets.ensure_current():
+        print("Frontend assets are already up to date.")
 
 
 ### tasks ###
