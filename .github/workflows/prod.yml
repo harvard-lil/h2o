@@ -53,11 +53,11 @@ jobs:
 
     steps:
       - name: Checkout code
-        uses: actions/checkout@v6.0.2
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
 
 
       - name: Configure AWS credentials
-        uses: aws-actions/configure-aws-credentials@v6.1.1
+        uses: aws-actions/configure-aws-credentials@cbe3b392738ccf3f987d68400dafcf4b0624a56c # v6.2.4
         with:
           role-to-assume: ${{ secrets.PROD_AWS_ROLE_TO_ASSUME }}
           aws-region: ${{ secrets.PROD_AWS_REGION }}
@@ -65,7 +65,7 @@ jobs:
 
       - name: Login to AWS ECR
         id: login-ecr
-        uses: aws-actions/amazon-ecr-login@v2.1.4
+        uses: aws-actions/amazon-ecr-login@03f1aad4c6c7ffd436567f42f9384779290529bd # v2.1.7
 
       # Production never builds. It ships the exact image staging is running.
       #
@@ -83,6 +83,7 @@ jobs:
           STAGING_ECS_CLUSTER: ${{ secrets.STAGING_ECS_CLUSTER }}
           STAGING_ECS_SERVICE: ${{ secrets.STAGING_ECS_SERVICE }}
           STAGING_CONTAINER_NAME: ${{ secrets.STAGING_CONTAINER_NAME }}
+          STAGING_ECR_REPOSITORY: ${{ secrets.STAGING_ECR_REPOSITORY }}
         run: |
           set -euo pipefail
 
@@ -128,8 +129,28 @@ jobs:
           esac
 
           DIGEST="${STAGING_IMAGE#*@}"
-          echo "Promoting $STAGING_IMAGE"
+
+          # Recover which commit built this artifact, by reading the other tags
+          # on the same digest. The web image and its matching pandoc-lambda
+          # image are both tagged with the commit SHA, so this is what lets the
+          # export Lambda be promoted from the same commit as the web service
+          # rather than from whatever main happens to point at now.
+          SOURCE_SHA=$(aws ecr describe-images \
+            --repository-name "$STAGING_ECR_REPOSITORY" \
+            --image-ids "imageDigest=$DIGEST" \
+            --query 'imageDetails[0].imageTags' --output text \
+            | tr '\t' '\n' | { grep -E '^[0-9a-f]{40}$' || true; } | head -n1)
+
+          if [ -z "$SOURCE_SHA" ]; then
+            echo "::error::No commit-SHA tag on $DIGEST in $STAGING_ECR_REPOSITORY,"
+            echo "::error::so the matching pandoc-lambda image cannot be identified."
+            exit 1
+          fi
+
+          echo "Promoting $STAGING_IMAGE, built from $SOURCE_SHA"
           echo "staging-image=$STAGING_IMAGE" >> "$GITHUB_OUTPUT"
+          echo "source-sha=$SOURCE_SHA" >> "$GITHUB_OUTPUT"
+          echo "image-digest=$DIGEST" >> "$GITHUB_OUTPUT"
           echo "image-uri=${REGISTRY}/${ECR_REPOSITORY}@${DIGEST}" >> "$GITHUB_OUTPUT"
 
       - name: Copy that image into the production repository
@@ -144,6 +165,16 @@ jobs:
           docker buildx imagetools create \
             --tag "${REGISTRY}/${ECR_REPOSITORY}:${IMAGE_TAG}" \
             "$STAGING_IMAGE"
+
+      # Retention keeps `deployed-` images long past the build candidates that
+      # churn by every merge to main. The production task definition is pinned to
+      # this digest, so it has to outlive them.
+      - name: Mark the promoted web image as deployed
+        uses: harvard-lil/lil-actions/ecr-tag-image@main
+        with:
+          repository: ${{ env.ECR_REPOSITORY }}
+          source: ${{ steps.resolve.outputs.image-digest }}
+          tag: deployed-${{ steps.resolve.outputs.source-sha }}
 
       - name: Pin the web container to the promoted digest
         id: task-def
@@ -160,6 +191,19 @@ jobs:
           service: ${{ env.ECS_SERVICE }}
           task-definition: ${{ steps.task-def.outputs.task-definition-arn }}
 
+      # The export Lambda ships with the web service, from the same commit. It is
+      # deployed independently of the ECS service, so a rollback of one does not
+      # roll back the other.
+      - name: Point the production export Lambda at the promoted image
+        env:
+          REGISTRY: ${{ steps.login-ecr.outputs.registry }}
+          SOURCE_SHA: ${{ steps.resolve.outputs.source-sha }}
+        run: |
+          set -euxo pipefail
+          aws lambda update-function-code \
+            --function-name h2o-export \
+            --image-uri "${REGISTRY}/pandoc-lambda:${SOURCE_SHA}" >/dev/null
+
       - name: Put site into maintenance mode
         uses: harvard-lil/lil-actions/ecs-maintenance@main
         with:
@@ -175,6 +219,7 @@ jobs:
           service: ${{ env.ECS_SERVICE }}
 
       - name: Run Django migrations
+        id: migrate
         uses: harvard-lil/lil-actions/ecs-django-migrations@main
         with:
           cluster: ${{ env.ECS_CLUSTER }}
@@ -204,7 +249,18 @@ jobs:
           event-rules: ${{ env.EVENT_RULES }}
           task-definition-arn: ${{ steps.task-def.outputs.task-definition-arn }}
 
+      # Lifted whenever migrations either succeeded or never ran, which covers
+      # every failure above this point. Those all leave a working site
+      # underneath: the service runs at minimumHealthyPercent 100, so ECS keeps
+      # the previous tasks serving until replacements pass health checks, and
+      # the only thing making the site unreachable is this page.
+      #
+      # A migration that failed partway is the exception, since it can leave the
+      # schema in a state neither the old nor the new code is safe against. That
+      # case stays behind the maintenance page for a human. `cancelled` counts
+      # the same: interrupting a migration is no safer than one failing.
       - name: Turn off Maintenance mode
+        if: always() && (steps.migrate.outcome == 'success' || steps.migrate.outcome == 'skipped')
         uses: harvard-lil/lil-actions/ecs-maintenance@main
         with:
           mode: 'off'
@@ -212,15 +268,57 @@ jobs:
           target-group: ${{ env.TARGET_GROUP }}
           maintenance-target-group: ${{ env.MAINTENANCE_TARGET_GROUP }}
 
+      # Complement of the condition above, so the site is never left behind the
+      # maintenance page without this saying so.
+      - name: Report that the site was left in maintenance
+        if: always() && steps.migrate.outcome != 'success' && steps.migrate.outcome != 'skipped'
+        run: |
+          echo "::error::Django migrations did not complete (outcome: ${{ steps.migrate.outcome }})."
+          echo "::error::MAINTENANCE MODE IS STILL ON and was left on deliberately --"
+          echo "::error::https://opencasebook.org is serving the maintenance page, not the application."
+          echo "::error::The database may be partially migrated. Check its state before"
+          echo "::error::lifting maintenance; re-running this workflow will not lift it"
+          echo "::error::either, because it will fail at the same step."
+          exit 1
+
       - name: Purge Cloudflare cache
-        uses: jakejarvis/cloudflare-purge-action@master
-        env:
-          CLOUDFLARE_ZONE: ${{ secrets.CLOUDFLARE_ZONE_ID }}
-          CLOUDFLARE_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+        uses: harvard-lil/lil-actions/cloudflare-purge@main
+        with:
+          zone: ${{ secrets.CLOUDFLARE_ZONE_ID }}
+          token: ${{ secrets.CLOUDFLARE_API_TOKEN }}
 
       
+      # The success notification below does not run on failure, so this is the
+      # only thing that reports a failed deploy -- including the one case where
+      # the site is deliberately left serving the maintenance page.
+      - name: Notify Slack on failure
+        if: failure()
+        uses: slackapi/slack-github-action@91efab103c0de0a537f72a35f6b8cda0ee76bf0a # v2.1.1
+        with:
+            webhook: ${{ secrets.SLACK_WEBHOOK_URL }}
+            webhook-type: incoming-webhook
+            payload: |
+              {
+                "blocks": [
+                    {
+                      "type": "section",
+                      "text": {
+                          "type": "mrkdwn",
+                          "text": "*Prod H2O deploy FAILED*"
+                      }
+                    },
+                    {
+                      "type": "section",
+                      "text": {
+                          "type": "mrkdwn",
+                          "text": "*Maintenance mode:*\n${{ (steps.migrate.outcome != 'success' && steps.migrate.outcome != 'skipped') && 'STILL ON - the site is serving the maintenance page' || 'lifted - the site is serving the previous version' }}\n*Run:*\n<https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}|${{ github.run_id }}>"
+                      }
+                    }
+                ]
+              }
+
       - name: Notify Slack
-        uses: slackapi/slack-github-action@v2.1.1
+        uses: slackapi/slack-github-action@91efab103c0de0a537f72a35f6b8cda0ee76bf0a # v2.1.1
         with:
             webhook: ${{ secrets.SLACK_WEBHOOK_URL }}
             webhook-type: incoming-webhook
