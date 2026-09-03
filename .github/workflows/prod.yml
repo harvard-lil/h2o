@@ -40,8 +40,8 @@ jobs:
     if: always() && github.event_name == 'push' && needs.lint-and-test.result == 'success'
     
     outputs:
-      image-uri: ${{ steps.resolve.outputs.image-uri }}
-      lambda-image-uri: ${{ steps.resolve.outputs.lambda-image-uri }}
+      image-digest: ${{ steps.resolve.outputs.image-digest }}
+      source-sha: ${{ steps.resolve.outputs.source-sha }}
 
     env:
       ECR_REPOSITORY: ${{ secrets.PROD_ECR_REPOSITORY }}
@@ -182,13 +182,14 @@ jobs:
     with:
       environment-label: Prod
       site-url: https://opencasebook.org
-      image-uri: ${{ needs.prepare.outputs.image-uri }}
-      lambda-image-uri: ${{ needs.prepare.outputs.lambda-image-uri }}
+      image-digest: ${{ needs.prepare.outputs.image-digest }}
+      source-sha: ${{ needs.prepare.outputs.source-sha }}
       lambda-function-name: h2o-export
       maintenance-script: h2o-maintenance-prod
       maintenance-hostnames: opencasebook.org,www.opencasebook.org
     secrets:
       aws-role-arn: ${{ secrets.PROD_AWS_ROLE_TO_ASSUME }}
+      ecr-repository: ${{ secrets.PROD_ECR_REPOSITORY }}
       aws-region: ${{ secrets.PROD_AWS_REGION }}
       ecs-cluster: ${{ secrets.PROD_ECS_CLUSTER }}
       ecs-service: ${{ secrets.PROD_ECS_SERVICE }}
