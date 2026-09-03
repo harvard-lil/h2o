@@ -190,10 +190,10 @@ jobs:
           rm -rf collected-static
           docker compose cp web:/app/web/static ./collected-static
 
-          aws s3 sync ./collected-static/dist "s3://${STATIC_BUCKET}/dist" \
+          aws s3 sync ./collected-static/dist "s3://${STATIC_BUCKET}/static/dist" \
             --cache-control 'public, max-age=31536000, immutable' --no-progress
 
-          aws s3 sync ./collected-static "s3://${STATIC_BUCKET}" \
+          aws s3 sync ./collected-static "s3://${STATIC_BUCKET}/static" \
             --exclude 'dist/*' \
             --cache-control 'public, max-age=3600' --no-progress
         env:

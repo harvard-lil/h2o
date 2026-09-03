@@ -21,6 +21,15 @@ RelativeBundleTracker.prototype.writeOutput = function (compiler, contents) {
         if (chunk.path.startsWith(relativePathRoot)) {
           chunk.path = chunk.path.substr(relativePathRoot.length);
         }
+        // django-webpack-loader returns publicPath verbatim when it is present,
+        // and otherwise builds the URL through staticfiles_storage. Dropping it
+        // from the compiled build is what puts bundles under STATIC_URL like
+        // every other static file, instead of at a location baked in here at
+        // build time. The dev server's stats keep theirs; they point at
+        // localhost:8080, which no Django setting knows about.
+        if (!devMode) {
+          delete chunk.publicPath;
+        }
       }
     }
   }
