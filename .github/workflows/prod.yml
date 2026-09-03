@@ -27,17 +27,13 @@ jobs:
           fi
           echo "✅ Source branch verification passed"
 
-  lint-and-test:
-    uses: ./.github/workflows/lint_test.yml
-    secrets: inherit
-    needs: check-source-branch
-    if: always() && (github.event_name == 'push' || needs.check-source-branch.result == 'success')
-
+  # Neither deploy tier lints or tests. check-source-branch limits this branch to
+  # merges from staging, and the resolve step below promotes the image the
+  # staging service is running rather than building anything.
   prepare:
     name: Prepare the production artifact
     runs-on: ubuntu-latest
-    needs: lint-and-test
-    if: always() && github.event_name == 'push' && needs.lint-and-test.result == 'success'
+    if: github.event_name == 'push'
     
     outputs:
       image-digest: ${{ steps.copy.outputs.image-digest }}
@@ -214,10 +210,9 @@ jobs:
   # tiers and lives in one file so a staging run exercises production's code.
   deploy:
     needs: prepare
-    # check-source-branch only runs on pull_request, so every push skips it, and
-    # that skip travels down the needs graph. The jobs between here and it
-    # override the skip with always(); without a condition of its own this job
-    # inherits it and never runs, even though prepare succeeded.
+    # Named rather than left to the default success(): a job with no condition of
+    # its own is skipped when anything in its needs graph is skipped, regardless
+    # of whether the jobs it depends on succeeded.
     if: always() && needs.prepare.result == 'success'
     uses: ./.github/workflows/deploy_sequence.yml
     with:
