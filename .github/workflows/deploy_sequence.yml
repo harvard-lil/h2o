@@ -28,12 +28,17 @@ on:
         description: 'Public URL of this tier, used in notifications'
         required: true
         type: string
-      image-uri:
-        description: 'Digest-pinned web image, already present in this tier ECR repository'
+      image-digest:
+        description: >
+          Digest of the web image to deploy, already present in this tier's ECR
+          repository. A digest and not a full URI: a URI contains the registry,
+          the registry contains the account ID, the account ID is masked, and
+          GitHub silently drops a job output it believes holds a secret rather
+          than passing it on.
         required: true
         type: string
-      lambda-image-uri:
-        description: 'pandoc-lambda image built from the same commit as image-uri'
+      source-sha:
+        description: 'Commit the artifact was built from, naming the matching pandoc-lambda image'
         required: true
         type: string
       lambda-function-name:
@@ -54,6 +59,8 @@ on:
 
     secrets:
       aws-role-arn:
+        required: true
+      ecr-repository:
         required: true
       aws-region:
         required: true
@@ -98,13 +105,19 @@ jobs:
           role-to-assume: ${{ secrets.aws-role-arn }}
           aws-region: ${{ secrets.aws-region }}
 
+      # The registry is derived here rather than passed in, for the same reason
+      # the inputs above are pieces rather than URIs.
+      - name: Login to AWS ECR
+        id: login-ecr
+        uses: aws-actions/amazon-ecr-login@03f1aad4c6c7ffd436567f42f9384779290529bd # v2.1.7
+
       - name: Pin the web container to the promoted digest
         id: task-def
         uses: harvard-lil/lil-actions/ecs-register-task-def@main
         with:
           task-definition-family: ${{ env.TASK_DEFINITION_FAMILY }}
           container-name: ${{ env.CONTAINER_NAME }}
-          image-uri: ${{ inputs.image-uri }}
+          image-uri: ${{ steps.login-ecr.outputs.registry }}/${{ secrets.ecr-repository }}@${{ inputs.image-digest }}
 
       # Whether this deploy needs a maintenance window is a property of the new
       # code, so it cannot be answered by asking the tasks currently running.
@@ -178,7 +191,7 @@ jobs:
       - name: Point the export Lambda at the promoted image
         env:
           FUNCTION_NAME: ${{ inputs.lambda-function-name }}
-          LAMBDA_IMAGE_URI: ${{ inputs.lambda-image-uri }}
+          LAMBDA_IMAGE_URI: ${{ steps.login-ecr.outputs.registry }}/pandoc-lambda:${{ inputs.source-sha }}
         run: |
           set -euxo pipefail
           aws lambda update-function-code \
