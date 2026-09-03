@@ -197,7 +197,10 @@ jobs:
             --exclude 'dist/*' \
             --cache-control 'public, max-age=3600' --no-progress
         env:
-          STATIC_BUCKET: h2o-static
+          # h2o-static was already taken in S3's global namespace by another
+          # account, so the bucket is org-scoped. h2o/static in lil-terraform
+          # outputs this name.
+          STATIC_BUCKET: lil-h2o-static
 
       # Build and publish only -- pointing a Lambda at this image is a deploy,
       # and happens in staging.yml / prod.yml alongside every other deploy.
