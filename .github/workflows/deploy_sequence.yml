@@ -40,6 +40,17 @@ on:
         description: 'Export Lambda for this tier'
         required: true
         type: string
+      maintenance-script:
+        description: >
+          Cloudflare Worker serving this tier's maintenance page, e.g.
+          h2o-maintenance-prod. Created by lil-terraform's
+          lil-cloudflare-maintenance module.
+        required: true
+        type: string
+      maintenance-hostnames:
+        description: 'Comma-separated hostnames the page answers on'
+        required: true
+        type: string
 
     secrets:
       aws-role-arn:
@@ -53,12 +64,6 @@ on:
       container-name:
         required: true
       task-definition-family:
-        required: true
-      load-balancer:
-        required: true
-      target-group:
-        required: true
-      maintenance-target-group:
         required: true
       event-rules:
         # Empty is tolerated: a tier with no scheduled tasks has nothing to update.
@@ -80,9 +85,6 @@ jobs:
     runs-on: ubuntu-latest
 
     env:
-      LOAD_BALANCER: ${{ secrets.load-balancer }}
-      TARGET_GROUP: ${{ secrets.target-group }}
-      MAINTENANCE_TARGET_GROUP: ${{ secrets.maintenance-target-group }}
       TASK_DEFINITION_FAMILY: ${{ secrets.task-definition-family }}
       CONTAINER_NAME: ${{ secrets.container-name }}
       ECS_CLUSTER: ${{ secrets.ecs-cluster }}
@@ -183,14 +185,20 @@ jobs:
             --function-name "$FUNCTION_NAME" \
             --image-uri "$LAMBDA_IMAGE_URI" >/dev/null
 
-      - name: Put site into maintenance mode
+      # Held at Cloudflare rather than by shifting load-balancer weight, so the
+      # page still answers if the origin is unreachable, and the load balancer
+      # is left out of it entirely. The action confirms the change by requesting
+      # the site and fails if it never sees it, so the migration below does not
+      # start against traffic that is still flowing.
+      - name: Hold traffic at the edge
         if: steps.window.outputs.needed == 'true'
-        uses: harvard-lil/lil-actions/ecs-maintenance@main
+        uses: harvard-lil/lil-actions/cloudflare-maintenance@main
         with:
           mode: 'on'
-          load-balancer: ${{ env.LOAD_BALANCER }}
-          target-group: ${{ env.TARGET_GROUP }}
-          maintenance-target-group: ${{ env.MAINTENANCE_TARGET_GROUP }}
+          zone-id: ${{ secrets.cloudflare-zone-id }}
+          script: ${{ inputs.maintenance-script }}
+          hostnames: ${{ inputs.maintenance-hostnames }}
+          token: ${{ secrets.cloudflare-api-token }}
 
       - name: Wait for the new deployment to become stable
         uses: harvard-lil/lil-actions/ecs-wait-for-deployment@main
@@ -239,14 +247,14 @@ jobs:
       # schema in a state neither the old nor the new code is safe against. That
       # case stays behind the maintenance page for a human. `cancelled` counts
       # the same: interrupting a migration is no safer than one failing.
-      - name: Turn off Maintenance mode
+      - name: Release traffic at the edge
         if: always() && steps.window.outputs.needed == 'true' && (steps.migrate.outcome == 'success' || steps.migrate.outcome == 'skipped')
-        uses: harvard-lil/lil-actions/ecs-maintenance@main
+        uses: harvard-lil/lil-actions/cloudflare-maintenance@main
         with:
           mode: 'off'
-          load-balancer: ${{ env.LOAD_BALANCER }}
-          target-group: ${{ env.TARGET_GROUP }}
-          maintenance-target-group: ${{ env.MAINTENANCE_TARGET_GROUP }}
+          zone-id: ${{ secrets.cloudflare-zone-id }}
+          hostnames: ${{ inputs.maintenance-hostnames }}
+          token: ${{ secrets.cloudflare-api-token }}
 
       # Complement of the condition above, so the site is never left behind the
       # maintenance page without this saying so.
