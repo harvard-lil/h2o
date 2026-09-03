@@ -185,6 +185,8 @@ jobs:
       image-uri: ${{ needs.prepare.outputs.image-uri }}
       lambda-image-uri: ${{ needs.prepare.outputs.lambda-image-uri }}
       lambda-function-name: h2o-export
+      maintenance-script: h2o-maintenance-prod
+      maintenance-hostnames: opencasebook.org,www.opencasebook.org
     secrets:
       aws-role-arn: ${{ secrets.PROD_AWS_ROLE_TO_ASSUME }}
       aws-region: ${{ secrets.PROD_AWS_REGION }}
@@ -192,9 +194,6 @@ jobs:
       ecs-service: ${{ secrets.PROD_ECS_SERVICE }}
       container-name: ${{ secrets.PROD_CONTAINER_NAME }}
       task-definition-family: ${{ secrets.PROD_TASK_DEFINITION_FAMILY }}
-      load-balancer: ${{ secrets.PROD_LOAD_BALANCER }}
-      target-group: ${{ secrets.PROD_TARGET_GROUP }}
-      maintenance-target-group: ${{ secrets.PROD_MAINTENANCE_TARGET_GROUP }}
       event-rules: ${{ secrets.PROD_EVENT_RULES }}
       cloudflare-zone-id: ${{ secrets.CLOUDFLARE_ZONE_ID }}
       cloudflare-api-token: ${{ secrets.CLOUDFLARE_API_TOKEN }}

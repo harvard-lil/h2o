@@ -67,3 +67,13 @@ USE_SENTRY = config["TIER"] == "prod"
 SENTRY_DSN = config["SENTRY_DSN"]
 SENTRY_ENVIRONMENT = config["TIER"]
 SENTRY_TRACES_SAMPLE_RATE = 0.001
+
+# Compiled assets are served from S3 through Cloudflare rather than from this
+# container. Without that, a rolling deploy briefly has old and new tasks behind
+# the same load balancer, and a page rendered by one can request a
+# content-hashed bundle that only exists in the other.
+#
+# WhiteNoise deliberately stays in MIDDLEWARE. The files are still in the image,
+# so anything that reaches /static/ here is still answered while we confirm from
+# the access logs that nothing does. Removing it is a separate change.
+STATIC_URL = "https://static.opencasebook.org/"
