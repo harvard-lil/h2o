@@ -73,7 +73,9 @@ SENTRY_TRACES_SAMPLE_RATE = 0.001
 # the same load balancer, and a page rendered by one can request a
 # content-hashed bundle that only exists in the other.
 #
-# WhiteNoise deliberately stays in MIDDLEWARE. The files are still in the image,
-# so anything that reaches /static/ here is still answered while we confirm from
-# the access logs that nothing does. Removing it is a separate change.
-STATIC_URL = "https://static.opencasebook.org/"
+# The /static/ path carries weight beyond tidiness. WhiteNoise takes its URL
+# prefix from urlparse(STATIC_URL).path, so pointing this at the bucket root
+# would move the copies still in the image from /static/... to /..., and they
+# would stop answering the URLs that anything already rendered asks for.
+# WhiteNoise stays in MIDDLEWARE as the fallback that arrangement gives us.
+STATIC_URL = "https://static.opencasebook.org/static/"
