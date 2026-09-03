@@ -7,8 +7,9 @@ on:
     branches: [staging]
 
 permissions:
-    id-token: write   # assume the deploy role via OIDC
+    id-token: write     # assume the deploy role via OIDC
     contents: read
+    pull-requests: read # read deploy labels off the merged pull request
 
 jobs:
   # Only allow merges from main

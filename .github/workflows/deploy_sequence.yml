@@ -83,8 +83,9 @@ on:
         required: true
 
 permissions:
-  id-token: write   # assume the deploy role via OIDC
+  id-token: write     # assume the deploy role via OIDC
   contents: read
+  pull-requests: read # read deploy labels off the merged pull request
 
 jobs:
   deploy:
@@ -132,13 +133,45 @@ jobs:
       # that would not start, a missing exit code, anything unexpected. Opening
       # a window that was not needed costs five quiet minutes; skipping one that
       # was needed serves traffic against a half-migrated schema.
+      # A push carries no pull request context, so the labels are looked up from
+      # the commit. A direct push, or a merge whose pull request has since been
+      # deleted, returns nothing and the deploy proceeds on its own judgement.
+      - name: Read the deploy labels off the merged pull request
+        id: labels
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -uo pipefail
+          if ! labels="$(gh api "repos/${GITHUB_REPOSITORY}/commits/${GITHUB_SHA}/pulls" \
+                          --jq '.[].labels[].name')"; then
+            echo "::warning::Could not read pull request labels for ${GITHUB_SHA}."
+            echo "::warning::Continuing as though none were set."
+            labels=""
+          fi
+          echo "Labels: ${labels:-(none)}"
+          if grep -qx 'deploy:force-maintenance-mode' <<< "$labels"; then
+            echo "force-maintenance=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "force-maintenance=false" >> "$GITHUB_OUTPUT"
+          fi
+
       - name: Does this deploy need a maintenance window?
         id: window
         env:
           TASK_DEF: ${{ steps.task-def.outputs.task-definition-arn }}
+          FORCED: ${{ steps.labels.outputs.force-maintenance }}
         run: |
           set -uo pipefail
           needed=true
+
+          # Asked for explicitly, so there is nothing to work out. This is also
+          # the only way to exercise the window on a deploy that carries no
+          # migrations, which is otherwise the only thing that opens one.
+          if [ "$FORCED" = "true" ]; then
+            echo "needed=true" >> "$GITHUB_OUTPUT"
+            echo "deploy:force-maintenance-mode is set: taking a maintenance window."
+            exit 0
+          fi
 
           NETCFG=$(aws ecs describe-services --cluster "$ECS_CLUSTER" --services "$ECS_SERVICE" \
             --query 'services[0].networkConfiguration' --output json)
