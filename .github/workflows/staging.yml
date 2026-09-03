@@ -33,23 +33,19 @@ jobs:
     needs: check-source-branch
     if: always() && (github.event_name == 'push' || needs.check-source-branch.result == 'success')
 
-  deploy:
-    name: Deploy to Staging
+  prepare:
+    name: Prepare the staging artifact
     runs-on: ubuntu-latest
     needs: lint-and-test
     if: always() && github.event_name == 'push' && needs.lint-and-test.result == 'success'
     
+    outputs:
+      image-uri: ${{ steps.resolve.outputs.image-uri }}
+      lambda-image-uri: ${{ steps.resolve.outputs.lambda-image-uri }}
+
     env:
-      LOAD_BALANCER: ${{ secrets.STAGING_LOAD_BALANCER }}
-      TARGET_GROUP: ${{ secrets.STAGING_TARGET_GROUP }}
-      MAINTENANCE_TARGET_GROUP: ${{ secrets.STAGING_MAINTENANCE_TARGET_GROUP }}
       ECR_REPOSITORY: ${{ secrets.STAGING_ECR_REPOSITORY }}
       IMAGE_TAG: latest
-      TASK_DEFINITION_FAMILY: ${{ secrets.STAGING_TASK_DEFINITION_FAMILY }}
-      CONTAINER_NAME: ${{ secrets.STAGING_CONTAINER_NAME }}
-      ECS_CLUSTER: ${{ secrets.STAGING_ECS_CLUSTER }}
-      ECS_SERVICE: ${{ secrets.STAGING_ECS_SERVICE }}
-      EVENT_RULES: ${{ secrets.STAGING_EVENT_RULES }}
 
     steps:
       - name: Checkout code
@@ -117,6 +113,7 @@ jobs:
           echo "source-sha=$SOURCE_SHA" >> "$GITHUB_OUTPUT"
           echo "image-digest=$digest" >> "$GITHUB_OUTPUT"
           echo "image-uri=${REGISTRY}/${ECR_REPOSITORY}@${digest}" >> "$GITHUB_OUTPUT"
+          echo "lambda-image-uri=${REGISTRY}/pandoc-lambda:${SOURCE_SHA}" >> "$GITHUB_OUTPUT"
 
       # Mark both promoted artifacts before deploying them. ECR retention keeps
       # `deployed-` images far longer than the build candidates that churn past
@@ -149,175 +146,29 @@ jobs:
             --tag "${REGISTRY}/${ECR_REPOSITORY}:${IMAGE_TAG}" \
             "$IMAGE_URI"
 
-      - name: Pin the web container to the promoted digest
-        id: task-def
-        uses: harvard-lil/lil-actions/ecs-register-task-def@main
-        with:
-          task-definition-family: ${{ env.TASK_DEFINITION_FAMILY }}
-          container-name: ${{ env.CONTAINER_NAME }}
-          image-uri: ${{ steps.resolve.outputs.image-uri }}
-
-      - name: Deploy the digest-pinned task definition
-        uses: harvard-lil/lil-actions/ecs-deploy@main
-        with:
-          cluster: ${{ env.ECS_CLUSTER }}
-          service: ${{ env.ECS_SERVICE }}
-          task-definition: ${{ steps.task-def.outputs.task-definition-arn }}
-
-      # The export Lambda is part of this application and ships with it, from the
-      # same commit as the web service. Deploying it anywhere else lets the two
-      # drift apart.
-      - name: Point the staging export Lambda at the promoted image
-        env:
-          REGISTRY: ${{ steps.login-ecr.outputs.registry }}
-          SOURCE_SHA: ${{ steps.resolve.outputs.source-sha }}
-        run: |
-          set -euxo pipefail
-          aws lambda update-function-code \
-            --function-name h2o-export-stage \
-            --image-uri "${REGISTRY}/pandoc-lambda:${SOURCE_SHA}" >/dev/null
-
-      - name: Put site into maintenance mode
-        uses: harvard-lil/lil-actions/ecs-maintenance@main
-        with:
-          mode: 'on'
-          load-balancer: ${{ env.LOAD_BALANCER }}
-          target-group: ${{ env.TARGET_GROUP }}
-          maintenance-target-group: ${{ env.MAINTENANCE_TARGET_GROUP }}
-
-      - name: Wait for the new deployment to become stable
-        uses: harvard-lil/lil-actions/ecs-wait-for-deployment@main
-        with:
-          cluster: ${{ env.ECS_CLUSTER }}
-          service: ${{ env.ECS_SERVICE }}
-
-      - name: Run Django migrations
-        id: migrate
-        uses: harvard-lil/lil-actions/ecs-django-migrations@main
-        with:
-          cluster: ${{ env.ECS_CLUSTER }}
-          service: ${{ env.ECS_SERVICE }}
-          container: ${{ env.CONTAINER_NAME }}
-          migrate-command: 'python manage.py migrate'
-
-      - name: Create search index
-        uses: harvard-lil/lil-actions/ecs-exec-command@main
-        with:
-          cluster: ${{ env.ECS_CLUSTER }}
-          service: ${{ env.ECS_SERVICE }}
-          container: ${{ env.CONTAINER_NAME }}
-          command: 'invoke create-search-index'
-
-      - name: Create reporting views
-        uses: harvard-lil/lil-actions/ecs-exec-command@main
-        with:
-          cluster: ${{ env.ECS_CLUSTER }}
-          service: ${{ env.ECS_SERVICE }}
-          container: ${{ env.CONTAINER_NAME }}
-          command: 'invoke create-reporting-views'
-
-      - name: Update scheduled tasks with new task definition
-        uses: harvard-lil/lil-actions/ecs-update-eventbridge@main
-        with:
-          event-rules: ${{ env.EVENT_RULES }}
-          task-definition-arn: ${{ steps.task-def.outputs.task-definition-arn }}
-
-      # Lifted whenever migrations either succeeded or never ran, which covers
-      # every failure above this point. Those all leave a working site
-      # underneath: the service runs at minimumHealthyPercent 100, so ECS keeps
-      # the previous tasks serving until replacements pass health checks, and
-      # the only thing making the site unreachable is this page.
-      #
-      # A migration that failed partway is the exception, since it can leave the
-      # schema in a state neither the old nor the new code is safe against. That
-      # case stays behind the maintenance page for a human. `cancelled` counts
-      # the same: interrupting a migration is no safer than one failing.
-      - name: Turn off Maintenance mode
-        if: always() && (steps.migrate.outcome == 'success' || steps.migrate.outcome == 'skipped')
-        uses: harvard-lil/lil-actions/ecs-maintenance@main
-        with:
-          mode: 'off'
-          load-balancer: ${{ env.LOAD_BALANCER }}
-          target-group: ${{ env.TARGET_GROUP }}
-          maintenance-target-group: ${{ env.MAINTENANCE_TARGET_GROUP }}
-
-      # Complement of the condition above, so the site is never left behind the
-      # maintenance page without this saying so.
-      - name: Report that the site was left in maintenance
-        if: always() && steps.migrate.outcome != 'success' && steps.migrate.outcome != 'skipped'
-        run: |
-          echo "::error::Django migrations did not complete (outcome: ${{ steps.migrate.outcome }})."
-          echo "::error::MAINTENANCE MODE IS STILL ON and was left on deliberately --"
-          echo "::error::https://staging.opencasebook.org is serving the maintenance page, not the application."
-          echo "::error::The database may be partially migrated. Check its state before"
-          echo "::error::lifting maintenance; re-running this workflow will not lift it"
-          echo "::error::either, because it will fail at the same step."
-          exit 1
-
-      - name: Purge Cloudflare cache
-        uses: harvard-lil/lil-actions/cloudflare-purge@main
-        with:
-          zone: ${{ secrets.CLOUDFLARE_ZONE_ID }}
-          token: ${{ secrets.CLOUDFLARE_API_TOKEN }}
-          
-          
-      # The success notification below does not run on failure, so this is the
-      # only thing that reports a failed deploy -- including the one case where
-      # the site is deliberately left serving the maintenance page.
-      - name: Notify Slack on failure
-        if: failure()
-        uses: slackapi/slack-github-action@91efab103c0de0a537f72a35f6b8cda0ee76bf0a # v2.1.1
-        with:
-            webhook: ${{ secrets.SLACK_WEBHOOK_URL }}
-            webhook-type: incoming-webhook
-            payload: |
-              {
-                "blocks": [
-                    {
-                      "type": "section",
-                      "text": {
-                          "type": "mrkdwn",
-                          "text": "*Staging H2O deploy FAILED*"
-                      }
-                    },
-                    {
-                      "type": "section",
-                      "text": {
-                          "type": "mrkdwn",
-                          "text": "*Maintenance mode:*\n${{ (steps.migrate.outcome != 'success' && steps.migrate.outcome != 'skipped') && 'STILL ON - the site is serving the maintenance page' || 'lifted - the site is serving the previous version' }}\n*Run:*\n<https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}|${{ github.run_id }}>"
-                      }
-                    }
-                ]
-              }
-
-      - name: Notify Slack
-        uses: slackapi/slack-github-action@91efab103c0de0a537f72a35f6b8cda0ee76bf0a # v2.1.1
-        with:
-            webhook: ${{ secrets.SLACK_WEBHOOK_URL }}
-            webhook-type: incoming-webhook
-            payload: |
-              {
-                "blocks": [
-                    {
-                      "type": "section",
-                      "text": {
-                          "type": "mrkdwn",
-                          "text": "*Staging H2O deployed successfully!*"
-                      }
-                    },
-                    {
-                    "type": "section",
-                      "text": {
-                          "type": "mrkdwn",
-                          "text": "*Repo:*\n<https://github.com/${{ github.repository }}|`${{ github.repository }}`>\n*Branch:*\n<https://github.com/${{ github.repository }}/tree/${{ github.ref_name }}|`${{ github.ref_name }}`>\n*Commit:*\n<https://github.com/${{ github.repository }}/commit/${{ github.sha }}|`${{ github.sha }}`>"
-                      } 
-                    },
-                    {
-                    "type": "section",
-                      "text": {
-                          "type": "mrkdwn",
-                          "text": "*View the site:* <https://staging.opencasebook.org|https://staging.opencasebook.org>"
-                      }
-                    }
-                ]
-              }
+  # The shared sequence. Everything above identifies which artifact to deploy and
+  # gets it into this tier's repository; everything below is identical for both
+  # tiers and lives in one file so a staging run exercises production's code.
+  deploy:
+    needs: prepare
+    uses: ./.github/workflows/deploy_sequence.yml
+    with:
+      environment-label: Staging
+      site-url: https://staging.opencasebook.org
+      image-uri: ${{ needs.prepare.outputs.image-uri }}
+      lambda-image-uri: ${{ needs.prepare.outputs.lambda-image-uri }}
+      lambda-function-name: h2o-export-stage
+    secrets:
+      aws-role-arn: ${{ secrets.STAGING_AWS_ROLE_TO_ASSUME }}
+      aws-region: ${{ secrets.STAGING_AWS_REGION }}
+      ecs-cluster: ${{ secrets.STAGING_ECS_CLUSTER }}
+      ecs-service: ${{ secrets.STAGING_ECS_SERVICE }}
+      container-name: ${{ secrets.STAGING_CONTAINER_NAME }}
+      task-definition-family: ${{ secrets.STAGING_TASK_DEFINITION_FAMILY }}
+      load-balancer: ${{ secrets.STAGING_LOAD_BALANCER }}
+      target-group: ${{ secrets.STAGING_TARGET_GROUP }}
+      maintenance-target-group: ${{ secrets.STAGING_MAINTENANCE_TARGET_GROUP }}
+      event-rules: ${{ secrets.STAGING_EVENT_RULES }}
+      cloudflare-zone-id: ${{ secrets.CLOUDFLARE_ZONE_ID }}
+      cloudflare-api-token: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+      slack-webhook-url: ${{ secrets.SLACK_WEBHOOK_URL }}
