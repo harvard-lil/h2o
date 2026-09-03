@@ -178,6 +178,11 @@ jobs:
   # tiers and lives in one file so a staging run exercises production's code.
   deploy:
     needs: prepare
+    # check-source-branch only runs on pull_request, so every push skips it, and
+    # that skip travels down the needs graph. The jobs between here and it
+    # override the skip with always(); without a condition of its own this job
+    # inherits it and never runs, even though prepare succeeded.
+    if: always() && needs.prepare.result == 'success'
     uses: ./.github/workflows/deploy_sequence.yml
     with:
       environment-label: Prod
@@ -199,3 +204,22 @@ jobs:
       cloudflare-zone-id: ${{ secrets.CLOUDFLARE_ZONE_ID }}
       cloudflare-api-token: ${{ secrets.CLOUDFLARE_API_TOKEN }}
       slack-webhook-url: ${{ secrets.SLACK_WEBHOOK_URL }}
+
+  # A job whose condition does not hold is skipped, and a skipped job leaves the
+  # run green. This job is what makes a deploy that did not happen show up as a
+  # failed run rather than a successful build.
+  confirm-deploy:
+    name: Confirm the deploy ran
+    needs: [prepare, deploy]
+    if: always() && needs.prepare.result == 'success'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Require a completed deploy
+        env:
+          RESULT: ${{ needs.deploy.result }}
+        run: |
+          if [ "$RESULT" != "success" ]; then
+            echo "::error::prepare succeeded but deploy was '$RESULT'; nothing was deployed."
+            exit 1
+          fi
+          echo "deploy completed"
