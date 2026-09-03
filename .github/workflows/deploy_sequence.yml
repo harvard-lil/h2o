@@ -1,0 +1,369 @@
+name: ECS deploy sequence
+
+# Everything both tiers do identically once the artifact to deploy has been
+# identified: register a pinned task definition, roll the service, deploy the
+# export Lambda, run the post-deploy commands behind a maintenance window, and
+# report the result.
+#
+# Sharing it means a staging deploy exercises the same code a production deploy
+# will run, rather than a second copy of it that happens to look the same.
+#
+# What differs by tier stays in the caller: how the artifact is identified,
+# which ECR repository it lives in, and how it gets there.
+#
+# Values arrive as secrets today because that is how the callers already hold
+# them. Most are not secrets -- cluster, service and target-group names are
+# identifiers, and masking them makes a failed deploy harder to read. Moving
+# those to inputs is a change to the header of this file and to the callers'
+# mapping blocks; every step below reads `env`, so none of them would change.
+
+on:
+  workflow_call:
+    inputs:
+      environment-label:
+        description: 'Name for this tier in notifications, e.g. Staging'
+        required: true
+        type: string
+      site-url:
+        description: 'Public URL of this tier, used in notifications'
+        required: true
+        type: string
+      image-digest:
+        description: >
+          Digest of the web image to deploy, already present in this tier's ECR
+          repository. A digest and not a full URI: a URI contains the registry,
+          the registry contains the account ID, the account ID is masked, and
+          GitHub silently drops a job output it believes holds a secret rather
+          than passing it on.
+        required: true
+        type: string
+      source-sha:
+        description: 'Commit the artifact was built from, naming the matching pandoc-lambda image'
+        required: true
+        type: string
+      lambda-function-name:
+        description: 'Export Lambda for this tier'
+        required: true
+        type: string
+      maintenance-script:
+        description: >
+          Cloudflare Worker serving this tier's maintenance page, e.g.
+          h2o-maintenance-prod. Created by lil-terraform's
+          lil-cloudflare-maintenance module.
+        required: true
+        type: string
+      maintenance-hostnames:
+        description: 'Comma-separated hostnames the page answers on'
+        required: true
+        type: string
+
+    secrets:
+      aws-role-arn:
+        required: true
+      ecr-repository:
+        required: true
+      aws-region:
+        required: true
+      ecs-cluster:
+        required: true
+      ecs-service:
+        required: true
+      container-name:
+        required: true
+      task-definition-family:
+        required: true
+      event-rules:
+        # Empty is tolerated: a tier with no scheduled tasks has nothing to update.
+        required: false
+      cloudflare-zone-id:
+        required: true
+      cloudflare-api-token:
+        required: true
+      slack-webhook-url:
+        required: true
+
+permissions:
+  id-token: write   # assume the deploy role via OIDC
+  contents: read
+
+jobs:
+  deploy:
+    name: Deploy to ${{ inputs.environment-label }}
+    runs-on: ubuntu-latest
+
+    env:
+      TASK_DEFINITION_FAMILY: ${{ secrets.task-definition-family }}
+      CONTAINER_NAME: ${{ secrets.container-name }}
+      ECS_CLUSTER: ${{ secrets.ecs-cluster }}
+      ECS_SERVICE: ${{ secrets.ecs-service }}
+      EVENT_RULES: ${{ secrets.event-rules }}
+
+    steps:
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@cbe3b392738ccf3f987d68400dafcf4b0624a56c # v6.2.4
+        with:
+          role-to-assume: ${{ secrets.aws-role-arn }}
+          aws-region: ${{ secrets.aws-region }}
+
+      # The registry is derived here rather than passed in, for the same reason
+      # the inputs above are pieces rather than URIs.
+      - name: Login to AWS ECR
+        id: login-ecr
+        uses: aws-actions/amazon-ecr-login@03f1aad4c6c7ffd436567f42f9384779290529bd # v2.1.7
+
+      - name: Pin the web container to the promoted digest
+        id: task-def
+        uses: harvard-lil/lil-actions/ecs-register-task-def@main
+        with:
+          task-definition-family: ${{ env.TASK_DEFINITION_FAMILY }}
+          container-name: ${{ env.CONTAINER_NAME }}
+          image-uri: ${{ steps.login-ecr.outputs.registry }}/${{ secrets.ecr-repository }}@${{ inputs.image-digest }}
+
+      # Whether this deploy needs a maintenance window is a property of the new
+      # code, so it cannot be answered by asking the tasks currently running.
+      # This runs the task definition registered above, once, with
+      # `migrate --check` -- which applies nothing and exits non-zero when
+      # unapplied migrations exist. It runs before the service is touched, so a
+      # deploy that turns out to need a window still gets one, and an image that
+      # cannot boot far enough to reach the database fails here rather than
+      # halfway through a rollout.
+      #
+      # Every answer except a clean "nothing pending" opens the window: a task
+      # that would not start, a missing exit code, anything unexpected. Opening
+      # a window that was not needed costs five quiet minutes; skipping one that
+      # was needed serves traffic against a half-migrated schema.
+      - name: Does this deploy need a maintenance window?
+        id: window
+        env:
+          TASK_DEF: ${{ steps.task-def.outputs.task-definition-arn }}
+        run: |
+          set -uo pipefail
+          needed=true
+
+          NETCFG=$(aws ecs describe-services --cluster "$ECS_CLUSTER" --services "$ECS_SERVICE" \
+            --query 'services[0].networkConfiguration' --output json)
+          OVERRIDES=$(jq -cn --arg c "$CONTAINER_NAME" \
+            '{containerOverrides:[{name:$c,command:["python","manage.py","migrate","--check"]}]}')
+
+          ARN=$(aws ecs run-task \
+            --cluster "$ECS_CLUSTER" \
+            --task-definition "$TASK_DEF" \
+            --launch-type FARGATE \
+            --network-configuration "$NETCFG" \
+            --overrides "$OVERRIDES" \
+            --started-by migration-check \
+            --query 'tasks[0].taskArn' --output text) || ARN=""
+
+          if [ -z "$ARN" ] || [ "$ARN" = "None" ]; then
+            echo "::warning::Could not start the migration check; assuming a window is needed."
+          else
+            echo "Migration check running as ${ARN##*/}"
+            aws ecs wait tasks-stopped --cluster "$ECS_CLUSTER" --tasks "$ARN" || true
+            # By name, because containers[0] is whichever the API happens to
+            # list first. The task definition carries a cloudflared sidecar, so
+            # reading by position can return the sidecar's empty exit code and
+            # send the deploy into a maintenance window it does not need.
+            #
+            # The task's own status is not the answer either. The sidecar waits
+            # for the application container to become healthy, which a container
+            # running migrate --check never does, so ECS records the task as
+            # TaskFailedToStart however the check itself came out.
+            CODE=$(aws ecs describe-tasks --cluster "$ECS_CLUSTER" --tasks "$ARN" \
+              --query "tasks[0].containers[?name=='${CONTAINER_NAME}'].exitCode | [0]" --output text)
+            REASON=$(aws ecs describe-tasks --cluster "$ECS_CLUSTER" --tasks "$ARN" \
+              --query 'tasks[0].stoppedReason' --output text)
+            echo "migrate --check exited $CODE ($REASON)"
+            case "$CODE" in
+              0) needed=false ;;
+              1) needed=true ;;
+              *) echo "::warning::Unexpected exit code '$CODE'; assuming a window is needed." ;;
+            esac
+          fi
+
+          echo "needed=$needed" >> "$GITHUB_OUTPUT"
+          if [ "$needed" = "true" ]; then
+            echo "Unapplied migrations, or an inconclusive check: taking a maintenance window."
+          else
+            echo "No unapplied migrations: deploying without a maintenance window."
+          fi
+
+      - name: Deploy the digest-pinned task definition
+        uses: harvard-lil/lil-actions/ecs-deploy@main
+        with:
+          cluster: ${{ env.ECS_CLUSTER }}
+          service: ${{ env.ECS_SERVICE }}
+          task-definition: ${{ steps.task-def.outputs.task-definition-arn }}
+
+      # Held at Cloudflare rather than by shifting load-balancer weight, so the
+      # page still answers if the origin is unreachable, and the load balancer
+      # is left out of it entirely. The action confirms the change by requesting
+      # the site and fails if it never sees it, so the migration below does not
+      # start against traffic that is still flowing.
+      - name: Hold traffic at the edge
+        if: steps.window.outputs.needed == 'true'
+        uses: harvard-lil/lil-actions/cloudflare-maintenance@main
+        with:
+          mode: 'on'
+          zone-id: ${{ secrets.cloudflare-zone-id }}
+          script: ${{ inputs.maintenance-script }}
+          hostnames: ${{ inputs.maintenance-hostnames }}
+          token: ${{ secrets.cloudflare-api-token }}
+
+      - name: Wait for the new deployment to become stable
+        uses: harvard-lil/lil-actions/ecs-wait-for-deployment@main
+        with:
+          cluster: ${{ env.ECS_CLUSTER }}
+          service: ${{ env.ECS_SERVICE }}
+
+      - name: Run Django migrations
+        id: migrate
+        uses: harvard-lil/lil-actions/ecs-django-migrations@main
+        with:
+          cluster: ${{ env.ECS_CLUSTER }}
+          service: ${{ env.ECS_SERVICE }}
+          container: ${{ env.CONTAINER_NAME }}
+          migrate-command: 'python manage.py migrate'
+
+      # Lifted whenever migrations either succeeded or never ran, which covers
+      # every failure above this point. Those all leave a working site
+      # underneath: the service runs at minimumHealthyPercent 100, so ECS keeps
+      # the previous tasks serving until replacements pass health checks, and
+      # the only thing making the site unreachable is this page.
+      #
+      # A migration that failed partway is the exception, since it can leave the
+      # schema in a state neither the old nor the new code is safe against. That
+      # case stays behind the maintenance page for a human. `cancelled` counts
+      # the same: interrupting a migration is no safer than one failing.
+      - name: Release traffic at the edge
+        if: always() && steps.window.outputs.needed == 'true' && (steps.migrate.outcome == 'success' || steps.migrate.outcome == 'skipped')
+        uses: harvard-lil/lil-actions/cloudflare-maintenance@main
+        with:
+          mode: 'off'
+          zone-id: ${{ secrets.cloudflare-zone-id }}
+          hostnames: ${{ inputs.maintenance-hostnames }}
+          token: ${{ secrets.cloudflare-api-token }}
+
+      # Complement of the condition above, so the site is never left behind the
+      # maintenance page without this saying so.
+      - name: Report that the site was left in maintenance
+        if: always() && steps.window.outputs.needed == 'true' && steps.migrate.outcome != 'success' && steps.migrate.outcome != 'skipped'
+        run: |
+          echo "::error::Django migrations did not complete (outcome: ${{ steps.migrate.outcome }})."
+          echo "::error::MAINTENANCE MODE IS STILL ON and was left on deliberately --"
+          echo "::error::${{ inputs.site-url }} is serving the maintenance page, not the application."
+          echo "::error::The database may be partially migrated. Check its state before"
+          echo "::error::lifting maintenance; re-running this workflow will not lift it"
+          echo "::error::either, because it will fail at the same step."
+          exit 1
+
+      - name: Purge Cloudflare cache
+        uses: harvard-lil/lil-actions/cloudflare-purge@main
+        with:
+          zone: ${{ secrets.cloudflare-zone-id }}
+          token: ${{ secrets.cloudflare-api-token }}
+
+      # Everything from here down runs with the site already serving. None of it
+      # is needed for a page to render: the new tasks are healthy and the schema
+      # is migrated by this point, and on a deploy that takes no window these
+      # commands run against live traffic anyway. Keeping them above the release
+      # would spend their runtime as downtime.
+      - name: Create search index
+        uses: harvard-lil/lil-actions/ecs-exec-command@main
+        with:
+          cluster: ${{ env.ECS_CLUSTER }}
+          service: ${{ env.ECS_SERVICE }}
+          container: ${{ env.CONTAINER_NAME }}
+          command: 'invoke create-search-index'
+
+      - name: Create reporting views
+        uses: harvard-lil/lil-actions/ecs-exec-command@main
+        with:
+          cluster: ${{ env.ECS_CLUSTER }}
+          service: ${{ env.ECS_SERVICE }}
+          container: ${{ env.CONTAINER_NAME }}
+          command: 'invoke create-reporting-views'
+
+      - name: Update scheduled tasks with new task definition
+        uses: harvard-lil/lil-actions/ecs-update-eventbridge@main
+        with:
+          event-rules: ${{ env.EVENT_RULES }}
+          task-definition-arn: ${{ steps.task-def.outputs.task-definition-arn }}
+
+      # The export Lambda is part of this application and ships with it, from the
+      # same commit as the web service. Deploying it anywhere else lets the two
+      # drift apart.
+      #
+      # It goes last because exports failing matters less than the web deploy:
+      # here, a pandoc-lambda image missing for this commit fails one step with
+      # everything else already done, rather than stopping the rollout partway.
+      - name: Point the export Lambda at the promoted image
+        env:
+          FUNCTION_NAME: ${{ inputs.lambda-function-name }}
+          LAMBDA_IMAGE_URI: ${{ steps.login-ecr.outputs.registry }}/pandoc-lambda:${{ inputs.source-sha }}
+        run: |
+          set -euxo pipefail
+          aws lambda update-function-code \
+            --function-name "$FUNCTION_NAME" \
+            --image-uri "$LAMBDA_IMAGE_URI" >/dev/null
+          
+          
+      # The success notification below does not run on failure, so this is the
+      # only thing that reports a failed deploy -- including the one case where
+      # the site is deliberately left serving the maintenance page.
+      - name: Notify Slack on failure
+        if: failure()
+        uses: slackapi/slack-github-action@91efab103c0de0a537f72a35f6b8cda0ee76bf0a # v2.1.1
+        with:
+            webhook: ${{ secrets.slack-webhook-url }}
+            webhook-type: incoming-webhook
+            payload: |
+              {
+                "blocks": [
+                    {
+                      "type": "section",
+                      "text": {
+                          "type": "mrkdwn",
+                          "text": "*${{ inputs.environment-label }} H2O deploy FAILED*"
+                      }
+                    },
+                    {
+                      "type": "section",
+                      "text": {
+                          "type": "mrkdwn",
+                          "text": "*Maintenance mode:*\n${{ (steps.window.outputs.needed == 'true' && steps.migrate.outcome != 'success' && steps.migrate.outcome != 'skipped') && 'STILL ON - the site is serving the maintenance page' || (steps.window.outputs.needed == 'true' && 'lifted - the site is serving the previous version' || 'never opened - no migrations, the site stayed up throughout') }}\n*Run:*\n<https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}|${{ github.run_id }}>"
+                      }
+                    }
+                ]
+              }
+
+      - name: Notify Slack
+        uses: slackapi/slack-github-action@91efab103c0de0a537f72a35f6b8cda0ee76bf0a # v2.1.1
+        with:
+            webhook: ${{ secrets.slack-webhook-url }}
+            webhook-type: incoming-webhook
+            payload: |
+              {
+                "blocks": [
+                    {
+                      "type": "section",
+                      "text": {
+                          "type": "mrkdwn",
+                          "text": "*${{ inputs.environment-label }} H2O deployed successfully!*"
+                      }
+                    },
+                    {
+                    "type": "section",
+                      "text": {
+                          "type": "mrkdwn",
+                          "text": "*Repo:*\n<https://github.com/${{ github.repository }}|`${{ github.repository }}`>\n*Branch:*\n<https://github.com/${{ github.repository }}/tree/${{ github.ref_name }}|`${{ github.ref_name }}`>\n*Commit:*\n<https://github.com/${{ github.repository }}/commit/${{ github.sha }}|`${{ github.sha }}`>"
+                      } 
+                    },
+                    {
+                    "type": "section",
+                      "text": {
+                          "type": "mrkdwn",
+                          "text": "*View the site:* <${{ inputs.site-url }}|${{ inputs.site-url }}>"
+                      }
+                    }
+                ]
+              }

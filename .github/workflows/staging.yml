@@ -7,54 +7,52 @@ on:
     branches: [staging]
 
 permissions:
-    id-token: write
+    id-token: write   # assume the deploy role via OIDC
     contents: read
 
 jobs:
-  # Only allow merges from develop
+  # Only allow merges from main
   check-source-branch:
     name: Check Source Branch
     runs-on: ubuntu-latest
     if: github.event_name == 'pull_request'
     steps:
-      - name: Verify source branch is develop
+      - name: Verify source branch is main
+        env:
+          HEAD_REF: ${{ github.head_ref }}
         run: |
-          if [ "${{ github.head_ref }}" != "develop" ]; then
-            echo "❌ Error: Pull requests to staging must come from develop branch"
+          if [ "$HEAD_REF" != "main" ]; then
+            echo "❌ Error: Pull requests to staging must come from main branch"
             exit 1
           fi
           echo "✅ Source branch verification passed"
 
-  lint-and-test:
-    uses: ./.github/workflows/lint_test.yml
-    needs: check-source-branch
-    if: always() && (github.event_name == 'push' || needs.check-source-branch.result == 'success')
-
-  deploy:
-    name: Deploy to Staging
+  # Neither deploy tier lints or tests. check-source-branch limits this branch to
+  # merges from main, so the tree here is one main has already run the suite
+  # against, and the resolve step below will not deploy an image that main did
+  # not publish.
+  prepare:
+    name: Prepare the staging artifact
     runs-on: ubuntu-latest
-    needs: lint-and-test
-    if: always() && github.event_name == 'push' && needs.lint-and-test.result == 'success'
+    if: github.event_name == 'push'
     
+    outputs:
+      image-digest: ${{ steps.resolve.outputs.image-digest }}
+      source-sha: ${{ steps.resolve.outputs.source-sha }}
+
     env:
-      LOAD_BALANCER: ${{ secrets.STAGING_LOAD_BALANCER }}
-      TARGET_GROUP: ${{ secrets.STAGING_TARGET_GROUP }}
-      MAINTENANCE_TARGET_GROUP: ${{ secrets.STAGING_MAINTENANCE_TARGET_GROUP }}
       ECR_REPOSITORY: ${{ secrets.STAGING_ECR_REPOSITORY }}
       IMAGE_TAG: latest
-      TASK_DEFINITION_FAMILY: ${{ secrets.STAGING_TASK_DEFINITION_FAMILY }}
-      CONTAINER_NAME: ${{ secrets.STAGING_CONTAINER_NAME }}
-      ECS_CLUSTER: ${{ secrets.STAGING_ECS_CLUSTER }}
-      ECS_SERVICE: ${{ secrets.STAGING_ECS_SERVICE }}
-      EVENT_RULES: ${{ secrets.STAGING_EVENT_RULES }}
 
     steps:
       - name: Checkout code
-        uses: actions/checkout@v6.0.2
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          fetch-depth: 0   # need merge parents to resolve the main commit we promote
 
 
       - name: Configure AWS credentials
-        uses: aws-actions/configure-aws-credentials@v6.1.1
+        uses: aws-actions/configure-aws-credentials@cbe3b392738ccf3f987d68400dafcf4b0624a56c # v6.2.4
         with:
           role-to-assume: ${{ secrets.STAGING_AWS_ROLE_TO_ASSUME }}
           aws-region: ${{ secrets.STAGING_AWS_REGION }}
@@ -62,176 +60,135 @@ jobs:
 
       - name: Login to AWS ECR
         id: login-ecr
-        uses: aws-actions/amazon-ecr-login@v2.1.4
+        uses: aws-actions/amazon-ecr-login@03f1aad4c6c7ffd436567f42f9384779290529bd # v2.1.7
 
-
-      - name: Build and push docker image to AWS ECR
+      # Promote, do not rebuild. lint_test.yml built this image on main, ran the
+      # suite against it, and pushed it tagged with the main commit SHA.
+      # Deploying that exact artifact is what makes "tested" and "shipped" the
+      # same bytes. Fails loudly rather than quietly building something new.
+      - name: Resolve the tested image
+        id: resolve
+        env:
+          REGISTRY: ${{ steps.login-ecr.outputs.registry }}
         run: |
-          docker buildx build --platform linux/amd64 -t "${{ steps.login-ecr.outputs.registry }}/${ECR_REPOSITORY}:${IMAGE_TAG}" -f ./Dockerfile --push .
-
-
-      - name: Create new ECS task definition
-        run: |
-          # Get the existing task definition
-          aws ecs describe-task-definition --task-definition $TASK_DEFINITION_FAMILY --query "taskDefinition" > task-definition.json
-
-          # Clean up the JSON by removing invalid fields
-          jq 'del(.taskDefinitionArn, .revision, .status, .registeredAt, .registeredBy, .compatibilities, .requiresAttributes)' task-definition.json > new-task-def.json
-
-      - name: Register new ECS task definition
-        run: |
-          NEW_TASK_DEF_ARN=$(aws ecs register-task-definition \
-            --cli-input-json file://new-task-def.json \
-            --query "taskDefinition.taskDefinitionArn" --output text)
-
-          echo "NEW_TASK_DEF_ARN=$NEW_TASK_DEF_ARN" >> $GITHUB_ENV
-
-
-      - name: Update ECS service
-        run: |
-          aws ecs update-service \
-            --cluster $ECS_CLUSTER \
-            --service $ECS_SERVICE \
-            --task-definition $NEW_TASK_DEF_ARN \
-            --force-new-deployment \
-            > /dev/null 2>&1
-      
-
-      - name: Wait for new deployment to start
-        run: |
-          sleep 10
-
-
-      - name: Put site into maintenance mode
-        run: |
-          aws elbv2 modify-listener \
-            --listener-arn $(aws elbv2 describe-listeners --load-balancer-arn $(aws elbv2 describe-load-balancers --names $LOAD_BALANCER --query "LoadBalancers[0].LoadBalancerArn" --output text) --query "Listeners[?Protocol=='HTTPS'].ListenerArn" --output text) \
-            --default-actions "Type=forward,ForwardConfig={TargetGroups=[{TargetGroupArn=$(aws elbv2 describe-target-groups --names $TARGET_GROUP --query 'TargetGroups[0].TargetGroupArn' --output text),Weight=0},{TargetGroupArn=$(aws elbv2 describe-target-groups --names $MAINTENANCE_TARGET_GROUP --query 'TargetGroups[0].TargetGroupArn' --output text),Weight=100}]}" \
-            > /dev/null 2>&1
-            
-
-      - name: Wait for new deployment to complete
-        run: |
-          aws ecs wait services-stable \
-            --cluster $ECS_CLUSTER \
-            --services $ECS_SERVICE
-
-
-      - name: Run django migration and refresh indexes
-        run: |
-          # Fetch the tasks associated with the updated ECS service
-          NEW_TASKS=$(aws ecs list-tasks \
-            --cluster $ECS_CLUSTER \
-            --service-name $ECS_SERVICE \
-            --desired-status RUNNING \
-            --query "taskArns" \
-            --output text)
-
-          # Get the first task ARN from the list
-          NEW_TASK_ARN=$(echo $NEW_TASKS | awk '{print $1}')
-
-          # Wait for the new task to be running
-          aws ecs wait tasks-running \
-            --cluster $ECS_CLUSTER \
-            --tasks $NEW_TASK_ARN          
-
-          # Execute django migration, create search index & create reporting views
-          aws ecs execute-command \
-              --cluster $ECS_CLUSTER \
-              --task $(aws ecs list-tasks --cluster $ECS_CLUSTER --service-name $ECS_SERVICE --desired-status RUNNING --query "taskArns[0]" --output text) \
-              --container $CONTAINER_NAME \
-              --interactive \
-              --command "python manage.py migrate"
-          
-          # Execute create search index
-          aws ecs execute-command \
-              --cluster $ECS_CLUSTER \
-              --task $(aws ecs list-tasks --cluster $ECS_CLUSTER --service-name $ECS_SERVICE --desired-status RUNNING --query "taskArns[0]" --output text) \
-              --container $CONTAINER_NAME \
-              --interactive \
-              --command "invoke create-search-index"
-              
-          # Execute create reporting views
-          aws ecs execute-command \
-              --cluster $ECS_CLUSTER \
-              --task $(aws ecs list-tasks --cluster $ECS_CLUSTER --service-name $ECS_SERVICE --desired-status RUNNING --query "taskArns[0]" --output text) \
-              --container $CONTAINER_NAME \
-              --interactive \
-              --command "invoke create-reporting-views"
-
-      
-      - name: Update scheduled tasks with new task definition
-        run: |
-          # Split the EVENT_RULES environment variable into an array of event rule names
-          IFS=',' read -r -a EVENT_RULES_ARRAY <<< "$EVENT_RULES"
-
-          for EVENT_RULE in "${EVENT_RULES_ARRAY[@]}"; do            
-            
-            # Get the current target configuration for the rule
-            TARGET_JSON=$(aws events list-targets-by-rule --rule $EVENT_RULE)
-            
-            # Update the TaskDefinitionArn in the EcsParameters section
-            UPDATED_TARGET_JSON=$(echo $TARGET_JSON | jq --arg NEW_TASK_DEF_ARN "$NEW_TASK_DEF_ARN" \
-              '.Targets[0].EcsParameters.TaskDefinitionArn = $NEW_TASK_DEF_ARN')
-
-            # Prepare the updated target JSON with the necessary fields
-            FINAL_TARGET_JSON=$(echo $UPDATED_TARGET_JSON | jq -r '[.Targets[0] | {Id, Arn, RoleArn, Input, EcsParameters}]')
-
-            # Update target configuration
-            aws events put-targets --rule $EVENT_RULE \
-              --targets "$FINAL_TARGET_JSON" \
-              > /dev/null 2>&1
+          set -euo pipefail
+          # Which commit on main produced the image we should deploy? That
+          # depends on how the merge was made, and the repo permits all three
+          # methods, so try the candidates rather than assuming one:
+          #   HEAD^2  -- merge commit; the main tip that was merged in
+          #   HEAD    -- fast-forward, squash, or direct push
+          # Publishing tags the image with main's tip *after* its own
+          # version-bump commit, so one of these matches whatever main pointed
+          # at when the image was built.
+          digest=""
+          SOURCE_SHA=""
+          for candidate in $(git rev-parse HEAD^2 2>/dev/null) $(git rev-parse HEAD); do
+            echo "Looking for an image built from $candidate"
+            # Resolve to a digest, not a tag: tags can be moved, digests cannot.
+            found="$(aws ecr describe-images \
+              --repository-name "$ECR_REPOSITORY" \
+              --image-ids "imageTag=$candidate" \
+              --query 'imageDetails[0].imageDigest' \
+              --output text 2>/dev/null || true)"
+            if [ -n "$found" ] && [ "$found" != "None" ]; then
+              digest="$found"
+              SOURCE_SHA="$candidate"
+              break
+            fi
           done
 
+          if [ -z "$digest" ]; then
+            echo "::error::No image found for any candidate commit in $ECR_REPOSITORY."
+            echo "::error::That means this commit was never built and tested on main."
+            echo "Recent tags in $ECR_REPOSITORY:"
+            aws ecr describe-images --repository-name "$ECR_REPOSITORY" \
+              --query 'reverse(sort_by(imageDetails,&imagePushedAt))[:10].imageTags' \
+              --output text || true
+            exit 1
+          fi
 
-      - name: Turn off Maintenance mode
-        run: |
-          aws elbv2 modify-listener \
-            --listener-arn $(aws elbv2 describe-listeners --load-balancer-arn $(aws elbv2 describe-load-balancers --names $LOAD_BALANCER --query "LoadBalancers[0].LoadBalancerArn" --output text) --query "Listeners[?Protocol=='HTTPS'].ListenerArn" --output text) \
-            --default-actions "Type=forward,ForwardConfig={TargetGroups=[{TargetGroupArn=$(aws elbv2 describe-target-groups --names $TARGET_GROUP --query 'TargetGroups[0].TargetGroupArn' --output text),Weight=100},{TargetGroupArn=$(aws elbv2 describe-target-groups --names $MAINTENANCE_TARGET_GROUP --query 'TargetGroups[0].TargetGroupArn' --output text),Weight=0}]}" \
-            > /dev/null 2>&1
+          echo "source-sha=$SOURCE_SHA" >> "$GITHUB_OUTPUT"
+          echo "image-digest=$digest" >> "$GITHUB_OUTPUT"
+          echo "image-uri=${REGISTRY}/${ECR_REPOSITORY}@${digest}" >> "$GITHUB_OUTPUT"
+          echo "lambda-image-uri=${REGISTRY}/pandoc-lambda:${SOURCE_SHA}" >> "$GITHUB_OUTPUT"
 
-
-      - name: Wait for turn off maintenance mode
-        run: |
-          sleep 10
-
-
-      - name: Purge Cloudflare cache
-        uses: jakejarvis/cloudflare-purge-action@master
-        env:
-          CLOUDFLARE_ZONE: ${{ secrets.CLOUDFLARE_ZONE_ID }}
-          CLOUDFLARE_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
-          
-          
-      - name: Notify Slack
-        uses: slackapi/slack-github-action@v2.1.1
+      # Mark both promoted artifacts before deploying them. ECR retention keeps
+      # `deployed-` images far longer than the build candidates that churn past
+      # them every merge to main -- without this tag, the image the service is
+      # running is just another candidate and ages out on the same schedule.
+      - name: Mark the promoted web image as deployed
+        uses: harvard-lil/lil-actions/ecr-tag-image@main
         with:
-            webhook: ${{ secrets.SLACK_WEBHOOK_URL }}
-            webhook-type: incoming-webhook
-            payload: |
-              {
-                "blocks": [
-                    {
-                      "type": "section",
-                      "text": {
-                          "type": "mrkdwn",
-                          "text": "*Staging H2O deployed successfully!*"
-                      }
-                    },
-                    {
-                    "type": "section",
-                      "text": {
-                          "type": "mrkdwn",
-                          "text": "*Repo:*\n<https://github.com/${{ github.repository }}|`${{ github.repository }}`>\n*Branch:*\n<https://github.com/${{ github.repository }}/tree/${{ github.ref_name }}|`${{ github.ref_name }}`>\n*Commit:*\n<https://github.com/${{ github.repository }}/commit/${{ github.sha }}|`${{ github.sha }}`>"
-                      } 
-                    },
-                    {
-                    "type": "section",
-                      "text": {
-                          "type": "mrkdwn",
-                          "text": "*View the site:* <https://staging.opencasebook.org|https://staging.opencasebook.org>"
-                      }
-                    }
-                ]
-              }
+          repository: ${{ env.ECR_REPOSITORY }}
+          source: ${{ steps.resolve.outputs.image-digest }}
+          tag: deployed-${{ steps.resolve.outputs.source-sha }}
+
+      - name: Mark the promoted pandoc-lambda image as deployed
+        uses: harvard-lil/lil-actions/ecr-tag-image@main
+        with:
+          repository: pandoc-lambda
+          source: ${{ steps.resolve.outputs.source-sha }}
+          tag: deployed-${{ steps.resolve.outputs.source-sha }}
+
+      # Keep the moving :latest tag pointing at what we deploy, so a Terraform
+      # apply (whose task definition references :latest) cannot quietly revert
+      # the service to an older image.
+      - name: Point :latest at the promoted image
+        env:
+          REGISTRY: ${{ steps.login-ecr.outputs.registry }}
+          IMAGE_URI: ${{ steps.resolve.outputs.image-uri }}
+        run: |
+          set -euxo pipefail
+          docker buildx imagetools create \
+            --tag "${REGISTRY}/${ECR_REPOSITORY}:${IMAGE_TAG}" \
+            "$IMAGE_URI"
+
+  # The shared sequence. Everything above identifies which artifact to deploy and
+  # gets it into this tier's repository; everything below is identical for both
+  # tiers and lives in one file so a staging run exercises production's code.
+  deploy:
+    needs: prepare
+    # Named rather than left to the default success(): a job with no condition of
+    # its own is skipped when anything in its needs graph is skipped, regardless
+    # of whether the jobs it depends on succeeded.
+    if: always() && needs.prepare.result == 'success'
+    uses: ./.github/workflows/deploy_sequence.yml
+    with:
+      environment-label: Staging
+      site-url: https://staging.opencasebook.org
+      image-digest: ${{ needs.prepare.outputs.image-digest }}
+      source-sha: ${{ needs.prepare.outputs.source-sha }}
+      lambda-function-name: h2o-export-stage
+      maintenance-script: h2o-maintenance-staging
+      maintenance-hostnames: staging.opencasebook.org
+    secrets:
+      aws-role-arn: ${{ secrets.STAGING_AWS_ROLE_TO_ASSUME }}
+      ecr-repository: ${{ secrets.STAGING_ECR_REPOSITORY }}
+      aws-region: ${{ secrets.STAGING_AWS_REGION }}
+      ecs-cluster: ${{ secrets.STAGING_ECS_CLUSTER }}
+      ecs-service: ${{ secrets.STAGING_ECS_SERVICE }}
+      container-name: ${{ secrets.STAGING_CONTAINER_NAME }}
+      task-definition-family: ${{ secrets.STAGING_TASK_DEFINITION_FAMILY }}
+      event-rules: ${{ secrets.STAGING_EVENT_RULES }}
+      cloudflare-zone-id: ${{ secrets.CLOUDFLARE_ZONE_ID }}
+      cloudflare-api-token: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+      slack-webhook-url: ${{ secrets.SLACK_WEBHOOK_URL }}
+
+  # A job whose condition does not hold is skipped, and a skipped job leaves the
+  # run green. This job is what makes a deploy that did not happen show up as a
+  # failed run rather than a successful build.
+  confirm-deploy:
+    name: Confirm the deploy ran
+    needs: [prepare, deploy]
+    if: always() && needs.prepare.result == 'success'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Require a completed deploy
+        env:
+          RESULT: ${{ needs.deploy.result }}
+        run: |
+          if [ "$RESULT" != "success" ]; then
+            echo "::error::prepare succeeded but deploy was '$RESULT'; nothing was deployed."
+            exit 1
+          fi
+          echo "deploy completed"

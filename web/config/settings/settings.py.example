@@ -1,5 +1,13 @@
-# This file is necessary only if you want to modify default settings from settings_dev.py.
-# To use, copy to settings.py:
+# This is one of two ways to choose deployment settings for config.settings (see
+# config/settings/__init__.py). The other is the H2O_SETTINGS_MODULE environment
+# variable, which is read at runtime and takes precedence over this file when set --
+# use that one for containers (ECS, CI, etc.) that need to pick a settings module
+# without baking it into the image at build time.
+#
+# This file is for a developer's local checkout instead: it's resolved at import
+# time, with no env var to set, and only consulted when H2O_SETTINGS_MODULE is
+# unset. It's necessary only if you want to modify default settings from
+# settings_dev.py. To use, copy to settings.py:
 
 from .settings_dev import *  # noqa
 

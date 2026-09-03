@@ -1,0 +1,26 @@
+version: 2
+
+updates:
+  # Third-party action versions were drifting here because nothing watched them:
+  # this repository sat on actions/checkout v4 while lil-actions had moved to v7,
+  # and two different majors of checkout were in use here at the same time.
+  #
+  # Pinning to commit SHAs is what stops a compromised tag from arriving
+  # silently, and it is also what makes a pin invisible once set -- a SHA does
+  # not look stale. Something has to raise them, hence this.
+  #
+  # Only `.github/workflows/` is scanned; the github-actions ecosystem does not
+  # recurse into composite `action.yml` files. That is why lil-actions lists each
+  # composite directory explicitly. This repository defines no composite actions.
+  - package-ecosystem: github-actions
+    directory: "/"
+    schedule:
+      interval: weekly
+    open-pull-requests-limit: 3
+    groups:
+      actions-minor-patch:
+        patterns:
+          - "*"
+        update-types:
+          - minor
+          - patch

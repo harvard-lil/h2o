@@ -67,3 +67,15 @@ USE_SENTRY = config["TIER"] == "prod"
 SENTRY_DSN = config["SENTRY_DSN"]
 SENTRY_ENVIRONMENT = config["TIER"]
 SENTRY_TRACES_SAMPLE_RATE = 0.001
+
+# Compiled assets are served from S3 through Cloudflare rather than from this
+# container. Without that, a rolling deploy briefly has old and new tasks behind
+# the same load balancer, and a page rendered by one can request a
+# content-hashed bundle that only exists in the other.
+#
+# The /static/ path carries weight beyond tidiness. WhiteNoise takes its URL
+# prefix from urlparse(STATIC_URL).path, so pointing this at the bucket root
+# would move the copies still in the image from /static/... to /..., and they
+# would stop answering the URLs that anything already rendered asks for.
+# WhiteNoise stays in MIDDLEWARE as the fallback that arrangement gives us.
+STATIC_URL = "https://static.opencasebook.org/static/"
