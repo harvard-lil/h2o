@@ -185,19 +185,6 @@ jobs:
           service: ${{ env.ECS_SERVICE }}
           task-definition: ${{ steps.task-def.outputs.task-definition-arn }}
 
-      # The export Lambda is part of this application and ships with it, from the
-      # same commit as the web service. Deploying it anywhere else lets the two
-      # drift apart.
-      - name: Point the export Lambda at the promoted image
-        env:
-          FUNCTION_NAME: ${{ inputs.lambda-function-name }}
-          LAMBDA_IMAGE_URI: ${{ steps.login-ecr.outputs.registry }}/pandoc-lambda:${{ inputs.source-sha }}
-        run: |
-          set -euxo pipefail
-          aws lambda update-function-code \
-            --function-name "$FUNCTION_NAME" \
-            --image-uri "$LAMBDA_IMAGE_URI" >/dev/null
-
       # Held at Cloudflare rather than by shifting load-balancer weight, so the
       # page still answers if the origin is unreachable, and the load balancer
       # is left out of it entirely. The action confirms the change by requesting
@@ -227,28 +214,6 @@ jobs:
           service: ${{ env.ECS_SERVICE }}
           container: ${{ env.CONTAINER_NAME }}
           migrate-command: 'python manage.py migrate'
-
-      - name: Create search index
-        uses: harvard-lil/lil-actions/ecs-exec-command@main
-        with:
-          cluster: ${{ env.ECS_CLUSTER }}
-          service: ${{ env.ECS_SERVICE }}
-          container: ${{ env.CONTAINER_NAME }}
-          command: 'invoke create-search-index'
-
-      - name: Create reporting views
-        uses: harvard-lil/lil-actions/ecs-exec-command@main
-        with:
-          cluster: ${{ env.ECS_CLUSTER }}
-          service: ${{ env.ECS_SERVICE }}
-          container: ${{ env.CONTAINER_NAME }}
-          command: 'invoke create-reporting-views'
-
-      - name: Update scheduled tasks with new task definition
-        uses: harvard-lil/lil-actions/ecs-update-eventbridge@main
-        with:
-          event-rules: ${{ env.EVENT_RULES }}
-          task-definition-arn: ${{ steps.task-def.outputs.task-definition-arn }}
 
       # Lifted whenever migrations either succeeded or never ran, which covers
       # every failure above this point. Those all leave a working site
@@ -287,6 +252,50 @@ jobs:
         with:
           zone: ${{ secrets.cloudflare-zone-id }}
           token: ${{ secrets.cloudflare-api-token }}
+
+      # Everything from here down runs with the site already serving. None of it
+      # is needed for a page to render: the new tasks are healthy and the schema
+      # is migrated by this point, and on a deploy that takes no window these
+      # commands run against live traffic anyway. Keeping them above the release
+      # would spend their runtime as downtime.
+      - name: Create search index
+        uses: harvard-lil/lil-actions/ecs-exec-command@main
+        with:
+          cluster: ${{ env.ECS_CLUSTER }}
+          service: ${{ env.ECS_SERVICE }}
+          container: ${{ env.CONTAINER_NAME }}
+          command: 'invoke create-search-index'
+
+      - name: Create reporting views
+        uses: harvard-lil/lil-actions/ecs-exec-command@main
+        with:
+          cluster: ${{ env.ECS_CLUSTER }}
+          service: ${{ env.ECS_SERVICE }}
+          container: ${{ env.CONTAINER_NAME }}
+          command: 'invoke create-reporting-views'
+
+      - name: Update scheduled tasks with new task definition
+        uses: harvard-lil/lil-actions/ecs-update-eventbridge@main
+        with:
+          event-rules: ${{ env.EVENT_RULES }}
+          task-definition-arn: ${{ steps.task-def.outputs.task-definition-arn }}
+
+      # The export Lambda is part of this application and ships with it, from the
+      # same commit as the web service. Deploying it anywhere else lets the two
+      # drift apart.
+      #
+      # It goes last because exports failing matters less than the web deploy:
+      # here, a pandoc-lambda image missing for this commit fails one step with
+      # everything else already done, rather than stopping the rollout partway.
+      - name: Point the export Lambda at the promoted image
+        env:
+          FUNCTION_NAME: ${{ inputs.lambda-function-name }}
+          LAMBDA_IMAGE_URI: ${{ steps.login-ecr.outputs.registry }}/pandoc-lambda:${{ inputs.source-sha }}
+        run: |
+          set -euxo pipefail
+          aws lambda update-function-code \
+            --function-name "$FUNCTION_NAME" \
+            --image-uri "$LAMBDA_IMAGE_URI" >/dev/null
           
           
       # The success notification below does not run on failure, so this is the
