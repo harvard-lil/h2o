@@ -9,7 +9,7 @@ on:
       # publish steps unable to run even if their `if:` guards were wrong.
       CODECOV_TOKEN:
         required: false
-      STAGING_AWS_ROLE_TO_ASSUME:
+      BUILD_AWS_ROLE_TO_ASSUME:
         required: false
       STAGING_AWS_REGION:
         required: false
@@ -144,14 +144,16 @@ jobs:
         with:
           token: ${{ secrets.CODECOV_TOKEN }}
 
-      # One OIDC session for everything below that touches AWS. Replaces the
-      # long-lived AWS_ACCESS_KEY_ID / AWS_SECRET_ACCESS_KEY this workflow used
-      # to carry for the pandoc-lambda publish.
+      # One OIDC session for everything below that touches AWS, under an
+      # identity that can publish images and assets and cannot deploy them. The
+      # tier roles carry ecs, elasticloadbalancing, events, lambda and
+      # iam:PassRole because a deploy needs them; a build does not, and used to
+      # hold them anyway by sharing staging's role.
       - name: Configure AWS credentials
         if: github.event_name == 'push' && github.ref == 'refs/heads/main'
         uses: aws-actions/configure-aws-credentials@cbe3b392738ccf3f987d68400dafcf4b0624a56c # v6.2.4
         with:
-          role-to-assume: ${{ secrets.STAGING_AWS_ROLE_TO_ASSUME }}
+          role-to-assume: ${{ secrets.BUILD_AWS_ROLE_TO_ASSUME }}
           aws-region: ${{ secrets.STAGING_AWS_REGION }}
 
       - name: Login to AWS ECR
