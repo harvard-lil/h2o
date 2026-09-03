@@ -5,6 +5,7 @@ from zipfile import ZipFile
 
 import pytest
 from django.conf import settings
+from django.test import override_settings
 from django.urls import reverse
 from lxml import etree
 from main.export import annotated_content_for_export
@@ -142,6 +143,12 @@ def test_export_query_count(assert_num_queries, full_casebook, user_factory):
         full_casebook.export(include_annotations=True, user=user)
 
 
+# The counter this checks decays by EXPORT_RATE_FALLOFF for every minute elapsed
+# since it was last written, and clamps at zero. Two exports that happen to land
+# either side of a minute boundary therefore record a net increase of one, not
+# two, and the test fails on timing alone. Removing the falloff keeps the test on
+# the thing it is actually asserting -- that each export increments the counter.
+@override_settings(EXPORT_RATE_FALLOFF=0)
 @pytest.mark.xdist_group("pandoc-lambda")
 def test_export_is_rate_limited(live_settings, full_casebook, resource, user_factory):
 
