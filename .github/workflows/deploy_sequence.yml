@@ -104,6 +104,65 @@ jobs:
           container-name: ${{ env.CONTAINER_NAME }}
           image-uri: ${{ inputs.image-uri }}
 
+      # Whether this deploy needs a maintenance window is a property of the new
+      # code, so it cannot be answered by asking the tasks currently running.
+      # This runs the task definition registered above, once, with
+      # `migrate --check` -- which applies nothing and exits non-zero when
+      # unapplied migrations exist. It runs before the service is touched, so a
+      # deploy that turns out to need a window still gets one, and an image that
+      # cannot boot far enough to reach the database fails here rather than
+      # halfway through a rollout.
+      #
+      # Every answer except a clean "nothing pending" opens the window: a task
+      # that would not start, a missing exit code, anything unexpected. Opening
+      # a window that was not needed costs five quiet minutes; skipping one that
+      # was needed serves traffic against a half-migrated schema.
+      - name: Does this deploy need a maintenance window?
+        id: window
+        env:
+          TASK_DEF: ${{ steps.task-def.outputs.task-definition-arn }}
+        run: |
+          set -uo pipefail
+          needed=true
+
+          NETCFG=$(aws ecs describe-services --cluster "$ECS_CLUSTER" --services "$ECS_SERVICE" \
+            --query 'services[0].networkConfiguration' --output json)
+          OVERRIDES=$(jq -cn --arg c "$CONTAINER_NAME" \
+            '{containerOverrides:[{name:$c,command:["python","manage.py","migrate","--check"]}]}')
+
+          ARN=$(aws ecs run-task \
+            --cluster "$ECS_CLUSTER" \
+            --task-definition "$TASK_DEF" \
+            --launch-type FARGATE \
+            --network-configuration "$NETCFG" \
+            --overrides "$OVERRIDES" \
+            --started-by migration-check \
+            --query 'tasks[0].taskArn' --output text) || ARN=""
+
+          if [ -z "$ARN" ] || [ "$ARN" = "None" ]; then
+            echo "::warning::Could not start the migration check; assuming a window is needed."
+          else
+            echo "Migration check running as ${ARN##*/}"
+            aws ecs wait tasks-stopped --cluster "$ECS_CLUSTER" --tasks "$ARN" || true
+            CODE=$(aws ecs describe-tasks --cluster "$ECS_CLUSTER" --tasks "$ARN" \
+              --query 'tasks[0].containers[0].exitCode' --output text)
+            REASON=$(aws ecs describe-tasks --cluster "$ECS_CLUSTER" --tasks "$ARN" \
+              --query 'tasks[0].stoppedReason' --output text)
+            echo "migrate --check exited $CODE ($REASON)"
+            case "$CODE" in
+              0) needed=false ;;
+              1) needed=true ;;
+              *) echo "::warning::Unexpected exit code '$CODE'; assuming a window is needed." ;;
+            esac
+          fi
+
+          echo "needed=$needed" >> "$GITHUB_OUTPUT"
+          if [ "$needed" = "true" ]; then
+            echo "Unapplied migrations, or an inconclusive check: taking a maintenance window."
+          else
+            echo "No unapplied migrations: deploying without a maintenance window."
+          fi
+
       - name: Deploy the digest-pinned task definition
         uses: harvard-lil/lil-actions/ecs-deploy@main
         with:
@@ -125,6 +184,7 @@ jobs:
             --image-uri "$LAMBDA_IMAGE_URI" >/dev/null
 
       - name: Put site into maintenance mode
+        if: steps.window.outputs.needed == 'true'
         uses: harvard-lil/lil-actions/ecs-maintenance@main
         with:
           mode: 'on'
@@ -180,7 +240,7 @@ jobs:
       # case stays behind the maintenance page for a human. `cancelled` counts
       # the same: interrupting a migration is no safer than one failing.
       - name: Turn off Maintenance mode
-        if: always() && (steps.migrate.outcome == 'success' || steps.migrate.outcome == 'skipped')
+        if: always() && steps.window.outputs.needed == 'true' && (steps.migrate.outcome == 'success' || steps.migrate.outcome == 'skipped')
         uses: harvard-lil/lil-actions/ecs-maintenance@main
         with:
           mode: 'off'
@@ -191,7 +251,7 @@ jobs:
       # Complement of the condition above, so the site is never left behind the
       # maintenance page without this saying so.
       - name: Report that the site was left in maintenance
-        if: always() && steps.migrate.outcome != 'success' && steps.migrate.outcome != 'skipped'
+        if: always() && steps.window.outputs.needed == 'true' && steps.migrate.outcome != 'success' && steps.migrate.outcome != 'skipped'
         run: |
           echo "::error::Django migrations did not complete (outcome: ${{ steps.migrate.outcome }})."
           echo "::error::MAINTENANCE MODE IS STILL ON and was left on deliberately --"
@@ -231,7 +291,7 @@ jobs:
                       "type": "section",
                       "text": {
                           "type": "mrkdwn",
-                          "text": "*Maintenance mode:*\n${{ (steps.migrate.outcome != 'success' && steps.migrate.outcome != 'skipped') && 'STILL ON - the site is serving the maintenance page' || 'lifted - the site is serving the previous version' }}\n*Run:*\n<https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}|${{ github.run_id }}>"
+                          "text": "*Maintenance mode:*\n${{ (steps.window.outputs.needed == 'true' && steps.migrate.outcome != 'success' && steps.migrate.outcome != 'skipped') && 'STILL ON - the site is serving the maintenance page' || (steps.window.outputs.needed == 'true' && 'lifted - the site is serving the previous version' || 'never opened - no migrations, the site stayed up throughout') }}\n*Run:*\n<https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}|${{ github.run_id }}>"
                       }
                     }
                 ]
