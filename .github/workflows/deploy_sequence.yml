@@ -24,10 +24,6 @@ on:
         description: 'Name for this tier in notifications, e.g. Staging'
         required: true
         type: string
-      site-url:
-        description: 'Public URL of this tier, used in notifications'
-        required: true
-        type: string
       image-digest:
         description: >
           Digest of the web image to deploy, already present in this tier's ECR
@@ -41,46 +37,13 @@ on:
         description: 'Commit the artifact was built from, naming the matching pandoc-lambda image'
         required: true
         type: string
-      lambda-function-name:
-        description: 'Export Lambda for this tier'
-        required: true
-        type: string
-      maintenance-script:
+      environment:
         description: >
-          Cloudflare Worker serving this tier's maintenance page, e.g.
-          h2o-maintenance-prod. Created by lil-terraform's
-          lil-cloudflare-maintenance module.
+          GitHub environment this tier deploys to. It carries the tier's
+          variables and secrets, and its branch policy is what stops another
+          branch reaching them, so naming it here is what selects the tier.
         required: true
         type: string
-      maintenance-hostnames:
-        description: 'Comma-separated hostnames the page answers on'
-        required: true
-        type: string
-
-    secrets:
-      aws-role-arn:
-        required: true
-      ecr-repository:
-        required: true
-      aws-region:
-        required: true
-      ecs-cluster:
-        required: true
-      ecs-service:
-        required: true
-      container-name:
-        required: true
-      task-definition-family:
-        required: true
-      event-rules:
-        # Empty is tolerated: a tier with no scheduled tasks has nothing to update.
-        required: false
-      cloudflare-zone-id:
-        required: true
-      cloudflare-api-token:
-        required: true
-      slack-webhook-url:
-        required: true
 
 permissions:
   id-token: write     # assume the deploy role via OIDC
@@ -91,20 +54,21 @@ jobs:
   deploy:
     name: Deploy to ${{ inputs.environment-label }}
     runs-on: ubuntu-latest
+    environment: ${{ inputs.environment }}
 
     env:
-      TASK_DEFINITION_FAMILY: ${{ secrets.task-definition-family }}
-      CONTAINER_NAME: ${{ secrets.container-name }}
-      ECS_CLUSTER: ${{ secrets.ecs-cluster }}
-      ECS_SERVICE: ${{ secrets.ecs-service }}
-      EVENT_RULES: ${{ secrets.event-rules }}
+      TASK_DEFINITION_FAMILY: ${{ vars.TASK_DEFINITION_FAMILY }}
+      CONTAINER_NAME: ${{ vars.CONTAINER_NAME }}
+      ECS_CLUSTER: ${{ vars.ECS_CLUSTER }}
+      ECS_SERVICE: ${{ vars.ECS_SERVICE }}
+      EVENT_RULES: ${{ vars.EVENT_RULES }}
 
     steps:
       - name: Configure AWS credentials
         uses: aws-actions/configure-aws-credentials@cbe3b392738ccf3f987d68400dafcf4b0624a56c # v6.2.4
         with:
-          role-to-assume: ${{ secrets.aws-role-arn }}
-          aws-region: ${{ secrets.aws-region }}
+          role-to-assume: ${{ secrets.AWS_ROLE_TO_ASSUME }}
+          aws-region: ${{ vars.AWS_REGION }}
 
       # The registry is derived here rather than passed in, for the same reason
       # the inputs above are pieces rather than URIs.
@@ -118,7 +82,7 @@ jobs:
         with:
           task-definition-family: ${{ env.TASK_DEFINITION_FAMILY }}
           container-name: ${{ env.CONTAINER_NAME }}
-          image-uri: ${{ steps.login-ecr.outputs.registry }}/${{ secrets.ecr-repository }}@${{ inputs.image-digest }}
+          image-uri: ${{ steps.login-ecr.outputs.registry }}/${{ vars.ECR_REPOSITORY }}@${{ inputs.image-digest }}
 
       # Whether this deploy needs a maintenance window is a property of the new
       # code, so it cannot be answered by asking the tasks currently running.
@@ -237,10 +201,10 @@ jobs:
         uses: harvard-lil/lil-actions/cloudflare-maintenance@main
         with:
           mode: 'on'
-          zone-id: ${{ secrets.cloudflare-zone-id }}
-          script: ${{ inputs.maintenance-script }}
-          hostnames: ${{ inputs.maintenance-hostnames }}
-          token: ${{ secrets.cloudflare-api-token }}
+          zone-id: ${{ vars.CLOUDFLARE_ZONE_ID }}
+          script: ${{ vars.MAINTENANCE_SCRIPT }}
+          hostnames: ${{ vars.MAINTENANCE_HOSTNAMES }}
+          token: ${{ secrets.CLOUDFLARE_API_TOKEN }}
 
       - name: Wait for the new deployment to become stable
         uses: harvard-lil/lil-actions/ecs-wait-for-deployment@main
@@ -272,9 +236,9 @@ jobs:
         uses: harvard-lil/lil-actions/cloudflare-maintenance@main
         with:
           mode: 'off'
-          zone-id: ${{ secrets.cloudflare-zone-id }}
-          hostnames: ${{ inputs.maintenance-hostnames }}
-          token: ${{ secrets.cloudflare-api-token }}
+          zone-id: ${{ vars.CLOUDFLARE_ZONE_ID }}
+          hostnames: ${{ vars.MAINTENANCE_HOSTNAMES }}
+          token: ${{ secrets.CLOUDFLARE_API_TOKEN }}
 
       # Complement of the condition above, so the site is never left behind the
       # maintenance page without this saying so.
@@ -283,7 +247,7 @@ jobs:
         run: |
           echo "::error::Django migrations did not complete (outcome: ${{ steps.migrate.outcome }})."
           echo "::error::MAINTENANCE MODE IS STILL ON and was left on deliberately --"
-          echo "::error::${{ inputs.site-url }} is serving the maintenance page, not the application."
+          echo "::error::${{ vars.SITE_URL }} is serving the maintenance page, not the application."
           echo "::error::The database may be partially migrated. Check its state before"
           echo "::error::lifting maintenance; re-running this workflow will not lift it"
           echo "::error::either, because it will fail at the same step."
@@ -292,8 +256,8 @@ jobs:
       - name: Purge Cloudflare cache
         uses: harvard-lil/lil-actions/cloudflare-purge@main
         with:
-          zone: ${{ secrets.cloudflare-zone-id }}
-          token: ${{ secrets.cloudflare-api-token }}
+          zone: ${{ vars.CLOUDFLARE_ZONE_ID }}
+          token: ${{ secrets.CLOUDFLARE_API_TOKEN }}
 
       # Everything from here down runs with the site already serving. None of it
       # is needed for a page to render: the new tasks are healthy and the schema
@@ -331,7 +295,7 @@ jobs:
       # everything else already done, rather than stopping the rollout partway.
       - name: Point the export Lambda at the promoted image
         env:
-          FUNCTION_NAME: ${{ inputs.lambda-function-name }}
+          FUNCTION_NAME: ${{ vars.LAMBDA_FUNCTION_NAME }}
           LAMBDA_IMAGE_URI: ${{ steps.login-ecr.outputs.registry }}/pandoc-lambda:${{ inputs.source-sha }}
         run: |
           set -euxo pipefail
@@ -347,7 +311,7 @@ jobs:
         if: failure()
         uses: slackapi/slack-github-action@dcb1066f776dd043e64d0e8ba94ca15cc7e1875d # v4.0.0
         with:
-            webhook: ${{ secrets.slack-webhook-url }}
+            webhook: ${{ secrets.SLACK_WEBHOOK_URL }}
             webhook-type: incoming-webhook
             payload: |
               {
@@ -372,7 +336,7 @@ jobs:
       - name: Notify Slack
         uses: slackapi/slack-github-action@dcb1066f776dd043e64d0e8ba94ca15cc7e1875d # v4.0.0
         with:
-            webhook: ${{ secrets.slack-webhook-url }}
+            webhook: ${{ secrets.SLACK_WEBHOOK_URL }}
             webhook-type: incoming-webhook
             payload: |
               {
@@ -395,7 +359,7 @@ jobs:
                     "type": "section",
                       "text": {
                           "type": "mrkdwn",
-                          "text": "*View the site:* <${{ inputs.site-url }}|${{ inputs.site-url }}>"
+                          "text": "*View the site:* <${{ vars.SITE_URL }}|${{ vars.SITE_URL }}>"
                       }
                     }
                 ]

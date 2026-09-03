@@ -34,6 +34,7 @@ jobs:
   prepare:
     name: Prepare the production artifact
     runs-on: ubuntu-latest
+    environment: prod
     if: github.event_name == 'push'
     
     outputs:
@@ -41,7 +42,7 @@ jobs:
       source-sha: ${{ steps.resolve.outputs.source-sha }}
 
     env:
-      ECR_REPOSITORY: ${{ secrets.PROD_ECR_REPOSITORY }}
+      ECR_REPOSITORY: ${{ vars.ECR_REPOSITORY }}
       IMAGE_TAG: latest
 
     steps:
@@ -52,8 +53,8 @@ jobs:
       - name: Configure AWS credentials
         uses: aws-actions/configure-aws-credentials@cbe3b392738ccf3f987d68400dafcf4b0624a56c # v6.2.4
         with:
-          role-to-assume: ${{ secrets.PROD_AWS_ROLE_TO_ASSUME }}
-          aws-region: ${{ secrets.PROD_AWS_REGION }}
+          role-to-assume: ${{ secrets.AWS_ROLE_TO_ASSUME }}
+          aws-region: ${{ vars.AWS_REGION }}
 
 
       - name: Login to AWS ECR
@@ -73,10 +74,10 @@ jobs:
         id: resolve
         env:
           REGISTRY: ${{ steps.login-ecr.outputs.registry }}
-          STAGING_ECS_CLUSTER: ${{ secrets.STAGING_ECS_CLUSTER }}
-          STAGING_ECS_SERVICE: ${{ secrets.STAGING_ECS_SERVICE }}
-          STAGING_CONTAINER_NAME: ${{ secrets.STAGING_CONTAINER_NAME }}
-          STAGING_ECR_REPOSITORY: ${{ secrets.STAGING_ECR_REPOSITORY }}
+          STAGING_ECS_CLUSTER: ${{ vars.SOURCE_ECS_CLUSTER }}
+          STAGING_ECS_SERVICE: ${{ vars.SOURCE_ECS_SERVICE }}
+          STAGING_CONTAINER_NAME: ${{ vars.SOURCE_CONTAINER_NAME }}
+          STAGING_ECR_REPOSITORY: ${{ vars.SOURCE_ECR_REPOSITORY }}
         run: |
           set -euo pipefail
 
@@ -217,25 +218,10 @@ jobs:
     if: always() && needs.prepare.result == 'success'
     uses: ./.github/workflows/deploy_sequence.yml
     with:
+      environment: prod
       environment-label: Prod
-      site-url: https://opencasebook.org
       image-digest: ${{ needs.prepare.outputs.image-digest }}
       source-sha: ${{ needs.prepare.outputs.source-sha }}
-      lambda-function-name: h2o-export
-      maintenance-script: h2o-maintenance-prod
-      maintenance-hostnames: opencasebook.org,www.opencasebook.org
-    secrets:
-      aws-role-arn: ${{ secrets.PROD_AWS_ROLE_TO_ASSUME }}
-      ecr-repository: ${{ secrets.PROD_ECR_REPOSITORY }}
-      aws-region: ${{ secrets.PROD_AWS_REGION }}
-      ecs-cluster: ${{ secrets.PROD_ECS_CLUSTER }}
-      ecs-service: ${{ secrets.PROD_ECS_SERVICE }}
-      container-name: ${{ secrets.PROD_CONTAINER_NAME }}
-      task-definition-family: ${{ secrets.PROD_TASK_DEFINITION_FAMILY }}
-      event-rules: ${{ secrets.PROD_EVENT_RULES }}
-      cloudflare-zone-id: ${{ secrets.CLOUDFLARE_ZONE_ID }}
-      cloudflare-api-token: ${{ secrets.CLOUDFLARE_API_TOKEN }}
-      slack-webhook-url: ${{ secrets.SLACK_WEBHOOK_URL }}
 
   # A job whose condition does not hold is skipped, and a skipped job leaves the
   # run green. This job is what makes a deploy that did not happen show up as a
