@@ -78,6 +78,12 @@ Staleness is decided by hashing the build's inputs -- `frontend/`,
 the bundles were last built, so pulling someone else's frontend change triggers
 a rebuild on your next run or test.
 
+The `prod` image runs `collectstatic` during the build, so the `web/static` it
+carries holds those bundles together with the files Django gathers from
+installed packages -- `admin/`, `rest_framework/`, `django_extensions/`,
+`css/`. WhiteNoise serves that directory, so a running container can answer for
+every static URL the app renders.
+
 ### Stop
 
 When you are finished, spin down Docker containers by running:
@@ -124,6 +130,32 @@ Coverage will be generated automatically for all manually-run tests.
 ## Migrations
 
 We use standard Django migrations.
+
+### The migration list in an image
+
+Every built image carries `/app/web/migrations.json`, written during the build
+by `./manage.py migration_manifest`. It lists the migrations that image has on
+disk -- those from installed packages as well as this repository's -- so what an
+image expects of the database can be read without running it:
+
+```json
+{
+  "format": 1,
+  "hash": "8e169dee97f0",
+  "count": 67,
+  "migrations": ["admin.0001_initial", "auth.0001_initial", "..."]
+}
+```
+
+`migrations` holds sorted `app_label.migration_name` strings. `hash` is the
+first 12 hex digits of the sha256 of those names, one per line, each terminated
+by a newline. `format` is bumped if this shape changes, so a mismatch there
+reads as a version difference rather than a disagreement about migrations.
+
+The same command run in a container produces the same document, which is what
+makes an image and a deployed environment comparable by `hash` alone. It reports
+what is on disk and never what a database has applied; `MigrationLoader` is
+constructed with no connection.
 
 ## Contributions
 

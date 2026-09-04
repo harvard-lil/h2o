@@ -78,11 +78,9 @@ SENTRY_TRACES_SAMPLE_RATE = 0.001
 # would move the copies still in the image from /static/... to /..., and they
 # would stop answering the URLs that anything already rendered asks for.
 #
-# WhiteNoise stays in MIDDLEWARE on the strength of that, but it is a partial
-# fallback. Nothing runs collectstatic in the image, so what it can answer for
-# is web/static as committed plus the compiled bundles: dist, fonts, images,
-# as_printable_html, data, tinymce_skin. admin, rest_framework,
-# django_extensions and css are gathered from installed packages at collect
-# time and exist in the bucket alone. A page would render without the bucket;
-# Django admin and the browsable API would not.
+# WhiteNoise stays in MIDDLEWARE on the strength of that, and it can answer for
+# the whole of STATIC_ROOT: the image build runs collectstatic (see the
+# Dockerfile), so admin, rest_framework, django_extensions and css -- gathered
+# from installed packages rather than committed -- are in the image alongside
+# web/static and the compiled bundles.
 STATIC_URL = "https://static.opencasebook.org/static/"
