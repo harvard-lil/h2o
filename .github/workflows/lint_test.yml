@@ -239,24 +239,19 @@ jobs:
           docker tag "h2o-prod:${{ github.sha }}" "${REGISTRY}/${ECR_REPOSITORY}:${{ github.sha }}"
           docker push "${REGISTRY}/${ECR_REPOSITORY}:${{ github.sha }}"
 
-      # A pinned release binary with its published checksum, rather than a
-      # third-party action: this runs in the job that has just authenticated to
-      # ECR and can push to it, and an action referenced by a moving tag is code
-      # from someone else running there.
+      # The ORAS project's own action, pinned to a commit like every other action
+      # here, so a compromised tag cannot arrive silently in the job that has
+      # just authenticated to ECR and can push to it. It verifies the checksum
+      # of the binary it downloads against its own table.
+      #
+      # Which ORAS it installs is the action's default rather than a version
+      # named here, so that dependabot maintains the whole thing: a version
+      # pinned in this file would be a string nothing watches. Nothing below
+      # depends on a particular ORAS -- `attach`, `--artifact-type` and
+      # `--annotation` long predate any version this action offers.
       - name: Install oras
         if: github.event_name == 'push' && github.ref == 'refs/heads/main'
-        env:
-          ORAS_VERSION: 1.3.4
-          ORAS_SHA256: f27adb935022d94df8dc77719c322dda592c78a0d57a6f7dcdd8d900b248c454
-        run: |
-          set -euxo pipefail
-          curl -sSLf -o oras.tar.gz \
-            "https://github.com/oras-project/oras/releases/download/v${ORAS_VERSION}/oras_${ORAS_VERSION}_linux_amd64.tar.gz"
-          echo "${ORAS_SHA256}  oras.tar.gz" | sha256sum -c -
-          tar -xzf oras.tar.gz oras
-          sudo install -m 0755 oras /usr/local/bin/oras
-          rm -f oras oras.tar.gz
-          oras version
+        uses: oras-project/setup-oras@1d808f7d7f6995cc68b7bf507bfe5c5446e1dc9d # v2.0.1
 
       # `image-artifacts/static` and `image-artifacts/migrations.json` are on the
       # runner from the extraction step near the top of this job, and the image
