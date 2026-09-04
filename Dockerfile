@@ -106,7 +106,13 @@ RUN H2O_SETTINGS_MODULE=settings_build ./manage.py collectstatic --noinput \
 
 EXPOSE 8000
 
-CMD ["uwsgi", "--http", "0.0.0.0:8000", "--master", "--processes", "20", "--threads", "1", "--buffer-size", "32768", "--module", "config.wsgi"]
+# --die-on-term is what makes SIGTERM mean "shut down". uwsgi's own meaning for
+# it is "brutally reload", so without this the master ignores the signal ECS
+# sends to stop a task, ECS waits out the stop timeout and kills it, and
+# whatever the workers were serving dies with them. That defeats the drain the
+# cloudflared sidecar performs ahead of it: the connector stops taking new
+# requests and finishes its in-flight ones, and then uwsgi is shot anyway.
+CMD ["uwsgi", "--http", "0.0.0.0:8000", "--master", "--die-on-term", "--processes", "20", "--threads", "1", "--buffer-size", "32768", "--module", "config.wsgi"]
 
 # =====================================================================
 # dev -- local development. The test toolchain on top of `base`, with no app
