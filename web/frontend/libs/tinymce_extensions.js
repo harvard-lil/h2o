@@ -423,7 +423,7 @@ export function getInitConfig(selector, enhanced, code) {
   let config = {
     height:'25vh',
     plugins: plugins,
-    skin_url: '/static/tinymce_skin',
+    skin_url: window.TINYMCE_SKIN_URL,
     content_style: semanticStyles,
     menubar: false,
     branding: false,

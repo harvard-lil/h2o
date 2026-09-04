@@ -8,7 +8,7 @@
 {% block page_title %} {% if mode %}{{mode}} | {% endif %} {{casebook.title}} {% if section %}: {{ section.title }} {% endif %} {% endblock %}
 
 {% if editing %}
-{% block extra_foot %}{% render_bundle 'rich_text_editor' %}{% endblock %}
+{% block extra_foot %}{% include 'includes/tinymce_skin_url.html' %}{% render_bundle 'rich_text_editor' %}{% endblock %}
 {% endif %}
 
 {% block banner %}
