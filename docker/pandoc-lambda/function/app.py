@@ -12,15 +12,20 @@ from docx.oxml.ns import qn
 from docx.enum.section import WD_SECTION_START, WD_HEADER_FOOTER_INDEX, WD_ORIENTATION
 from docx.styles.style import WD_STYLE_TYPE
 from lxml import etree
+import re
 
 
 def lift_footnote(doc, footnotes_part, ref, texts, id, author=False, docx_sections=False):
     if texts is None:
-        parent = ref.getparent()
-        parent.remove(ref)
-        return
+        if ref is not None:
+            parent = ref.getparent()
+            if parent is not None:
+                # print('lift_footnote removing ref:%s' % parent.text)
+                parent.remove(ref)
+                return
     if ref is None:
         return
+    # print('running lift_footnote')
     id_att = "{http://schemas.openxmlformats.org/wordprocessingml/2006/main}id"
     custom_mark_att = (
         "{http://schemas.openxmlformats.org/wordprocessingml/2006/main}customMarkFollows"
@@ -99,11 +104,89 @@ def promote_case_footnotes(doc, docx_sections=False):
             style.attrib[val_att] = "FootnoteReference"
         author_footnotes[mark_id]["texts"].append([text_el])
 
+    ## try to figure out documention string position of each case
+    casebook_to_position = {}
+    casebook_position_to_text = {}
+    casebook_text_to_position = {}
+    import xml.etree.ElementTree as ET
+    document_string = ET.tostring(doc.element, encoding='unicode')
+    # print(document_string)
+    casebook_idx = 0
+
+    for casebook_start in doc.element.xpath(
+            "//*[*/*[starts-with(@w:val,'ResourceTitle')]] "
+    ):
+        # print(casebook_start)
+        # print(casebook_start.text)
+        element_string = ET.tostring(casebook_start, encoding='unicode')
+        # parent = casebook_start.getparent().text
+        # print('parent text')
+        # print(parent.text)
+        indices = find_all_indices_regex(document_string, casebook_start.text)
+        # print(indices)
+        differences = [indices[i] - indices[i - 1] for i in range(1, len(indices))]
+        start_idx = None
+        # print(differences)
+        for idx, diff in enumerate(differences):
+            if diff > 1000: #magicnumber/guess here
+                start_idx = idx+1
+        # if not start_idx:
+        #     print("no start_idx found!")
+
+        if start_idx is not None:
+            start_pos = indices[start_idx]
+            # print('start_pos: %s' % start_pos)
+            casebook_to_position[casebook_idx] = start_pos
+            casebook_position_to_text[casebook_idx] = casebook_start.text
+            casebook_text_to_position[casebook_start.text] = start_pos
+            casebook_idx += 1
+    # print('casebook_to_position')
+    # print(casebook_to_position)
+    # print('casebook_to_position_to_text')
+    # print(casebook_position_to_text)
+    # print('casebook_text_to_position')
+    # print(casebook_text_to_position)
+
     case_footnotes = {}
     for ref in doc.element.xpath("//*[*/w:rStyle[starts-with(@w:val,'CaseFootnoteReference')]]"):
+        ref_pos = None
+        parent = ref.getparent()
+        gp = parent.getparent()
+        # try to figure out document string position of this ref, and therefor which case it goes with
+        if gp is not None:
+            # print('Casefootnotereference gp text: %s' % gp.text)
+            # print('Casefootnotereference short gp text: %s' % gp.text[:30])
+            # ref_pos = document_string.find(gp.text[:60])
+            indices = find_all_indices_regex(document_string,gp.text[:30])
+            # print(indices)
+            ref_pos = indices[-1]
+            # print('position of ref: %s' % ref_pos)
+        refs_casebook = None
+        if ref_pos is not None:
+            casebook_idx = find_closest_index(list(casebook_to_position.values()), ref_pos)
+            # print('casebook_idx found from find_closest_index: %s' % casebook_idx)
+            refs_casebook = casebook_to_position[casebook_idx]
+            refs_casebook_text = casebook_position_to_text[casebook_idx]
+            # print('ref_casebook: %s ref_casebook_text: %s' % (refs_casebook,refs_casebook_text))
+
+            # print('trying later ref position')
+            # for casebook_idx, casebook_start_pos in casebook_to_position.items():
+            #     if casebook_start_pos > ref_pos:
+            #         refs_casebook = casebook_idx-1
+            #         print('ref is in casebook: %s' % refs_casebook)
+            #         break
+        # print('ref_casebook: %s' % casebook_idx)
         mark_text = ref.text
         node = ref.xpath(".//w:rStyle[starts-with(@w:val,'CaseFootnoteReference')]")[0]
-        node_id = node.attrib[val_att][22:]
+        parent = node.getparent()
+        # print('parent')
+        # print(parent)
+        sibling = parent.getnext()
+        # print('sibling')
+        # print(sibling)
+        node_id = sibling.text
+        node_id = "%s-%s" % (casebook_idx,node_id)
+        # print("node_id: %s" % node_id)
         mark_id = f"{node_id}-{mark_text}"
         if mark_id not in case_footnotes:
             case_footnotes[mark_id] = {
@@ -119,14 +202,50 @@ def promote_case_footnotes(doc, docx_sections=False):
         if gp is not None and len(gp) and parent.tag == hyperlink_tag and gp.tag == paragraph_tag:
             gp.replace(parent, ref)
         case_footnotes[mark_id]["refs"].append(ref)
+    # print('case_footnotes')
+    # print(case_footnotes)
 
     for footnote_start in doc.element.xpath(
         "//*[*/*[starts-with(@w:val,'CaseFootnoteText')] and .//w:hyperlink]"
     ):
         mark_text = footnote_start.xpath(".//*[*/w:rStyle]/w:t")[0].text
-        node_id = footnote_start.xpath(
-            ".//w:pStyle[starts-with(@w:val, 'CaseFootnoteText')]/@w:val"
-        )[0][17:]
+        # print('mark_txt: %s' % mark_text)
+        # node_id = footnote_start.xpath(
+        #     ".//w:pStyle[starts-with(@w:val, 'CaseFootnoteText')]/@w:val"
+        # )[0][17:]
+        parent = footnote_start[0].getparent()
+        # print('parent')
+        # print(parent.text)
+        sibling = footnote_start[0].getnext()
+        # print('sibling')
+        # print(sibling.text)
+        node_id = sibling.text
+
+        # finding casebook idx for this footnote text
+        gp = parent.getparent()
+        # print('gp.text')
+        # print(gp.text)
+        # ggp = gp.getparent()
+        # print('ggp.text')
+        # print(ggp.text)
+        # gggp = ggp.getparent()
+        # print('gggp.text')
+        # print(gggp.text)
+
+        indices = find_all_indices_regex(document_string, parent.text[:30])
+        # print(indices)
+        ref_pos = indices[-1]
+        # print('position of ref: %s' % ref_pos)
+        refs_casebook = None
+        # try to figure out document string position of this footnote text, which case and ref it goes with
+        if ref_pos is not None:
+            casebook_idx = find_closest_index(list(casebook_to_position.values()), ref_pos)
+            # print('casebook_idx found from find_closest_index: %s' % casebook_idx)
+            refs_casebook = casebook_to_position[casebook_idx]
+            refs_casebook_text = casebook_position_to_text[casebook_idx]
+            # print('ref_casebook: %s ref_casebook_text: %s' % (refs_casebook,refs_casebook_text))
+
+        node_id = "%s-%s" % (casebook_idx,node_id)
 
         current_stack = [footnote_start]
         next_footnote_candidate = footnote_start.getnext()
@@ -151,7 +270,9 @@ def promote_case_footnotes(doc, docx_sections=False):
                     style_node[0].attrib[val_att] = "CaseFootnoteText"
             link = next_footnote_candidate.xpath(".//w:hyperlink//text()")
         mark_id = f"{node_id}-{mark_text}"
+        # print('mark_id: %s' % mark_id)
         if mark_id not in case_footnotes:
+            # print('new case_footnote for mark_id: %s' % mark_id)
             case_footnotes[mark_id] = {
                 "id": mark_id,
                 "mark": mark_text,
@@ -180,8 +301,43 @@ def promote_case_footnotes(doc, docx_sections=False):
                 author=True,
                 docx_sections=docx_sections,
             )
+    # print('**||** case_footnotes.keys:')
+    # print(case_footnotes.keys())
+    # print('sorted case_footnotes dict')
+    # sorted_dict = {key: case_footnotes[key] for key in sorted(case_footnotes)}
+    # print(sorted_dict)
+
+    # for key, vals in sorted_dict.items():
+    #     print('key: %s values[texts] count: %d' % (key, len(vals['texts'])))
+
+    # print('**||** case_footnotes.values:')
+    # print(case_footnotes.values())
     for val in case_footnotes.values():
         for ref, texts in zip_longest(val["refs"], val["texts"]):
+            # if ref is not None: print('ref: %s %s' % (ref.text, ref.getparent().text))
+            # if texts is not None: print('texts: %s' % [str(text.text) for text in texts])
+            # check for elided footnote text
+            if texts is not None and len(texts) > 0:
+                # print(texts[0].text[1:])
+                if texts[0].text[1:] == '[ … ]' : # check for first chars to ignore the footnote num
+                    #print("footnote text is elided, setting this texts to None")
+                    texts = None
+            # check for mismatch between ref number and footnote number
+            if ref is not None:
+                ref_num = ref.text
+                footnote_num = None
+                # print('ref_num: %s' % ref_num)
+
+                if texts is not None and len(texts) > 0:
+                    import re
+                    match = re.match(r'(\d+)', texts[0].text)
+                    if match:
+                        footnote_num = match.group(0)
+                        # print('footnote_num: %s ' % footnote_num)
+
+                        if ref_num != footnote_num:
+                            print('ref_num: %s and footnote_num: %s are mismatched, setting ref to None' % (ref_num, footnote_num))
+                            ref = None
             fid += 1
             lift_footnote(
                 doc,
@@ -485,3 +641,9 @@ def handler(event, context):
             return output.read()
 
             return pandoc_out.read()
+def find_closest_index(nums, target):
+    closest_index = min(range(len(nums)), key=lambda i: abs(nums[i] - target))
+    return closest_index
+
+def find_all_indices_regex(s, substring):
+    return [m.start() for m in re.finditer(re.escape(substring), s)]
