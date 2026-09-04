@@ -292,6 +292,11 @@ jobs:
           else
             echo "force-maintenance=false" >> "$GITHUB_OUTPUT"
           fi
+          if grep -qx 'deploy:skip-maintenance-mode' <<< "$labels"; then
+            echo "skip-maintenance=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "skip-maintenance=false" >> "$GITHUB_OUTPUT"
+          fi
 
       # A window is needed when the schema the running tasks are serving against
       # is not the schema the new code expects. That is two questions, and both
@@ -318,6 +323,7 @@ jobs:
         id: window
         env:
           FORCED: ${{ steps.labels.outputs.force-maintenance }}
+          SKIPPED: ${{ steps.labels.outputs.skip-maintenance }}
         run: |
           set -uo pipefail
           needed=true
@@ -325,9 +331,28 @@ jobs:
           # Asked for explicitly, so there is nothing to work out. This is also
           # the only way to exercise the window on a deploy that carries no
           # migrations, which is otherwise the only thing that opens one.
+          #
+          # The two labels are checked in this order so that setting both takes
+          # the window. Whichever was meant, the one that keeps traffic off a
+          # schema in motion is the safe reading of an ambiguous instruction.
           if [ "$FORCED" = "true" ]; then
             echo "needed=true" >> "$GITHUB_OUTPUT"
             echo "deploy:force-maintenance-mode is set: taking a maintenance window."
+            if [ "$SKIPPED" = "true" ]; then
+              echo "::warning::deploy:skip-maintenance-mode is set too, and is ignored."
+            fi
+            exit 0
+          fi
+
+          # The other direction, which overrides a decision rather than an
+          # absent one. Skipping the window does not skip the migrations: they
+          # still run, against a service still serving traffic. So this asserts
+          # that they are backward compatible with the code currently running --
+          # additive columns, new tables, a new index -- and it is wrong for
+          # anything that drops or renames what the running code still reads.
+          if [ "$SKIPPED" = "true" ]; then
+            echo "needed=false" >> "$GITHUB_OUTPUT"
+            echo "::warning::deploy:skip-maintenance-mode is set: deploying without a maintenance window, whatever the migrations say."
             exit 0
           fi
 

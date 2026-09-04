@@ -165,6 +165,30 @@ into `prod` deploys the image staging is running. Nothing after the build on
 `main` builds anything, so the bytes production serves are the bytes the suite
 ran against.
 
+### The maintenance window
+
+A deploy puts the site into maintenance only when the schema the running tasks
+serve against is not the schema the new code expects. That is worked out from
+the migration list built into the image and the one a running task reports, so
+an ordinary deploy that adds no migrations replaces tasks with the site up. Any
+answer the deploy cannot get -- no running task, an exec session that will not
+start, output it cannot read -- takes the window, because guessing wrong in the
+other direction serves traffic against a schema in motion.
+
+Two labels on the pull request being merged override that decision:
+
+`deploy:force-maintenance-mode` takes the window whatever the migrations say.
+This is also the only way to exercise the maintenance path on a deploy that
+carries no migrations, which is otherwise the only thing that opens one.
+
+`deploy:skip-maintenance-mode` deploys without the window whatever the
+migrations say. It does not skip the migrations -- they still run, against a
+service still taking traffic -- so it asserts that they are backward compatible
+with the code currently serving. Additive columns, new tables and new indexes
+are; dropping or renaming something the running code still reads is not.
+
+Setting both takes the window.
+
 ### One registry
 
 Every h2o web image lives in the ECR repository `h2o`, and both tiers run out of
