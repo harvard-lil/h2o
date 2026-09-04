@@ -239,24 +239,73 @@ jobs:
           docker tag "h2o-prod:${{ github.sha }}" "${REGISTRY}/${ECR_REPOSITORY}:${{ github.sha }}"
           docker push "${REGISTRY}/${ECR_REPOSITORY}:${{ github.sha }}"
 
-      # ==============================================================
-      # SEAM: attach the extracted artifacts to the image just pushed.
-      #
+      # A pinned release binary with its published checksum, rather than a
+      # third-party action: this runs in the job that has just authenticated to
+      # ECR and can push to it, and an action referenced by a moving tag is code
+      # from someone else running there.
+      - name: Install oras
+        if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+        env:
+          ORAS_VERSION: 1.3.4
+          ORAS_SHA256: f27adb935022d94df8dc77719c322dda592c78a0d57a6f7dcdd8d900b248c454
+        run: |
+          set -euxo pipefail
+          curl -sSLf -o oras.tar.gz \
+            "https://github.com/oras-project/oras/releases/download/v${ORAS_VERSION}/oras_${ORAS_VERSION}_linux_amd64.tar.gz"
+          echo "${ORAS_SHA256}  oras.tar.gz" | sha256sum -c -
+          tar -xzf oras.tar.gz oras
+          sudo install -m 0755 oras /usr/local/bin/oras
+          rm -f oras oras.tar.gz
+          oras version
+
       # `image-artifacts/static` and `image-artifacts/migrations.json` are on the
       # runner from the extraction step near the top of this job, and the image
-      # they were read out of has just been pushed under its commit-SHA tag --
-      # which is what an OCI referrer has to point at, so this is the earliest
-      # place the attach can go. `oras attach` calls belong here.
+      # they were read out of has just been pushed. Attaching them to that image
+      # as OCI referrers is what lets a deploy learn what an image contains --
+      # which assets to publish, which migrations it expects -- without starting
+      # it or pulling it. ECR answers the referrers API natively and filters by
+      # artifact type server-side, so a reader fetches one of these with three
+      # requests and no oras binary.
       #
-      # Left unwired: whether ECR answers the referrers API for these tags is
-      # being validated separately, and wiring it up before that is settled would
-      # make main's success depend on the answer.
-      #
-      # Nothing publishes the static files to S3 any more. The two `aws s3 sync`
-      # calls that ran here wrote the production bucket from every build of main,
-      # including builds of commits that were never deployed; the bucket becomes
-      # the staging deploy's to write.
-      # ==============================================================
+      # Nothing publishes the static files to S3 here. The two `aws s3 sync`
+      # calls that ran in this job wrote the production bucket from every build
+      # of main, including builds of commits that were never deployed; the
+      # bucket is the deploy's to write, from these referrers.
+      - name: Attach the static files and migration list to the pushed image
+        if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+        env:
+          REGISTRY: ${{ steps.publish-ecr-login.outputs.registry }}
+          ECR_REPOSITORY: ${{ secrets.STAGING_ECR_REPOSITORY }}
+          SHA: ${{ github.sha }}
+          MIGRATIONS_TYPE: application/vnd.harvard-lil.h2o.migrations.v1+json
+          STATIC_TYPE: application/vnd.harvard-lil.h2o.staticassets.v1.tar+gzip
+        run: |
+          set -euxo pipefail
+
+          # A referrer's subject is a digest, so the registry says which digest
+          # the tag just pushed resolves to rather than the local image saying.
+          DIGEST="$(aws ecr describe-images --repository-name "$ECR_REPOSITORY" \
+            --image-ids "imageTag=${SHA}" \
+            --query 'imageDetails[0].imageDigest' --output text)"
+          IMAGE="${REGISTRY}/${ECR_REPOSITORY}@${DIGEST}"
+
+          # Sorted names and zeroed mtimes, owners and gzip header, so one image
+          # produces one tarball: the bytes decide the blob digest, and the blob
+          # digest decides whether a re-attach is the same referrer or a second
+          # one.
+          tar --sort=name --mtime=@0 --owner=0 --group=0 --numeric-owner \
+            -cf - -C image-artifacts static | gzip -n > static-assets.tar.gz
+
+          # oras stamps org.opencontainers.image.created with the current time
+          # unless it is given one, which makes every attach of identical
+          # content a distinct referrer. A fixed value keeps attach idempotent.
+          oras attach --artifact-type "$MIGRATIONS_TYPE" \
+            --annotation "org.opencontainers.image.created=1970-01-01T00:00:00Z" \
+            "$IMAGE" image-artifacts/migrations.json:application/json
+
+          oras attach --artifact-type "$STATIC_TYPE" \
+            --annotation "org.opencontainers.image.created=1970-01-01T00:00:00Z" \
+            "$IMAGE" static-assets.tar.gz:application/gzip
 
       # Build and publish only -- pointing a Lambda at this image is a deploy,
       # and happens in staging.yml / prod.yml alongside every other deploy.
