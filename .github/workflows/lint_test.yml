@@ -13,8 +13,6 @@ on:
         required: false
       STAGING_AWS_REGION:
         required: false
-      STAGING_ECR_REPOSITORY:
-        required: false
 
 jobs:
   lint:
@@ -58,6 +56,10 @@ jobs:
     runs-on: ubuntu-latest
     needs: lint
     env:
+      # The one repository h2o's images are published to and both tiers deploy
+      # from. Named here rather than read from the environment because it is the
+      # same name in every tier, the way `pandoc-lambda` below already is.
+      ECR_REPOSITORY: h2o
       # Compose reads this itself, so every `docker compose` call below picks up
       # both files with no flags. Setting it also stops compose auto-loading
       # docker-compose.override.yml, which is developer-only.
@@ -100,16 +102,36 @@ jobs:
             -t h2o-test:ci \
             -f ./Dockerfile .
 
+      # The collected static files and the migration list are built into the
+      # image (see the Dockerfile), so they are read out of it with `docker
+      # create`, which gives a container filesystem without starting anything.
+      # They describe the image that ships rather than whatever a running
+      # service happened to have on disk. Both are needed as files on the runner
+      # for the attachment seam further down.
+      - name: Extract the image's static files and migration list
+        run: |
+          set -euxo pipefail
+          rm -rf image-artifacts
+          mkdir -p image-artifacts
+          container="$(docker create "h2o-prod:${{ github.sha }}")"
+          docker cp "${container}:/app/web/static" image-artifacts/static
+          docker cp "${container}:/app/web/migrations.json" image-artifacts/migrations.json
+          docker rm "${container}"
+
+          # These four come from installed packages, not from the checkout, so
+          # they are here only if collectstatic ran during the build.
+          for collected in admin rest_framework django_extensions css; do
+            test -d "image-artifacts/static/${collected}"
+          done
+          jq -e '.migrations | length > 0' image-artifacts/migrations.json
+          jq -r '"migrations.json: \(.count) migrations, hash \(.hash)"' image-artifacts/migrations.json
+
       - name: docker compose up
         run: |
           docker compose pull --ignore-pull-failures || true
           docker compose up -d
           docker ps -a
           docker compose logs
-
-      - name: Collect static files
-        shell: 'script -q -e -c "bash --noprofile --norc -eo pipefail {0}"'  # avoid docker-compose "the input device is not a TTY" -- see https://github.com/actions/runner/issues/241#issuecomment-842566950
-        run: docker compose exec web ./manage.py collectstatic --noinput   # collect static files
 
       - name: Python tests
         shell: 'script -q -e -c "bash --noprofile --norc -eo pipefail {0}"'  # avoid docker-compose "the input device is not a TTY" -- see https://github.com/actions/runner/issues/241#issuecomment-842566950
@@ -145,10 +167,10 @@ jobs:
           token: ${{ secrets.CODECOV_TOKEN }}
 
       # One OIDC session for everything below that touches AWS, under an
-      # identity that can publish images and assets and cannot deploy them. The
-      # tier roles carry ecs, elasticloadbalancing, events, lambda and
-      # iam:PassRole because a deploy needs them; a build does not, and used to
-      # hold them anyway by sharing staging's role.
+      # identity that can publish images and cannot deploy them. The tier roles
+      # carry ecs, elasticloadbalancing, events, lambda and iam:PassRole because
+      # a deploy needs them; a build does not, and used to hold them anyway by
+      # sharing staging's role.
       - name: Configure AWS credentials
         if: github.event_name == 'push' && github.ref == 'refs/heads/main'
         uses: aws-actions/configure-aws-credentials@cbe3b392738ccf3f987d68400dafcf4b0624a56c # v6.2.4
@@ -168,15 +190,12 @@ jobs:
       # be running.
       #
       # Refusing is the whole of it: there is no safe partial republish. The
-      # compiled assets are collected from a running container rather than baked
-      # into the image, so assets belonging to the image below cannot be
-      # recovered from it without running it, and syncing this build's assets
-      # beside the earlier build's image would leave the two disagreeing about
-      # which content hashes exist.
+      # collected static files travel inside the image, so a second push of this
+      # commit would move the SHA tag -- and the assets that go with it -- to
+      # bytes nothing has tested.
       - name: Refuse to republish a commit
         if: github.event_name == 'push' && github.ref == 'refs/heads/main'
         env:
-          ECR_REPOSITORY: ${{ secrets.STAGING_ECR_REPOSITORY }}
           SHA: ${{ github.sha }}
         run: |
           set -uo pipefail
@@ -212,7 +231,6 @@ jobs:
         if: github.event_name == 'push' && github.ref == 'refs/heads/main'
         env:
           REGISTRY: ${{ steps.publish-ecr-login.outputs.registry }}
-          ECR_REPOSITORY: ${{ secrets.STAGING_ECR_REPOSITORY }}
         run: |
           set -euxo pipefail
           # Nothing commits to main any more, so github.sha *is* main's tip and
@@ -221,33 +239,67 @@ jobs:
           docker tag "h2o-prod:${{ github.sha }}" "${REGISTRY}/${ECR_REPOSITORY}:${{ github.sha }}"
           docker push "${REGISTRY}/${ECR_REPOSITORY}:${{ github.sha }}"
 
-      # Every version's assets live together in one bucket, so a browser holding
-      # a page from an earlier deploy can still fetch its bundles. Objects are
-      # only ever added: there is no --delete here and there should not be, since
-      # removing an old hash is what this exists to prevent.
+      # The ORAS project's own action, pinned to a commit like every other action
+      # here, so a compromised tag cannot arrive silently in the job that has
+      # just authenticated to ECR and can push to it. It verifies the checksum
+      # of the binary it downloads against its own table.
       #
-      # Two passes, because the cache headers differ by whether the filename
-      # carries a content hash. Everything under dist/ does, so it can be
-      # immutable for a year; Django admin's files and anything else collected
-      # alongside them do not, and would go stale for a year if treated the same.
-      - name: Publish compiled assets
+      # Which ORAS it installs is the action's default rather than a version
+      # named here, so that dependabot maintains the whole thing: a version
+      # pinned in this file would be a string nothing watches. Nothing below
+      # depends on a particular ORAS -- `attach`, `--artifact-type` and
+      # `--annotation` long predate any version this action offers.
+      - name: Install oras
         if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+        uses: oras-project/setup-oras@1d808f7d7f6995cc68b7bf507bfe5c5446e1dc9d # v2.0.1
+
+      # `image-artifacts/static` and `image-artifacts/migrations.json` are on the
+      # runner from the extraction step near the top of this job, and the image
+      # they were read out of has just been pushed. Attaching them to that image
+      # as OCI referrers is what lets a deploy learn what an image contains --
+      # which assets to publish, which migrations it expects -- without starting
+      # it or pulling it. ECR answers the referrers API natively and filters by
+      # artifact type server-side, so a reader fetches one of these with three
+      # requests and no oras binary.
+      #
+      # Nothing publishes the static files to S3 here. The two `aws s3 sync`
+      # calls that ran in this job wrote the production bucket from every build
+      # of main, including builds of commits that were never deployed; the
+      # bucket is the deploy's to write, from these referrers.
+      - name: Attach the static files and migration list to the pushed image
+        if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+        env:
+          REGISTRY: ${{ steps.publish-ecr-login.outputs.registry }}
+          SHA: ${{ github.sha }}
+          MIGRATIONS_TYPE: application/vnd.harvard-lil.h2o.migrations.v1+json
+          STATIC_TYPE: application/vnd.harvard-lil.h2o.staticassets.v1.tar+gzip
         run: |
           set -euxo pipefail
-          rm -rf collected-static
-          docker compose cp web:/app/web/static ./collected-static
 
-          aws s3 sync ./collected-static/dist "s3://${STATIC_BUCKET}/static/dist" \
-            --cache-control 'public, max-age=31536000, immutable' --no-progress
+          # A referrer's subject is a digest, so the registry says which digest
+          # the tag just pushed resolves to rather than the local image saying.
+          DIGEST="$(aws ecr describe-images --repository-name "$ECR_REPOSITORY" \
+            --image-ids "imageTag=${SHA}" \
+            --query 'imageDetails[0].imageDigest' --output text)"
+          IMAGE="${REGISTRY}/${ECR_REPOSITORY}@${DIGEST}"
 
-          aws s3 sync ./collected-static "s3://${STATIC_BUCKET}/static" \
-            --exclude 'dist/*' \
-            --cache-control 'public, max-age=3600' --no-progress
-        env:
-          # h2o-static was already taken in S3's global namespace by another
-          # account, so the bucket is org-scoped. h2o/static in lil-terraform
-          # outputs this name.
-          STATIC_BUCKET: lil-h2o-static
+          # Sorted names and zeroed mtimes, owners and gzip header, so one image
+          # produces one tarball: the bytes decide the blob digest, and the blob
+          # digest decides whether a re-attach is the same referrer or a second
+          # one.
+          tar --sort=name --mtime=@0 --owner=0 --group=0 --numeric-owner \
+            -cf - -C image-artifacts static | gzip -n > static-assets.tar.gz
+
+          # oras stamps org.opencontainers.image.created with the current time
+          # unless it is given one, which makes every attach of identical
+          # content a distinct referrer. A fixed value keeps attach idempotent.
+          oras attach --artifact-type "$MIGRATIONS_TYPE" \
+            --annotation "org.opencontainers.image.created=1970-01-01T00:00:00Z" \
+            "$IMAGE" image-artifacts/migrations.json:application/json
+
+          oras attach --artifact-type "$STATIC_TYPE" \
+            --annotation "org.opencontainers.image.created=1970-01-01T00:00:00Z" \
+            "$IMAGE" static-assets.tar.gz:application/gzip
 
       # Build and publish only -- pointing a Lambda at this image is a deploy,
       # and happens in staging.yml / prod.yml alongside every other deploy.
