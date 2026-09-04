@@ -229,30 +229,31 @@ Neither carries a lifecycle policy, so nothing in them expires.
 
 ### Rolling back
 
-To roll back to an image in `h2o`, find the tag and resolve it to a digest:
+`just rollback` in [lil-terraform](https://github.com/harvard-lil/lil-terraform)
+does this. `just rollback h2o prod` lists what can be rolled back to and
+`just rollback h2o prod <revision>` does it:
 
 ```
-aws ecr describe-images --repository-name h2o --filter tagStatus=TAGGED \
-  --query 'reverse(sort_by(imageDetails,&imagePushedAt))[].{pushed:imagePushedAt,tags:imageTags}' \
-  --output table
+h2o / prod    cluster prod-h2o    running prod-h2o:26
 
-aws ecr describe-images --repository-name h2o \
-  --image-ids imageTag=prod-deployed-<sha> \
-  --query 'imageDetails[0].imageDigest' --output text
+   REV  REGISTERED        BUILT FROM                      DIGEST
+    26  2026-09-04 10:00  707c30974d3273deba449d13077c3b  bdd975254d2d…  <- running
+    24  2026-09-04 09:21  707c30974d3273deba449d13077c3b  bdd975254d2d…
+    23  2026-09-03 16:11  85cb78114e91450aa07002792f9796  ce339856e858…
+    22  2026-09-02 17:45  deployed-rollback-2026-07-09    b24a98874179…
 ```
 
-Then register a task definition whose web container names
-`<registry>/h2o@<digest>` and update the service to it -- the same two steps the
-deploy sequence takes, with an older digest.
+It lists only revisions that name a digest. Terraform registers revisions into
+the same family naming a moving tag, and rolling back to one of those would run
+whatever that tag points at now -- which after a deploy is the code you are
+trying to get away from.
 
-Pre-consolidation targets are in `prod-h2o`, under the older `deployed-<sha>`
-tag shape and any tag put there by hand, such as
-`deployed-rollback-2026-07-09`. The same commands work against that repository
-name, and the image URI is then `<registry>/prod-h2o@<digest>`. This is a manual
-ECS operation: the deploy workflows only ever deploy digests in `h2o`, and the
-static files and migration list a deploy expects to read off an image were
-attached to images in `h2o`, so an archive image is deployed by pointing the
-service at it rather than by re-running a workflow.
+Images in the archive repositories are reached the same way, because a revision
+records the image it pinned: revision 22 above names an image in `prod-h2o`,
+tagged by hand before the consolidation, and rolling back to it works without
+anything special. What a rollback cannot do is re-run a deploy, so the static
+files and migration list are not republished; the assets an older image expects
+are already in the bucket, which is only ever added to.
 
 ## Contributions
 
