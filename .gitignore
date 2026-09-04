@@ -60,3 +60,7 @@ web/webpack-stats-serve.json
 
 # Playwright output
 web/test-results
+
+# The migration list ./manage.py migration_manifest writes. The image build
+# produces it; running the command in a dev container leaves a copy here.
+web/migrations.json

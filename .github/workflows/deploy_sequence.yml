@@ -1,15 +1,16 @@
 name: ECS deploy sequence
 
 # Everything both tiers do identically once the artifact to deploy has been
-# identified: register a pinned task definition, roll the service, deploy the
-# export Lambda, run the post-deploy commands behind a maintenance window, and
-# report the result.
+# identified: register a pinned task definition, publish the static files the
+# artifact carries, roll the service, deploy the export Lambda, run the
+# post-deploy commands behind a maintenance window, and report the result.
 #
 # Sharing it means a staging deploy exercises the same code a production deploy
 # will run, rather than a second copy of it that happens to look the same.
 #
-# What differs by tier stays in the caller: how the artifact is identified,
-# which ECR repository it lives in, and how it gets there.
+# What differs by tier stays in the caller: how the artifact is identified and
+# how it is marked as this tier's. Both tiers run images out of the one `h2o`
+# repository, so that no longer differs.
 #
 # Values arrive as secrets today because that is how the callers already hold
 # them. Most are not secrets -- cluster, service and target-group names are
@@ -26,7 +27,7 @@ on:
         type: string
       image-digest:
         description: >
-          Digest of the web image to deploy, already present in this tier's ECR
+          Digest of the web image to deploy, already present in the `h2o` ECR
           repository. A digest and not a full URI: a URI contains the registry,
           the registry contains the account ID, the account ID is masked, and
           GitHub silently drops a job output it believes holds a secret rather
@@ -67,6 +68,8 @@ jobs:
     environment: ${{ inputs.environment }}
 
     env:
+      # One repository holds every h2o image both tiers run.
+      ECR_REPOSITORY: h2o
       TASK_DEFINITION_FAMILY: ${{ vars.TASK_DEFINITION_FAMILY }}
       CONTAINER_NAME: ${{ vars.CONTAINER_NAME }}
       ECS_CLUSTER: ${{ vars.ECS_CLUSTER }}
@@ -92,21 +95,182 @@ jobs:
         with:
           task-definition-family: ${{ env.TASK_DEFINITION_FAMILY }}
           container-name: ${{ env.CONTAINER_NAME }}
-          image-uri: ${{ steps.login-ecr.outputs.registry }}/${{ vars.ECR_REPOSITORY }}@${{ inputs.image-digest }}
+          image-uri: ${{ steps.login-ecr.outputs.registry }}/${{ env.ECR_REPOSITORY }}@${{ inputs.image-digest }}
 
-      # Whether this deploy needs a maintenance window is a property of the new
-      # code, so it cannot be answered by asking the tasks currently running.
-      # This runs the task definition registered above, once, with
-      # `migrate --check` -- which applies nothing and exits non-zero when
-      # unapplied migrations exist. It runs before the service is touched, so a
-      # deploy that turns out to need a window still gets one, and an image that
-      # cannot boot far enough to reach the database fails here rather than
-      # halfway through a rollout.
+      # The build collected the static files and wrote the migration list into
+      # the image, then attached both to the image's digest as OCI referrers.
+      # Reading them here ties the assets that get published, and the answer the
+      # window decision is made from, to the exact bytes being deployed.
       #
-      # Every answer except a clean "nothing pending" opens the window: a task
-      # that would not start, a missing exit code, anything unexpected. Opening
-      # a window that was not needed costs five quiet minutes; skipping one that
-      # was needed serves traffic against a half-migrated schema.
+      # Three requests fetch one: the referrers index for this digest filtered
+      # by artifact type, the manifest it names, then that manifest's one layer.
+      # ECR filters server-side and says so with OCI-Filters-Applied; the jq
+      # select repeats the filter because a registry may ignore it and answer
+      # with everything.
+      #
+      # The fallback reads the image itself. `regctl image get-file` would pull
+      # a single path without a full pull, but it extracts files and not
+      # directories, and the static tree is a directory -- so a fallback that
+      # covers both is a pull, and the migration list comes out of the same
+      # container for free. Both tiers deploy the digest the build attached the
+      # referrers to, in the repository it attached them in -- production
+      # promotes by adding a tag rather than copying -- so the fallback is for
+      # an image whose referrers are missing or unreadable, not for a tier.
+      - name: Read the image's static files and migration list
+        id: artifacts
+        env:
+          REGISTRY: ${{ steps.login-ecr.outputs.registry }}
+          IMAGE_DIGEST: ${{ inputs.image-digest }}
+          MIGRATIONS_TYPE: application/vnd.harvard-lil.h2o.migrations.v1+json
+          STATIC_TYPE: application/vnd.harvard-lil.h2o.staticassets.v1.tar+gzip
+        run: |
+          set -uo pipefail
+
+          rm -rf image-artifacts
+          mkdir -p image-artifacts
+          ECR_PASSWORD="$(aws ecr get-login-password)"
+
+          # $1 path under /v2/<repo>/, $2 Accept, $3 output file. Basic auth
+          # with the ECR token; -L for the blob endpoint, which answers with a
+          # 307 to S3. curl drops the credentials on a redirect to another host,
+          # which is what the presigned URL there wants.
+          registry_get() {
+            curl -sSfL --retry 3 --retry-delay 2 \
+              -H "Accept: $2" -u "AWS:${ECR_PASSWORD}" -o "$3" \
+              "https://${REGISTRY}/v2/${ECR_REPOSITORY}/$1"
+          }
+
+          # $1 artifact type, $2 destination. Writes the referrer's single layer
+          # to the destination, or explains why there is nothing to write.
+          fetch_referrer() {
+            artifact_type="$1"
+            destination="$2"
+            encoded="$(jq -rn --arg t "$artifact_type" '$t|@uri')"
+
+            if ! registry_get "referrers/${IMAGE_DIGEST}?artifactType=${encoded}" \
+                 'application/vnd.oci.image.index.v1+json' referrers.json; then
+              echo "No referrers index for ${artifact_type}."
+              return 1
+            fi
+            referrer="$(jq -r --arg t "$artifact_type" \
+              'first(.manifests[]? | select(.artifactType == $t) | .digest) // empty' \
+              referrers.json 2>/dev/null || true)"
+            if [ -z "$referrer" ]; then
+              echo "The referrers index names nothing of type ${artifact_type}."
+              return 1
+            fi
+
+            if ! registry_get "manifests/${referrer}" \
+                 'application/vnd.oci.image.manifest.v1+json' referrer-manifest.json; then
+              echo "Could not read referring manifest ${referrer}."
+              return 1
+            fi
+            layer="$(jq -r 'first(.layers[]?.digest) // empty' \
+              referrer-manifest.json 2>/dev/null || true)"
+            if [ -z "$layer" ]; then
+              echo "Referring manifest ${referrer} carries no layer."
+              return 1
+            fi
+
+            if ! registry_get "blobs/${layer}" '*/*' "$destination"; then
+              echo "Could not read blob ${layer}."
+              return 1
+            fi
+            echo "${artifact_type} <- ${referrer}"
+            return 0
+          }
+
+          static_source=""
+          migrations_source=""
+
+          if fetch_referrer "$STATIC_TYPE" static-assets.tar.gz; then
+            mkdir -p image-artifacts/static
+            if tar -xzf static-assets.tar.gz -C image-artifacts; then
+              static_source="referrer"
+            else
+              echo "::warning::The static assets referrer did not unpack."
+              rm -rf image-artifacts/static
+            fi
+          fi
+
+          if fetch_referrer "$MIGRATIONS_TYPE" image-artifacts/migrations.json; then
+            if jq -e '.hash' image-artifacts/migrations.json >/dev/null 2>&1; then
+              migrations_source="referrer"
+            else
+              echo "::warning::The migration list referrer is not a manifest document."
+              rm -f image-artifacts/migrations.json
+            fi
+          fi
+
+          if [ -z "$static_source" ] || [ -z "$migrations_source" ]; then
+            echo "Reading what is missing out of the image itself."
+            IMAGE="${REGISTRY}/${ECR_REPOSITORY}@${IMAGE_DIGEST}"
+            container=""
+            if docker pull -q "$IMAGE" && container="$(docker create "$IMAGE")"; then
+              if [ -z "$static_source" ]; then
+                rm -rf image-artifacts/static
+                if docker cp "${container}:/app/web/static" image-artifacts/static; then
+                  static_source="image"
+                fi
+              fi
+              if [ -z "$migrations_source" ]; then
+                if docker cp "${container}:/app/web/migrations.json" \
+                     image-artifacts/migrations.json; then
+                  migrations_source="image"
+                fi
+              fi
+              docker rm "$container" >/dev/null
+            else
+              echo "::warning::Could not read ${IMAGE_DIGEST} as an image."
+            fi
+          fi
+
+          echo "static-source=${static_source:-none}" >> "$GITHUB_OUTPUT"
+          echo "migrations-source=${migrations_source:-none}" >> "$GITHUB_OUTPUT"
+          echo "Static files: ${static_source:-NOT AVAILABLE}"
+          echo "Migration list: ${migrations_source:-NOT AVAILABLE}"
+
+          # Nothing has been deployed yet, so failing here leaves the running
+          # version serving. Going on would put tasks in front of traffic that
+          # renders pages naming asset hashes the bucket does not hold.
+          if [ -z "$static_source" ]; then
+            echo "::error::The static files for ${IMAGE_DIGEST} are readable neither"
+            echo "::error::from its referrer nor from the image."
+            exit 1
+          fi
+          if [ -z "$migrations_source" ]; then
+            echo "::warning::No migration list for ${IMAGE_DIGEST}; the window"
+            echo "::warning::decision will be taken without it."
+          fi
+
+      # Every version's assets live together in one bucket, so a browser holding
+      # a page from an earlier deploy can still fetch its bundles. Objects are
+      # only ever added: there is no --delete here and there should not be, since
+      # removing an old hash is what this exists to prevent.
+      #
+      # Two passes, because the cache headers differ by whether the filename
+      # carries a content hash. Everything under dist/ does, so it can be
+      # immutable for a year; Django admin's files and anything else collected
+      # alongside them do not, and would go stale for a year if treated the same.
+      #
+      # Above the rollout, because a task that starts before its bundles are in
+      # the bucket serves pages referencing hashes that 404.
+      - name: Publish the image's static files
+        env:
+          # h2o-static was already taken in S3's global namespace by another
+          # account, so the bucket is org-scoped. h2o/static in lil-terraform
+          # outputs this name. One bucket serves both tiers, as it did when
+          # every build of main wrote it.
+          STATIC_BUCKET: lil-h2o-static
+        run: |
+          set -euxo pipefail
+          aws s3 sync image-artifacts/static/dist "s3://${STATIC_BUCKET}/static/dist" \
+            --cache-control 'public, max-age=31536000, immutable' --no-progress
+
+          aws s3 sync image-artifacts/static "s3://${STATIC_BUCKET}/static" \
+            --exclude 'dist/*' \
+            --cache-control 'public, max-age=3600' --no-progress
+
       # A push carries no pull request context, so the labels are looked up from
       # the commit. A direct push, or a merge whose pull request has since been
       # deleted, returns nothing and the deploy proceeds on its own judgement.
@@ -128,12 +292,38 @@ jobs:
           else
             echo "force-maintenance=false" >> "$GITHUB_OUTPUT"
           fi
+          if grep -qx 'deploy:skip-maintenance-mode' <<< "$labels"; then
+            echo "skip-maintenance=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "skip-maintenance=false" >> "$GITHUB_OUTPUT"
+          fi
 
+      # A window is needed when the schema the running tasks are serving against
+      # is not the schema the new code expects. That is two questions, and both
+      # are answered without starting anything: the new image's migration list
+      # came out of its referrer above, and a task the service is already
+      # running answers for itself over ECS Exec.
+      #
+      # Equal migration lists mean the new image adds no migrations, which is
+      # not yet an answer -- the database can be behind the image already
+      # running, from a deploy whose migrations never ran. `migrate --plan` on
+      # the running task settles that.
+      #
+      # `aws ecs execute-command` exits with the status of the SSM session and
+      # not of the command it carried, so every answer here is read out of the
+      # session's output. lil-actions/ecs-django-migrations reads Django's
+      # plan output the same way.
+      #
+      # Every answer except a clean "nothing to apply" opens the window: no
+      # manifest, no running task, a session that will not start, output that
+      # says neither thing. Opening a window that was not needed costs five
+      # quiet minutes; skipping one that was needed serves traffic against a
+      # half-migrated schema.
       - name: Does this deploy need a maintenance window?
         id: window
         env:
-          TASK_DEF: ${{ steps.task-def.outputs.task-definition-arn }}
           FORCED: ${{ steps.labels.outputs.force-maintenance }}
+          SKIPPED: ${{ steps.labels.outputs.skip-maintenance }}
         run: |
           set -uo pipefail
           needed=true
@@ -141,57 +331,88 @@ jobs:
           # Asked for explicitly, so there is nothing to work out. This is also
           # the only way to exercise the window on a deploy that carries no
           # migrations, which is otherwise the only thing that opens one.
+          #
+          # The two labels are checked in this order so that setting both takes
+          # the window. Whichever was meant, the one that keeps traffic off a
+          # schema in motion is the safe reading of an ambiguous instruction.
           if [ "$FORCED" = "true" ]; then
             echo "needed=true" >> "$GITHUB_OUTPUT"
             echo "deploy:force-maintenance-mode is set: taking a maintenance window."
+            if [ "$SKIPPED" = "true" ]; then
+              echo "::warning::deploy:skip-maintenance-mode is set too, and is ignored."
+            fi
             exit 0
           fi
 
-          NETCFG=$(aws ecs describe-services --cluster "$ECS_CLUSTER" --services "$ECS_SERVICE" \
-            --query 'services[0].networkConfiguration' --output json)
-          OVERRIDES=$(jq -cn --arg c "$CONTAINER_NAME" \
-            '{containerOverrides:[{name:$c,command:["python","manage.py","migrate","--check"]}]}')
+          # The other direction, which overrides a decision rather than an
+          # absent one. Skipping the window does not skip the migrations: they
+          # still run, against a service still serving traffic. So this asserts
+          # that they are backward compatible with the code currently running --
+          # additive columns, new tables, a new index -- and it is wrong for
+          # anything that drops or renames what the running code still reads.
+          if [ "$SKIPPED" = "true" ]; then
+            echo "needed=false" >> "$GITHUB_OUTPUT"
+            echo "::warning::deploy:skip-maintenance-mode is set: deploying without a maintenance window, whatever the migrations say."
+            exit 0
+          fi
 
-          ARN=$(aws ecs run-task \
-            --cluster "$ECS_CLUSTER" \
-            --task-definition "$TASK_DEF" \
-            --launch-type FARGATE \
-            --network-configuration "$NETCFG" \
-            --overrides "$OVERRIDES" \
-            --started-by migration-check \
-            --query 'tasks[0].taskArn' --output text) || ARN=""
+          # $1 is a shell command; its output, and the session's chatter around
+          # it, come back together on stdout.
+          exec_in_running_task() {
+            aws ecs execute-command \
+              --cluster "$ECS_CLUSTER" --task "$TASK_ARN" --container "$CONTAINER_NAME" \
+              --interactive --command "/bin/sh -lc '$1'" 2>&1
+          }
 
-          if [ -z "$ARN" ] || [ "$ARN" = "None" ]; then
-            echo "::warning::Could not start the migration check; assuming a window is needed."
+          new_hash="$(jq -r '.hash // empty' image-artifacts/migrations.json 2>/dev/null || true)"
+
+          TASK_ARN=""
+          if [ -n "$new_hash" ]; then
+            TASK_ARN="$(aws ecs list-tasks --cluster "$ECS_CLUSTER" \
+              --service-name "$ECS_SERVICE" --desired-status RUNNING \
+              --query 'taskArns[0]' --output text 2>/dev/null || true)"
+            if [ "$TASK_ARN" = "None" ]; then
+              TASK_ARN=""
+            fi
+          fi
+
+          if [ -z "$new_hash" ]; then
+            echo "::warning::The image being deployed carries no migration list."
+          elif [ -z "$TASK_ARN" ]; then
+            echo "::warning::The service is running no task to compare against."
           else
-            echo "Migration check running as ${ARN##*/}"
-            aws ecs wait tasks-stopped --cluster "$ECS_CLUSTER" --tasks "$ARN" || true
-            # By name, because containers[0] is whichever the API happens to
-            # list first. The task definition carries a cloudflared sidecar, so
-            # reading by position can return the sidecar's empty exit code and
-            # send the deploy into a maintenance window it does not need.
-            #
-            # The task's own status is not the answer either. The sidecar waits
-            # for the application container to become healthy, which a container
-            # running migrate --check never does, so ECS records the task as
-            # TaskFailedToStart however the check itself came out.
-            CODE=$(aws ecs describe-tasks --cluster "$ECS_CLUSTER" --tasks "$ARN" \
-              --query "tasks[0].containers[?name=='${CONTAINER_NAME}'].exitCode | [0]" --output text)
-            REASON=$(aws ecs describe-tasks --cluster "$ECS_CLUSTER" --tasks "$ARN" \
-              --query 'tasks[0].stoppedReason' --output text)
-            echo "migrate --check exited $CODE ($REASON)"
-            case "$CODE" in
-              0) needed=false ;;
-              1) needed=true ;;
-              *) echo "::warning::Unexpected exit code '$CODE'; assuming a window is needed." ;;
-            esac
+            echo "Asking ${TASK_ARN##*/} what it has."
+            manifest="$(exec_in_running_task 'python manage.py migration_manifest' || true)"
+            # The manifest is printed as indented JSON, so its hash is one
+            # field on one line, wherever the session chatter put it.
+            running_hash="$(printf '%s' "$manifest" | tr -d '\r' \
+              | sed -n 's/.*"hash"[[:space:]]*:[[:space:]]*"\([0-9a-f]\{1,\}\)".*/\1/p' \
+              | head -n1 || true)"
+
+            if [ -z "$running_hash" ]; then
+              echo "::warning::The running task returned no migration list."
+              printf '%s\n' "$manifest" | tail -n 20
+            elif [ "$running_hash" != "$new_hash" ]; then
+              echo "Migration lists differ: the image has ${new_hash}, the running tasks have ${running_hash}."
+            else
+              echo "Both the image and the running tasks have migration list ${new_hash}."
+              plan="$(exec_in_running_task 'python manage.py migrate --plan' || true)"
+              if grep -q 'No planned migration operations' <<< "$plan"; then
+                needed=false
+              elif grep -q 'Planned operations:' <<< "$plan"; then
+                echo "The image adds no migrations, but the database is behind the running one."
+              else
+                echo "::warning::The running task returned no migration plan."
+                printf '%s\n' "$plan" | tail -n 20
+              fi
+            fi
           fi
 
           echo "needed=$needed" >> "$GITHUB_OUTPUT"
           if [ "$needed" = "true" ]; then
-            echo "Unapplied migrations, or an inconclusive check: taking a maintenance window."
+            echo "Migrations to apply, or an inconclusive answer: taking a maintenance window."
           else
-            echo "No unapplied migrations: deploying without a maintenance window."
+            echo "Nothing to apply: deploying without a maintenance window."
           fi
 
       - name: Deploy the digest-pinned task definition

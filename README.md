@@ -78,6 +78,12 @@ Staleness is decided by hashing the build's inputs -- `frontend/`,
 the bundles were last built, so pulling someone else's frontend change triggers
 a rebuild on your next run or test.
 
+The `prod` image runs `collectstatic` during the build, so the `web/static` it
+carries holds those bundles together with the files Django gathers from
+installed packages -- `admin/`, `rest_framework/`, `django_extensions/`,
+`css/`. WhiteNoise serves that directory, so a running container can answer for
+every static URL the app renders.
+
 ### Stop
 
 When you are finished, spin down Docker containers by running:
@@ -124,6 +130,130 @@ Coverage will be generated automatically for all manually-run tests.
 ## Migrations
 
 We use standard Django migrations.
+
+### The migration list in an image
+
+Every built image carries `/app/web/migrations.json`, written during the build
+by `./manage.py migration_manifest`. It lists the migrations that image has on
+disk -- those from installed packages as well as this repository's -- so what an
+image expects of the database can be read without running it:
+
+```json
+{
+  "format": 1,
+  "hash": "8e169dee97f0",
+  "count": 67,
+  "migrations": ["admin.0001_initial", "auth.0001_initial", "..."]
+}
+```
+
+`migrations` holds sorted `app_label.migration_name` strings. `hash` is the
+first 12 hex digits of the sha256 of those names, one per line, each terminated
+by a newline. `format` is bumped if this shape changes, so a mismatch there
+reads as a version difference rather than a disagreement about migrations.
+
+The same command run in a container produces the same document, which is what
+makes an image and a deployed environment comparable by `hash` alone. It reports
+what is on disk and never what a database has applied; `MigrationLoader` is
+constructed with no connection.
+
+## Deploys
+
+A merge to `main` builds one image, runs the suite against it, and publishes it.
+Merging `main` into `staging` deploys that published image; merging `staging`
+into `prod` deploys the image staging is running. Nothing after the build on
+`main` builds anything, so the bytes production serves are the bytes the suite
+ran against.
+
+### The maintenance window
+
+A deploy puts the site into maintenance only when the schema the running tasks
+serve against is not the schema the new code expects. That is worked out from
+the migration list built into the image and the one a running task reports, so
+an ordinary deploy that adds no migrations replaces tasks with the site up. Any
+answer the deploy cannot get -- no running task, an exec session that will not
+start, output it cannot read -- takes the window, because guessing wrong in the
+other direction serves traffic against a schema in motion.
+
+Two labels on the pull request being merged override that decision:
+
+`deploy:force-maintenance-mode` takes the window whatever the migrations say.
+This is also the only way to exercise the maintenance path on a deploy that
+carries no migrations, which is otherwise the only thing that opens one.
+
+`deploy:skip-maintenance-mode` deploys without the window whatever the
+migrations say. It does not skip the migrations -- they still run, against a
+service still taking traffic -- so it asserts that they are backward compatible
+with the code currently serving. Additive columns, new tables and new indexes
+are; dropping or renaming something the running code still reads is not.
+
+Setting both takes the window.
+
+### One registry
+
+Every h2o web image lives in the ECR repository `h2o`, and both tiers run out of
+it. Production is promoted by adding a tag to the image that is already there,
+so the digest production runs is the digest staging tested -- there is no copy
+step and no second digest to reconcile.
+
+Four kinds of tag appear in `h2o`:
+
+| Tag | Written by | Means |
+| --- | --- | --- |
+| `<commit sha>` | the build on `main` | a candidate the suite passed; immutable, and what a staging deploy resolves to a digest |
+| `staging-deployed-<sha>` | the staging deploy | staging promoted this image |
+| `prod-deployed-<sha>` | the production deploy | production promoted this image |
+| `latest` | either deploy | a moving pointer at whichever tier deployed most recently |
+
+`latest` is a placeholder. The Terraform task definitions name it so they have
+some image to reference, and every deploy replaces it with a digest before the
+service runs that revision; nothing reads it to decide what to ship.
+
+The repository's lifecycle policy gives each population its own count:
+`prod-deployed-` first, then `staging-deployed-`, then a catch-all for build
+candidates. An image production has promoted carries both deploy tags, and ECR
+lets the first matching rule govern an image, so such an image is kept on
+production's longer count.
+
+The export Lambda's image lives separately, in `pandoc-lambda`, tagged with the
+commit SHA and marked `deployed-<sha>` by a deploy. That repository serves both
+tiers and its retention rule selects `deployed-`, with no tier in it.
+
+### The old repositories
+
+`staging-h2o` and `prod-h2o` held these images before, one repository per tier.
+Nothing writes to them now. They are kept, and readable, because an ECS task
+definition pins its image by digest: a revision registered before the
+consolidation names one of them, and can only be run again while it exists.
+Neither carries a lifecycle policy, so nothing in them expires.
+
+### Rolling back
+
+`just rollback` in [lil-terraform](https://github.com/harvard-lil/lil-terraform)
+does this. `just rollback h2o prod` lists what can be rolled back to and
+`just rollback h2o prod <revision>` does it:
+
+```
+h2o / prod    cluster prod-h2o    running prod-h2o:26
+
+   REV  REGISTERED        BUILT FROM                      DIGEST
+    26  2026-09-04 10:00  707c30974d3273deba449d13077c3b  bdd975254d2d…  <- running
+    24  2026-09-04 09:21  707c30974d3273deba449d13077c3b  bdd975254d2d…
+    23  2026-09-03 16:11  85cb78114e91450aa07002792f9796  ce339856e858…
+    22  2026-09-02 17:45  deployed-rollback-2026-07-09    b24a98874179…
+```
+
+It lists only revisions that name a digest. Terraform registers revisions into
+the same family naming a moving tag, and rolling back to one of those would run
+whatever that tag points at now -- which after a deploy is the code you are
+trying to get away from.
+
+Images in the archive repositories are reached the same way, because a revision
+records the image it pinned: revision 22 above names an image in `prod-h2o`,
+tagged by hand before the consolidation, and rolling back to it works without
+anything special. What a rollback cannot do is re-run a deploy, so the static
+files and migration list are not republished; the assets an older image expects
+are already in the bucket, which is only ever added to.
 
 ## Contributions
 
