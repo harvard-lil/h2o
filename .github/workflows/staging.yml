@@ -47,7 +47,7 @@ jobs:
       # than read from the environment because it is the same name in every
       # tier, the way `pandoc-lambda` below already is.
       ECR_REPOSITORY: h2o
-      IMAGE_TAG: latest
+      IMAGE_TAG: staging-latest
 
     steps:
       - name: Checkout code
@@ -144,13 +144,14 @@ jobs:
           source: ${{ steps.resolve.outputs.source-sha }}
           tag: deployed-${{ steps.resolve.outputs.source-sha }}
 
-      # Keep the moving :latest tag pointing at what we deploy, so a Terraform
-      # apply (whose task definition references :latest) cannot quietly revert
-      # the service to an older image. Both tiers name the same tag and both
-      # write it, so it tracks whichever tier deployed most recently; it is a
-      # placeholder that every deploy replaces with a digest, and nothing reads
-      # it to decide what to ship.
-      - name: Point :latest at the promoted image
+      # Keep the moving :staging-latest tag pointing at what we deploy, so a Terraform
+      # apply (whose task definition references it) cannot quietly revert the
+      # service to an older image. The two tiers share a repository but not
+      # this tag: one tag written by both would point at whichever tier
+      # deployed last, which would let staging fall back to an image it never
+      # promoted. Every deploy replaces it with a digest, and nothing reads it
+      # to decide what to ship.
+      - name: Point :staging-latest at the promoted image
         env:
           REGISTRY: ${{ steps.login-ecr.outputs.registry }}
           IMAGE_URI: ${{ steps.resolve.outputs.image-uri }}
