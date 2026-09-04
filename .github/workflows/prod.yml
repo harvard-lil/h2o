@@ -53,7 +53,7 @@ jobs:
       - name: Configure AWS credentials
         uses: aws-actions/configure-aws-credentials@cbe3b392738ccf3f987d68400dafcf4b0624a56c # v6.2.4
         with:
-          role-to-assume: ${{ secrets.AWS_ROLE_TO_ASSUME }}
+          role-to-assume: ${{ vars.AWS_ROLE_TO_ASSUME }}
           aws-region: ${{ vars.AWS_REGION }}
 
 
@@ -222,6 +222,9 @@ jobs:
       environment-label: Prod
       image-digest: ${{ needs.prepare.outputs.image-digest }}
       source-sha: ${{ needs.prepare.outputs.source-sha }}
+    secrets:
+      cloudflare-api-token: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+      slack-webhook-url: ${{ secrets.SLACK_WEBHOOK_URL }}
 
   # A job whose condition does not hold is skipped, and a skipped job leaves the
   # run green. This job is what makes a deploy that did not happen show up as a
