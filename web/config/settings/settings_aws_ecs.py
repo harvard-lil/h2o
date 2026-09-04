@@ -77,5 +77,12 @@ SENTRY_TRACES_SAMPLE_RATE = 0.001
 # prefix from urlparse(STATIC_URL).path, so pointing this at the bucket root
 # would move the copies still in the image from /static/... to /..., and they
 # would stop answering the URLs that anything already rendered asks for.
-# WhiteNoise stays in MIDDLEWARE as the fallback that arrangement gives us.
+#
+# WhiteNoise stays in MIDDLEWARE on the strength of that, but it is a partial
+# fallback. Nothing runs collectstatic in the image, so what it can answer for
+# is web/static as committed plus the compiled bundles: dist, fonts, images,
+# as_printable_html, data, tinymce_skin. admin, rest_framework,
+# django_extensions and css are gathered from installed packages at collect
+# time and exist in the bucket alone. A page would render without the bucket;
+# Django admin and the browsable API would not.
 STATIC_URL = "https://static.opencasebook.org/static/"
