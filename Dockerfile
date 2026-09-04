@@ -83,6 +83,27 @@ ENV H2O_SETTINGS_MODULE=settings_aws_ecs
 
 USER h2o
 
+# Two artifacts derived from INSTALLED_APPS, built here so they describe the
+# image itself and can be read out of it without running it.
+#
+# collectstatic fills STATIC_ROOT -- /app/web/static, the directory this stage
+# has been assembling -- with the files that come from installed packages:
+# admin, rest_framework, django_extensions, css. Those sit beside the committed
+# static files and the bundles copied above, so WhiteNoise can answer for every
+# static URL the app renders.
+#
+# migrations.json records the migration graph as it exists here, third-party
+# migrations from site-packages included. main/management/commands/
+# migration_manifest.py documents the format.
+#
+# Both commands run as h2o rather than root, so anything collecting again in a
+# container -- which runs as h2o too -- can rewrite what they produced. They run
+# under settings_build because settings_aws_ecs, the runtime default set above,
+# reads its configuration from APP_CONFIG, which exists only in a deployed task.
+# The env prefixes cover these commands alone.
+RUN H2O_SETTINGS_MODULE=settings_build ./manage.py collectstatic --noinput \
+    && H2O_SETTINGS_MODULE=settings_build ./manage.py migration_manifest --output ./migrations.json
+
 EXPOSE 8000
 
 CMD ["uwsgi", "--http", "0.0.0.0:8000", "--master", "--processes", "20", "--threads", "1", "--buffer-size", "32768", "--module", "config.wsgi"]
@@ -127,7 +148,7 @@ COPY --from=assets --chown=h2o:h2o /app/web/node_modules ./node_modules
 # sources here to rebuild them from, so the freshness check must not fire.
 ENV H2O_SKIP_ASSET_CHECK=1
 
-# The suite writes into the project dir: collectstatic to STATIC_ROOT
-# (BASE_DIR/static) and pytest's coverage.xml. prod already COPYs web/ as h2o,
-# so these are writable.
+# The suite writes pytest's coverage.xml into the project dir. prod COPYs web/
+# as h2o and runs its build commands as h2o, so the project dir and STATIC_ROOT
+# are both writable here.
 USER h2o

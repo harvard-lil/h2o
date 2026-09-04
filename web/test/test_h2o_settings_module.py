@@ -12,6 +12,7 @@ importing a settings module only builds Python dicts/lists, it doesn't
 connect to anything.
 """
 
+import json
 import os
 import subprocess
 import sys
@@ -20,6 +21,40 @@ import textwrap
 import pytest
 
 WEB_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+
+# settings_aws_ecs reads all of these out of APP_CONFIG while it imports, so
+# importing it at all means supplying them. The values are shaped only as far as
+# that module and validate_settings() actually look: ALLOWED_HOSTS is split on
+# commas, ADMINS is ast.literal_eval'd, FUNCTION_ARN is parsed into a region and
+# a function name. A KeyError from here means settings_aws_ecs reads a new key
+# and this dict needs it too.
+FAKE_APP_CONFIG = {
+    "ALLOWED_HOSTS": "example.test",
+    "SECRET_KEY": "fake",
+    "DATABASE_NAME": "postgres",
+    "DATABASE_USERNAME": "postgres",
+    "DATABASE_PASSWORD": "fake",
+    "DATABASE_HOST": "db",
+    "DATABASE_PORT": "5432",
+    "CAPAPI_API_KEY": "fake",
+    "GPO_API_KEY": "fake",
+    "COURTLISTENER_API_KEY": "fake",
+    "MATOMO_SITE_URL": "https://example.test/",
+    "MATOMO_API_KEY": "fake",
+    "MATOMO_SITE_ID": "3",
+    "RAILS_SECRET_KEY_BASE": "fake",
+    "EMAIL_HOST": "smtp.example.test",
+    "EMAIL_HOST_USER": "fake",
+    "EMAIL_HOST_PASSWORD": "fake",
+    "ADMINS": "[('Someone', 'someone@example.test')]",
+    "SERVER_EMAIL": "someone@example.test",
+    "AWS_ACCESS_KEY": "fake",
+    "AWS_SECRET_KEY": "fake",
+    "BUCKET_NAME": "h2o.exports",
+    "FUNCTION_ARN": "arn:aws:lambda:us-east-1:000000000000:function:fake",
+    "TIER": "staging",
+    "SENTRY_DSN": "",
+}
 
 # A developer may have their own config/settings/settings.py (gitignored). When it
 # exists, the no-env-var path imports THAT rather than settings_dev, so the fallback
@@ -38,6 +73,33 @@ def _run(code, env_overrides):
         env=env,
         capture_output=True,
         text=True,
+    )
+
+
+def _installed_apps(settings_module, env_overrides=None):
+    env = {"H2O_SETTINGS_MODULE": settings_module}
+    env.update(env_overrides or {})
+    result = _run(
+        """
+        import json
+        import config.settings as settings
+        print(json.dumps(list(settings.INSTALLED_APPS)))
+        """,
+        env,
+    )
+    assert result.returncode == 0, result.stderr
+    # settings_base prints to stdout when it can't find its ALI materials, so
+    # take the last line rather than the whole of stdout.
+    return json.loads(result.stdout.splitlines()[-1])
+
+
+def test_settings_build_installed_apps_match_the_deployed_ones():
+    # The image build runs collectstatic and migration_manifest under
+    # settings_build, and both commands derive their whole output from
+    # INSTALLED_APPS. What they bake into the image describes the deployed app
+    # only for as long as the two lists agree.
+    assert _installed_apps("settings_build") == _installed_apps(
+        "settings_aws_ecs", {"APP_CONFIG": json.dumps(FAKE_APP_CONFIG)}
     )
 
 
