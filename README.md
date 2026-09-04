@@ -157,6 +157,79 @@ makes an image and a deployed environment comparable by `hash` alone. It reports
 what is on disk and never what a database has applied; `MigrationLoader` is
 constructed with no connection.
 
+## Deploys
+
+A merge to `main` builds one image, runs the suite against it, and publishes it.
+Merging `main` into `staging` deploys that published image; merging `staging`
+into `prod` deploys the image staging is running. Nothing after the build on
+`main` builds anything, so the bytes production serves are the bytes the suite
+ran against.
+
+### One registry
+
+Every h2o web image lives in the ECR repository `h2o`, and both tiers run out of
+it. Production is promoted by adding a tag to the image that is already there,
+so the digest production runs is the digest staging tested -- there is no copy
+step and no second digest to reconcile.
+
+Four kinds of tag appear in `h2o`:
+
+| Tag | Written by | Means |
+| --- | --- | --- |
+| `<commit sha>` | the build on `main` | a candidate the suite passed; immutable, and what a staging deploy resolves to a digest |
+| `staging-deployed-<sha>` | the staging deploy | staging promoted this image |
+| `prod-deployed-<sha>` | the production deploy | production promoted this image |
+| `latest` | either deploy | a moving pointer at whichever tier deployed most recently |
+
+`latest` is a placeholder. The Terraform task definitions name it so they have
+some image to reference, and every deploy replaces it with a digest before the
+service runs that revision; nothing reads it to decide what to ship.
+
+The repository's lifecycle policy gives each population its own count:
+`prod-deployed-` first, then `staging-deployed-`, then a catch-all for build
+candidates. An image production has promoted carries both deploy tags, and ECR
+lets the first matching rule govern an image, so such an image is kept on
+production's longer count.
+
+The export Lambda's image lives separately, in `pandoc-lambda`, tagged with the
+commit SHA and marked `deployed-<sha>` by a deploy. That repository serves both
+tiers and its retention rule selects `deployed-`, with no tier in it.
+
+### The old repositories
+
+`staging-h2o` and `prod-h2o` held these images before, one repository per tier.
+Nothing writes to them now. They are kept, and readable, because an ECS task
+definition pins its image by digest: a revision registered before the
+consolidation names one of them, and can only be run again while it exists.
+Neither carries a lifecycle policy, so nothing in them expires.
+
+### Rolling back
+
+To roll back to an image in `h2o`, find the tag and resolve it to a digest:
+
+```
+aws ecr describe-images --repository-name h2o --filter tagStatus=TAGGED \
+  --query 'reverse(sort_by(imageDetails,&imagePushedAt))[].{pushed:imagePushedAt,tags:imageTags}' \
+  --output table
+
+aws ecr describe-images --repository-name h2o \
+  --image-ids imageTag=prod-deployed-<sha> \
+  --query 'imageDetails[0].imageDigest' --output text
+```
+
+Then register a task definition whose web container names
+`<registry>/h2o@<digest>` and update the service to it -- the same two steps the
+deploy sequence takes, with an older digest.
+
+Pre-consolidation targets are in `prod-h2o`, under the older `deployed-<sha>`
+tag shape and any tag put there by hand, such as
+`deployed-rollback-2026-07-09`. The same commands work against that repository
+name, and the image URI is then `<registry>/prod-h2o@<digest>`. This is a manual
+ECS operation: the deploy workflows only ever deploy digests in `h2o`, and the
+static files and migration list a deploy expects to read off an image were
+attached to images in `h2o`, so an archive image is deployed by pointing the
+service at it rather than by re-running a workflow.
+
 ## Contributions
 
 Contributions to this project should be made in individual forks and then merged by pull request. Here's an outline:

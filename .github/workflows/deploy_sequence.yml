@@ -8,8 +8,9 @@ name: ECS deploy sequence
 # Sharing it means a staging deploy exercises the same code a production deploy
 # will run, rather than a second copy of it that happens to look the same.
 #
-# What differs by tier stays in the caller: how the artifact is identified,
-# which ECR repository it lives in, and how it gets there.
+# What differs by tier stays in the caller: how the artifact is identified and
+# how it is marked as this tier's. Both tiers run images out of the one `h2o`
+# repository, so that no longer differs.
 #
 # Values arrive as secrets today because that is how the callers already hold
 # them. Most are not secrets -- cluster, service and target-group names are
@@ -26,7 +27,7 @@ on:
         type: string
       image-digest:
         description: >
-          Digest of the web image to deploy, already present in this tier's ECR
+          Digest of the web image to deploy, already present in the `h2o` ECR
           repository. A digest and not a full URI: a URI contains the registry,
           the registry contains the account ID, the account ID is masked, and
           GitHub silently drops a job output it believes holds a secret rather
@@ -67,6 +68,8 @@ jobs:
     environment: ${{ inputs.environment }}
 
     env:
+      # One repository holds every h2o image both tiers run.
+      ECR_REPOSITORY: h2o
       TASK_DEFINITION_FAMILY: ${{ vars.TASK_DEFINITION_FAMILY }}
       CONTAINER_NAME: ${{ vars.CONTAINER_NAME }}
       ECS_CLUSTER: ${{ vars.ECS_CLUSTER }}
@@ -92,7 +95,7 @@ jobs:
         with:
           task-definition-family: ${{ env.TASK_DEFINITION_FAMILY }}
           container-name: ${{ env.CONTAINER_NAME }}
-          image-uri: ${{ steps.login-ecr.outputs.registry }}/${{ vars.ECR_REPOSITORY }}@${{ inputs.image-digest }}
+          image-uri: ${{ steps.login-ecr.outputs.registry }}/${{ env.ECR_REPOSITORY }}@${{ inputs.image-digest }}
 
       # The build collected the static files and wrote the migration list into
       # the image, then attached both to the image's digest as OCI referrers.
@@ -109,14 +112,14 @@ jobs:
       # a single path without a full pull, but it extracts files and not
       # directories, and the static tree is a directory -- so a fallback that
       # covers both is a pull, and the migration list comes out of the same
-      # container for free. Production always lands here: prod.yml copies the
-      # image into its own repository with `imagetools create`, which gives it a
-      # new digest in a repository the referrers were never attached to.
+      # container for free. Both tiers deploy the digest the build attached the
+      # referrers to, in the repository it attached them in -- production
+      # promotes by adding a tag rather than copying -- so the fallback is for
+      # an image whose referrers are missing or unreadable, not for a tier.
       - name: Read the image's static files and migration list
         id: artifacts
         env:
           REGISTRY: ${{ steps.login-ecr.outputs.registry }}
-          ECR_REPOSITORY: ${{ vars.ECR_REPOSITORY }}
           IMAGE_DIGEST: ${{ inputs.image-digest }}
           MIGRATIONS_TYPE: application/vnd.harvard-lil.h2o.migrations.v1+json
           STATIC_TYPE: application/vnd.harvard-lil.h2o.staticassets.v1.tar+gzip

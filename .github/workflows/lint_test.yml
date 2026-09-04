@@ -13,8 +13,6 @@ on:
         required: false
       STAGING_AWS_REGION:
         required: false
-      STAGING_ECR_REPOSITORY:
-        required: false
 
 jobs:
   lint:
@@ -58,6 +56,10 @@ jobs:
     runs-on: ubuntu-latest
     needs: lint
     env:
+      # The one repository h2o's images are published to and both tiers deploy
+      # from. Named here rather than read from the environment because it is the
+      # same name in every tier, the way `pandoc-lambda` below already is.
+      ECR_REPOSITORY: h2o
       # Compose reads this itself, so every `docker compose` call below picks up
       # both files with no flags. Setting it also stops compose auto-loading
       # docker-compose.override.yml, which is developer-only.
@@ -194,7 +196,6 @@ jobs:
       - name: Refuse to republish a commit
         if: github.event_name == 'push' && github.ref == 'refs/heads/main'
         env:
-          ECR_REPOSITORY: ${{ secrets.STAGING_ECR_REPOSITORY }}
           SHA: ${{ github.sha }}
         run: |
           set -uo pipefail
@@ -230,7 +231,6 @@ jobs:
         if: github.event_name == 'push' && github.ref == 'refs/heads/main'
         env:
           REGISTRY: ${{ steps.publish-ecr-login.outputs.registry }}
-          ECR_REPOSITORY: ${{ secrets.STAGING_ECR_REPOSITORY }}
         run: |
           set -euxo pipefail
           # Nothing commits to main any more, so github.sha *is* main's tip and
@@ -275,7 +275,6 @@ jobs:
         if: github.event_name == 'push' && github.ref == 'refs/heads/main'
         env:
           REGISTRY: ${{ steps.publish-ecr-login.outputs.registry }}
-          ECR_REPOSITORY: ${{ secrets.STAGING_ECR_REPOSITORY }}
           SHA: ${{ github.sha }}
           MIGRATIONS_TYPE: application/vnd.harvard-lil.h2o.migrations.v1+json
           STATIC_TYPE: application/vnd.harvard-lil.h2o.staticassets.v1.tar+gzip

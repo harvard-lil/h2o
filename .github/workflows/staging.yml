@@ -43,7 +43,10 @@ jobs:
       source-sha: ${{ steps.resolve.outputs.source-sha }}
 
     env:
-      ECR_REPOSITORY: ${{ vars.ECR_REPOSITORY }}
+      # One repository holds every h2o image both tiers run. Named here rather
+      # than read from the environment because it is the same name in every
+      # tier, the way `pandoc-lambda` below already is.
+      ECR_REPOSITORY: h2o
       IMAGE_TAG: latest
 
     steps:
@@ -115,16 +118,25 @@ jobs:
           echo "lambda-image-uri=${REGISTRY}/pandoc-lambda:${SOURCE_SHA}" >> "$GITHUB_OUTPUT"
 
       # Mark both promoted artifacts before deploying them. ECR retention keeps
-      # `deployed-` images far longer than the build candidates that churn past
+      # deployed images far longer than the build candidates that churn past
       # them every merge to main -- without this tag, the image the service is
       # running is just another candidate and ages out on the same schedule.
+      #
+      # `h2o` holds both tiers' images, so the tag carries the tier: the
+      # repository's lifecycle policy gives `staging-deployed-` and
+      # `prod-deployed-` a count each, and an image production has promoted
+      # carries both tags and is kept on production's longer count.
       - name: Mark the promoted web image as deployed
         uses: harvard-lil/lil-actions/ecr-tag-image@main
         with:
           repository: ${{ env.ECR_REPOSITORY }}
           source: ${{ steps.resolve.outputs.image-digest }}
-          tag: deployed-${{ steps.resolve.outputs.source-sha }}
+          tag: staging-deployed-${{ steps.resolve.outputs.source-sha }}
 
+      # `pandoc-lambda` is one repository serving both tiers' export functions
+      # and has always been, so its retention rule selects `deployed-` with no
+      # tier in it. The tag stays that shape until that policy says otherwise;
+      # a tier-prefixed tag here would match nothing the rule keeps.
       - name: Mark the promoted pandoc-lambda image as deployed
         uses: harvard-lil/lil-actions/ecr-tag-image@main
         with:
@@ -134,7 +146,10 @@ jobs:
 
       # Keep the moving :latest tag pointing at what we deploy, so a Terraform
       # apply (whose task definition references :latest) cannot quietly revert
-      # the service to an older image.
+      # the service to an older image. Both tiers name the same tag and both
+      # write it, so it tracks whichever tier deployed most recently; it is a
+      # placeholder that every deploy replaces with a digest, and nothing reads
+      # it to decide what to ship.
       - name: Point :latest at the promoted image
         env:
           REGISTRY: ${{ steps.login-ecr.outputs.registry }}
@@ -145,9 +160,9 @@ jobs:
             --tag "${REGISTRY}/${ECR_REPOSITORY}:${IMAGE_TAG}" \
             "$IMAGE_URI"
 
-  # The shared sequence. Everything above identifies which artifact to deploy and
-  # gets it into this tier's repository; everything below is identical for both
-  # tiers and lives in one file so a staging run exercises production's code.
+  # The shared sequence. Everything above identifies which artifact to deploy
+  # and marks it for this tier; everything below is identical for both tiers and
+  # lives in one file so a staging run exercises production's code.
   deploy:
     needs: prepare
     # Named rather than left to the default success(): a job with no condition of

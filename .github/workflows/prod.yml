@@ -38,11 +38,14 @@ jobs:
     if: github.event_name == 'push'
     
     outputs:
-      image-digest: ${{ steps.copy.outputs.image-digest }}
+      image-digest: ${{ steps.resolve.outputs.staging-digest }}
       source-sha: ${{ steps.resolve.outputs.source-sha }}
 
     env:
-      ECR_REPOSITORY: ${{ vars.ECR_REPOSITORY }}
+      # One repository holds every h2o image both tiers run. Named here rather
+      # than read from the environment because it is the same name in every
+      # tier, the way `pandoc-lambda` in the other workflows already is.
+      ECR_REPOSITORY: h2o
       IMAGE_TAG: latest
 
     steps:
@@ -77,7 +80,6 @@ jobs:
           STAGING_ECS_CLUSTER: ${{ vars.SOURCE_ECS_CLUSTER }}
           STAGING_ECS_SERVICE: ${{ vars.SOURCE_ECS_SERVICE }}
           STAGING_CONTAINER_NAME: ${{ vars.SOURCE_CONTAINER_NAME }}
-          STAGING_ECR_REPOSITORY: ${{ vars.SOURCE_ECR_REPOSITORY }}
         run: |
           set -euo pipefail
 
@@ -124,19 +126,34 @@ jobs:
 
           DIGEST="${STAGING_IMAGE#*@}"
 
+          # Both tiers run out of one repository, and promotion is a tag added
+          # to the image already in it, so staging has to be running an image
+          # from that repository for there to be anything to tag. Staging
+          # deployed before the two repositories were consolidated is running
+          # an image from the archive, which this cannot promote.
+          case "$STAGING_IMAGE" in
+            */"${ECR_REPOSITORY}"@*) ;;
+            *)
+              echo "::error::Staging is running '$STAGING_IMAGE', which is not"
+              echo "::error::in the ${ECR_REPOSITORY} repository. Re-run the staging deploy,"
+              echo "::error::so that it promotes an image production can tag."
+              exit 1
+              ;;
+          esac
+
           # Recover which commit built this artifact, by reading the other tags
           # on the same digest. The web image and its matching pandoc-lambda
           # image are both tagged with the commit SHA, so this is what lets the
           # export Lambda be promoted from the same commit as the web service
           # rather than from whatever main happens to point at now.
           SOURCE_SHA=$(aws ecr describe-images \
-            --repository-name "$STAGING_ECR_REPOSITORY" \
+            --repository-name "$ECR_REPOSITORY" \
             --image-ids "imageDigest=$DIGEST" \
             --query 'imageDetails[0].imageTags' --output text \
             | tr '\t' '\n' | { grep -E '^[0-9a-f]{40}$' || true; } | head -n1)
 
           if [ -z "$SOURCE_SHA" ]; then
-            echo "::error::No commit-SHA tag on $DIGEST in $STAGING_ECR_REPOSITORY,"
+            echo "::error::No commit-SHA tag on $DIGEST in $ECR_REPOSITORY,"
             echo "::error::so the matching pandoc-lambda image cannot be identified."
             exit 1
           fi
@@ -146,70 +163,42 @@ jobs:
           echo "source-sha=$SOURCE_SHA" >> "$GITHUB_OUTPUT"
           echo "staging-digest=$DIGEST" >> "$GITHUB_OUTPUT"
 
-      # `imagetools create` builds a new index around whatever it is given, so
-      # copying a single-platform manifest produces a different digest in the
-      # destination than the one it was read from. The copy's own digest is
-      # therefore the one production can be pinned to, and the check below is
-      # what establishes that it still resolves to the manifest staging ran.
-      - name: Copy that image into the production repository
-        id: copy
-        env:
-          REGISTRY: ${{ steps.login-ecr.outputs.registry }}
-          STAGING_IMAGE: ${{ steps.resolve.outputs.staging-image }}
-          STAGING_DIGEST: ${{ steps.resolve.outputs.staging-digest }}
-        run: |
-          set -euo pipefail
-          # Between repositories in the same registry, no layers move.
-          docker buildx imagetools create \
-            --tag "${REGISTRY}/${ECR_REPOSITORY}:${IMAGE_TAG}" \
-            "$STAGING_IMAGE"
-
-          PROD_DIGEST=$(aws ecr describe-images \
-            --repository-name "$ECR_REPOSITORY" \
-            --image-ids "imageTag=${IMAGE_TAG}" \
-            --query 'imageDetails[0].imageDigest' --output text)
-
-          if [ -z "$PROD_DIGEST" ] || [ "$PROD_DIGEST" = "None" ]; then
-            echo "::error::The copy left no ${IMAGE_TAG} tag in ${ECR_REPOSITORY}."
-            exit 1
-          fi
-
-          if [ "$PROD_DIGEST" != "$STAGING_DIGEST" ]; then
-            # Not the same digest, so it has to be an index that names the
-            # staging manifest as one of its children. Anything else means we
-            # are about to deploy something other than what staging validated.
-            MANIFEST=$(aws ecr batch-get-image \
-              --repository-name "$ECR_REPOSITORY" \
-              --image-ids "imageDigest=${PROD_DIGEST}" \
-              --query 'images[0].imageManifest' --output text)
-
-            if ! jq -e --arg d "$STAGING_DIGEST" \
-              'select(.manifests) | .manifests | map(.digest) | index($d)' \
-              <<<"$MANIFEST" >/dev/null; then
-              echo "::error::${ECR_REPOSITORY}@${PROD_DIGEST} does not resolve to"
-              echo "::error::${STAGING_DIGEST}, the manifest staging is running."
-              exit 1
-            fi
-            echo "Copied as ${PROD_DIGEST}, an index over ${STAGING_DIGEST}."
-          else
-            echo "Copied as ${PROD_DIGEST}, digest unchanged."
-          fi
-
-          echo "image-digest=$PROD_DIGEST" >> "$GITHUB_OUTPUT"
-
-      # Retention keeps `deployed-` images long past the build candidates that
-      # churn by every merge to main. The production task definition is pinned to
-      # this digest, so it has to outlive them.
+      # Promotion is a tag, not a copy. The image staging tested is already in
+      # this repository, so production adds `prod-deployed-<sha>` to that exact
+      # digest and deploys it -- there is no second repository to move it to and
+      # so no second digest to reconcile with the first.
+      #
+      # `ecr-tag-image` re-registers the same manifest bytes under an additional
+      # tag, which leaves the digest alone. The retention rule on
+      # `prod-deployed-` is what keeps this image alive past the build
+      # candidates that churn by every merge to main; the production task
+      # definition is pinned to it, so it has to outlive them.
       - name: Mark the promoted web image as deployed
         uses: harvard-lil/lil-actions/ecr-tag-image@main
         with:
           repository: ${{ env.ECR_REPOSITORY }}
-          source: ${{ steps.copy.outputs.image-digest }}
-          tag: deployed-${{ steps.resolve.outputs.source-sha }}
+          source: ${{ steps.resolve.outputs.staging-digest }}
+          tag: prod-deployed-${{ steps.resolve.outputs.source-sha }}
 
-  # The shared sequence. Everything above identifies which artifact to deploy and
-  # gets it into this tier's repository; everything below is identical for both
-  # tiers and lives in one file so a staging run exercises production's code.
+      # Keep the moving :latest tag pointing at what we deploy, so a Terraform
+      # apply (whose task definition references :latest) cannot quietly revert
+      # the service to an older image. Both tiers name the same tag and both
+      # write it, so it tracks whichever tier deployed most recently; it is a
+      # placeholder that every deploy replaces with a digest, and nothing reads
+      # it to decide what to ship.
+      - name: Point :latest at the promoted image
+        env:
+          REGISTRY: ${{ steps.login-ecr.outputs.registry }}
+          STAGING_IMAGE: ${{ steps.resolve.outputs.staging-image }}
+        run: |
+          set -euxo pipefail
+          docker buildx imagetools create \
+            --tag "${REGISTRY}/${ECR_REPOSITORY}:${IMAGE_TAG}" \
+            "$STAGING_IMAGE"
+
+  # The shared sequence. Everything above identifies which artifact to deploy
+  # and marks it for this tier; everything below is identical for both tiers and
+  # lives in one file so a staging run exercises production's code.
   deploy:
     needs: prepare
     # Named rather than left to the default success(): a job with no condition of
