@@ -182,12 +182,19 @@ jobs:
           set -uo pipefail
           published=""
           for repo in "$ECR_REPOSITORY" pandoc-lambda; do
-            digest="$(aws ecr describe-images --repository-name "$repo" \
-              --image-ids "imageTag=${SHA}" \
-              --query 'imageDetails[0].imageDigest' --output text 2>/dev/null)"
-            if [ -n "$digest" ] && [ "$digest" != "None" ]; then
-              echo "::error::${repo}:${SHA} already exists, at ${digest}."
+            # describe-images does not answer "no" -- it fails, with
+            # ImageNotFoundException, and that is the ordinary case here. So the
+            # exit status is the answer, and anything that is not a missing image
+            # is a question this cannot answer rather than a no.
+            if out="$(aws ecr describe-images --repository-name "$repo" \
+                       --image-ids "imageTag=${SHA}" \
+                       --query 'imageDetails[0].imageDigest' --output text 2>&1)"; then
+              echo "::error::${repo}:${SHA} already exists, at ${out}."
               published="yes"
+            elif ! grep -q 'ImageNotFoundException' <<< "$out"; then
+              echo "::error::Could not tell whether ${repo}:${SHA} is published."
+              echo "::error::${out}"
+              exit 1
             fi
           done
           if [ -n "$published" ]; then
