@@ -7,8 +7,9 @@ on:
     branches: [staging]
 
 permissions:
-    id-token: write   # assume the deploy role via OIDC
+    id-token: write     # assume the deploy role via OIDC
     contents: read
+    pull-requests: read # read deploy labels off the merged pull request
 
 jobs:
   # Only allow merges from main
@@ -34,6 +35,7 @@ jobs:
   prepare:
     name: Prepare the staging artifact
     runs-on: ubuntu-latest
+    environment: staging
     if: github.event_name == 'push'
     
     outputs:
@@ -41,7 +43,7 @@ jobs:
       source-sha: ${{ steps.resolve.outputs.source-sha }}
 
     env:
-      ECR_REPOSITORY: ${{ secrets.STAGING_ECR_REPOSITORY }}
+      ECR_REPOSITORY: ${{ vars.ECR_REPOSITORY }}
       IMAGE_TAG: latest
 
     steps:
@@ -54,8 +56,8 @@ jobs:
       - name: Configure AWS credentials
         uses: aws-actions/configure-aws-credentials@cbe3b392738ccf3f987d68400dafcf4b0624a56c # v6.2.4
         with:
-          role-to-assume: ${{ secrets.STAGING_AWS_ROLE_TO_ASSUME }}
-          aws-region: ${{ secrets.STAGING_AWS_REGION }}
+          role-to-assume: ${{ secrets.AWS_ROLE_TO_ASSUME }}
+          aws-region: ${{ vars.AWS_REGION }}
 
 
       - name: Login to AWS ECR
@@ -154,25 +156,10 @@ jobs:
     if: always() && needs.prepare.result == 'success'
     uses: ./.github/workflows/deploy_sequence.yml
     with:
+      environment: staging
       environment-label: Staging
-      site-url: https://staging.opencasebook.org
       image-digest: ${{ needs.prepare.outputs.image-digest }}
       source-sha: ${{ needs.prepare.outputs.source-sha }}
-      lambda-function-name: h2o-export-stage
-      maintenance-script: h2o-maintenance-staging
-      maintenance-hostnames: staging.opencasebook.org
-    secrets:
-      aws-role-arn: ${{ secrets.STAGING_AWS_ROLE_TO_ASSUME }}
-      ecr-repository: ${{ secrets.STAGING_ECR_REPOSITORY }}
-      aws-region: ${{ secrets.STAGING_AWS_REGION }}
-      ecs-cluster: ${{ secrets.STAGING_ECS_CLUSTER }}
-      ecs-service: ${{ secrets.STAGING_ECS_SERVICE }}
-      container-name: ${{ secrets.STAGING_CONTAINER_NAME }}
-      task-definition-family: ${{ secrets.STAGING_TASK_DEFINITION_FAMILY }}
-      event-rules: ${{ secrets.STAGING_EVENT_RULES }}
-      cloudflare-zone-id: ${{ secrets.CLOUDFLARE_ZONE_ID }}
-      cloudflare-api-token: ${{ secrets.CLOUDFLARE_API_TOKEN }}
-      slack-webhook-url: ${{ secrets.SLACK_WEBHOOK_URL }}
 
   # A job whose condition does not hold is skipped, and a skipped job leaves the
   # run green. This job is what makes a deploy that did not happen show up as a
