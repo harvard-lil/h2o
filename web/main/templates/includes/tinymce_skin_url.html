@@ -1,0 +1,12 @@
+{% load static %}
+{% comment %}
+The skin is a collected static directory, so its URL follows STATIC_URL, which
+points at the asset host rather than this one. A hardcoded /static/ path asks
+the application's own domain instead, where during a maintenance window the
+edge returns the maintenance page's HTML for every request -- which is how a
+stylesheet once got cached as HTML.
+
+Set beside every rich_text_editor bundle, because the admin form that loads it
+extends admin/change_form.html rather than base.html.
+{% endcomment %}
+<script>window.TINYMCE_SKIN_URL = "{% static 'tinymce_skin' %}";</script>
