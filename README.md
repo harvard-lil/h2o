@@ -84,6 +84,20 @@ installed packages -- `admin/`, `rest_framework/`, `django_extensions/`,
 `css/`. WhiteNoise serves that directory, so a running container can answer for
 every static URL the app renders.
 
+### Stored files
+
+Uploaded images, and the intermediate files exports pass through, go to the
+`s3` service. It keeps objects as plain files in the `s3_data` Docker volume:
+each bucket (`h2o.images`, `h2o.exports`, `h2o.pdf_exports`) is a directory
+under `/data`, and each object is a file at its key's path. To look at them:
+
+    $ docker compose exec s3 ls -R /data/h2o.images
+    $ docker compose cp s3:/data/h2o.images ./h2o-images-copy
+
+Read files this way, but add or change them through the app or an S3 client.
+The gateway keeps each object's ETag and content type in extended file
+attributes, which files written directly into the volume lack.
+
 ### Stop
 
 When you are finished, spin down Docker containers by running:

@@ -43,23 +43,26 @@ services:
     cap_add:
         - SYS_PTRACE
 
-  minio:
-    image: minio/minio:RELEASE.2021-02-19T04-38-02Z
+  # S3-compatible storage: Versity S3 Gateway with its posix backend. Each bucket
+  # is a top-level directory in the s3_data volume, and each object is a file at
+  # its key's path. The opencasebook.minio.test hostname predates the switch from
+  # MinIO and is kept so existing hosts-file entries still work.
+  s3:
+    image: versity/versitygw:v1.8.0@sha256:30292fc2eeacc67a36993b01f7a7a5e3361a19cced0e80c1d71cfa2a4b0a2499
     entrypoint:
       - "/entrypoint.sh"
-    command:
-      - "server"
-      - "/data"
     environment:
-      - MINIO_ACCESS_KEY=accesskey
-      - MINIO_SECRET_KEY=secretkey
-      - DATA_DIR=/data
+      - ROOT_ACCESS_KEY=accesskey
+      - ROOT_SECRET_KEY=secretkey
+      - VGW_PORT=:9000
+      - VGW_BACKEND=posix
+      - VGW_BACKEND_ARG=/data
       - BUCKET=h2o.images
       - EXPORT_BUCKET=h2o.exports
       - PDF_EXPORT_BUCKET=h2o.pdf_exports
     volumes:
-      - ./docker/minio/entrypoint.sh:/entrypoint.sh
-      - minio_data:/data:delegated
+      - ./docker/s3/entrypoint.sh:/entrypoint.sh
+      - s3_data:/data
     ports:
       - "127.0.0.1:9000:9000"
     extra_hosts:
@@ -78,7 +81,7 @@ services:
       - USE_S3_CREDENTIALS=True
       - AWS_ACCESS_KEY_ID=accesskey
       - AWS_SECRET_ACCESS_KEY=secretkey
-      - S3_ENDPOINT_URL=http://minio:9000
+      - S3_ENDPOINT_URL=http://s3:9000
       - EXPORT_BUCKET=h2o.exports
     # volumes: is set for local dev in docker-compose.override.yml
     # Uncomment to disable entrypoint if changes to requirements mean container can't start:
@@ -86,7 +89,7 @@ services:
 
 volumes:
   db_data_16:
-  minio_data:
+  s3_data:
 
 networks:
   default:
