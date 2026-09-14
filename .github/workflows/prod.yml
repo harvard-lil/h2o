@@ -75,7 +75,7 @@ jobs:
       # definition IS the record of what was validated.
       - name: Resolve the image staging validated
         id: resolve
-        uses: harvard-lil/lil-actions/ecs-resolve-service-image@b15acc75b4fbc449b30e00e1567936880502cf23
+        uses: harvard-lil/lil-actions/ecs-resolve-service-image@main
         with:
           cluster: ${{ vars.SOURCE_ECS_CLUSTER }}
           service: ${{ vars.SOURCE_ECS_SERVICE }}
@@ -98,7 +98,7 @@ jobs:
       # candidates that churn by every merge to main; the production task
       # definition is pinned to it, so it has to outlive them.
       - name: Mark the promoted web image as deployed
-        uses: harvard-lil/lil-actions/ecr-tag-image@b15acc75b4fbc449b30e00e1567936880502cf23
+        uses: harvard-lil/lil-actions/ecr-tag-image@main
         with:
           repository: ${{ env.ECR_REPOSITORY }}
           source: ${{ steps.resolve.outputs.image-digest }}

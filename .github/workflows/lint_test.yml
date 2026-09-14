@@ -88,7 +88,7 @@ jobs:
       - name: Inspect the web image publication
         id: web-publication
         if: github.event_name == 'push' && github.ref == 'refs/heads/main'
-        uses: harvard-lil/lil-actions/ecr-publication-state@b15acc75b4fbc449b30e00e1567936880502cf23
+        uses: harvard-lil/lil-actions/ecr-publication-state@main
         with:
           repository: ${{ env.ECR_REPOSITORY }}
           tag: ${{ github.sha }}
@@ -100,7 +100,7 @@ jobs:
       - name: Inspect the pandoc Lambda publication
         id: lambda-publication
         if: github.event_name == 'push' && github.ref == 'refs/heads/main'
-        uses: harvard-lil/lil-actions/ecr-publication-state@b15acc75b4fbc449b30e00e1567936880502cf23
+        uses: harvard-lil/lil-actions/ecr-publication-state@main
         with:
           repository: pandoc-lambda
           tag: ${{ github.sha }}
@@ -228,14 +228,14 @@ jobs:
       - name: Publish the prod image to ECR
         id: publish-web
         if: steps.web-publication.outputs.state == 'absent'
-        uses: harvard-lil/lil-actions/ecr-publish-image@b15acc75b4fbc449b30e00e1567936880502cf23
+        uses: harvard-lil/lil-actions/ecr-publish-image@main
         with:
           repository: ${{ env.ECR_REPOSITORY }}
           registry: ${{ steps.publish-ecr-login.outputs.registry }}
           local-image: h2o-prod:${{ github.sha }}
           tag: ${{ github.sha }}
 
-      # The ORAS project's own action, pinned to a commit like every other action
+      # The ORAS project's own action, pinned to a commit like other third-party actions
       # here, so a compromised tag cannot arrive silently in the job that has
       # just authenticated to ECR and can push to it. It verifies the checksum
       # of the binary it downloads against its own table.
@@ -295,7 +295,7 @@ jobs:
       - name: Verify the completed web publication
         id: verify-web-publication
         if: steps.web-publication.outputs.state == 'absent'
-        uses: harvard-lil/lil-actions/ecr-publication-state@b15acc75b4fbc449b30e00e1567936880502cf23
+        uses: harvard-lil/lil-actions/ecr-publication-state@main
         with:
           repository: ${{ env.ECR_REPOSITORY }}
           tag: ${{ github.sha }}
@@ -338,7 +338,7 @@ jobs:
 
       - name: Publish the pandoc-lambda image
         if: steps.lambda-publication.outputs.state == 'absent'
-        uses: harvard-lil/lil-actions/ecr-publish-image@b15acc75b4fbc449b30e00e1567936880502cf23
+        uses: harvard-lil/lil-actions/ecr-publish-image@main
         with:
           repository: pandoc-lambda
           registry: ${{ steps.publish-ecr-login.outputs.registry }}

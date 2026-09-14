@@ -74,7 +74,7 @@ jobs:
       # same bytes. Fails loudly rather than quietly building something new.
       - name: Resolve the tested image
         id: resolve
-        uses: harvard-lil/lil-actions/ecr-resolve-git-image@b15acc75b4fbc449b30e00e1567936880502cf23
+        uses: harvard-lil/lil-actions/ecr-resolve-git-image@main
         with:
           repository: ${{ env.ECR_REPOSITORY }}
 
@@ -88,7 +88,7 @@ jobs:
       # `prod-deployed-` a count each, and an image production has promoted
       # carries both tags and is kept on production's longer count.
       - name: Mark the promoted web image as deployed
-        uses: harvard-lil/lil-actions/ecr-tag-image@b15acc75b4fbc449b30e00e1567936880502cf23
+        uses: harvard-lil/lil-actions/ecr-tag-image@main
         with:
           repository: ${{ env.ECR_REPOSITORY }}
           source: ${{ steps.resolve.outputs.image-digest }}
@@ -99,7 +99,7 @@ jobs:
       # tier in it. The tag stays that shape until that policy says otherwise;
       # a tier-prefixed tag here would match nothing the rule keeps.
       - name: Mark the promoted pandoc-lambda image as deployed
-        uses: harvard-lil/lil-actions/ecr-tag-image@b15acc75b4fbc449b30e00e1567936880502cf23
+        uses: harvard-lil/lil-actions/ecr-tag-image@main
         with:
           repository: pandoc-lambda
           source: ${{ steps.resolve.outputs.source-sha }}

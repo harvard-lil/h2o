@@ -179,8 +179,8 @@ into `prod` deploys the image staging is running. Nothing after the build on
 `main` builds anything, so the bytes production serves are the bytes the suite
 ran against.
 
-Publication and promotion use the shared `lil-actions` helpers, pinned to a
-reviewed commit. A retry reuses a complete web publication, including its static
+Publication and promotion use the shared `lil-actions` helpers at `@main`,
+following the policy for LIL-owned actions. A retry reuses a complete web publication, including its static
 and migration referrers. An absent image is built and tested before publication;
 a partially published web image stops the run rather than overwriting its SHA
 tag. Repair missing referrers from the existing image digest before retrying.
