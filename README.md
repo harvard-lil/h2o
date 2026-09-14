@@ -179,6 +179,20 @@ into `prod` deploys the image staging is running. Nothing after the build on
 `main` builds anything, so the bytes production serves are the bytes the suite
 ran against.
 
+Publication and promotion use the shared `lil-actions` helpers at `@main`,
+following the policy for LIL-owned actions. A retry reuses a complete web publication, including its static
+and migration referrers. An absent image is built and tested before publication;
+a partially published web image stops the run rather than overwriting its SHA
+tag. Repair missing referrers from the existing image digest before retrying.
+The Lambda image is inspected independently so a retry can finish its publication.
+
+Staging requires the selected image's source tree to match the promotion commit.
+Production requires a stable staging service, an image in the expected registry,
+one unambiguous source commit tag, and a matching production source tree.
+Deployments are serialized per tier. Completion requires the requested task
+revision, so a rollback cannot silently count as success. Scheduled target updates
+preserve existing settings and check both the API result and the stored revision.
+
 ### The maintenance window
 
 A deploy puts the site into maintenance only when the schema the running tasks
@@ -217,11 +231,11 @@ Four kinds of tag appear in `h2o`:
 | `<commit sha>` | the build on `main` | a candidate the suite passed; immutable, and what a staging deploy resolves to a digest |
 | `staging-deployed-<sha>` | the staging deploy | staging promoted this image |
 | `prod-deployed-<sha>` | the production deploy | production promoted this image |
-| `latest` | either deploy | a moving pointer at whichever tier deployed most recently |
+| `staging-latest` / `prod-latest` | the corresponding tier deploy | Terraform placeholder, advanced after rollout and migrations succeed |
 
-`latest` is a placeholder. The Terraform task definitions name it so they have
-some image to reference, and every deploy replaces it with a digest before the
-service runs that revision; nothing reads it to decide what to ship.
+The tier tags are placeholders. Terraform task definitions name them so they
+have an image to reference; deployment registers a digest-pinned revision. The
+placeholders are not inputs to artifact selection.
 
 The repository's lifecycle policy gives each population its own count:
 `prod-deployed-` first, then `staging-deployed-`, then a catch-all for build

@@ -436,9 +436,10 @@ jobs:
           hostnames: ${{ vars.MAINTENANCE_HOSTNAMES }}
           token: ${{ secrets.cloudflare-api-token }}
 
-      - name: Wait for the new deployment to become stable
+      - name: Wait for the requested revision to become stable
         uses: harvard-lil/lil-actions/ecs-wait-for-deployment@main
         with:
+          task-definition: ${{ steps.task-def.outputs.task-definition-arn }}
           cluster: ${{ env.ECS_CLUSTER }}
           service: ${{ env.ECS_SERVICE }}
 
@@ -450,6 +451,14 @@ jobs:
           service: ${{ env.ECS_SERVICE }}
           container: ${{ env.CONTAINER_NAME }}
           migrate-command: 'python manage.py migrate'
+
+      - name: Align Terraform's placeholder with the verified image
+        uses: harvard-lil/lil-actions/ecr-tag-image@main
+        with:
+          repository: ${{ env.ECR_REPOSITORY }}
+          source: ${{ inputs.image-digest }}
+          tag: ${{ inputs.environment }}-latest
+          replace-existing: 'true'
 
       # Lifted whenever migrations either succeeded or never ran, which covers
       # every failure above this point. Those all leave a working site
