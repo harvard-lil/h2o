@@ -91,7 +91,7 @@ jobs:
 
       - name: Pin the web container to the promoted digest
         id: task-def
-        uses: harvard-lil/lil-actions/ecs-register-task-def@main
+        uses: harvard-lil/lil-actions/ecs-register-task-def@b15acc75b4fbc449b30e00e1567936880502cf23
         with:
           task-definition-family: ${{ env.TASK_DEFINITION_FAMILY }}
           container-name: ${{ env.CONTAINER_NAME }}
@@ -416,7 +416,7 @@ jobs:
           fi
 
       - name: Deploy the digest-pinned task definition
-        uses: harvard-lil/lil-actions/ecs-deploy@main
+        uses: harvard-lil/lil-actions/ecs-deploy@b15acc75b4fbc449b30e00e1567936880502cf23
         with:
           cluster: ${{ env.ECS_CLUSTER }}
           service: ${{ env.ECS_SERVICE }}
@@ -428,7 +428,7 @@ jobs:
       # traffic that is still flowing.
       - name: Hold traffic at the edge
         if: steps.window.outputs.needed == 'true'
-        uses: harvard-lil/lil-actions/cloudflare-maintenance@main
+        uses: harvard-lil/lil-actions/cloudflare-maintenance@b15acc75b4fbc449b30e00e1567936880502cf23
         with:
           mode: 'on'
           zone-id: ${{ vars.CLOUDFLARE_ZONE_ID }}
@@ -436,20 +436,29 @@ jobs:
           hostnames: ${{ vars.MAINTENANCE_HOSTNAMES }}
           token: ${{ secrets.cloudflare-api-token }}
 
-      - name: Wait for the new deployment to become stable
-        uses: harvard-lil/lil-actions/ecs-wait-for-deployment@main
+      - name: Wait for the requested revision to become stable
+        uses: harvard-lil/lil-actions/ecs-wait-for-deployment@b15acc75b4fbc449b30e00e1567936880502cf23
         with:
+          task-definition: ${{ steps.task-def.outputs.task-definition-arn }}
           cluster: ${{ env.ECS_CLUSTER }}
           service: ${{ env.ECS_SERVICE }}
 
       - name: Run Django migrations
         id: migrate
-        uses: harvard-lil/lil-actions/ecs-django-migrations@main
+        uses: harvard-lil/lil-actions/ecs-django-migrations@b15acc75b4fbc449b30e00e1567936880502cf23
         with:
           cluster: ${{ env.ECS_CLUSTER }}
           service: ${{ env.ECS_SERVICE }}
           container: ${{ env.CONTAINER_NAME }}
           migrate-command: 'python manage.py migrate'
+
+      - name: Align Terraform's placeholder with the verified image
+        uses: harvard-lil/lil-actions/ecr-tag-image@b15acc75b4fbc449b30e00e1567936880502cf23
+        with:
+          repository: ${{ env.ECR_REPOSITORY }}
+          source: ${{ inputs.image-digest }}
+          tag: ${{ inputs.environment }}-latest
+          replace-existing: 'true'
 
       # Lifted whenever migrations either succeeded or never ran, which covers
       # every failure above this point. Those all leave a working site
@@ -463,7 +472,7 @@ jobs:
       # the same: interrupting a migration is no safer than one failing.
       - name: Release traffic at the edge
         if: always() && steps.window.outputs.needed == 'true' && (steps.migrate.outcome == 'success' || steps.migrate.outcome == 'skipped')
-        uses: harvard-lil/lil-actions/cloudflare-maintenance@main
+        uses: harvard-lil/lil-actions/cloudflare-maintenance@b15acc75b4fbc449b30e00e1567936880502cf23
         with:
           mode: 'off'
           zone-id: ${{ vars.CLOUDFLARE_ZONE_ID }}
@@ -484,7 +493,7 @@ jobs:
           exit 1
 
       - name: Purge Cloudflare cache
-        uses: harvard-lil/lil-actions/cloudflare-purge@main
+        uses: harvard-lil/lil-actions/cloudflare-purge@b15acc75b4fbc449b30e00e1567936880502cf23
         with:
           zone: ${{ vars.CLOUDFLARE_ZONE_ID }}
           token: ${{ secrets.cloudflare-api-token }}
@@ -495,7 +504,7 @@ jobs:
       # commands run against live traffic anyway. Keeping them above the release
       # would spend their runtime as downtime.
       - name: Create search index
-        uses: harvard-lil/lil-actions/ecs-exec-command@main
+        uses: harvard-lil/lil-actions/ecs-exec-command@b15acc75b4fbc449b30e00e1567936880502cf23
         with:
           cluster: ${{ env.ECS_CLUSTER }}
           service: ${{ env.ECS_SERVICE }}
@@ -503,7 +512,7 @@ jobs:
           command: 'invoke create-search-index'
 
       - name: Create reporting views
-        uses: harvard-lil/lil-actions/ecs-exec-command@main
+        uses: harvard-lil/lil-actions/ecs-exec-command@b15acc75b4fbc449b30e00e1567936880502cf23
         with:
           cluster: ${{ env.ECS_CLUSTER }}
           service: ${{ env.ECS_SERVICE }}
@@ -511,7 +520,7 @@ jobs:
           command: 'invoke create-reporting-views'
 
       - name: Update scheduled tasks with new task definition
-        uses: harvard-lil/lil-actions/ecs-update-eventbridge@main
+        uses: harvard-lil/lil-actions/ecs-update-eventbridge@b15acc75b4fbc449b30e00e1567936880502cf23
         with:
           event-rules: ${{ env.EVENT_RULES }}
           task-definition-arn: ${{ steps.task-def.outputs.task-definition-arn }}

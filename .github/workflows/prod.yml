@@ -11,6 +11,10 @@ permissions:
     contents: read
     pull-requests: read # read deploy labels off the merged pull request
 
+concurrency:
+  group: h2o-prod-${{ github.event_name == 'pull_request' && github.event.pull_request.number || 'deploy' }}
+  cancel-in-progress: false
+
 jobs:
   # Only allow merges from staging
   check-source-branch:
@@ -21,8 +25,10 @@ jobs:
       - name: Verify source branch is staging
         env:
           HEAD_REF: ${{ github.head_ref }}
+          HEAD_REPOSITORY: ${{ github.event.pull_request.head.repo.full_name }}
+          REPOSITORY: ${{ github.repository }}
         run: |
-          if [ "$HEAD_REF" != "staging" ]; then
+          if [ "$HEAD_REF" != "staging" ] || [ "$HEAD_REPOSITORY" != "$REPOSITORY" ]; then
             echo "❌ Error: Pull requests to prod must come from staging branch"
             exit 1
           fi
@@ -35,10 +41,10 @@ jobs:
     name: Prepare the production artifact
     runs-on: ubuntu-latest
     environment: prod
-    if: github.event_name == 'push'
+    if: github.event_name == 'push' && github.repository == 'harvard-lil/h2o'
     
     outputs:
-      image-digest: ${{ steps.resolve.outputs.staging-digest }}
+      image-digest: ${{ steps.resolve.outputs.image-digest }}
       source-sha: ${{ steps.resolve.outputs.source-sha }}
 
     env:
@@ -46,23 +52,17 @@ jobs:
       # than read from the environment because it is the same name in every
       # tier, the way `pandoc-lambda` in the other workflows already is.
       ECR_REPOSITORY: h2o
-      IMAGE_TAG: prod-latest
 
     steps:
-      - name: Checkout code
-        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
-
-
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          fetch-depth: 0
       - name: Configure AWS credentials
         uses: aws-actions/configure-aws-credentials@cbe3b392738ccf3f987d68400dafcf4b0624a56c # v6.2.4
         with:
           role-to-assume: ${{ vars.AWS_ROLE_TO_ASSUME }}
           aws-region: ${{ vars.AWS_REGION }}
 
-
-      - name: Login to AWS ECR
-        id: login-ecr
-        uses: aws-actions/amazon-ecr-login@03f1aad4c6c7ffd436567f42f9384779290529bd # v2.1.7
 
       # Production never builds. It ships the exact image staging is running.
       #
@@ -75,93 +75,17 @@ jobs:
       # definition IS the record of what was validated.
       - name: Resolve the image staging validated
         id: resolve
+        uses: harvard-lil/lil-actions/ecs-resolve-service-image@b15acc75b4fbc449b30e00e1567936880502cf23
+        with:
+          cluster: ${{ vars.SOURCE_ECS_CLUSTER }}
+          service: ${{ vars.SOURCE_ECS_SERVICE }}
+          container-name: ${{ vars.SOURCE_CONTAINER_NAME }}
+          ecr-repository: ${{ env.ECR_REPOSITORY }}
+
+      - name: Match the production branch to the staged source
         env:
-          REGISTRY: ${{ steps.login-ecr.outputs.registry }}
-          STAGING_ECS_CLUSTER: ${{ vars.SOURCE_ECS_CLUSTER }}
-          STAGING_ECS_SERVICE: ${{ vars.SOURCE_ECS_SERVICE }}
-          STAGING_CONTAINER_NAME: ${{ vars.SOURCE_CONTAINER_NAME }}
-        run: |
-          set -euo pipefail
-
-          # Ask the staging SERVICE which revision it is running, then read that
-          # exact revision. Querying the family instead returns its latest ACTIVE
-          # revision, which is not necessarily the deployed one -- a failed
-          # deploy, a Terraform apply, or a half-finished rollout all register
-          # revisions the service never adopted.
-          STAGING_TASK_DEF=$(aws ecs describe-services \
-            --cluster "$STAGING_ECS_CLUSTER" \
-            --services "$STAGING_ECS_SERVICE" \
-            --query "services[0].taskDefinition" \
-            --output text)
-
-          if [ -z "$STAGING_TASK_DEF" ] || [ "$STAGING_TASK_DEF" = "None" ]; then
-            echo "::error::Could not read the running task definition for service"
-            echo "::error::'$STAGING_ECS_SERVICE' in cluster '$STAGING_ECS_CLUSTER'."
-            exit 1
-          fi
-          echo "Staging is running $STAGING_TASK_DEF"
-
-          STAGING_IMAGE=$(aws ecs describe-task-definition \
-            --task-definition "$STAGING_TASK_DEF" \
-            --query "taskDefinition.containerDefinitions[?name=='${STAGING_CONTAINER_NAME}'].image | [0]" \
-            --output text)
-
-          if [ -z "$STAGING_IMAGE" ] || [ "$STAGING_IMAGE" = "None" ]; then
-            echo "::error::Could not read an image for container '$STAGING_CONTAINER_NAME'"
-            echo "::error::from task definition '$STAGING_TASK_DEF'."
-            exit 1
-          fi
-
-          # Require a digest. Staging pins one; a floating tag here means staging
-          # was deployed by something older and we cannot prove what it is running.
-          case "$STAGING_IMAGE" in
-            *@sha256:*) ;;
-            *)
-              echo "::error::Staging is running '$STAGING_IMAGE', which is not digest-pinned."
-              echo "::error::Refusing to promote an artifact we cannot identify."
-              echo "::error::Re-run the staging deploy first."
-              exit 1
-              ;;
-          esac
-
-          DIGEST="${STAGING_IMAGE#*@}"
-
-          # Both tiers run out of one repository, and promotion is a tag added
-          # to the image already in it, so staging has to be running an image
-          # from that repository for there to be anything to tag. Staging
-          # deployed before the two repositories were consolidated is running
-          # an image from the archive, which this cannot promote.
-          case "$STAGING_IMAGE" in
-            */"${ECR_REPOSITORY}"@*) ;;
-            *)
-              echo "::error::Staging is running '$STAGING_IMAGE', which is not"
-              echo "::error::in the ${ECR_REPOSITORY} repository. Re-run the staging deploy,"
-              echo "::error::so that it promotes an image production can tag."
-              exit 1
-              ;;
-          esac
-
-          # Recover which commit built this artifact, by reading the other tags
-          # on the same digest. The web image and its matching pandoc-lambda
-          # image are both tagged with the commit SHA, so this is what lets the
-          # export Lambda be promoted from the same commit as the web service
-          # rather than from whatever main happens to point at now.
-          SOURCE_SHA=$(aws ecr describe-images \
-            --repository-name "$ECR_REPOSITORY" \
-            --image-ids "imageDigest=$DIGEST" \
-            --query 'imageDetails[0].imageTags' --output text \
-            | tr '\t' '\n' | { grep -E '^[0-9a-f]{40}$' || true; } | head -n1)
-
-          if [ -z "$SOURCE_SHA" ]; then
-            echo "::error::No commit-SHA tag on $DIGEST in $ECR_REPOSITORY,"
-            echo "::error::so the matching pandoc-lambda image cannot be identified."
-            exit 1
-          fi
-
-          echo "Promoting $STAGING_IMAGE, built from $SOURCE_SHA"
-          echo "staging-image=$STAGING_IMAGE" >> "$GITHUB_OUTPUT"
-          echo "source-sha=$SOURCE_SHA" >> "$GITHUB_OUTPUT"
-          echo "staging-digest=$DIGEST" >> "$GITHUB_OUTPUT"
+          SOURCE_SHA: ${{ steps.resolve.outputs.source-sha }}
+        run: test "$(git rev-parse 'HEAD^{tree}')" = "$(git rev-parse "${SOURCE_SHA}^{tree}")"
 
       # Promotion is a tag, not a copy. The image staging tested is already in
       # this repository, so production adds `prod-deployed-<sha>` to that exact
@@ -174,28 +98,11 @@ jobs:
       # candidates that churn by every merge to main; the production task
       # definition is pinned to it, so it has to outlive them.
       - name: Mark the promoted web image as deployed
-        uses: harvard-lil/lil-actions/ecr-tag-image@main
+        uses: harvard-lil/lil-actions/ecr-tag-image@b15acc75b4fbc449b30e00e1567936880502cf23
         with:
           repository: ${{ env.ECR_REPOSITORY }}
-          source: ${{ steps.resolve.outputs.staging-digest }}
+          source: ${{ steps.resolve.outputs.image-digest }}
           tag: prod-deployed-${{ steps.resolve.outputs.source-sha }}
-
-      # Keep the moving :prod-latest tag pointing at what we deploy, so a Terraform
-      # apply (whose task definition references it) cannot quietly revert the
-      # service to an older image. The two tiers share a repository but not
-      # this tag: one tag written by both would point at whichever tier
-      # deployed last, which would let production fall back to an image it never
-      # promoted. Every deploy replaces it with a digest, and nothing reads it
-      # to decide what to ship.
-      - name: Point :prod-latest at the promoted image
-        env:
-          REGISTRY: ${{ steps.login-ecr.outputs.registry }}
-          STAGING_IMAGE: ${{ steps.resolve.outputs.staging-image }}
-        run: |
-          set -euxo pipefail
-          docker buildx imagetools create \
-            --tag "${REGISTRY}/${ECR_REPOSITORY}:${IMAGE_TAG}" \
-            "$STAGING_IMAGE"
 
   # The shared sequence. Everything above identifies which artifact to deploy
   # and marks it for this tier; everything below is identical for both tiers and

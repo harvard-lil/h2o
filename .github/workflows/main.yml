@@ -6,6 +6,10 @@ on:
   pull_request:
     branches: [main]
 
+concurrency:
+  group: h2o-build-${{ github.event_name }}-${{ github.sha }}
+  cancel-in-progress: false
+
 jobs:
   # Pull requests only ever test. No publishing, so no publishing credentials:
   # a read-only token and one named secret, rather than `secrets: inherit`
@@ -18,8 +22,9 @@ jobs:
     secrets:
       CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
 
-  # Pushes to main run the same suite and then publish, so they need write
-  # scopes and the AWS/registry secrets.
+  # A new commit on main runs the same suite and then publishes. A retry first
+  # verifies the immutable image and its required referrers; a complete
+  # publication is reused without rebuilding or retesting it.
   test-and-publish:
     if: github.event_name == 'push'
     permissions:

@@ -11,6 +11,10 @@ permissions:
     contents: read
     pull-requests: read # read deploy labels off the merged pull request
 
+concurrency:
+  group: h2o-staging-${{ github.event_name == 'pull_request' && github.event.pull_request.number || 'deploy' }}
+  cancel-in-progress: false
+
 jobs:
   # Only allow merges from main
   check-source-branch:
@@ -21,8 +25,10 @@ jobs:
       - name: Verify source branch is main
         env:
           HEAD_REF: ${{ github.head_ref }}
+          HEAD_REPOSITORY: ${{ github.event.pull_request.head.repo.full_name }}
+          REPOSITORY: ${{ github.repository }}
         run: |
-          if [ "$HEAD_REF" != "main" ]; then
+          if [ "$HEAD_REF" != "main" ] || [ "$HEAD_REPOSITORY" != "$REPOSITORY" ]; then
             echo "❌ Error: Pull requests to staging must come from main branch"
             exit 1
           fi
@@ -36,7 +42,7 @@ jobs:
     name: Prepare the staging artifact
     runs-on: ubuntu-latest
     environment: staging
-    if: github.event_name == 'push'
+    if: github.event_name == 'push' && github.repository == 'harvard-lil/h2o'
     
     outputs:
       image-digest: ${{ steps.resolve.outputs.image-digest }}
@@ -47,7 +53,6 @@ jobs:
       # than read from the environment because it is the same name in every
       # tier, the way `pandoc-lambda` below already is.
       ECR_REPOSITORY: h2o
-      IMAGE_TAG: staging-latest
 
     steps:
       - name: Checkout code
@@ -63,59 +68,15 @@ jobs:
           aws-region: ${{ vars.AWS_REGION }}
 
 
-      - name: Login to AWS ECR
-        id: login-ecr
-        uses: aws-actions/amazon-ecr-login@03f1aad4c6c7ffd436567f42f9384779290529bd # v2.1.7
-
       # Promote, do not rebuild. lint_test.yml built this image on main, ran the
       # suite against it, and pushed it tagged with the main commit SHA.
       # Deploying that exact artifact is what makes "tested" and "shipped" the
       # same bytes. Fails loudly rather than quietly building something new.
       - name: Resolve the tested image
         id: resolve
-        env:
-          REGISTRY: ${{ steps.login-ecr.outputs.registry }}
-        run: |
-          set -euo pipefail
-          # Which commit on main produced the image we should deploy? That
-          # depends on how the merge was made, and the repo permits all three
-          # methods, so try the candidates rather than assuming one:
-          #   HEAD^2  -- merge commit; the main tip that was merged in
-          #   HEAD    -- fast-forward, squash, or direct push
-          # Publishing tags the image with main's tip *after* its own
-          # version-bump commit, so one of these matches whatever main pointed
-          # at when the image was built.
-          digest=""
-          SOURCE_SHA=""
-          for candidate in $(git rev-parse HEAD^2 2>/dev/null) $(git rev-parse HEAD); do
-            echo "Looking for an image built from $candidate"
-            # Resolve to a digest, not a tag: tags can be moved, digests cannot.
-            found="$(aws ecr describe-images \
-              --repository-name "$ECR_REPOSITORY" \
-              --image-ids "imageTag=$candidate" \
-              --query 'imageDetails[0].imageDigest' \
-              --output text 2>/dev/null || true)"
-            if [ -n "$found" ] && [ "$found" != "None" ]; then
-              digest="$found"
-              SOURCE_SHA="$candidate"
-              break
-            fi
-          done
-
-          if [ -z "$digest" ]; then
-            echo "::error::No image found for any candidate commit in $ECR_REPOSITORY."
-            echo "::error::That means this commit was never built and tested on main."
-            echo "Recent tags in $ECR_REPOSITORY:"
-            aws ecr describe-images --repository-name "$ECR_REPOSITORY" \
-              --query 'reverse(sort_by(imageDetails,&imagePushedAt))[:10].imageTags' \
-              --output text || true
-            exit 1
-          fi
-
-          echo "source-sha=$SOURCE_SHA" >> "$GITHUB_OUTPUT"
-          echo "image-digest=$digest" >> "$GITHUB_OUTPUT"
-          echo "image-uri=${REGISTRY}/${ECR_REPOSITORY}@${digest}" >> "$GITHUB_OUTPUT"
-          echo "lambda-image-uri=${REGISTRY}/pandoc-lambda:${SOURCE_SHA}" >> "$GITHUB_OUTPUT"
+        uses: harvard-lil/lil-actions/ecr-resolve-git-image@b15acc75b4fbc449b30e00e1567936880502cf23
+        with:
+          repository: ${{ env.ECR_REPOSITORY }}
 
       # Mark both promoted artifacts before deploying them. ECR retention keeps
       # deployed images far longer than the build candidates that churn past
@@ -127,7 +88,7 @@ jobs:
       # `prod-deployed-` a count each, and an image production has promoted
       # carries both tags and is kept on production's longer count.
       - name: Mark the promoted web image as deployed
-        uses: harvard-lil/lil-actions/ecr-tag-image@main
+        uses: harvard-lil/lil-actions/ecr-tag-image@b15acc75b4fbc449b30e00e1567936880502cf23
         with:
           repository: ${{ env.ECR_REPOSITORY }}
           source: ${{ steps.resolve.outputs.image-digest }}
@@ -138,28 +99,11 @@ jobs:
       # tier in it. The tag stays that shape until that policy says otherwise;
       # a tier-prefixed tag here would match nothing the rule keeps.
       - name: Mark the promoted pandoc-lambda image as deployed
-        uses: harvard-lil/lil-actions/ecr-tag-image@main
+        uses: harvard-lil/lil-actions/ecr-tag-image@b15acc75b4fbc449b30e00e1567936880502cf23
         with:
           repository: pandoc-lambda
           source: ${{ steps.resolve.outputs.source-sha }}
           tag: deployed-${{ steps.resolve.outputs.source-sha }}
-
-      # Keep the moving :staging-latest tag pointing at what we deploy, so a Terraform
-      # apply (whose task definition references it) cannot quietly revert the
-      # service to an older image. The two tiers share a repository but not
-      # this tag: one tag written by both would point at whichever tier
-      # deployed last, which would let staging fall back to an image it never
-      # promoted. Every deploy replaces it with a digest, and nothing reads it
-      # to decide what to ship.
-      - name: Point :staging-latest at the promoted image
-        env:
-          REGISTRY: ${{ steps.login-ecr.outputs.registry }}
-          IMAGE_URI: ${{ steps.resolve.outputs.image-uri }}
-        run: |
-          set -euxo pipefail
-          docker buildx imagetools create \
-            --tag "${REGISTRY}/${ECR_REPOSITORY}:${IMAGE_TAG}" \
-            "$IMAGE_URI"
 
   # The shared sequence. Everything above identifies which artifact to deploy
   # and marks it for this tier; everything below is identical for both tiers and
