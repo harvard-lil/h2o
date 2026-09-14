@@ -69,9 +69,9 @@ SENTRY_ENVIRONMENT = config["TIER"]
 SENTRY_TRACES_SAMPLE_RATE = 0.001
 
 # Compiled assets are served from S3 through Cloudflare rather than from this
-# container. Without that, a rolling deploy briefly has old and new tasks behind
-# the same load balancer, and a page rendered by one can request a
-# content-hashed bundle that only exists in the other.
+# container. Without that, a rolling deploy briefly has old and new tasks serving
+# the same hostname, and a page rendered by one can request a content-hashed
+# bundle that only exists in the other.
 #
 # The /static/ path carries weight beyond tidiness. WhiteNoise takes its URL
 # prefix from urlparse(STATIC_URL).path, so pointing this at the bucket root

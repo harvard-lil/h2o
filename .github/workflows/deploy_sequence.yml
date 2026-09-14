@@ -422,11 +422,10 @@ jobs:
           service: ${{ env.ECS_SERVICE }}
           task-definition: ${{ steps.task-def.outputs.task-definition-arn }}
 
-      # Held at Cloudflare rather than by shifting load-balancer weight, so the
-      # page still answers if the origin is unreachable, and the load balancer
-      # is left out of it entirely. The action confirms the change by requesting
-      # the site and fails if it never sees it, so the migration below does not
-      # start against traffic that is still flowing.
+      # Held at Cloudflare's edge, so the page still answers if the origin is
+      # unreachable. The action confirms the change by requesting the site and
+      # fails if it never sees it, so the migration below does not start against
+      # traffic that is still flowing.
       - name: Hold traffic at the edge
         if: steps.window.outputs.needed == 'true'
         uses: harvard-lil/lil-actions/cloudflare-maintenance@main
