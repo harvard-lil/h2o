@@ -1,10 +1,8 @@
-import { mount, createLocalVue } from "@vue/test-utils";
+import { mount } from "@vue/test-utils";
 import SearchForm from "@/components/LegalDocumentSearch/SearchForm";
 import Vuex from "vuex";
 import sinon from "sinon";
 
-const localVue = createLocalVue();
-localVue.use(Vuex);
 
 describe("SearchForm", () => {
   let store;
@@ -37,7 +35,7 @@ describe("SearchForm", () => {
   });
 
   it("allows toggling the advanced search fields", async () => {
-    const wrapper = mount(SearchForm, { store, localVue });
+    const wrapper = mount(SearchForm, { global: { plugins: [store] } });
 
     const button = wrapper.find("button.advanced-search-toggle");
     expect(button.text()).toContain("Advanced search");
@@ -48,7 +46,7 @@ describe("SearchForm", () => {
   });
 
   it("triggers the results event when submitted", async () => {
-    const wrapper = mount(SearchForm, { store, localVue });
+    const wrapper = mount(SearchForm, { global: { plugins: [store] } });
     wrapper.find('input[type="text"]').setValue("test");
     wrapper.find("form").trigger("submit");
     await new Promise((resolve) => setTimeout(resolve));

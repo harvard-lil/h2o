@@ -2,14 +2,14 @@
 {% load humanize_minutes %}
 
 {% if edit_mode or clone_section_targets %}
-{% load render_bundle from webpack_loader %}
+{% load django_vite %}
 {% load crispy_forms_tags %}
 {% endif %}
 
 {% block page_title %} {% if mode %}{{mode}} | {% endif %} {{casebook.title}} {% if section %}: {{ section.title }} {% endif %} {% endblock %}
 
 {% if editing %}
-{% block extra_foot %}{% include 'includes/tinymce_skin_url.html' %}{% render_bundle 'rich_text_editor' %}{% endblock %}
+{% block extra_foot %}{% include 'includes/tinymce_skin_url.html' %}{% vite_asset 'frontend/pages/rich_text_editor.js' %}{% endblock %}
 {% endif %}
 
 {% block banner %}

@@ -1,6 +1,6 @@
 """Keep the compiled frontend bundles in step with their sources.
 
-`web/static/dist/` and `web/webpack-stats.json` are build output. They are not
+`web/static/dist/` and `web/static/dist/manifest.json` are build output. They are not
 committed, so they have to be produced locally -- and, more importantly, they
 have to be *rebuilt* when the sources move. A stale bundle is worse than a
 missing one: the app and the test suite both run happily against it and quietly
@@ -28,12 +28,11 @@ INPUT_PATHS = [
     "static/images",
     "package.json",
     "package-lock.json",
-    "vue.config.js",
-    "babel.config.js",
+    "vite.config.mjs",
 ]
 
-# Written by npm run build, via vue.config.js.
-STATS_FILE = WEB_DIR / "webpack-stats.json"
+# Written by npm run build, via vite.config.mjs.
+STATS_FILE = WEB_DIR / "static" / "dist" / "manifest.json"
 DIST_DIR = WEB_DIR / "static" / "dist"
 
 # Records the input hash the current bundles were built from.

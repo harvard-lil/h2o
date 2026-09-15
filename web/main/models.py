@@ -2,7 +2,7 @@ from __future__ import annotations
 
 import logging
 import time
-from datetime import datetime
+from datetime import datetime, UTC
 from enum import Enum
 from os.path import commonprefix
 from pathlib import Path
@@ -18,6 +18,7 @@ from typing import (  # noqa: F401 workaround for django-stubs#1022 until the fi
     Union,
 )
 from urllib.parse import urlparse
+from psycopg2.errors import UndefinedTable
 from django.conf import settings
 from django.contrib.auth import user_logged_in
 from django.contrib.auth.base_user import AbstractBaseUser, BaseUserManager
@@ -45,7 +46,6 @@ from django.utils.html import format_html
 from django.utils.safestring import mark_safe
 from django.utils.text import slugify
 from pyquery import PyQuery
-from pytest import raises as assert_raises
 from simple_history.models import HistoricalRecords
 from simple_history.utils import bulk_create_with_history, bulk_update_with_history
 
@@ -65,7 +65,6 @@ from .utils import (
     strip_trailing_block_level_whitespace,
     send_mail,
 )
-
 
 logger = logging.getLogger(__name__)
 
@@ -321,7 +320,9 @@ class SearchIndex(models.Model):
         with connection.cursor() as cursor:
             try:
                 cursor.execute("REFRESH MATERIALIZED VIEW CONCURRENTLY internal_search_view")
-            except ProgrammingError:
+            except ProgrammingError as exc:
+                if not isinstance(exc.__cause__, UndefinedTable):
+                    raise
                 cls.create_search_index()
 
     @classmethod
@@ -362,7 +363,7 @@ class SearchIndex(models.Model):
                 base_query = base_query.filter(**{f"metadata__{k}": v})
 
         # get results
-        results = base_query.filter(category=category).only("result_id", "metadata")
+        results: QuerySet = base_query.filter(category=category).only("result_id", "metadata")
         if query_vector:
             results = results.annotate(rank=SearchRank(F("document"), query_vector))
 
@@ -700,8 +701,8 @@ class LegalDocument(NullableTimestampedModel, AnnotatedModel):
         if latest_downloaded.publication_date > self.publication_date:
             return True
         latest_meta = self.source.get_metadata(self.source_ref)
-        return latest_meta and latest_meta["publication_date"] > timezone.utc.localize(
-            self.publication_date
+        return latest_meta and latest_meta["publication_date"] > self.publication_date.replace(
+            tzinfo=UTC
         )
 
     def get_latest_version(self, only_local=False):
@@ -710,7 +711,7 @@ class LegalDocument(NullableTimestampedModel, AnnotatedModel):
             if only_local
             else self.source.pull(self.source_ref)
         )
-        if latest_version.publication_date <= timezone.utc.localize(self.publication_date):
+        if latest_version.publication_date <= self.publication_date.replace(tzinfo=UTC):
             return self
         return latest_version
 
@@ -783,7 +784,7 @@ class ContentAnnotation(TimestampedModel, BigPkModel):
         r"""
         Return all text, including spaces, from the html, using the LXML library.
         >>> html = ' \n <p> \r\n <em> foo </em> \n </p> \n <p> \n <em> foo </em> \n </p> \n '
-        >>> assert ContentAnnotation.text_from_html(html) == ' \n  \r\n  foo  \n  \n  \n  foo  \n  \n '
+        >>> assert ContentAnnotation.text_from_html(html) == ' \n  \n  foo  \n  \n  \n  foo  \n  \n '
         >>> assert ContentAnnotation.text_from_html(' foo ') == ' foo '
         >>> assert ContentAnnotation.text_from_html(' foo <p> bar </p> baz ') == ' foo  bar  baz '
         """
@@ -873,7 +874,9 @@ class CasebookTag(TimestampedModel):
 class Tag(TimestampedModel):
     slug = models.SlugField(max_length=100, unique=True)
     display_text = models.CharField(max_length=100, unique=True)
-    casebooks = models.ManyToManyField("Casebook", through="CasebookTag", related_name="tags")
+    casebooks: models.ManyToManyField["Casebook", "CasebookTag"] = models.ManyToManyField(
+        "Casebook", through="CasebookTag", related_name="tags"
+    )
 
     class Category(models.TextChoices):
         INSTITUTION = "institution", "Institution"
@@ -1816,7 +1819,7 @@ class ContentNode(
         >>> casebook, s_1, r_1_1, r_1_2, r_1_3, s_1_4, r_1_4_1, r_1_4_2, r_1_4_3, s_2 = full_casebook_parts_factory()
 
         Delete a section in a section (and children, including one case, one text block, and one link/default), no reordering required:
-        >>> with assert_num_queries(delete=5, select=15, update=1, insert=8):
+        >>> with assert_num_queries(delete=5, select=11, update=5, insert=8):
         ...     deleted = s_1_4.delete()
         >>> assert deleted == (6, {'main.Section': 1, 'main.ContentAnnotation': 2, 'main.ContentNode': 3})
         >>> assert dump_content_tree(casebook) == [
@@ -1832,7 +1835,7 @@ class ContentNode(
         ...         node.refresh_from_db()
 
         Delete the first section in the book (and children, including one case, one text block, and one link/default), triggering reordering:
-        >>> with assert_num_queries(delete=5, select=14, update=1, insert=8):
+        >>> with assert_num_queries(delete=5, select=10, update=5, insert=8):
         ...     deleted = s_1.delete()
         >>> assert deleted == (6, {'main.Section': 1, 'main.ContentAnnotation': 2, 'main.ContentNode': 3})
         >>> assert dump_content_tree(casebook) == [
@@ -1848,7 +1851,7 @@ class ContentNode(
         >>> casebook, s_1, r_1_1, r_1_2, r_1_3, s_1_4, r_1_4_1, r_1_4_2, r_1_4_3, s_2 = getfixture('full_casebook_parts')
 
         Delete a case resource in the middle of a section:
-        >>> with assert_num_queries(delete=2, select=5, update=1, insert=3):
+        >>> with assert_num_queries(delete=2, select=3, update=3, insert=3):
         ...     deleted = r_1_2.delete()
         >>> assert deleted == (3, {'main.Resource': 1, 'main.ContentAnnotation': 2})
         >>> assert dump_content_tree(casebook) == [
@@ -1871,7 +1874,7 @@ class ContentNode(
 
         Delete a text resource at the beginning of a section:
         >>> r_1_4_1.refresh_from_db()
-        >>> with assert_num_queries(delete=2, select=7, update=1, insert=2):
+        >>> with assert_num_queries(delete=2, select=5, update=3, insert=2):
         ...     deleted = r_1_4_1.delete()
         >>> assert deleted == (2, {'main.Resource': 1, 'main.TextBlock': 1})
         >>> assert dump_content_tree(casebook) == [
@@ -1890,7 +1893,7 @@ class ContentNode(
 
         Delete a link/default resource at the end of a section:
         >>> r_1_4_3.refresh_from_db()
-        >>> with assert_num_queries(delete=2, select=7, update=1, insert=2):
+        >>> with assert_num_queries(delete=2, select=5, update=3, insert=2):
         ...     deleted = r_1_4_3.delete()
         >>> assert deleted == (2, {'main.Resource': 1, 'main.Link': 1})
         >>> assert dump_content_tree(casebook) == [
@@ -2627,7 +2630,7 @@ class Casebook(EditTrackedModel, TimestampedModel, BigPkModel, TrackedCloneable)
         storage=image_storage, upload_to=cover_image_path, blank=True, null=True
     )
 
-    collaborators = models.ManyToManyField(
+    collaborators: models.ManyToManyField["User", "ContentCollaborator"] = models.ManyToManyField(
         "User", through="ContentCollaborator", related_name="casebooks"
     )
 
@@ -2801,13 +2804,13 @@ class Casebook(EditTrackedModel, TimestampedModel, BigPkModel, TrackedCloneable)
         >>> assert ContentNode.objects.exists()
         >>> assert ContentAnnotation.objects.exists()
         >>> assert CasebookEditLog.objects.exists()
-        >>> with assert_num_queries(delete=16, select=20, insert=36):
+        >>> with assert_num_queries(delete=16, select=16, update=4, insert=36):
         ...     deleted = casebook.delete()
         >>> assert not Casebook.objects.exists()
         >>> assert not ContentNode.objects.exists()
         >>> assert not ContentAnnotation.objects.exists()
         >>> assert not CasebookEditLog.objects.exists()
-        >>> assert casebook.contentcollaborator_set.count() == 0
+        >>> assert ContentCollaborator.objects.count() == 0
         """
         if self.draft:
             self.draft.delete()

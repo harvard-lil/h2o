@@ -34,28 +34,19 @@ If not, you can run `docker compose restart pandoc-lambda` to restart the contai
 
 To deploy your changes to production you'll need to bundle the final version of your code into the Docker image and push it to AWS.
 
-Increment the image number in `docker-compose.yml` and re-run `docker compose up -d`. That will produce a newly-tagged image that includes your code.
+Rebuild the local image with `docker compose up -d --build pandoc-lambda`.
 
-(We probably want to script this, adding it to our CI pipeline, similar to how CAP builds and pushes dev images to our registry.)
+### Python dependencies
 
-### ...with new python requirements, including `awslambdaric`
+From the repository root, use `uv add --project docker/pandoc-lambda PACKAGE`
+or `uv lock --project docker/pandoc-lambda --upgrade`. Commit both
+`pyproject.toml` and `uv.lock` with the code change. The image installs the exact
+lockfile using `uv sync --locked`.
 
-Add new packages or pin versions in `requirements.in`. Then run `docker compose exec pandoc-lambda pip-compile --allow-unsafe --generate-hashes`.
+### Pandoc and the Lambda Runtime Interface Emulator
 
-Increment the image number in `docker-compose.yml` to produce a new image.
-
-If you can't start the container because of a requirements change, you may need to edit docker-compose.yml to temporarily disable the entrypoint.
-
-To update a single (unpinned) package such as `awslambdaric` do the same thing, except add `--upgrade-package awslambdaric` or similar.
-
-### ...with a new Lambda Runtime Interface Emulator
-
-Change the cache-buster hash in `docker-compose.yml`, update the Docker image number, and re-run `docker compose up -d`. This process could be further scripted, like Perma's Google Chrome update is.
-
-### ...with a new version of pandoc
-
-Change the target version number in `Dockerfile`, increment the image number in `docker-compose.yml`, and re-run `docker compose up -d`.
-
+Update `PANDOC_VERSION` or `LAMBDA_RIE_VERSION` in `Dockerfile`, then rebuild the service.
+The build selects the matching amd64 or arm64 release for the target platform.
 
 ## Deploying to AWS Lambda
 

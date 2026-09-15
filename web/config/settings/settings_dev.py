@@ -3,7 +3,6 @@ import sys
 
 from .settings_base import *  # noqa
 
-
 ALLOWED_HOSTS = ["opencasebook.test", "localhost", "127.0.0.1", "[::1]"]
 
 # SECURITY WARNING: keep the secret key used in production secret!

@@ -60,13 +60,13 @@ or, with [Django Debug Toolbar](https://django-debug-toolbar.readthedocs.io/en/l
 
 ### Frontend assets
 
-Frontend assets live in `frontend/` and are compiled with vue-cli.
+Frontend assets live in `frontend/` and are compiled with Vite.
 
-`invoke run` starts the vue-cli dev server alongside Django, so edits under
+`invoke run` starts the Vite dev server alongside Django, so edits under
 `frontend/` are picked up without a restart. There is no separate
 `invoke run-frontend` any more -- it is what `invoke run` does.
 
-The compiled bundles (`static/dist/` and `webpack-stats.json`) are build output
+The compiled bundles (`static/dist/`, including `manifest.json`) are build output
 and are **not** committed. You do not normally need to think about them: both
 `invoke run` and `pytest` compile them when they are missing or out of date. To
 build them by hand:
@@ -74,7 +74,7 @@ build them by hand:
     # invoke build-frontend
 
 Staleness is decided by hashing the build's inputs -- `frontend/`,
-`static/images/`, and the npm and vue configs -- against the hash recorded when
+`static/images/`, and the npm and Vite configs -- against the hash recorded when
 the bundles were last built, so pulling someone else's frontend change triggers
 a rebuild on your next run or test.
 
@@ -83,6 +83,48 @@ carries holds those bundles together with the files Django gathers from
 installed packages -- `admin/`, `rest_framework/`, `django_extensions/`,
 `css/`. WhiteNoise serves that directory, so a running container can answer for
 every static URL the app renders.
+
+### Dependency stack
+
+The containers use Python 3.14 on Debian Trixie, Django 6.1, Node 24 LTS,
+PostgreSQL 16.13, and Pandoc 3.11. Python dependencies are locked with uv;
+JavaScript dependencies are locked with npm.
+
+The frontend runs Vue 3 using its compatibility build while existing components
+are migrated to native Vue 3 APIs. Vite replaces Vue CLI/Webpack, and Vitest
+replaces Mocha. The table-of-contents drag-and-drop components are maintained in
+`web/frontend/components/nestable/`, with their upstream MIT license, because
+the previous package included its own Vue 2 runtime.
+
+### Python dependencies
+
+Python dependencies are managed with uv. The web app and export Lambda each have
+an independent `pyproject.toml` and `uv.lock`. From the repository root:
+
+    uv add --project web PACKAGE
+    uv add --project web --group dev DEV_PACKAGE
+    uv lock --project web --upgrade
+    uv add --project docker/pandoc-lambda PACKAGE
+    uv lock --project docker/pandoc-lambda --upgrade
+
+Rebuild affected containers after changing a lockfile (`docker compose up -d --build`).
+Production installs only runtime dependencies with `uv sync --locked --no-dev`.
+The dev and test images also install the `dev` group, which contains linting,
+type-checking, debugging, and test tools. Keep deployment commands such as
+`invoke` in runtime dependencies. All images use `/opt/venv`, so mounting the
+checkout does not replace installed dependencies.
+
+### PostgreSQL version
+
+The local PostgreSQL image must always match the `engine_version` pinned in
+[`lil-terraform/h2o/aws/db/db_instance.tf`](https://github.com/harvard-lil/lil-terraform/blob/main/h2o/aws/db/db_instance.tf),
+which manages the staging and production databases. The current version is
+16.13. Update `docker-compose.yml` when that Terraform pin changes, and keep the
+client major version in `docker/install-test-toolchain.sh` aligned as well.
+Database upgrades should be coordinated separately from application dependency updates.
+
+Local data uses the existing `db_data_16` volume mounted at
+`/var/lib/postgresql/data`.
 
 ### Stored files
 
@@ -120,10 +162,11 @@ Run these from inside the container.
 1. `pytest` runs python tests
 1. `pytest -n auto --dist loadgroup` runs python tests with concurrency (faster, same config as CI)
 1. `flake8` runs python lints
-1. `npm run test` runs javascript unit tests using [Mocha](https://mochajs.org)
+1. `npm run test` runs javascript unit tests using [Vitest](https://vitest.dev)
 1. `npm run test-watch` runs javascript unit tests with the `--watch` option to auto-rerun on test changes
 1. `npm run lint` runs javascript lints
-1. `pytest -k functional` runs the Playwright tests only.
+1. `pytest -k functional` runs the Chromium Playwright tests only.
+1. `pytest -k functional --browser firefox` runs the same browser tests in Firefox.
 
 Playwright tests spawn their own test runner against the compiled bundles. Those
 are rebuilt automatically when your frontend changes, so a JS edit is reflected
@@ -145,12 +188,13 @@ Coverage will be generated automatically for all manually-run tests.
 
 We use standard Django migrations.
 
-### The migration list in an image
+### Published migration manifests
 
-Every built image carries `/app/web/migrations.json`, written during the build
-by `./manage.py migration_manifest`. It lists the migrations that image has on
-disk -- those from installed packages as well as this repository's -- so what an
-image expects of the database can be read without running it:
+The shared `django-migration-manifest` action inspects the built production image
+with build-only settings and writes a format-1 manifest on the CI runner. Shared
+`ecr-artifacts` attaches it, alongside the reproducible static archive, to the
+published image digest. The application contains no manifest management command.
+Deployment fetches these referrers without pulling or launching the image:
 
 ```json
 {
@@ -166,8 +210,8 @@ first 12 hex digits of the sha256 of those names, one per line, each terminated
 by a newline. `format` is bumped if this shape changes, so a mismatch there
 reads as a version difference rather than a disagreement about migrations.
 
-The same command run in a container produces the same document, which is what
-makes an image and a deployed environment comparable by `hash` alone. It reports
+The shared inspector also runs through ECS Exec in an existing service task,
+so the incoming manifest and deployed migrations can be compared. It reports
 what is on disk and never what a database has applied; `MigrationLoader` is
 constructed with no connection.
 
@@ -184,6 +228,9 @@ following the policy for LIL-owned actions. A retry reuses a complete web public
 and migration referrers. An absent image is built and tested before publication;
 a partially published web image stops the run rather than overwriting its SHA
 tag. Repair missing referrers from the existing image digest before retrying.
+Deployments also stop on missing, conflicting, or corrupt referrers; there is no
+automatic full-image fallback. Shared `ecs-django-maintenance` owns the migration
+comparison, pending-plan check, and existing force/skip maintenance policy.
 The Lambda image is inspected independently so a retry can finish its publication.
 
 Staging requires the selected image's source tree to match the promotion commit.

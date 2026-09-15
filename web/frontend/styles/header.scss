@@ -1,5 +1,5 @@
-@import '~bootstrap-sass/assets/stylesheets/bootstrap/buttons';
-@import '~bootstrap-sass/assets/stylesheets/bootstrap/navbar';
+@import 'bootstrap-sass/assets/stylesheets/bootstrap/buttons';
+@import 'bootstrap-sass/assets/stylesheets/bootstrap/navbar';
 
 body {
   #main-header {
@@ -35,7 +35,7 @@ body {
         margin-right: 10px;
 
         // The text is hidden and is replaced visually by an image
-        background-image: url('~static/images/logo.svg');
+        background-image: url('static/images/logo.svg');
         background-position: 10px center;
         background-repeat: no-repeat;
         background-size: initial;
@@ -94,7 +94,7 @@ body {
           height: 12px;
           line-height: 5px;
 
-          background-image: url('~static/images/ui/verified.png');
+          background-image: url('static/images/ui/verified.png');
           color: transparent;
         }
         .dropdown {

@@ -4,9 +4,10 @@ import re
 from collections import defaultdict
 from contextlib import contextmanager
 from datetime import datetime
-from distutils.sysconfig import get_python_lib
+from sysconfig import get_path
 
 import factory
+from factory.django import DjangoModelFactory
 import pytest
 
 import frontend_assets
@@ -19,12 +20,17 @@ from django.utils import timezone
 from requests_mock import ANY
 
 
+@pytest.fixture(autouse=True)
+def doctest_helpers(doctest_namespace):
+    doctest_namespace["assert_raises"] = pytest.raises
+
+
 @pytest.fixture(scope="session", autouse=True)
 def current_frontend_assets():
     """Compile the frontend bundles before any test renders a page.
 
-    base.html calls {% render_bundle %}, so every test that renders a page --
-    not just the Playwright ones -- reads webpack-stats.json. Without this a
+    base.html calls {% vite_asset %}, so every test that renders a page --
+    not just the Playwright ones -- reads static/dist/manifest.json. Without this a
     fresh checkout fails with a bare FileNotFoundError, and a checkout whose
     frontend has moved on silently tests the previous build.
 
@@ -114,7 +120,7 @@ def register_factory(cls):
 
 
 @register_factory
-class InstitutionFactory(factory.DjangoModelFactory):
+class InstitutionFactory(DjangoModelFactory):
     class Meta:
         model = Institution
 
@@ -123,7 +129,7 @@ class InstitutionFactory(factory.DjangoModelFactory):
 
 
 @register_factory
-class UserFactory(factory.DjangoModelFactory):
+class UserFactory(DjangoModelFactory):
     class Meta:
         model = User
 
@@ -147,13 +153,13 @@ class VerifiedProfessorFactory(UserFactory):
 
 @register_factory
 class AdminUserFactory(UserFactory):
-    attribution = "Admin"
+    attribution = factory.Sequence(lambda n: "Admin")
     is_staff = True
     is_superuser = True
 
 
 @register_factory
-class ContentNodeFactory(factory.DjangoModelFactory):
+class ContentNodeFactory(DjangoModelFactory):
     class Meta:
         model = ContentNode
 
@@ -165,7 +171,7 @@ class ContentNodeFactory(factory.DjangoModelFactory):
 
 
 @register_factory
-class CasebookFactory(factory.DjangoModelFactory):
+class CasebookFactory(DjangoModelFactory):
     class Meta:
         model = Casebook
 
@@ -178,7 +184,7 @@ class CasebookFactory(factory.DjangoModelFactory):
 
 
 @register_factory
-class CasebookEditLogFactory(factory.DjangoModelFactory):
+class CasebookEditLogFactory(DjangoModelFactory):
     class Meta:
         model = CasebookEditLog
 
@@ -208,7 +214,7 @@ class SectionFactory(ContentNodeFactory):
 
 
 @register_factory
-class ContentCollaboratorFactory(factory.DjangoModelFactory):
+class ContentCollaboratorFactory(DjangoModelFactory):
     class Meta:
         model = ContentCollaborator
 
@@ -219,7 +225,7 @@ class ContentCollaboratorFactory(factory.DjangoModelFactory):
 
 
 @register_factory
-class LinkFactory(factory.DjangoModelFactory):
+class LinkFactory(DjangoModelFactory):
     class Meta:
         model = Link
 
@@ -230,7 +236,7 @@ class LinkFactory(factory.DjangoModelFactory):
 
 
 @register_factory
-class TextBlockFactory(factory.DjangoModelFactory):
+class TextBlockFactory(DjangoModelFactory):
     class Meta:
         model = TextBlock
 
@@ -240,7 +246,7 @@ class TextBlockFactory(factory.DjangoModelFactory):
 
 
 @register_factory
-class CommonTitleFactory(factory.DjangoModelFactory):
+class CommonTitleFactory(DjangoModelFactory):
     class Meta:
         model = CommonTitle
 
@@ -314,7 +320,7 @@ LegalDocumentSource.register_api(MockSourceAPI)
 
 
 @register_factory
-class LegalDocumentSourceFactory(factory.DjangoModelFactory):
+class LegalDocumentSourceFactory(DjangoModelFactory):
     class Meta:
         model = LegalDocumentSource
 
@@ -325,7 +331,7 @@ class LegalDocumentSourceFactory(factory.DjangoModelFactory):
 
 
 @register_factory
-class LegalDocumentFactory(factory.DjangoModelFactory):
+class LegalDocumentFactory(DjangoModelFactory):
     class Meta:
         model = LegalDocument
 
@@ -369,7 +375,7 @@ class ResourceFactory(ContentNodeFactory):
 
 
 @register_factory
-class ContentAnnotationFactory(factory.DjangoModelFactory):
+class ContentAnnotationFactory(DjangoModelFactory):
     class Meta:
         model = ContentAnnotation
 
@@ -391,7 +397,7 @@ class PrivateAnnotationFactory(ContentAnnotationFactory):
 
 
 @register_factory
-class LiveSettingsFactory(factory.DjangoModelFactory):
+class LiveSettingsFactory(DjangoModelFactory):
     class Meta:
         model = LiveSettings
 
@@ -785,7 +791,7 @@ def assert_num_queries(pytestconfig, monkeypatch):
 
     Ensure that the queries run are as expected, then insert the correct counts based on the error message.
     """
-    python_lib_path = get_python_lib()
+    python_lib_path = get_path("purelib")
 
     class TracingDebugWrapper(django_db_utils.CursorDebugWrapper):
         def log_message(self, message):
@@ -841,7 +847,7 @@ def assert_num_queries(pytestconfig, monkeypatch):
             query_counts = defaultdict(int)
             for q in context.captured_queries:
                 query_type = q["sql"].split(" ", 1)[0].lower()
-                if query_type not in ("savepoint", "release", "set", "show"):
+                if query_type not in ("savepoint", "release", "set", "show", "begin", "commit"):
                     query_counts[query_type] += 1
             if expected_counts != query_counts:
                 msg = f"Unexpected queries: expected {expected_counts}, got {dict(query_counts)}"
@@ -955,7 +961,7 @@ def client_with_raise_request_exception():
             try:
                 try:
                     response = self.handler(environ)
-                except django.test.client.TemplateDoesNotExist as e:
+                except django.template.TemplateDoesNotExist as e:
                     # If the view raises an exception, Django will attempt to show
                     # the 500.html template. If that template is not available,
                     # we should ignore the error in favor of re-raising the

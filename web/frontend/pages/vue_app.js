@@ -2,25 +2,23 @@ import "../config/axios";
 import "../directives/selectionchange";
 
 import * as Sentry from "@sentry/vue";
-import { BrowserTracing } from "@sentry/tracing";
 
 import AddContent from "../components/AddContent";
 import AuditButton from "../components/AuditButton";
 import Dashboard from "../components/Dashboard";
 import Globals from "../components/Globals";
 import LegalDocumentSearch from "../components/LegalDocumentSearch/LegalDocumentSearch";
-import PortalVue from "portal-vue";
 import QuickAdd from "../components/QuickAdd";
 import SectionCloner from "../components/SectionCloner";
 import TakeNotesCloner from "../components/TakeNotesCloner";
 import TheResource from "../components/TheResource";
 import TheTableOfContents from "../components/TheTableOfContents";
-import Vue from "vue";
-import VueRouter from 'vue-router';
+import Vue, { createApp } from "vue";
+import { createRouter, createWebHistory } from 'vue-router';
 import contenteditableDirective from "vue-contenteditable-directive";
 import store from "../store/index";
 
-Vue.use(VueRouter);
+
 Vue.config.productionTip = process.env.NODE_ENV == "development";
 
 
@@ -40,22 +38,18 @@ document.addEventListener("DOMContentLoaded", () => {
     { path: '/casebooks/:id/resources/:resource_id/', component: TheResource }
   ];
 
-  const router = new VueRouter({
+  const router = createRouter({
       routes,
-      mode: 'history'
+      history: createWebHistory()
   });
 
-  const app = new Vue({
-    el: "#app",
-    store,
-    router,
+  const app = createApp({
     components: {
         AddContent,
         AuditButton,
         Dashboard,
         Globals,
         LegalDocumentSearch,
-        PortalVue,
         QuickAdd,
         SectionCloner,
         TakeNotesCloner,
@@ -66,14 +60,11 @@ document.addEventListener("DOMContentLoaded", () => {
   if (window.sentry.USE_SENTRY) {
     console.log('using sentry');
     Sentry.init({
-      Vue,
+      app,
       dsn: window.sentry.DSN,
       environment: window.sentry.ENVIRONMENT,
       integrations: [
-        new BrowserTracing({
-          routingInstrumentation: Sentry.vueRouterInstrumentation(router),
-          tracePropagationTargets: ["opencasebook.org", "opencasebook.test", /^\//],
-        }),
+        Sentry.browserTracingIntegration({ router }),
       ],
       // Set tracesSampleRate to 1.0 to capture 100%
       // of transactions for performance monitoring.
@@ -82,5 +73,7 @@ document.addEventListener("DOMContentLoaded", () => {
     });
   }
 
-  window.app = app;
+  app.use(store);
+  app.use(router);
+  window.app = app.mount("#app");
 });

@@ -1,4 +1,5 @@
 [tool.black]
 line-length = 100
-extend-exclude = "web/.*/migrations/"
+target-version = ["py314"]
+extend-exclude = "/(migrations|node_modules)/"
 include = "web/.*.py$"

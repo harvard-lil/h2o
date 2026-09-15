@@ -4,7 +4,6 @@ from urllib.parse import urljoin, urlsplit
 
 from main.utils import re_split_offsets
 
-
 _default = object()
 
 
@@ -17,7 +16,7 @@ def check_response(
     if response.get("content-type"):
         # For rest framework response, expect json; else expect html.
         if content_type is _default:
-            if type(response) == Response:
+            if type(response) is Response:
                 content_type = "application/json"
             else:
                 content_type = "text/html"
@@ -77,7 +76,7 @@ def dump_casebook_outline(casebook):
     ...     '   ContentNode<8> -> Link<2>: Some Link Name 1',
     ...     ' Section<9>: Some Section 8']
     """
-    out = [(f"Casebook<{casebook.id}>: {casebook.title}")]
+    out = [f"Casebook<{casebook.id}>: {casebook.title}"]
     for node in casebook.contents.prefetch_resources().prefetch_related("annotations"):
         node_type = node.type
         indent = " " * len(node.ordinals)

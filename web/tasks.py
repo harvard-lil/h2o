@@ -11,7 +11,6 @@ from pyquery import PyQuery
 
 import django
 
-
 ### helpers ###
 
 os.environ.setdefault("DJANGO_SETTINGS_MODULE", "config.settings")
@@ -40,7 +39,7 @@ def setup_django(func):
 def run(ctx, port=None, debug_toolbar=False):
     """Run the app with a live-reloading frontend build alongside it.
 
-    The vue-cli dev server owns the bundles while this is running, so editing
+    The Vite dev server owns the bundles while this is running, so editing
     anything under frontend/ is reflected without a restart and without a
     committed build to go stale. This used to be `run-frontend`; plain `run`
     served whatever bundles happened to be on disk, which is how you ended up

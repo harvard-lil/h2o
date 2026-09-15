@@ -28,8 +28,7 @@ def get_words(s):
 @lru_cache()
 def get_allow_lists():
     # tags created by ckeditor
-    allowed_tags = get_words(
-        """
+    allowed_tags = get_words("""
         p br
         ol ul li
         blockquote
@@ -38,16 +37,13 @@ def get_allow_lists():
         img
         table caption thead th tbody tr td
         hr
-    """
-    )
+    """)
 
     # legacy tags
-    allowed_tags |= get_words(
-        """
+    allowed_tags |= get_words("""
         a address b blockquote br center cite col colgroup dd del div dl dt em h1 h2 h3 h4 h5 h6 header hr i iframe img li mark ol
         p pre small span strike strong sub sup table tbody td th thead time tr u ul wbr
-    """
-    )
+    """)
 
     # attributes created by ckeditor
     # (overridden by the legacy definition, which is a super-set of this)
@@ -136,8 +132,7 @@ def get_allow_lists():
     )
 
     # legacy styles
-    allowed_styles |= get_words(
-        """
+    allowed_styles |= get_words("""
          -webkit-box-shadow -webkit-text-size-adjust -webkit-transition background background-attachment background-clip 
          background-color background-image background-origin background-position background-repeat background-size border 
          border-bottom border-bottom-color border-bottom-left-radius border-bottom-right-radius border-bottom-style 
@@ -152,8 +147,7 @@ def get_allow_lists():
          page-break-before position quotes right text-align text-decoration text-decoration-color text-decoration-style 
          text-indent text-justify text-rendering text-transform top transition unicode-bidi vertical-align white-space 
          widows width word-break word-spacing word-wrap z-index
-    """
-    )
+    """)
 
     return allowed_tags, allowed_attributes, allowed_styles
 

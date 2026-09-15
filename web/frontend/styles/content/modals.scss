@@ -1,4 +1,4 @@
-@import '~bootstrap-sass/assets/stylesheets/bootstrap/modals';
+@import 'bootstrap-sass/assets/stylesheets/bootstrap/modals';
 
 .add-casebook{
   width: 100%;
@@ -6,7 +6,7 @@
   display: block;
   background-color: transparent;
   border:none;
-  background-image: url('~static/images/ui/casebook/add-casebook.svg');
+  background-image: url('static/images/ui/casebook/add-casebook.svg');
 }
 
 .customize-casebook{
@@ -15,7 +15,7 @@
   display: block;
   background-color: transparent;
   border:none;
-  background-image: url('~static/images/ui/casebook/customize-casebook.svg');
+  background-image: url('static/images/ui/casebook/customize-casebook.svg');
 }
 
 .modal-overlay.open {

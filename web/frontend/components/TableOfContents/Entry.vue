@@ -126,13 +126,12 @@ import CollapseTriangle from "../CollapseTriangle";
 import Vue from "vue";
 import _ from "lodash";
 import pp from "../../libs/text_outline_parser";
-import { VueNestable, VueNestableHandle } from "@holtchesley/vue-nestable";
+import { VueNestableHandle } from "../nestable";
 import vClickOutside from "v-click-outside";
 import { createNamespacedHelpers } from "vuex";
 const { mapActions } = createNamespacedHelpers("table_of_contents");
 const { mapGetters } = createNamespacedHelpers("case_search");
 
-Vue.use(VueNestable);
 Vue.use(vClickOutside);
 
 export default {

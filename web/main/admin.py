@@ -61,7 +61,7 @@ class FasterAdminPaginator(Paginator):
             return estimate
         try:
             return self.object_list.count()
-        except (AttributeError, TypeError):
+        except AttributeError, TypeError:
             # AttributeError if object_list has no count() method.
             # TypeError if object_list.count() requires arguments
             # (i.e. is of type list).
@@ -118,14 +118,12 @@ admin.StackedInline.max_num = 0
 
 
 class BaseAdmin(admin.ModelAdmin):
-    fix_after_rails(
-        """
+    fix_after_rails("""
         The LogEntry class tracks additions, changes, and deletions of objects
         done through the admin interface. It requires the Django app to be
         fully integrated with the AUTH_USER_MODEL... which we aren't yet. So,
         for now, disable logging.
-    """
-    )
+    """)
 
     def log_addition(self, request, object, message):
         pass

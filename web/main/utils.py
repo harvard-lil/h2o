@@ -3,7 +3,7 @@ import boto3
 from botocore.config import Config
 from botocore.exceptions import BotoCoreError, ClientError as BotoClientError
 from copy import deepcopy
-from datetime import datetime, date
+from datetime import date
 import difflib
 import html as python_html
 import json
@@ -55,22 +55,19 @@ def parse_cap_decision_date(decision_date_text):
     >>> assert parse_cap_decision_date('2019-02-29') == date(2019, 2, 1)  # non-existent day of month
     >>> assert parse_cap_decision_date('not a date') is None
     """
-    try:
-        try:
-            return datetime.strptime(decision_date_text, "%Y-%m-%d").date()
-        except ValueError as e:
-
-            # if court used an invalid day of month (typically Feb. 29), strip day from date
-            if e.args[0] == "day is out of range for month":
-                decision_date_text = decision_date_text.rsplit("-", 1)[0]
-
-            try:
-                return datetime.strptime(decision_date_text, "%Y-%m").date()
-            except ValueError:
-                return datetime.strptime(decision_date_text, "%Y").date()
-    except Exception:
-        # if for some reason we can't parse the date, just store None
+    if not re.fullmatch(r"\d{4}(?:-\d{2}(?:-\d{2})?)?", decision_date_text):
         return None
+    parts = [int(part) for part in decision_date_text.split("-")]
+    year, month, day = (parts + [1, 1])[:3]
+    try:
+        return date(year, month, day)
+    except ValueError:
+        # CAP contains invalid days (for example February 29 in a non-leap
+        # year). Retain a valid year and month without inspecting error text.
+        try:
+            return date(year, month, 1)
+        except ValueError:
+            return None
 
 
 def looks_like_citation(s):
@@ -272,7 +269,13 @@ def prefix_ids_hrefs(html_str, prefix):
         original_target = el.attrib["href"][1:]
         el.attrib["href"] = f"#{prefix}-{original_target}"
 
-    pq = PyQuery(html_str)
+    fragments = html.fragments_fromstring(html_str)
+    if len(fragments) == 1 and isinstance(fragments[0], str):
+        paragraph = html.Element("p")
+        paragraph.text = fragments[0]
+        pq = PyQuery(paragraph)
+    else:
+        pq = PyQuery(html_str)
     pq("[id]").each(prefix_id)
     pq("[href^='#']").each(prefix_href)
     return pq.outer_html()
@@ -426,8 +429,8 @@ def elements_equal(
     if e1_attrib != e2_attrib:
         diff = "\n".join(
             difflib.Differ().compare(
-                [f"{i}: {i}" % i for i in sorted(e1_attrib.items())],
-                [f"{i}: {i}" for i in sorted(e2_attrib.items())],
+                [f"{key}: {value}" for key, value in sorted(e1_attrib.items())],
+                [f"{key}: {value}" for key, value in sorted(e2_attrib.items())],
             )
         )
         raise exc_class(f"e1.attrib != e2.attrib:\n{diff}")

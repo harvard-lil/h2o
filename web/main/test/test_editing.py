@@ -92,7 +92,7 @@ def test_subresource_validation(full_private_casebook, client):
     )
     resource.refresh_from_db()
     assert resource.title != new_title
-    assertFormError(resp, "embedded_resource_form", "url", "Enter a valid URL.")
+    assertFormError(resp.context["embedded_resource_form"], "url", "Enter a valid URL.")
 
     # Both forms must validate before any part of the resource can be saved
     resp = client.post(
