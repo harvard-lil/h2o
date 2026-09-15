@@ -50,10 +50,10 @@ export const splitTextAt = (breakpoints, [node, start, end]) =>
       return tuples.concat([[node, breakpoint, prevEnd]]);
     }, [[node, start, end]]);
 
-const annotateAndConvertToVNodes = (h, annotations, tuples) =>
+const annotateAndConvertToVNodes = (h, annotations, tuples, usedAnnotations) =>
       tuples
-      .reduce(insertAnnotations(h, annotations), [])
-      .map(tupleToVNode(h, annotations));
+      .reduce(insertAnnotations(h, annotations, usedAnnotations), [])
+      .map(tupleToVNode(h, annotations, usedAnnotations));
 
 // Find nodes that are within a range of offsets, stopping at the first
 // block level element found. Allows us to greedily group nodes into
@@ -69,7 +69,7 @@ export const sequentialInlineNodesWithinRange = (tuples, start, end) => {
 // eagerly grabbing tuples that fall within its range.
 // This is the logic that allows annotations to wrap around
 // existing elements on the page.
-const groupIntoAnnotation = (h, annotations, tuples) =>
+const groupIntoAnnotation = (h, annotations, tuples, usedAnnotations) =>
   (prevTuple, annotation) => {
     // Figure out how far to reach forward for elements to group into this annotation.
     // get the forward elements that fall within our range
@@ -90,21 +90,21 @@ const groupIntoAnnotation = (h, annotations, tuples) =>
 
     let props = {startOffset: prevTuple[1],
                  endOffset: last(childTuples)[2],
-                 isHead: !annotation.used};
-    annotation.used = true;
+                 isHead: !usedAnnotations.has(annotation)};
+    usedAnnotations.add(annotation);
 
     return [h(kindToComponent(annotation.kind),
               {key: `${annotation.id}/${props.startOffset}-${props.endOffset}`,
                props: {...props,
                        annotation: annotation}},
               // remove this annotation from the set so the children don't duplicate it in their renders
-              annotateAndConvertToVNodes(h, annotations.filter(a => a != annotation), childTuples)),
+              annotateAndConvertToVNodes(h, annotations.filter(a => a != annotation), childTuples, usedAnnotations)),
             props.startOffset,
             props.endOffset];
   };
 
 // Loop through the tuples and add annotations when found
-const insertAnnotations = (h, annotations) =>
+const insertAnnotations = (h, annotations, usedAnnotations) =>
   (modifiedTuples, tuple, idx, orgTuples) => {
     let [node, start, end] = tuple;
     let [_prevNode, _prevStart, prevEnd] = last(modifiedTuples) ||
@@ -134,7 +134,7 @@ const insertAnnotations = (h, annotations) =>
         // it as an array conveniently allows reduce to
         // return the normal tuple as a default if no annotations exist
           .slice(0, 1)
-          .reduce(groupIntoAnnotation(h, annotations, orgTuples), tuple)]);
+          .reduce(groupIntoAnnotation(h, annotations, orgTuples, usedAnnotations), tuple)]);
     }
   };
 
@@ -182,7 +182,7 @@ const isFullyElided = (node) => {
 
 // Vue component children arrays must contain either VNodes or
 // Strings (which get converted to VNodes automatically)
-export const tupleToVNode = (h, annotations) =>
+export const tupleToVNode = (h, annotations, usedAnnotations = new Set()) =>
   ([node, start, end]) => {
     if(isText(node)) {
       return node.textContent;
@@ -194,7 +194,7 @@ export const tupleToVNode = (h, annotations) =>
 
       let tag = getTagName(node),
           data = {attrs: attrs},
-          children = annotateAndConvertToVNodes(h, annotations, splitNodeList(annotations, node.childNodes, start, end));
+          children = annotateAndConvertToVNodes(h, annotations, splitNodeList(annotations, node.childNodes, start, end), usedAnnotations);
       switch(tag) {
       case "footnote-link":
           data.props = {startOffset: start,

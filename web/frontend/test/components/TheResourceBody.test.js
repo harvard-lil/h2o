@@ -5,15 +5,18 @@ import { parseHTML,
 
 import { cloneDeep } from 'lodash';
 
-import { mount } from '@vue/test-utils';
+import { mount, flushPromises } from '@vue/test-utils';
 
-import Vuex from 'vuex';
+// Use Vuex's ESM build so store mutations share Vue's test-runtime reactivity.
+import Vuex from 'vuex/dist/vuex.esm-bundler.js';
 import annotations from "store/modules/annotations";
 import annotations_ui from "store/modules/annotations_ui";
 import footnotes_ui from "store/modules/footnotes_ui";
 import resources_ui from "store/modules/resources_ui";
 
 import TheResourceBody from 'components/TheResourceBody';
+import TheResource from 'components/TheResource';
+import Axios from '../../config/axios';
 
 
 const DEFAULT_ANNOTATION = Object.freeze({
@@ -123,6 +126,53 @@ describe('TheResourceBody', () => {
       const wrapper = mount(TheResourceBody, {global: { plugins: [store] }, props: {resource: {content: html}}});
       expect(parseHTML(wrapper.html({ raw: true })).textContent).toEqual(parseHTML(html).textContent);
     });
+  });
+
+  it('renders one expansion toggle for an elision spanning paragraphs after rerender', async () => {
+    store.commit('annotations/append', [{...DEFAULT_ANNOTATION, kind: 'elide', start_offset: 1, end_offset: 5}]);
+    const wrapper = mount(TheResourceBody, {global: {plugins: [store]}, props: {
+      resource: {content: '<p>foo</p><p>bar</p>'}
+    }});
+    expect(wrapper.findAll('.toggle')).toHaveLength(1);
+    expect(wrapper.findAll('.selected-text').map(w => w.text())).toEqual(['oo', 'ba']);
+    wrapper.vm.$forceUpdate();
+    await wrapper.vm.$nextTick();
+    expect(wrapper.findAll('.toggle')).toHaveLength(1);
+    expect(store.state.annotations.all[0]).not.toHaveProperty('used');
+    wrapper.unmount();
+  });
+
+  it('preserves elision state and unselected text through saves and subsequent annotations', async () => {
+    let finishSave;
+    const post = vi.spyOn(Axios, 'post').mockImplementation(() => new Promise(resolve => { finishSave = resolve; }));
+    const wrapper = mount(TheResource, {
+      global: { plugins: [store], directives: {selectionchange: {}} },
+      props: { resource: {content: '<p>before selected after</p><p>another paragraph</p>'}, editable: true }
+    });
+    store.commit('annotations/append', [{...DEFAULT_ANNOTATION, id: -1, kind: 'elide', start_offset: 7, end_offset: 15}]);
+    await flushPromises();
+    expect(wrapper.find('.case-text').exists()).toBe(true);
+    expect(wrapper.find('.selected-text').text()).toBe('selected');
+    expect(wrapper.find('.case-text').text()).toContain('before');
+    expect(wrapper.find('.case-text').text()).toContain('another paragraph');
+    expect(post).toHaveBeenCalledTimes(1);
+    finishSave({data: {id: 2}});
+    await flushPromises();
+    expect(wrapper.find('.selected-text').text()).toBe('selected');
+    expect(store.state.annotations.all[0].id).toBe(2);
+    expect(wrapper.find('button').text()).toBe('Show elided text');
+    store.commit('annotations/append', [{...DEFAULT_ANNOTATION, id: -2, kind: 'elide', start_offset: 21, end_offset: 28}]);
+    await flushPromises();
+    expect(post).toHaveBeenCalledTimes(2);
+    expect(wrapper.findAll('.selected-text').map(w => w.text())).toEqual(['selected', 'another']);
+    expect(wrapper.find('.case-text').text()).toContain('before');
+    finishSave({data: {id: 3}});
+    await flushPromises();
+    expect(store.state.annotations.all.map(a => a.id)).toEqual([2, 3]);
+    await wrapper.find('button').trigger('click');
+    expect(wrapper.findAll('.selected-text').every(w => w.isVisible())).toBe(true);
+    wrapper.unmount();
+    post.mockRestore();
   });
 
   it('when rendering, orders annotations first by length (longer wraps shorter)');
