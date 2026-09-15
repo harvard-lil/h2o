@@ -181,6 +181,12 @@ jobs:
           docker ps -a
           docker compose logs
 
+      - name: Lambda postprocessing tests
+        if: github.event_name == 'pull_request' || steps.web-publication.outputs.state == 'absent'
+        run: |
+          docker compose cp docker/pandoc-lambda/test_app.py pandoc-lambda:/tmp/test_app.py
+          docker compose exec -T -e PYTHONPATH=/function pandoc-lambda python -m unittest discover -s /tmp -p test_app.py -v
+
       - name: Python tests
         if: github.event_name == 'pull_request' || steps.web-publication.outputs.state == 'absent'
         shell: 'script -q -e -c "bash --noprofile --norc -eo pipefail {0}"'  # avoid docker-compose "the input device is not a TTY" -- see https://github.com/actions/runner/issues/241#issuecomment-842566950
