@@ -130,26 +130,22 @@ def promote_case_footnotes(doc, docx_sections=False):
 
         current_stack = [footnote_start]
         next_footnote_candidate = footnote_start.getnext()
-        style = next_footnote_candidate.xpath(".//w:pStyle/@w:val")
-        link = next_footnote_candidate.xpath(".//w:hyperlink//text()")
 
         # In cases that a footnote spans multiple paragraphs (judges amiright) roll up those blocks into an array
-        while next_footnote_candidate is not None and style and style[0] != "CaseBody" and not link:
+        # Bookmarks and section properties delimit the note. They are plain
+        # lxml elements, so they also lack python-docx's namespace-aware xpath.
+        while next_footnote_candidate is not None and next_footnote_candidate.tag == paragraph_tag:
+            style = next_footnote_candidate.xpath(".//w:pStyle/@w:val")
+            link = next_footnote_candidate.xpath(".//w:hyperlink//text()")
+            if not style or style[0] == "CaseBody" or link:
+                break
+            style_node = next_footnote_candidate.xpath(
+                ".//w:pStyle[starts-with(@w:val,'CaseFootnoteText')]"
+            )
+            if style_node:
+                style_node[0].attrib[val_att] = "CaseFootnoteText"
             current_stack.append(next_footnote_candidate)
             next_footnote_candidate = next_footnote_candidate.getnext()
-            if (
-                next_footnote_candidate.tag
-                == "{http://schemas.openxmlformats.org/wordprocessingml/2006/main}bookmarkStart"
-            ):
-                break
-            style = next_footnote_candidate.xpath(".//w:pStyle/@w:val")
-            if style:
-                style_node = next_footnote_candidate.xpath(
-                    ".//w:pStyle[starts-with(@w:val,'CaseFootnoteText')]"
-                )
-                if style_node:
-                    style_node[0].attrib[val_att] = "CaseFootnoteText"
-            link = next_footnote_candidate.xpath(".//w:hyperlink//text()")
         mark_id = f"{node_id}-{mark_text}"
         if mark_id not in case_footnotes:
             case_footnotes[mark_id] = {

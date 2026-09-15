@@ -7,6 +7,7 @@ from datetime import date
 import difflib
 import html as python_html
 import json
+from io import BytesIO
 from lxml import etree, html
 import mimetypes
 from PIL import Image, UnidentifiedImageError
@@ -15,6 +16,7 @@ import re
 import requests
 import tempfile
 from urllib.parse import quote, unquote
+from zipfile import BadZipFile, ZipFile
 
 
 from django.contrib.auth.tokens import default_token_generator
@@ -765,7 +767,22 @@ def export_via_aws_lambda(obj, html, file_type):
                 # Looks like we have something to return!
                 content = response["content"]
 
-        except (BotoCoreError, BotoClientError, requests.RequestException, AssertionError) as e:
+            # A successful Lambda transport can still carry a JSON function
+            # error. Do not offer it to the browser as a corrupt Word file.
+            with ZipFile(BytesIO(content)) as document:
+                if not {"[Content_Types].xml", "_rels/.rels", "word/document.xml"} <= set(
+                    document.namelist()
+                ):
+                    raise LambdaException("Lambda returned an invalid DOCX package")
+
+        except (
+            BotoCoreError,
+            BotoClientError,
+            requests.RequestException,
+            AssertionError,
+            BadZipFile,
+            LambdaException,
+        ) as e:
             if export_type == "Casebook":
                 obj.inc_export_fails()
             raise LambdaException(f"AWS Lambda export failed: {str(e)}")
