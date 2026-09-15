@@ -35,7 +35,8 @@ export default {
     }
   },
   render(h) {
-    let annotations = this.$store.state.annotations.all.map(annotation => ({...annotation, used: false}));
+    // Keep annotation identity for saves; the parser tracks heads separately per render.
+    let annotations = this.$store.state.annotations.all;
     return tupleToVNode(h, annotations)(nodeToTuple(this.body));
   }
 };
