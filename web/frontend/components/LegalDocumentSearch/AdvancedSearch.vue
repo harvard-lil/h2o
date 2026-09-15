@@ -45,7 +45,7 @@
     <p
       v-for="s in sources"
       :key="s.id"
-      :data-source-selected="formData.source === s.id"
+      :data-source-selected="formData.source === s.id ? true : null"
       class="source-description"
     >
       {{ s.long_description }}

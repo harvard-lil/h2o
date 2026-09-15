@@ -30,6 +30,15 @@ describe("ResultsForm", () => {
       expect(wrapper.emitted("add-doc")[0]).toEqual([id, sourceId]);
   });
 
+  it("only marks the selected result for selection styling", async () => {
+    const wrapper = mount(ResultsForm, { props: { searchResults } });
+    expect(wrapper.find("[data-result-selected]").exists()).toBe(false);
+    await wrapper.setProps({ selectedResult: id });
+    expect(wrapper.find("[data-result-selected]").attributes("data-result-id")).toBe(id);
+    await wrapper.setProps({ selectedResult: null });
+    expect(wrapper.find("[data-result-selected]").exists()).toBe(false);
+  });
+
   it("does not allow submitting more than once", async () => {
     const wrapper = mount(ResultsForm, {
       props: {

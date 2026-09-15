@@ -11,7 +11,7 @@
       v-for="r in sorted"
       @click="(e) => add(e.target.closest('li'), r.id, r.sourceId)"
       @keyup.enter="(e) => add(e.target.closest('li'), r.id, r.sourceId)"
-      :data-result-selected="r.id === selectedResult"
+      :data-result-selected="r.id === selectedResult ? true : null"
       :data-result-added="added && r.id === added.sourceRef"
       :data-result-id="r.id"
       :key="r.id"
