@@ -1,5 +1,5 @@
--- Current definition used by the deploy rebuild. Migrations use frozen SQL snapshots
--- so future edits here cannot break database setup at an earlier migration.
+-- Frozen definition for migration 0048, after all required columns exist.
+-- The deploy rebuild uses main/create_search_index.sql, which may evolve independently.
 DROP MATERIALIZED VIEW IF EXISTS search_view;
 DROP MATERIALIZED VIEW IF EXISTS internal_search_view;
 CREATE MATERIALIZED VIEW internal_search_view AS
@@ -50,7 +50,7 @@ UNION ALL
     WHERE
         state IN ('Public','Revising') AND
         u.verified_professor = true AND
-        c.listed_publicly = true AND 
+        c.listed_publicly = true AND
         c.id NOT IN (
             -- Exclude older editions of casebooks in series
             SELECT
@@ -79,7 +79,7 @@ UNION ALL
         INNER JOIN main_contentcollaborator cc ON cc.user_id = u.id
         INNER JOIN main_casebook cb ON cc.casebook_id = cb.id AND cb.state='Public'
         LEFT JOIN main_institution inst on u.institution_id = inst.id
-        
+
     WHERE
           u.verified_professor = true AND
           u.attribution != ''
