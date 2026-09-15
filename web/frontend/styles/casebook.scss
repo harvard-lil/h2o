@@ -1,3 +1,4 @@
+@use "sass:math";
 @import 'content/dragging';
 @import 'content/annotations';
 @import 'content/modals';
@@ -109,7 +110,7 @@ main > header.casebook {
   @media (min-width: $screen-md) {
     display: block;
     position: absolute;
-    right: percentage((-1.5 / $grid-columns));
+    right: percentage(math.div(-1.5, $grid-columns));
     top: -40px;
     width: 12.5%;
     margin: 0;

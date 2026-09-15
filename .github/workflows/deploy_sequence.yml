@@ -210,7 +210,7 @@ jobs:
           cluster: ${{ env.ECS_CLUSTER }}
           service: ${{ env.ECS_SERVICE }}
           container: ${{ env.CONTAINER_NAME }}
-          migrate-command: 'python manage.py migrate'
+          migrate-command: 'python manage.py migrate --noinput'
           task-definition: ${{ steps.task-def.outputs.task-definition-arn }}
 
       - name: Align Terraform's placeholder with the verified image
