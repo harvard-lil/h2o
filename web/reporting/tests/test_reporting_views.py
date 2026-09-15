@@ -24,7 +24,7 @@ def cursor(db):
     yield connection.cursor()
 
 
-@pytest.mark.parametrize("view,count", zip(VIEW_LIST, [0] * len(VIEW_LIST)))
+@pytest.mark.parametrize("view,count", list(zip(VIEW_LIST, [0] * len(VIEW_LIST))))
 def test_create_empty_reporting_views(db, view, count, cursor):
     """Creating views of reporting tables should succeed even with no data"""
     cursor.execute(f"select count(*) from {view}")

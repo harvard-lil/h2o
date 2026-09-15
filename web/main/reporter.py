@@ -7,7 +7,6 @@ from django.conf import settings
 from django.utils import log
 from django.views import debug
 
-
 #
 # Templates are embedded in the file so that we know the error handler will
 # always work even if the template loader is broken.
@@ -87,7 +86,7 @@ class CustomExceptionReporter(debug.ExceptionReporter):
     def get_traceback_text(self):
         t = debug.DEBUG_ENGINE.from_string(TECHNICAL_500_TEXT_TEMPLATE)
         # grab the stacktrace in case https://code.djangoproject.com/ticket/27543 happens
-        (exc, val, tb) = sys.exc_info()
+        exc, val, tb = sys.exc_info()
         try:
             ctx = template.Context(self.get_traceback_data(), autoescape=False, use_l10n=False)
             text = t.render(ctx)
@@ -123,4 +122,4 @@ class CustomAdminEmailHandler(log.AdminEmailHandler):
         reporter = CustomExceptionReporter(request, is_email=True, *exc_info)
         message = f"{self.format(no_exc_record)}\n\n{reporter.get_traceback_text()}"
         html_message = reporter.get_traceback_html() if self.include_html else None
-        self.send_mail(subject, message, fail_silently=True, html_message=html_message)
+        self.send_mail(subject, message, html_message=html_message)

@@ -1,5 +1,5 @@
-// This file is compiled by vue-cli as configured by vue.config.js, as are other files in this directory.
-// NOTE: jquery itself is imported using ProvidePlugin
+import "vite/modulepreload-polyfill";
+import "../config/jquery";
 import 'jquery-ui';
 import 'jquery-ujs';
 import 'legacy/polyfills';

@@ -20,7 +20,7 @@ describe("ResultsForm", () => {
 
   it("triggers the add-doc event when clicked", async () => {
       const wrapper = mount(ResultsForm, {
-        propsData: {
+        props: {
           searchResults,
         },
       });
@@ -32,7 +32,7 @@ describe("ResultsForm", () => {
 
   it("does not allow submitting more than once", async () => {
     const wrapper = mount(ResultsForm, {
-      propsData: {
+      props: {
         searchResults,
         selectedResult,
       },
@@ -59,7 +59,7 @@ describe("ResultsForm", () => {
       },
     ];
     const wrapper = mount(ResultsForm, {
-      propsData: {
+      props: {
         searchResults,
       },
     });
@@ -76,7 +76,7 @@ describe("ResultsForm", () => {
 
   it("displays only the added result if added", async () => {
     const wrapper = mount(ResultsForm, {
-      propsData: {
+      props: {
         searchResults,
         selectedResult,
         added,
@@ -89,7 +89,7 @@ describe("ResultsForm", () => {
   it("display a no-results message if the result list was empty", async () => {
     const emptyResults = [];
     const wrapper = mount(ResultsForm, {
-      propsData: {
+      props: {
         searchResults: emptyResults,
       },
     });
@@ -98,7 +98,7 @@ describe("ResultsForm", () => {
 
     expect(
       mount(ResultsForm, {
-        propsData: {
+        props: {
           searchResults,
         },
       }).text()

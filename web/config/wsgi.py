@@ -24,7 +24,7 @@ _orig_send = EmailMessage.send
 def retrying_send(message, *args, **kwargs):
     try:
         return _orig_send(message, *args, **kwargs)
-    except (SMTPException, TimeoutError):
+    except SMTPException, TimeoutError:
         sleep(1)
         return _orig_send(message, *args, **kwargs)
 

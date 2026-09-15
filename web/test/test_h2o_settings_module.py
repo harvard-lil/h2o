@@ -94,10 +94,8 @@ def _installed_apps(settings_module, env_overrides=None):
 
 
 def test_settings_build_installed_apps_match_the_deployed_ones():
-    # The image build runs collectstatic and migration_manifest under
-    # settings_build, and both commands derive their whole output from
-    # INSTALLED_APPS. What they bake into the image describes the deployed app
-    # only for as long as the two lists agree.
+    # collectstatic and shared CI migration inspection use settings_build.
+    # Both must see the same installed apps as the deployed application.
     assert _installed_apps("settings_build") == _installed_apps(
         "settings_aws_ecs", {"APP_CONFIG": json.dumps(FAKE_APP_CONFIG)}
     )
@@ -175,3 +173,51 @@ def test_h2o_settings_module_unset_falls_back_to_settings_dev():
     )
     assert result.returncode == 0, result.stderr
     assert "ok" in result.stdout
+
+
+def test_ecs_csrf_checks_use_the_forwarded_scheme():
+    """HTTPS forms forwarded over HTTP retain CSRF origin and token checks."""
+    result = _run(
+        """
+        import django
+        from django.conf import settings
+        from django.http import HttpResponse
+        from django.middleware.csrf import CsrfViewMiddleware, get_token
+        from django.test import RequestFactory
+
+        settings.LOGGING_CONFIG = None
+        django.setup()
+        factory = RequestFactory()
+        seed = factory.get("/")
+        token = get_token(seed)
+        secret = seed.META["CSRF_COOKIE"]
+        view = lambda request: HttpResponse("ok")
+        middleware = CsrfViewMiddleware(view)
+
+        for forwarded, origin, include_token, expected in [
+            ("https", "https://example.test", True, 200),
+            ("https", "https://other.test", True, 403),
+            ("https", "https://example.test", False, 403),
+            ("http", "http://example.test", True, 200),
+            (None, "https://example.test", True, 403),
+        ]:
+            headers = {"HTTP_HOST": "example.test", "HTTP_ORIGIN": origin}
+            if forwarded is not None:
+                headers["HTTP_X_FORWARDED_PROTO"] = forwarded
+            request = factory.post(
+                "/form/", {"csrfmiddlewaretoken": token} if include_token else {},
+                **headers,
+            )
+            request.COOKIES[settings.CSRF_COOKIE_NAME] = secret
+            assert request.is_secure() == (forwarded == "https")
+            response = middleware.process_view(request, view, (), {})
+            status = response.status_code if response is not None else 200
+            assert status == expected, (forwarded, origin, include_token, status)
+        """,
+        {
+            "H2O_SETTINGS_MODULE": "settings_aws_ecs",
+            "DJANGO_SETTINGS_MODULE": "config.settings",
+            "APP_CONFIG": json.dumps(FAKE_APP_CONFIG),
+        },
+    )
+    assert result.returncode == 0, result.stderr

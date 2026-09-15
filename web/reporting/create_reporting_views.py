@@ -3,7 +3,6 @@ from django.db import connection
 
 from main.models import Casebook
 
-
 # "Published" state matches logic in the front end, which includes casebooks under revision
 PUBLISHED_CASEBOOKS = (
     Casebook.LifeCycle.PUBLISHED.value,

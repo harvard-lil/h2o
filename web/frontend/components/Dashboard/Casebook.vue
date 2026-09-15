@@ -132,7 +132,7 @@ export default {
   @import "variables";
 
   .verified-prof {
-  background-image: url('~static/images/ui/verified.png');
+  background-image: url('static/images/ui/verified.png');
   background-position: top 6px right;
   background-repeat: no-repeat;
   background-size: auto;

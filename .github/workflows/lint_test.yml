@@ -26,30 +26,25 @@ jobs:
       - name: Set up Python
         uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97 # v7.0.0
         with:
-          python-version: '3.11'
+          python-version: '3.14'
       
+      - name: Install locked Python dependencies
+        run: |
+          python -m pip install uv==0.12.13
+          CPUCOUNT=1 uv sync --project web --locked
+          uv lock --project docker/pandoc-lambda --check
+
       - name: Run flake8
         run: |
-          pip install "$(grep -Eo 'flake8==\S+' web/requirements.txt)"
-          flake8 web/ --config web/setup.cfg
-          flake8 docker/pandoc-lambda/function/ --config web/setup.cfg
-      
+          uv run --project web --locked flake8 web/ --config web/setup.cfg
+          uv run --project web --locked flake8 docker/pandoc-lambda/function/ --config web/setup.cfg
+
       - name: Run black
-        run: |
-          pip install "$(grep -Eo 'black==\S+' web/requirements.txt)"
-          black --check --diff .
-      
+        run: uv run --project web --locked black --check --diff .
+
       - name: Run mypy
-        run: |
-          cd web
-          # CPUCOUNT=1 for the same reason the Dockerfile sets it: uwsgi's build
-          # spawns one compiler thread per CPU, and on a multi-core runner they
-          # intermittently collide with `OSError: [Errno 14] Bad address:
-          # '/bin/sh'`. Nothing here needs uwsgi -- it arrives through
-          # requirements.txt -- so the cost of serialising its build is a few
-          # seconds against an occasional red build on an unrelated commit.
-          CPUCOUNT=1 pip install -r requirements.txt
-          PYTHONPATH=. mypy
+        working-directory: web
+        run: PYTHONPATH=. uv run --locked mypy
 
   test:
     name: Test
@@ -153,13 +148,7 @@ jobs:
             -t h2o-test:ci \
             -f ./Dockerfile .
 
-      # The collected static files and the migration list are built into the
-      # image (see the Dockerfile), so they are read out of it with `docker
-      # create`, which gives a container filesystem without starting anything.
-      # They describe the image that ships rather than whatever a running
-      # service happened to have on disk. Both are needed as files on the runner
-      # for the attachment seam further down.
-      - name: Extract the image's static files and migration list
+      - name: Extract the image's static files
         if: github.event_name == 'pull_request' || steps.web-publication.outputs.state == 'absent'
         run: |
           set -euxo pipefail
@@ -167,7 +156,6 @@ jobs:
           mkdir -p image-artifacts
           container="$(docker create "h2o-prod:${{ github.sha }}")"
           docker cp "${container}:/app/web/static" image-artifacts/static
-          docker cp "${container}:/app/web/migrations.json" image-artifacts/migrations.json
           docker rm "${container}"
 
           # These four come from installed packages, not from the checkout, so
@@ -175,8 +163,15 @@ jobs:
           for collected in admin rest_framework django_extensions css; do
             test -d "image-artifacts/static/${collected}"
           done
-          jq -e '.migrations | length > 0' image-artifacts/migrations.json
-          jq -r '"migrations.json: \(.count) migrations, hash \(.hash)"' image-artifacts/migrations.json
+
+      - name: Inspect migrations in the built image
+        if: github.event_name == 'pull_request' || steps.web-publication.outputs.state == 'absent'
+        uses: harvard-lil/lil-actions/django-migration-manifest@main
+        with:
+          image: h2o-prod:${{ github.sha }}
+          output: image-artifacts/migrations.json
+          settings-module: config.settings
+          environment: '{"H2O_SETTINGS_MODULE":"settings_build"}'
 
       - name: docker compose up
         if: github.event_name == 'pull_request' || steps.web-publication.outputs.state == 'absent'
@@ -235,62 +230,20 @@ jobs:
           local-image: h2o-prod:${{ github.sha }}
           tag: ${{ github.sha }}
 
-      # The ORAS project's own action, pinned to a commit like other third-party actions
-      # here, so a compromised tag cannot arrive silently in the job that has
-      # just authenticated to ECR and can push to it. It verifies the checksum
-      # of the binary it downloads against its own table.
-      #
-      # Which ORAS it installs is the action's default rather than a version
-      # named here, so that dependabot maintains the whole thing: a version
-      # pinned in this file would be a string nothing watches. Nothing below
-      # depends on a particular ORAS -- `attach`, `--artifact-type` and
-      # `--annotation` long predate any version this action offers.
-      - name: Install oras
+      - name: Pack static files reproducibly
         if: steps.web-publication.outputs.state == 'absent'
-        uses: oras-project/setup-oras@1d808f7d7f6995cc68b7bf507bfe5c5446e1dc9d # v2.0.1
-
-      # `image-artifacts/static` and `image-artifacts/migrations.json` are on the
-      # runner from the extraction step near the top of this job, and the image
-      # they were read out of has just been pushed. Attaching them to that image
-      # as OCI referrers is what lets a deploy learn what an image contains --
-      # which assets to publish, which migrations it expects -- without starting
-      # it or pulling it. ECR answers the referrers API natively and filters by
-      # artifact type server-side, so a reader fetches one of these with three
-      # requests and no oras binary.
-      #
-      # Nothing publishes the static files to S3 here. The two `aws s3 sync`
-      # calls that ran in this job wrote the production bucket from every build
-      # of main, including builds of commits that were never deployed; the
-      # bucket is the deploy's to write, from these referrers.
-      - name: Attach the static files and migration list to the pushed image
-        if: steps.web-publication.outputs.state == 'absent'
-        env:
-          REGISTRY: ${{ steps.publish-ecr-login.outputs.registry }}
-          DIGEST: ${{ steps.publish-web.outputs.digest }}
-          MIGRATIONS_TYPE: application/vnd.harvard-lil.h2o.migrations.v1+json
-          STATIC_TYPE: application/vnd.harvard-lil.h2o.staticassets.v1.tar+gzip
         run: |
-          set -euxo pipefail
-
-          IMAGE="${REGISTRY}/${ECR_REPOSITORY}@${DIGEST}"
-
-          # Sorted names and zeroed mtimes, owners and gzip header, so one image
-          # produces one tarball: the bytes decide the blob digest, and the blob
-          # digest decides whether a re-attach is the same referrer or a second
-          # one.
           tar --sort=name --mtime=@0 --owner=0 --group=0 --numeric-owner \
             -cf - -C image-artifacts static | gzip -n > static-assets.tar.gz
-
-          # oras stamps org.opencontainers.image.created with the current time
-          # unless it is given one, which makes every attach of identical
-          # content a distinct referrer. A fixed value keeps attach idempotent.
-          oras attach --artifact-type "$MIGRATIONS_TYPE" \
-            --annotation "org.opencontainers.image.created=1970-01-01T00:00:00Z" \
-            "$IMAGE" image-artifacts/migrations.json:application/json
-
-          oras attach --artifact-type "$STATIC_TYPE" \
-            --annotation "org.opencontainers.image.created=1970-01-01T00:00:00Z" \
-            "$IMAGE" static-assets.tar.gz:application/gzip
+      - name: Attach the static files and migration manifest
+        if: steps.web-publication.outputs.state == 'absent'
+        uses: harvard-lil/lil-actions/ecr-artifacts@main
+        with:
+          mode: publish
+          image: ${{ steps.publish-web.outputs.image-uri }}
+          artifacts: >-
+            [{"type":"application/vnd.harvard-lil.h2o.migrations.v1+json","path":"image-artifacts/migrations.json","media-type":"application/json"},
+             {"type":"application/vnd.harvard-lil.h2o.staticassets.v1.tar+gzip","path":"static-assets.tar.gz","media-type":"application/gzip"}]
 
       - name: Verify the completed web publication
         id: verify-web-publication

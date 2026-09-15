@@ -35,7 +35,6 @@ from django.views import View
 from django.views.decorators.cache import never_cache
 from django.views.decorators.csrf import requires_csrf_token
 from django.views.decorators.http import require_http_methods, require_POST
-from pytest import raises as assert_raises
 from rest_framework import status
 from rest_framework.exceptions import ValidationError
 from rest_framework.request import Request
@@ -516,7 +515,7 @@ def server_error(request):
 
 
 class CasebookTOCView(APIView):
-    @never_cache
+    @method_decorator(never_cache)
     @method_decorator(requires_csrf_token)
     @method_decorator(
         perms_test(
@@ -558,7 +557,7 @@ class CasebookTOCView(APIView):
 
 
 class CasebookInfoView(APIView):
-    @never_cache
+    @method_decorator(never_cache)
     @method_decorator(requires_csrf_token)
     @method_decorator(
         perms_test(
@@ -597,7 +596,7 @@ class SectionTOCView(APIView):
     This presents a Toc in a heirarchical form.
     """
 
-    @never_cache
+    @method_decorator(never_cache)
     @method_decorator(requires_csrf_token)
     @method_decorator(perms_test(viewable_section))
     @method_decorator(hydrate_params)
@@ -2341,7 +2340,7 @@ class ResourceView(View):
                     if not resource:
                         return redirect(casebook.get_absolute_url())
                     casebook.content_tree__load()
-                    current_node = resource
+                    current_node: ContentNode | None = resource
                     while current_node:
                         time_step = (
                             current_node.provenance
@@ -3140,7 +3139,7 @@ def internal_search(request: HttpRequest):
         category = "casebook"
     try:
         page = int(request.GET.get("page", 1))
-    except (TypeError, ValueError):
+    except TypeError, ValueError:
         page = 1
     query = request.GET.get("q")
 
@@ -3198,7 +3197,7 @@ def casebook_search(request: HttpRequest, casebook: Casebook):
     # read query parameters
     try:
         page = int(request.GET.get("page", 1))
-    except (TypeError, ValueError):
+    except TypeError, ValueError:
         page = 1
     query = request.GET.get("q", "")
     category = request.GET.get("type", "")

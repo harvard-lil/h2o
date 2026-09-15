@@ -3,11 +3,11 @@
   <button class="action annotate-casebook-nodes" data-disable-with="Clone-Node" v-on:click="displayModal()">Take notes</button>
   <Modal v-if="showModal"
             @close="showModal = false">
-    <template class="modal-title" slot="title">
+    <template v-slot:title>
       <span class="take-notes-icon"></span>
       <h4>Copy this {{properType()}} to Take Notes</h4>
     </template>
-    <template class="modal-body-take-notes" slot="body">
+    <template v-slot:body>
       <p class="take-notes-cloner-text"> <b> To Take Notes on a specific section or resource, you need to first add a copy to an existing book in your dashboard.<br/><br/> Choose the book</b>  where you would like  "<em>{{sectionSource}}</em>" to appear: </p>
       <ul class="take-notes-target-list">
         <li v-for="cb in casebookTargets" v-bind:key="cb.form_target">
@@ -51,11 +51,11 @@ export default {
 
 <style lang="scss">
 .casebook-actions button.action.annotate-casebook-nodes {
-    background-image: url('~static/images/take-notes-icon.svg');
+    background-image: url('static/images/take-notes-icon.svg');
     border: none;
 }
 .annotate-casebook{
-  background-image: url('~static/images/take-notes-icon.svg');
+  background-image: url('static/images/take-notes-icon.svg');
   border: none;
 }
 .modal-title{
@@ -67,7 +67,7 @@ export default {
   flex-direction: row;
   justify-content: center;
   .take-notes-icon{
-    background-image: url('~static/images/take-notes-icon.svg');
+    background-image: url('static/images/take-notes-icon.svg');
     display: inline-block;
     height: 35px;
     width: 35px;

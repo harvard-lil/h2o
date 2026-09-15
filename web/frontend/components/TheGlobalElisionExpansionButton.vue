@@ -23,7 +23,7 @@ export default {
 
 <style lang="scss" scoped>
 @import '../styles/vars-and-mixins';
-@import "~bootstrap-sass/assets/stylesheets/bootstrap/buttons";
+@import "bootstrap-sass/assets/stylesheets/bootstrap/buttons";
 
 button {
   @extend .btn;

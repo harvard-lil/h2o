@@ -1,3 +1,5 @@
+-- Current definition used by the deploy rebuild. Migrations use frozen SQL snapshots
+-- so future edits here cannot break database setup at an earlier migration.
 DROP MATERIALIZED VIEW IF EXISTS search_view;
 DROP MATERIALIZED VIEW IF EXISTS internal_search_view;
 CREATE MATERIALIZED VIEW internal_search_view AS

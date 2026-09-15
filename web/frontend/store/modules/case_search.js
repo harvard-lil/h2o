@@ -98,7 +98,7 @@ const mutations = {
 
 const actions = {
   fetchForSource: ({state, commit, dispatch}, {queryObj, source }) => {
-    if (queryObj === {}) return;
+    if (Object.keys(queryObj).length === 0) return;
     commit('initializeSearch', queryObj);
     let qKey = helpers.normalize(queryObj);
     if (_.hasIn(state, ['searches', qKey]) &&

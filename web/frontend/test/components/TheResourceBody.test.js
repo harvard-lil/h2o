@@ -5,8 +5,7 @@ import { parseHTML,
 
 import { cloneDeep } from 'lodash';
 
-import { mount,
-         createLocalVue } from '@vue/test-utils';
+import { mount } from '@vue/test-utils';
 
 import Vuex from 'vuex';
 import annotations from "store/modules/annotations";
@@ -16,8 +15,6 @@ import resources_ui from "store/modules/resources_ui";
 
 import TheResourceBody from 'components/TheResourceBody';
 
-const localVue = createLocalVue();
-localVue.use(Vuex);
 
 const DEFAULT_ANNOTATION = Object.freeze({
   "id": 1,
@@ -85,10 +82,10 @@ describe('TheResourceBody', () => {
   ].forEach(([title, html, selection, annotations]) => {
     it(title, () => {
       store.commit('annotations/append', annotations);
-      const wrapper = mount(TheResourceBody, {store, localVue, propsData: {
+      const wrapper = mount(TheResourceBody, {global: { plugins: [store] }, props: {
         resource: {content: util.format(html, ...selection)}
       }});
-      expect(wrapper.findAll(`.selected-text`).wrappers.map(w => removeVueScopedCSSAttributes(parseHTML(w.html())).innerHTML)).toEqual(selection);
+      expect(wrapper.findAll(`.selected-text`).map(w => removeVueScopedCSSAttributes(parseHTML(w.html({ raw: true }))).innerHTML)).toEqual(selection);
     });
   });
 
@@ -123,8 +120,8 @@ describe('TheResourceBody', () => {
   ].forEach(([title, html, annotations]) => {
     it(title, () => {
       store.commit('annotations/append', annotations);
-      const wrapper = mount(TheResourceBody, {store, localVue, propsData: {resource: {content: html}}});
-      expect(parseHTML(wrapper.html()).textContent).toEqual(parseHTML(html).textContent);
+      const wrapper = mount(TheResourceBody, {global: { plugins: [store] }, props: {resource: {content: html}}});
+      expect(parseHTML(wrapper.html({ raw: true })).textContent).toEqual(parseHTML(html).textContent);
     });
   });
 

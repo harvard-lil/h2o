@@ -3,7 +3,6 @@
 </template>
 
 <script>
-import VueScrollTo from "vue-scrollto";
 import { createNamespacedHelpers } from 'vuex';
 const { mapActions } = createNamespacedHelpers('annotations_ui');
 
@@ -32,7 +31,7 @@ export default {
     ...mapActions(['expandById']),
     handleClick() {
       this.expandById(this.relatedAnnotationIds);
-      this.$nextTick(() => VueScrollTo.scrollTo(document.querySelector(`[id="${this.siblingId}"], [name="${this.siblingId}"]`)));
+      this.$nextTick(() => document.querySelector(`[id="${this.siblingId}"], [name="${this.siblingId}"]`)?.scrollIntoView({behavior: "smooth"}));
     }
   },
   created() {

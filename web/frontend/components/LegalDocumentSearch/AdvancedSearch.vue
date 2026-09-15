@@ -2,7 +2,7 @@
   <fieldset class="advanced-search">
     <label>
       Source:
-      <select class="form-control" v-model="formData.source">
+      <select class="form-control" :value="formData.source" @change="update('source', $event.target.value ? Number($event.target.value) : undefined)">
         <option :value="undefined">All sources</option>
         <option v-for="source in sources" :value="source.id" :key="source.id">
           {{ source.name }}
@@ -13,7 +13,7 @@
       Jurisdiction:
       <select
         class="form-control"
-        v-model="formData.jurisdiction"
+        :value="formData.jurisdiction" @change="update('jurisdiction', $event.target.value || undefined)"
         name="jurisdiction"
       >
         <option :value="undefined">All jurisdictions</option>
@@ -26,7 +26,7 @@
       Decision Date
       <fieldset>
         <input
-          v-model="formData.afterDate"
+          :value="formData.afterDate" @input="update('afterDate', $event.target.value)"
           name="after_date"
           type="date"
           class="form-control"
@@ -34,7 +34,7 @@
         />
         <span> - </span>
         <input
-          v-model="formData.beforeDate"
+          :value="formData.beforeDate" @input="update('beforeDate', $event.target.value)"
           name="before_date"
           type="date"
           class="form-control"
@@ -69,9 +69,9 @@ export default {
   data: () => ({
     jurisdictions,
   }),
-  watch: {
-    formData() {
-      this.$emit("update", this.formData);
+  methods: {
+    update(field, value) {
+      this.$emit("update", { ...this.formData, [field]: value });
     },
   },
 };
