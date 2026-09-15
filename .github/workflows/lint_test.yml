@@ -188,7 +188,7 @@ jobs:
           set -x
           docker compose exec web pytest \
             --cov --cov-config=setup.cfg --cov-report xml  `# write coverage data to .coverage for upload by codecov` \
-            -vv -n auto --dist loadgroup
+            -vv -n auto --dist loadgroup --browser chromium --browser firefox
 
       - name: Javascript tests
         if: github.event_name == 'pull_request' || steps.web-publication.outputs.state == 'absent'
