@@ -3,6 +3,7 @@
 
 {% block footer %}
   {{ block.super }}
+  {% include 'includes/tinymce_skin_url.html' %}
   {% render_bundle 'chunk-common' %}
   {% render_bundle 'rich_text_editor' %}
 {% endblock %}
