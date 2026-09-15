@@ -7,6 +7,7 @@ from _pytest.fixtures import FixtureLookupError
 from conftest import UserFactory, VerifiedProfessorFactory
 from django.template import Variable
 from django.urls import reverse
+from django.views.generic import RedirectView, TemplateView
 
 from ..urls import urlpatterns
 
@@ -40,7 +41,7 @@ def get_permissions_tests():
             continue
 
         # don't run tests on built-in views:
-        if view_func.__name__ in ["RedirectView", "TemplateView"]:
+        if getattr(view_func, "view_class", None) in (RedirectView, TemplateView):
             continue
 
         # retrieve the test config for this view, which will have been attached as view_func.perms_test by the
@@ -72,7 +73,7 @@ def get_permissions_tests():
 
 @pytest.mark.parametrize(
     "path, has_tests, view_func, url_args, request_method, status_code, user_string",
-    get_permissions_tests(),
+    list(get_permissions_tests()),
 )
 def test_permissions(
     # regular test fixtures

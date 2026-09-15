@@ -1,5 +1,5 @@
 <template>
-<portal to="modal-target">
+<Teleport to="body">
 <transition name="fade">
   <focus-trap :active="hasFocusTarget" :initial-focus="wrappedFocus">
   <div id="modal"
@@ -31,14 +31,12 @@
   </div>
   </focus-trap>
 </transition>
-</portal>
+</Teleport>
 </template>
 
 <script>
-import PortalVue from "portal-vue";
 import Vue from "vue";
 import { FocusTrap } from 'focus-trap-vue';
-Vue.use(PortalVue)
 
 Vue.directive('focus', {
     inserted: function (el) {
@@ -72,7 +70,7 @@ export default {
     document.body.classList.add('modal-open');
     window.addEventListener('keydown', this.onKey)
   },
-  beforeDestroy: function () {
+  beforeUnmount: function () {
     let nm = document.getElementById('non-modal');
     nm.removeAttribute('aria-hidden');
     document.body.classList.remove('modal-open');

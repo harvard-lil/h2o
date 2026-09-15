@@ -1,6 +1,6 @@
-import Vue from "vue";
-import VueRouter from 'vue-router';
-Vue.use(VueRouter);
+import Vue, { createApp } from "vue";
+import { createRouter, createWebHistory } from 'vue-router';
+
 Vue.config.productionTip = process.env.NODE_ENV == "development";
 
 import store from "../store/index";
@@ -16,7 +16,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
     ];
 
-    const router = new VueRouter({
+    const router = createRouter({
         routes,
         scrollBehavior: function(to, from, savedPosition) {
             if (to.hash) {
@@ -25,18 +25,17 @@ document.addEventListener("DOMContentLoaded", () => {
                 return { x: 0, y: 0 };
             }
         },
-        mode: 'history'
+        history: createWebHistory()
     });
 
     const el = document.getElementById("table-of-contents");
-    const app = new Vue({
-        el,
-        store,
-        router,
-        components: {
+    const app = createApp({
+                components: {
             TheTableOfContents
         }
     });
 
-    window.app = app;
+    app.use(store);
+  app.use(router);
+  window.app = app.mount(el);
 });

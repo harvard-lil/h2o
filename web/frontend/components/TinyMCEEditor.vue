@@ -1,5 +1,5 @@
 <template>
-<textarea ref="textarea" :id="taID" v-model="value">
+<textarea ref="textarea" :id="taID" :value="value" @input="$emit('input', $event.target.value)">
   </textarea>
 </template>
 
@@ -21,8 +21,8 @@ export default {
             });
         });
     },
-    beforeDestroy: function () {
-        window.tinyMCE.remove(this.$refs.textarea);
+    beforeUnmount: function () {
+        window.tinymce.remove(this.$refs.textarea);
     },
 }
 </script>

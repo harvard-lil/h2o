@@ -31,8 +31,8 @@
 
   <Modal v-if="showModal"
             @close="showModal = false">
-    <template slot="title">Error</template>
-    <template slot="body">
+    <template v-slot:title>Error</template>
+    <template v-slot:body>
       <p>An error occurred while trying to save your annotation. Please try again.</p>
       <button class="modal-button"
               @click="showModal = false">Dismiss</button>

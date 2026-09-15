@@ -143,7 +143,7 @@ function guess_line_depth(lines) {
     // If the top of the frontier was numbered, this is a first child
 
     if (numeral_stack.length === 0) {
-      if (frontier === []) {
+      if (frontier.length === 0) {
         new_line.enum = [1];
         frontier = [{ blank: 1 }];
         return [frontier, new_line];

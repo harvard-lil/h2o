@@ -35,8 +35,7 @@ export default {
     }
   },
   render(h) {
-    let annotations = this.$store.state.annotations.all;
-    annotations.forEach(x => x.used = false);
+    let annotations = this.$store.state.annotations.all.map(annotation => ({...annotation, used: false}));
     return tupleToVNode(h, annotations)(nodeToTuple(this.body));
   }
 };

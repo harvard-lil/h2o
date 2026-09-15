@@ -15,12 +15,12 @@
     </button>
 
     <Modal v-if="showModal" @close="showModal = false">
-      <template slot="title">
+      <template v-slot:title>
         <div class="publish-modal">
           {{ publishSuccess ? "Your book is published!" : "Publishing your book" }}
         </div>
       </template>
-      <template slot="body">
+      <template v-slot:body>
         <aside class="publish-modal">
         <div v-if="!publishSuccess">
           <div v-if="publishCheck.isVerifiedProfessor" id="prof-prompt">
@@ -82,7 +82,7 @@
         </div>
       </aside>
       </template>
-      <template slot="footer">
+      <template v-slot:footer>
         <button
           v-show="!publishSuccess"
           class="modal-button cancel"
@@ -118,7 +118,7 @@ function getCookie(name) {
   if (document.cookie && document.cookie !== "") {
     var cookies = document.cookie.split(";");
     for (var i = 0; i < cookies.length; i++) {
-      var cookie = jQuery.trim(cookies[i]);
+      var cookie = cookies[i].trim();
       if (cookie.substring(0, name.length + 1) === name + "=") {
         cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
         break;
@@ -191,7 +191,7 @@ export default {
 
 <style lang="scss">
 .casebook-actions button.action.clone-casebook-nodes {
-  background-image: url("~static/images/ui/casebook/clone.svg");
+  background-image: url("static/images/ui/casebook/clone.svg");
   border: none;
 }
 

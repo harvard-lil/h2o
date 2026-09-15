@@ -49,7 +49,7 @@ header.advanced-search {
     input{
       border:none;
       background-color: #dddddd80;
-      background-image: url('~static/images/search-icon.svg');
+      background-image: url('static/images/search-icon.svg');
       background-position: 98% center;
       background-repeat: no-repeat;
       background-size: 30px;
@@ -91,7 +91,7 @@ header.advanced-search {
       font-size: 14px;
       height: 48px;
 
-      background-image:  url('~static/images/expand-arrow.svg');
+      background-image:  url('static/images/expand-arrow.svg');
       background-position: 97% 30%;
       background-size: 35px;
       -webkit-appearance: none;
@@ -195,7 +195,7 @@ header.advanced-search {
         display: inline-block;
         vertical-align: middle;
         content: '';
-        background: url('~static/images/ui/verified.png') no-repeat;
+        background: url('static/images/ui/verified.png') no-repeat;
       }
       
     }
@@ -274,7 +274,7 @@ header.advanced-search {
         display: inline-block;
         vertical-align: middle;
         content: '';
-        background: url('~static/images/ui/verified.png') no-repeat;
+        background: url('static/images/ui/verified.png') no-repeat;
       }
     }
     .ordinals, .profile-image {

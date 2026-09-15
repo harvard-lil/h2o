@@ -7,6 +7,11 @@ config = json.loads(os.environ["APP_CONFIG"])
 
 DEBUG = False
 
+# Cloudflare overwrites X-Forwarded-Proto with the visitor's scheme. The ECS
+# task accepts traffic only through its cloudflared sidecar (no inbound SG rules).
+# See https://developers.cloudflare.com/fundamentals/reference/http-headers/#x-forwarded-proto
+SECURE_PROXY_SSL_HEADER = ("HTTP_X_FORWARDED_PROTO", "https")
+
 SESSION_COOKIE_SECURE = True
 CSRF_COOKIE_SECURE = True
 

@@ -30,7 +30,8 @@ INSTALLED_APPS = [
     "crispy_forms",
     "crispy_bootstrap3",
     "rest_framework",
-    "webpack_loader",
+    "django_vite",
+    "django.contrib.postgres",
     "django_json_widget",
     "simple_history",
     # built-in
@@ -126,7 +127,7 @@ TIME_ZONE = "UTC"
 
 USE_I18N = True
 
-USE_L10N = True
+USE_TZ = False
 
 # LIL's analytics JS
 USE_ANALYTICS = False
@@ -226,17 +227,12 @@ LOGGING: LoggerConfig = {
 # avoid the need for collectstatic in production (see http://whitenoise.evans.io/en/stable/django.html#WHITENOISE_USE_FINDERS )
 WHITENOISE_USE_FINDERS = True
 
-WEBPACK_LOADER = {
-    "DEFAULT": {
-        "BUNDLE_DIR_NAME": "dist/",
-        "STATS_FILE": os.path.join(
-            BASE_DIR,
-            (
-                "webpack-stats-serve.json"
-                if os.environ.get("LIVE_JS_ASSETS")
-                else "webpack-stats.json"
-            ),
-        ),
+DJANGO_VITE = {
+    "default": {
+        "dev_mode": bool(os.environ.get("LIVE_JS_ASSETS")),
+        "dev_server_port": 8080,
+        "static_url_prefix": "dist",
+        "manifest_path": os.path.join(BASE_DIR, "static", "dist", "manifest.json"),
     }
 }
 

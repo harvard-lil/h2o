@@ -264,18 +264,26 @@ def annotated_content_for_export(node: ContentNode, export_options: dict = None)
     doc = node.headerless_export_content(export_options.get("request"))
     if not doc:
         return doc
-    pq = PyQuery(doc)
+    fragments = html.fragments_fromstring(doc)
+    if len(fragments) == 1 and isinstance(fragments[0], str):
+        # Plain text exports are paragraphs, independent of lxml's choice of
+        # implicit wrapper for a fragment without any HTML elements.
+        paragraph = html.Element("p")
+        paragraph.text = fragments[0]
+        pq = PyQuery(paragraph)
+    else:
+        pq = PyQuery(doc)
     source_tree = pq[0]
     max_valid_offset = len("".join([x for x in pq[0].itertext()]))
     annotations: list[SortedAnnotation] = []
     for annotation in node.annotations.all():
         # equivalent test to self.annotation.valid(),but using all() lets us use prefetched querysets
-        if annotation.global_start_offset < 0 or annotation.global_end_offset < 0:
+        start = annotation.global_start_offset
+        end = annotation.global_end_offset
+        if start is None or end is None or start < 0 or end < 0:
             continue
-        annotations.append(
-            (min(annotation.global_start_offset, max_valid_offset), True, annotation)
-        )
-        annotations.append((min(annotation.global_end_offset, max_valid_offset), False, annotation))
+        annotations.append((min(start, max_valid_offset), True, annotation))
+        annotations.append((min(end, max_valid_offset), False, annotation))
     # sort by first two fields, so we're ordered by offset, then we get end tags and then start tags for a given offset
     annotations.sort(key=lambda a: (a[0], not a[1]))
     # This SAX ContentHandler does the heavy lifting of stepping through each HTML tag and text string in the

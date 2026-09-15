@@ -3,137 +3,57 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
-    "serve": "vue-cli-service serve",
-    "build": "vue-cli-service build",
-    "test": "vue-cli-service test:unit --require frontend/test/mocha_setup.js frontend/test/**/*.test.js",
-    "test-watch": "vue-cli-service test:unit --require frontend/test/mocha_setup.js frontend/test/**/*.test.js --watch",
-    "lint": "vue-cli-service lint frontend/"
+    "serve": "vite --host 0.0.0.0 --port 8080",
+    "build": "vite build",
+    "test": "vitest run",
+    "test-watch": "vitest",
+    "lint": "eslint frontend/"
   },
   "dependencies": {
-    "@fortawesome/fontawesome-svg-core": "^6.1.2",
-    "@fortawesome/free-solid-svg-icons": "^6.1.2",
-    "@fortawesome/vue-fontawesome": "^2.0.8",
-    "@holtchesley/vue-nestable": "git://github.com/holtchesley/vue-nestable.git#063a64e67e5a1acbb2b7d7556748a3ce00d1ca52",
-    "@sentry/tracing": "^7.38.0",
-    "@sentry/vue": "^7.36.0",
-    "@trevoreyre/autocomplete-vue": "^2.2.0",
-    "axios": "^0.21.4",
-    "bluebird": "^3.5.0",
-    "bootstrap-sass": "3.4.1",
-    "classlist-polyfill": "^1.2.0",
-    "core-js": "^3.4.3",
-    "debounce": "^1.0.2",
-    "delegate": "^3.1.2",
-    "element-closest": "^2.0.2",
+    "@fortawesome/fontawesome-free": "^7.3.1",
+    "@fortawesome/fontawesome-svg-core": "^7.3.1",
+    "@fortawesome/free-solid-svg-icons": "^7.3.1",
+    "@fortawesome/vue-fontawesome": "^3.3.3",
+    "@sentry/vue": "^10.74.0",
+    "@vue/compat": "^3.5.42",
+    "axios": "^1.20.0",
+    "bootstrap-sass": "3.4.3",
+    "core-js": "^3.50.0",
+    "delegate": "^3.2.0",
+    "element-closest": "^3.0.2",
     "es6-string-html-template": "^1.0.2",
-    "es6-symbol": "^3.1.1",
-    "focus-trap": "^5.1.0",
-    "focus-trap-vue": "0.0.6",
-    "form-serialize": "^0.7.1",
-    "fstream": "^1.0.12",
-    "glob": "^7.1.1",
-    "htmltidy2": "^0.3.0",
-    "jquery": ">=3.5.0",
-    "jquery-ui": "^1.13.0",
-    "jquery-ujs": "^1.2.2",
-    "js-yaml": "^3.12.1",
-    "lodash": "^4.17.21",
-    "lodash.template": "^4.5.0",
-    "lodash.throttle": "^4.1.1",
-    "mixin-deep": "^1.3.2",
-    "moment": "^2.24.0",
-    "morphdom": "^2.3.2",
-    "path-complete-extname": "^0.1.0",
-    "portal-vue": "^2.1.7",
-    "query-string": "^4.3.4",
-    "serialize-javascript": "^4.0.0",
-    "set-value": "^4.0.1",
-    "v-click-outside": "^3.0.1",
-    "vue": "^2.6.10",
+    "focus-trap-vue": "4.1.0",
+    "immutability-helper": "^3.1.1",
+    "jquery": ">=4.0.0",
+    "jquery-ui": "^1.14.2",
+    "jquery-ujs": "^1.2.3",
+    "lodash": "^4.18.1",
+    "morphdom": "^2.7.8",
+    "uuid": "^14.0.2",
+    "v-click-outside": "^3.2.0",
+    "vue": "^3.5.42",
     "vue-contenteditable-directive": "^1.2.0",
-    "vue-router": "^3.0.6",
-    "vue-scrollto": "^2.13.0",
-    "vuex": "^3.1.0"
+    "vue-router": "^5.3.1",
+    "vuex": "^4.1.0"
   },
   "devDependencies": {
-    "@babel/polyfill": "^7.7.0",
-    "@vue/cli-plugin-babel": "^4.5.10",
-    "@vue/cli-plugin-eslint": "^4.5.10",
-    "@vue/cli-plugin-unit-mocha": "^4.2.3",
-    "@vue/cli-service": "^4.5.10",
-    "@vue/test-utils": "1.0.0-beta.29",
-    "autoprefixer": "^6.7.7",
-    "babel-eslint": "^10.0.3",
-    "cache-loader": "^4.1.0",
-    "chai": "^4.1.2",
+    "@eslint/js": "^10.0.1",
+    "@vitejs/plugin-vue": "^6.0.9",
+    "@vue/test-utils": "2.5.0",
     "drag-mock": "^1.4.0",
-    "eslint": "^5.16.0",
-    "eslint-plugin-vue": "^5.0.0",
-    "expect": "^24.8.0",
-    "jsdom": "^15.1.0",
-    "jsdom-global": "^3.0.2",
-    "mocha": "^6.2.3",
-    "mocha-webpack": "^2.0.0-beta.0",
-    "null-loader": "^3.0.0",
-    "sass": "^1.23.7",
-    "sass-loader": "^8.0.0",
-    "sinon": "^15.0.3",
-    "tinymce": "^5.10.2",
-    "vue-loader": "^15.6.2",
-    "vue-template-compiler": "^2.6.10",
-    "webpack-bundle-tracker": "^0.4.3",
-    "webpack-dev-server": "^3.3.1",
-    "xhr-mock": "^2.3.1"
-  },
-  "eslintConfig": {
-    "root": true,
-    "env": {
-      "node": true
-    },
-    "extends": [
-      "plugin:vue/essential",
-      "eslint:recommended"
-    ],
-    "rules": {
-      "no-console": "off",
-      "no-cond-assign": "off",
-      "no-unused-vars": [
-        "error",
-        {
-          "args": "none",
-          "ignoreRestSiblings": true,
-          "varsIgnorePattern": "^_"
-        }
-      ],
-      "vue/valid-template-root": "off"
-    },
-    "parserOptions": {
-      "parser": "babel-eslint"
-    },
-    "globals": {
-      "FRONTEND_URLS": true,
-      "$": true,
-      "jQuery": true,
-      "app": true,
-      "CKEDITOR": true
-    },
-    "overrides": [
-      {
-        "files": [
-          "**/*.test.js"
-        ],
-        "env": {
-          "mocha": true
-        },
-        "globals": {
-          "expect": true
-        }
-      }
-    ]
+    "eslint": "^10.10.0",
+    "eslint-plugin-vue": "^10.11.0",
+    "globals": "^17.12.0",
+    "jsdom": "^30.0.1",
+    "sass": "^1.104.1",
+    "sinon": "^22.1.0",
+    "tinymce": "^8.9.1",
+    "vite": "^8.3.0",
+    "vitest": "^5.0.0",
+    "xhr-mock": "^2.5.1"
   },
   "browserslist": [
-    "> 1%",
-    "last 2 versions",
-    "edge 16"
+    "defaults",
+    "not IE 11"
   ]
 }

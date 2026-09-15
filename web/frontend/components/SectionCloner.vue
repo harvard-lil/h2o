@@ -3,8 +3,8 @@
   <button class="action clone-casebook-nodes" data-disable-with="Clone-Node" v-on:click="displayModal()">Clone {{properType()}}</button>
   <Modal v-if="showModal"
             @close="showModal = false">
-    <template slot="title">Clone {{properType()}} To Casebook</template>
-    <template slot="body">
+    <template v-slot:title>Clone {{properType()}} To Casebook</template>
+    <template v-slot:body>
       <p class="cloner-text">The {{sectionType}} "<em>{{sectionSource}}</em>" will be copied to the casebook you select below:</p>
       <ul class="clone-target-list">
         <li v-for="cb in casebookTargets" v-bind:key="cb.form_target">
@@ -48,7 +48,7 @@ export default {
 
 <style lang="scss">
 .casebook-actions button.action.clone-casebook-nodes {
-    background-image: url('~static/images/ui/casebook/clone.svg');
+    background-image: url('static/images/ui/casebook/clone.svg');
     border: none;
 }
 

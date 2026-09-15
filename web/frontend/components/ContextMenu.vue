@@ -70,7 +70,7 @@
         this.addScrollEventListener();
       }
     },
-    beforeDestroy () {
+    beforeUnmount () {
       if (this.closeOnScroll) {
         this.removeScrollEventListener();
       }

@@ -12,7 +12,6 @@ from .url_converters import IdSlugConverter, OrdinalSlugConverter, register_mode
 from .utils import fix_after_rails
 from . import views, forms
 
-
 register_converter(IdSlugConverter, "idslug")
 register_converter(OrdinalSlugConverter, "ordslug")
 register_model_converter(Casebook)

@@ -1,6 +1,4 @@
-<template>
-    
-</template>
+
 
 <script>
 import { createNamespacedHelpers } from "vuex";
@@ -8,6 +6,7 @@ const globalStore = createNamespacedHelpers("globals");
 const searchStore = createNamespacedHelpers("case_search");
 
 export default {
+  render: () => null,
   props: ['casebook','section', 'searchSources'],
   created: function() {
     if (this.casebook) this.setCasebook(this.casebook);

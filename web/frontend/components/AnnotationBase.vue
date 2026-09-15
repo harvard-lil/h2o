@@ -1,6 +1,4 @@
-<!-- /* eslint-disable vue/valid-template-root */ -->
-<template>
-</template>
+
 <!-- /* eslint-enable vue/valid-template-root */ -->
 
 <script>
@@ -9,9 +7,10 @@ import { createNamespacedHelpers } from 'vuex';
 const { mapActions } = createNamespacedHelpers('annotations');
 
 export default {
+  render: () => null,
   components: {
     // are these used?
-    AnnotationHandle  // eslint-disable-line vue/no-unused-components
+    AnnotationHandle
   },
   props: {
     annotation: {type: Object,
