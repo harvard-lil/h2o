@@ -103,12 +103,10 @@ export default {
     }
   },
   mounted() {
-    this.$nextTick(function () {
-      if (Math.sign(this.annotation.id) == -1){
-        this.isEditing = true;
-        this.$refs.noteInput.focus()
-      }
-    })
+    if (this.isHead && this.isNew) {
+      this.isEditing = true;
+      this.$nextTick(() => this.$refs.noteInput.focus());
+    }
   },
 }
 </script>
