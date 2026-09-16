@@ -358,3 +358,31 @@ Contributions to this project should be made in individual forks and then merged
 ## License
 
 This codebase is Copyright 2021 The President and Fellows of Harvard College and is licensed under the open-source AGPLv3 for public use and modification. See [LICENSE](LICENSE) for details.
+
+### Annotation browser verification
+
+On-demand Turnstile pre-clearance is disabled until `TURNSTILE_SITE_KEY` and
+`TURNSTILE_SECRET_KEY` are set in the tier's application configuration. Create a
+Managed Turnstile widget for the exact staging/production hostnames and enable
+**managed** pre-clearance. Keep the secret key out of frontend settings. Existing
+bot rules remain enabled; the widget grants Cloudflare clearance rather than
+changing Django permissions. Source configuration:
+https://developers.cloudflare.com/cloudflare-challenges/concepts/clearance/
+
+Only same-origin Axios requests returning HTTP 403 with
+`cf-mitigated: challenge` open the verification dialog. Simultaneous failures
+share one check. After server-side token validation, each blocked request is
+retried once with its original body and method override. Ordinary permission
+errors, network failures, and server errors are never automatically replayed.
+Cancel leaves the current page open; no automatic reload or persistent draft
+storage is involved. This does not cover legacy jQuery requests or ordinary
+HTML form submissions.
+
+Before enabling production, verify on staging with real widget keys: challenge
+an annotation read and save, complete verification, and confirm one successful
+save without a reload. Also test cancellation with note text, concurrent failed
+reads, a blocked widget script, and a second challenge after retry. Cloudflare
+test keys can exercise widget UI but do not demonstrate real edge clearance.
+The `/browser-verification/` endpoint requires CSRF protection and validates the
+token's hostname and action through Siteverify. Failure keeps the request paused
+until the user closes the dialog; it never grants application access.

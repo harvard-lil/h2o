@@ -68,6 +68,9 @@ AWS_LAMBDA_EXPORT_SETTINGS = {
     "secret_key": S3_STORAGE["secret_key"],
 }
 FORCE_AWS_LAMBDA_EXPORT = True
+TURNSTILE_SITE_KEY = config.get("TURNSTILE_SITE_KEY", "")
+TURNSTILE_SECRET_KEY = config.get("TURNSTILE_SECRET_KEY", "")
+
 USE_SENTRY = config["TIER"] == "prod"
 SENTRY_DSN = config["SENTRY_DSN"]
 SENTRY_ENVIRONMENT = config["TIER"]
