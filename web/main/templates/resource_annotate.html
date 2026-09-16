@@ -36,7 +36,7 @@
         {% include resource.resource.header_template with legal_doc=resource.resource %}
         {% endif %}
         <section class="resource">
-          <the-resource :editable="true" :resource="{{ body_json }}"></the-resource>
+          <the-resource :resource-id="{{ resource.id }}" :editable="true" :resource="{{ body_json }}"></the-resource>
         </section>
       </div>
     </div>

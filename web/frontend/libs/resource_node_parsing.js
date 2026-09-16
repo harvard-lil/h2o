@@ -4,6 +4,9 @@ import { isBlockLevel,
          getLength,
          getAttrsMap } from "../libs/html_helpers";
 import _ from 'lodash';
+import { normalizeClass } from 'vue';
+import ElisionAnnotation from '../components/ElisionAnnotation';
+import ReplacementAnnotation from '../components/ReplacementAnnotation';
 
 /////////////
 // Helpers //
@@ -164,20 +167,10 @@ export const splitNodeList = (annotations, nodeList, start, end) => {
 
 
 const isFullyElided = (node) => {
-    if (_.isString(node)) {
-        return false;
-    } else {
-        if (node.tag && (_.endsWith(node.tag,'elision-annotation') || _.endsWith(node.tag,'replacement-annotation'))) {
-            return true;
-        }
-        if (node.classList && node.classList.indexOf("fully-elided") > -1){
-            return true;
-        }
-        if (node.data && node.data.class && node.data.class['fully-elided']) {
-            return true;
-        }
-        return false;
-    }
+  if (_.isString(node)) return false;
+  // Vue 3 identifies component VNodes by their component object, not a tag name.
+  return node.type === ElisionAnnotation || node.type === ReplacementAnnotation ||
+    normalizeClass(node.props?.class).split(' ').includes('fully-elided');
 }
 
 // Vue component children arrays must contain either VNodes or
