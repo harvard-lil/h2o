@@ -215,6 +215,21 @@ so the incoming manifest and deployed migrations can be compared. It reports
 what is on disk and never what a database has applied; `MigrationLoader` is
 constructed with no connection.
 
+## Error monitoring
+
+CI passes `H2O_RELEASE=h2o@<commit SHA>` to both Docker build targets. The frontend
+bundles and Django Sentry SDK report this baked-in release, which remains the same
+when the image is promoted through staging and production. Locally the value is
+unset unless supplied explicitly. A browser tab still running an older bundle
+reports that bundle's release, rather than the current server's release.
+
+Source maps are not generated or uploaded. Adding private uploads later requires
+a Sentry upload credential and keeping map files out of the published static
+archive. Release tags alone require no new credential or runtime service.
+
+The frontend drops only the confirmed Zotero `i18n.getStrings` background-page
+error. Other extension errors, HTTP errors, and network failures remain visible.
+
 ## Deploys
 
 A merge to `main` builds one image, runs the suite against it, and publishes it.

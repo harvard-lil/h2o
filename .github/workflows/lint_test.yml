@@ -137,6 +137,7 @@ jobs:
           set -euxo pipefail
           docker buildx build \
             --target prod \
+            --build-arg H2O_RELEASE=h2o@${{ github.sha }} \
             --load \
             -t h2o-prod:${{ github.sha }} \
             -f ./Dockerfile .
@@ -144,6 +145,7 @@ jobs:
           # `test` reuses the prod layers just built, so this is nearly free.
           docker buildx build \
             --target test \
+            --build-arg H2O_RELEASE=h2o@${{ github.sha }} \
             --load \
             -t h2o-test:ci \
             -f ./Dockerfile .
