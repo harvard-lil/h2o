@@ -40,6 +40,41 @@ describe('TheResourceBody', () => {
     }));
   });
 
+  it.each([true, false])('loads saved annotations without a page header (editable=%s)', async (editable) => {
+    const get = vi.spyOn(Axios, 'get').mockResolvedValue({data: [
+      {...DEFAULT_ANNOTATION, resource_id: 42, end_offset: 3}
+    ]});
+    expect(document.querySelector('header.casebook')).toBeNull();
+    const wrapper = mount(TheResource, {
+      global: {plugins: [store]},
+      props: {resourceId: 42, resource: {content: '<p>foo bar</p>'}, editable}
+    });
+    try {
+      await flushPromises();
+      expect(get).toHaveBeenCalledExactlyOnceWith('/resources/42/annotations');
+      expect(wrapper.find('.highlight .selected-text').text()).toBe('foo');
+    } finally {
+      wrapper.unmount();
+      get.mockRestore();
+    }
+  });
+
+  it('does not fetch casebook annotations for a standalone legal document', async () => {
+    const get = vi.spyOn(Axios, 'get');
+    const wrapper = mount(TheResource, {
+      global: {plugins: [store]},
+      props: {resource: {id: 42, content: '<p>foo bar</p>'}, editable: false}
+    });
+    try {
+      await flushPromises();
+      expect(get).not.toHaveBeenCalled();
+      expect(wrapper.text()).toContain('foo bar');
+    } finally {
+      wrapper.unmount();
+      get.mockRestore();
+    }
+  });
+
   [['renders multiple annotations',
     '<div>%s %s %s</div>', ['foo', 'bar', 'buzz'],
     [{...DEFAULT_ANNOTATION, start_offset: 0, end_offset: 3},
