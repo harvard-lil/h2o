@@ -8,7 +8,6 @@
     <title>{% block page_title %}{{ page_title|default:"Open Casebooks" }}{% endblock %} | H2O</title>
     <link rel="apple-touch-icon" href="{% static 'images/h20-logo.png' %}" />
     <link href="{% static "images/favicon.ico" %}" rel="shortcut icon" type="image/vnd.microsoft.icon" />
-    {% if TURNSTILE_SITE_KEY %}<meta name="csrf-token" content="{{ csrf_token }}">{% endif %}
     <script>
      window.H2O_TURNSTILE_SITE_KEY = "{{ TURNSTILE_SITE_KEY|escapejs }}";
      {# frontend_urls is set by config.context_processors.frontend_urls #}

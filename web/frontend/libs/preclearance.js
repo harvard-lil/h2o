@@ -1,5 +1,4 @@
 import '../styles/preclearance.scss';
-import { get_csrf_token } from 'legacy/lib/helpers';
 
 // Turnstile verifies the visitor inline; pre-clearance lets Cloudflare admit the retry.
 let scriptPromise;
@@ -46,7 +45,6 @@ export function verifyBrowser() {
     const message = dialog.querySelector('p');
     let widget;
     let closed = false;
-    let verifying = false;
     let hasFailed = false;
     function finish(error) {
       if (closed) return;
@@ -83,25 +81,11 @@ export function verifyBrowser() {
         'error-callback': () => { failed(); return true; },
         'expired-callback': failed,
         'timeout-callback': failed,
-        callback: async token => {
-          if (closed || hasFailed || verifying) return;
-          verifying = true;
-          try {
-            // Validate the widget token without using the Axios challenge interceptor.
-            const response = await fetch('/browser-verification/', {
-              method: 'POST',
-              credentials: 'same-origin',
-              headers: {'Content-Type': 'application/x-www-form-urlencoded', 'X-CSRF-Token': get_csrf_token()},
-              body: new URLSearchParams({token}),
-              signal: AbortSignal.timeout(15000),
-            });
-            if (closed || hasFailed) return;
-            if (response.status === 204) finish();
-            else failed();
-          } catch (error) {
-            if (!(error instanceof TypeError) && !['TimeoutError', 'AbortError'].includes(error.name)) throw error;
-            failed();
-          }
+        callback: () => {
+          if (closed || hasFailed) return;
+          // Cloudflare issues and checks clearance. This callback only permits a retry;
+          // it grants no Django permissions and does not validate a token for the app.
+          finish();
         },
       });
     }, failed);

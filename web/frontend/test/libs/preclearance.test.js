@@ -78,9 +78,9 @@ describe('verification dialog', () => {
     delete window.turnstile;
     vi.unstubAllGlobals();
   });
-  it('shares verification and validates before releasing waiting requests', async () => {
+  it('shares verification and releases waiting requests on widget success', async () => {
     const { verifyBrowser } = await import('../../libs/preclearance');
-    vi.stubGlobal('fetch', vi.fn().mockResolvedValue({status: 204}));
+    vi.stubGlobal('fetch', vi.fn());
     const first = verifyBrowser();
     const second = verifyBrowser();
     expect(first).toBe(second);
@@ -88,7 +88,7 @@ describe('verification dialog', () => {
     expect(window.turnstile.render).toHaveBeenCalledTimes(1);
     await options.callback('test-token');
     await first;
-    expect(fetch).toHaveBeenCalledTimes(1);
+    expect(fetch).not.toHaveBeenCalled();
     expect(document.querySelector('#browser-verification')).toBeNull();
     expect(window.turnstile.remove).toHaveBeenCalledWith('widget');
   });
@@ -103,13 +103,14 @@ describe('verification dialog', () => {
     await rejected;
     expect(fetch).not.toHaveBeenCalled();
   });
-  it('validation failure stays visible and does not resolve verification', async () => {
+  it.each(['error-callback', 'expired-callback', 'timeout-callback'])('%s keeps requests paused even after a late success', async callback => {
     const { verifyBrowser } = await import('../../libs/preclearance');
-    vi.stubGlobal('fetch', vi.fn().mockResolvedValue({status: 403}));
+    vi.stubGlobal('fetch', vi.fn());
     const pending = verifyBrowser();
     const rejected = expect(pending).rejects.toThrow('cancelled');
     await Promise.resolve();
-    await options.callback('invalid-token');
+    options[callback]();
+    await options.callback('late-token');
     expect(document.querySelector('#browser-verification').textContent).toContain('Verification failed');
     document.querySelector('#browser-verification button').click();
     await rejected;
