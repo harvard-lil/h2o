@@ -177,6 +177,47 @@ describe('TheResourceBody', () => {
     wrapper.unmount();
   });
 
+  describe.each(['elide', 'replace'])('%s paragraph layout', (kind) => {
+    it.each([
+      '<p>foo</p><p>bar</p>',
+      '<blockquote><p><em>foo</em></p></blockquote><p>bar</p>',
+      '<blockquote> <p>foo</p> </blockquote><p>bar</p>',
+    ])('marks fully covered elements, including nested wrappers: %s', async (content) => {
+      const start = content.startsWith('<blockquote> ') ? 1 : 0;
+      store.commit('annotations/append', [{...DEFAULT_ANNOTATION, kind,
+        content: 'replacement', start_offset: start, end_offset: start + 3}]);
+      const wrapper = mount(TheResourceBody, {global: {plugins: [store]}, props: {
+        resource: {content}
+      }});
+      try {
+        expect(wrapper.find('p').classes()).toContain('fully-elided');
+        expect(wrapper.findAll('p')[1].classes()).not.toContain('fully-elided');
+        if (wrapper.find('blockquote').exists()) {
+          expect(wrapper.find('blockquote').classes()).toContain('fully-elided');
+        }
+        await wrapper.find('.toggle').trigger('click');
+        expect(wrapper.find('.selected-text').isVisible()).toBe(true);
+        expect(wrapper.find('p').classes()).toContain('fully-elided');
+      } finally {
+        wrapper.unmount();
+      }
+    });
+  });
+
+  it.each([['elide', 2], ['replace', 2], ['highlight', 3]])(
+    'keeps ordinary paragraph layout for %s ending at offset %s', (kind, end_offset) => {
+      store.commit('annotations/append', [{...DEFAULT_ANNOTATION, kind, end_offset, content: 'replacement'}]);
+      const wrapper = mount(TheResourceBody, {global: {plugins: [store]}, props: {
+        resource: {content: '<p>foo</p>'}
+      }});
+      try {
+        expect(wrapper.find('p').classes()).not.toContain('fully-elided');
+      } finally {
+        wrapper.unmount();
+      }
+    }
+  );
+
   it('preserves elision state and unselected text through saves and subsequent annotations', async () => {
     let finishSave;
     const post = vi.spyOn(Axios, 'post').mockImplementation(() => new Promise(resolve => { finishSave = resolve; }));
