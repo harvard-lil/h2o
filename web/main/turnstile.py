@@ -1,4 +1,4 @@
-"""Validate the on-demand browser check without granting application permissions."""
+"""Validate Turnstile results before retrying requests blocked by Cloudflare bot checks."""
 
 import requests
 from django.conf import settings
@@ -13,6 +13,7 @@ def verify_browser(request):
     token = request.POST.get("token", "")
     if not token or len(token) > 2048:
         return HttpResponse(status=400)
+    # Siteverify confirms the widget result; Cloudflare itself issues the clearance cookie.
     try:
         response = requests.post(
             "https://challenges.cloudflare.com/turnstile/v0/siteverify",

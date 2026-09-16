@@ -1,6 +1,7 @@
 import '../styles/preclearance.scss';
 import { get_csrf_token } from 'legacy/lib/helpers';
 
+// Turnstile verifies the visitor inline; pre-clearance lets Cloudflare admit the retry.
 let scriptPromise;
 let verificationPromise;
 
@@ -32,6 +33,7 @@ function loadTurnstile() {
 }
 
 export function verifyBrowser() {
+  // A page can load several resources at once; one check releases all waiting requests.
   if (verificationPromise) return verificationPromise;
   verificationPromise = new Promise((resolve, reject) => {
     const previousFocus = document.activeElement;
@@ -85,6 +87,7 @@ export function verifyBrowser() {
           if (closed || hasFailed || verifying) return;
           verifying = true;
           try {
+            // Validate the widget token without using the Axios challenge interceptor.
             const response = await fetch('/browser-verification/', {
               method: 'POST',
               credentials: 'same-origin',
