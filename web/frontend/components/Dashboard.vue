@@ -2,8 +2,8 @@
   <div>
     
     <Modal v-if="finalizingGroup" @close="finalizingGroup = false">
-      <template slot="title">Group Casebooks</template>
-      <template slot="body">
+      <template v-slot:title>Group Casebooks</template>
+      <template v-slot:body>
         <form @submit.prevent.stop="createGroup" class="form-group">
           <div>
             <div v-if="selectedCoAuthors.length > 0">
@@ -175,7 +175,6 @@
 import _ from "lodash";
 import Casebook from "./Dashboard/Casebook";
 import Axios from "../config/axios";
-import Vue from "vue";
 import Modal from "./Modal";
 import urls from "../libs/urls";
 
@@ -300,7 +299,7 @@ export default {
             this.selectedCasebooks =  [];
             this.newGroupTitle = '';
             for(const title of this.titles) {
-                Vue.set(title, 'expanded', true);
+                title.expanded = true;
             }
         },
         titleUrl: function(title) {
@@ -343,7 +342,7 @@ export default {
             }
         },
         expandTitle: function(title) {
-            Vue.set(title, 'expanded', true);
+            title.expanded = true;
         },
         archiveCasebooks: function() {
             const self = this;
@@ -461,7 +460,7 @@ export default {
             this.removeCasebooks(title.casebooks);
             let index = _.findIndex(this.titles, ({id}) => title.id);
             if (index !== -1) {
-                Vue.set(this.titles, index, title);
+                this.titles[index] = title;
             } else {
                 this.titles.push(title);
             }
@@ -615,7 +614,7 @@ export default {
     padding: 35px 0px 80px 40px;
 }
 .create-casebook-button {
-    background:url('~static/images/ui/casebook/add-casebook.svg') no-repeat;
+    background:url('static/images/ui/casebook/add-casebook.svg') no-repeat;
     background-size: 60px;
     background-position:50% 40%;
     height: 330px;

@@ -3,6 +3,14 @@ from django.core.management import call_command
 from pytest_django.live_server_helper import LiveServer
 
 
+@pytest.fixture(autouse=True)
+def browser_errors(page):
+    errors = []
+    page.on("pageerror", lambda error: errors.append(str(error)))
+    yield
+    assert not errors, "Browser JavaScript errors:\n" + "\n".join(errors)
+
+
 @pytest.fixture(autouse=True, scope="function")
 def load_fixtures(transactional_db, django_db_serialized_rollback):
     call_command(
@@ -25,7 +33,7 @@ def load_fixtures(transactional_db, django_db_serialized_rollback):
 def static_live_server(request, settings):
     if "django.contrib.staticfiles" in settings.INSTALLED_APPS:
         settings.INSTALLED_APPS.remove("django.contrib.staticfiles")
-    server = LiveServer("localhost")
+    server = LiveServer(getattr(request, "param", "localhost"))
     request.addfinalizer(server.stop)
     return server
 

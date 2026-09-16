@@ -1,0 +1,1 @@
+Tree drag-and-drop components adapted for Vue 3 from [holtchesley/vue-nestable](https://github.com/holtchesley/vue-nestable/tree/063a64e67e5a1acbb2b7d7556748a3ce00d1ca52/src). The MIT license is preserved in LICENSE. This copy retains H2O’s collapsed-section behavior while removing the package’s Vue 2 runtime and build dependencies.

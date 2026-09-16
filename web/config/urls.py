@@ -18,7 +18,6 @@ from django.conf import settings
 from django.urls import path, include
 from main.admin import admin_site  # type: ignore  # main/admin.py is entirely ignored
 
-
 handler400 = "main.views.bad_request"
 handler500 = "main.views.server_error"
 
@@ -28,10 +27,7 @@ urlpatterns = [
 ]
 
 # use django-debug-toolbar if installed
-if settings.DEBUG:
-    try:
-        import debug_toolbar
+if settings.DEBUG and "debug_toolbar" in settings.INSTALLED_APPS:
+    import debug_toolbar
 
-        urlpatterns += [path("__debug__/", include(debug_toolbar.urls))]
-    except ImportError:
-        pass
+    urlpatterns += [path("__debug__/", include(debug_toolbar.urls))]

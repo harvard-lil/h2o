@@ -198,7 +198,7 @@ div.dashboard-link {
         @include size(15px, 25px);
         @include absolute(-15px, 0);
         content: '';
-        background-image: url('~static/images/banner-draft-icon.svg');
+        background-image: url('static/images/banner-draft-icon.svg');
         background-position: -15px 0;
         background-size: 15px;
       }
@@ -212,7 +212,7 @@ div.dashboard-link {
     display: inline-block;
     vertical-align: middle;
     content: '';
-    background: url('~static/images/ui/verified.png') no-repeat;
+    background: url('static/images/ui/verified.png') no-repeat;
     margin-left: 3px;
   }
 }

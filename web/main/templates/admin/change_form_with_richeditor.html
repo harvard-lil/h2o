@@ -1,8 +1,9 @@
 {% extends "admin/change_form.html" %}
-{% load render_bundle from webpack_loader %}
+{% load django_vite %}
 
 {% block footer %}
   {{ block.super }}
-  {% render_bundle 'chunk-common' %}
-  {% render_bundle 'rich_text_editor' %}
+  {% include 'includes/tinymce_skin_url.html' %}
+
+  {% vite_asset 'frontend/pages/rich_text_editor.js' %}
 {% endblock %}

@@ -193,6 +193,6 @@ export default {
 
 <style lang="scss">
 button.action.audit-casebook {
-  background-image: url('~static/images/ui/casebook/audit-casebook.svg');
+  background-image: url('static/images/ui/casebook/audit-casebook.svg');
 }
 </style>

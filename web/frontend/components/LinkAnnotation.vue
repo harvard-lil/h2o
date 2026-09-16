@@ -104,7 +104,7 @@ export default {
 <style lang="scss" scoped>
 @import 'vars-and-mixins';
 a[target="_blank"].tail {
-  background: url(~static/images/external-link-icon.svg) center right no-repeat;
+  background: url(static/images/external-link-icon.svg) center right no-repeat;
   background-size: 0.55em 0.55em;
   padding-right: 0.7em;
   margin-right: 0.1em;

@@ -5,8 +5,8 @@
       v-on:click.stop.prevent="displayModal()"
     >Add Content</button>
     <Modal v-if="showModal" @close="showModal = false" :initial-focus="focusTarget">
-      <template slot="title">Add Resource</template>
-      <template slot="body">
+      <template v-slot:title>Add Resource</template>
+      <template v-slot:body>
         <div class="search-tabs">
           <a
             v-bind:class="{ active: caseTab, 'search-tab': true }"

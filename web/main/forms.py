@@ -1,3 +1,5 @@
+import secrets
+
 import django.contrib.auth.forms as auth_forms
 from crispy_forms.helper import FormHelper
 from crispy_forms.layout import HTML, Div, Field, Layout, Submit
@@ -464,7 +466,7 @@ class SignupForm(ModelForm):
         return email
 
     def save(self, commit=True):
-        self.instance.set_password(User.objects.make_random_password(length=20))
+        self.instance.set_password(secrets.token_urlsafe(20))
         user = ModelForm.save(self, True)
         for user_group in self.cleaned_data["user_groups"]:
             if group := Group.objects.filter(name=user_group).first():

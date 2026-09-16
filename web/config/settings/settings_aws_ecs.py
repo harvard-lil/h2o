@@ -7,6 +7,11 @@ config = json.loads(os.environ["APP_CONFIG"])
 
 DEBUG = False
 
+# Cloudflare overwrites X-Forwarded-Proto with the visitor's scheme. The ECS
+# task accepts traffic only through its cloudflared sidecar (no inbound SG rules).
+# See https://developers.cloudflare.com/fundamentals/reference/http-headers/#x-forwarded-proto
+SECURE_PROXY_SSL_HEADER = ("HTTP_X_FORWARDED_PROTO", "https")
+
 SESSION_COOKIE_SECURE = True
 CSRF_COOKIE_SECURE = True
 
@@ -69,9 +74,9 @@ SENTRY_ENVIRONMENT = config["TIER"]
 SENTRY_TRACES_SAMPLE_RATE = 0.001
 
 # Compiled assets are served from S3 through Cloudflare rather than from this
-# container. Without that, a rolling deploy briefly has old and new tasks behind
-# the same load balancer, and a page rendered by one can request a
-# content-hashed bundle that only exists in the other.
+# container. Without that, a rolling deploy briefly has old and new tasks serving
+# the same hostname, and a page rendered by one can request a content-hashed
+# bundle that only exists in the other.
 #
 # The /static/ path carries weight beyond tidiness. WhiteNoise takes its URL
 # prefix from urlparse(STATIC_URL).path, so pointing this at the bucket root

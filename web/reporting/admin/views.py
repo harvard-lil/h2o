@@ -53,11 +53,13 @@ class AbstractProfessorChangeList(AbstractReportingChangeList):
     def get_state(self, request: HttpRequest) -> Optional[Iterable[str]]:
         return None
 
-    def get_queryset(self, request: HttpRequest) -> QuerySet:
+    def get_queryset(
+        self, request: HttpRequest, exclude_parameters: list[str | None] | None = None
+    ) -> QuerySet:
 
         start_date, end_date = get_date_ranges(request)
         state = self.get_state(request)
-        qs = self.model.objects.filter(
+        qs = self.model._default_manager.filter(
             id__in=get_reporting_ids(self.sql, [state, start_date, end_date])
         ).annotate(casebook_count=Count("casebooks"))
 
@@ -163,11 +165,13 @@ class AbstractCasebookChangeList(AbstractReportingChangeList):
     """Return a Casebook changelist that respects the publication and usage date ranges
     requested by the usage dashboard user."""
 
-    def get_queryset(self, request: HttpRequest):
+    def get_queryset(
+        self, request: HttpRequest, exclude_parameters: list[str | None] | None = None
+    ):
 
         start_date, end_date = get_date_ranges(request)
         state = PUBLISHED_CASEBOOKS if request.GET.get("published") == "True" else ALL_STATES
-        qs = self.model.objects.filter(
+        qs = self.model._default_manager.filter(
             id__in=get_reporting_ids(self.sql, [state, start_date, end_date])
         )
 

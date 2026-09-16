@@ -8,13 +8,13 @@
 venv/
 env/
 *.env
-*.venv
+**/.venv
 
 # Ignore node_modules (for Vue.js dependencies)
-node_modules/
+**/node_modules/
 
 # Ignore build artifacts from Vue.js
-dist/
+**/dist/
 build/
 
 # Ignore log files

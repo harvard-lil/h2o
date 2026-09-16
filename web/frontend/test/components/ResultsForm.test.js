@@ -20,7 +20,7 @@ describe("ResultsForm", () => {
 
   it("triggers the add-doc event when clicked", async () => {
       const wrapper = mount(ResultsForm, {
-        propsData: {
+        props: {
           searchResults,
         },
       });
@@ -30,9 +30,18 @@ describe("ResultsForm", () => {
       expect(wrapper.emitted("add-doc")[0]).toEqual([id, sourceId]);
   });
 
+  it("only marks the selected result for selection styling", async () => {
+    const wrapper = mount(ResultsForm, { props: { searchResults } });
+    expect(wrapper.find("[data-result-selected]").exists()).toBe(false);
+    await wrapper.setProps({ selectedResult: id });
+    expect(wrapper.find("[data-result-selected]").attributes("data-result-id")).toBe(id);
+    await wrapper.setProps({ selectedResult: null });
+    expect(wrapper.find("[data-result-selected]").exists()).toBe(false);
+  });
+
   it("does not allow submitting more than once", async () => {
     const wrapper = mount(ResultsForm, {
-      propsData: {
+      props: {
         searchResults,
         selectedResult,
       },
@@ -59,7 +68,7 @@ describe("ResultsForm", () => {
       },
     ];
     const wrapper = mount(ResultsForm, {
-      propsData: {
+      props: {
         searchResults,
       },
     });
@@ -76,7 +85,7 @@ describe("ResultsForm", () => {
 
   it("displays only the added result if added", async () => {
     const wrapper = mount(ResultsForm, {
-      propsData: {
+      props: {
         searchResults,
         selectedResult,
         added,
@@ -89,7 +98,7 @@ describe("ResultsForm", () => {
   it("display a no-results message if the result list was empty", async () => {
     const emptyResults = [];
     const wrapper = mount(ResultsForm, {
-      propsData: {
+      props: {
         searchResults: emptyResults,
       },
     });
@@ -98,7 +107,7 @@ describe("ResultsForm", () => {
 
     expect(
       mount(ResultsForm, {
-        propsData: {
+        props: {
           searchResults,
         },
       }).text()

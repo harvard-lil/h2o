@@ -1,14 +1,12 @@
-import { mount, createLocalVue } from "@vue/test-utils";
+import { mount } from "@vue/test-utils";
 
 import Vuex from "vuex";
 import sinon from "sinon";
 
 import QuickAdd from "@/components/QuickAdd";
 
-const localVue = createLocalVue();
-localVue.use(Vuex);
 
-describe("QuickAdd", () => {
+describe("QuickAdd", async () => {
  let store;
 
   beforeEach(() => {
@@ -41,29 +39,29 @@ describe("QuickAdd", () => {
     global.fetch = undefined;
   });
 
-  it("loads the quick add form with expected defaults", () => {
-    const wrapper = mount(QuickAdd, { store, localVue });
+  it("loads the quick add form with expected defaults", async () => {
+    const wrapper = mount(QuickAdd, { global: { plugins: [store] } });
     expect(wrapper.find(".resource-type option:checked").element.textContent).toContain("Section")
     expect(wrapper.find("[type='text']").element.placeholder).toContain("e.g. 'John v. Smith' or 'Week 1: Introduction'")
   });
 
-  it("updates the resource type dropdown if the user inputs an external link", () => {
-    const wrapper = mount(QuickAdd, { store, localVue });
-    wrapper.find('[type="text"]').setValue("http://example.com")
+  it("updates the resource type dropdown if the user inputs an external link", async () => {
+    const wrapper = mount(QuickAdd, { global: { plugins: [store] } });
+    await wrapper.find('[type="text"]').setValue("http://example.com")
     expect(wrapper.find(".resource-type option:checked").element.textContent).toContain("Link")
     expect(wrapper.find("[type='url']").element.placeholder).toContain("example.com")
   });
 
-  it("updates the resource type dropdown if the user inputs text that seems case-like", () => {
-    const wrapper = mount(QuickAdd, { store, localVue });
-    wrapper.find('[type="text"]').setValue("https://cite.case.law/example");
+  it("updates the resource type dropdown if the user inputs text that seems case-like", async () => {
+    const wrapper = mount(QuickAdd, { global: { plugins: [store] } });
+    await wrapper.find('[type="text"]').setValue("https://cite.case.law/example");
     expect(wrapper.find(".resource-type option:checked").element.textContent).toContain("Legal Document")
     expect(wrapper.find("[type='text']").element.placeholder).toContain(" v. ")
   });
 
   it("submits a search request if the inputted item is thought to be a legal document", async () => {
-    const wrapper = mount(QuickAdd, { store, localVue });
-    wrapper.find('[type="text"]').setValue("https://cite.case.law/example");
+    const wrapper = mount(QuickAdd, { global: { plugins: [store] } });
+    await wrapper.find('[type="text"]').setValue("https://cite.case.law/example");
     await wrapper.find("form").trigger('submit');
     await new Promise((resolve) => setTimeout(resolve));
 
@@ -72,8 +70,8 @@ describe("QuickAdd", () => {
   });
 
   it("adds an error message if the search fails", async () => {
-    const wrapper = mount(QuickAdd, { store, localVue });
-    wrapper.find('[type="text"]').setValue("https://cite.case.law/example");
+    const wrapper = mount(QuickAdd, { global: { plugins: [store] } });
+    await wrapper.find('[type="text"]').setValue("https://cite.case.law/example");
     
     global.fetch = sinon.fake.resolves({
       json: sinon.fake.resolves({

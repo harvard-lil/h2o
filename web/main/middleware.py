@@ -10,7 +10,6 @@ from django.utils.functional import SimpleLazyObject
 
 from .utils import fix_after_rails
 
-
 logger = logging.getLogger(__name__)
 
 ### auth middleware ###

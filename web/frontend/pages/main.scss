@@ -1,9 +1,9 @@
 @import 'variables';
 
 // import bootstrap mixins to build semantic styles
-@import '~bootstrap-sass/assets/stylesheets/bootstrap';
-@import "~bootstrap-sass/assets/stylesheets/bootstrap/scaffolding";
-@import "~bootstrap-sass/assets/stylesheets/bootstrap/normalize";
+@import 'bootstrap-sass/assets/stylesheets/bootstrap';
+@import "bootstrap-sass/assets/stylesheets/bootstrap/scaffolding";
+@import "bootstrap-sass/assets/stylesheets/bootstrap/normalize";
 
 // shared variables
 @import 'font-vars-and-mixins';

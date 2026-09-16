@@ -1,21 +1,19 @@
 import Axios from '../config/axios';
 import _ from 'lodash';
-import uuid from 'uuid';
+import { v4 as uuidv4 } from 'uuid';
 
 const defaultDescription = 'Image description';
 
-export function handleImageUpload(blobInfo, success, failure, progress) {
+export function handleImageUpload(blobInfo, progress) {
   const config = {
-    onUploadProgress: function onUploadProgress(event) {
-      progress(Math.round(event.loaded / event.total * 100));
+    onUploadProgress(event) {
+      if (event.total) progress(Math.round(event.loaded / event.total * 100));
     }
   };
-  let formData = new FormData();
+  const formData = new FormData();
   formData.append('image', blobInfo.blob(), blobInfo.filename());
   formData.append('name', blobInfo.name());
-  Axios.post('/image/', formData, config).then((response) => {
-    success(response.data.location);
-  }, (result) => failure(result, {remove: true}));
+  return Axios.post('/image/', formData, config).then(response => response.data.location);
 }
 
 function firstInaccessibleImage(editor) {
@@ -39,17 +37,17 @@ export function checkAllyShip(editor) {
         let inaccessible = !!firstInaccessibleImage(editor);
         if (inaccessible) {
           api.setActive(inaccessible);
-          api.setDisabled(false);
+          api.setEnabled(true);
         } else {
           api.setActive(false);
-          api.setDisabled(true);
+          api.setEnabled(false);
         }
       }
-      const dirtyWatcher = tinymceEditor.on('Dirty', handleChange);
-      const changeWatcher = tinymceEditor.on('change', handleChange);
+      tinymceEditor.on('Dirty', handleChange);
+      tinymceEditor.on('change', handleChange);
       return function() {
-        tinymceEditor.off('Dirty', dirtyWatcher);
-        tinymceEditor.off('change', changeWatcher);
+        tinymceEditor.off('Dirty', handleChange);
+        tinymceEditor.off('change', handleChange);
       };
 
     },
@@ -130,7 +128,7 @@ export function installFootnotes(editor) {
 
   function footnoteIntegrity() {
     // On nodechanges, search for every footnote, and make sure it's paired up properly to check for deletions.
-    let candidates = editor.dom.$('.footnote').filter((_,e) => !e.classList.contains('footnote-footer'));
+    let candidates = editor.dom.select('.footnote').filter(e => !e.classList.contains('footnote-footer'));
     // Association lists to maintain order
     let refs = [];
     let bodies = [];
@@ -192,7 +190,7 @@ export function installFootnotes(editor) {
     });
 
     // Clean up orphaned labels
-    let labelsDom = editor.dom.$('.footnote-label');
+    let labelsDom = editor.dom.select('.footnote-label');
     let labels = [];
     for(let ii=0; ii < labelsDom.length; ii++) {
       labels.push(labelsDom[ii]);
@@ -210,7 +208,7 @@ export function installFootnotes(editor) {
 
     // Ensure footnotes have at least one space
     // So that the cursor doesn't jump to the start of a label
-    labelsDom = editor.dom.$('.footnote-label');
+    labelsDom = editor.dom.select('.footnote-label');
     labels = [];
     for(let ii=0; ii < labelsDom.length; ii++) {
       labels.push(labelsDom[ii]);
@@ -231,7 +229,7 @@ export function installFootnotes(editor) {
     }
 
     // Move footer to bottom of page
-    let footer = editor.dom.$('.footnote-footer');
+    let footer = editor.dom.select('.footnote-footer');
     if(footer.length === 1) {
       footer = footer[0];
       if (footer !== footer.parentElement.lastElementChild) {
@@ -241,7 +239,7 @@ export function installFootnotes(editor) {
   }
 
   function getFooter() {
-    let footnoteDiv = editor.dom.$(".footnote-footer");
+    let footnoteDiv = editor.dom.select(".footnote-footer");
     if (footnoteDiv.length == 1) {
       return footnoteDiv[0];
     }
@@ -255,7 +253,7 @@ export function installFootnotes(editor) {
   }
 
   function createFootnote(data) {
-    data.id = uuid();
+    data.id = uuidv4();
     let refHTML = `<span class="footnote footnote-ref" data-custom-style="Footnote Reference" id="footnote-${data.id}-ref">${data.mark}</span>`;
     let bodyNode = editor.dom.createFragment(`<div class="footnote footnote-body" id="footnote-${data.id}"><p><span class="footnote-label" data-extra-export-offset="2" data-custom-style="Footnote Text" contenteditable="false">${data.mark}</span>${data.footnote}</p></div>`);
 
@@ -291,7 +289,7 @@ export function installFootnotes(editor) {
   function openDialog() {
     let currentNode = editor.selection.getNode();
     let isEditingNode = isFootnote(currentNode);
-    let nextFootnote = editor.dom.$(".footnote-ref").length + 1;
+    let nextFootnote = editor.dom.select(".footnote-ref").length + 1;
     let currentData = {mark: ""+nextFootnote, footnote: ""};
 
     if(isEditingNode) {
@@ -392,10 +390,10 @@ export function getInitConfig(selector, enhanced, code) {
 
   const semanticStyles = 'img[alt=""] {outline: 4px solid red;}.footnote-ref {font-size: 16px;vertical-align: super;}.footnote-body {margin-left: 2rem;}.footnote-label {float:left;margin-left:-1rem;} .footnote-label::after{content: ".";} .footnote-footer {border-top: 1px solid black;clear:both;}.image-center-large{width:80%;object-fit:contain;margin:0auto;display:block;}.image-center-medium{width:50%;object-fit:contain;margin:0 auto;display:block;}.image-left-medium{width:50%;object-fit:contain;margin:0 2rem;float:left;display:block;}.image-right-medium{width:50%;object-fit:contain;margin:0 2rem;float:right;display:block;}';
 
-  let plugins = ['link', 'lists', 'image', 'table', 'paste'];
+  let plugins = ['link', 'lists', 'image', 'table'];
   // toolbar options: https://www.tiny.cloud/docs/advanced/editor-control-identifiers/#toolbarcontrols
 
-  let toolbar = 'undo redo removeformat | styleselect | h1 h2 | bold italic underline | numlist bullist indent outdent | table blockquote link image removeformat';
+  let toolbar = 'undo redo removeformat | styles | h1 h2 | bold italic underline | numlist bullist indent outdent | table blockquote link image removeformat';
   if (enhanced) {
     toolbar += ' media footnote | checkAlly';
     plugins.push('media');
@@ -423,7 +421,7 @@ export function getInitConfig(selector, enhanced, code) {
   let config = {
     height:'25vh',
     plugins: plugins,
-    skin_url: '/static/tinymce_skin',
+    skin_url: window.TINYMCE_SKIN_URL,
     content_style: semanticStyles,
     menubar: false,
     branding: false,

@@ -22,9 +22,9 @@
                    :collapsed-groups="collapsedSections"
                    v-if="dataReady"
                    >
-         <div slot="placeholder">
+         <template #placeholder>
          <placeholder :editing="editing" :node-type="nodeType" />
-         </div>
+         </template>
          <template v-slot="{item}">
          <entry :item="item"
                 :root-ordinal-display="rootOrdinalDisplay"
@@ -37,7 +37,7 @@
 
 <script>
 import _ from "lodash";
-import { VueNestable } from "@holtchesley/vue-nestable";
+import { VueNestable } from "./nestable";
 import Placeholder from "./TableOfContents/PlaceHolder";
 import Entry from "./TableOfContents/Entry";
 import CollapseTriangle from "./CollapseTriangle";
@@ -99,7 +99,7 @@ export default {
       }
     },
     dataReady: function() {
-      return this.toc !== [null] && this.toc !== null;
+      return Array.isArray(this.toc) && this.toc.every(item => item !== null);
     }
   },
   mounted: function() {
@@ -361,7 +361,7 @@ export default {
                 align-self:center;
             }
             .is-instructional-material {
-                background-image:url('~static/images/ui/casebook/lock.svg') ;
+                background-image:url('static/images/ui/casebook/lock.svg') ;
                 height: 20px;
                 width: 20px;
                 margin-left: -5px;
@@ -629,7 +629,7 @@ export default {
        font-weight: 900;
     }
     .take-notes-icon{
-        background-image:url('~static/images/take-notes-icon.svg') ;
+        background-image:url('static/images/take-notes-icon.svg') ;
         display: inline-block;
         height: 40px;
         width: 40px;
@@ -645,4 +645,3 @@ export default {
     border: 2px dashed black;
 }
 </style>
-

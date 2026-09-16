@@ -1,3 +1,4 @@
+@use "sass:math";
 @import 'content/dragging';
 @import 'content/annotations';
 @import 'content/modals';
@@ -109,7 +110,7 @@ main > header.casebook {
   @media (min-width: $screen-md) {
     display: block;
     position: absolute;
-    right: percentage((-1.5 / $grid-columns));
+    right: percentage(math.div(-1.5, $grid-columns));
     top: -40px;
     width: 12.5%;
     margin: 0;
@@ -155,54 +156,54 @@ main > header.casebook {
       background-position: 4px center;
     }
     &.add-resource {
-      background-image: url('~static/images/ui/casebook/add-material.svg');
+      background-image: url('static/images/ui/casebook/add-material.svg');
     }
     &.add-section {
-      background-image: url('~static/images/ui/casebook/add-section.svg');
+      background-image: url('static/images/ui/casebook/add-section.svg');
     }
     &.publish {
-      background-image: url('~static/images/ui/casebook/publish.svg');
+      background-image: url('static/images/ui/casebook/publish.svg');
     }
     &.clone-casebook {
-      background-image: url('~static/images/ui/casebook/clone.svg');
+      background-image: url('static/images/ui/casebook/clone.svg');
       border: none;
     }
 
     &.export {
-        background-image: url('~static/images/ui/casebook/export.svg');
+        background-image: url('static/images/ui/casebook/export.svg');
         &::after{
             position:absolute; width:0; height:0; overflow:hidden; z-index:-1;
-            content: url('~static/images/ui/casebook/export-anim.svg');
+            content: url('static/images/ui/casebook/export-anim.svg');
         }
     }
     &.export-html {
-      background-image: url('~static/images/ui/casebook/export-html.svg');
+      background-image: url('static/images/ui/casebook/export-html.svg');
       line-height: 1.2em;
       small {
         color: $orange;
       }
     }
     &.export.animating {
-        background-image: url('~static/images/ui/casebook/export-anim.svg');
+        background-image: url('static/images/ui/casebook/export-anim.svg');
     }
 
     &.more, &.preview {
-      background-image: url('~static/images/ui/casebook/preview.svg');
+      background-image: url('static/images/ui/casebook/preview.svg');
     }
     &.edit {
-      background-image: url('~static/images/ui/casebook/edit-icon.svg');
+      background-image: url('static/images/ui/casebook/edit-icon.svg');
     }
     &.save {
-      background-image: url('~static/images/ui/casebook/save-icon.svg');
+      background-image: url('static/images/ui/casebook/save-icon.svg');
     }
     &.cancel {
-      background-image: url('~static/images/ui/casebook/cancel-icon.svg');
+      background-image: url('static/images/ui/casebook/cancel-icon.svg');
     }
     &.follow-casebook {
-      background-image: url('~static/images/ui/casebook/follow.svg');
+      background-image: url('static/images/ui/casebook/follow.svg');
     }
     &.unfollow-casebook {
-      background-image: url('~static/images/ui/casebook/unfollow.svg');
+      background-image: url('static/images/ui/casebook/unfollow.svg');
     }
   }
 }
@@ -236,14 +237,14 @@ main > header.casebook {
 .prev_button_container a {
   right: 92vw;
   .prev_page_svg {
-    background-image: url('~static/images/ui/casebook/prev_page.svg');
+    background-image: url('static/images/ui/casebook/prev_page.svg');
   }
 }
 
 .next_button_container a {
   right: 5vw;
   .next_page_svg {
-    background-image: url('~static/images/ui/casebook/next_page.svg');
+    background-image: url('static/images/ui/casebook/next_page.svg');
   }
 }
 
@@ -367,7 +368,7 @@ form.edit_content_resource, form.edit_content_section, form.edit_content_caseboo
           background-color: transparent !important;
         }
         &.is-instructional-material {
-          background-image:url('~static/images/ui/casebook/lock.svg') ;
+          background-image:url('static/images/ui/casebook/lock.svg') ;
           height: 20px;
           width: 20px;
           display: inline-block;
@@ -441,7 +442,7 @@ form.edit_content_resource, form.edit_content_section, form.edit_content_caseboo
         vertical-align: middle;
 
         color: transparent;
-        background-image: url('~static/images/add-icon.png');
+        background-image: url('static/images/add-icon.png');
         background-size: auto;
       }
       .user {
@@ -495,7 +496,7 @@ form.edit_content_resource, form.edit_content_section, form.edit_content_caseboo
     box-shadow: none !important;
     width: 25px;
     height: 25px;
-    background-image: url('~static/images/Link.svg');
+    background-image: url('static/images/Link.svg');
   }
 
   .link-text{
@@ -513,7 +514,7 @@ form.edit_content_resource, form.edit_content_section, form.edit_content_caseboo
     display: inline-block;
     background-color: transparent;
     border:none;
-    background-image: url('~static/images/ui/casebook/link-go.svg');
+    background-image: url('static/images/ui/casebook/link-go.svg');
   }
 
   .table-of-contents, .search-results {
@@ -532,7 +533,7 @@ form.edit_content_resource, form.edit_content_section, form.edit_content_caseboo
           background-repeat: no-repeat;
           background-size: auto;
           &.action-delete {
-            background-image: url('~static/images/ui/edit/elide.png');
+            background-image: url('static/images/ui/edit/elide.png');
             height: 20px;
             width: 20px;
             margin: 0;
@@ -548,7 +549,7 @@ form.edit_content_resource, form.edit_content_section, form.edit_content_caseboo
             padding-left: 40px;
             padding-top: 6px;
 
-            background-image: url('~static/images/ui/edit/add.png');
+            background-image: url('static/images/ui/edit/add.png');
             &:hover {
               color: $light-blue;
             }
