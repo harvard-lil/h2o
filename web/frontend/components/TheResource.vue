@@ -25,18 +25,15 @@ export default {
   },
   props: {
     resource: {type: Object},
+    // The page header is not attached during Vue's created hook.
+    resourceId: {type: Number, default: null},
     editable: {type: Boolean}
   },
   data: () => ({
     ranges: null
   }),
   computed: {
-    ...mapGetters(["collapsible"]),
-
-    resourceId() {
-      const el = document.querySelector("header.casebook")
-      return el && el.dataset && el.dataset.resourceId;
-    }
+    ...mapGetters(["collapsible"])
   },
   methods: {
     ...mapActions(["list"]),
