@@ -2,6 +2,7 @@ import "../config/axios";
 import "../directives/selectionchange";
 
 import * as Sentry from "@sentry/vue";
+import { beforeSend } from "../config/sentry";
 
 import AddContent from "../components/AddContent";
 import AuditButton from "../components/AuditButton";
@@ -63,6 +64,8 @@ document.addEventListener("DOMContentLoaded", () => {
       app,
       dsn: window.sentry.DSN,
       environment: window.sentry.ENVIRONMENT,
+      release: import.meta.env.H2O_RELEASE || undefined,
+      beforeSend,
       integrations: [
         Sentry.browserTracingIntegration({ router }),
       ],

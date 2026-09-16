@@ -3,6 +3,7 @@ from test.test_helpers import check_response
 
 import pytest
 from django.urls import reverse
+from lxml import html
 from pytest_django.asserts import assertContains, assertFormError, assertNotContains
 
 from main.models import ContentNode, LegalDocument
@@ -248,4 +249,27 @@ def test_add_new_resource_position(full_private_casebook, legal_document, client
     assert last_resource_of_casebook.resource_type == "LegalDocument"
     assert LegalDocument.objects.get(id=last_resource_of_casebook.resource_id).source_ref == str(
         legal_document.source_ref
+    )
+
+
+@pytest.mark.parametrize("page", ["casebook", "section", "resource", "annotate"])
+def test_save_button_only_on_edit_forms(full_private_casebook, client, page):
+    casebook = full_private_casebook
+    resource = casebook.contents.filter(resource_type="TextBlock").first()
+    section = casebook.contents.get(ordinals=[1])
+    if page == "annotate":
+        url = resource.get_annotate_url()
+    else:
+        node = {"casebook": casebook, "section": section, "resource": resource}[page]
+        url = node.get_edit_url()
+    response = client.get(url, as_user=casebook.testing_editor)
+    assert response.status_code == 200
+    document = html.fromstring(response.content)
+    audit_button = document.xpath("//audit-button")[0]
+    forms = document.cssselect(
+        "form.edit_content_resource, form.edit_content_section, form.edit_content_casebook"
+    )
+    assert bool(forms) is (page != "annotate")
+    assert audit_button.attrib.get(":no-save", "false") == (
+        "true" if page == "annotate" else "false"
     )

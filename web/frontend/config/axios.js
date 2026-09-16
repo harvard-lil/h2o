@@ -1,4 +1,5 @@
 import AxiosConfig from "axios";
+import { installPreclearance } from "../libs/preclearance";
 import {get_csrf_token} from 'legacy/lib/helpers';
 
 let headers = {"Content-Type": "application/json",
@@ -20,5 +21,7 @@ Axios.interceptors.request.use(config => {
   }
   return config;
 });
+
+installPreclearance(Axios);
 
 export default Axios;
