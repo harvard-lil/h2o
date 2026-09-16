@@ -16,12 +16,19 @@ Including another URLconf
 
 from django.conf import settings
 from django.urls import path, include
+from django.templatetags.static import static
+from django.views.generic import RedirectView
 from main.admin import admin_site  # type: ignore  # main/admin.py is entirely ignored
 
 handler400 = "main.views.bad_request"
 handler500 = "main.views.server_error"
 
 urlpatterns = [
+    path("favicon.ico", RedirectView.as_view(url=static("images/favicon.ico"))),
+    path("apple-touch-icon.png", RedirectView.as_view(url=static("images/h20-logo.png"))),
+    path(
+        "apple-touch-icon-precomposed.png", RedirectView.as_view(url=static("images/h20-logo.png"))
+    ),
     path("", include("main.urls")),
     path("django-admin/", admin_site.urls),
 ]

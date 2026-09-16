@@ -23,6 +23,7 @@ export default defineConfig({
     extensions: [".mjs", ".js", ".json", ".vue"],
   },
   define: {
+    "import.meta.env.H2O_RELEASE": JSON.stringify(process.env.H2O_RELEASE || ""),
     "process.env.NODE_ENV": JSON.stringify(process.env.NODE_ENV || "development"),
     global: "globalThis",
     __VUE_OPTIONS_API__: true,

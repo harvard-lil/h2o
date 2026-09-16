@@ -2593,6 +2593,15 @@ class CasebookEditLog(BigPkModel):
 
     @property
     def description_line(self):
+        if self.content is None:
+            # Deleted content cannot supply a title or link; retain the recorded change.
+            return {
+                self.ChangeType.REMOVED.value: "Removed content that is no longer available.",
+                self.ChangeType.ADDED.value: "Added content that is no longer available.",
+                self.ChangeType.EDITED.value: "Edited content that is no longer available.",
+                self.ChangeType.ANNOTATED.value: "Annotations changed on content that is no longer available.",
+                self.ChangeType.ORIGINAL_PUBLISH.value: "Casebook first published.",
+            }.get(self.change, "")
         line = ""
         if self.change == CasebookEditLog.ChangeType.REMOVED.value:
             self.content.content_tree__load()

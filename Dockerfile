@@ -52,6 +52,9 @@ COPY web/vite.config.mjs ./
 COPY web/static ./static
 COPY web/frontend ./frontend
 
+# The tested artifact keeps the same release identifier through both deploy tiers.
+ARG H2O_RELEASE=
+
 # Vite emits a manifest and production bundles with /static/dist paths.
 RUN npm run build
 
@@ -59,6 +62,9 @@ RUN npm run build
 # prod -- the deployable artifact. uwsgi, non-root user, app code baked in.
 # =====================================================================
 FROM base AS prod
+
+ARG H2O_RELEASE=
+ENV H2O_RELEASE=$H2O_RELEASE
 
 # uWSGI is installed at its locked version in base.
 

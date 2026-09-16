@@ -66,6 +66,7 @@ if USE_SENTRY:
 
     sentry_sdk.init(
         environment=SENTRY_ENVIRONMENT,
+        release=SENTRY_RELEASE,
         dsn=SENTRY_DSN,
         integrations=[
             DjangoIntegration(),
