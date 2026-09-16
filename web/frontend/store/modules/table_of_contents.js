@@ -150,7 +150,7 @@ const mutations = {
                             Vue.delete(state.augments, child);
                         }
                     });
-                    Vue.delete(node.children, ii);
+                    node.children.splice(ii, 1);
                     ii--;
                 } else {
                     deleteRecursive(node.children[ii], id);
