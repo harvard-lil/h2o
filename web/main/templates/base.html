@@ -9,6 +9,7 @@
     <link rel="apple-touch-icon" href="{% static 'images/h20-logo.png' %}" />
     <link href="{% static "images/favicon.ico" %}" rel="shortcut icon" type="image/vnd.microsoft.icon" />
     <script>
+     window.H2O_TURNSTILE_SITE_KEY = "{{ TURNSTILE_SITE_KEY|escapejs }}";
      {# frontend_urls is set by config.context_processors.frontend_urls #}
      const FRONTEND_URLS = {{ frontend_urls | safe}};
      window.ENABLE_MEDIA_UPLOAD =  {% if request.user.is_superuser or request.user.verified_professor or request.user.groups.all.0.name == "Research Assistant" %}true{% else %}false{% endif %};

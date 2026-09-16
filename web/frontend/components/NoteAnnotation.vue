@@ -31,6 +31,7 @@
                 v-model="content"></textarea>
       <input ref="noteSubmitButton"
              type="submit"
+             :disabled="saving"
              value="Save"
              id="save-note"
              class="button">
@@ -67,7 +68,8 @@ export default {
   props: ["tempId"],
   data: () => ({
     content: "",
-    isEditing: false
+    isEditing: false,
+    saving: false
   }),
   methods: {
     ...mapActions(['createAndUpdate', 'update']),
@@ -79,21 +81,25 @@ export default {
       this.isEditing = true;
       this.content = this.annotation.content;
     },
-    submit(kind, input = null){
-      if (this.isNew) {
-      let id = this.$refs.noteForm.id;
-      let annotation = this.$store.getters['annotations/getById'](parseInt(id));
-
-      this.createAndUpdate(
-        {obj: annotation, vals: {content: input}}
-      );
-      } else {
-        this.update({obj: this.annotation, vals:{content: input}})
-        this.isEditing = false;
+    async submit(kind, input = null){
+      if (this.saving) return;
+      this.saving = true;
+      try {
+        if (this.isNew) {
+          const id = this.$refs.noteForm.id;
+          const annotation = this.$store.getters['annotations/getById'](parseInt(id));
+          await this.createAndUpdate({obj: annotation, vals: {content: input}});
+        } else {
+          await this.update({obj: this.annotation, vals: {content: input}});
+          this.isEditing = false;
+        }
+        this.content = input;
+      } finally {
+        this.saving = false;
       }
-      this.content = input;
     },
     dismissNote(){
+      if (this.saving) return;
       if (this.isNew) {
         this.$store.commit('annotations/destroy', this.annotation);
         this.$store.commit('annotations_ui/destroy', this.uiState);

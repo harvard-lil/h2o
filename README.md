@@ -230,6 +230,52 @@ archive. Release tags alone require no new credential or runtime service.
 The frontend drops only the confirmed Zotero `i18n.getStrings` background-page
 error. Other extension errors, HTTP errors, and network failures remain visible.
 
+### Browser verification for annotation requests
+
+Cloudflare protects H2O's database from heavy crawler traffic. Its bot checks
+sometimes also challenge legitimate readers loading annotations or saving edits.
+A challenge returns an HTML verification page instead of the expected API
+response, so a background request cannot complete it on its own.
+
+Turnstile is Cloudflare's embeddable browser-verification widget. H2O shows it in
+a dialog only when a request is challenged. With **pre-clearance** enabled,
+completing the widget gives the browser a Cloudflare clearance cookie, allowing
+subsequent requests through applicable challenge checks without leaving the page.
+H2O then retries the blocked request once. Existing bot rules and Django access
+permissions remain in effect.
+
+The integration is disabled until the public `TURNSTILE_SITE_KEY` is set in the
+tier's application configuration. Create a Managed Turnstile widget for the exact
+staging/production hostnames and enable **managed** pre-clearance. No Turnstile
+secret key or Django verification endpoint is needed for this flow. See
+[Cloudflare's clearance configuration](https://developers.cloudflare.com/cloudflare-challenges/concepts/clearance/).
+
+Only same-origin Axios requests returning HTTP 403 with
+`cf-mitigated: challenge` open the dialog. This header identifies requests
+intercepted before reaching Django, so retrying a save will not duplicate a
+completed operation. Ordinary permission errors, network failures, and server
+errors are never automatically replayed. Simultaneous challenges share one
+check; Cancel leaves the page open so users can copy unsaved text. Legacy jQuery
+requests and ordinary HTML form submissions are outside this integration.
+
+Cloudflare issues and checks the clearance cookie. The widget's success callback
+only tells the frontend to retry; it does not authenticate the user or grant
+Django permissions. Forcing that callback cannot bypass Cloudflare's check or
+Django's existing authentication, permissions, and CSRF protection. Widget failure
+leaves the dialog open with an explanation and a Close button; no request is retried.
+
+This integration does not use the separate Turnstile token as proof for Django.
+If Django later relies on Turnstile to protect signup or another operation, add
+server-side [Siteverify token validation](https://developers.cloudflare.com/turnstile/get-started/server-side-validation/)
+before accepting that operation, including hostname/action checks and secret-key
+configuration. A frontend success callback is not sufficient for that use case.
+
+Before enabling production, test on staging with real widget keys: complete
+verification for a challenged annotation read and save, confirming one successful
+save without a reload. Also test cancellation with note text, concurrent failed
+reads, a blocked widget script, and a second challenge after retry. Cloudflare
+test keys exercise widget UI but do not demonstrate real edge clearance.
+
 ## Deploys
 
 A merge to `main` builds one image, runs the suite against it, and publishes it.
