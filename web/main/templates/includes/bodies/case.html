@@ -1,4 +1,4 @@
 <section class="resource">
     {% include 'includes/case_header.html' with case=section.resource %}
-    <the-resource :editable="false" :resource="{{ body_json }}"></the-resource>
+    <the-resource :resource-id="{{ section.id }}" :editable="false" :resource="{{ body_json }}"></the-resource>
 </section>
