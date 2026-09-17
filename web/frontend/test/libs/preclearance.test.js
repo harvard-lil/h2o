@@ -107,7 +107,7 @@ describe('verification dialog', () => {
     const { verifyBrowser } = await import('../../libs/preclearance');
     vi.stubGlobal('fetch', vi.fn());
     const pending = verifyBrowser();
-    const rejected = expect(pending).rejects.toThrow('cancelled');
+    const rejected = expect(pending).rejects.toThrow('verification failed');
     await Promise.resolve();
     options[callback]();
     await options.callback('late-token');
