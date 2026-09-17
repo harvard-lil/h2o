@@ -56,6 +56,7 @@
 <script>
 import Vue from 'vue'
 import AnnotationBase from './AnnotationBase';
+import { VerificationCancelledError } from '../libs/requestErrors';
 import vClickOutside from 'v-click-outside'
 import { createNamespacedHelpers } from 'vuex';
 const { _mapGetters } = createNamespacedHelpers('annotations_ui');
@@ -94,6 +95,9 @@ export default {
           this.isEditing = false;
         }
         this.content = input;
+      } catch (error) {
+        if (!(error instanceof VerificationCancelledError)) throw error;
+        // Keep the editor and its unsaved text available after Cancel.
       } finally {
         this.saving = false;
       }

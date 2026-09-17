@@ -22,12 +22,7 @@ WORKDIR /app/web
 # and shared by every target below, independent of app-code changes.
 COPY web/pyproject.toml web/uv.lock ./
 
-# CPUCOUNT=1 makes uwsgi compile single-threaded. Its build spawns one thread
-# per CPU, each shelling out to gcc, and on a loaded runner one of those forks
-# intermittently dies with "OSError: [Errno 14] Bad address: '/bin/sh'", failing
-# the whole image build. Serialising it trades a little time for a build that
-# does not fail at random.
-RUN CPUCOUNT=1 uv sync --locked --no-dev --no-cache
+RUN uv sync --locked --no-dev --no-cache
 
 # =====================================================================
 # assets -- the compiled JS/CSS bundles. Built here rather than by running
@@ -59,14 +54,14 @@ ARG H2O_RELEASE=
 RUN npm run build
 
 # =====================================================================
-# prod -- the deployable artifact. uwsgi, non-root user, app code baked in.
+# prod -- the deployable artifact. Gunicorn, non-root user, app code baked in.
 # =====================================================================
 FROM base AS prod
 
 ARG H2O_RELEASE=
 ENV H2O_RELEASE=$H2O_RELEASE
 
-# uWSGI is installed at its locked version in base.
+# Gunicorn is installed at its locked version in base.
 
 # Create a non-root user and set up permissions
 RUN useradd -m -r h2o && chown -R h2o /app
@@ -100,13 +95,7 @@ RUN H2O_SETTINGS_MODULE=settings_build ./manage.py collectstatic --noinput
 
 EXPOSE 8000
 
-# --die-on-term is what makes SIGTERM mean "shut down". uwsgi's own meaning for
-# it is "brutally reload", so without this the master ignores the signal ECS
-# sends to stop a task, ECS waits out the stop timeout and kills it, and
-# whatever the workers were serving dies with them. That defeats the drain the
-# cloudflared sidecar performs ahead of it: the connector stops taking new
-# requests and finishes its in-flight ones, and then uwsgi is shot anyway.
-CMD ["uwsgi", "--http", "0.0.0.0:8000", "--master", "--die-on-term", "--processes", "20", "--threads", "1", "--buffer-size", "32768", "--module", "config.wsgi"]
+CMD ["gunicorn", "--config", "gunicorn_config.py", "config.wsgi:application"]
 
 # =====================================================================
 # dev -- local development. The test toolchain on top of `base`, with no app
@@ -129,7 +118,7 @@ RUN /tmp/install-test-toolchain.sh && rm /tmp/install-test-toolchain.sh
 
 # =====================================================================
 # test -- what CI runs the suite against. FROM prod, so it carries prod's
-# uwsgi layer, prod's non-root user and prod's baked-in code, plus the same
+# Gunicorn layer, prod's non-root user and prod's baked-in code, plus the same
 # toolchain `dev` gets. Tests therefore exercise the artifact that ships
 # rather than a sibling of it.
 #

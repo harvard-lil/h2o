@@ -1,3 +1,4 @@
+import { VerificationCancelledError } from '../../libs/requestErrors';
 import { mount, flushPromises } from '@vue/test-utils';
 import { cloneDeep } from 'lodash';
 import Vuex from 'vuex/dist/vuex.esm-bundler.js';
@@ -32,7 +33,7 @@ describe('new note focus', () => {
 });
 
 describe('note saves', () => {
-  it('keeps an existing note editor open while saving and after failure', async () => {
+  it.each([new Error('Request failed'), new VerificationCancelledError()])('keeps an existing note editor open after %s', async (error) => {
     const store = new Vuex.Store(cloneDeep({modules: {
       annotations, annotations_ui, resources_ui
     }}));
@@ -49,12 +50,12 @@ describe('note saves', () => {
     await wrapper.vm.$nextTick();
     await wrapper.get('textarea').setValue('keep this text');
     const pending = wrapper.vm.submit('note', 'keep this text');
-    const rejected = expect(pending).rejects.toThrow('Verification cancelled');
+    const checked = error instanceof VerificationCancelledError ? expect(pending).resolves.toBeUndefined() : expect(pending).rejects.toThrow('Request failed');
     expect(wrapper.vm.saving).toBe(true);
     wrapper.vm.dismissNote();
     expect(wrapper.vm.isEditing).toBe(true);
-    rejectSave(new Error('Verification cancelled'));
-    await rejected;
+    rejectSave(error);
+    await checked;
     expect(wrapper.vm.saving).toBe(false);
     expect(wrapper.vm.isEditing).toBe(true);
     expect(wrapper.get('textarea').element.value).toBe('keep this text');

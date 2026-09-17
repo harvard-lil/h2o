@@ -1,4 +1,5 @@
 import '../styles/preclearance.scss';
+import { VerificationCancelledError, VerificationFailedError } from './requestErrors';
 
 // Turnstile verifies the visitor inline; pre-clearance lets Cloudflare admit the retry.
 let scriptPromise;
@@ -62,10 +63,11 @@ export function verifyBrowser() {
       message.textContent = 'Verification failed. The request was not retried. Close this message to keep your page open and copy any unsaved text before reloading.';
       dialog.querySelector('button').textContent = 'Close';
     }
-    dialog.querySelector('button').onclick = () => finish(new Error('Browser verification cancelled.'));
+    const closeVerification = () => finish(hasFailed ? new VerificationFailedError() : new VerificationCancelledError());
+    dialog.querySelector('button').onclick = closeVerification;
     dialog.addEventListener('cancel', event => {
       event.preventDefault();
-      finish(new Error('Browser verification cancelled.'));
+      closeVerification();
     });
     // Do not treat clicks in verification as clicks outside an annotation editor.
     dialog.addEventListener('click', event => event.stopPropagation());
