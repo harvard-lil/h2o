@@ -406,3 +406,45 @@ def test_disallowed_images_stripped(rf, text_block_factory, resource_factory):
         assert src not in html
     for src in allowed_srcs:
         assert src in html
+
+
+@pytest.mark.parametrize("file_type", ["docx", "html"])
+@pytest.mark.parametrize("annotated", [False, True])
+def test_export_head(client, casebook, mocker, file_type, annotated):
+    export = mocker.patch("main.models.Casebook.export", return_value=b"export contents")
+    url = reverse("export_casebook", kwargs={"node": casebook, "file_type": file_type})
+    if annotated:
+        url += "?annotations=true"
+
+    response = client.head(url)
+    assert response.status_code == 200
+    assert b"".join(response.streaming_content) == b""
+    assert "Content-Length" not in response
+    assert "response_flag_cookie" not in response.cookies
+    export.assert_not_called()
+
+    # Headers that don't require conversion should match a normal download.
+    download = client.get(url)
+    assert response["Content-Type"] == download["Content-Type"]
+    assert response.get("Content-Disposition") == download.get("Content-Disposition")
+    export.assert_called_once()
+
+
+@pytest.mark.parametrize("book_fixture", ["private_casebook", "draft_casebook"])
+@pytest.mark.parametrize("viewer", ["anonymous", "other", "editor"])
+def test_export_head_permissions(client, request, user_factory, mocker, book_fixture, viewer):
+    casebook = request.getfixturevalue(book_fixture)
+    user = {"anonymous": None, "other": user_factory(), "editor": casebook.testing_editor}[viewer]
+    export = mocker.patch("main.models.Casebook.export")
+    url = reverse("export_casebook", kwargs={"node": casebook, "file_type": "docx"})
+    response = client.head(url, as_user=user)
+    assert response.status_code == {"anonymous": 302, "other": 403, "editor": 200}[viewer]
+    export.assert_not_called()
+
+
+def test_export_head_invalid_target(client, casebook, mocker):
+    export = mocker.patch("main.models.Casebook.export")
+    url = reverse("export_casebook", kwargs={"node": casebook, "file_type": "pdf"})
+    assert client.head(url).status_code == 404
+    assert client.head("/casebooks/999999999/export.docx").status_code == 404
+    export.assert_not_called()
