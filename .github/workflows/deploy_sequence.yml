@@ -243,6 +243,7 @@ jobs:
       # A hold is the other exception: the deployer asked for the page to stay
       # up after the deploy, for work that has to happen before traffic returns.
       - name: Release traffic at the edge
+        id: release
         if: always() && steps.window.outputs.needed == 'true' && steps.flags.outputs.hold != 'true' && (steps.migrate.outcome == 'success' || steps.migrate.outcome == 'skipped')
         uses: harvard-lil/lil-actions/cloudflare-maintenance@main
         with:
@@ -252,31 +253,20 @@ jobs:
           token: ${{ secrets.cloudflare-api-token }}
 
       # Complement of the condition above, so the site is never left behind the
-      # maintenance page without this saying so.
-      - name: Report that the site was left in maintenance
-        if: always() && steps.window.outputs.needed == 'true' && steps.migrate.outcome != 'success' && steps.migrate.outcome != 'skipped'
-        run: |
-          echo "::error::Django migrations did not complete (outcome: ${{ steps.migrate.outcome }})."
-          echo "::error::MAINTENANCE MODE IS STILL ON and was left on deliberately --"
-          echo "::error::${{ vars.SITE_URL }} is serving the maintenance page, not the application."
-          echo "::error::The database may be partially migrated. Check its state before"
-          echo "::error::lifting maintenance; re-running this workflow will not lift it"
-          echo "::error::either, because it will fail at the same step."
-          exit 1
-
-      # The hold is deliberate, so this is a notice and the job stays green; the
-      # Slack message below carries the same warning. Releasing takes another
-      # dispatch with force-maintenance and no hold, since a deploy that needs
-      # no window never touches the edge, or detaching the route in Cloudflare.
-      - name: Report the intentional hold
-        if: success() && steps.flags.outputs.hold == 'true'
-        env:
-          SITE_URL: ${{ vars.SITE_URL }}
-          SOURCES: ${{ steps.flags.outputs.sources }}
-        run: |
-          echo "::notice::Deploy verified. MAINTENANCE MODE IS STILL ON and was left on deliberately:"
-          echo "::notice::${SITE_URL} is serving the maintenance page because a hold was requested (${SOURCES})."
-          echo "::notice::To release it, dispatch this workflow again with force-maintenance and without hold-maintenance, or detach the maintenance route in Cloudflare."
+      # maintenance page without this saying so: an unintended page fails the
+      # run here, a deliberate hold is a notice and the job stays green, and
+      # the Slack message below carries the same summary either way.
+      - name: Report what this run left behind
+        id: outcome
+        if: always()
+        uses: harvard-lil/lil-actions/deploy-outcome@main
+        with:
+          window: ${{ steps.window.outputs.needed }}
+          hold: ${{ steps.flags.outputs.hold }}
+          migrate-outcome: ${{ steps.migrate.outcome }}
+          release-outcome: ${{ steps.release.outcome }}
+          site-url: ${{ vars.SITE_URL }}
+          sources: ${{ steps.flags.outputs.sources }}
 
       - name: Purge Cloudflare cache
         uses: harvard-lil/lil-actions/cloudflare-purge@main
@@ -289,6 +279,9 @@ jobs:
       # is migrated by this point, and on a deploy that takes no window these
       # commands run against live traffic anyway. Keeping them above the release
       # would spend their runtime as downtime.
+      #
+      # These four steps are h2o's own; the rest of this file is the shared
+      # sequence.
       - name: Create search index
         uses: harvard-lil/lil-actions/ecs-exec-command@main
         with:
@@ -327,72 +320,17 @@ jobs:
           aws lambda update-function-code \
             --function-name "$FUNCTION_NAME" \
             --image-uri "$LAMBDA_IMAGE_URI" >/dev/null
-          
-          
-      # The success notification below does not run on failure, so this is the
-      # only thing that reports a failed deploy -- including the one case where
-      # the site is deliberately left serving the maintenance page.
-      - name: Notify Slack on failure
-        if: failure()
-        uses: slackapi/slack-github-action@dcb1066f776dd043e64d0e8ba94ca15cc7e1875d # v4.0.0
-        with:
-            webhook: ${{ secrets.slack-webhook-url }}
-            webhook-type: incoming-webhook
-            payload: |
-              {
-                "blocks": [
-                    {
-                      "type": "section",
-                      "text": {
-                          "type": "mrkdwn",
-                          "text": "*${{ inputs.environment-label }} H2O deploy FAILED*"
-                      }
-                    },
-                    {
-                      "type": "section",
-                      "text": {
-                          "type": "mrkdwn",
-                          "text": "*Maintenance mode:*\n${{ (steps.window.outputs.needed == 'true' && steps.migrate.outcome != 'success' && steps.migrate.outcome != 'skipped') && 'STILL ON - the site is serving the maintenance page' || (steps.window.outputs.needed == 'true' && steps.flags.outputs.hold == 'true' && 'STILL ON - held deliberately by hold-maintenance' || (steps.window.outputs.needed == 'true' && 'lifted - the site is serving the previous version' || 'never opened - no migrations, the site stayed up throughout')) }}\n*Deploy flags:*\n${{ steps.flags.outputs.sources }}\n*Run:*\n<https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}|${{ github.run_id }}>"
-                      }
-                    }
-                ]
-              }
 
+      # One message for either outcome, carrying the report's summary, so the
+      # one case where the site is deliberately left serving the maintenance
+      # page is said the same way whether the run went on to succeed or fail.
       - name: Notify Slack
-        uses: slackapi/slack-github-action@dcb1066f776dd043e64d0e8ba94ca15cc7e1875d # v4.0.0
+        if: always()
+        uses: harvard-lil/lil-actions/deploy-notify@main
         with:
-            webhook: ${{ secrets.slack-webhook-url }}
-            webhook-type: incoming-webhook
-            payload: |
-              {
-                "blocks": [
-                    {
-                      "type": "section",
-                      "text": {
-                          "type": "mrkdwn",
-                          "text": "*${{ inputs.environment-label }} H2O deployed successfully!*"
-                      }
-                    },
-                    {
-                    "type": "section",
-                      "text": {
-                          "type": "mrkdwn",
-                          "text": "*Repo:*\n<https://github.com/${{ github.repository }}|`${{ github.repository }}`>\n*Branch:*\n<https://github.com/${{ github.repository }}/tree/${{ github.ref_name }}|`${{ github.ref_name }}`>\n*Commit:*\n<https://github.com/${{ github.repository }}/commit/${{ github.sha }}|`${{ github.sha }}`>"
-                      } 
-                    },
-                    {
-                    "type": "section",
-                      "text": {
-                          "type": "mrkdwn",
-                          "text": "*Maintenance mode:*\n${{ steps.flags.outputs.hold == 'true' && 'STILL ON - held deliberately by hold-maintenance. Dispatch this workflow again with force-maintenance and without hold-maintenance to release it.' || (steps.window.outputs.needed == 'true' && 'lifted - the site is serving the new version' || 'never opened - no migrations, the site stayed up throughout') }}\n*Deploy flags:*\n${{ steps.flags.outputs.sources }}"
-                      }
-                    },
-                    {
-                    "type": "section",
-                      "text": {
-                          "type": "mrkdwn",
-                          "text": "*View the site:* <${{ vars.SITE_URL }}|${{ vars.SITE_URL }}>"
-                      }
-                    }
-                ]
-              }
+          webhook: ${{ secrets.slack-webhook-url }}
+          status: ${{ job.status }}
+          product: H2O
+          tier-label: ${{ inputs.environment-label }}
+          site-url: ${{ vars.SITE_URL }}
+          summary: ${{ steps.outcome.outputs.summary }}
