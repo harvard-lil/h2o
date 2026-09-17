@@ -1,6 +1,20 @@
 name: Production - Deploy to AWS
 
 on:
+  workflow_dispatch:
+    inputs:
+      force-maintenance:
+        description: Open a maintenance window whether or not migrations call for one
+        type: boolean
+        default: false
+      skip-maintenance:
+        description: Assert the migrations are compatible with serving traffic and take no window
+        type: boolean
+        default: false
+      hold-maintenance:
+        description: Keep traffic held after a successful deploy; implies force-maintenance
+        type: boolean
+        default: false
   push:
     branches: [prod]
   pull_request:
@@ -41,7 +55,9 @@ jobs:
     name: Prepare the production artifact
     runs-on: ubuntu-latest
     environment: prod
-    if: github.event_name == 'push' && github.repository == 'harvard-lil/h2o'
+    # A dispatch can be started from any branch the workflow file exists on, so
+    # the ref is checked here where a push has already been limited to this one.
+    if: (github.event_name == 'push' || github.event_name == 'workflow_dispatch') && github.ref == 'refs/heads/prod' && github.repository == 'harvard-lil/h2o'
     
     outputs:
       image-digest: ${{ steps.resolve.outputs.image-digest }}
@@ -119,6 +135,12 @@ jobs:
       environment-label: Prod
       image-digest: ${{ needs.prepare.outputs.image-digest }}
       source-sha: ${{ needs.prepare.outputs.source-sha }}
+      # Guarded on the event so a push passes false rather than an empty value
+      # to a boolean input; the sequence's deploy-flags step applies the same
+      # guard before it reads them.
+      force-maintenance: ${{ github.event_name == 'workflow_dispatch' && inputs.force-maintenance }}
+      skip-maintenance: ${{ github.event_name == 'workflow_dispatch' && inputs.skip-maintenance }}
+      hold-maintenance: ${{ github.event_name == 'workflow_dispatch' && inputs.hold-maintenance }}
     secrets:
       cloudflare-api-token: ${{ secrets.CLOUDFLARE_API_TOKEN }}
       slack-webhook-url: ${{ secrets.SLACK_WEBHOOK_URL }}
