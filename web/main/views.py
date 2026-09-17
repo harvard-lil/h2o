@@ -26,6 +26,7 @@ from django.http import (
     HttpResponseForbidden,
     HttpResponseServerError,
     JsonResponse,
+    StreamingHttpResponse,
 )
 from django.shortcuts import get_object_or_404, redirect, render
 from django.urls import reverse
@@ -2761,6 +2762,18 @@ def export(request: HttpRequest, node: Union[ContentNode, Casebook], file_type="
         raise Http404
 
     include_annotations = request.GET.get("annotations") == "true"
+    filename = f"{Truncator(node.title).words(45, truncate='-')}{'_annotated' if include_annotations else ''}.docx"
+    if request.method == "HEAD":
+        # Permissions and format validation still apply, but a link check must
+        # not invoke Lambda or consume the export rate limit. Streaming avoids
+        # CommonMiddleware adding Content-Length: 0 for an unknown file size.
+        headers = (
+            StringFileResponse(b"", as_attachment=True, filename=filename).headers
+            if file_type == "docx"
+            else {}
+        )
+        return StreamingHttpResponse((), headers=headers)
+
     export_options = {"request": request}
 
     # get response data
@@ -2782,7 +2795,6 @@ def export(request: HttpRequest, node: Union[ContentNode, Casebook], file_type="
         return HttpResponse(response_data)
 
     # return docx
-    filename = f"{Truncator(node.title).words(45, truncate='-')}{'_annotated' if include_annotations else ''}.docx"
     return StringFileResponse(
         response_data, as_attachment=True, filename=filename, response_flag_cookie=True
     )

@@ -16,3 +16,24 @@ describe('Sentry extension filtering', () => {
     expect(beforeSend(event)).toBe(event);
   });
 });
+
+describe('expected request failures', () => {
+  afterEach(() => vi.restoreAllMocks());
+  it('drops only the typed verification cancellation', async () => {
+    const { VerificationCancelledError } = await import('../../libs/requestErrors');
+    expect(beforeSend({}, {originalException: new VerificationCancelledError()})).toBeNull();
+    const event = {message: 'Browser verification cancelled.'};
+    expect(beforeSend(event, {originalException: new Error(event.message)})).toBe(event);
+  });
+  it.each(['YandexBot/3.0', 'YandexAccessibilityBot/3.0'])('drops confirmed abort noise from %s', userAgent => {
+    vi.spyOn(navigator, 'userAgent', 'get').mockReturnValue(userAgent);
+    expect(beforeSend({exception: {values: [{type: 'AxiosError', value: 'Request aborted'}]}})).toBeNull();
+    const other = {exception: {values: [{type: 'AxiosError', value: 'Network Error'}]}};
+    expect(beforeSend(other)).toBe(other);
+  });
+  it('keeps real-browser aborts', () => {
+    vi.spyOn(navigator, 'userAgent', 'get').mockReturnValue('Mozilla/5.0 Chrome/152');
+    const event = {exception: {values: [{type: 'AxiosError', value: 'Request aborted'}]}};
+    expect(beforeSend(event)).toBe(event);
+  });
+});

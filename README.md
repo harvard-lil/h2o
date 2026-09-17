@@ -153,6 +153,64 @@ Or, you can clean up everything Docker-related, so you can start fresh, as with 
     $ bash docker/clean.sh
 
 
+## Production HTTP server
+
+The production image runs Gunicorn with Django's WSGI application, configured in
+`web/gunicorn_config.py`. The default is four worker processes with two threads
+each. The threaded worker supports persistent HTTP connections from cloudflared
+and concurrent requests waiting on Lambda exports without greenlet monkey-patching.
+Keep the application on WSGI; adopting ASGI is a separate change.
+
+Set `WEB_CONCURRENCY` to override the process count, or use `GUNICORN_CMD_ARGS`
+(e.g. `--workers 2 --threads 4`) for other tuning. These are container environment
+variables, not fields in Django's `APP_CONFIG` JSON. Size concurrency against ECS
+CPU/memory and database connections, not the host's reported CPU count. Each
+request thread can use a database connection.
+
+Gunicorn's 60-second timeout detects silent workers; with `gthread` it is not a
+per-request deadline, so a long export can continue while the worker is responsive.
+The 25-second graceful shutdown timeout fits inside ECS's default 30-second app
+stop timeout. The cloudflared sidecar drains before stopping the application.
+Access logs go to stdout and include response time in microseconds; errors go to
+stderr. No nginx or HEAD middleware is required: Gunicorn suppresses HEAD bodies.
+
+To exercise Gunicorn alongside the local development server, run inside the web
+container from `/app/web`:
+
+```sh
+gunicorn -c gunicorn_config.py --bind 0.0.0.0:8001 config.wsgi:application
+pytest test/server/test_gunicorn.py
+```
+
+Port 8001 is internal unless explicitly published. The server tests check actual
+HTTP bytes, persistent connections, iterator cleanup, and graceful shutdown;
+Django's test client strips HEAD bodies itself and cannot catch this server bug.
+Worker behavior is documented in [Gunicorn's design guide](https://gunicorn.org/design/).
+
+Local tuning on 2026-09-16 used the production image with development settings
+and the seeded annotated resource page, capped at 4 CPUs / 1 GiB. After warming,
+two batches of 512 requests at concurrency 16 measured:
+
+| Processes × threads | Requests/second | p95 latency | Container memory after load |
+| --- | --- | --- | --- |
+| 2 × 4 | 258–272 | 91–92 ms | 200 MiB |
+| 4 × 2 | 408–419 | 70–74 ms | 329 MiB |
+| 4 × 4 | 355–382 | 70–75 ms | 337 MiB |
+
+This supports 4 × 2 as a starting point, not a production capacity estimate:
+the host is ARM64, the database is local, and the seeded page is small. Production
+has 4 vCPUs / 8 GiB per task; staging has 1 vCPU / 2 GiB. Monitor request latency,
+CPU and database connections before increasing concurrency. Recheck with real
+traffic if exports start competing with page requests for the eight request slots.
+
+The local Lambda runtime emulator rejected simultaneous export invocations with
+`ReserveFailed: AlreadyReserved` during acceptance testing. Test local exports
+serially (the pytest export group already does this); concurrent AWS Lambda
+export capacity must be checked separately. A single export alongside page and
+health requests passed through Gunicorn.
+
+
+
 ## Testing
 
 ### Test Commands
