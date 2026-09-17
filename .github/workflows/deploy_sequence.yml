@@ -133,36 +133,25 @@ jobs:
           artifacts: >-
             [{"type":"application/vnd.harvard-lil.h2o.migrations.v1+json","path":"image-artifacts/migrations.json"},
              {"type":"application/vnd.harvard-lil.h2o.staticassets.v1.tar+gzip","path":"static-assets.tar.gz"}]
-      - name: Unpack the published static files
-        run: tar -xzf static-assets.tar.gz -C image-artifacts
 
       # Every version's assets live together in one bucket, so a browser holding
-      # a page from an earlier deploy can still fetch its bundles. Objects are
-      # only ever added: there is no --delete here and there should not be, since
-      # removing an old hash is what this exists to prevent.
-      #
-      # Two passes, because the cache headers differ by whether the filename
-      # carries a content hash. Everything under dist/ does, so it can be
-      # immutable for a year; Django admin's files and anything else collected
-      # alongside them do not, and would go stale for a year if treated the same.
+      # a page from an earlier deploy can still fetch its bundles; the action
+      # only ever adds objects. Everything under dist/ carries a content hash
+      # and is cached as immutable for a year; Django admin's files and anything
+      # else collected alongside them do not, and get an hour.
       #
       # Above the rollout, because a task that starts before its bundles are in
       # the bucket serves pages referencing hashes that 404.
       - name: Publish the image's static files
-        env:
+        uses: harvard-lil/lil-actions/static-assets-publish@main
+        with:
           # h2o-static was already taken in S3's global namespace by another
           # account, so the bucket is org-scoped. h2o/static in lil-terraform
           # outputs this name. One bucket serves both tiers, as it did when
           # every build of main wrote it.
-          STATIC_BUCKET: lil-h2o-static
-        run: |
-          set -euxo pipefail
-          aws s3 sync image-artifacts/static/dist "s3://${STATIC_BUCKET}/static/dist" \
-            --cache-control 'public, max-age=31536000, immutable' --no-progress
-
-          aws s3 sync image-artifacts/static "s3://${STATIC_BUCKET}/static" \
-            --exclude 'dist/*' \
-            --cache-control 'public, max-age=3600' --no-progress
+          bucket: lil-h2o-static
+          archive: static-assets.tar.gz
+          hashed-subdir: dist
 
       # Three ways to ask for a window or to decline one: a label on the merged
       # pull request, a workflow_dispatch input, and the standing
