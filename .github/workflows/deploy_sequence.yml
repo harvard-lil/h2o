@@ -45,6 +45,22 @@ on:
           branch reaching them, so naming it here is what selects the tier.
         required: true
         type: string
+      # The deploy flags a workflow_dispatch can set. A called workflow sees the
+      # caller's event but not its inputs, so the tier passes them through;
+      # deploy-flags below reads them only when that event is a dispatch, and
+      # reads the labels on the merged pull request whatever the event.
+      force-maintenance:
+        description: 'Open a maintenance window whether or not migrations call for one'
+        type: boolean
+        default: false
+      skip-maintenance:
+        description: 'Assert the migrations are compatible with serving traffic and take no window'
+        type: boolean
+        default: false
+      hold-maintenance:
+        description: 'Keep traffic held after a successful deploy; implies force-maintenance'
+        type: boolean
+        default: false
 
     secrets:
       # A called workflow's secrets context is only what the caller passes it.
@@ -136,32 +152,23 @@ jobs:
             --exclude 'dist/*' \
             --cache-control 'public, max-age=3600' --no-progress
 
-      # A push carries no pull request context, so the labels are looked up from
-      # the commit. A direct push, or a merge whose pull request has since been
-      # deleted, returns nothing and the deploy proceeds on its own judgement.
-      - name: Read the deploy labels off the merged pull request
-        id: labels
+      # Three ways to ask for a window or to decline one: a label on the merged
+      # pull request, a workflow_dispatch input, and the standing
+      # HOLD_MAINTENANCE variable for a cutover that spans several deploys. The
+      # action reads all three and applies the rules once: hold implies force,
+      # and force wins over skip. A push carries no pull request context, so
+      # the labels are looked up from the commit; a direct push, or a merge
+      # whose pull request has since been deleted, finds none and the deploy
+      # proceeds on its own judgement.
+      - name: Resolve the deploy flags
+        id: flags
+        uses: harvard-lil/lil-actions/deploy-flags@main
+        with:
+          event-name: ${{ github.event_name }}
+          inputs: ${{ toJSON(inputs) }}
+          hold-variable: ${{ vars.HOLD_MAINTENANCE }}
         env:
           GH_TOKEN: ${{ github.token }}
-        run: |
-          set -uo pipefail
-          if ! labels="$(gh api "repos/${GITHUB_REPOSITORY}/commits/${GITHUB_SHA}/pulls" \
-                          --jq '.[].labels[].name')"; then
-            echo "::warning::Could not read pull request labels for ${GITHUB_SHA}."
-            echo "::warning::Continuing as though none were set."
-            labels=""
-          fi
-          echo "Labels: ${labels:-(none)}"
-          if grep -qx 'deploy:force-maintenance-mode' <<< "$labels"; then
-            echo "force-maintenance=true" >> "$GITHUB_OUTPUT"
-          else
-            echo "force-maintenance=false" >> "$GITHUB_OUTPUT"
-          fi
-          if grep -qx 'deploy:skip-maintenance-mode' <<< "$labels"; then
-            echo "skip-maintenance=true" >> "$GITHUB_OUTPUT"
-          else
-            echo "skip-maintenance=false" >> "$GITHUB_OUTPUT"
-          fi
 
       - name: Does this deploy need a maintenance window?
         id: window
@@ -172,8 +179,8 @@ jobs:
           container: ${{ env.CONTAINER_NAME }}
           settings-module: config.settings
           manifest: image-artifacts/migrations.json
-          force: ${{ steps.labels.outputs.force-maintenance }}
-          skip: ${{ steps.labels.outputs.skip-maintenance }}
+          force: ${{ steps.flags.outputs.force }}
+          skip: ${{ steps.flags.outputs.skip }}
 
       - name: Deploy the digest-pinned task definition
         uses: harvard-lil/lil-actions/ecs-deploy@main
@@ -231,8 +238,11 @@ jobs:
       # schema in a state neither the old nor the new code is safe against. That
       # case stays behind the maintenance page for a human. `cancelled` counts
       # the same: interrupting a migration is no safer than one failing.
+      #
+      # A hold is the other exception: the deployer asked for the page to stay
+      # up after the deploy, for work that has to happen before traffic returns.
       - name: Release traffic at the edge
-        if: always() && steps.window.outputs.needed == 'true' && (steps.migrate.outcome == 'success' || steps.migrate.outcome == 'skipped')
+        if: always() && steps.window.outputs.needed == 'true' && steps.flags.outputs.hold != 'true' && (steps.migrate.outcome == 'success' || steps.migrate.outcome == 'skipped')
         uses: harvard-lil/lil-actions/cloudflare-maintenance@main
         with:
           mode: 'off'
@@ -252,6 +262,20 @@ jobs:
           echo "::error::lifting maintenance; re-running this workflow will not lift it"
           echo "::error::either, because it will fail at the same step."
           exit 1
+
+      # The hold is deliberate, so this is a notice and the job stays green; the
+      # Slack message below carries the same warning. Releasing takes another
+      # dispatch with force-maintenance and no hold, since a deploy that needs
+      # no window never touches the edge, or detaching the route in Cloudflare.
+      - name: Report the intentional hold
+        if: success() && steps.flags.outputs.hold == 'true'
+        env:
+          SITE_URL: ${{ vars.SITE_URL }}
+          SOURCES: ${{ steps.flags.outputs.sources }}
+        run: |
+          echo "::notice::Deploy verified. MAINTENANCE MODE IS STILL ON and was left on deliberately:"
+          echo "::notice::${SITE_URL} is serving the maintenance page because a hold was requested (${SOURCES})."
+          echo "::notice::To release it, dispatch this workflow again with force-maintenance and without hold-maintenance, or detach the maintenance route in Cloudflare."
 
       - name: Purge Cloudflare cache
         uses: harvard-lil/lil-actions/cloudflare-purge@main
@@ -327,7 +351,7 @@ jobs:
                       "type": "section",
                       "text": {
                           "type": "mrkdwn",
-                          "text": "*Maintenance mode:*\n${{ (steps.window.outputs.needed == 'true' && steps.migrate.outcome != 'success' && steps.migrate.outcome != 'skipped') && 'STILL ON - the site is serving the maintenance page' || (steps.window.outputs.needed == 'true' && 'lifted - the site is serving the previous version' || 'never opened - no migrations, the site stayed up throughout') }}\n*Run:*\n<https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}|${{ github.run_id }}>"
+                          "text": "*Maintenance mode:*\n${{ (steps.window.outputs.needed == 'true' && steps.migrate.outcome != 'success' && steps.migrate.outcome != 'skipped') && 'STILL ON - the site is serving the maintenance page' || (steps.window.outputs.needed == 'true' && steps.flags.outputs.hold == 'true' && 'STILL ON - held deliberately by hold-maintenance' || (steps.window.outputs.needed == 'true' && 'lifted - the site is serving the previous version' || 'never opened - no migrations, the site stayed up throughout')) }}\n*Deploy flags:*\n${{ steps.flags.outputs.sources }}\n*Run:*\n<https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}|${{ github.run_id }}>"
                       }
                     }
                 ]
@@ -354,6 +378,13 @@ jobs:
                           "type": "mrkdwn",
                           "text": "*Repo:*\n<https://github.com/${{ github.repository }}|`${{ github.repository }}`>\n*Branch:*\n<https://github.com/${{ github.repository }}/tree/${{ github.ref_name }}|`${{ github.ref_name }}`>\n*Commit:*\n<https://github.com/${{ github.repository }}/commit/${{ github.sha }}|`${{ github.sha }}`>"
                       } 
+                    },
+                    {
+                    "type": "section",
+                      "text": {
+                          "type": "mrkdwn",
+                          "text": "*Maintenance mode:*\n${{ steps.flags.outputs.hold == 'true' && 'STILL ON - held deliberately by hold-maintenance. Dispatch this workflow again with force-maintenance and without hold-maintenance to release it.' || (steps.window.outputs.needed == 'true' && 'lifted - the site is serving the new version' || 'never opened - no migrations, the site stayed up throughout') }}\n*Deploy flags:*\n${{ steps.flags.outputs.sources }}"
+                      }
                     },
                     {
                     "type": "section",
