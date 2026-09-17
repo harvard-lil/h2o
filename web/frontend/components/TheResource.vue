@@ -1,7 +1,10 @@
 <template>
 <section class="resource"
          v-selectionchange="selectionchangeHandler">
-  <TheAnnotator v-if="editable"
+  <p v-if="annotationsError" role="alert">
+    Annotations could not be loaded. <button type="button" :disabled="annotationsLoading" @click="loadAnnotations">Retry</button>
+  </p>
+  <TheAnnotator v-if="editable && annotationsLoaded"
                 ref="annotator"/>
   <TheGlobalElisionExpansionButton v-if="collapsible.length"/>
   <TheResourceBody :resource="resource"/>
@@ -9,6 +12,9 @@
 </template>
 
 <script>
+import { isAxiosError } from 'axios';
+import { captureException } from '@sentry/vue';
+import { VerificationCancelledError, VerificationFailedError } from '../libs/requestErrors';
 import { createNamespacedHelpers } from "vuex";
 const { mapActions } = createNamespacedHelpers("annotations");
 const { mapGetters } = createNamespacedHelpers("annotations_ui");
@@ -30,13 +36,34 @@ export default {
     editable: {type: Boolean}
   },
   data: () => ({
-    ranges: null
+    ranges: null,
+    annotationsLoading: false,
+    annotationsLoaded: false,
+    annotationsError: false
   }),
   computed: {
     ...mapGetters(["collapsible"])
   },
   methods: {
     ...mapActions(["list"]),
+
+    async loadAnnotations() {
+      if (!this.resourceId || this.annotationsLoading) return;
+      this.annotationsLoading = true;
+      try {
+        await this.list({resource_id: this.resourceId});
+        this.annotationsLoaded = true;
+        this.annotationsError = false;
+        this.$store.commit("resources_ui/setEditability", this.editable);
+      } catch (error) {
+        if (!(error instanceof VerificationCancelledError) &&
+            !(error instanceof VerificationFailedError) && !isAxiosError(error)) throw error;
+        this.annotationsError = true;
+        if (!(error instanceof VerificationCancelledError)) captureException(error);
+      } finally {
+        this.annotationsLoading = false;
+      }
+    },
 
     // The selectionchange directive must be bound to the broader
     // <section.resource> (rather than TheAnnotator) so that it has
@@ -49,8 +76,9 @@ export default {
     }
   },
   created() {
-    this.$store.commit("resources_ui/setEditability", this.editable);
-    if(this.resourceId) this.list({resource_id: this.resourceId});
+    // Do not allow editing an apparently empty annotation list after a failed load.
+    this.$store.commit("resources_ui/setEditability", false);
+    return this.loadAnnotations();
   }
 }
 </script>

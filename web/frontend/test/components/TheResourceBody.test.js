@@ -1,3 +1,5 @@
+import { VerificationCancelledError, VerificationFailedError } from '../../libs/requestErrors';
+import { AxiosError } from 'axios';
 import util from 'util';
 
 import { parseHTML,
@@ -53,6 +55,30 @@ describe('TheResourceBody', () => {
       await flushPromises();
       expect(get).toHaveBeenCalledExactlyOnceWith('/resources/42/annotations');
       expect(wrapper.find('.highlight .selected-text').text()).toBe('foo');
+    } finally {
+      wrapper.unmount();
+      get.mockRestore();
+    }
+  });
+
+  it.each([new VerificationCancelledError(), new VerificationFailedError(), new AxiosError('Forbidden', 'ERR_BAD_REQUEST')])('offers retry after annotation loading fails: %s', async error => {
+    const get = vi.spyOn(Axios, 'get').mockRejectedValueOnce(error).mockResolvedValue({data: [
+      {...DEFAULT_ANNOTATION, resource_id: 42, end_offset: 3}
+    ]});
+    const wrapper = mount(TheResource, {
+      global: {plugins: [store]},
+      props: {resourceId: 42, resource: {content: '<p>foo bar</p>'}, editable: true}
+    });
+    try {
+      await flushPromises();
+      expect(wrapper.find('[role="alert"]').text()).toContain('Annotations could not be loaded');
+      expect(wrapper.vm.annotationsLoaded).toBe(false);
+      await wrapper.get('[role="alert"] button').trigger('click');
+      await flushPromises();
+      expect(wrapper.find('[role="alert"]').exists()).toBe(false);
+      expect(wrapper.vm.annotationsLoaded).toBe(true);
+      expect(wrapper.find('.highlight .selected-text').text()).toBe('foo');
+      expect(get).toHaveBeenCalledTimes(2);
     } finally {
       wrapper.unmount();
       get.mockRestore();
