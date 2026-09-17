@@ -93,6 +93,18 @@ jobs:
       EVENT_RULES: ${{ vars.EVENT_RULES }}
 
     steps:
+      # Checked before anything changes: an empty token would otherwise be
+      # found at the maintenance step, after the rollout had begun.
+      - name: Check the deploy inputs
+        uses: harvard-lil/lil-actions/deploy-preflight@main
+        with:
+          image-digest: ${{ inputs.image-digest }}
+          source-sha: ${{ inputs.source-sha }}
+          tier: ${{ inputs.environment }}
+          required-secrets: >-
+            {"CLOUDFLARE_API_TOKEN":"${{ secrets.cloudflare-api-token }}",
+             "SLACK_WEBHOOK_URL":"${{ secrets.slack-webhook-url }}"}
+
       - name: Configure AWS credentials
         uses: aws-actions/configure-aws-credentials@cbe3b392738ccf3f987d68400dafcf4b0624a56c # v6.2.4
         with:
