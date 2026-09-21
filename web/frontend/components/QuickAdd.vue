@@ -4,7 +4,16 @@
     <h2>Build your outline.</h2>
     <form @submit.stop.prevent="handleSubmit" class="form-control-group">
 
+      <textarea
+        v-if="isOutline"
+        v-model="title"
+        required
+        rows="4"
+        aria-label="Pasted outline"
+        class="form-control"
+      />
       <input
+        v-else
         @paste.prevent.stop="handlePaste"
         v-model="title"
         required
@@ -174,8 +183,11 @@ export default {
     lineInfo: function () {
       return pp.guessLineType(this.title, this.getSources);
     },
+    isOutline: function () {
+      return this.title.includes("\n");
+    },
     mode: function () {
-      return this.resourceInfo.resource_type === "LegalDocument"
+      return !this.isOutline && this.resourceInfo.resource_type === "LegalDocument"
         ? this.SEARCH
         : this.ADD;
     },
