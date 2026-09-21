@@ -25,13 +25,16 @@ def test_network_failure_uses_filename(requests_mock, failure):
 
 
 def test_non_html_body_is_not_downloaded(mocker):
-    response = mocker.MagicMock(ok=True, headers={"Content-Type": "application/pdf"})
-    response.__enter__.return_value = response
-    get = mocker.patch("main.utils.requests.get", return_value=response)
-    assert get_link_title("https://example.com/Example.pdf?api=v2") == "Example"
-    get.assert_called_once_with(
-        "https://example.com/Example.pdf?api=v2", timeout=(3.05, 10), stream=True
+    response = mocker.MagicMock(
+        ok=True, is_redirect=False, headers={"Content-Type": "application/pdf"}
     )
+    response.__enter__.return_value = response
+    get = mocker.patch("main.public_http.requests.Session.get", return_value=response)
+    assert get_link_title("https://example.com/Example.pdf?api=v2") == "Example"
+    get.assert_called_once()
+    assert get.call_args.args[0] == "https://example.com/Example.pdf?api=v2"
+    assert get.call_args.kwargs["allow_redirects"] is False
+    assert get.call_args.kwargs["stream"] is True
     response.iter_content.assert_not_called()
     response.__exit__.assert_called_once()
 

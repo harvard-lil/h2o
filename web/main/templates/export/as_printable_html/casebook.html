@@ -1,3 +1,4 @@
+{% load safe_content %}
 {% load call_method %}
 {% load static %}
 {% load django_vite %}
@@ -12,7 +13,7 @@
     <meta charset="utf-8">
     <meta name="description"
       content="{{ casebook.description|default_if_none:'The text from a free and open casebook from H2O Open Casebooks' }}">
-    <meta name="author" content="{% for author in casebook.primary_authors %}{{ author.attribution|safe }}{% if not forloop.last %}, {% endif %}{% endfor %}">
+    <meta name="author" content="{% for author in casebook.primary_authors %}{{ author.attribution }}{% if not forloop.last %}, {% endif %}{% endfor %}">
 
 
     {% if as_pdf %}
@@ -72,7 +73,7 @@
             </ul>
           </div>
 
-          <section class="casebook headnote">{{ casebook.headnote|safe}}</section>
+          <section class="casebook headnote">{{ casebook.headnote|safe_headnote}}</section>
         </div>
         
       </header>

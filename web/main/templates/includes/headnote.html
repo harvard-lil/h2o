@@ -1,7 +1,8 @@
+{% load safe_content %}
 {% if content.headnote or content.subtitle %}
   <section class="headnote">
     <p>
-      {{ content.headnote | safe }}
+      {{ content.headnote | safe_headnote }}
     </p>
   </section>
 {% else %}

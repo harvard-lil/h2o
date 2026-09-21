@@ -3,6 +3,7 @@ import re
 from typing import Any
 
 from django.utils.safestring import SafeText, mark_safe
+from .sanitize import safe_link_url
 from lxml import html, sax
 from pyquery import PyQuery
 
@@ -129,7 +130,7 @@ class AnnotationContentHandler(sax.ContentHandler):
                         open_tag = (
                             self.out_handler.startElement,
                             "a",
-                            {"href": annotation.content, "class": "annotate"},
+                            {"href": safe_link_url(annotation.content), "class": "annotate"},
                         )
                         close_tag = (self.out_handler.endElement, "a")
                     elif kind == "note":

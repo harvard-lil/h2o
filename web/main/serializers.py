@@ -1,5 +1,7 @@
 from rest_framework import serializers
 from django.urls import reverse
+from django.core.validators import URLValidator
+from django.core.exceptions import ValidationError as DjangoValidationError
 from django.db.models import Exists, OuterRef
 from rest_framework.exceptions import ValidationError
 from main.models import (
@@ -33,7 +35,19 @@ class AnnotationSerializer(serializers.ModelSerializer):
         )
 
 
-class NewAnnotationSerializer(serializers.ModelSerializer):
+class AnnotationLinkValidation:
+    def validate(self, attrs):
+        kind = attrs.get("kind", self.instance.kind if self.instance else None)
+        content = attrs.get("content", self.instance.content if self.instance else "")
+        if kind == "link":
+            try:
+                URLValidator()(content)
+            except DjangoValidationError:
+                raise ValidationError({"content": "Enter a valid link URL."})
+        return super().validate(attrs)
+
+
+class NewAnnotationSerializer(AnnotationLinkValidation, serializers.ModelSerializer):
     start_offset = serializers.IntegerField(source="global_start_offset")
     end_offset = serializers.IntegerField(source="global_end_offset")
 
@@ -42,7 +56,7 @@ class NewAnnotationSerializer(serializers.ModelSerializer):
         fields = ("id", "start_offset", "end_offset", "kind", "content")
 
 
-class UpdateAnnotationSerializer(serializers.ModelSerializer):
+class UpdateAnnotationSerializer(AnnotationLinkValidation, serializers.ModelSerializer):
     class Meta:
         model = models.ContentAnnotation
         fields = ("id", "content")

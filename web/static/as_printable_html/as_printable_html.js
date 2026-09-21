@@ -163,8 +163,22 @@ annotationRanges.forEach((rg) => {
     case "note": {
       let lastNode;
       // Replace any annotations that look like URLs with hyperlinks
-      const urlRegex = /(\b(https?|ftp|file):\/\/[-A-Z0-9+&@#/%?=~_|!:,.;]*[-A-Z0-9+&@#/%=~_|])/ig;
-      const noteContent = content.replace(urlRegex, (url) => `<a target="_blank" href="${url}">${url}</a>`);
+      const urlRegex = /(\b(https?|ftp):\/\/[-A-Z0-9+&@#/%?=~_|!:,.;]*[-A-Z0-9+&@#/%=~_|])/ig;
+      const note = document.createElement('aside');
+      note.setAttribute('note-id', id);
+      note.className = 'authors-note';
+      let cursor = 0;
+      for (const match of content.matchAll(urlRegex)) {
+        note.append(content.slice(cursor, match.index));
+        const link = document.createElement('a');
+        link.href = match[0];
+        link.target = '_blank';
+        link.rel = 'noopener noreferrer';
+        link.textContent = match[0];
+        note.append(link);
+        cursor = match.index + match[0].length;
+      }
+      note.append(content.slice(cursor));
 
       // Wrap the specific text the author highlighted to allow for downstream styling
       ranges.forEach((range) => {
@@ -177,8 +191,7 @@ annotationRanges.forEach((rg) => {
       });
 
       // Add the note after the last range
-      const note = `<aside note-id="${id}" class="authors-note">${noteContent}</aside>`;
-      lastNode.insertAdjacentHTML("afterend", note);
+      if (lastNode) lastNode.after(note);
 
       break;
     }
@@ -194,14 +207,25 @@ annotationRanges.forEach((rg) => {
         range.surroundContents(deletion);
         lastNode = deletion;
       });
-      const replacement = `<ins data-${type}-insertion-id="${id}" datetime="${datetime}" class="${type}">${content}</ins>`;
-      lastNode.insertAdjacentHTML("afterend", replacement);
+      const replacement = document.createElement('ins');
+      replacement.setAttribute(`data-${type}-insertion-id`, id);
+      replacement.setAttribute('datetime', datetime);
+      replacement.className = type;
+      replacement.textContent = content;
+      if (lastNode) lastNode.after(replacement);
       break;
     }
     case "link":
       ranges.forEach((range) => {
         const anchor = document.createElement("a");
-        anchor.setAttribute("href", content);
+        try {
+          const url = new URL(content, document.baseURI);
+          if (["http:", "https:", "ftp:", "ftps:", "mailto:"].includes(url.protocol)) {
+            anchor.setAttribute("href", url.href);
+          }
+        } catch (error) {
+          if (!(error instanceof TypeError)) throw error;
+        }
         anchor.setAttribute("target", "_blank");
         range.surroundContents(anchor);
       });

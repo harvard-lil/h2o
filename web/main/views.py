@@ -59,6 +59,7 @@ from .forms import (
 )
 from .models import (
     Casebook,
+    cleanse_html_field,
     CasebookEditLog,
     CasebookFollow,
     CommonTitle,
@@ -73,7 +74,6 @@ from .models import (
     Resource,
     SavedImage,
     SearchIndex,
-    Section,
     TextBlock,
     User,
 )
@@ -610,7 +610,9 @@ class SectionTOCView(APIView):
         # section content node itself, so we get the section node and OR it
         # together to add it to the section.contents query
         [mscq] = manually_serialize_content_query(
-            ContentNode.objects.filter(id=section.id) | section.contents
+            casebook.nodes_for_user(request.user).filter(
+                Q(id=section.id) | Q(id__in=section.contents.values("id"))
+            )
         )
         return Response(mscq)
 
@@ -664,7 +666,9 @@ class SectionTOCView(APIView):
             data = json.loads(request.body.decode("utf-8"))
             if "parent" in data and data["parent"]:
                 parent_id = data["parent"]
-                subsection = Section.objects.filter(id=parent_id).get()
+                subsection = get_object_or_404(
+                    casebook.nodes_for_user(request.user), id=parent_id, resource_id__isnull=True
+                )
                 start_ordinals = subsection.ordinals
             else:
                 start_ordinals = []
@@ -749,8 +753,8 @@ class AnnotationDetailView(APIView):
         fix_after_rails(
             "Let's not use resource in these URLs; let's just use annotation, and load resource as needed from there."
         )
-        if kwargs.get("annotation").resource != kwargs.get("resource"):
-            return Response(status=status.HTTP_404_NOT_FOUND)
+        if kwargs["annotation"].resource_id != kwargs["resource"].id:
+            raise Http404
         return super().initial(request, *args, **kwargs)
 
     @method_decorator(
@@ -977,6 +981,7 @@ class LegalDocumentResourceView(APIView):
         source_id = request.data.get("source_id")
         source_ref = request.data.get("source_ref")
         section_id = request.data.get("section_id")
+        parent = get_content_parent(request, casebook, section_id)
         source = get_object_or_404(LegalDocumentSource, id=source_id)
 
         legal_doc = (
@@ -994,11 +999,6 @@ class LegalDocumentResourceView(APIView):
 
         legal_doc.save()
 
-        parent: Union[ContentNode, Casebook]
-        if section_id := request.data.get("section_id"):
-            parent = ContentNode.objects.get(id=section_id)
-        else:
-            parent = casebook
         ordinals, display_ordinals = parent.content_tree__get_next_available_child_ordinals()
 
         resource = ContentNode.objects.create(
@@ -1577,12 +1577,16 @@ def clone_casebook(request, casebook):
     Clone a casebook and redirect to edit page for clone.
     """
     if casebook.permits_cloning:
+        if not casebook.viewable_by(request.user):
+            raise Http404
         clone = casebook.clone(request.user)
         return redirect("edit_casebook", clone)
     raise PermissionDenied
 
 
 @no_perms_test
+@require_POST
+@login_required
 def clone_casebook_nodes(request, from_casebook_dict, from_section_dict, to_casebook_dict):
     from_section = get_object_or_404(
         ContentNode.objects.filter(
@@ -1590,12 +1594,13 @@ def clone_casebook_nodes(request, from_casebook_dict, from_section_dict, to_case
         )
     )
     to_casebook = get_object_or_404(Casebook.objects.filter(id=to_casebook_dict["id"]))
+    if not from_section.viewable_by(request.user):
+        raise Http404
     if not from_section.permits_cloning:
         raise PermissionDenied
     if not to_casebook.directly_editable_by(request.user):
         raise PermissionDenied
-    from_section.content_tree__load()
-    nodes_to_clone = [from_section] + [d for d in from_section.content_tree__descendants]
+    nodes_to_clone = [from_section] + list(from_section.contents_for_user(request.user))
     to_casebook.clone_nodes(nodes_to_clone, append=True)
     to_casebook.refresh_from_db()
     new_add = to_casebook.children.order_by("-ordinals").first()
@@ -1784,6 +1789,26 @@ def publish_casebook(request: HttpRequest, casebook: Casebook):
     return JsonResponse({"url": casebook.get_absolute_url()})
 
 
+def get_content_parent(request, casebook, section_id):
+    if section_id is None or section_id == "":
+        return casebook
+    if (
+        isinstance(section_id, bool)
+        or not str(section_id).isascii()
+        or not str(section_id).isdigit()
+    ):
+        raise Http404
+    section_id = int(section_id)
+    if not 0 < section_id <= 9223372036854775807:
+        raise Http404
+    return get_object_or_404(
+        casebook.nodes_for_user(request.user).filter(
+            Q(resource_type__in=["", "Section"]) | Q(resource_type__isnull=True)
+        ),
+        id=section_id,
+    )
+
+
 @transaction.atomic
 def create_from_form(casebook, parent_section, form):
     fresh_body = form.save()
@@ -1844,7 +1869,7 @@ def new_section(request, casebook):
     """
     form = SectionForm(request.POST)
     parent_section_id = request.POST.get("section", None)
-    parent_section = Section.objects.get(id=parent_section_id) if parent_section_id else casebook
+    parent_section = get_content_parent(request, casebook, parent_section_id)
     if form.is_valid():
         fresh_section = form.save(commit=False)
         (
@@ -1903,7 +1928,7 @@ def new_text(request, casebook):
     """
     form = NewTextBlockForm(request.POST)
     parent_section_id = request.POST.get("section", None)
-    parent_section = Section.objects.get(id=parent_section_id) if parent_section_id else casebook
+    parent_section = get_content_parent(request, casebook, parent_section_id)
     if form.is_valid():
         return create_from_form(casebook, parent_section, form)
     else:
@@ -1954,7 +1979,7 @@ def new_link(request, casebook):
     """
     form = LinkForm(request.POST)
     parent_section_id = request.POST.get("section", None)
-    parent_section = Section.objects.get(id=parent_section_id) if parent_section_id else casebook
+    parent_section = get_content_parent(request, casebook, parent_section_id)
     if form.is_valid():
         if not form.cleaned_data.get("name"):
             name = get_link_title(form.cleaned_data["url"])
@@ -1998,7 +2023,7 @@ def new_legal_doc(request, casebook):
     doc_id = request.POST["resource_id"]
     doc = get_object_or_404(LegalDocument.objects.filter(id=doc_id))
     parent_section_id = request.POST.get("section", None)
-    parent_section = Section.objects.get(id=parent_section_id) if parent_section_id else casebook
+    parent_section = get_content_parent(request, casebook, parent_section_id)
     ordinals, display_ordinals = parent_section.content_tree__get_next_available_child_ordinals()
     fresh_resource = Resource(
         title=doc.get_name(),
@@ -2062,10 +2087,11 @@ def switch_node_type(request, casebook, content_node):
                 content_node.resource_id = None
             content_node.save()
         elif new_type == "Link":
-            url = data.get("url", "https://opencasebook.org/")
+            form = LinkForm({"url": data.get("url", ""), "name": content_node.title[:1024]})
+            if not form.is_valid():
+                return JsonResponse(form.errors.get_json_data(), status=400)
             content_node.resource_type = new_type
-            link = Link(name=content_node.title, url=url, public=True)
-            link.save()
+            link = form.save()
             content_node.resource_id = link.id
             content_node.save()
         elif new_type == "TextBlock":
@@ -2161,6 +2187,7 @@ class SectionView(View):
     @method_decorator(perms_test(directly_editable_section))
     @method_decorator(hydrate_params)
     @method_decorator(user_has_perm("casebook", "directly_editable_by"))
+    @method_decorator(user_has_perm("section", "directly_editable_by"))
     def delete(self, request, casebook, section):
         """
         Delete a section from a casebook
@@ -2219,6 +2246,7 @@ class SectionView(View):
     )
     @method_decorator(hydrate_params)
     @method_decorator(user_has_perm("casebook", "directly_editable_by"))
+    @method_decorator(user_has_perm("section", "directly_editable_by"))
     def patch(self, request, casebook, section):
         return switch_node_type(request, casebook, section)
 
@@ -2228,6 +2256,7 @@ class SectionView(View):
 @requires_csrf_token
 @hydrate_params
 @user_has_perm("casebook", "directly_editable_by")
+@user_has_perm("section", "viewable_by")
 def edit_section(request, casebook, section):
     """
     Let authorized users update Section metadata.
@@ -2410,6 +2439,7 @@ class ResourceView(View):
     @method_decorator(perms_test(directly_editable_resource))
     @method_decorator(hydrate_params)
     @method_decorator(user_has_perm("casebook", "directly_editable_by"))
+    @method_decorator(user_has_perm("resource", "directly_editable_by"))
     def delete(self, request, casebook, resource):
         """
         Delete a resource from a casebook
@@ -2468,6 +2498,7 @@ class ResourceView(View):
     )
     @method_decorator(hydrate_params)
     @method_decorator(user_has_perm("casebook", "directly_editable_by"))
+    @method_decorator(user_has_perm("resource", "directly_editable_by"))
     def patch(self, request, casebook, resource):
         return switch_node_type(request, casebook, resource)
 
@@ -2477,6 +2508,7 @@ class ResourceView(View):
 @requires_csrf_token
 @hydrate_params
 @user_has_perm("casebook", "directly_editable_by")
+@user_has_perm("resource", "viewable_by")
 def edit_resource(request, casebook, resource):
     """
     Let authorized users update Resource metadata.
@@ -2552,6 +2584,7 @@ def edit_resource(request, casebook, resource):
 @requires_csrf_token
 @hydrate_params
 @user_has_perm("casebook", "directly_editable_by")
+@user_has_perm("resource", "viewable_by")
 def annotate_resource(request, casebook, resource):
     # NB: The Rails app does NOT redirect here to a canonical URL; it silently accepts any slug.
     # Duplicating that here.
@@ -2598,6 +2631,7 @@ def annotate_resource(request, casebook, resource):
 @require_http_methods(["PATCH"])
 @hydrate_params
 @user_has_perm("casebook", "directly_editable_by")
+@user_has_perm("node", "directly_editable_by")
 def reorder_node(request, casebook, section=None, node=None):
     """
     Given:
@@ -3059,11 +3093,13 @@ def new_from_outline(request, casebook=None):
                         target_casebook.permits_cloning or target_casebook.editable_by(request.user)
                     ):
                         raise PermissionDenied
+                    if not target_casebook.viewable_by(request.user):
+                        raise Http404
                     node["title"] = target_casebook.title[:9991] + " (Cloned)"
                     node.pop("casebookId", None)
                     shell_node = content_node(node)
                     shell_node.resource_type = "Section"
-                    child_nodes = list(target_casebook.contents.all())
+                    child_nodes = list(target_casebook.nodes_for_user(request.user))
                     (
                         cloned_resources,
                         cloned_content_nodes,
@@ -3073,7 +3109,11 @@ def new_from_outline(request, casebook=None):
                         child.ordinals = shell_node.ordinals + child.ordinals
                     cloned_content_nodes.append(shell_node)
                 elif target_node.permits_cloning or target_node.casebook.editable_by(request.user):
-                    target_and_children = [target_node] + list(target_node.contents.all())
+                    if not target_node.viewable_by(request.user):
+                        raise Http404
+                    target_and_children = [target_node] + list(
+                        target_node.contents_for_user(request.user)
+                    )
                     (
                         cloned_resources,
                         cloned_content_nodes,
@@ -3129,6 +3169,8 @@ def new_from_outline(request, casebook=None):
             node.pop("display_type", None)
             if not skip_add_node:
                 content_nodes.append(content_node(node))
+        for content in content_nodes:
+            cleanse_html_field(content, "headnote", True)
         bulk_create_with_history(
             content_nodes, ContentNode, batch_size=500, default_change_reason="Bulk Create"
         )
@@ -3144,11 +3186,10 @@ def new_from_outline(request, casebook=None):
         section = None
         if body.get("section") is not None:
             section = get_object_or_404(
-                ContentNode.objects.filter(
+                casebook.nodes_for_user(request.user).filter(
                     Q(resource_type__in=["", "Section"]) | Q(resource_type__isnull=True)
                 ),
                 id=parse_id(body["section"]),
-                casebook=casebook,
             )
         parent_section = section or casebook
         with transaction.atomic():
@@ -3164,7 +3205,9 @@ def new_from_outline(request, casebook=None):
         # section content node itself, so we get the section node and OR it
         # together to add it to the section.contents query
         [mscq] = manually_serialize_content_query(
-            ContentNode.objects.filter(id=section.id) | section.contents
+            casebook.nodes_for_user(request.user).filter(
+                Q(id=section.id) | Q(id__in=section.contents.values("id"))
+            )
         )
         return JsonResponse(mscq, status=200)
     return JsonResponse(CasebookTOCView.format_casebook(casebook, request), status=200)
