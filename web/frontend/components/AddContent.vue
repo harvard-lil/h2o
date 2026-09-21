@@ -7,6 +7,7 @@
     <Modal v-if="showModal" @close="showModal = false" :initial-focus="focusTarget">
       <template v-slot:title>Add Resource</template>
       <template v-slot:body>
+        <p v-if="submitError" class="help-block has-error" role="alert">{{ submitError }}</p>
         <div class="search-tabs">
           <a
             v-bind:class="{ active: caseTab, 'search-tab': true }"
@@ -119,6 +120,7 @@ export default {
     textTitle: "",
     textContent: "",
     linkTarget: "",
+    submitError: "",
     errors: {}
   }),
   computed: {
@@ -163,6 +165,8 @@ export default {
           if (tries < 10) self.$nextTick(tryFocus);
         }
       }
+      this.errors = {};
+      this.submitError = "";
       this.currentTab = newTab;
       tryFocus();
     },
@@ -172,6 +176,8 @@ export default {
       formData.append("section", this.section);
       formData.set("content", this.textContent);
       const url = `/casebooks/${this.casebook}/new/text`;
+      this.errors = {};
+      this.submitError = "";
       this.pendingSubmit = true;
       Axios.post(url, formData).then(
         this.handleSubmitResponse,
@@ -182,6 +188,8 @@ export default {
       let formData = new FormData(this.$refs.linkForm);
       formData.append("section", this.section);
       const url = `/casebooks/${this.casebook}/new/link`;
+      this.errors = {};
+      this.submitError = "";
       this.pendingSubmit = true;
       Axios.post(url, formData).then(
         this.handleSubmitResponse,
@@ -196,8 +204,17 @@ export default {
     },
     handleSubmitErrors: function handleSubmitErrors(error) {
       this.pendingSubmit = false;
-      if (error.response.data) {
-        this.errors = error.response.data;
+      const data = error.response?.data;
+      this.errors = {};
+      const fields = this.linkTab ? ["url"] : ["name", "content"];
+      for (const field of fields) {
+        const messages = data?.[field];
+        if (Array.isArray(messages) && typeof messages[0]?.message === "string") {
+          this.errors[field] = messages;
+        }
+      }
+      if (!Object.keys(this.errors).length) {
+        this.submitError = "The request could not be completed. Check your casebook before trying again. Your input has been kept here.";
       }
     }
   }
