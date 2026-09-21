@@ -12,7 +12,7 @@ from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.models import AnonymousUser
 from django.contrib.auth.views import PasswordResetView, redirect_to_login
-from django.core.exceptions import PermissionDenied
+from django.core.exceptions import PermissionDenied, ValidationError as DjangoValidationError
 from django.core.paginator import Paginator, EmptyPage
 from django.core.validators import URLValidator
 from django.db import transaction
@@ -103,6 +103,7 @@ from .test.test_permissions_helpers import (
     viewable_section,
 )
 from .utils import (
+    APICommunicationError,
     BadFiletypeError,
     LambdaException,
     StringFileResponse,
@@ -2835,7 +2836,7 @@ def as_printable_html(
 
     logger.info(f"Rendering Casebook {casebook.id}, starting from page {page}: serializing to HTML")
 
-    paginator = Paginator(top_level_nodes, 1)
+    paginator = Paginator(top_level_nodes, 1, allow_empty_first_page=False)
     try:
         page = paginator.page(page)
     except EmptyPage:
@@ -2929,10 +2930,70 @@ def new_from_outline(request, casebook=None):
              {'title': 'Test TextBlock', 'subtitle': 'Test TextBlock subtitle', 'headnote': 'Test TextBlock headnote', 'resource_type': 'TextBlock', 'ordinals': [4]}]
     """
 
+    def parse_id(value):
+        try:
+            number = int(str(value).split("-")[0])
+        except ValueError, TypeError:
+            raise ValidationError("A valid content ID is required.")
+        if not 0 < number <= 9223372036854775807:
+            raise ValidationError("A valid content ID is required.")
+        return number
+
+    def parse_ordinals(value):
+        parts = str(value).split("-")[0].split(".")
+        ordinals = [parse_id(part) for part in parts]
+        if any(value > 2147483647 for value in ordinals):
+            raise ValidationError("Invalid content position.")
+        return ordinals
+
+    def validate_nodes(nodes, depth=0):
+        if not isinstance(nodes, list) or depth > 100:
+            raise ValidationError("Outline children must be a list with at most 100 levels.")
+        for node in nodes:
+            if not isinstance(node, dict):
+                raise ValidationError("Each outline entry must be an object.")
+            for field in ("title", "subtitle", "headnote", "url", "titleSlug", "userSlug"):
+                if field in node and not isinstance(node[field], str):
+                    raise ValidationError(f"{field} must be text.")
+            for field in ("title", "subtitle"):
+                if len(node.get(field, "")) > 10000:
+                    raise ValidationError(f"{field} is too long.")
+            if node.get("resource_type", "Section") not in (
+                "Section",
+                "Clone",
+                "TextBlock",
+                "Link",
+                "LegalDocument",
+                "Unknown",
+                "Temp",
+            ):
+                raise ValidationError("Unknown content type.")
+            validate_nodes(node.get("children", []), depth + 1)
+
+    def content_node(node):
+        # Parser metadata is not model data, even after a user changes the content type.
+        return ContentNode(
+            **{
+                key: value
+                for key, value in node.items()
+                if key
+                in (
+                    "title",
+                    "subtitle",
+                    "headnote",
+                    "resource_type",
+                    "resource_id",
+                    "ordinals",
+                    "casebook",
+                )
+            }
+        )
+
     def unnest_with_ordinals(ordinals, nodes):
         local_ords = ordinals[:]
         for node in nodes:
             children = node.pop("children", [])
+            node.pop("resource_id", None)
             node["ordinals"] = local_ords[:]
             yield node
             for res in unnest_with_ordinals(local_ords + [1], children):
@@ -2959,40 +3020,48 @@ def new_from_outline(request, casebook=None):
                     content_type, content = find_from_title_slugs(
                         user_slug=node.pop("userSlug", None),
                         title_slug=node.pop("titleSlug", None),
-                        content_param=node.pop("ordSlug", None),
+                        content_param=(
+                            {"ordinals": parse_ordinals(node["ordSlug"])}
+                            if node.get("ordSlug")
+                            else None
+                        ),
                     )
                     if content_type == "Casebook":
                         target_casebook = content
                     elif content_type == "Section" or content_type == "Resource":
                         target_node = content
                     else:
-                        next
+                        raise ValidationError("The source content could not be found.")
                 else:
-                    target_casebook_id = int(node.get("casebookId", "").split("-")[0])
+                    target_casebook_id = parse_id(node.get("casebookId"))
                     if "sectionId" in node or "resourceId" in node:
                         target_id = node.get("sectionId", node.get("resourceId", None))
-                        target_node = ContentNode.objects.get(id=target_id)
+                        target_node = get_object_or_404(
+                            ContentNode, id=parse_id(target_id), casebook_id=target_casebook_id
+                        )
                     elif "sectionOrd" in node or "resourceOrd" in node:
-                        target_ord_str = node.get("sectionOrd", node.get("resourceOrd", "")).split(
-                            "-"
-                        )[0]
-                        target_ord = [int(x) for x in target_ord_str.split(".")]
-                        target_node = ContentNode.objects.get(
+                        target_ord = parse_ordinals(node.get("sectionOrd", node.get("resourceOrd")))
+                        matches = ContentNode.objects.filter(
                             casebook_id=target_casebook_id, ordinals=target_ord
                         )
+                        if matches.count() != 1:
+                            raise ValidationError(
+                                "The source content could not be uniquely identified."
+                            )
+                        target_node = matches.get()
 
                 cloned_resources, cloned_content_nodes, cloned_annotations = [[], [], []]
 
                 if not target_node:
                     if not target_casebook:
-                        target_casebook = Casebook.objects.get(id=target_casebook_id)
-                    if not target_casebook.permits_cloning or target_casebook.editable_by(
-                        request.user
+                        target_casebook = get_object_or_404(Casebook, id=target_casebook_id)
+                    if not (
+                        target_casebook.permits_cloning or target_casebook.editable_by(request.user)
                     ):
-                        next
-                    node["title"] = target_casebook.title + " (Cloned)"
+                        raise PermissionDenied
+                    node["title"] = target_casebook.title[:9991] + " (Cloned)"
                     node.pop("casebookId", None)
-                    shell_node = ContentNode(**node)
+                    shell_node = content_node(node)
                     shell_node.resource_type = "Section"
                     child_nodes = list(target_casebook.contents.all())
                     (
@@ -3011,11 +3080,11 @@ def new_from_outline(request, casebook=None):
                         cloned_annotations,
                     ) = casebook.collect_cloning_nodes(target_and_children)
                     # casebook.save_and_parent_cloned_resources(cloned_resources)
-                    old_ordinals = cloned_content_nodes[0].ordinals
+                    old_ordinals = cloned_content_nodes[0].ordinals[:]
                     for child in cloned_content_nodes:
                         child.ordinals[0 : len(old_ordinals)] = node["ordinals"]
                 else:
-                    next
+                    raise PermissionDenied
                 casebook.save_and_parent_cloned_resources(cloned_resources)
                 content_nodes += cloned_content_nodes
                 skip_add_node = True
@@ -3036,20 +3105,20 @@ def new_from_outline(request, casebook=None):
                     url = node["title"]
                 try:
                     looks_like_url(url)
-                except Exception:
+                except DjangoValidationError:
                     try:
                         url = "https://" + url
                         looks_like_url(url)
-                    except Exception:
-                        url = "https://opencasebook.org/"
+                    except DjangoValidationError:
+                        raise ValidationError("Enter a valid link URL.")
 
                 title = None
                 if "title" not in node or node["title"] == "Untitled" or url == node["title"]:
-                    title = get_link_title(url)
+                    title = get_link_title(url)[:1024]
                     node["title"] = title
                 else:
                     title = node["title"]
-                link = Link(name=title, url=url)
+                link = Link(name=title[:1024], url=url)
                 link.save()
                 node["resource_id"] = link.id
                 node.pop("url", None)
@@ -3059,24 +3128,36 @@ def new_from_outline(request, casebook=None):
             node.pop("searchString", None)
             node.pop("display_type", None)
             if not skip_add_node:
-                content_nodes.append(ContentNode(**node))
+                content_nodes.append(content_node(node))
         bulk_create_with_history(
             content_nodes, ContentNode, batch_size=500, default_change_reason="Bulk Create"
         )
         if content_node_annotations:
             casebook.save_and_parent_cloned_annotations(content_node_annotations)
 
-    body = json.loads(request.body.decode("utf-8"))
-    section_id = body.get("section", None)
-    section = None
-    if section_id:
-        section = ContentNode.objects.get(id=int(section_id))
-    nodes = body.get("data", None)
-    if not nodes:
-        return Response("", status=status.HTTP_400_BAD_REQUEST)
-    parent_section = section or casebook
-    add_sections_and_resources(parent_section, nodes)
-    parent_section.content_tree__repair()
+    try:
+        body = json.loads(request.body)
+        if not isinstance(body, dict) or not body.get("data"):
+            raise ValidationError("Add at least one outline entry.")
+        nodes = body["data"]
+        validate_nodes(nodes)
+        section = None
+        if body.get("section") is not None:
+            section = get_object_or_404(
+                ContentNode.objects.filter(
+                    Q(resource_type__in=["", "Section"]) | Q(resource_type__isnull=True)
+                ),
+                id=parse_id(body["section"]),
+                casebook=casebook,
+            )
+        parent_section = section or casebook
+        with transaction.atomic():
+            add_sections_and_resources(parent_section, nodes)
+            parent_section.content_tree__repair()
+    except json.JSONDecodeError, UnicodeDecodeError:
+        return JsonResponse({"error": "Invalid JSON outline."}, status=400)
+    except ValidationError as error:
+        return JsonResponse({"error": error.detail}, status=400)
     if section:
         # in order to serialize correctly, we need return the top-level section
         # and nested lists of children. section.contents does not include the
@@ -3127,7 +3208,12 @@ def search_using(request, source):
 
     if not params.is_valid():
         return JsonResponse(params.errors, status=400)
-    results = src.api_model().search(params.save())
+    try:
+        results = src.api_model().search(params.save())
+    except APICommunicationError:
+        return JsonResponse(
+            {"error": "The document source is unavailable. Please try again later."}, status=502
+        )
     return JsonResponse({"results": results}, status=200)
 
 
