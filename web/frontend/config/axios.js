@@ -2,8 +2,8 @@ import AxiosConfig from "axios";
 import { installPreclearance } from "../libs/preclearance";
 import {get_csrf_token} from 'legacy/lib/helpers';
 
-let headers = {"Content-Type": "application/json",
-               "Accept": "application/json"};
+// Let Axios select the content type from the payload, including multipart FormData.
+let headers = {"Accept": "application/json"};
 const csrf_token = get_csrf_token();
 if(csrf_token) headers["X-CSRF-Token"] = csrf_token;
 

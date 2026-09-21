@@ -37,7 +37,12 @@ def current_frontend_assets():
     No-ops when the bundles already match their sources, which is the common
     case, so this costs nothing on a normal run.
     """
-    frontend_assets.ensure_current()
+    if frontend_assets.ensure_current():
+        # django-vite caches the manifest during AppConfig.ready(), before this fixture.
+        # Reload it after a build so rendered URLs name the newly compiled files.
+        from django_vite.core.asset_loader import DjangoViteAssetLoader
+
+        DjangoViteAssetLoader._apply_django_vite_settings()
 
 
 from main.models import (

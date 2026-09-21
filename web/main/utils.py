@@ -15,7 +15,7 @@ from pyquery import PyQuery
 import re
 import requests
 import tempfile
-from urllib.parse import quote, unquote
+from urllib.parse import quote, unquote, urlsplit
 from zipfile import BadZipFile, ZipFile
 
 
@@ -605,26 +605,32 @@ Harvard Law School Library"""
 
 
 def get_link_title(url: str) -> str:
-    file_name_re = re.compile("/([^/]*)(?:[.].{1,4})$")
-    last_slug_re = re.compile("/([^/]*)/$")
-    file_name = file_name_re.search(url)
-    default_title = url
-    last_slug = last_slug_re.search(url)
-    if file_name and file_name.groups()[0]:
-        default_title = unquote(file_name.groups()[0])
-    elif last_slug and last_slug.groups()[0]:
-        default_title = unquote(last_slug.groups()[0])
-    resp = None
+    """Use an HTML title when available; metadata failures must not prevent adding a link."""
+    path = urlsplit(url).path
+    file_name = re.search(r"/([^/]+)\.[^/.]{1,4}$", path)
+    last_slug = re.search(r"/([^/]+)/$", path)
+    match = file_name or last_slug
+    default_title = unquote(match[1]) if match else url
     try:
-        resp = requests.get(url, verify=False)
-    except Exception:
+        with requests.get(url, timeout=(3.05, 10), stream=True) as response:
+            content_type = response.headers.get("Content-Type", "").split(";", 1)[0].lower()
+            if not response.ok or content_type not in ("text/html", "application/xhtml+xml"):
+                return default_title
+            # Title lookup is optional. Do not download arbitrarily large documents.
+            body = bytearray()
+            for chunk in response.iter_content(chunk_size=16384):
+                body.extend(chunk)
+                if len(body) > 1024 * 1024:
+                    return default_title
+    except requests.RequestException:
         return default_title
-    if not resp or not resp.ok:
-        return default_title
-    body = PyQuery(resp.content)
     if not body:
         return default_title
-    title = body.find("title")
+    try:
+        document = PyQuery(bytes(body))
+    except etree.ParserError:
+        return default_title
+    title = document.find("title")
     if not title or not title[0].text:
         return default_title
     return title[0].text
