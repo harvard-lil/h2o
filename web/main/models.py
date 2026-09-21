@@ -2606,13 +2606,26 @@ class CasebookEditLog(BigPkModel):
         if self.change == CasebookEditLog.ChangeType.REMOVED.value:
             self.content.content_tree__load()
             parent = self.content.content_tree__parent or self.content.casebook
-            line = f"Removed {self.content.title} from <a href='{self.content.get_absolute_url()}'>{parent.title}</a>"
+            line = format_html(
+                "Removed {} from <a href='{}'>{}</a>",
+                self.content.title,
+                self.content.get_absolute_url(),
+                parent.title,
+            )
         elif self.change == CasebookEditLog.ChangeType.ADDED.value:
-            line = f"Added <a href='{self.content.get_absolute_url()}'>{self.content.title}</a>"
+            line = format_html(
+                "Added <a href='{}'>{}</a>", self.content.get_absolute_url(), self.content.title
+            )
         elif self.change == CasebookEditLog.ChangeType.EDITED.value:
-            line = f"Edited <a href='{self.content.get_absolute_url()}'>{self.content.title}</a>"
+            line = format_html(
+                "Edited <a href='{}'>{}</a>", self.content.get_absolute_url(), self.content.title
+            )
         elif self.change == CasebookEditLog.ChangeType.ANNOTATED.value:
-            line = f"Annotations changed on <a href='{self.content.get_absolute_url()}'>{self.content.title}</a>"
+            line = format_html(
+                "Annotations changed on <a href='{}'>{}</a>",
+                self.content.get_absolute_url(),
+                self.content.title,
+            )
         elif self.change == CasebookEditLog.ChangeType.ORIGINAL_PUBLISH.value:
             line = "Casebook first published."
         return mark_safe(line)
