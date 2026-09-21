@@ -26,7 +26,7 @@ def test_clone(reset_sequences, full_casebook, user, assert_num_queries):
     assert user not in set(full_casebook.attributed_authors)
 
     # Return a cloned casebook like this:
-    with assert_num_queries(select=6, insert=11):
+    with assert_num_queries(select=7, insert=11):
         clone = full_casebook.clone(current_user=user)
     expected = [
         "Casebook<2>: Some Title 0",

@@ -37,6 +37,24 @@ describe('quick-add submission failures', () => {
     expect(merge).toHaveBeenCalledOnce();
   });
 
+  it.each(['First section\nSecond section', 'First section\nhttps://example.com/reading'])('retains a pasted outline and retries the complete payload: %s', async text => {
+    const fetch = vi.fn().mockResolvedValue({ok: false, status: 400});
+    vi.stubGlobal('fetch', fetch);
+    await wrapper.vm.handlePaste({clipboardData: {getData: () => text}});
+    const firstPayload = JSON.parse(fetch.mock.calls[0][1].body);
+    expect(firstPayload.data).toHaveLength(2);
+    expect(wrapper.vm.title).toBe(text);
+    await flushPromises();
+    expect(wrapper.find("textarea").element.value).toBe(text);
+    expect(wrapper.find("form").element.checkValidity()).toBe(true);
+    fetch.mockResolvedValue({ok: true, json: async () => ({id: 123, children: []})});
+    await wrapper.find("form").trigger("submit");
+    await flushPromises();
+    expect(JSON.parse(fetch.mock.calls[1][1].body)).toEqual(firstPayload);
+    expect(wrapper.vm.title).toBe('');
+    expect(merge).toHaveBeenCalledOnce();
+  });
+
   it('does not conceal unexpected programming errors', async () => {
     vi.stubGlobal('fetch', vi.fn().mockRejectedValue(new RangeError('Unexpected bug')));
     await expect(wrapper.vm.handleAdd()).rejects.toThrow('Unexpected bug');

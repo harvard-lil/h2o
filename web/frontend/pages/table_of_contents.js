@@ -1,4 +1,5 @@
-import Vue, { createApp } from "vue";
+import Vue from "vue";
+import { componentApps } from "../libs/mount_components";
 import { createRouter, createWebHistory } from 'vue-router';
 
 Vue.config.productionTip = process.env.NODE_ENV == "development";
@@ -29,13 +30,11 @@ document.addEventListener("DOMContentLoaded", () => {
     });
 
     const el = document.getElementById("table-of-contents");
-    const app = createApp({
-                components: {
-            TheTableOfContents
-        }
-    });
-
-    app.use(store);
-  app.use(router);
-  window.app = app.mount(el);
+    for (const {app, element} of componentApps(el, {'the-table-of-contents': TheTableOfContents})) {
+      app.use(store);
+      app.use(router);
+      element.style.display = 'contents';
+      app.mount(element);
+    }
+    window.app = {$store: store};
 });

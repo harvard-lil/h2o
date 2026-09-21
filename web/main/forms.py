@@ -166,6 +166,8 @@ class ResourceForm(ContentNodeForm):
         self.user = request.user if request else None
 
         super().__init__(*args, **kwargs)
+        if not self.user or not User.user_can_view_instructional_material(self.user):
+            self.fields.pop("is_instructional_material", None)
 
         does_display_ordinals_options = (
             {"disabled": True} if self.instance.is_instructional_material else {}

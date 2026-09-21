@@ -4,7 +4,16 @@
     <h2>Build your outline.</h2>
     <form @submit.stop.prevent="handleSubmit" class="form-control-group">
 
+      <textarea
+        v-if="isOutline"
+        v-model="title"
+        required
+        rows="4"
+        aria-label="Pasted outline"
+        class="form-control"
+      />
       <input
+        v-else
         @paste.prevent.stop="handlePaste"
         v-model="title"
         required
@@ -174,8 +183,11 @@ export default {
     lineInfo: function () {
       return pp.guessLineType(this.title, this.getSources);
     },
+    isOutline: function () {
+      return this.title.includes("\n");
+    },
     mode: function () {
-      return this.resourceInfo.resource_type === "LegalDocument"
+      return !this.isOutline && this.resourceInfo.resource_type === "LegalDocument"
         ? this.SEARCH
         : this.ADD;
     },
@@ -240,6 +252,11 @@ export default {
       }
     },
     handleAdd: function () {
+      if (this.title.includes("\n")) {
+        const parsed = pp.cleanDocLines(this.title);
+        const [outline] = pp.structureOutline(parsed, this.getSources);
+        return this.postData({ section: this.section(), data: outline.children });
+      }
       const {
         casebookId,
         ordSlug,
@@ -296,7 +313,9 @@ export default {
         return;
       }
       if (!resp.ok) {
-        this.message = "The items could not be added to your casebook. Please try again later. Your entry has been kept here.";
+        this.message = resp.status === 400
+          ? "Some outline entries are invalid. Check the links and content types, then try again. Your entry has been kept here."
+          : "The items could not be added to your casebook. Please try again later. Your entry has been kept here.";
         return;
       }
       let body;
@@ -319,12 +338,8 @@ export default {
         "text"
       );
       if (pasted.indexOf("\n") >= 0) {
-        this.message = "Parsing pasted text";
-        const parsed = pp.cleanDocLines(pasted);
-        const [parsedJson] = pp.structureOutline(parsed, this.getSources);
-
-        this.postData({ section: this.section(), data: parsedJson.children });
-        this.title = "";
+        this.title = pasted;
+        return this.handleAdd();
       } else {
         this.title += pasted;
       }
