@@ -267,7 +267,7 @@ export default {
           },
         ],
       };
-      this.postData(data);
+      return this.postData(data);
     },
     handleSubmit: function () {
       if (this.mode === this.SEARCH) {
@@ -276,30 +276,42 @@ export default {
       return this.handleAdd();
     },
     postData: async function (data) {
-      const resp = await fetch(
-        this.bulkAddUrl({ casebookId: this.casebook() }),
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-            "X-CSRF-Token": get_csrf_token(),
-          },
-          body: JSON.stringify(data),
-        }
-      );
-      if (resp.ok) {
-        const body = await resp.json();
-
-        this.$store.dispatch("table_of_contents/slowMerge", {
-          casebook: this.casebook(),
-          newToc: body,
-        });
-        this.resetForm();
+      this.message = undefined;
+      let resp;
+      try {
+        resp = await fetch(
+          this.bulkAddUrl({ casebookId: this.casebook() }),
+          {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+              "X-CSRF-Token": get_csrf_token(),
+            },
+            body: JSON.stringify(data),
+          }
+        );
+      } catch (error) {
+        if (!(error instanceof TypeError)) throw error;
+        this.message = "The save could not be confirmed. Check your casebook before trying again. Your entry has been kept here.";
+        return;
       }
-      else {
-        console.error(resp.status);
-        this.message = 'The items could not be added to your casebook because of an error. Our team has been notified. Please retry later.';
+      if (!resp.ok) {
+        this.message = "The items could not be added to your casebook. Please try again later. Your entry has been kept here.";
+        return;
       }
+      let body;
+      try {
+        body = await resp.json();
+      } catch (error) {
+        if (!(error instanceof SyntaxError || error instanceof TypeError)) throw error;
+        this.message = "The save could not be confirmed. Check your casebook before trying again. Your entry has been kept here.";
+        return;
+      }
+      this.$store.dispatch("table_of_contents/slowMerge", {
+        casebook: this.casebook(),
+        newToc: body,
+      });
+      this.resetForm();
     },
 
     handlePaste: function (event) {
