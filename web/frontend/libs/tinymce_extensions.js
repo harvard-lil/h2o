@@ -405,7 +405,7 @@ export function getInitConfig(selector, enhanced, code) {
 
   let extend_valid_elements = [['div', ['class', 'title', 'style', 'tabindex', 'id', 'class', 'data-custom-style']],
                                ['span', ['class', 'title', 'style', 'tabindex', 'id', 'class', 'data-custom-style']],
-                               ['img', ['class', 'alt', 'title', 'id', 'data-custom-style']],
+                               ['img', ['src', 'class', 'alt', 'title', 'id', 'data-custom-style']],
                                // Needed for YouTube embeds; in particular, `referrerpolicy="strict-origin-when-cross-origin"`
                                // prevents YouTube "Error 153: Video player configuration error" in some environments.
                                // Allow lots here: the server-side cleanup code will validate more closely.
