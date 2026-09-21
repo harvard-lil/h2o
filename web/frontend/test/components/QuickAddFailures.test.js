@@ -37,6 +37,21 @@ describe('quick-add submission failures', () => {
     expect(merge).toHaveBeenCalledOnce();
   });
 
+  it('retains a pasted outline and retries the complete payload', async () => {
+    const fetch = vi.fn().mockResolvedValue({ok: false, status: 400});
+    vi.stubGlobal('fetch', fetch);
+    const text = 'First section\nSecond section';
+    await wrapper.vm.handlePaste({clipboardData: {getData: () => text}});
+    const firstPayload = JSON.parse(fetch.mock.calls[0][1].body);
+    expect(firstPayload.data).toHaveLength(2);
+    expect(wrapper.vm.title).toBe(text);
+    fetch.mockResolvedValue({ok: true, json: async () => ({id: 123, children: []})});
+    await wrapper.vm.handleAdd();
+    expect(JSON.parse(fetch.mock.calls[1][1].body)).toEqual(firstPayload);
+    expect(wrapper.vm.title).toBe('');
+    expect(merge).toHaveBeenCalledOnce();
+  });
+
   it('does not conceal unexpected programming errors', async () => {
     vi.stubGlobal('fetch', vi.fn().mockRejectedValue(new RangeError('Unexpected bug')));
     await expect(wrapper.vm.handleAdd()).rejects.toThrow('Unexpected bug');

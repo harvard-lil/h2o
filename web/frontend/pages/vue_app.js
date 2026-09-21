@@ -14,7 +14,8 @@ import SectionCloner from "../components/SectionCloner";
 import TakeNotesCloner from "../components/TakeNotesCloner";
 import TheResource from "../components/TheResource";
 import TheTableOfContents from "../components/TheTableOfContents";
-import Vue, { createApp } from "vue";
+import Vue from "vue";
+import { componentApps } from "../libs/mount_components";
 import { createRouter, createWebHistory } from 'vue-router';
 import contenteditableDirective from "vue-contenteditable-directive";
 import store from "../store/index";
@@ -44,24 +45,22 @@ document.addEventListener("DOMContentLoaded", () => {
       history: createWebHistory()
   });
 
-  const app = createApp({
-    components: {
-        AddContent,
-        AuditButton,
-        Dashboard,
-        Globals,
-        LegalDocumentSearch,
-        QuickAdd,
-        SectionCloner,
-        TakeNotesCloner,
-        TheResource,
-        TheTableOfContents,
-    }
+  const mounts = componentApps(document.getElementById('app'), {
+    'globals': Globals,
+    'add-content': AddContent,
+    'audit-button': AuditButton,
+    'dashboard': Dashboard,
+    'legal-document-search': LegalDocumentSearch,
+    'quick-add': QuickAdd,
+    'section-cloner': SectionCloner,
+    'take-notes-cloner': TakeNotesCloner,
+    'the-resource': TheResource,
+    'the-table-of-contents': TheTableOfContents,
   });
   if (window.sentry.USE_SENTRY) {
     console.log('using sentry');
     Sentry.init({
-      app,
+      app: mounts.map(({app}) => app),
       dsn: window.sentry.DSN,
       environment: window.sentry.ENVIRONMENT,
       release: import.meta.env.H2O_RELEASE || undefined,
@@ -76,7 +75,12 @@ document.addEventListener("DOMContentLoaded", () => {
     });
   }
 
-  app.use(store);
-  app.use(router);
-  window.app = app.mount("#app");
+  // The legacy export dialog reads only $store from this compatibility handle.
+  window.app = {$store: store};
+  for (const {app, element} of mounts) {
+    app.use(store);
+    app.use(router);
+    element.style.display = 'contents';
+    app.mount(element);
+  }
 });

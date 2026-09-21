@@ -1,6 +1,6 @@
 <template>
 <span class="link">
-  <a :href="annotation.content" target="_blank" class="selected-text" :class="{tail: isTail}"><slot></slot></a>
+  <a :href="safeHref" target="_blank" class="selected-text" :class="{tail: isTail}"><slot></slot></a>
   <template v-if="hasHandle">
     <AnnotationHandle :ui-state="uiState">
       <li>
@@ -45,6 +45,7 @@
 
 <script>
 import AnnotationBase from "./AnnotationBase";
+import { safeURL } from "../libs/safe_url";
 import { createNamespacedHelpers } from "vuex";
 const { mapActions } = createNamespacedHelpers("annotations");
 
@@ -62,6 +63,7 @@ export default {
     newVals: {content: null},
   }),
   computed: {
+    safeHref() { return safeURL(this.annotation.content); },
     content: {
       get() {
         return this.newVals.content === null
