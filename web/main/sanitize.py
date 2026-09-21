@@ -1,5 +1,6 @@
 import bleach
 import re
+from urllib.parse import urlsplit
 from functools import lru_cache
 from bleach.css_sanitizer import CSSSanitizer
 
@@ -152,8 +153,24 @@ def get_allow_lists():
     return allowed_tags, allowed_attributes, allowed_styles
 
 
-youtube_src = re.compile("(?:https?:)?//www.youtube.com/embed/[a-zA-Z0-9]*")
-vimeo_src = re.compile("(?:https?:)?//player.vimeo.com/video/[0-9]*([?].*)?")
+def allowed_iframe_url(value):
+    try:
+        url = urlsplit(value)
+        if (
+            url.scheme not in {"", "http", "https"}
+            or url.username is not None
+            or url.password is not None
+            or url.port is not None
+        ):
+            return False
+    except ValueError:
+        return False
+    paths = {
+        "www.youtube.com": r"/embed/[a-zA-Z0-9_-]+",
+        "player.vimeo.com": r"/video/[0-9]+",
+    }
+    pattern = paths.get(url.hostname)
+    return bool(pattern and re.fullmatch(pattern, url.path))
 
 
 def iframe_attributes(tag, name, value):
@@ -164,7 +181,7 @@ def iframe_attributes(tag, name, value):
     if name in {"height", "width", "allowfullscreen", "title", "allow", "frameborder"}:
         return True
     if name == "src":
-        return youtube_src.match(value) or vimeo_src.match(value)
+        return allowed_iframe_url(value)
     if name == "referrerpolicy":
         return value.lower() == "strict-origin-when-cross-origin"
     return False
@@ -200,3 +217,12 @@ def sanitize(html):
     out = out.replace("<wbr></wbr>", "<wbr>")
 
     return out
+
+
+def safe_link_url(value):
+    """Keep legacy link text editable, but never render an executable URL scheme."""
+    try:
+        url = urlsplit(value or "")
+    except ValueError:
+        return ""
+    return value if url.scheme.lower() in {"", "http", "https", "ftp", "ftps", "mailto"} else ""

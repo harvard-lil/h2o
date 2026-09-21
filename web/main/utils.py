@@ -29,6 +29,7 @@ from django.utils.encoding import force_bytes
 from django.utils.http import urlsafe_base64_encode
 
 from .sanitize import sanitize
+from .public_http import get_public_html
 from .storages import get_s3_storage
 
 import logging
@@ -612,16 +613,7 @@ def get_link_title(url: str) -> str:
     match = file_name or last_slug
     default_title = unquote(match[1]) if match else url
     try:
-        with requests.get(url, timeout=(3.05, 10), stream=True) as response:
-            content_type = response.headers.get("Content-Type", "").split(";", 1)[0].lower()
-            if not response.ok or content_type not in ("text/html", "application/xhtml+xml"):
-                return default_title
-            # Title lookup is optional. Do not download arbitrarily large documents.
-            body = bytearray()
-            for chunk in response.iter_content(chunk_size=16384):
-                body.extend(chunk)
-                if len(body) > 1024 * 1024:
-                    return default_title
+        body = get_public_html(url)
     except requests.RequestException:
         return default_title
     if not body:

@@ -51,7 +51,7 @@ from simple_history.utils import bulk_create_with_history, bulk_update_with_hist
 
 from .differ import AnnotationUpdater
 from .legal_document_sources import CourtListener, USCodeGPO, CAP, LegacyNoSearch
-from .sanitize import sanitize
+from .sanitize import sanitize, safe_link_url
 from .storages import get_s3_storage
 from .utils import (
     clone_model_instance,
@@ -1447,6 +1447,17 @@ class TrackedCloneable(models.Model):
 _ContentNodeManager = models.Manager.from_queryset(ContentNodeQuerySet)
 
 
+class OrdinalPrefix(models.Func):
+    """Take an outer node's path to the depth of a candidate restricted ancestor."""
+
+    output_field = ArrayField(models.IntegerField())
+
+    def as_sql(self, compiler, connection, **extra_context):
+        path, path_params = compiler.compile(self.source_expressions[0])
+        ancestor, ancestor_params = compiler.compile(self.source_expressions[1])
+        return f"({path})[1:cardinality({ancestor})]", path_params + ancestor_params
+
+
 class ContentNode(
     EditTrackedModel, TimestampedModel, BigPkModel, MaterializedPathTreeMixin, TrackedCloneable
 ):
@@ -1517,10 +1528,20 @@ class ContentNode(
         queryset: Optional[ContentNodeQuerySet] = None,
         **kwargs,
     ) -> ContentNodeQuerySet:
-        queryset = queryset or ContentNode.objects.all()
+        queryset = ContentNode.objects.all() if queryset is None else queryset
         if User.user_can_view_instructional_material(user):
             return queryset.filter(casebook=casebook, **kwargs)
-        return queryset.filter(casebook=casebook, **kwargs).exclude(is_instructional_material=True)
+        restricted_ancestors = ContentNode.objects.filter(
+            casebook_id=models.OuterRef("casebook_id"),
+            is_instructional_material=True,
+            ordinals__len__gt=0,
+            ordinals=OrdinalPrefix(models.OuterRef("ordinals"), models.F("ordinals")),
+        )
+        return (
+            queryset.filter(casebook=casebook, **kwargs)
+            .exclude(is_instructional_material=True)
+            .exclude(models.Exists(restricted_ancestors))
+        )
 
     class Meta:
         indexes = [
@@ -1966,9 +1987,17 @@ class ContentNode(
         if not self.casebook.viewable_by(user):
             return False
 
-        if self.is_instructional_material:
-            return User.user_can_view_instructional_material(user)
-
+        if not User.user_can_view_instructional_material(user):
+            if self.is_instructional_material:
+                return False
+            parents = [self.ordinals[:depth] for depth in range(1, len(self.ordinals))]
+            if (
+                parents
+                and self.casebook.contents.filter(
+                    is_instructional_material=True, ordinals__in=parents
+                ).exists()
+            ):
+                return False
         return True
 
     def directly_editable_by(self, user):
@@ -1977,7 +2006,9 @@ class ContentNode(
         rather than requiring them to make changes via the draft mechanism.
         (See allows_draft_creation_by for more discussion of editing and drafts.)
         """
-        return self.casebook.is_private and self.casebook.editable_by(user)
+        return (
+            self.viewable_by(user) and self.casebook.is_private and self.casebook.editable_by(user)
+        )
 
     def __str__(self):
         return f"{self.title} ({self.id})"
@@ -2112,7 +2143,7 @@ class ContentNode(
         if not self.headnote:
             return ""
         html = rich_text_export(
-            self.headnote,
+            sanitize(self.headnote),
             request=export_options and export_options.get("request"),
             id_prefix=str(self.id),
         )
@@ -2753,7 +2784,7 @@ class Casebook(EditTrackedModel, TimestampedModel, BigPkModel, TrackedCloneable)
         if not self.headnote:
             return ""
         html = rich_text_export(
-            self.headnote,
+            sanitize(self.headnote),
             request=export_options and export_options.get("request", None),
             id_prefix=str(self.id),
         )
@@ -3178,13 +3209,20 @@ class Casebook(EditTrackedModel, TimestampedModel, BigPkModel, TrackedCloneable)
         elif current_user:
             cloned_casebook.add_collaborator(user=current_user, has_attribution=True, can_edit=True)
 
+        source_nodes = (
+            old_casebook.nodes_for_user(current_user)
+            if current_user is not None and not draft_mode
+            else old_casebook.contents
+        )
         cloned_casebook.clone_nodes(
-            old_casebook.contents.prefetch_resources()
+            source_nodes.prefetch_resources()
             .prefetch_related("annotations")
             .select_related("casebook")
             .prefetch_related("casebook__contentcollaborator_set"),
             draft_mode=draft_mode,
         )
+        if current_user is not None and not draft_mode:
+            cloned_casebook.content_tree__repair()
         return cloned_casebook
 
     def collect_cloning_nodes(self, nodes):
@@ -3783,6 +3821,10 @@ class Link(NullableTimestampedModel):
     url = models.URLField(max_length=1024)
     public = models.BooleanField(null=True, default=True)
     history = HistoricalRecords()
+
+    @property
+    def safe_url(self):
+        return safe_link_url(self.url)
 
     def get_name(self):
         return self.name if self.name else f"Link to {urlparse(self.url).netloc}"

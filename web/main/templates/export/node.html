@@ -55,7 +55,7 @@
     <div data-custom-style="Head Field Separator">_h2o_keep_element</div>
 
     <div data-custom-style="Resource Link">
-      <a href="{{ node.resource.url }}" target="_blank">{{ node.resource.url }}</a>
+      <a href="{{ node.resource.safe_url }}" target="_blank">{{ node.resource.url }}</a>
     </div>
 
     {% if node.headnote %}
