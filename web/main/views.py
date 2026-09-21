@@ -1894,7 +1894,7 @@ def new_text(request, casebook):
         >>> assert r_1_5.title == r_1_5.resource.get_name()
         >>> assert dump_content_tree_children(s_1) == [r_1_1, r_1_2, r_1_3, s_1_4, r_1_5]
     """
-    form = NewTextBlockForm(request.POST or None)
+    form = NewTextBlockForm(request.POST)
     parent_section_id = request.POST.get("section", None)
     parent_section = Section.objects.get(id=parent_section_id) if parent_section_id else casebook
     if form.is_valid():
@@ -1945,15 +1945,13 @@ def new_link(request, casebook):
         >>> assert_url_equal(response, r_1_5.get_edit_url())
 
     """
-    form = LinkForm(request.POST or None)
+    form = LinkForm(request.POST)
     parent_section_id = request.POST.get("section", None)
     parent_section = Section.objects.get(id=parent_section_id) if parent_section_id else casebook
     if form.is_valid():
-        name = get_link_title(form.cleaned_data["url"])
-        if "name" not in form.cleaned_data or not form.cleaned_data["name"]:
-            form.cleaned_data["name"] = name
-            form = LinkForm(form.cleaned_data)
-            form.is_valid()
+        if not form.cleaned_data.get("name"):
+            name = get_link_title(form.cleaned_data["url"])
+            form.instance.name = name[: form.fields["name"].max_length]
         return create_from_form(casebook, parent_section, form)
     else:
         return JsonResponse(form.errors.get_json_data(), status=status.HTTP_400_BAD_REQUEST)
