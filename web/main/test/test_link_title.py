@@ -37,7 +37,9 @@ def test_non_html_body_is_not_downloaded(mocker):
 
 
 @pytest.mark.parametrize(
-    "body", ["", "<html></html>", "<html><title></title></html>", "x" * (1024 * 1024 + 1)]
+    "body",
+    ["", "<html></html>", "<html><title></title></html>", "x" * (1024 * 1024 + 1)],
+    ids=["empty-body", "missing-title", "empty-title", "oversized-body"],
 )
 def test_missing_title_or_oversized_html_uses_fallback(requests_mock, body):
     requests_mock.get(
