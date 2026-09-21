@@ -42,9 +42,7 @@ def current_frontend_assets():
         # Reload it after a build so rendered URLs name the newly compiled files.
         from django_vite.core.asset_loader import DjangoViteAssetLoader
 
-        loader = DjangoViteAssetLoader.instance()
-        for app_name in settings.DJANGO_VITE:
-            loader._get_app_client(app_name).manifest.load_manifest()
+        DjangoViteAssetLoader._apply_django_vite_settings()
 
 
 from main.models import (

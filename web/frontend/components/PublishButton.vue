@@ -22,6 +22,7 @@
       </template>
       <template v-slot:body>
         <aside class="publish-modal">
+        <p v-if="publishError" role="alert" class="help-block has-error">{{ publishError }}</p>
         <div v-if="!publishSuccess">
           <div v-if="publishCheck.isVerifiedProfessor" id="prof-prompt">
             <p>
@@ -94,8 +95,9 @@
           v-show="!publishSuccess"
           class="modal-button confirm"
           @click="confirmPublish"
+          :disabled="pendingSubmit"
         >
-          Publish
+          {{ pendingSubmit ? "Publishing..." : "Publish" }}
         </button>
         <button
           v-show="publishSuccess"
@@ -145,6 +147,8 @@ export default {
         { text: "Description added", val: this.publishCheck.descriptionExists },
       ],
       publishSuccess: false,
+      publishError: "",
+      pendingSubmit: false,
       canonicalUrl: null,
     };
   },
@@ -161,9 +165,12 @@ export default {
       this.showModal = false;
     },
     confirmPublish: function () {
+      if (this.pendingSubmit) return;
+      this.pendingSubmit = true;
+      this.publishError = "";
       const url = `/casebooks/${this.casebook}/publish/`;
 
-      Axios.post(url, {}).then(
+      return Axios.post(url, {}).then(
         this.handleSubmitResponse,
         this.handleSubmitErrors
       );
@@ -174,6 +181,11 @@ export default {
       }
     },
     handleSubmitResponse: function handleSubmitResponse(response) {
+      this.pendingSubmit = false;
+      if (typeof response.data?.url !== "string" || !response.data.url.startsWith("/")) {
+        this.handleSubmitErrors();
+        return;
+      }
       this.canonicalUrl = location.origin + response.data.url;
       this.publishSuccess = true;
       if (!this.publishCheck.isVerifiedProfessor) {
@@ -181,9 +193,8 @@ export default {
       }
     },
     handleSubmitErrors: function handleSubmitErrors(error) {
-      if (error.response.data) {
-        this.errors = error.response.data;
-      }
+      this.pendingSubmit = false;
+      this.publishError = "Publishing could not be confirmed. Check your casebook before trying again.";
     },
   },
 };

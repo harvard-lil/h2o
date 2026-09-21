@@ -2,7 +2,9 @@ import pytest
 from django.urls import reverse
 
 
-@pytest.mark.parametrize("endpoint,required_field", [("new_link", "url"), ("new_text", "name")])
+@pytest.mark.parametrize(
+    "endpoint,required_field", [("new_link", "url"), ("new_text", "name"), ("new_section", "title")]
+)
 @pytest.mark.parametrize("content_type", ["application/json", "multipart/form-data"])
 def test_empty_add_content_returns_field_errors(
     client, private_casebook, endpoint, required_field, content_type
@@ -37,3 +39,17 @@ def test_link_title_does_not_invalidate_resource(client, private_casebook, mocke
         lookup.assert_not_called()
     else:
         lookup.assert_called_once_with("https://example.com/")
+
+
+@pytest.mark.parametrize(
+    "title,code", [("", "required"), ("x" * 10001, "max_length")], ids=["empty", "too-long"]
+)
+def test_invalid_section_title_returns_json(client, private_casebook, title, code):
+    response = client.post(
+        reverse("new_section", args=[private_casebook]),
+        {"title": title},
+        as_user=private_casebook.testing_editor,
+    )
+    assert response.status_code == 400
+    assert response.json()["title"][0]["code"] == code
+    assert not private_casebook.contents.exists()

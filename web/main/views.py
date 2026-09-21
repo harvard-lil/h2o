@@ -1139,7 +1139,7 @@ def sign_up(request):
     >>> assert mailoutbox[1].subject == 'Welcome to H2O!'
     >>> assert settings.GUIDE_URL in mailoutbox[1].body
     """
-    form = SignupForm(request.POST or None, request=request)
+    form = SignupForm(request.POST if request.method == "POST" else None, request=request)
     if request.method == "POST":
         if form.is_valid():
             form.save()
@@ -1157,7 +1157,9 @@ def edit_user(request):
     """
     See tests/test_user_profile.py
     """
-    form = UserProfileForm(request.POST or None, instance=request.user, request=request)
+    form = UserProfileForm(
+        request.POST if request.method == "POST" else None, instance=request.user, request=request
+    )
     if request.method == "POST":
         if form.is_valid():
             form.save()
@@ -1696,7 +1698,11 @@ def edit_casebook(request: HttpRequest, casebook: Casebook):
         if settings.COVER_IMAGES and (request.user.is_superuser or request.user.verified_professor)
         else CasebookForm
     )
-    form = form_class(request.POST or None, request.FILES or None, instance=casebook)
+    form = form_class(
+        request.POST if request.method == "POST" else None,
+        request.FILES if request.method == "POST" else None,
+        instance=casebook,
+    )
     if request.method == "POST" and form.is_valid():
         form.save()
         return redirect("edit_casebook", casebook)
@@ -1835,7 +1841,7 @@ def new_section(request, casebook):
         >>> assert_url_equal(response, s_3.get_edit_url())
 
     """
-    form = SectionForm(request.POST or None)
+    form = SectionForm(request.POST)
     parent_section_id = request.POST.get("section", None)
     parent_section = Section.objects.get(id=parent_section_id) if parent_section_id else casebook
     if form.is_valid():
@@ -1850,7 +1856,7 @@ def new_section(request, casebook):
         fresh_section.save()
         return redirect(fresh_section.get_edit_url())
     else:
-        return JsonResponse(form.errors.as_data(), status=status.HTTP_400_BAD_REQUEST)
+        return JsonResponse(form.errors.get_json_data(), status=status.HTTP_400_BAD_REQUEST)
 
 
 @perms_test(
@@ -2245,7 +2251,7 @@ def edit_section(request, casebook, section):
     """
     # NB: The Rails app does NOT redirect here to a canonical URL; it silently accepts any slug.
     # Duplicating that here.
-    form = SectionForm(request.POST or None, instance=section)
+    form = SectionForm(request.POST if request.method == "POST" else None, instance=section)
     if request.method == "POST" and form.is_valid():
         form.save()
         return redirect("edit_section", casebook, section)
@@ -2477,14 +2483,15 @@ def edit_resource(request, casebook, resource):
     """
     if not (resource.is_resource or resource.is_temporary):
         return redirect("edit_section", casebook, resource)
-    form = ResourceForm(request.POST or None, instance=resource, request=request)
+    form_data = request.POST if request.method == "POST" else None
+    form = ResourceForm(form_data, instance=resource, request=request)
 
     # Let users edit Link and TextBlock resources directly from this page
     embedded_resource_form = None
     if resource.resource_type == "Link":
-        embedded_resource_form = LinkForm(request.POST or None, instance=resource.resource)
+        embedded_resource_form = LinkForm(form_data, instance=resource.resource)
     elif resource.resource_type == "TextBlock":
-        embedded_resource_form = TextBlockForm(request.POST or None, instance=resource.resource)
+        embedded_resource_form = TextBlockForm(form_data, instance=resource.resource)
 
     # Save changes, if appropriate
     if request.method == "POST":
