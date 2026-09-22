@@ -171,8 +171,19 @@ Gunicorn's 60-second timeout detects silent workers; with `gthread` it is not a
 per-request deadline, so a long export can continue while the worker is responsive.
 The 25-second graceful shutdown timeout fits inside ECS's default 30-second app
 stop timeout. The cloudflared sidecar drains before stopping the application.
-Access logs go to stdout and include response time in microseconds; errors go to
-stderr. No nginx or HEAD middleware is required: Gunicorn suppresses HEAD bodies.
+Access logs use [lil-request-logging](https://github.com/harvard-lil/lil-request-logging),
+written to stdout and collected by CloudWatch. Environment and release attribution
+match Sentry through `APP_CONFIG.TIER` and `H2O_RELEASE`. Errors go to stderr.
+
+H2O trusts client-IP headers from its loopback cloudflared sidecar; this assumes
+the task security group has no inbound rules. No nginx or HEAD middleware is
+required: Gunicorn suppresses HEAD bodies.
+
+Grafana's H2O production and staging dashboards are managed in `lil-terraform`.
+Apply queries that accept both legacy text and JSON records before rolling out
+this logger. Keep legacy parsing until old records expire and rollback no longer
+needs it. The logger dependency is pinned to a GitHub release wheel in `web/uv.lock`;
+upgrades require a normal application build and rollout, not an ECS logging change.
 
 To exercise Gunicorn alongside the local development server, run inside the web
 container from `/app/web`:

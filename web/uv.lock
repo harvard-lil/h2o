@@ -582,6 +582,7 @@ dependencies = [
     { name = "djangorestframework" },
     { name = "gunicorn" },
     { name = "invoke" },
+    { name = "lil-request-logging", extra = ["gunicorn"] },
     { name = "pillow" },
     { name = "psycopg2-binary" },
     { name = "pyquery" },
@@ -631,6 +632,7 @@ requires-dist = [
     { name = "djangorestframework", specifier = ">=3.18.1" },
     { name = "gunicorn", specifier = ">=26.2.0,<27" },
     { name = "invoke", specifier = ">=3.0.3" },
+    { name = "lil-request-logging", extras = ["gunicorn"], url = "https://github.com/harvard-lil/lil-request-logging/releases/download/v0.1.0/lil_request_logging-0.1.0-py3-none-any.whl" },
     { name = "pillow", specifier = ">=12.3.0" },
     { name = "psycopg2-binary", specifier = ">=2.9.13" },
     { name = "pyquery", specifier = ">=2.1.0" },
@@ -796,6 +798,23 @@ wheels = [
     { url = "https://files.pythonhosted.org/packages/80/b6/134afad262def1de04c0843c376d02135f1168af43f22e09a52bd8394727/librt-0.15.0-cp314-cp314t-win_amd64.whl", hash = "sha256:8e11699ed745931c395acd3621b07062e0f840efa6935aad87a64ed0995f0915", size = 127034, upload-time = "2026-08-07T10:48:22.561Z" },
     { url = "https://files.pythonhosted.org/packages/99/5f/1b6846b20572bd699c9e9ec321a5f781845bee477df2aa2a43b28bc40119/librt-0.15.0-cp314-cp314t-win_arm64.whl", hash = "sha256:5d2a91724463bfed4f573cd7a9fdc856d2e230d0c0e5a61416a93481dccd8605", size = 110827, upload-time = "2026-08-07T10:48:23.804Z" },
 ]
+
+[[package]]
+name = "lil-request-logging"
+version = "0.1.0"
+source = { url = "https://github.com/harvard-lil/lil-request-logging/releases/download/v0.1.0/lil_request_logging-0.1.0-py3-none-any.whl" }
+wheels = [
+    { url = "https://github.com/harvard-lil/lil-request-logging/releases/download/v0.1.0/lil_request_logging-0.1.0-py3-none-any.whl", hash = "sha256:e8d9b8b8a9c8c2f0434c9fa4e0dbb1baf5e4f9632c2b07fc28ac405134f0ec96" },
+]
+
+[package.optional-dependencies]
+gunicorn = [
+    { name = "gunicorn" },
+]
+
+[package.metadata]
+requires-dist = [{ name = "gunicorn", marker = "extra == 'gunicorn'", specifier = ">=23,<27" }]
+provides-extras = ["gunicorn"]
 
 [[package]]
 name = "lxml"

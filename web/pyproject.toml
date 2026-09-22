@@ -17,6 +17,7 @@ dependencies = [
     "djangorestframework>=3.18.1",
     "gunicorn>=26.2.0,<27",
     "invoke>=3.0.3",
+    "lil-request-logging[gunicorn]",
     "pillow>=12.3.0",
     "psycopg2-binary>=2.9.13",
     "pyquery>=2.1.0",
@@ -28,6 +29,9 @@ dependencies = [
 
 [tool.uv]
 package = false
+
+[tool.uv.sources]
+lil-request-logging = { url = "https://github.com/harvard-lil/lil-request-logging/releases/download/v0.1.0/lil_request_logging-0.1.0-py3-none-any.whl" }
 
 [tool.black]
 line-length = 100

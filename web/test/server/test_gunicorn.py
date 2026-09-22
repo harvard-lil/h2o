@@ -3,6 +3,7 @@
 import concurrent.futures
 from contextlib import closing
 import http.client
+import json
 import os
 from pathlib import Path
 import socket
@@ -51,13 +52,19 @@ def application(environ, start_response):
                 f"127.0.0.1:{port}",
                 "--workers",
                 "1",
+                "--worker-tmp-dir",
+                str(tmp_path),
                 "--chdir",
                 str(tmp_path),
                 "acceptance_app:application",
             ],
             stdout=log,
             stderr=log,
-            env={k: v for k, v in os.environ.items() if k != "GUNICORN_CMD_ARGS"},
+            env={
+                **{k: v for k, v in os.environ.items() if k != "GUNICORN_CMD_ARGS"},
+                "APP_CONFIG": json.dumps({"TIER": "test"}),
+                "H2O_RELEASE": "h2o@test-build",
+            },
         )
         try:
             for _ in range(100):
@@ -128,3 +135,21 @@ def test_sigterm_completes_inflight_request(server):
         process.terminate()
         assert future.result(timeout=5) == b"payload"
     assert process.wait(timeout=10) == 0
+
+
+def test_access_logging_configuration(server):
+    port, process, app = server
+    with closing(http.client.HTTPConnection("127.0.0.1", port, timeout=5)) as conn:
+        conn.request("GET", "/", headers={"CF-Connecting-IP": "192.0.2.1"})
+        assert conn.getresponse().read() == b"payload"
+    process.terminate()
+    assert process.wait(timeout=10) == 0
+    log = (app.parent / "server.log").read_text()
+    records = [json.loads(line) for line in log.splitlines() if line.startswith("{")]
+    assert len(records) == 1
+    record = records[0]
+    assert record["event"] == "http_access"
+    assert record["service"] == "h2o"
+    assert record["environment"] == "test"
+    assert record["release"] == "h2o@test-build"
+    assert record["client_ip"] == "192.0.2.1"
