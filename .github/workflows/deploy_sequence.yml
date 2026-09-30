@@ -280,7 +280,7 @@ jobs:
       # commands run against live traffic anyway. Keeping them above the release
       # would spend their runtime as downtime.
       #
-      # These four steps are h2o's own; the rest of this file is the shared
+      # These five steps are h2o's own; the rest of this file is the shared
       # sequence.
       - name: Create search index
         uses: harvard-lil/lil-actions/ecs-exec-command@main
@@ -298,11 +298,25 @@ jobs:
           container: ${{ env.CONTAINER_NAME }}
           command: 'invoke create-reporting-views'
 
+      # Scheduled jobs and consoles run the tier's standalone task definition:
+      # the web container alone, without the tunnel connector, which waits for a
+      # healthy web server that a job never becomes. See lil-terraform's
+      # modules/lil-ecs-standalone-task. It is pinned to the deployed digest
+      # here, after the rollout and migrations, so jobs and consoles reach new
+      # code only once the service is running it.
+      - name: Pin the standalone task to the promoted digest
+        id: standalone-task-def
+        uses: harvard-lil/lil-actions/ecs-register-task-def@main
+        with:
+          task-definition-family: ${{ env.TASK_DEFINITION_FAMILY }}-standalone
+          container-name: ${{ env.CONTAINER_NAME }}
+          image-uri: ${{ steps.login-ecr.outputs.registry }}/${{ env.ECR_REPOSITORY }}@${{ inputs.image-digest }}
+
       - name: Update scheduled tasks with new task definition
         uses: harvard-lil/lil-actions/ecs-update-eventbridge@main
         with:
           event-rules: ${{ env.EVENT_RULES }}
-          task-definition-arn: ${{ steps.task-def.outputs.task-definition-arn }}
+          task-definition-arn: ${{ steps.standalone-task-def.outputs.task-definition-arn }}
 
       # The export Lambda is part of this application and ships with it, from the
       # same commit as the web service. Deploying it anywhere else lets the two
