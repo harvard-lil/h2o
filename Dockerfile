@@ -2,7 +2,7 @@
 # base -- shared Python/uv layer. No app code. Not run directly.
 # =====================================================================
 FROM ghcr.io/astral-sh/uv:0.12.13 AS uv
-FROM node:24.21.0-trixie AS node
+FROM node:24.22.1-trixie AS node
 
 FROM python:3.14-trixie AS base
 
