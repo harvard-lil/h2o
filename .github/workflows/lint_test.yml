@@ -30,7 +30,7 @@ jobs:
       
       - name: Install locked Python dependencies
         run: |
-          python -m pip install uv==0.12.13
+          python -m pip install uv==0.13.5
           CPUCOUNT=1 uv sync --project web --locked
           uv lock --project docker/pandoc-lambda --check
 
