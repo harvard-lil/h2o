@@ -1,4 +1,4 @@
-FROM ghcr.io/astral-sh/uv:0.12.13 AS uv
+FROM ghcr.io/astral-sh/uv:0.13.5 AS uv
 FROM python:3.14-trixie
 COPY --from=uv /uv /uvx /usr/local/bin/
 ENV UV_PROJECT_ENVIRONMENT=/opt/venv \
